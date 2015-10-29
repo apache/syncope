@@ -30,6 +30,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 import javax.sql.DataSource;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +47,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -274,34 +276,6 @@ public abstract class AbstractITCase {
         return new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO(schema, value)).build();
     }
 
-    protected UserTO createUser(final UserTO userTO) {
-        return createUser(userTO, true);
-    }
-
-    protected UserTO createUser(final UserTO userTO, final boolean storePassword) {
-        Response response = userService.create(userTO, storePassword);
-        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
-            if (ex != null) {
-                throw (RuntimeException) ex;
-            }
-        }
-        return response.readEntity(UserTO.class);
-    }
-
-    protected UserTO readUser(final String username) {
-        return userService.read(Long.valueOf(
-                userService.getUserKey(username).getHeaderString(RESTHeaders.USER_KEY)));
-    }
-
-    protected UserTO updateUser(final UserPatch userPatch) {
-        return userService.update(userPatch).readEntity(UserTO.class);
-    }
-
-    protected UserTO deleteUser(final Long key) {
-        return userService.delete(key).readEntity(UserTO.class);
-    }
-
     public <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {
         WebClient webClient = WebClient.fromClient(WebClient.client(adminClient.getService(serviceClass)));
         webClient.accept(clientFactory.getContentType().getMediaType()).to(location.toASCIIString(), false);
@@ -333,7 +307,39 @@ public abstract class AbstractITCase {
         return getObject(response.getLocation(), RoleService.class, RoleTO.class);
     }
 
-    protected AnyObjectTO createAnyObject(final AnyObjectTO anyObjectTO) {
+    protected UserTO readUser(final String username) {
+        return userService.read(Long.valueOf(userService.getUserKey(username).getHeaderString(RESTHeaders.USER_KEY)));
+    }
+
+    protected ProvisioningResult<UserTO> createUser(final UserTO userTO) {
+        return createUser(userTO, true);
+    }
+
+    protected ProvisioningResult<UserTO> createUser(final UserTO userTO, final boolean storePassword) {
+        Response response = userService.create(userTO, storePassword);
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+        return response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        });
+    }
+
+    protected ProvisioningResult<UserTO> updateUser(final UserPatch userPatch) {
+        return userService.update(userPatch).
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                });
+    }
+
+    protected ProvisioningResult<UserTO> deleteUser(final Long key) {
+        return userService.delete(key).
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                });
+    }
+
+    protected ProvisioningResult<AnyObjectTO> createAnyObject(final AnyObjectTO anyObjectTO) {
         Response response = anyObjectService.create(anyObjectTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
@@ -341,18 +347,23 @@ public abstract class AbstractITCase {
                 throw (RuntimeException) ex;
             }
         }
-        return response.readEntity(AnyObjectTO.class);
+        return response.readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
+        });
     }
 
-    protected AnyObjectTO updateAnyObject(final AnyObjectPatch anyObjectPatch) {
-        return anyObjectService.update(anyObjectPatch).readEntity(AnyObjectTO.class);
+    protected ProvisioningResult<AnyObjectTO> updateAnyObject(final AnyObjectPatch anyObjectPatch) {
+        return anyObjectService.update(anyObjectPatch).
+                readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
+                });
     }
 
-    protected AnyObjectTO deleteAnyObject(final Long key) {
-        return anyObjectService.delete(key).readEntity(AnyObjectTO.class);
+    protected ProvisioningResult<AnyObjectTO> deleteAnyObject(final Long key) {
+        return anyObjectService.delete(key).
+                readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
+                });
     }
 
-    protected GroupTO createGroup(final GroupTO groupTO) {
+    protected ProvisioningResult<GroupTO> createGroup(final GroupTO groupTO) {
         Response response = groupService.create(groupTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
@@ -360,15 +371,20 @@ public abstract class AbstractITCase {
                 throw (RuntimeException) ex;
             }
         }
-        return response.readEntity(GroupTO.class);
+        return response.readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
+        });
     }
 
-    protected GroupTO updateGroup(final GroupPatch groupPatch) {
-        return groupService.update(groupPatch).readEntity(GroupTO.class);
+    protected ProvisioningResult<GroupTO> updateGroup(final GroupPatch groupPatch) {
+        return groupService.update(groupPatch).
+                readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
+                });
     }
 
-    protected GroupTO deleteGroup(final Long key) {
-        return groupService.delete(key).readEntity(GroupTO.class);
+    protected ProvisioningResult<GroupTO> deleteGroup(final Long key) {
+        return groupService.delete(key).
+                readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
+                });
     }
 
     @SuppressWarnings("unchecked")

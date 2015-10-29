@@ -44,7 +44,7 @@ public class UserSetStatusInSyncProcessor implements Processor {
         WorkflowResult<Map.Entry<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
 
         Boolean enabled = exchange.getProperty("enabled", Boolean.class);
-        Long key = exchange.getProperty("userKey", Long.class);
+        Long key = exchange.getProperty("key", Long.class);
 
         if (enabled != null) {
             User user = userDAO.find(key);

@@ -27,6 +27,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.ext.Provider;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AbstractAnnotatedBean;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 
 /**
  * Adds the <tt>ETag</tt> header to any response containing an instance of {@link AbstractAnnotatedBean} as entity.
@@ -37,11 +38,18 @@ public class AddETagFilter implements ContainerResponseFilter {
 
     @Override
     public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) throws IOException {
-        if (resCtx.getEntity() instanceof AbstractAnnotatedBean && resCtx.getEntityTag() == null) {
-            AbstractAnnotatedBean sysInfo = (AbstractAnnotatedBean) resCtx.getEntity();
-            String etagValue = sysInfo.getETagValue();
-            if (StringUtils.isNotBlank(etagValue)) {
-                resCtx.getHeaders().add(HttpHeaders.ETAG, new EntityTag(etagValue).toString());
+        if (resCtx.getEntityTag() == null) {
+            AbstractAnnotatedBean annotated = null;
+            if (resCtx.getEntity() instanceof AbstractAnnotatedBean) {
+                annotated = (AbstractAnnotatedBean) resCtx.getEntity();
+            } else if (resCtx.getEntity() instanceof ProvisioningResult) {
+                annotated = ((ProvisioningResult<?>) resCtx.getEntity()).getAny();
+            }
+            if (annotated != null) {
+                String etagValue = annotated.getETagValue();
+                if (StringUtils.isNotBlank(etagValue)) {
+                    resCtx.getHeaders().add(HttpHeaders.ETAG, new EntityTag(etagValue).toString());
+                }
             }
         }
     }

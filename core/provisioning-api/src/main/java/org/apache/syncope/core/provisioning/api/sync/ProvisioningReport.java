@@ -26,7 +26,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
-public class ProvisioningResult {
+public class ProvisioningReport {
 
     public enum Status {
 
@@ -130,9 +130,9 @@ public class ProvisioningResult {
      * @param level trace level
      * @return report as string
      */
-    public static String produceReport(final Collection<ProvisioningResult> results, final TraceLevel level) {
+    public static String produceReport(final Collection<ProvisioningReport> results, final TraceLevel level) {
         StringBuilder sb = new StringBuilder();
-        for (ProvisioningResult result : results) {
+        for (ProvisioningReport result : results) {
             sb.append(result.getReportString(level)).append('\n');
         }
         return sb.toString();

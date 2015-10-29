@@ -101,8 +101,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resource.setEnforceMandatoryCondition(resourceTO.isEnforceMandatoryCondition());
 
-        resource.setPropagationPrimary(resourceTO.isPropagationPrimary());
-
         resource.setPropagationPriority(resourceTO.getPropagationPriority());
 
         resource.setRandomPwdIfNotProvided(resourceTO.isRandomPwdIfNotProvided());
@@ -334,8 +332,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         }
 
         resourceTO.setEnforceMandatoryCondition(resource.isEnforceMandatoryCondition());
-
-        resourceTO.setPropagationPrimary(resource.isPropagationPrimary());
 
         resourceTO.setPropagationPriority(resource.getPropagationPriority());
 

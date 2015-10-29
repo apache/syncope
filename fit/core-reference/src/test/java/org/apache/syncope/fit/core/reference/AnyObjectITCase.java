@@ -57,7 +57,7 @@ public class AnyObjectITCase extends AbstractITCase {
     public void create() {
         AnyObjectTO anyObjectTO = getSampleTO("create");
 
-        anyObjectTO = createAnyObject(anyObjectTO);
+        anyObjectTO = createAnyObject(anyObjectTO).getAny();
         assertNotNull(anyObjectTO);
 
         ConnObjectTO connObjectTO =
@@ -78,10 +78,10 @@ public class AnyObjectITCase extends AbstractITCase {
         AnyObjectTO anyObjectTO = getSampleTO("deletable");
         anyObjectTO.setRealm("/even");
 
-        anyObjectTO = createAnyObject(anyObjectTO);
+        anyObjectTO = createAnyObject(anyObjectTO).getAny();
         assertNotNull(anyObjectTO);
 
-        AnyObjectTO deletedAnyObject = deleteAnyObject(anyObjectTO.getKey());
+        AnyObjectTO deletedAnyObject = deleteAnyObject(anyObjectTO.getKey()).getAny();
         assertNotNull(deletedAnyObject);
 
         try {
@@ -113,7 +113,7 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void update() {
         AnyObjectTO anyObjectTO = getSampleTO("update");
-        anyObjectTO = createAnyObject(anyObjectTO);
+        anyObjectTO = createAnyObject(anyObjectTO).getAny();
 
         assertEquals(1, anyObjectTO.getPlainAttrs().size());
 
@@ -122,7 +122,7 @@ public class AnyObjectITCase extends AbstractITCase {
         String newLocation = "new" + getUUIDString();
         anyObjectPatch.getPlainAttrs().add(attrAddReplacePatch("location", newLocation));
 
-        anyObjectTO = updateAnyObject(anyObjectPatch);
+        anyObjectTO = updateAnyObject(anyObjectPatch).getAny();
 
         assertEquals(newLocation, anyObjectTO.getPlainAttrMap().get("location").getValues().get(0));
     }
@@ -130,7 +130,7 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void readAttrs() {
         AnyObjectTO anyObjectTO = getSampleTO("readAttrs");
-        anyObjectTO = createAnyObject(anyObjectTO);
+        anyObjectTO = createAnyObject(anyObjectTO).getAny();
         assertNotNull(anyObjectTO);
 
         Set<AttrTO> attrs = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN);
@@ -143,7 +143,7 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void updateAttr() {
         AnyObjectTO anyObjectTO = getSampleTO("updateAttr");
-        anyObjectTO = createAnyObject(anyObjectTO);
+        anyObjectTO = createAnyObject(anyObjectTO).getAny();
         assertNotNull(anyObjectTO);
 
         AttrTO updated = attrTO("location", "newlocation");
@@ -156,7 +156,7 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void deleteAttr() {
         AnyObjectTO anyObjectTO = getSampleTO("deleteAttr");
-        anyObjectTO = createAnyObject(anyObjectTO);
+        anyObjectTO = createAnyObject(anyObjectTO).getAny();
         assertNotNull(anyObjectTO);
         assertNotNull(anyObjectTO.getPlainAttrMap().get("location"));
 

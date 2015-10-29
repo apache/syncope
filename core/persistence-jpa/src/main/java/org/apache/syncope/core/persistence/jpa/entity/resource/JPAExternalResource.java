@@ -100,18 +100,8 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     private List<JPAProvision> provisions = new ArrayList<>();
 
     /**
-     * Is this resource primary, for propagations?
-     */
-    @NotNull
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer propagationPrimary;
-
-    /**
      * Priority index for propagation ordering.
      */
-    @NotNull
     private Integer propagationPriority;
 
     /**
@@ -182,7 +172,6 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
         super();
 
         enforceMandatoryCondition = getBooleanAsInteger(false);
-        propagationPrimary = 0;
         propagationPriority = 0;
         randomPwdIfNotProvided = 0;
         overrideCapabilities = 0;
@@ -251,16 +240,6 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     @Override
     public List<? extends Provision> getProvisions() {
         return provisions;
-    }
-
-    @Override
-    public boolean isPropagationPrimary() {
-        return isBooleanAsInteger(propagationPrimary);
-    }
-
-    @Override
-    public void setPropagationPrimary(final boolean propagationPrimary) {
-        this.propagationPrimary = getBooleanAsInteger(propagationPrimary);
     }
 
     @Override

@@ -51,10 +51,10 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
 
     @Override
     protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {
-        final ApplicationContext ctx = ((ConfigurableApplicationContext) schedulerContext.get("applicationContext"));
+        ApplicationContext ctx = ((ConfigurableApplicationContext) schedulerContext.get("applicationContext"));
 
-        final Object job = ctx.getBean(bundle.getJobDetail().getKey().getName());
-        final BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(job);
+        Object job = ctx.getBean(bundle.getJobDetail().getKey().getName());
+        BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(job);
         if (isEligibleForPropertyPopulation(wrapper.getWrappedInstance())) {
             final MutablePropertyValues pvs = new MutablePropertyValues();
             if (this.schedulerContext != null) {

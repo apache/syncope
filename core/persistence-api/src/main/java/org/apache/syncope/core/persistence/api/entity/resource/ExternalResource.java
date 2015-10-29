@@ -87,10 +87,6 @@ public interface ExternalResource extends AnnotatedEntity<String> {
 
     void setEnforceMandatoryCondition(boolean enforce);
 
-    boolean isPropagationPrimary();
-
-    void setPropagationPrimary(boolean condition);
-
     boolean isRandomPwdIfNotProvided();
 
     void setRandomPwdIfNotProvided(boolean condition);

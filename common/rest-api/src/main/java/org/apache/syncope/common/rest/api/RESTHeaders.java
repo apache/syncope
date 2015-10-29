@@ -34,6 +34,11 @@ public final class RESTHeaders {
     public static final String RESOURCE_KEY = "X-Syncope-Key";
 
     /**
+     * Asks for asynchronous propagation towards external resources with null priority.
+     */
+    public static final String NULL_PRIORITY_ASYNC = "X-Syncope-Null-Priority-Async";
+
+    /**
      * Declares the type of exception being raised.
      *
      * @see org.apache.syncope.common.lib.types.ClientExceptionType

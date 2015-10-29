@@ -148,11 +148,11 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
             try {
                 switch (patch.getAction()) {
                     case DEPROVISION:
-                        associator.deprovision(anyKey, resources);
+                        associator.deprovision(anyKey, resources, isNullPriorityAsync());
                         break;
 
                     case UNASSIGN:
-                        associator.unassign(anyKey, resources);
+                        associator.unassign(anyKey, resources, isNullPriorityAsync());
                         break;
 
                     case UNLINK:

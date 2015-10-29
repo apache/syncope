@@ -32,8 +32,14 @@ under the License.
 
   <!-- Used by AsyncConnectorFacade -->
   <task:annotation-driven executor="AsyncConnectorFacadeExecutor"/>
-  <task:executor id="AsyncConnectorFacadeExecutor" pool-size="${asyncConnectorFacadeExecutor.poolSize}"/>
-  
+  <task:executor id="AsyncConnectorFacadeExecutor"
+                 pool-size="${asyncConnectorFacadeExecutor.poolSize}"/>
+
+  <!-- Used by PriorityPropagationTaskExecutor -->
+  <task:executor id="propagationTaskExecutorAsyncExecutor"
+                 pool-size="${propagationTaskExecutorAsyncExecutor.poolSize}"
+                 queue-capacity="${propagationTaskExecutorAsyncExecutor.queueCapacity}"
+                 rejection-policy="ABORT"/>
   <bean class="${propagationTaskExecutor}"/>
   
   <bean class="${userProvisioningManager}"/>
@@ -60,7 +66,7 @@ under the License.
   </bean>
 
   <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
-        lazy-init="false" depends-on="quartzDataSourceInit">
+      lazy-init="false" depends-on="quartzDataSourceInit">
     <property name="autoStartup" value="true"/>
     <property name="applicationContextSchedulerContextKey" value="applicationContext"/>
     <property name="waitForJobsToCompleteOnShutdown" value="true"/>

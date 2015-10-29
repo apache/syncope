@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
@@ -156,8 +157,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
     @Override
     public Response create(final TO anyTO) {
-        TO created = getAnyLogic().create(anyTO);
-        return createResponse(created.getKey(), created);
+        ProvisioningResult<TO> created = getAnyLogic().create(anyTO, isNullPriorityAsync());
+        return createResponse(created);
     }
 
     @Override
@@ -166,7 +167,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
         checkETag(any.getETagValue());
 
-        TO updated = getAnyLogic().update(anyPatch);
+        ProvisioningResult<TO> updated = getAnyLogic().update(anyPatch, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 
@@ -197,7 +198,6 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Response update(final Long key, final SchemaType schemaType, final AttrTO attrTO) {
         addUpdateOrReplaceAttr(key, schemaType, attrTO, PatchOperation.ADD_REPLACE);
         return modificationResponse(read(key, schemaType, attrTO.getSchema()));
@@ -209,8 +209,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
         checkETag(before.getETagValue());
 
-        @SuppressWarnings("unchecked")
-        TO updated = getAnyLogic().update((P) AnyOperations.diff(anyTO, before, false));
+        ProvisioningResult<TO> updated =
+                getAnyLogic().update(AnyOperations.<TO, P>diff(anyTO, before, false), isNullPriorityAsync());
         return modificationResponse(updated);
     }
 
@@ -225,7 +225,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
         checkETag(group.getETagValue());
 
-        TO deleted = getAnyLogic().delete(key);
+        ProvisioningResult<TO> deleted = getAnyLogic().delete(key, isNullPriorityAsync());
         return modificationResponse(deleted);
     }
 
@@ -235,22 +235,24 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
         checkETag(any.getETagValue());
 
-        TO updated;
+        ProvisioningResult<TO> updated;
         switch (patch.getAction()) {
             case UNLINK:
-                updated = getAnyLogic().unlink(patch.getKey(), patch.getResources());
+                updated = new ProvisioningResult<>();
+                updated.setAny(getAnyLogic().unlink(patch.getKey(), patch.getResources()));
                 break;
 
             case UNASSIGN:
-                updated = getAnyLogic().unassign(patch.getKey(), patch.getResources());
+                updated = getAnyLogic().unassign(patch.getKey(), patch.getResources(), isNullPriorityAsync());
                 break;
 
             case DEPROVISION:
-                updated = getAnyLogic().deprovision(patch.getKey(), patch.getResources());
+                updated = getAnyLogic().deprovision(patch.getKey(), patch.getResources(), isNullPriorityAsync());
                 break;
 
             default:
-                updated = getAnyLogic().read(patch.getKey());
+                updated = new ProvisioningResult<>();
+                updated.setAny(getAnyLogic().read(patch.getKey()));
         }
 
         BulkActionResult result = new BulkActionResult();
@@ -258,12 +260,12 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         if (patch.getAction() == ResourceDeassociationAction.UNLINK) {
             for (String resource : patch.getResources()) {
                 result.getResults().put(resource,
-                        updated.getResources().contains(resource)
+                        updated.getAny().getResources().contains(resource)
                                 ? BulkActionResult.Status.FAILURE
                                 : BulkActionResult.Status.SUCCESS);
             }
         } else {
-            for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
+            for (PropagationStatus propagationStatusTO : updated.getPropagationStatuses()) {
                 result.getResults().put(propagationStatusTO.getResource(),
                         BulkActionResult.Status.valueOf(propagationStatusTO.getStatus().toString()));
             }
@@ -278,12 +280,13 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
         checkETag(any.getETagValue());
 
-        TO updated;
+        ProvisioningResult<TO> updated;
         switch (patch.getAction()) {
             case LINK:
-                updated = getAnyLogic().link(
+                updated = new ProvisioningResult<>();
+                updated.setAny(getAnyLogic().link(
                         patch.getKey(),
-                        patch.getResources());
+                        patch.getResources()));
                 break;
 
             case ASSIGN:
@@ -291,7 +294,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                         patch.getKey(),
                         patch.getResources(),
                         patch.getValue() != null,
-                        patch.getValue());
+                        patch.getValue(),
+                        isNullPriorityAsync());
                 break;
 
             case PROVISION:
@@ -299,11 +303,13 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                         patch.getKey(),
                         patch.getResources(),
                         patch.getValue() != null,
-                        patch.getValue());
+                        patch.getValue(),
+                        isNullPriorityAsync());
                 break;
 
             default:
-                updated = getAnyLogic().read(patch.getKey());
+                updated = new ProvisioningResult<>();
+                updated.setAny(getAnyLogic().read(patch.getKey()));
         }
 
         BulkActionResult result = new BulkActionResult();
@@ -311,12 +317,12 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         if (patch.getAction() == ResourceAssociationAction.LINK) {
             for (String resource : patch.getResources()) {
                 result.getResults().put(resource,
-                        updated.getResources().contains(resource)
+                        updated.getAny().getResources().contains(resource)
                                 ? BulkActionResult.Status.FAILURE
                                 : BulkActionResult.Status.SUCCESS);
             }
         } else {
-            for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
+            for (PropagationStatus propagationStatusTO : updated.getPropagationStatuses()) {
                 result.getResults().put(propagationStatusTO.getResource(),
                         BulkActionResult.Status.valueOf(propagationStatusTO.getStatus().toString()));
             }
@@ -336,7 +342,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 for (String key : bulkAction.getTargets()) {
                     try {
                         result.getResults().put(
-                                String.valueOf(logic.delete(Long.valueOf(key)).getKey()),
+                                String.valueOf(logic.delete(Long.valueOf(key), isNullPriorityAsync()).
+                                        getAny().getKey()),
                                 BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing delete for user {}", key, e);
@@ -353,7 +360,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                         statusPatch.setType(StatusPatchType.SUSPEND);
                         try {
                             result.getResults().put(
-                                    String.valueOf(((UserLogic) logic).status(statusPatch).getKey()),
+                                    String.valueOf(((UserLogic) logic).
+                                            status(statusPatch, isNullPriorityAsync()).getAny().getKey()),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing suspend for user {}", key, e);
@@ -370,7 +378,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                     statusPatch.setType(StatusPatchType.REACTIVATE);
                     try {
                         result.getResults().put(
-                                String.valueOf(((UserLogic) logic).status(statusPatch).getKey()),
+                                String.valueOf(((UserLogic) logic).
+                                        status(statusPatch, isNullPriorityAsync()).getAny().getKey()),
                                 BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing reactivate for user {}", key, e);

@@ -801,7 +801,7 @@ under the License.
         <artifactId>avalon-framework-impl</artifactId>
         <version>4.3.1</version>
       </dependency>
-      
+            
       <!-- Activiti -->
       <dependency>
         <groupId>org.activiti</groupId>
@@ -1282,7 +1282,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>2.4.1</version>
+          <version>2.4.2</version>
         </plugin>
         
         <plugin>
@@ -1663,7 +1663,7 @@ under the License.
                       <link>http://camel.apache.org/maven/current/camel-core/apidocs/</link>
                       <link>http://camel.apache.org/maven/current/camel-spring/apidocs/</link>
                       <link>http://ci.apache.org/projects/wicket/apidocs/7.x/</link>
-                      <link>http://docs.spring.io/spring/docs/4.1.x/javadoc-api/</link>
+                      <link>http://docs.spring.io/spring/docs/4.2.x/javadoc-api/</link>
                       <link>http://docs.spring.io/spring-security/site/docs/4.0.x/apidocs/</link>
                       <link>http://activiti.org/javadocs/</link>
                     </links>

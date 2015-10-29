@@ -31,6 +31,8 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -111,16 +113,6 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
         return ImmutablePair.of(any, actions);
     }
 
-    protected TO afterCreate(final TO input, final List<LogicActions> actions) {
-        TO any = input;
-
-        for (LogicActions action : actions) {
-            any = action.afterCreate(any);
-        }
-
-        return any;
-    }
-
     protected Pair<P, List<LogicActions>> beforeUpdate(final P input, final String realmPath) {
         Realm realm = realmDAO.find(realmPath);
         if (realm == null) {
@@ -139,16 +131,6 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
         LOG.debug("Input: {}\nOutput: {}\n", input, mod);
 
         return ImmutablePair.of(mod, actions);
-    }
-
-    protected TO afterUpdate(final TO input, final List<LogicActions> actions) {
-        TO any = input;
-
-        for (LogicActions action : actions) {
-            any = action.afterUpdate(any);
-        }
-
-        return any;
     }
 
     protected Pair<TO, List<LogicActions>> beforeDelete(final TO input) {
@@ -171,14 +153,20 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
         return ImmutablePair.of(any, actions);
     }
 
-    protected TO afterDelete(final TO input, final List<LogicActions> actions) {
+    protected ProvisioningResult<TO> after(
+            final TO input, final List<PropagationStatus> statuses, final List<LogicActions> actions) {
+
         TO any = input;
 
         for (LogicActions action : actions) {
-            any = action.afterDelete(any);
+            any = action.afterCreate(any);
         }
 
-        return any;
+        ProvisioningResult<TO> result = new ProvisioningResult<>();
+        result.setAny(any);
+        result.getPropagationStatuses().addAll(statuses);
+
+        return result;
     }
 
     private static class StartsWithPredicate implements Predicate<String> {
@@ -238,11 +226,11 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
 
     public abstract int count(List<String> realms);
 
-    public abstract TO create(TO anyTO);
+    public abstract ProvisioningResult<TO> create(TO anyTO, boolean nullPriorityAsync);
 
-    public abstract TO update(P anyPatch);
+    public abstract ProvisioningResult<TO> update(P anyPatch, boolean nullPriorityAsync);
 
-    public abstract TO delete(Long key);
+    public abstract ProvisioningResult<TO> delete(Long key, boolean nullPriorityAsync);
 
     public abstract List<TO> list(
             int page, int size, List<OrderByClause> orderBy,

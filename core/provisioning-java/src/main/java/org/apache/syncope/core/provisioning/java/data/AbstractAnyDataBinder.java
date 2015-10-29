@@ -681,7 +681,10 @@ abstract class AbstractAnyDataBinder {
                             + " on resource '" + resource.getKey() + "'");
                 }
 
-                connObjectKeys.put(resource.getKey(), mappingUtils.getConnObjectKeyValue(any, provision));
+                String connObjectKey = mappingUtils.getConnObjectKeyValue(any, provision);
+                if (connObjectKey != null) {
+                    connObjectKeys.put(resource.getKey(), connObjectKey);
+                }
             }
         }
 

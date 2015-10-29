@@ -22,6 +22,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -64,8 +65,8 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> imple
 
     @Override
     public Response create(final UserTO userTO, final boolean storePassword) {
-        UserTO created = logic.create(userTO, storePassword);
-        return createResponse(created.getKey(), created);
+        ProvisioningResult<UserTO> created = logic.create(userTO, storePassword, isNullPriorityAsync());
+        return createResponse(created);
     }
 
     @Override
@@ -74,7 +75,7 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> imple
 
         checkETag(user.getETagValue());
 
-        UserTO updated = logic.status(statusPatch);
+        ProvisioningResult<UserTO> updated = logic.status(statusPatch, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 }

@@ -111,7 +111,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      *
      * @param anyTO any object to be created
      * @return Response object featuring Location header of created any object as well as the any
-     * object itself enriched with propagation status information - AnyTO as Entity
+     * object itself enriched with propagation status information - ProvisioningResult as Entity
      */
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -123,7 +123,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      *
      * @param anyPatch modification to be applied to any object matching the provided key
      * @return Response object featuring the updated any object enriched with propagation status information
-     * - AnyTO as Entity
+     * - ProvisioningResult as Entity
      */
     @PATCH
     @Path("{key}")
@@ -153,7 +153,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      *
      * @param anyTO complete update
      * @return Response object featuring the updated any object enriched with propagation status information
-     * - AnyTO as Entity
+     * - ProvisioningResult as Entity
      */
     @PUT
     @Path("{key}")
@@ -182,7 +182,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      *
      * @param key key of any object to be deleted
      * @return Response object featuring the deleted any object enriched with propagation status information
-     * - AnyTO as Entity
+     * - ProvisioningResult as Entity
      */
     @DELETE
     @Path("{key}")

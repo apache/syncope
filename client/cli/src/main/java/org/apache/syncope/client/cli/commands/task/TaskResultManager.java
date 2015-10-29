@@ -113,7 +113,7 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     latest execution status: "
                 + propagationTaskTO.getLatestExecStatus());
         System.out.println("     class name: " + propagationTaskTO.getObjectClassName());
-        System.out.println("     xml attribute: " + propagationTaskTO.getXmlAttributes());
+        System.out.println("     attributes: " + propagationTaskTO.getAttributes());
         System.out.println("     start date: " + propagationTaskTO.getStartDate());
         System.out.println("     end date: " + propagationTaskTO.getEndDate());
         System.out.println("     operation: " + propagationTaskTO.getOperation());

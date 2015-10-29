@@ -34,7 +34,7 @@ public class ProvisioningProfile<T extends ProvisioningTask, A extends Provision
 
     private final T task;
 
-    private final List<ProvisioningResult> results = new ArrayList<>();
+    private final List<ProvisioningReport> results = new ArrayList<>();
 
     private boolean dryRun;
 
@@ -55,7 +55,7 @@ public class ProvisioningProfile<T extends ProvisioningTask, A extends Provision
         return task;
     }
 
-    public Collection<ProvisioningResult> getResults() {
+    public Collection<ProvisioningReport> getResults() {
         return results;
     }
 

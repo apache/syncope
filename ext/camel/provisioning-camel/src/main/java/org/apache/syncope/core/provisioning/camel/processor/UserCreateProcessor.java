@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
@@ -55,6 +54,7 @@ public class UserCreateProcessor implements Processor {
             WorkflowResult<Pair<Long, Boolean>> created = (WorkflowResult) exchange.getIn().getBody();
             UserTO actual = exchange.getProperty("actual", UserTO.class);
             Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
+            Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
             List<PropagationTask> tasks = propagationManager.getUserCreateTasks(
                     created.getResult().getKey(),
@@ -65,12 +65,7 @@ public class UserCreateProcessor implements Processor {
                     excludedResources);
             PropagationReporter propagationReporter =
                     ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-            try {
-                taskExecutor.execute(tasks, propagationReporter);
-            } catch (PropagationException e) {
-                LOG.error("Error propagation primary resource {}", e);
-                propagationReporter.onPrimaryResourceFailure(tasks);
-            }
+            taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
             exchange.getOut().setBody(
                     new ImmutablePair<>(created.getResult().getKey(), propagationReporter.getStatuses()));

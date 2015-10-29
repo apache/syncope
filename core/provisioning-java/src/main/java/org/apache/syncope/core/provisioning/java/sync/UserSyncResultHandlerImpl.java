@@ -32,7 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.sync.UserSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 
@@ -83,13 +83,13 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningResult result) {
+    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningReport result) {
         UserTO userTO = UserTO.class.cast(anyTO);
 
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
         Map.Entry<Long, List<PropagationStatus>> created =
                 userProvisioningManager.create(userTO, true, true, enabled,
-                        Collections.singleton(profile.getTask().getResource().getKey()));
+                        Collections.singleton(profile.getTask().getResource().getKey()), true);
 
         result.setKey(created.getKey());
         result.setName(getName(anyTO));
@@ -102,16 +102,17 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
             final AnyTO before,
             final AnyPatch anyPatch,
             final SyncDelta delta,
-            final ProvisioningResult result) {
+            final ProvisioningReport result) {
 
         UserPatch userPatch = UserPatch.class.cast(anyPatch);
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
 
         Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.update(
-                userPatch, before.getKey(),
+                userPatch,
                 result,
                 enabled,
-                Collections.singleton(profile.getTask().getResource().getKey()));
+                Collections.singleton(profile.getTask().getResource().getKey()),
+                true);
 
         return getAnyTO(updated.getKey());
     }
@@ -119,8 +120,8 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     @Override
     protected void doDelete(final AnyTypeKind kind, final Long key) {
         try {
-            userProvisioningManager.
-                    delete(key, Collections.<String>singleton(profile.getTask().getResource().getKey()));
+            userProvisioningManager.delete(
+                    key, Collections.<String>singleton(profile.getTask().getResource().getKey()), true);
         } catch (Exception e) {
             // A propagation failure doesn't imply a synchronization failure.
             // The propagation exception status will be reported into the propagation task execution.

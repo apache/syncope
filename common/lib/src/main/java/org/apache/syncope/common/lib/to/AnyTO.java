@@ -58,8 +58,6 @@ public abstract class AnyTO extends ConnObjectTO {
 
     private final Set<String> resources = new HashSet<>();
 
-    private final List<PropagationStatus> propagationStatusTOs = new ArrayList<>();
-
     public long getKey() {
         return key;
     }
@@ -138,13 +136,6 @@ public abstract class AnyTO extends ConnObjectTO {
     @JsonProperty("resources")
     public Set<String> getResources() {
         return resources;
-    }
-
-    @XmlElementWrapper(name = "propagationStatuses")
-    @XmlElement(name = "propagationStatus")
-    @JsonProperty("propagationStatuses")
-    public List<PropagationStatus> getPropagationStatusTOs() {
-        return propagationStatusTOs;
     }
 
 }

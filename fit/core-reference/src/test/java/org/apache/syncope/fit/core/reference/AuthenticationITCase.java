@@ -28,6 +28,7 @@ import java.security.AccessControlException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
@@ -45,6 +46,7 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
@@ -140,7 +142,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("auth@test.org");
         userTO.getRoles().add(roleTO.getKey());
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         // 3. read the schema created above (as admin) - success
@@ -170,7 +172,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("testuserread@test.org");
         userTO.getRoles().add(2L);
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
@@ -195,7 +197,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("testusersearch@test.org");
         userTO.getRoles().add(1L);
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         // 1. user assigned to role 1, with search entitlement on realms /odd and /even: won't find anything with 
@@ -257,7 +259,7 @@ public class AuthenticationITCase extends AbstractITCase {
             // 2. as admin, create delegated admin user, and assign the role just created
             UserTO delegatedAdmin = UserITCase.getUniqueSampleTO("admin@syncope.apache.org");
             delegatedAdmin.getRoles().add(roleKey);
-            delegatedAdmin = createUser(delegatedAdmin);
+            delegatedAdmin = createUser(delegatedAdmin).getAny();
             delegatedAdminKey = delegatedAdmin.getKey();
 
             // 3. instantiate a delegate user service client, for further operatins
@@ -279,7 +281,8 @@ public class AuthenticationITCase extends AbstractITCase {
             Response response = delegatedUserService.create(user);
             assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
-            user = response.readEntity(UserTO.class);
+            user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+            }).getAny();
             assertEquals("surname", user.getPlainAttrMap().get("surname").getValues().get(0));
 
             // 5. as delegated, update user attempting to move under realm / -> fail
@@ -301,7 +304,8 @@ public class AuthenticationITCase extends AbstractITCase {
             response = delegatedUserService.update(userPatch);
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
-            user = response.readEntity(UserTO.class);
+            user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+            }).getAny();
             assertEquals("surname2", user.getPlainAttrMap().get("surname").getValues().get(0));
 
             // 7. as delegated, delete user
@@ -328,7 +332,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("checkFailedLogin@syncope.apache.org");
         userTO.getRoles().add(2L);
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
         long userId = userTO.getKey();
 
@@ -354,7 +358,7 @@ public class AuthenticationITCase extends AbstractITCase {
         userTO.setRealm("/odd");
         userTO.getRoles().add(2L);
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         long userKey = userTO.getKey();
         assertNotNull(userTO);
 
@@ -384,7 +388,8 @@ public class AuthenticationITCase extends AbstractITCase {
         StatusPatch reactivate = new StatusPatch();
         reactivate.setKey(userTO.getKey());
         reactivate.setType(StatusPatchType.REACTIVATE);
-        userTO = userService.status(reactivate).readEntity(UserTO.class);
+        userTO = userService.status(reactivate).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getAny();
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
@@ -399,7 +404,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
         userTO.getMemberships().add(new MembershipTO.Builder().group(9L).build());
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
         assertEquals("createApproval", userTO.getStatus());
 
@@ -437,7 +442,7 @@ public class AuthenticationITCase extends AbstractITCase {
         user.setRealm("/even/two");
         user.setPassword("password123");
         user.getResources().add(RESOURCE_NAME_TESTDB);
-        user = createUser(user);
+        user = createUser(user).getAny();
         assertNotNull(user);
 
         // 2. unlink the resource from the created user
@@ -451,7 +456,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(user.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().value("password234").build());
-        user = updateUser(userPatch);
+        user = updateUser(userPatch).getAny();
         assertNotNull(user);
 
         // 4. check that the db resource has still the initial password value

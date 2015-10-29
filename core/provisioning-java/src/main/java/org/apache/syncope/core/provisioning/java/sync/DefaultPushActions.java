@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java.sync;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.quartz.JobExecutionException;
 
 /**
@@ -77,7 +77,7 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public <A extends Any<?, ?>> void onError(
-            final ProvisioningProfile<?, ?> profile, final A any, final ProvisioningResult result,
+            final ProvisioningProfile<?, ?> profile, final A any, final ProvisioningReport result,
             final Exception error) throws JobExecutionException {
 
         // do nothing
@@ -85,7 +85,7 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public <A extends Any<?, ?>> void after(
-            final ProvisioningProfile<?, ?> profile, final A any, final ProvisioningResult result)
+            final ProvisioningProfile<?, ?> profile, final A any, final ProvisioningReport result)
             throws JobExecutionException {
 
         // do nothing

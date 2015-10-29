@@ -68,7 +68,7 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
      * Attributes to be propagated.
      */
     @Lob
-    private String xmlAttributes;
+    private String attributes;
 
     private String objectClassName;
 
@@ -111,18 +111,23 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     }
 
     @Override
+    public String getSerializedAttributes() {
+        return this.attributes;
+    }
+
+    @Override
     public Set<Attribute> getAttributes() {
-        Set<Attribute> attributes = new HashSet<>();
-        if (!StringUtils.isBlank(xmlAttributes)) {
-            CollectionUtils.addAll(attributes, POJOHelper.deserialize(xmlAttributes, Attribute[].class));
+        Set<Attribute> result = new HashSet<>();
+        if (StringUtils.isNotBlank(this.attributes)) {
+            CollectionUtils.addAll(result, POJOHelper.deserialize(this.attributes, Attribute[].class));
         }
 
-        return attributes;
+        return result;
     }
 
     @Override
     public void setAttributes(final Set<Attribute> attributes) {
-        xmlAttributes = POJOHelper.serialize(attributes);
+        this.attributes = POJOHelper.serialize(attributes);
     }
 
     @Override

@@ -145,7 +145,7 @@ public interface PushActions extends ProvisioningActions {
     <A extends Any<?, ?>> void onError(
             ProvisioningProfile<?, ?> profile,
             A any,
-            ProvisioningResult result,
+            ProvisioningReport result,
             Exception error) throws JobExecutionException;
 
     /**
@@ -160,5 +160,5 @@ public interface PushActions extends ProvisioningActions {
     <A extends Any<?, ?>> void after(
             ProvisioningProfile<?, ?> profile,
             A any,
-            ProvisioningResult result) throws JobExecutionException;
+            ProvisioningReport result) throws JobExecutionException;
 }

@@ -28,22 +28,22 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 
 public interface ProvisioningManager<T extends AnyTO, P extends AnyPatch> {
 
-    Pair<Long, List<PropagationStatus>> create(T anyTO);
+    Pair<Long, List<PropagationStatus>> create(T anyTO, boolean nullPriorityAsync);
 
-    Pair<Long, List<PropagationStatus>> create(T anyTO, Set<String> excludedResources);
+    Pair<Long, List<PropagationStatus>> create(T anyTO, Set<String> excludedResources, boolean nullPriorityAsync);
 
-    Pair<Long, List<PropagationStatus>> update(P anyMod);
+    Pair<Long, List<PropagationStatus>> update(P patch, boolean nullPriorityAsync);
 
-    Pair<Long, List<PropagationStatus>> update(P anyMod, Set<String> excludedResources);
+    Pair<Long, List<PropagationStatus>> update(P patch, Set<String> excludedResources, boolean nullPriorityAsync);
 
-    List<PropagationStatus> delete(Long anyKey);
+    List<PropagationStatus> delete(Long anyKey, boolean nullPriorityAsync);
 
-    List<PropagationStatus> delete(Long anyKey, Set<String> excludedResources);
+    List<PropagationStatus> delete(Long anyKey, Set<String> excludedResources, boolean nullPriorityAsync);
 
     Long unlink(P anyMod);
 
     Long link(P anyMod);
 
-    List<PropagationStatus> deprovision(Long anyKey, Collection<String> resources);
+    List<PropagationStatus> deprovision(Long anyKey, Collection<String> resources, boolean nullPriorityAsync);
 
 }

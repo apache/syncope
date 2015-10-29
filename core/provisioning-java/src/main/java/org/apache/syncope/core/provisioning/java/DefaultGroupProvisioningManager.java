@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -42,7 +40,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
@@ -51,8 +48,6 @@ import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 
 public class DefaultGroupProvisioningManager implements GroupProvisioningManager {
-
-    private static final Logger LOG = LoggerFactory.getLogger(GroupProvisioningManager.class);
 
     @Autowired
     protected GroupWorkflowAdapter gwfAdapter;
@@ -70,12 +65,14 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     protected VirAttrHandler virtAttrHandler;
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final GroupTO group) {
-        return create(group, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> create(final GroupTO group, final boolean nullPriorityAsync) {
+        return create(group, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final GroupTO groupTO, final Set<String> excludedResources) {
+    public Pair<Long, List<PropagationStatus>> create(
+            final GroupTO groupTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+
         WorkflowResult<Long> created = gwfAdapter.create(groupTO);
 
         List<PropagationTask> tasks = propagationManager.getCreateTasks(
@@ -86,19 +83,17 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
     public Pair<Long, List<PropagationStatus>> create(
-            final GroupTO groupTO, final Map<Long, String> groupOwnerMap, final Set<String> excludedResources) {
+            final GroupTO groupTO,
+            final Map<Long, String> groupOwnerMap,
+            final Set<String> excludedResources,
+            final boolean nullPriorityAsync) {
 
         WorkflowResult<Long> created = gwfAdapter.create(groupTO);
 
@@ -116,24 +111,19 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         return new ImmutablePair<>(created.getResult(), null);
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final GroupPatch groupPatch) {
-        return update(groupPatch, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> update(final GroupPatch groupPatch, final boolean nullPriorityAsync) {
+        return update(groupPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     public Pair<Long, List<PropagationStatus>> update(
-            final GroupPatch groupPatch, final Set<String> excludedResources) {
+            final GroupPatch groupPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         WorkflowResult<Long> updated = gwfAdapter.update(groupPatch);
 
@@ -147,23 +137,20 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         return new ImmutablePair<>(updated.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long key) {
-        return delete(key, Collections.<String>emptySet());
+    public List<PropagationStatus> delete(final Long key, final boolean nullPriorityAsync) {
+        return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long key, final Set<String> excludedResources) {
+    public List<PropagationStatus> delete(
+            final Long key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+
         List<PropagationTask> tasks = new ArrayList<>();
 
         // Generate propagation tasks for deleting users and any objects from group resources, 
@@ -196,12 +183,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         gwfAdapter.delete(key);
 
@@ -215,7 +197,9 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public List<PropagationStatus> provision(final Long key, final Collection<String> resources) {
+    public List<PropagationStatus> provision(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.UPDATE, resources);
 
@@ -229,17 +213,15 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+
         return propagationReporter.getStatuses();
     }
 
     @Override
-    public List<PropagationStatus> deprovision(final Long key, final Collection<String> resources) {
+    public List<PropagationStatus> deprovision(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.DELETE, resources);
 
@@ -250,12 +232,8 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 CollectionUtils.removeAll(groupDAO.authFind(key).getResourceNames(), resources));
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+
         return propagationReporter.getStatuses();
     }
 

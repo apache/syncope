@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.Realm;

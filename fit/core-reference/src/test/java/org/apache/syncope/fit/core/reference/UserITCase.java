@@ -33,13 +33,17 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.naming.NamingException;
 import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.common.util.Base64Utility;
@@ -72,6 +76,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -164,12 +169,12 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
-        long newMaxId = tasks.getResult().iterator().next().getKey();
+        long newMaxKey = tasks.getResult().iterator().next().getKey();
 
-        assertTrue(newMaxId > maxKey);
+        assertTrue(newMaxKey > maxKey);
 
         // get last task
-        PropagationTaskTO taskTO = taskService.read(newMaxId);
+        PropagationTaskTO taskTO = taskService.read(newMaxKey);
         assertNotNull(taskTO);
         assertFalse(taskTO.getExecutions().isEmpty());
         assertEquals(PropagationTaskExecStatus.NOT_ATTEMPTED.name(), taskTO.getExecutions().get(0).getStatus());
@@ -188,7 +193,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("fullname", userId));
         userTO.getPlainAttrs().add(attrTO("surname", userId));
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
         assertTrue(userTO.getResources().isEmpty());
 
@@ -200,25 +205,26 @@ public class UserITCase extends AbstractITCase {
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS2).build());
 
         try {
-            userTO = updateUser(userPatch);
+            userTO = updateUser(userPatch).getAny();
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
 
         // 3. update assigning a resource NOT forcing mandatory constraints
-        // AND primary: must fail with PropagationException
+        // AND priority: must fail with PropagationException
         userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123").build());
         userPatch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS1).build());
 
-        userTO = updateUser(userPatch);
-        assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
+        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        assertNotNull(result.getPropagationStatuses().get(0).getFailureReason());
+        userTO = result.getAny();
 
         // 4. update assigning a resource NOT forcing mandatory constraints
-        // BUT not primary: must succeed
+        // BUT not priority: must succeed
         userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123456").build());
@@ -244,14 +250,14 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().remove(type);
 
         try {
-            userTO = createUser(userTO);
+            userTO = createUser(userTO).getAny();
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
 
         userTO.getPlainAttrs().add(type);
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
     }
 
@@ -271,7 +277,7 @@ public class UserITCase extends AbstractITCase {
         userTO.setPassword("newPassword12");
 
         try {
-            userTO = createUser(userTO);
+            userTO = createUser(userTO).getAny();
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
@@ -280,7 +286,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
         assertEquals(Collections.singleton("resource-csv-enforcing"), userTO.getResources());
     }
@@ -289,10 +295,10 @@ public class UserITCase extends AbstractITCase {
     public void createUserWithDbPropagation() {
         UserTO userTO = getUniqueSampleTO("yyy@yyy.yyy");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
-        assertEquals(1, userTO.getPropagationStatusTOs().size());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
+        ProvisioningResult<UserTO> result = createUser(userTO);
+        assertNotNull(result);
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
     }
 
     @Test(expected = SyncopeClientException.class)
@@ -368,7 +374,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("activationDate", null));
 
         // 1. create user
-        UserTO newUserTO = createUser(userTO);
+        UserTO newUserTO = createUser(userTO).getAny();
 
         assertNotNull(newUserTO);
 
@@ -480,19 +486,19 @@ public class UserITCase extends AbstractITCase {
         // specify a propagation
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
 
         long key = userTO.getKey();
 
-        userTO = deleteUser(key);
-
-        assertNotNull(userTO);
+        ProvisioningResult<UserTO> result = deleteUser(key);
+        assertNotNull(result);
+        userTO = result.getAny();
         assertEquals(key, userTO.getKey());
         assertTrue(userTO.getPlainAttrs().isEmpty());
 
         // check for propagation result
-        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
+        assertFalse(result.getPropagationStatuses().isEmpty());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
         try {
             userService.delete(userTO.getKey());
@@ -508,19 +514,20 @@ public class UserITCase extends AbstractITCase {
         // specify a propagation
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
 
-        long id = userTO.getKey();
-        userTO = userService.read(id);
-        userTO = deleteUser(userTO.getKey());
+        long key = userTO.getKey();
+        userTO = userService.read(key);
 
-        assertNotNull(userTO);
-        assertEquals(id, userTO.getKey());
+        ProvisioningResult<UserTO> result = deleteUser(userTO.getKey());
+        assertNotNull(result);
+        userTO = result.getAny();
+        assertEquals(key, userTO.getKey());
         assertTrue(userTO.getPlainAttrs().isEmpty());
 
         // check for propagation result
-        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
+        assertFalse(result.getPropagationStatuses().isEmpty());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
         try {
             userService.read(userTO.getKey());
@@ -577,7 +584,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void readWithMailAddressAsUserName() {
-        UserTO userTO = createUser(getUniqueSampleTO("mail@domain.org"));
+        UserTO userTO = createUser(getUniqueSampleTO("mail@domain.org")).getAny();
         userTO = userService.read(userTO.getKey());
         assertNotNull(userTO);
     }
@@ -586,7 +593,7 @@ public class UserITCase extends AbstractITCase {
     public void updateWithouPassword() {
         UserTO userTO = getUniqueSampleTO("updatewithout@password.com");
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
 
         assertNotNull(userTO);
 
@@ -596,7 +603,7 @@ public class UserITCase extends AbstractITCase {
                 attrTO(new AttrTO.Builder().schema("cn").build()).
                 build());
 
-        userTO = updateUser(userPatch);
+        userTO = updateUser(userPatch).getAny();
 
         assertNotNull(userTO);
         assertNotNull(userTO.getDerAttrMap());
@@ -607,7 +614,7 @@ public class UserITCase extends AbstractITCase {
     public void updateInvalidPassword() {
         UserTO userTO = getSampleTO("updateinvalid@password.com");
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         UserPatch userPatch = new UserPatch();
@@ -622,7 +629,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("updatesame@password.com");
         userTO.setRealm("/even/two");
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         UserPatch userPatch = new UserPatch();
@@ -638,7 +645,7 @@ public class UserITCase extends AbstractITCase {
 
         userTO.getMemberships().add(new MembershipTO.Builder().group(8L).build());
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
 
         assertFalse(userTO.getDerAttrs().isEmpty());
         assertEquals(1, userTO.getMemberships().size());
@@ -660,7 +667,7 @@ public class UserITCase extends AbstractITCase {
         userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.ADD_REPLACE).
                 membershipTO(userTO.getMemberships().get(0)).build());
 
-        userTO = updateUser(userPatch);
+        userTO = updateUser(userPatch).getAny();
         assertNotNull(userTO);
 
         // issue SYNCOPE-15
@@ -689,13 +696,13 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
         userTO.getMemberships().add(new MembershipTO.Builder().group(8L).build());
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
 
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123").resource(RESOURCE_NAME_WS2).build());
 
-        userTO = updateUser(userPatch);
+        userTO = updateUser(userPatch).getAny();
 
         // check for changePwdDate
         assertNotNull(userTO.getChangePwdDate());
@@ -728,7 +735,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getMemberships().add(new MembershipTO.Builder().group(8L).build());
 
         // 1. create user
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         // get the new task list
@@ -753,7 +760,7 @@ public class UserITCase extends AbstractITCase {
 
         userPatch.getPlainAttrs().add(attrAddReplacePatch("surname", "surname2"));
 
-        userTO = updateUser(userPatch);
+        userTO = updateUser(userPatch).getAny();
 
         assertNotNull(userTO);
 
@@ -800,7 +807,7 @@ public class UserITCase extends AbstractITCase {
 
         userTO.getMemberships().add(new MembershipTO.Builder().group(11L).build());
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
 
         assertNotNull(userTO);
         assertNotNull(userTO.getToken());
@@ -812,7 +819,8 @@ public class UserITCase extends AbstractITCase {
         statusPatch.setKey(userTO.getKey());
         statusPatch.setType(StatusPatchType.ACTIVATE);
         statusPatch.setToken(userTO.getToken());
-        userTO = userService.status(statusPatch).readEntity(UserTO.class);
+        userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getAny();
 
         assertNotNull(userTO);
         assertNull(userTO.getToken());
@@ -826,7 +834,7 @@ public class UserITCase extends AbstractITCase {
 
         userTO.getMemberships().add(new MembershipTO.Builder().group(7L).build());
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
 
         assertNotNull(userTO);
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
@@ -836,14 +844,16 @@ public class UserITCase extends AbstractITCase {
         StatusPatch statusPatch = new StatusPatch();
         statusPatch.setKey(userTO.getKey());
         statusPatch.setType(StatusPatchType.SUSPEND);
-        userTO = userService.status(statusPatch).readEntity(UserTO.class);
+        userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getAny();
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
         statusPatch = new StatusPatch();
         statusPatch.setKey(userTO.getKey());
         statusPatch.setType(StatusPatchType.REACTIVATE);
-        userTO = userService.status(statusPatch).readEntity(UserTO.class);
+        userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getAny();
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
     }
@@ -862,7 +872,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
         userTO.getResources().add(RESOURCE_NAME_LDAP);
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
                 ? "active"
@@ -876,7 +886,8 @@ public class UserITCase extends AbstractITCase {
         statusPatch.setOnSyncope(true);
         statusPatch.getResources().add(RESOURCE_NAME_TESTDB);
         statusPatch.getResources().add(RESOURCE_NAME_LDAP);
-        userTO = userService.status(statusPatch).readEntity(UserTO.class);
+        userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getAny();
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
@@ -895,7 +906,8 @@ public class UserITCase extends AbstractITCase {
         statusPatch.getResources().add(RESOURCE_NAME_LDAP);
         userService.status(statusPatch);
         statusPatch.setType(StatusPatchType.REACTIVATE);
-        userTO = userService.status(statusPatch).readEntity(UserTO.class);
+        userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getAny();
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
@@ -909,7 +921,8 @@ public class UserITCase extends AbstractITCase {
         statusPatch.setOnSyncope(true);
         statusPatch.getResources().add(RESOURCE_NAME_TESTDB);
 
-        userTO = userService.status(statusPatch).readEntity(UserTO.class);
+        userTO = userService.status(statusPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getAny();
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
@@ -924,7 +937,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         AttrTO loginDate = userTO.getPlainAttrMap().get("loginDate");
@@ -938,7 +951,7 @@ public class UserITCase extends AbstractITCase {
         userPatch.getPlainAttrs().add(new AttrPatch.Builder().
                 operation(PatchOperation.ADD_REPLACE).attrTO(loginDate).build());
 
-        userTO = updateUser(userPatch);
+        userTO = updateUser(userPatch).getAny();
         assertNotNull(userTO);
 
         loginDate = userTO.getPlainAttrMap().get("loginDate");
@@ -946,12 +959,63 @@ public class UserITCase extends AbstractITCase {
         assertEquals(2, loginDate.getValues().size());
     }
 
+    private void verifyAsyncResult(final List<PropagationStatus> statuses) {
+        assertEquals(3, statuses.size());
+
+        Map<String, PropagationStatus> byResource = new HashMap<>(3);
+        MapUtils.populateMap(byResource, statuses, new Transformer<PropagationStatus, String>() {
+
+            @Override
+            public String transform(final PropagationStatus status) {
+                return status.getResource();
+            }
+        });
+        assertEquals(PropagationTaskExecStatus.SUCCESS, byResource.get(RESOURCE_NAME_LDAP).getStatus());
+        assertEquals(PropagationTaskExecStatus.CREATED, byResource.get(RESOURCE_NAME_TESTDB).getStatus());
+        assertEquals(PropagationTaskExecStatus.CREATED, byResource.get(RESOURCE_NAME_TESTDB2).getStatus());
+    }
+
+    @Test
+    public void async() {
+        UserService asyncService =
+                clientFactory.create(ADMIN_UNAME, ADMIN_PWD).nullPriorityAsync(UserService.class, true);
+
+        UserTO user = getUniqueSampleTO("async@syncope.apache.org");
+        user.getResources().add(RESOURCE_NAME_TESTDB);
+        user.getResources().add(RESOURCE_NAME_TESTDB2);
+        user.getResources().add(RESOURCE_NAME_LDAP);
+
+        ProvisioningResult<UserTO> result = asyncService.create(user).readEntity(
+                new GenericType<ProvisioningResult<UserTO>>() {
+                });
+        assertNotNull(result);
+        verifyAsyncResult(result.getPropagationStatuses());
+
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(result.getAny().getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().
+                onSyncope(true).resources(RESOURCE_NAME_LDAP, RESOURCE_NAME_TESTDB, RESOURCE_NAME_TESTDB2).
+                value("password321").build());
+
+        result = asyncService.update(userPatch).readEntity(
+                new GenericType<ProvisioningResult<UserTO>>() {
+                });
+        assertNotNull(result);
+        verifyAsyncResult(result.getPropagationStatuses());
+
+        result = asyncService.delete(result.getAny().getKey()).readEntity(
+                new GenericType<ProvisioningResult<UserTO>>() {
+                });
+        assertNotNull(result);
+        verifyAsyncResult(result.getPropagationStatuses());
+    }
+
     @Test(expected = EmptyResultDataAccessException.class)
     public void issue213() {
         UserTO userTO = getUniqueSampleTO("issue213@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
         assertEquals(1, userTO.getResources().size());
 
@@ -968,7 +1032,7 @@ public class UserITCase extends AbstractITCase {
         userPatch.getResources().add(
                 new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(RESOURCE_NAME_TESTDB).build());
 
-        userTO = updateUser(userPatch);
+        userTO = updateUser(userPatch).getAny();
         assertTrue(userTO.getResources().isEmpty());
 
         jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
@@ -979,7 +1043,7 @@ public class UserITCase extends AbstractITCase {
         UserTO inUserTO = getUniqueSampleTO("issue234@syncope.apache.org");
         inUserTO.getResources().add(RESOURCE_NAME_LDAP);
 
-        UserTO userTO = createUser(inUserTO);
+        UserTO userTO = createUser(inUserTO).getAny();
         assertNotNull(userTO);
 
         UserPatch userPatch = new UserPatch();
@@ -987,7 +1051,7 @@ public class UserITCase extends AbstractITCase {
         userPatch.setKey(userTO.getKey());
         userPatch.setUsername(new StringReplacePatchItem.Builder().value("1" + userTO.getUsername()).build());
 
-        userTO = updateUser(userPatch);
+        userTO = updateUser(userPatch).getAny();
         assertNotNull(userTO);
         assertEquals("1" + inUserTO.getUsername(), userTO.getUsername());
     }
@@ -999,7 +1063,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getMemberships().clear();
         userTO.getDerAttrs().clear();
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         UserPatch userPatch = new UserPatch();
@@ -1009,10 +1073,10 @@ public class UserITCase extends AbstractITCase {
         userPatch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
 
-        userTO = updateUser(userPatch);
-        assertNotNull(userTO);
+        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        assertNotNull(result);
 
-        List<PropagationStatus> propagations = userTO.getPropagationStatusTOs();
+        List<PropagationStatus> propagations = result.getPropagationStatuses();
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
 
@@ -1030,13 +1094,12 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().clear();
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
+        ProvisioningResult<UserTO> result = createUser(userTO);
+        assertNotNull(result);
 
-        List<PropagationStatus> propagations = userTO.getPropagationStatusTOs();
+        List<PropagationStatus> propagations = result.getPropagationStatuses();
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
-
         assertNotEquals(PropagationTaskExecStatus.SUCCESS, propagations.get(0).getStatus());
 
         String resource = propagations.get(0).getResource();
@@ -1071,7 +1134,7 @@ public class UserITCase extends AbstractITCase {
 
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
-        UserTO actual = createUser(userTO);
+        UserTO actual = createUser(userTO).getAny();
         assertNotNull(actual);
         assertNotNull(actual.getDerAttrMap().get("csvuserid"));
 
@@ -1159,7 +1222,7 @@ public class UserITCase extends AbstractITCase {
             }
 
             user.setUsername("YYY" + user.getUsername());
-            user = createUser(user);
+            user = createUser(user).getAny();
             assertNotNull(user);
         } finally {
             realm.setAccountPolicy(oldAccountPolicy);
@@ -1186,29 +1249,29 @@ public class UserITCase extends AbstractITCase {
 
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
-        UserTO actual = createUser(userTO);
-        assertNotNull(actual);
-        assertEquals(2, actual.getMemberships().size());
-        assertEquals(1, actual.getResources().size());
+        userTO = createUser(userTO).getAny();
+        assertNotNull(userTO);
+        assertEquals(2, userTO.getMemberships().size());
+        assertEquals(1, userTO.getResources().size());
 
         ConnObjectTO connObjectTO =
-                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
 
         // -----------------------------------
         // Remove the first membership: de-provisioning shouldn't happen
         // -----------------------------------
         UserPatch userPatch = new UserPatch();
-        userPatch.setKey(actual.getKey());
+        userPatch.setKey(userTO.getKey());
 
         userPatch.getMemberships().add(new MembershipPatch.Builder().
-                operation(PatchOperation.DELETE).membershipTO(actual.getMemberships().get(0)).build());
+                operation(PatchOperation.DELETE).membershipTO(userTO.getMemberships().get(0)).build());
 
-        actual = updateUser(userPatch);
-        assertNotNull(actual);
-        assertEquals(1, actual.getMemberships().size());
+        userTO = updateUser(userPatch).getAny();
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getMemberships().size());
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1216,17 +1279,17 @@ public class UserITCase extends AbstractITCase {
         // Remove the resource assigned directly: de-provisioning shouldn't happen
         // -----------------------------------
         userPatch = new UserPatch();
-        userPatch.setKey(actual.getKey());
+        userPatch.setKey(userTO.getKey());
 
         userPatch.getResources().add(new StringPatchItem.Builder().operation(PatchOperation.DELETE).
-                value(actual.getResources().iterator().next()).build());
+                value(userTO.getResources().iterator().next()).build());
 
-        actual = updateUser(userPatch);
-        assertNotNull(actual);
-        assertEquals(1, actual.getMemberships().size());
-        assertFalse(actual.getResources().isEmpty());
+        userTO = updateUser(userPatch).getAny();
+        assertNotNull(userTO);
+        assertEquals(1, userTO.getMemberships().size());
+        assertFalse(userTO.getResources().isEmpty());
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1234,18 +1297,18 @@ public class UserITCase extends AbstractITCase {
         // Remove the first membership: de-provisioning should happen
         // -----------------------------------
         userPatch = new UserPatch();
-        userPatch.setKey(actual.getKey());
+        userPatch.setKey(userTO.getKey());
 
         userPatch.getMemberships().add(new MembershipPatch.Builder().
-                operation(PatchOperation.DELETE).membershipTO(actual.getMemberships().get(0)).build());
+                operation(PatchOperation.DELETE).membershipTO(userTO.getMemberships().get(0)).build());
 
-        actual = updateUser(userPatch);
-        assertNotNull(actual);
-        assertTrue(actual.getMemberships().isEmpty());
-        assertTrue(actual.getResources().isEmpty());
+        userTO = updateUser(userPatch).getAny();
+        assertNotNull(userTO);
+        assertTrue(userTO.getMemberships().isEmpty());
+        assertTrue(userTO.getResources().isEmpty());
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
             fail("Read should not succeeed");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -1259,11 +1322,12 @@ public class UserITCase extends AbstractITCase {
         userTO.getVirAttrs().clear();
         userTO.getResources().add(RESOURCE_NAME_LDAP);
 
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
-        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
-        assertEquals(RESOURCE_NAME_LDAP, userTO.getPropagationStatusTOs().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
+        ProvisioningResult<UserTO> result = createUser(userTO);
+        assertNotNull(result);
+        assertFalse(result.getPropagationStatuses().isEmpty());
+        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        userTO = result.getAny();
 
         // 2. delete this user
         userService.delete(userTO.getKey());
@@ -1315,11 +1379,12 @@ public class UserITCase extends AbstractITCase {
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_DBVIRATTR);
 
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
-        assertFalse(userTO.getPropagationStatusTOs().isEmpty());
-        assertEquals(RESOURCE_NAME_DBVIRATTR, userTO.getPropagationStatusTOs().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
+        ProvisioningResult<UserTO> result = createUser(userTO);
+        assertNotNull(result);
+        assertFalse(result.getPropagationStatuses().isEmpty());
+        assertEquals(RESOURCE_NAME_DBVIRATTR, result.getPropagationStatuses().get(0).getResource());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        userTO = result.getAny();
 
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_DBVIRATTR, AnyTypeKind.USER.name(), userTO.getKey());
@@ -1339,7 +1404,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("syncope266@apache.org");
         userTO.getResources().clear();
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         UserPatch userPatch = new UserPatch();
@@ -1349,7 +1414,7 @@ public class UserITCase extends AbstractITCase {
         userPatch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_UPDATE).build());
 
-        userTO = updateUser(userPatch);
+        userTO = updateUser(userPatch).getAny();
         assertNotNull(userTO);
     }
 
@@ -1358,10 +1423,10 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("syncope279@apache.org");
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_TIMEOUT);
-        userTO = createUser(userTO);
-        assertEquals(RESOURCE_NAME_TIMEOUT, userTO.getPropagationStatusTOs().get(0).getResource());
-        assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
-        assertEquals(PropagationTaskExecStatus.FAILURE, userTO.getPropagationStatusTOs().get(0).getStatus());
+        ProvisioningResult<UserTO> result = createUser(userTO);
+        assertEquals(RESOURCE_NAME_TIMEOUT, result.getPropagationStatuses().get(0).getResource());
+        assertNotNull(result.getPropagationStatuses().get(0).getFailureReason());
+        assertEquals(PropagationTaskExecStatus.FAILURE, result.getPropagationStatuses().get(0).getStatus());
     }
 
     @Test
@@ -1373,7 +1438,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
         userTO.getResources().add(RESOURCE_NAME_TESTDB2);
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB2));
@@ -1402,12 +1467,13 @@ public class UserITCase extends AbstractITCase {
         userPatch.setPassword(new PasswordPatch.Builder().value(getUUIDString()).onSyncope(false).
                 resource(RESOURCE_NAME_TESTDB).build());
 
-        userTO = updateUser(userPatch);
+        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        userTO = result.getAny();
 
         // 3a. Chech that only a single propagation took place
-        assertNotNull(userTO.getPropagationStatusTOs());
-        assertEquals(1, userTO.getPropagationStatusTOs().size());
-        assertEquals(RESOURCE_NAME_TESTDB, userTO.getPropagationStatusTOs().iterator().next().getResource());
+        assertNotNull(result.getPropagationStatuses());
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(RESOURCE_NAME_TESTDB, result.getPropagationStatuses().iterator().next().getResource());
 
         // 3b. verify that password hasn't changed on Syncope
         assertEquals(pwdOnSyncope, userTO.getPassword());
@@ -1444,21 +1510,22 @@ public class UserITCase extends AbstractITCase {
             UserTO userTO = getUniqueSampleTO("syncope136_AES@apache.org");
             userTO.getResources().clear();
 
-            userTO = createUser(userTO);
+            userTO = createUser(userTO).getAny();
             assertNotNull(userTO);
 
-            // 4. update user, assign a propagation primary resource but don't provide any password
+            // 4. update user, assign a propagation priority resource but don't provide any password
             UserPatch userPatch = new UserPatch();
             userPatch.setKey(userTO.getKey());
             userPatch.getResources().add(new StringPatchItem.Builder().
                     operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS1).build());
             userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_WS1).build());
 
-            userTO = updateUser(userPatch);
-            assertNotNull(userTO);
+            ProvisioningResult<UserTO> result = updateUser(userPatch);
+            assertNotNull(result);
+            userTO = result.getAny();
 
             // 5. verify that propagation was successful
-            List<PropagationStatus> props = userTO.getPropagationStatusTOs();
+            List<PropagationStatus> props = result.getPropagationStatuses();
             assertNotNull(props);
             assertEquals(1, props.size());
             PropagationStatus prop = props.iterator().next();
@@ -1477,21 +1544,21 @@ public class UserITCase extends AbstractITCase {
         // 1. create user with no resources
         UserTO userTO = getUniqueSampleTO("syncope136_Random@apache.org");
         userTO.getResources().clear();
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
-        // 2. update user, assign a propagation primary resource but don't provide any password
+        // 2. update user, assign a propagation priority resource but don't provide any password
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_LDAP).build());
         userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_LDAP).build());
 
-        userTO = updateUser(userPatch);
-        assertNotNull(userTO);
+        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        assertNotNull(result);
 
         // 3. verify that propagation was successful
-        List<PropagationStatus> props = userTO.getPropagationStatusTOs();
+        List<PropagationStatus> props = result.getPropagationStatuses();
         assertNotNull(props);
         assertEquals(1, props.size());
         PropagationStatus prop = props.iterator().next();
@@ -1512,11 +1579,11 @@ public class UserITCase extends AbstractITCase {
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
-        UserTO actual = createUser(userTO);
-        assertNotNull(actual);
+        userTO = createUser(userTO).getAny();
+        assertNotNull(userTO);
 
         ConnObjectTO connObjectTO =
-                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertNull(connObjectTO.getPlainAttrMap().get("email"));
     }
 
@@ -1528,7 +1595,7 @@ public class UserITCase extends AbstractITCase {
 
             userPatch.getPlainAttrs().add(attrAddReplacePatch("type", "a type"));
 
-            UserTO userTO = updateUser(userPatch);
+            UserTO userTO = updateUser(userPatch).getAny();
 
             assertEquals("a type", userTO.getPlainAttrMap().get("type").getValues().get(0));
         }
@@ -1540,7 +1607,7 @@ public class UserITCase extends AbstractITCase {
 
         for (int i = 0; i < 10; i++) {
             UserTO userTO = getUniqueSampleTO("bulk_" + i + "@apache.org");
-            bulkAction.getTargets().add(String.valueOf(createUser(userTO).getKey()));
+            bulkAction.getTargets().add(String.valueOf(createUser(userTO).getAny().getKey()));
         }
 
         // check for a fail
@@ -1585,7 +1652,7 @@ public class UserITCase extends AbstractITCase {
         groupTO.setRealm("/");
         groupTO.getResources().add(RESOURCE_NAME_LDAP);
 
-        groupTO = createGroup(groupTO);
+        groupTO = createGroup(groupTO).getAny();
         assertNotNull(groupTO);
 
         // 2. create user with LDAP resource and membership of the above group
@@ -1593,7 +1660,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getResources().add(RESOURCE_NAME_LDAP);
         userTO.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         // 3. read group on resource, check that user DN is included in uniqueMember
@@ -1609,7 +1676,7 @@ public class UserITCase extends AbstractITCase {
         userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.DELETE).
                 membershipTO(userTO.getMemberships().get(0)).build());
 
-        userTO = updateUser(userPatch);
+        userTO = updateUser(userPatch).getAny();
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         // 5. read group on resource, check that user DN was removed from uniqueMember
@@ -1635,7 +1702,7 @@ public class UserITCase extends AbstractITCase {
         groupTO.setRealm("/");
         groupTO.getResources().add(RESOURCE_NAME_LDAP);
 
-        groupTO = createGroup(groupTO);
+        groupTO = createGroup(groupTO).getAny();
         assertNotNull(groupTO);
 
         // 2. create user with membership of the above group
@@ -1645,7 +1712,7 @@ public class UserITCase extends AbstractITCase {
                 Base64Utility.encode(IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
         userTO.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
         assertNotNull(userTO.getPlainAttrMap().get("obscure"));
         assertNotNull(userTO.getPlainAttrMap().get("photo"));
@@ -1678,7 +1745,7 @@ public class UserITCase extends AbstractITCase {
         // 1. create user without resources
         UserTO userTO = getUniqueSampleTO("syncope383@apache.org");
         userTO.getResources().clear();
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         // 2. assign resource without specifying a new pwd and check propagation failure
@@ -1686,20 +1753,25 @@ public class UserITCase extends AbstractITCase {
         userPatch.setKey(userTO.getKey());
         userPatch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
-        userTO = updateUser(userPatch);
+
+        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        assertNotNull(result);
+        userTO = result.getAny();
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
-        assertNotEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
-        assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
+        assertNotEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertNotNull(result.getPropagationStatuses().get(0).getFailureReason());
+        userTO = result.getAny();
 
         // 3. request to change password only on testdb
         userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value(getUUIDString() + "abbcbcbddd123").
-                resource(RESOURCE_NAME_TESTDB).build());
+        userPatch.setPassword(
+                new PasswordPatch.Builder().value(getUUIDString() + "abbcbcbddd123").resource(RESOURCE_NAME_TESTDB).
+                build());
 
-        userTO = updateUser(userPatch);
+        result = updateUser(userPatch);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
     }
 
     @Test
@@ -1715,12 +1787,12 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("fullname", userId));
         userTO.getPlainAttrs().add(attrTO("surname", userId));
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
         assertTrue(userTO.getResources().isEmpty());
 
         // 2. update assigning a resource NOT forcing mandatory constraints
-        // AND primary: must fail with PropagationException
+        // AND priority: must fail with PropagationException
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123").build());
@@ -1728,9 +1800,9 @@ public class UserITCase extends AbstractITCase {
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS1).build());
         userPatch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
-        userTO = updateUser(userPatch);
+        ProvisioningResult<UserTO> result = updateUser(userPatch);
 
-        List<PropagationStatus> propagationStatuses = userTO.getPropagationStatusTOs();
+        List<PropagationStatus> propagationStatuses = result.getPropagationStatuses();
         PropagationStatus ws1PropagationStatus = null;
         if (propagationStatuses != null) {
             for (PropagationStatus propStatus : propagationStatuses) {
@@ -1757,7 +1829,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
-        UserTO actual = createUser(userTO);
+        UserTO actual = createUser(userTO).getAny();
         assertNotNull(actual);
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
@@ -1785,7 +1857,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
-        UserTO actual = createUser(userTO);
+        UserTO actual = createUser(userTO).getAny();
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
 
@@ -1826,7 +1898,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
-        UserTO actual = createUser(userTO);
+        UserTO actual = createUser(userTO).getAny();
         assertNotNull(actual);
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
@@ -1859,7 +1931,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
-        UserTO actual = createUser(userTO);
+        UserTO actual = createUser(userTO).getAny();
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
 
@@ -1895,7 +1967,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
-        UserTO actual = createUser(userTO);
+        UserTO actual = createUser(userTO).getAny();
         assertNotNull(actual);
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
@@ -1928,7 +2000,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
-        UserTO actual = createUser(userTO);
+        UserTO actual = createUser(userTO).getAny();
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
 
@@ -1963,7 +2035,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
-        UserTO actual = createUser(userTO);
+        UserTO actual = createUser(userTO).getAny();
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
 
@@ -2017,27 +2089,28 @@ public class UserITCase extends AbstractITCase {
         userTO.setRealm(realm.getFullPath());
         userTO.getPlainAttrs().add(attrTO("makeItDouble", "3"));
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertEquals("6", userTO.getPlainAttrMap().get("makeItDouble").getValues().get(0));
 
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.getPlainAttrs().add(attrAddReplacePatch("makeItDouble", "7"));
 
-        userTO = updateUser(userPatch);
+        userTO = updateUser(userPatch).getAny();
         assertEquals("14", userTO.getPlainAttrMap().get("makeItDouble").getValues().get(0));
     }
 
     @Test
     public void issueSYNCOPE426() {
         UserTO userTO = getUniqueSampleTO("syncope426@syncope.apache.org");
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().value("anotherPassword123").build());
-        userTO = userService.update(userPatch).readEntity(UserTO.class);
+        userTO = userService.update(userPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getAny();
         assertNotNull(userTO);
     }
 
@@ -2046,7 +2119,7 @@ public class UserITCase extends AbstractITCase {
         // 1. create user without password
         UserTO userTO = getUniqueSampleTO("syncope435@syncope.apache.org");
         userTO.setPassword(null);
-        userTO = createUser(userTO, false);
+        userTO = createUser(userTO, false).getAny();
         assertNotNull(userTO);
 
         // 2. try to update user by subscribing a resource - works but propagation is not even attempted
@@ -2055,17 +2128,20 @@ public class UserITCase extends AbstractITCase {
         userPatch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS1).build());
 
-        userTO = userService.update(userPatch).readEntity(UserTO.class);
+        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        assertNotNull(result);
+        userTO = result.getAny();
         assertEquals(Collections.singleton(RESOURCE_NAME_WS1), userTO.getResources());
-        assertNotEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
-        assertTrue(userTO.getPropagationStatusTOs().get(0).getFailureReason().
+        assertNotEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertTrue(result.getPropagationStatuses().get(0).getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
     }
 
     @Test
     public void ifMatch() {
         UserTO userTO = userService.create(getUniqueSampleTO("ifmatch@syncope.apache.org"), true).
-                readEntity(UserTO.class);
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                }).getAny();
         assertNotNull(userTO);
         assertNotNull(userTO.getKey());
 
@@ -2076,7 +2152,8 @@ public class UserITCase extends AbstractITCase {
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.setUsername(new StringReplacePatchItem.Builder().value(userTO.getUsername() + "XX").build());
-        userTO = userService.update(userPatch).readEntity(UserTO.class);
+        userTO = userService.update(userPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getAny();
         assertTrue(userTO.getUsername().endsWith("XX"));
         EntityTag etag1 = adminClient.getLatestEntityTag(userService);
         assertFalse(etag.getValue().equals(etag1.getValue()));
@@ -2099,7 +2176,7 @@ public class UserITCase extends AbstractITCase {
         // 1. create user with LDAP resource (with 'Generate password if missing' enabled)
         UserTO userTO = getUniqueSampleTO("syncope454@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_LDAP);
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         // 2. read resource configuration for LDAP binding
@@ -2132,10 +2209,11 @@ public class UserITCase extends AbstractITCase {
         // 1.  create user and check that firstname is not propagated on resource with mapping for firstname set to NONE
         UserTO userTO = getUniqueSampleTO("issueSYNCOPE493@test.org");
         userTO.getResources().add(RESOURCE_NAME_WS1);
-        userTO = createUser(userTO);
+        ProvisioningResult<UserTO> result = createUser(userTO);
         assertNotNull(userTO);
-        assertEquals(1, userTO.getPropagationStatusTOs().size());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        userTO = result.getAny();
 
         ConnObjectTO actual =
                 resourceService.readConnObject(RESOURCE_NAME_WS1, AnyTypeKind.USER.name(), userTO.getKey());
@@ -2172,10 +2250,11 @@ public class UserITCase extends AbstractITCase {
         userPatch.setPassword(new PasswordPatch());
         userPatch.getPlainAttrs().add(attrAddReplacePatch("firstname", "firstnameNew"));
 
-        userTO = updateUser(userPatch);
+        result = updateUser(userPatch);
         assertNotNull(userTO);
-        assertEquals(1, userTO.getPropagationStatusTOs().size());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        userTO = result.getAny();
 
         ConnObjectTO newUser =
                 resourceService.readConnObject(RESOURCE_NAME_WS1, AnyTypeKind.USER.name(), userTO.getKey());
@@ -2202,7 +2281,7 @@ public class UserITCase extends AbstractITCase {
         // 1. create user
         UserTO user = UserITCase.getUniqueSampleTO("syncope505-db@syncope.apache.org");
         user.setPassword("security123");
-        user = createUser(user);
+        user = createUser(user).getAny();
         assertNotNull(user);
         assertTrue(user.getResources().isEmpty());
 
@@ -2220,7 +2299,7 @@ public class UserITCase extends AbstractITCase {
 
         userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_TESTDB).build());
 
-        user = updateUser(userPatch);
+        user = updateUser(userPatch).getAny();
         assertNotNull(user);
         assertEquals(1, user.getResources().size());
 
@@ -2242,7 +2321,7 @@ public class UserITCase extends AbstractITCase {
         // 1. create user
         UserTO user = UserITCase.getUniqueSampleTO("syncope505-ldap@syncope.apache.org");
         user.setPassword("security123");
-        user = createUser(user);
+        user = createUser(user).getAny();
         assertNotNull(user);
         assertTrue(user.getResources().isEmpty());
 
@@ -2261,7 +2340,7 @@ public class UserITCase extends AbstractITCase {
 
         userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_LDAP).build());
 
-        user = updateUser(userPatch);
+        user = updateUser(userPatch).getAny();
         assertNotNull(user);
         assertEquals(1, user.getResources().size());
 
@@ -2288,7 +2367,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("syncope391@syncope.apache.org");
         userTO.setPassword(null);
 
-        userTO = createUser(userTO, false);
+        userTO = createUser(userTO, false).getAny();
         assertNotNull(userTO);
         assertNull(userTO.getPassword());
 
@@ -2307,7 +2386,7 @@ public class UserITCase extends AbstractITCase {
 
         userTO.getAuxClasses().add("csv");
         userTO.getResources().add(RESOURCE_NAME_CSV);
-        userTO = createUser(userTO, false);
+        userTO = createUser(userTO, false).getAny();
         assertNotNull(userTO);
 
         ConnObjectTO connObjectTO =
@@ -2329,7 +2408,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         userTO.getResources().add(RESOURCE_NAME_CSV);
-        userTO = createUser(userTO, false);
+        userTO = createUser(userTO, false).getAny();
         assertNotNull(userTO);
 
         connObjectTO =
@@ -2351,7 +2430,7 @@ public class UserITCase extends AbstractITCase {
 
         userTO.getResources().add(RESOURCE_NAME_CSV);
         // storePassword true by default
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
@@ -2407,7 +2486,7 @@ public class UserITCase extends AbstractITCase {
 
         userTO.getResources().add(RESOURCE_NAME_LDAP);
 
-        UserTO actual = createUser(userTO);
+        UserTO actual = createUser(userTO).getAny();
         assertNotNull(actual);
         assertNotNull(actual.getDerAttrMap().get("csvuserid"));
 
@@ -2420,7 +2499,7 @@ public class UserITCase extends AbstractITCase {
         userPatch.setKey(actual.getKey());
         userPatch.getPlainAttrs().add(attrAddReplacePatch("postalAddress", "newPostalAddress"));
 
-        actual = updateUser(userPatch);
+        actual = updateUser(userPatch).getAny();
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
@@ -2457,7 +2536,7 @@ public class UserITCase extends AbstractITCase {
             }
 
             user.setPassword("password123");
-            user = createUser(user);
+            user = createUser(user).getAny();
             assertNotNull(user);
         } finally {
             realm.setPasswordPolicy(oldPasswordPolicy);
@@ -2482,14 +2561,14 @@ public class UserITCase extends AbstractITCase {
             // 3. create group with LDAP resource assigned
             GroupTO group = GroupITCase.getBasicSampleTO("syncope686");
             group.getResources().add(RESOURCE_NAME_LDAP);
-            group = createGroup(group);
+            group = createGroup(group).getAny();
             assertNotNull(group);
 
             // 4. create user with no resources
             UserTO userTO = getUniqueSampleTO("syncope686@apache.org");
             userTO.getResources().clear();
 
-            userTO = createUser(userTO);
+            userTO = createUser(userTO).getAny();
             assertNotNull(userTO);
 
             // 5. update user with the new group, and don't provide any password
@@ -2498,11 +2577,11 @@ public class UserITCase extends AbstractITCase {
             userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.ADD_REPLACE).
                     membershipTO(new MembershipTO.Builder().group(group.getKey()).build()).build());
 
-            userTO = updateUser(userPatch);
-            assertNotNull(userTO);
+            ProvisioningResult<UserTO> result = updateUser(userPatch);
+            assertNotNull(result);
 
             // 5. verify that propagation was successful
-            List<PropagationStatus> props = userTO.getPropagationStatusTOs();
+            List<PropagationStatus> props = result.getPropagationStatuses();
             assertNotNull(props);
             assertEquals(1, props.size());
             PropagationStatus prop = props.iterator().next();
@@ -2521,11 +2600,11 @@ public class UserITCase extends AbstractITCase {
         // 1. create groups for indirect resource assignment
         GroupTO ldapGroup = GroupITCase.getBasicSampleTO("syncope710.ldap");
         ldapGroup.getResources().add(RESOURCE_NAME_LDAP);
-        ldapGroup = createGroup(ldapGroup);
+        ldapGroup = createGroup(ldapGroup).getAny();
 
         GroupTO dbGroup = GroupITCase.getBasicSampleTO("syncope710.db");
         dbGroup.getResources().add(RESOURCE_NAME_TESTDB);
-        dbGroup = createGroup(dbGroup);
+        dbGroup = createGroup(dbGroup).getAny();
 
         // 2. create user with memberships for the groups created above
         UserTO userTO = getUniqueSampleTO("syncope710@syncope.apache.org");
@@ -2534,8 +2613,9 @@ public class UserITCase extends AbstractITCase {
         userTO.getMemberships().add(new MembershipTO.Builder().group(ldapGroup.getKey()).build());
         userTO.getMemberships().add(new MembershipTO.Builder().group(dbGroup.getKey()).build());
 
-        userTO = createUser(userTO);
-        assertEquals(2, userTO.getPropagationStatusTOs().size());
+        ProvisioningResult<UserTO> result = createUser(userTO);
+        assertEquals(2, result.getPropagationStatuses().size());
+        userTO = result.getAny();
 
         // 3. request to propagate passwod only to db
         UserPatch userPatch = new UserPatch();
@@ -2543,8 +2623,8 @@ public class UserITCase extends AbstractITCase {
         userPatch.setPassword(new PasswordPatch.Builder().
                 onSyncope(false).resource(RESOURCE_NAME_TESTDB).value("newpassword123").build());
 
-        userTO = updateUser(userPatch);
-        assertEquals(1, userTO.getPropagationStatusTOs().size());
-        assertEquals(RESOURCE_NAME_TESTDB, userTO.getPropagationStatusTOs().get(0).getResource());
+        result = updateUser(userPatch);
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(RESOURCE_NAME_TESTDB, result.getPropagationStatuses().get(0).getResource());
     }
 }

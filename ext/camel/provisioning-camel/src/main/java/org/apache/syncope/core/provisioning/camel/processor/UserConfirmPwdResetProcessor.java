@@ -26,19 +26,14 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserConfirmPwdResetProcessor implements Processor {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserConfirmPwdResetProcessor.class);
 
     @Autowired
     protected PropagationManager propagationManager;
@@ -55,11 +50,6 @@ public class UserConfirmPwdResetProcessor implements Processor {
 
         PropagationReporter propReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propReporter, false);
     }
 }

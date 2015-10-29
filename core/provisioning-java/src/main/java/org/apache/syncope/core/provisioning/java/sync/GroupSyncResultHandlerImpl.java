@@ -34,7 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.sync.GroupSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 
@@ -90,11 +90,14 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningResult result) {
+    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningReport result) {
         GroupTO groupTO = GroupTO.class.cast(anyTO);
 
         Map.Entry<Long, List<PropagationStatus>> created = groupProvisioningManager.create(
-                groupTO, groupOwnerMap, Collections.singleton(profile.getTask().getResource().getKey()));
+                groupTO,
+                groupOwnerMap,
+                Collections.singleton(profile.getTask().getResource().getKey()),
+                true);
 
         result.setKey(created.getKey());
         result.setName(getName(anyTO));
@@ -107,11 +110,11 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
             final AnyTO before,
             final AnyPatch anyPatch,
             final SyncDelta delta,
-            final ProvisioningResult result) {
+            final ProvisioningReport result) {
 
         GroupPatch groupPatch = GroupPatch.class.cast(anyPatch);
 
-        Map.Entry<Long, List<PropagationStatus>> updated = groupProvisioningManager.update(groupPatch);
+        Map.Entry<Long, List<PropagationStatus>> updated = groupProvisioningManager.update(groupPatch, true);
 
         String groupOwner = null;
         for (AttrPatch attrPatch : groupPatch.getPlainAttrs()) {

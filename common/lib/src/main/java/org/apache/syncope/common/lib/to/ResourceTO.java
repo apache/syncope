@@ -56,9 +56,7 @@ public class ResourceTO extends AbstractAnnotatedBean {
 
     private final List<ProvisionTO> provisions = new ArrayList<>();
 
-    private boolean propagationPrimary;
-
-    private int propagationPriority = 0;
+    private Integer propagationPriority;
 
     private boolean randomPwdIfNotProvided;
 
@@ -119,19 +117,11 @@ public class ResourceTO extends AbstractAnnotatedBean {
         this.connectorDisplayName = connectorDisplayName;
     }
 
-    public boolean isPropagationPrimary() {
-        return propagationPrimary;
-    }
-
-    public void setPropagationPrimary(final boolean propagationPrimary) {
-        this.propagationPrimary = propagationPrimary;
-    }
-
-    public int getPropagationPriority() {
+    public Integer getPropagationPriority() {
         return propagationPriority;
     }
 
-    public void setPropagationPriority(final int propagationPriority) {
+    public void setPropagationPriority(final Integer propagationPriority) {
         this.propagationPriority = propagationPriority;
     }
 

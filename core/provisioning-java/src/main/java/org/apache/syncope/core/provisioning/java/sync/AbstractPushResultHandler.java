@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
 import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -154,10 +154,10 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             doHandle(any);
             return true;
         } catch (IgnoreProvisionException e) {
-            ProvisioningResult result = new ProvisioningResult();
+            ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.NONE);
             result.setAnyType(any == null ? null : any.getType().getKey());
-            result.setStatus(ProvisioningResult.Status.IGNORE);
+            result.setStatus(ProvisioningReport.Status.IGNORE);
             result.setKey(anyKey);
             profile.getResults().add(result);
 
@@ -172,7 +172,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     protected final void doHandle(final Any<?, ?> any) throws JobExecutionException {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
 
-        ProvisioningResult result = new ProvisioningResult();
+        ProvisioningReport result = new ProvisioningReport();
         profile.getResults().add(result);
 
         result.setKey(any.getKey());
@@ -204,7 +204,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             } else {
                 result.setOperation(getResourceOperation(profile.getTask().getMatchingRule()));
             }
-            result.setStatus(ProvisioningResult.Status.SUCCESS);
+            result.setStatus(ProvisioningReport.Status.SUCCESS);
         } else {
             try {
                 if (beforeObj == null) {
@@ -338,13 +338,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     action.after(this.getProfile(), any, result);
                 }
 
-                result.setStatus(ProvisioningResult.Status.SUCCESS);
+                result.setStatus(ProvisioningReport.Status.SUCCESS);
                 resultStatus = AuditElements.Result.SUCCESS;
                 output = getRemoteObject(connObjecKey, provision.getObjectClass());
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {
-                result.setStatus(ProvisioningResult.Status.FAILURE);
+                result.setStatus(ProvisioningReport.Status.FAILURE);
                 result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                 resultStatus = AuditElements.Result.FAILURE;
                 output = e;

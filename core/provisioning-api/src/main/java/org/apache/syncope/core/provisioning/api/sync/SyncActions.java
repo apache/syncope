@@ -182,7 +182,7 @@ public interface SyncActions extends ProvisioningActions {
     void onError(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            ProvisioningResult result,
+            ProvisioningReport result,
             Exception error) throws JobExecutionException;
 
     /**
@@ -200,5 +200,5 @@ public interface SyncActions extends ProvisioningActions {
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
             A any,
-            ProvisioningResult result) throws JobExecutionException;
+            ProvisioningReport result) throws JobExecutionException;
 }

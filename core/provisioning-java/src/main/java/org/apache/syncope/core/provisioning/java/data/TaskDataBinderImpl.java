@@ -299,6 +299,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                             + task.getClass().getName());
                 }
                 ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getKey());
+                ((PropagationTaskTO) taskTO).setAttributes(((PropagationTask) task).getSerializedAttributes());
                 break;
 
             case SCHEDULED:

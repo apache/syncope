@@ -27,12 +27,14 @@ import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
 import java.util.List;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -213,7 +215,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         userTO.getAuxClasses().add(typeClass.getKey());
         userTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1.2"));
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         schemaTO.setType(AttrSchemaType.Long);
@@ -241,13 +243,14 @@ public class PlainSchemaITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue259@syncope.apache.org");
         userTO.getAuxClasses().add(typeClass.getKey());
         userTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1"));
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         UserTO newUserTO = SerializationUtils.clone(userTO);
         newUserTO.getMemberships().add(new MembershipTO.Builder().group(2L).build());
 
-        userTO = userService.update(newUserTO).readEntity(UserTO.class);
+        userTO = userService.update(newUserTO).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getAny();
         assertNotNull(userTO);
     }
 
@@ -267,7 +270,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue260@syncope.apache.org");
         userTO.getAuxClasses().add(typeClass.getKey());
         userTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1.2"));
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         schemaTO.setUniqueConstraint(false);

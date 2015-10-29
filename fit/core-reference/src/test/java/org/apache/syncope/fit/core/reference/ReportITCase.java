@@ -140,7 +140,7 @@ public class ReportITCase extends AbstractITCase {
     }
 
     private void checkExport(final Long execId, final ReportExecExportFormat fmt) throws IOException {
-        final Response response = reportService.exportExecutionResult(execId, fmt);
+        Response response = reportService.exportExecutionResult(execId, fmt);
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
         assertNotNull(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));

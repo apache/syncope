@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -106,7 +106,7 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final A any,
-            final ProvisioningResult result) throws JobExecutionException {
+            final ProvisioningReport result) throws JobExecutionException {
 
         if (any instanceof UserTO && encodedPassword != null && cipher != null) {
             User syncopeUser = userDAO.find(any.getKey());

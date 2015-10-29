@@ -47,9 +47,9 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationException
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,23 +75,32 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     protected UserDAO userDAO;
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO) {
-        return create(userTO, true, false, null, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean nullPriorityAsync) {
+        return create(userTO, true, false, null, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword) {
-        return create(userTO, storePassword, false, null, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> create(
+            final UserTO userTO, final boolean storePassword, final boolean nullPriorityAsync) {
+
+        return create(userTO, storePassword, false, null, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final Set<String> excludedResources) {
-        return create(userTO, false, false, null, excludedResources);
+    public Pair<Long, List<PropagationStatus>> create(
+            final UserTO userTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+
+        return create(userTO, false, false, null, excludedResources, nullPriorityAsync);
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword,
-            final boolean disablePwdPolicyCheck, final Boolean enabled, final Set<String> excludedResources) {
+    public Pair<Long, List<PropagationStatus>> create(
+            final UserTO userTO,
+            final boolean storePassword,
+            final boolean disablePwdPolicyCheck,
+            final Boolean enabled,
+            final Set<String> excludedResources,
+            final boolean nullPriorityAsync) {
 
         WorkflowResult<Pair<Long, Boolean>> created =
                 uwfAdapter.create(userTO, disablePwdPolicyCheck, enabled, storePassword);
@@ -105,49 +114,46 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         return new ImmutablePair<>(created.getResult().getKey(), propagationReporter.getStatuses());
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final UserPatch userPatch) {
+    public Pair<Long, List<PropagationStatus>> update(final UserPatch userPatch, final boolean nullPriorityAsync) {
         WorkflowResult<Pair<UserPatch, Boolean>> updated = uwfAdapter.update(userPatch);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         return new ImmutablePair<>(updated.getResult().getKey().getKey(), propagationReporter.getStatuses());
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final UserPatch userPatch, final Set<String> excludedResources) {
-        return update(userPatch, userPatch.getKey(), new ProvisioningResult(), null, excludedResources);
+    public Pair<Long, List<PropagationStatus>> update(
+            final UserPatch userPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+
+        return update(userPatch, new ProvisioningReport(), null, excludedResources, nullPriorityAsync);
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final UserPatch userPatch, final Long key,
-            final ProvisioningResult result, final Boolean enabled, final Set<String> excludedResources) {
+    public Pair<Long, List<PropagationStatus>> update(
+            final UserPatch userPatch,
+            final ProvisioningReport result,
+            final Boolean enabled,
+            final Set<String> excludedResources,
+            final boolean nullPriorityAsync) {
 
         WorkflowResult<Pair<UserPatch, Boolean>> updated;
         try {
             updated = uwfAdapter.update(userPatch);
         } catch (Exception e) {
-            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", key, e);
+            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)",
+                    userPatch.getKey(), e);
 
-            result.setStatus(ProvisioningResult.Status.FAILURE);
+            result.setStatus(ProvisioningReport.Status.FAILURE);
             result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
 
             updated = new WorkflowResult<Pair<UserPatch, Boolean>>(
@@ -156,15 +162,15 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         }
 
         if (enabled != null) {
-            User user = userDAO.find(key);
+            User user = userDAO.find(userPatch.getKey());
 
             WorkflowResult<Long> enableUpdate = null;
             if (user.isSuspended() == null) {
-                enableUpdate = uwfAdapter.activate(key, null);
+                enableUpdate = uwfAdapter.activate(userPatch.getKey(), null);
             } else if (enabled && user.isSuspended()) {
-                enableUpdate = uwfAdapter.reactivate(key);
+                enableUpdate = uwfAdapter.reactivate(userPatch.getKey());
             } else if (!enabled && !user.isSuspended()) {
-                enableUpdate = uwfAdapter.suspend(key);
+                enableUpdate = uwfAdapter.suspend(userPatch.getKey());
             }
 
             if (enableUpdate != null) {
@@ -180,23 +186,20 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 updated, updated.getResult().getKey().getPassword() != null, excludedResources);
         PropagationReporter propagationReporter = ApplicationContextProvider.getBeanFactory().
                 getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         return new ImmutablePair<>(updated.getResult().getKey().getKey(), propagationReporter.getStatuses());
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long key) {
-        return delete(key, Collections.<String>emptySet());
+    public List<PropagationStatus> delete(final Long key, final boolean nullPriorityAsync) {
+        return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long key, final Set<String> excludedResources) {
+    public List<PropagationStatus> delete(
+            final Long key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceNames(userDAO.authFind(key)));
 
@@ -212,12 +215,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         try {
             uwfAdapter.delete(key);
@@ -240,33 +238,41 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> activate(final StatusPatch statusPatch) {
+    public Pair<Long, List<PropagationStatus>> activate(
+            final StatusPatch statusPatch, final boolean nullPriorityAsync) {
+
         WorkflowResult<Long> updated = statusPatch.isOnSyncope()
                 ? uwfAdapter.activate(statusPatch.getKey(), statusPatch.getToken())
                 : new WorkflowResult<>(statusPatch.getKey(), null, statusPatch.getType().name().toLowerCase());
 
-        return new ImmutablePair<>(updated.getResult(), propagateStatus(statusPatch));
+        return new ImmutablePair<>(updated.getResult(), propagateStatus(statusPatch, nullPriorityAsync));
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> reactivate(final StatusPatch statusPatch) {
+    public Pair<Long, List<PropagationStatus>> reactivate(
+            final StatusPatch statusPatch, final boolean nullPriorityAsync) {
+
         WorkflowResult<Long> updated = statusPatch.isOnSyncope()
                 ? uwfAdapter.reactivate(statusPatch.getKey())
                 : new WorkflowResult<>(statusPatch.getKey(), null, statusPatch.getType().name().toLowerCase());
 
-        return new ImmutablePair<>(updated.getResult(), propagateStatus(statusPatch));
+        return new ImmutablePair<>(updated.getResult(), propagateStatus(statusPatch, nullPriorityAsync));
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> suspend(final StatusPatch statusPatch) {
+    public Pair<Long, List<PropagationStatus>> suspend(
+            final StatusPatch statusPatch, final boolean nullPriorityAsync) {
+
         WorkflowResult<Long> updated = statusPatch.isOnSyncope()
                 ? uwfAdapter.suspend(statusPatch.getKey())
                 : new WorkflowResult<>(statusPatch.getKey(), null, statusPatch.getType().name().toLowerCase());
 
-        return new ImmutablePair<>(updated.getResult(), propagateStatus(statusPatch));
+        return new ImmutablePair<>(updated.getResult(), propagateStatus(statusPatch, nullPriorityAsync));
     }
 
-    protected List<PropagationStatus> propagateStatus(final StatusPatch statusPatch) {
+    protected List<PropagationStatus> propagateStatus(
+            final StatusPatch statusPatch, final boolean nullPriorityAsync) {
+
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.UPDATE, statusPatch.getResources());
         List<PropagationTask> tasks = propagationManager.getUpdateTasks(
@@ -279,12 +285,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 null);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propReporter, nullPriorityAsync);
 
         return propReporter.getStatuses();
     }
@@ -308,7 +309,11 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     @Override
     public List<PropagationStatus> provision(
-            final Long key, final boolean changePwd, final String password, final Collection<String> resources) {
+            final Long key,
+            final boolean changePwd,
+            final String password,
+            final Collection<String> resources,
+            final boolean nullPriorityAsync) {
 
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(key);
@@ -338,18 +343,15 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(wfResult, changePwd, null);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         return propagationReporter.getStatuses();
     }
 
     @Override
-    public List<PropagationStatus> deprovision(final Long key, final Collection<String> resources) {
+    public List<PropagationStatus> deprovision(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.DELETE, resources);
 
@@ -360,12 +362,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 CollectionUtils.removeAll(userDAO.findAllResourceNames(userDAO.authFind(key)), resources));
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         return propagationReporter.getStatuses();
     }
@@ -383,11 +380,6 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
         PropagationReporter propReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propReporter, false);
     }
 }

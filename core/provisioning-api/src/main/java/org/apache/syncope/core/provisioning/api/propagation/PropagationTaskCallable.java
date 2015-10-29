@@ -16,22 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api;
+package org.apache.syncope.core.provisioning.api.propagation;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.GroupTO;
+import java.util.concurrent.Callable;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
-public interface GroupProvisioningManager extends ProvisioningManager<GroupTO, GroupPatch> {
+public interface PropagationTaskCallable extends Callable<TaskExec> {
 
-    Pair<Long, List<PropagationStatus>> create(
-            GroupTO groupTO, Map<Long, String> groupOwnerMap, Set<String> excludedResources, boolean nullPriorityAsync);
+    void setExecutor(PropagationTaskExecutor executor);
 
-    List<PropagationStatus> provision(Long key, Collection<String> resources, boolean nullPriorityAsync);
+    void setTask(PropagationTask task);
 
+    void setReporter(PropagationReporter reporter);
 }

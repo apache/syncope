@@ -34,6 +34,8 @@ public interface PropagationTask extends Task {
 
     void setOldConnObjectKey(String oldConnObjectKey);
 
+    String getSerializedAttributes();
+
     Set<Attribute> getAttributes();
 
     void setAttributes(Set<Attribute> attributes);

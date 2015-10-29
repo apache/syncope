@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import static org.apache.syncope.core.misc.utils.MappingUtils.getMappingItemTransformers;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +64,9 @@ public class PlainAttrsSyncCorrelationRule implements SyncCorrelationRule {
             }
 
             List<Object> values = attr.getValue();
-            for (MappingItemTransformer transformer : getMappingItemTransformers(mappingItems.get(schema))) {
+            for (MappingItemTransformer transformer
+                    : MappingUtils.getMappingItemTransformers(mappingItems.get(schema))) {
+
                 values = transformer.beforeSync(values);
             }
 

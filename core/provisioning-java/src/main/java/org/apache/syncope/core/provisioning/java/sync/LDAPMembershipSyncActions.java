@@ -46,7 +46,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationException
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -317,7 +317,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final A any,
-            final ProvisioningResult result) throws JobExecutionException {
+            final ProvisioningReport result) throws JobExecutionException {
 
         if (!(profile.getTask() instanceof SyncTask)) {
             return;

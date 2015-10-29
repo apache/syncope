@@ -35,7 +35,7 @@ public class PropagationTaskTO extends AbstractTaskTO {
 
     private String oldConnObjectKey;
 
-    private String xmlAttributes;
+    private String attributes;
 
     private String resource;
 
@@ -77,12 +77,12 @@ public class PropagationTaskTO extends AbstractTaskTO {
         this.operation = operation;
     }
 
-    public String getXmlAttributes() {
-        return xmlAttributes;
+    public String getAttributes() {
+        return attributes;
     }
 
-    public void setXmlAttributes(final String xmlAttributes) {
-        this.xmlAttributes = xmlAttributes;
+    public void setAttributes(final String attributes) {
+        this.attributes = attributes;
     }
 
     public String getObjectClassName() {

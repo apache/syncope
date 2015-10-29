@@ -58,8 +58,6 @@ public class UserResultManager extends CommonsResultManager {
         System.out.println("    last change: " + userTO.getLastChangeDate());
         System.out.println("    last login: " + userTO.getLastLoginDate());
         System.out.println("    failed logins: " + userTO.getFailedLogins());
-        System.out.println("PROPAGATIONS:");
-        printPropagationStatus(userTO.getPropagationStatusTOs());
         System.out.println("RELATIONSHIPS:");
         printRelationships(userTO.getRelationships());
         System.out.println("    security question id: " + userTO.getSecurityQuestion());

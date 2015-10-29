@@ -62,6 +62,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -311,17 +312,17 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         } else {
             /*
              * We must choose here whether to
-             * a. actually delete the provided user / group from the external resource
-             * b. just update the provided user / group data onto the external resource
+             * a. actually delete the provided any object from the external resource
+             * b. just update the provided any object data onto the external resource
              *
-             * (a) happens when either there is no user / group associated with the PropagationTask (this takes place
+             * (a) happens when either there is no any object associated with the PropagationTask (this takes place
              * when the task is generated via UserLogic.delete() / GroupLogic.delete()) or the provided updated
-             * user / group hasn't the current resource assigned (when the task is generated via
+             * any object hasn't the current resource assigned (when the task is generated via
              * UserController.update() / GroupLogic.update()).
              *
-             * (b) happens when the provided updated user / group does have the current resource assigned (when the task
+             * (b) happens when the provided updated any object does have the current resource assigned (when the task
              * is generated via UserLogic.update() / GroupLogic.updae()): this basically means that before such
-             * update, this user / group used to have the current resource assigned by more than one mean (for example,
+             * update, this any object used to have the current resource assigned by more than one mean (for example,
              * two different memberships with the same resource).
              */
             Any<?, ?> any = getAny(task);
@@ -452,13 +453,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 task.addExec(execution);
 
                 taskDAO.save(task);
-                // this flush call is needed to generate a value for the execution id
+                // needed to generate a value for the execution key
                 taskDAO.flush();
             }
 
             if (reporter != null) {
-                reporter.onSuccessOrSecondaryResourceFailures(
-                        task.getResource().getKey(),
+                reporter.onSuccessOrNonPriorityResourceFailures(
+                        task,
                         PropagationTaskExecStatus.valueOf(execution.getStatus()),
                         failureReason,
                         beforeObj,
@@ -491,16 +492,30 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     @Override
     public void execute(final Collection<PropagationTask> tasks) {
-        execute(tasks, null);
+        execute(tasks, null, false);
     }
 
+    protected abstract void doExecute(
+            Collection<PropagationTask> tasks, PropagationReporter reporter, boolean nullPriorityAsync);
+
     @Override
-    public abstract void execute(Collection<PropagationTask> tasks, final PropagationReporter reporter);
+    public void execute(
+            final Collection<PropagationTask> tasks,
+            final PropagationReporter reporter,
+            final boolean nullPriorityAsync) {
+
+        try {
+            doExecute(tasks, reporter, nullPriorityAsync);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation priority resource", e);
+            reporter.onPriorityResourceFailure(e.getResourceName(), tasks);
+        }
+    }
 
     /**
      * Check whether an execution has to be stored, for a given task.
      *
-     * @param task execution's task
+     * @param task propagation task
      * @param execution to be decide whether to store or not
      * @return true if execution has to be store, false otherwise
      */
