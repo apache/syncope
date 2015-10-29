@@ -928,5 +928,19 @@ public class RoleTestITCase extends AbstractTest {
         roleTO = updateRole(roleMod);
         assertNotNull(roleTO);
         assertEquals("11.257", roleTO.getAttrMap().get(doubleSchemaName).getValues().get(0));
+
+        // 6. update schema, unset conversion pattern
+        schema.setConversionPattern(null);
+        schemaService.update(AttributableType.ROLE, SchemaType.NORMAL, schema.getName(), schema);
+
+        // 7. modify role with new double value, verify that no pattern is applied
+        roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.getAttrsToRemove().add(doubleSchemaName);
+        roleMod.getAttrsToUpdate().add(attributeMod(doubleSchemaName, "11.23"));
+
+        roleTO = updateRole(roleMod);
+        assertNotNull(roleTO);
+        assertEquals("11.23", roleTO.getAttrMap().get(doubleSchemaName).getValues().get(0));
     }
 }
