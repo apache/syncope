@@ -971,8 +971,10 @@ public class UserITCase extends AbstractITCase {
             }
         });
         assertEquals(PropagationTaskExecStatus.SUCCESS, byResource.get(RESOURCE_NAME_LDAP).getStatus());
-        assertEquals(PropagationTaskExecStatus.CREATED, byResource.get(RESOURCE_NAME_TESTDB).getStatus());
-        assertEquals(PropagationTaskExecStatus.CREATED, byResource.get(RESOURCE_NAME_TESTDB2).getStatus());
+        assertTrue(byResource.get(RESOURCE_NAME_TESTDB).getStatus() == PropagationTaskExecStatus.CREATED
+		   || byResource.get(RESOURCE_NAME_TESTDB).getStatus() == PropagationTaskExecStatus.SUCCESS);
+        assertTrue(byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == PropagationTaskExecStatus.CREATED
+		   || byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == PropagationTaskExecStatus.SUCCESS);
     }
 
     @Test
