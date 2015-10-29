@@ -42,5 +42,4 @@ public class QuestionSyncopeOperations {
     public SecurityQuestionTO readByUser(final String username) {
         return securityQuestionService.readByUser(username);
     }
-
 }

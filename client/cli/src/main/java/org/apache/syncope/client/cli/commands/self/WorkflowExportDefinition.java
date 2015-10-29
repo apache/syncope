@@ -43,7 +43,7 @@ public class WorkflowExportDefinition extends AbstractWorkflowCommand {
                 if (ex.getMessage().startsWith("NotFound")) {
                     workflowResultManager.notFoundError("Workflow", input.firstParameter());
                 } else {
-                    workflowResultManager.generic(ex.getMessage());
+                    workflowResultManager.genericError(ex.getMessage());
                 }
             } catch (final IllegalArgumentException ex) {
                 workflowResultManager.typeNotValidError(

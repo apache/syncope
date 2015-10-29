@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 
 public class ConnectorListConfigurationProperties extends AbstractConnectorCommand {
 
-    private static final String LIST_CONFIGURATION_HELP_MESSAGE 
+    private static final String LIST_CONFIGURATION_HELP_MESSAGE
             = "connector --list-configuration-properties {CONNECTOR-ID} {CONNECTOR-ID} [...]";
 
     private final Input input;
@@ -37,7 +37,7 @@ public class ConnectorListConfigurationProperties extends AbstractConnectorComma
         if (input.getParameters().length >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    connectorResultManager.fromConfigurationProperties(
+                    connectorResultManager.printConfigurationProperties(
                             connectorSyncopeOperations.read(parameter).getConf());
                 } catch (final NumberFormatException ex) {
                     connectorResultManager.numberFormatException("connector", parameter);
@@ -45,14 +45,12 @@ public class ConnectorListConfigurationProperties extends AbstractConnectorComma
                     if (ex.getMessage().startsWith("NotFound")) {
                         connectorResultManager.notFoundError("Connector", parameter);
                     } else {
-                        connectorResultManager.generic(ex.getMessage());
+                        connectorResultManager.genericError(ex.getMessage());
                     }
-                    break;
                 }
             }
         } else {
             connectorResultManager.commandOptionError(LIST_CONFIGURATION_HELP_MESSAGE);
         }
     }
-
 }

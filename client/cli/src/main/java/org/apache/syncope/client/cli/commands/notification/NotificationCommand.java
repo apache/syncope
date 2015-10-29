@@ -45,7 +45,7 @@ public class NotificationCommand extends AbstractCommand {
 
         switch (Options.fromName(input.getOption())) {
             case LIST:
-                new NotificationList().list();
+                new NotificationList(input).list();
                 break;
             case READ:
                 new NotificationRead(input).read();
@@ -105,5 +105,4 @@ public class NotificationCommand extends AbstractCommand {
             return options;
         }
     }
-
 }

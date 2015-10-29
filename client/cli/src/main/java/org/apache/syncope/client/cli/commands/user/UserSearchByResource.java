@@ -45,7 +45,8 @@ public class UserSearchByResource extends AbstractUserCommand {
             try {
                 List<UserTO> userTOs = null;
                 if (!realmSyncopeOperations.exists(realm)) {
-                    userResultManager.generic("Operation performed on root realm because " + realm + "does not exists");
+                    userResultManager.genericMessage("Operation performed on root realm because " + realm
+                            + "does not exists");
                 }
                 if (!resourceSyncopeOperations.exists(resource)) {
                     userResultManager.notFoundError("Resource", resource);
@@ -53,16 +54,16 @@ public class UserSearchByResource extends AbstractUserCommand {
                     userTOs = userSyncopeOperations.searchByResource(realm, resource);
                 }
                 if (userTOs == null || userTOs.isEmpty()) {
-                    userResultManager.generic("No users has " + resource + " assigned");
+                    userResultManager.genericMessage("No users has " + resource + " assigned");
                 } else {
                     userResultManager.toView(userTOs);
                 }
             } catch (final WebServiceException | SyncopeClientException ex) {
-                userResultManager.generic(ex.getMessage(), SEARCH_HELP_MESSAGE);
+                userResultManager.genericError(ex.getMessage());
+                userResultManager.genericError(SEARCH_HELP_MESSAGE);
             }
         } else {
             userResultManager.commandOptionError(SEARCH_HELP_MESSAGE);
         }
     }
-
 }

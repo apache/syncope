@@ -45,7 +45,7 @@ public class ResourceCommand extends AbstractCommand {
 
         switch (ResourceOptions.fromName(input.getOption())) {
             case LIST:
-                new ResourceList().list();
+                new ResourceList(input).list();
                 break;
             case READ:
                 new ResourceRead(input).read();
@@ -105,5 +105,4 @@ public class ResourceCommand extends AbstractCommand {
             return options;
         }
     }
-
 }

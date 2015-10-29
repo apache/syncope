@@ -50,17 +50,18 @@ public class ConfigurationUpdate extends AbstractConfigurationCommand {
                     configurationSyncopeOperations.set(attrTO);
                     attrList.add(attrTO);
                 } catch (final IllegalArgumentException ex) {
-                    configurationResultManager.generic(ex.getMessage(), UPDATE_HELP_MESSAGE);
+                    configurationResultManager.genericError(ex.getMessage());
+                    configurationResultManager.genericError(UPDATE_HELP_MESSAGE);
                     failed = true;
                     break;
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         configurationResultManager.notFoundError("Configuration", pairParameter.getKey());
                     } else if (ex.getMessage().startsWith("InvalidValues")) {
-                        configurationResultManager.generic(
+                        configurationResultManager.genericError(
                                 pairParameter.getValue() + " is not a valid value for " + pairParameter.getKey());
                     } else {
-                        configurationResultManager.generic(ex.getMessage());
+                        configurationResultManager.genericError(ex.getMessage());
                     }
                     failed = true;
                     break;

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.cli.commands.entitlement;
 
-public class AbstractEntitlementCommand {
+public abstract class AbstractEntitlementCommand {
 
     protected final EntitlementSyncopeOperations entitlementSyncopeOperations = new EntitlementSyncopeOperations();
 

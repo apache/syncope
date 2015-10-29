@@ -45,7 +45,7 @@ public class ConfigurationRead extends AbstractConfigurationCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         configurationResultManager.notFoundError("Configuration", parameter);
                     } else {
-                        configurationResultManager.generic(ex.getMessage());
+                        configurationResultManager.genericError(ex.getMessage());
                     }
                     failed = true;
                     break;
@@ -58,5 +58,4 @@ public class ConfigurationRead extends AbstractConfigurationCommand {
             configurationResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-
 }

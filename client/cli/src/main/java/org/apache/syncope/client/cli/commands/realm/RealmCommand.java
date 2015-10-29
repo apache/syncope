@@ -40,7 +40,7 @@ public class RealmCommand extends AbstractCommand {
         }
         switch (Options.fromName(input.getOption())) {
             case LIST:
-                new RealmList().list();
+                new RealmList(input).list();
                 break;
             case HELP:
                 System.out.println(HELP_MESSAGE);
@@ -92,5 +92,4 @@ public class RealmCommand extends AbstractCommand {
             return options;
         }
     }
-
 }

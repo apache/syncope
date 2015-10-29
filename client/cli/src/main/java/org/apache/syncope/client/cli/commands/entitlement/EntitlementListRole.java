@@ -43,13 +43,13 @@ public class EntitlementListRole extends AbstractEntitlementCommand {
                 } else if (roleTOs != null && !roleTOs.isEmpty()) {
                     entitlementResultManager.rolesToView(roleTOs);
                 } else {
-                    entitlementResultManager.generic("No roles found for entitlement " + input.firstParameter());
+                    entitlementResultManager.genericMessage("No roles found for entitlement " + input.firstParameter());
                 }
             } catch (final SyncopeClientException | WebServiceException ex) {
                 if (ex.getMessage().startsWith("NotFound")) {
                     entitlementResultManager.notFoundError("User", input.firstParameter());
                 } else {
-                    entitlementResultManager.generic("Error: " + ex.getMessage());
+                    entitlementResultManager.genericError(ex.getMessage());
                 }
             } catch (final NumberFormatException ex) {
                 entitlementResultManager.numberFormatException("user", input.firstParameter());
@@ -58,5 +58,4 @@ public class EntitlementListRole extends AbstractEntitlementCommand {
             entitlementResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-
 }

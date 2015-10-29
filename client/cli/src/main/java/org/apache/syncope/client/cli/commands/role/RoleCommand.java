@@ -45,7 +45,7 @@ public class RoleCommand extends AbstractCommand {
 
         switch (RoleOptions.fromName(input.getOption())) {
             case LIST:
-                new RoleList().list();
+                new RoleList(input).list();
                 break;
             case READ:
                 new RoleRead(input).read();
@@ -105,5 +105,4 @@ public class RoleCommand extends AbstractCommand {
             return options;
         }
     }
-
 }

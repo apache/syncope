@@ -32,7 +32,6 @@ public class UserResultManager extends CommonsResultManager {
         for (final UserTO userTO : userTOs) {
             printUser(userTO);
         }
-        System.out.println("");
     }
 
     private void printUser(final UserTO userTO) {

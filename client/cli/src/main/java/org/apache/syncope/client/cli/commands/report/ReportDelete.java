@@ -42,9 +42,9 @@ public class ReportDelete extends AbstractReportCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         reportResultManager.notFoundError("Report", parameter);
                     } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                        reportResultManager.generic("You cannot delete report " + parameter);
+                        reportResultManager.genericError("You cannot delete report " + parameter);
                     } else {
-                        reportResultManager.generic(ex.getMessage());
+                        reportResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
                     reportResultManager.numberFormatException("report", parameter);
@@ -54,5 +54,4 @@ public class ReportDelete extends AbstractReportCommand {
             reportResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
-
 }

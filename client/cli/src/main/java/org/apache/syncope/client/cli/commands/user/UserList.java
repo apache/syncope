@@ -20,29 +20,42 @@ package org.apache.syncope.client.cli.commands.user;
 
 import java.util.LinkedList;
 import java.util.Scanner;
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
 
 public class UserList extends AbstractUserCommand {
 
+    private static final String LIST_HELP_MESSAGE = "user --list";
+
+    private final Input input;
+
+    public UserList(final Input input) {
+        this.input = input;
+    }
+
     public void list() {
-        try {
-            final Scanner scanIn = new Scanner(System.in);
-            System.out.println(
-                    "This operation could be print a lot of information "
-                    + "on your screen. Do you want to continue? [yes/no]");
-            final String answer = scanIn.nextLine();
-            if ("yes".equalsIgnoreCase(answer)) {
-                final PagedResult<UserTO> uResult = userSyncopeOperations.list();
-                userResultManager.toView(new LinkedList<>(uResult.getResult()));
-            } else if ("no".equalsIgnoreCase(answer)) {
-                userResultManager.generic("List operation skipped");
-            } else {
-                userResultManager.generic("Invalid parameter, please use [yes/no]");
+        if (input.parameterNumber() == 0) {
+            try {
+                final Scanner scanIn = new Scanner(System.in);
+                System.out.println(
+                        "This operation could be print a lot of information "
+                        + "on your screen. Do you want to continue? [yes/no]");
+                final String answer = scanIn.nextLine();
+                if ("yes".equalsIgnoreCase(answer)) {
+                    final PagedResult<UserTO> uResult = userSyncopeOperations.list();
+                    userResultManager.toView(new LinkedList<>(uResult.getResult()));
+                } else if ("no".equalsIgnoreCase(answer)) {
+                    userResultManager.genericError("List operation skipped");
+                } else {
+                    userResultManager.genericError("Invalid parameter, please use [yes/no]");
+                }
+            } catch (final SyncopeClientException ex) {
+                userResultManager.genericError(ex.getMessage());
             }
-        } catch (final SyncopeClientException ex) {
-            userResultManager.generic(ex.getMessage());
+        } else {
+            userResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
         }
     }
 }

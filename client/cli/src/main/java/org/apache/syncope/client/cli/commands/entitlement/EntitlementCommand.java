@@ -37,7 +37,7 @@ public class EntitlementCommand extends AbstractCommand {
             + "    --read-by-username\n"
             + "       Syntax: --read-by-username {USERNAME}\n"
             + "    --read-by-userid\n"
-            + "       Syntax: --read-by-userid {USERID}\n"
+            + "       Syntax: --read-by-userid {USER-ID}\n"
             + "    --search-by-role\n"
             + "       Syntax: --search-by-role {ROLE-ID}";
 
@@ -49,7 +49,7 @@ public class EntitlementCommand extends AbstractCommand {
 
         switch (EntitlementOptions.fromName(input.getOption())) {
             case LIST:
-                new EntitlementList().list();
+                new EntitlementList(input).list();
                 break;
             case READ_BY_USERNAME:
                 new EntitlementReadByUsername(input).read();
@@ -117,5 +117,4 @@ public class EntitlementCommand extends AbstractCommand {
             return options;
         }
     }
-
 }

@@ -41,7 +41,7 @@ public class EntitlementSearchByRole extends AbstractEntitlementCommand {
                 if (ex.getMessage().startsWith("NotFound")) {
                     entitlementResultManager.notFoundError("User", input.firstParameter());
                 } else {
-                    entitlementResultManager.generic("Error: " + ex.getMessage());
+                    entitlementResultManager.genericError(ex.getMessage());
                 }
             } catch (final NumberFormatException ex) {
                 entitlementResultManager.numberFormatException("user", input.firstParameter());
@@ -50,5 +50,4 @@ public class EntitlementSearchByRole extends AbstractEntitlementCommand {
             entitlementResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-    
 }

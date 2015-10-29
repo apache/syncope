@@ -43,12 +43,13 @@ public class UserSearchByAttribute extends AbstractUserCommand {
             try {
                 List<UserTO> userTOs;
                 if (!realmSyncopeOperations.exists(realm)) {
-                    userResultManager.generic("Operation performed on root realm because " + realm + "does not exists");
+                    userResultManager.genericMessage("Operation performed on root realm because " + realm
+                            + "does not exists");
                 }
                 userTOs = userSyncopeOperations.searchByAttribute(
                         realm, pairParameter.getKey(), pairParameter.getValue());
                 if (userTOs == null || userTOs.isEmpty()) {
-                    userResultManager.generic("No users found with attribute "
+                    userResultManager.genericMessage("No users found with attribute "
                             + pairParameter.getKey() + " and value " + pairParameter.getValue());
                 } else {
                     userResultManager.toView(userTOs);
@@ -57,13 +58,13 @@ public class UserSearchByAttribute extends AbstractUserCommand {
                 if (ex.getMessage().startsWith("NotFound")) {
                     userResultManager.notFoundError("User with " + pairParameter.getKey(), pairParameter.getValue());
                 } else {
-                    userResultManager.generic(ex.getMessage(), SEARCH_HELP_MESSAGE);
+                    userResultManager.genericError(ex.getMessage());
                 }
             } catch (final IllegalArgumentException ex) {
-                userResultManager.generic(ex.getMessage(), SEARCH_HELP_MESSAGE);
+                userResultManager.genericError(ex.getMessage());
+                userResultManager.genericError(SEARCH_HELP_MESSAGE);
             }
             userResultManager.commandOptionError(SEARCH_HELP_MESSAGE);
         }
     }
-
 }

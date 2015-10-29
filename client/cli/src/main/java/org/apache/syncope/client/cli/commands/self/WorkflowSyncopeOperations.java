@@ -37,5 +37,4 @@ public class WorkflowSyncopeOperations {
     public Response exportDefinition(final AnyTypeKind anyTypeKind) {
         return workflowService.exportDefinition(anyTypeKind);
     }
-
 }

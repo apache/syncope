@@ -42,7 +42,7 @@ public class UserDelete extends AbstractUserCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         userResultManager.notFoundError("User", parameter);
                     } else {
-                        userResultManager.generic(ex.getMessage());
+                        userResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
                     userResultManager.numberFormatException("user", parameter);

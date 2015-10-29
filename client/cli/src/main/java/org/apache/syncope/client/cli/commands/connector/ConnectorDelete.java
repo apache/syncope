@@ -48,15 +48,14 @@ public class ConnectorDelete extends AbstractConnectorCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         connectorResultManager.notFoundError("Connector", parameter);
                     } else {
-                        connectorResultManager.generic(ex.getMessage());
+                        connectorResultManager.genericError(ex.getMessage());
                     }
                     break;
                 }
             }
-            connectorResultManager.toView(connInstanceTOs);
+            connectorResultManager.printConnectors(connInstanceTOs);
         } else {
             connectorResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
-
 }

@@ -49,7 +49,7 @@ public class ConfigurationCommand extends AbstractCommand {
 
         switch (Options.fromName(input.getOption())) {
             case GET:
-                new ConfigurationGet().get();
+                new ConfigurationGet(input).get();
                 break;
             case READ:
                 new ConfigurationRead(input).read();

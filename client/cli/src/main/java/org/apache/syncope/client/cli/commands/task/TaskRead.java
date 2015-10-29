@@ -46,7 +46,7 @@ public class TaskRead extends AbstractTaskCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         taskResultManager.notFoundError("Task", parameter);
                     } else {
-                        taskResultManager.generic("Error: " + ex.getMessage());
+                        taskResultManager.genericError(ex.getMessage());
                     }
                     break;
                 }
@@ -56,5 +56,4 @@ public class TaskRead extends AbstractTaskCommand {
             taskResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-
 }

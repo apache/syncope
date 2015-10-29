@@ -50,5 +50,4 @@ public class EntitlementResultManager extends CommonsResultManager {
             System.out.println("       - " + realm);
         }
     }
-
 }

@@ -43,9 +43,9 @@ public class TaskDelete extends AbstractTaskCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         taskResultManager.notFoundError("Task", parameter);
                     } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                        taskResultManager.generic("You cannot delete task " + parameter);
+                        taskResultManager.genericError("You cannot delete task " + parameter);
                     } else {
-                        taskResultManager.generic(ex.getMessage());
+                        taskResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
                     taskResultManager.notBooleanDeletedError("task", parameter);

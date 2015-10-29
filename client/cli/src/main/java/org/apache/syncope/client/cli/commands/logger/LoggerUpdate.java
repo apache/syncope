@@ -57,11 +57,13 @@ public class LoggerUpdate extends AbstractLoggerCommand {
                                 input.firstParameter(),
                                 CommandUtils.fromEnumToArray(LoggerLevel.class));
                     } else if ("Parameter syntax error!".equalsIgnoreCase(ex.getMessage())) {
-                        loggerResultManager.generic(ex.getMessage(), UPDATE_HELP_MESSAGE);
+                        loggerResultManager.genericError(ex.getMessage());
+                        loggerResultManager.genericError(UPDATE_HELP_MESSAGE);
                     } else if (ex.getMessage().startsWith("NotFound")) {
                         loggerResultManager.notFoundError("Logger", parameter);
                     } else {
-                        loggerResultManager.generic(ex.getMessage(), UPDATE_HELP_MESSAGE);
+                        loggerResultManager.genericError(ex.getMessage());
+                        loggerResultManager.genericError(UPDATE_HELP_MESSAGE);
                     }
                     failed = true;
                     break;

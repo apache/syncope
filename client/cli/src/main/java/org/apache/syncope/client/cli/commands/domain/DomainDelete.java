@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 
 public class DomainDelete extends AbstractDomainCommand {
 
-    private static final String DELETE_HELP_MESSAGE = "domain --delete {DOMAIN-KEY} {DOMAIN-KEY} [...]";
+    private static final String DELETE_HELP_MESSAGE = "domain --delete {DOMAIN-NAME} {DOMAIN-NAME} [...]";
 
     private final Input input;
 
@@ -41,7 +41,7 @@ public class DomainDelete extends AbstractDomainCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         domainResultManager.notFoundError("Domain", parameter);
                     } else {
-                        domainResultManager.generic(ex.getMessage());
+                        domainResultManager.genericError(ex.getMessage());
                     }
                 }
             }
@@ -49,5 +49,4 @@ public class DomainDelete extends AbstractDomainCommand {
             domainResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
-
 }

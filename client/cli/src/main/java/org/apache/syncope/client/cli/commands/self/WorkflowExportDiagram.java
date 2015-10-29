@@ -48,18 +48,18 @@ public class WorkflowExportDiagram extends AbstractWorkflowCommand {
                 final FileOutputStream fos = new FileOutputStream("/tmp/diagram.png");
                 fos.write(diagram);
                 fos.close();
-                workflowResultManager.generic("Diagram created: /tmp/diagram.png");
+                workflowResultManager.genericMessage("Diagram created: /tmp/diagram.png");
             } catch (final SyncopeClientException | WebServiceException ex) {
                 if (ex.getMessage().startsWith("NotFound")) {
                     workflowResultManager.notFoundError("Workflow", input.firstParameter());
                 } else {
-                    workflowResultManager.generic(ex.getMessage());
+                    workflowResultManager.genericError(ex.getMessage());
                 }
             } catch (final IllegalArgumentException ex) {
                 workflowResultManager.typeNotValidError(
                         "workflow", input.firstParameter(), CommandUtils.fromEnumToArray(AnyTypeKind.class));
             } catch (final IOException ex) {
-
+                workflowResultManager.genericError(ex.getMessage());
             }
         } else {
             workflowResultManager.commandOptionError(EXPORT_HELP_MESSAGE);

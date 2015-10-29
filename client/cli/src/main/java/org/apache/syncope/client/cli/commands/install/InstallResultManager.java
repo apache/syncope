@@ -26,6 +26,16 @@ import org.apache.syncope.client.cli.commands.CommonsResultManager;
 
 public class InstallResultManager extends CommonsResultManager {
 
+    public void printWelcome() {
+        System.out.println("");
+        System.out.println("###############################################");
+        System.out.println("#                                             #");
+        System.out.println("# Welcome to Syncope CLI installation process #");
+        System.out.println("#                                             #");
+        System.out.println("###############################################");
+        System.out.println("");
+    }
+
     public void installationSuccessful(final String version) {
         System.out.println("Installation parameters checked on Syncope core version: " + version);
         System.out.println("");

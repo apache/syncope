@@ -65,5 +65,4 @@ public class LoggerCreate extends AbstractLoggerCommand {
             loggerResultManager.commandOptionError(CREATE_HELP_MESSAGE);
         }
     }
-
 }

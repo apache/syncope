@@ -23,6 +23,8 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 
 public class UserCount extends AbstractUserCommand {
 
+    private static final String COUNT_HELP_MESSAGE = "user --count";
+
     private final Input input;
 
     public UserCount(final Input input) {
@@ -32,12 +34,12 @@ public class UserCount extends AbstractUserCommand {
     public void count() {
         if (input.parameterNumber() == 0) {
             try {
-                userResultManager.generic("Total users: " + userSyncopeOperations.count());
+                userResultManager.genericMessage("Total users: " + userSyncopeOperations.count());
             } catch (final SyncopeClientException ex) {
-                userResultManager.generic("Error: " + ex.getMessage());
+                userResultManager.genericError(ex.getMessage());
             }
         } else {
-            userResultManager.generic("Error: unnecessary parameters " + input.listParameters());
+            userResultManager.unnecessaryParameters(input.listParameters(), COUNT_HELP_MESSAGE);
         }
     }
 }

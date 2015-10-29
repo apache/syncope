@@ -43,7 +43,7 @@ public class ResourceDelete extends AbstractResourceCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         resourceResultManager.notFoundError("Resource", parameter);
                     } else {
-                        resourceResultManager.generic(ex.getMessage());
+                        resourceResultManager.genericError(ex.getMessage());
                     }
                     break;
                 }
@@ -52,5 +52,4 @@ public class ResourceDelete extends AbstractResourceCommand {
             resourceResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
-
 }

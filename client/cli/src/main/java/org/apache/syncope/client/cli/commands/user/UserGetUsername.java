@@ -34,9 +34,9 @@ public class UserGetUsername extends AbstractUserCommand {
     public void get() {
         if (input.getParameters().length == 1) {
             try {
-                userResultManager.generic(userSyncopeOperations.getUsernameFromId(input.firstParameter()));
+                userResultManager.genericMessage(userSyncopeOperations.getUsernameFromId(input.firstParameter()));
             } catch (final SyncopeClientException ex) {
-                userResultManager.generic("Error: " + ex.getMessage());
+                userResultManager.genericError(ex.getMessage());
             }
         } else {
             userResultManager.commandOptionError(GET_HELP_MESSAGE);

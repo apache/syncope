@@ -26,7 +26,7 @@ import org.apache.syncope.common.rest.api.service.ConnectorService;
 
 public class ConnectorSyncopeOperations {
 
-    protected final ConnectorService connectorService = SyncopeServices.get(ConnectorService.class);
+    private final ConnectorService connectorService = SyncopeServices.get(ConnectorService.class);
 
     public ConnInstanceTO readByResource(final String resourceName) {
         return connectorService.readByResource(resourceName, null);

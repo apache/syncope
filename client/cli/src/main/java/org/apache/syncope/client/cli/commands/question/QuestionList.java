@@ -18,15 +18,28 @@
  */
 package org.apache.syncope.client.cli.commands.question;
 
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 
 public class QuestionList extends AbstractQuestionCommand {
 
+    private static final String LIST_HELP_MESSAGE = "question --list";
+
+    private final Input input;
+
+    public QuestionList(final Input input) {
+        this.input = input;
+    }
+
     public void list() {
-        try {
-            questionResultManager.toView(questionSyncopeOperations.list());
-        } catch (final SyncopeClientException ex) {
-            questionResultManager.generic(ex.getMessage());
+        if (input.parameterNumber() == 0) {
+            try {
+                questionResultManager.toView(questionSyncopeOperations.list());
+            } catch (final SyncopeClientException ex) {
+                questionResultManager.genericError(ex.getMessage());
+            }
+        } else {
+            questionResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
         }
     }
 }

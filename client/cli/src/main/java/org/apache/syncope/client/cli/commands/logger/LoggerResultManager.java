@@ -57,5 +57,4 @@ public class LoggerResultManager extends CommonsResultManager {
         }
         tableBuilder.build().print();
     }
-
 }

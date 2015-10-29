@@ -47,7 +47,7 @@ public class TaskList extends AbstractTaskCommand {
                 }
                 taskResultManager.fromList(taskType, taskTOs);
             } catch (final SyncopeClientException ex) {
-                taskResultManager.generic(ex.getMessage());
+                taskResultManager.genericError(ex.getMessage());
             } catch (final IllegalArgumentException ex) {
                 taskResultManager.typeNotValidError(
                         "task", input.firstParameter(), CommandUtils.fromEnumToArray(TaskType.class));

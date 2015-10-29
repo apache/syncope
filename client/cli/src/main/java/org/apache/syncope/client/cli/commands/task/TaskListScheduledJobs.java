@@ -18,16 +18,28 @@
  */
 package org.apache.syncope.client.cli.commands.task;
 
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 
-public class TaskRunningJobs extends AbstractTaskCommand {
+public class TaskListScheduledJobs extends AbstractTaskCommand {
 
-    public void list() {
-        try {
-            taskResultManager.printTaskExecTO(taskSyncopeOperations.listRunningJobs());
-        } catch (final SyncopeClientException ex) {
-            taskResultManager.generic(ex.getMessage());
-        }
+    private static final String READ_HELP_MESSAGE = "task --list-scheduled-jobs";
+
+    private final Input input;
+
+    public TaskListScheduledJobs(final Input input) {
+        this.input = input;
     }
 
+    public void list() {
+        if (input.parameterNumber() == 0) {
+            try {
+                taskResultManager.printTaskExecTO(taskSyncopeOperations.listScheduledJobs());
+            } catch (final SyncopeClientException ex) {
+                taskResultManager.genericError(ex.getMessage());
+            }
+        } else {
+            taskResultManager.unnecessaryParameters(input.listParameters(), READ_HELP_MESSAGE);
+        }
+    }
 }

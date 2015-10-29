@@ -22,4 +22,7 @@ import org.apache.syncope.client.cli.commands.CommonsResultManager;
 
 public class HelpResultManager extends CommonsResultManager {
 
+    public void toView(final String generalHelp) {
+        System.out.println(generalHelp);
+    }
 }

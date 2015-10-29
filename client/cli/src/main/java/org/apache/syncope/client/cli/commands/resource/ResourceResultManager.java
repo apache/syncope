@@ -31,7 +31,6 @@ public class ResourceResultManager extends CommonsResultManager {
         for (final ResourceTO resourceTO : resourceTOs) {
             printResource(resourceTO);
         }
-        System.out.println("");
     }
 
     private void printResource(final ResourceTO resourceTO) {
@@ -90,5 +89,4 @@ public class ResourceResultManager extends CommonsResultManager {
             System.out.println("");
         }
     }
-
 }

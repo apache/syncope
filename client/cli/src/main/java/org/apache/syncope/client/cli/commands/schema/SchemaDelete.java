@@ -48,9 +48,9 @@ public class SchemaDelete extends AbstractSchemaCommand {
                 if (ex.getMessage().startsWith("NotFound")) {
                     schemaResultManager.notFoundError("Schema", parameters[0]);
                 } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                    schemaResultManager.generic("You cannot delete schema " + parameters[0]);
+                    schemaResultManager.genericError("You cannot delete schema " + parameters[0]);
                 } else {
-                    schemaResultManager.generic(ex.getMessage());
+                    schemaResultManager.genericError(ex.getMessage());
                 }
             } catch (final IllegalArgumentException ex) {
                 schemaResultManager.typeNotValidError(
@@ -60,5 +60,4 @@ public class SchemaDelete extends AbstractSchemaCommand {
             schemaResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
-
 }

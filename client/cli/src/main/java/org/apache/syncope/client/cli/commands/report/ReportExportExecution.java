@@ -55,34 +55,35 @@ public class ReportExportExecution extends AbstractReportCommand {
                         case XML:
                             final String xmlFinalName = "export_" + parameter + ".xml";
                             XMLUtils.createXMLFile(report, xmlFinalName);
-                            reportResultManager.generic(xmlFinalName + " successfully created");
+                            reportResultManager.genericMessage(xmlFinalName + " successfully created");
                             break;
                         case CSV:
-                            reportResultManager.generic(format + " doesn't supported");
+                            reportResultManager.genericError(format + " doesn't supported");
                             break;
                         case PDF:
-                            reportResultManager.generic(format + " doesn't supported");
+                            reportResultManager.genericError(format + " doesn't supported");
                             break;
                         case HTML:
-                            reportResultManager.generic(format + " doesn't supported");
+                            reportResultManager.genericError(format + " doesn't supported");
                             break;
                         case RTF:
-                            reportResultManager.generic(format + " doesn't supported");
+                            reportResultManager.genericError(format + " doesn't supported");
                             break;
                         default:
-                            reportResultManager.generic(format + " doesn't supported");
+                            reportResultManager.genericError(format + " doesn't supported");
                             break;
                     }
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         reportResultManager.notFoundError("Report", parameter);
                     } else {
-                        reportResultManager.generic(ex.getMessage());
+                        reportResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
                     reportResultManager.numberFormatException("report", parameter);
                 } catch (IOException | ParserConfigurationException | SAXException | TransformerException e) {
-                    reportResultManager.generic(" - Error creating " + "export_" + parameter + " " + e.getMessage());
+                    reportResultManager.genericError(
+                            " - Error creating " + "export_" + parameter + " " + e.getMessage());
                 } catch (final IllegalArgumentException ex) {
                     reportResultManager.typeNotValidError(
                             "format", input.firstParameter(),
@@ -94,5 +95,4 @@ public class ReportExportExecution extends AbstractReportCommand {
             reportResultManager.commandOptionError(EXPORT_EXECUTION_HELP_MESSAGE);
         }
     }
-
 }

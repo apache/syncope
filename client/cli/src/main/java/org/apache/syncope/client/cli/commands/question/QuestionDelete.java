@@ -42,7 +42,7 @@ public class QuestionDelete extends AbstractQuestionCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         questionResultManager.notFoundError("Security question", parameter);
                     } else {
-                        questionResultManager.generic("Error: " + ex.getMessage());
+                        questionResultManager.genericError(ex.getMessage());
                     }
                     break;
                 } catch (final NumberFormatException ex) {
@@ -53,5 +53,4 @@ public class QuestionDelete extends AbstractQuestionCommand {
             questionResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
-
 }

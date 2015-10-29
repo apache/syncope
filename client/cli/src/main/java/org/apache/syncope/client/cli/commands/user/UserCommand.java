@@ -59,7 +59,7 @@ public class UserCommand extends AbstractCommand {
                 new UserCount(input).count();
                 break;
             case LIST:
-                new UserList().list();
+                new UserList(input).list();
                 break;
             case GET_BY_KEY:
                 new UserGetKey(input).get();
@@ -140,5 +140,4 @@ public class UserCommand extends AbstractCommand {
             return options;
         }
     }
-
 }

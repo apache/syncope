@@ -42,7 +42,7 @@ public class LoggerDelete extends AbstractLoggerCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         loggerResultManager.notFoundError("Logger", parameter);
                     } else {
-                        loggerResultManager.generic(ex.getMessage());
+                        loggerResultManager.genericError(ex.getMessage());
                     }
                 }
             }
@@ -50,5 +50,4 @@ public class LoggerDelete extends AbstractLoggerCommand {
             loggerResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
-
 }

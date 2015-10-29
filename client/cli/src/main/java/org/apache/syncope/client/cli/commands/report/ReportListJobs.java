@@ -18,18 +18,31 @@
  */
 package org.apache.syncope.client.cli.commands.report;
 
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.JobStatusType;
 
 public class ReportListJobs extends AbstractReportCommand {
 
+    private static final String LIST_HELP_MESSAGE = "report --list-jobs";
+
+    private final Input input;
+
+    public ReportListJobs(final Input input) {
+        this.input = input;
+    }
+
     public void list() {
-        try {
-            for (final JobStatusType jobStatusType : JobStatusType.values()) {
-                reportResultManager.printReportExecution(reportSyncopeOperations.listJobs(jobStatusType));
+        if (input.parameterNumber() == 0) {
+            try {
+                for (final JobStatusType jobStatusType : JobStatusType.values()) {
+                    reportResultManager.printReportExecution(reportSyncopeOperations.listJobs(jobStatusType));
+                }
+            } catch (final SyncopeClientException ex) {
+                reportResultManager.genericError(ex.getMessage());
             }
-        } catch (final SyncopeClientException ex) {
-            reportResultManager.generic(ex.getMessage());
+        } else {
+            reportResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
         }
     }
 }

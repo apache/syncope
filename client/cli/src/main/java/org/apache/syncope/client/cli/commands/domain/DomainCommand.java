@@ -33,7 +33,7 @@ public class DomainCommand extends AbstractCommand {
             + "    --help \n"
             + "    --list \n"
             + "    --delete \n"
-            + "       Syntax: --delete {DOMAIN-KEY} {DOMAIN-KEY} [...]\n";
+            + "       Syntax: --delete {DOMAIN-NAME} {DOMAIN-NAME} [...]\n";
 
     @Override
     public void execute(final Input input) {
@@ -42,7 +42,7 @@ public class DomainCommand extends AbstractCommand {
         }
         switch (Options.fromName(input.getOption())) {
             case LIST:
-                new DomainList().list();
+                new DomainList(input).list();
                 break;
             case DELETE:
                 new DomainDelete(input).delete();

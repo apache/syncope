@@ -46,7 +46,7 @@ public class ResourceRead extends AbstractResourceCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         resourceResultManager.notFoundError("Resource", parameter);
                     } else {
-                        resourceResultManager.generic(ex.getMessage());
+                        resourceResultManager.genericError(ex.getMessage());
                     }
                     break;
                 }
@@ -56,5 +56,4 @@ public class ResourceRead extends AbstractResourceCommand {
             resourceResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-
 }

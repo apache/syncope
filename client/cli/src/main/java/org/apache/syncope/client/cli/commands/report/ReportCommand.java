@@ -32,6 +32,7 @@ public class ReportCommand extends AbstractCommand {
             + "  Options:\n"
             + "    --help \n"
             + "    --list \n"
+            + "    --list-jobs \n"
             + "    --read \n"
             + "       Syntax: --read {REPORT-ID} {REPORT-ID} [...] \n"
             + "    --delete \n"
@@ -54,10 +55,10 @@ public class ReportCommand extends AbstractCommand {
 
         switch (Options.fromName(input.getOption())) {
             case LIST:
-                new ReportList().list();
+                new ReportList(input).list();
                 break;
             case LIST_JOBS:
-                new ReportListJobs().list();
+                new ReportListJobs(input).list();
                 break;
             case READ:
                 new ReportRead(input).read();

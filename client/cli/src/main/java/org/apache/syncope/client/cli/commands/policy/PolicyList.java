@@ -47,7 +47,7 @@ public class PolicyList extends AbstractPolicyCommand {
                 }
                 policyResultManager.fromList(policyType, policyTOs);
             } catch (final SyncopeClientException ex) {
-                policyResultManager.generic(ex.getMessage());
+                policyResultManager.genericError(ex.getMessage());
             } catch (final IllegalArgumentException ex) {
                 policyResultManager.typeNotValidError(
                         "policy", input.firstParameter(), CommandUtils.fromEnumToArray(PolicyType.class));

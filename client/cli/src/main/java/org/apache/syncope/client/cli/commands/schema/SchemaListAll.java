@@ -20,36 +20,48 @@ package org.apache.syncope.client.cli.commands.schema;
 
 import java.util.LinkedList;
 import javax.xml.ws.WebServiceException;
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 
 public class SchemaListAll extends AbstractSchemaCommand {
 
-    public void listAll() {
-        try {
-            for (final SchemaType schemaType : SchemaType.values()) {
-                final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
-                for (final AbstractSchemaTO schemaTO : schemaSyncopeOperations.list(schemaType)) {
-                    schemaTOs.add(schemaTO);
-                }
-                switch (schemaType) {
-                    case PLAIN:
-                        schemaResultManager.fromListPlain(schemaTOs);
-                        break;
-                    case DERIVED:
-                        schemaResultManager.fromListDerived(schemaTOs);
-                        break;
-                    case VIRTUAL:
-                        schemaResultManager.fromListVirtual(schemaTOs);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        } catch (final SyncopeClientException | WebServiceException ex) {
-            schemaResultManager.generic(ex.getMessage());
-        }
+    private static final String LIST_HELP_MESSAGE = "schema --list-all";
+
+    private final Input input;
+
+    public SchemaListAll(final Input input) {
+        this.input = input;
     }
 
+    public void listAll() {
+        if (input.parameterNumber() == 0) {
+            try {
+                for (final SchemaType schemaType : SchemaType.values()) {
+                    final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
+                    for (final AbstractSchemaTO schemaTO : schemaSyncopeOperations.list(schemaType)) {
+                        schemaTOs.add(schemaTO);
+                    }
+                    switch (schemaType) {
+                        case PLAIN:
+                            schemaResultManager.fromListPlain(schemaTOs);
+                            break;
+                        case DERIVED:
+                            schemaResultManager.fromListDerived(schemaTOs);
+                            break;
+                        case VIRTUAL:
+                            schemaResultManager.fromListVirtual(schemaTOs);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            } catch (final SyncopeClientException | WebServiceException ex) {
+                schemaResultManager.genericError(ex.getMessage());
+            }
+        } else {
+            schemaResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
+        }
+    }
 }

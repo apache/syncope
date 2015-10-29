@@ -18,21 +18,29 @@
  */
 package org.apache.syncope.client.cli.commands.domain;
 
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.DomainTO;
 
 public class DomainList extends AbstractDomainCommand {
 
-    public DomainList() {
+    private static final String LIST_HELP_MESSAGE = "domain --list";
+
+    private final Input input;
+
+    public DomainList(final Input input) {
+        this.input = input;
     }
 
     public void list() {
-        try {
-            for (final DomainTO domainTO : domainSyncopeOperations.list()) {
-                domainResultManager.generic(domainTO.getKey());
+        if (input.parameterNumber() == 0) {
+            try {
+                domainResultManager.toView(domainSyncopeOperations.list());
+            } catch (final SyncopeClientException ex) {
+                domainResultManager.genericError(ex.getMessage());
             }
-        } catch (final SyncopeClientException ex) {
-            domainResultManager.generic("Error: " + ex.getMessage());
+        } else {
+            domainResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
         }
+
     }
 }

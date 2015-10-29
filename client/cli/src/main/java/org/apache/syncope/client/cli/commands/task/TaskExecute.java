@@ -51,9 +51,9 @@ public class TaskExecute extends AbstractTaskCommand {
                 if (ex.getMessage().startsWith("NotFound")) {
                     taskResultManager.notFoundError("Task", input.firstParameter());
                 } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                    taskResultManager.generic("You cannot delete task " + input.firstParameter());
+                    taskResultManager.genericError("You cannot delete task " + input.firstParameter());
                 } else {
-                    taskResultManager.generic(ex.getMessage());
+                    taskResultManager.genericError(ex.getMessage());
                 }
             } catch (final NumberFormatException ex) {
                 taskResultManager.notBooleanDeletedError("task", input.firstParameter());
@@ -62,5 +62,4 @@ public class TaskExecute extends AbstractTaskCommand {
             taskResultManager.commandOptionError(EXECUTE_HELP_MESSAGE);
         }
     }
-
 }

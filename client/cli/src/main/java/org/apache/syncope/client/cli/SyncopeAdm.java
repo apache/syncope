@@ -50,12 +50,13 @@ public final class SyncopeAdm {
             System.out.println(helpMessage());
         } catch (final IllegalArgumentException ex) {
             LOG.error("Error in main", ex);
-            RESULT_MANAGER.generic(ex.getMessage());
+            RESULT_MANAGER.genericError(ex.getMessage());
             if (!ex.getMessage().startsWith("It seems you")) {
                 System.out.println(helpMessage());
             }
         } catch (final ProcessingException e) {
-            RESULT_MANAGER.generic("Syncope server offline", e.getCause().getMessage());
+            RESULT_MANAGER.genericError("Syncope server offline");
+            RESULT_MANAGER.genericError(e.getCause().getMessage());
         }
 
     }
@@ -73,7 +74,7 @@ public final class SyncopeAdm {
                 helpMessageBuilder.append("\n");
             }
         } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException ex) {
-            RESULT_MANAGER.generic(ex.getMessage());
+            RESULT_MANAGER.genericError(ex.getMessage());
         }
 
         return helpMessageBuilder.toString();

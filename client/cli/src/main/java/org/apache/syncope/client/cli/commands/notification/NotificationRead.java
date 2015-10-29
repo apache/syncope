@@ -43,7 +43,7 @@ public class NotificationRead extends AbstractNotificationCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         notificationResultManager.notFoundError("Notification", parameter);
                     } else {
-                        notificationResultManager.generic(ex.getMessage());
+                        notificationResultManager.genericError(ex.getMessage());
                     }
                 }
             }

@@ -18,19 +18,28 @@
  */
 package org.apache.syncope.client.cli.commands.realm;
 
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 
 public class RealmList extends AbstractRealmCommand {
 
-    public RealmList() {
+    private static final String LIST_HELP_MESSAGE = "realm --list";
+
+    private final Input input;
+
+    public RealmList(final Input input) {
+        this.input = input;
     }
 
     public void list() {
-        try {
-            realmResultManager.toView(realmSyncopeOperations.list());
-        } catch (final SyncopeClientException ex) {
-            realmResultManager.generic("Error: " + ex.getMessage());
+        if (input.parameterNumber() == 0) {
+            try {
+                realmResultManager.toView(realmSyncopeOperations.list());
+            } catch (final SyncopeClientException ex) {
+                realmResultManager.genericError(ex.getMessage());
+            }
+        } else {
+            realmResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
         }
     }
-
 }

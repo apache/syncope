@@ -45,7 +45,7 @@ public class RoleRead extends AbstractRoleCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         roleResultManager.notFoundError("Role", parameter);
                     } else {
-                        roleResultManager.generic("Error: " + ex.getMessage());
+                        roleResultManager.genericError(ex.getMessage());
                     }
                     break;
                 } catch (final NumberFormatException ex) {
@@ -57,5 +57,4 @@ public class RoleRead extends AbstractRoleCommand {
             roleResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-
 }

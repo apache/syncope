@@ -19,18 +19,27 @@
 package org.apache.syncope.client.cli.commands.configuration;
 
 import java.util.LinkedList;
+import org.apache.syncope.client.cli.Input;
 
 public class ConfigurationGet extends AbstractConfigurationCommand {
 
-    public ConfigurationGet() {
+    private static final String GET_HELP_MESSAGE = "configuration --get";
+
+    private final Input input;
+
+    public ConfigurationGet(final Input input) {
+        this.input = input;
     }
 
     public void get() {
-        try {
-            configurationResultManager.fromGet(new LinkedList<>(configurationSyncopeOperations.list()));
-        } catch (final Exception ex) {
-            configurationResultManager.generic(ex.getMessage());
+        if (input.parameterNumber() == 0) {
+            try {
+                configurationResultManager.fromGet(new LinkedList<>(configurationSyncopeOperations.list()));
+            } catch (final Exception ex) {
+                configurationResultManager.genericError(ex.getMessage());
+            }
+        } else {
+            configurationResultManager.unnecessaryParameters(input.listParameters(), GET_HELP_MESSAGE);
         }
     }
-
 }

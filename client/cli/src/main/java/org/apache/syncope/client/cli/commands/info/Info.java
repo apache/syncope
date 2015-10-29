@@ -25,219 +25,188 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 public class Info {
 
     private final SyncopeTO syncopeTO = SyncopeServices.get(SyncopeService.class).info();
-    
+
     private final InfoResultManager infoResultManager = new InfoResultManager();
 
     public void version() {
         try {
-            infoResultManager.generic("Syncope version: " + syncopeTO.getVersion());
+            infoResultManager.printVersion(syncopeTO.getVersion());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void pwdResetAllowed() {
         try {
-            infoResultManager.generic("Password reset allowed: " + syncopeTO.isPwdResetAllowed());
+            infoResultManager.printPwdResetAllowed(syncopeTO.isPwdResetAllowed());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void resetWithSecurityQuestion() {
         try {
-            infoResultManager.generic("Password reset requiring security question: "
-                    + syncopeTO.isPwdResetRequiringSecurityQuestions());
+            infoResultManager.printPwdResetRequiringSecurityQuestions(syncopeTO.isPwdResetRequiringSecurityQuestions());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void selfRegistrationAllowed() {
         try {
-            infoResultManager.generic("Self registration allowed: " + syncopeTO.isSelfRegAllowed());
+            infoResultManager.printSelfRegistrationAllowed(syncopeTO.isSelfRegAllowed());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void provisioningManager() {
         try {
-            infoResultManager.generic(
-                    "Any object provisioning manager class: " + syncopeTO.getAnyObjectProvisioningManager(),
-                    "User       provisioning manager class: " + syncopeTO.getUserProvisioningManager(),
-                    "Group      provisioning manager class: " + syncopeTO.getGroupProvisioningManager());
+            infoResultManager.printProvisioningManager(
+                    syncopeTO.getAnyObjectProvisioningManager(),
+                    syncopeTO.getUserProvisioningManager(),
+                    syncopeTO.getGroupProvisioningManager());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void workflowAdapter() {
         try {
-            infoResultManager.generic(
-                    "Any object workflow adapter class: " + syncopeTO.getAnyObjectWorkflowAdapter(),
-                    "User       workflow adapter class: " + syncopeTO.getUserWorkflowAdapter(),
-                    "Group      workflow adapter class: " + syncopeTO.getGroupWorkflowAdapter());
+            infoResultManager.printWorkflowAdapter(
+                    syncopeTO.getAnyObjectWorkflowAdapter(),
+                    syncopeTO.getUserWorkflowAdapter(),
+                    syncopeTO.getGroupWorkflowAdapter());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void accountRules() {
         try {
-            for (final String accountRule : syncopeTO.getAccountRules()) {
-                infoResultManager.generic("Account rule: " + accountRule);
-            }
+            infoResultManager.printAccountRules(syncopeTO.getAccountRules());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void connidLocation() {
         try {
-            for (final String location : syncopeTO.getConnIdLocations()) {
-                infoResultManager.generic("ConnId location: " + location);
-            }
+            infoResultManager.printConnidLocations(syncopeTO.getConnIdLocations());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void logicActions() {
         try {
-            for (final String logic : syncopeTO.getLogicActions()) {
-                infoResultManager.generic("Logic action: " + logic);
-            }
+            infoResultManager.printLogicActions(syncopeTO.getLogicActions());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void mailTemplates() {
         try {
-            for (final String template : syncopeTO.getMailTemplates()) {
-                infoResultManager.generic("Mail template: " + template);
-            }
+            infoResultManager.printMailTemplates(syncopeTO.getMailTemplates());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void mappingItemTransformers() {
         try {
-            for (final String tranformer : syncopeTO.getMappingItemTransformers()) {
-                infoResultManager.generic("Mapping item tranformer: " + tranformer);
-            }
+            infoResultManager.printMappingItemTransformers(syncopeTO.getMappingItemTransformers());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void passwordRules() {
         try {
-            for (final String rules : syncopeTO.getPasswordRules()) {
-                infoResultManager.generic("Password rule: " + rules);
-            }
+            infoResultManager.printPasswordRules(syncopeTO.getPasswordRules());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void propagationActions() {
         try {
-            for (final String action : syncopeTO.getPropagationActions()) {
-                infoResultManager.generic("Propagation action: " + action);
-            }
+            infoResultManager.printPropagationActions(syncopeTO.getPropagationActions());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void pushActions() {
         try {
-            for (final String action : syncopeTO.getPushActions()) {
-                infoResultManager.generic("Push action: " + action);
-            }
+            infoResultManager.printPushActions(syncopeTO.getPushActions());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void pushCorrelationActions() {
         try {
-            for (final String rule : syncopeTO.getPushCorrelationRules()) {
-                infoResultManager.generic("Push correlation rule: " + rule);
-            }
+            infoResultManager.printCorrelationActions(syncopeTO.getPushCorrelationRules());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void reportlets() {
         try {
-            for (final String reportlet : syncopeTO.getReportlets()) {
-                infoResultManager.generic("Reportlet: " + reportlet);
-            }
+            infoResultManager.printReportlets(syncopeTO.getReportlets());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void syncActions() {
         try {
-            for (final String action : syncopeTO.getSyncActions()) {
-                infoResultManager.generic("Sync action: " + action);
-            }
+            infoResultManager.printSyncActions(syncopeTO.getSyncActions());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void syncCorrelationRules() {
         try {
-            for (final String rule : syncopeTO.getSyncCorrelationRules()) {
-                infoResultManager.generic("Sync correlation rule: " + rule);
-            }
+            infoResultManager.printCorrelationRules(syncopeTO.getSyncCorrelationRules());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void taskJobs() {
         try {
-            for (final String job : syncopeTO.getTaskJobs()) {
-                infoResultManager.generic("Task job: " + job);
-            }
+            infoResultManager.printJobs(syncopeTO.getTaskJobs());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void validators() {
         try {
-            for (final String validator : syncopeTO.getValidators()) {
-                infoResultManager.generic("Validator: " + validator);
-            }
+            infoResultManager.printValidators(syncopeTO.getValidators());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void passwordGenerators() {
         try {
-            infoResultManager.generic(
-                    "Password generator class: " + syncopeTO.getPasswordGenerator());
+            infoResultManager.printPasswordGenerator(syncopeTO.getPasswordGenerator());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 
     public void virAttrCache() {
         try {
-            infoResultManager.generic(
-                    "Virtual attribute cache class: " + syncopeTO.getVirAttrCache());
+            infoResultManager.printVirtualAttributeCacheClass(syncopeTO.getVirAttrCache());
         } catch (final Exception ex) {
-            infoResultManager.generic(ex.getMessage());
+            infoResultManager.genericError(ex.getMessage());
         }
     }
 }

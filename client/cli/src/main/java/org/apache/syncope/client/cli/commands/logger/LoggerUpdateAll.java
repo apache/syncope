@@ -52,7 +52,8 @@ public class LoggerUpdateAll extends AbstractLoggerCommand {
                                 input.firstParameter(),
                                 CommandUtils.fromEnumToArray(LoggerLevel.class));
                     } else {
-                        loggerResultManager.generic(ex.getMessage(), UPDATE_ALL_HELP_MESSAGE);
+                        loggerResultManager.genericError(ex.getMessage());
+                        loggerResultManager.genericError(UPDATE_ALL_HELP_MESSAGE);
                     }
                     failed = true;
                     break;

@@ -18,9 +18,23 @@
  */
 package org.apache.syncope.client.cli.commands.entitlement;
 
+import org.apache.syncope.client.cli.Input;
+
 public class EntitlementList extends AbstractEntitlementCommand {
 
+    private static final String READ_HELP_MESSAGE = "entitlement --list";
+
+    private final Input input;
+
+    public EntitlementList(final Input input) {
+        this.input = input;
+    }
+
     public void list() {
-        entitlementResultManager.toView(entitlementSyncopeOperations.list());
+        if (input.parameterNumber() == 0) {
+            entitlementResultManager.toView(entitlementSyncopeOperations.list());
+        } else {
+            entitlementResultManager.unnecessaryParameters(input.listParameters(), READ_HELP_MESSAGE);
+        }
     }
 }

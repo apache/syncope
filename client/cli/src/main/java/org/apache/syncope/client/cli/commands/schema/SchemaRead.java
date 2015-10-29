@@ -64,7 +64,7 @@ public class SchemaRead extends AbstractSchemaCommand {
                 if (ex.getMessage().startsWith("NotFound")) {
                     schemaResultManager.notFoundError("Schema", parameters[0]);
                 } else {
-                    schemaResultManager.generic(ex.getMessage());
+                    schemaResultManager.genericError(ex.getMessage());
                 }
             } catch (final IllegalArgumentException ex) {
                 schemaResultManager.typeNotValidError(
@@ -74,5 +74,4 @@ public class SchemaRead extends AbstractSchemaCommand {
             schemaResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-
 }

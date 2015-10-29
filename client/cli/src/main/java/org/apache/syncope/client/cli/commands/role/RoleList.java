@@ -18,15 +18,28 @@
  */
 package org.apache.syncope.client.cli.commands.role;
 
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 
 public class RoleList extends AbstractRoleCommand {
 
+    private static final String LIST_HELP_MESSAGE = "role --list";
+
+    private final Input input;
+
+    public RoleList(final Input input) {
+        this.input = input;
+    }
+
     public void list() {
-        try {
-            roleResultManager.toView(roleSyncopeOperations.list());
-        } catch (final SyncopeClientException ex) {
-            roleResultManager.generic(ex.getMessage());
+        if (input.parameterNumber() == 0) {
+            try {
+                roleResultManager.toView(roleSyncopeOperations.list());
+            } catch (final SyncopeClientException ex) {
+                roleResultManager.genericError(ex.getMessage());
+            }
+        } else {
+            roleResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
         }
     }
 }

@@ -43,11 +43,10 @@ public class ReportReadExecution extends AbstractReportCommand {
                 try {
                     reportExecTOs.add(reportSyncopeOperations.readExecution(parameter));
                 } catch (final WebServiceException | SyncopeClientException ex) {
-                    System.out.println("Error:");
                     if (ex.getMessage().startsWith("NotFound")) {
                         reportResultManager.notFoundError("Report", parameter);
                     } else {
-                        reportResultManager.generic(ex.getMessage());
+                        reportResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
                     reportResultManager.numberFormatException("report", parameter);
@@ -58,5 +57,4 @@ public class ReportReadExecution extends AbstractReportCommand {
             reportResultManager.commandOptionError(READ_EXECUTION_HELP_MESSAGE);
         }
     }
-
 }

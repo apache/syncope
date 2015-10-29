@@ -47,7 +47,7 @@ public class ReportRead extends AbstractReportCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         reportResultManager.notFoundError("Report", parameter);
                     } else {
-                        reportResultManager.generic(ex.getMessage());
+                        reportResultManager.genericError(ex.getMessage());
                     }
                 }
             }

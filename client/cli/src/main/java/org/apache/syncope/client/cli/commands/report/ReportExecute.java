@@ -37,7 +37,6 @@ public class ReportExecute extends AbstractReportCommand {
 
     public void execute() {
         if (input.parameterNumber() == 1) {
-
             try {
                 reportSyncopeOperations.execute(input.firstParameter());
                 final List<ReportExecTO> executionList
@@ -48,9 +47,9 @@ public class ReportExecute extends AbstractReportCommand {
                 if (ex.getMessage().startsWith("NotFound")) {
                     reportResultManager.notFoundError("Report", input.firstParameter());
                 } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                    reportResultManager.generic("You cannot delete report " + input.firstParameter());
+                    reportResultManager.genericError("You cannot delete report " + input.firstParameter());
                 } else {
-                    reportResultManager.generic(ex.getMessage());
+                    reportResultManager.genericError(ex.getMessage());
                 }
             } catch (final NumberFormatException ex) {
                 reportResultManager.numberFormatException("report", input.firstParameter());
@@ -59,5 +58,4 @@ public class ReportExecute extends AbstractReportCommand {
             reportResultManager.commandOptionError(EXECUTE_HELP_MESSAGE);
         }
     }
-
 }

@@ -58,7 +58,7 @@ public class SchemaList extends AbstractSchemaCommand {
                         break;
                 }
             } catch (final SyncopeClientException ex) {
-                schemaResultManager.generic(ex.getMessage());
+                schemaResultManager.genericError(ex.getMessage());
             } catch (final IllegalArgumentException ex) {
                 schemaResultManager.typeNotValidError(
                         "schema", input.firstParameter(), CommandUtils.fromEnumToArray(SchemaType.class));

@@ -38,5 +38,4 @@ public class RoleSyncopeOperations {
     public void delete(final String roleId) {
         roleService.delete(Long.valueOf(roleId));
     }
-
 }

@@ -44,23 +44,18 @@ public class InstallSetup {
 
     private String syncopeServerRestContext = "/syncope/rest/";
 
-    public InstallSetup() {
-    }
-
-    public void setup() {
-        System.out.println("");
-        System.out.println("###############################################");
-        System.out.println("#                                             #");
-        System.out.println("# Welcome to Syncope CLI installation process #");
-        System.out.println("#                                             #");
-        System.out.println("###############################################");
-        System.out.println("");
+    public void setup() throws FileNotFoundException, IllegalAccessException {
+        installResultManager.printWelcome();
 
         System.out.println("Path to config files of Syncope CLI client will be: "
                 + InstallConfigFileTemplate.DIR_PATH);
 
+        if (!FileSystemUtils.exists(InstallConfigFileTemplate.DIR_PATH)) {
+            throw new FileNotFoundException("Directory: " + InstallConfigFileTemplate.DIR_PATH + " does not exists!");
+        }
+
         if (!FileSystemUtils.canWrite(InstallConfigFileTemplate.DIR_PATH)) {
-            System.out.println("Permission denied on " + InstallConfigFileTemplate.DIR_PATH);
+            throw new IllegalAccessException("Permission denied on " + InstallConfigFileTemplate.DIR_PATH);
         }
         System.out.println("- File system permission checked");
         System.out.println("");
@@ -153,7 +148,6 @@ public class InstallSetup {
         scanIn.close();
 
         final JasyptUtils jasyptUtils = JasyptUtils.getJasyptUtils();
-
         try {
             FileSystemUtils.createNewDirectory(InstallConfigFileTemplate.DIR_PATH);
             final String contentCliPropertiesFile = InstallConfigFileTemplate.createFile(

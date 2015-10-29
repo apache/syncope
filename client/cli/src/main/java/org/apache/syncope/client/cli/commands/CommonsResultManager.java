@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.cli.commands;
 
+import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.cli.view.Messages;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -26,6 +27,10 @@ public abstract class CommonsResultManager {
 
     public void numberFormatException(final String what, final String key) {
         Messages.printIdNotNumberDeletedMessage(what, key);
+    }
+
+    public void unnecessaryParameters(final List<String> parameters, final String helpMessage) {
+        Messages.printUnnecessaryParameters(parameters, helpMessage);
     }
 
     public void deletedMessage(final String what, final String key) {
@@ -52,10 +57,14 @@ public abstract class CommonsResultManager {
         Messages.printDefaultMessage(option, helpMessage);
     }
 
-    public void generic(final String... messages) {
+    public void genericMessage(final String... messages) {
         Messages.printMessage(messages);
     }
-    
+
+    public void genericError(final String error) {
+        Messages.printMessage("Error: " + error);
+    }
+
     protected void printConfiguration(final Set<ConnConfProperty> configurationPropertys) {
         for (final ConnConfProperty configuration : configurationPropertys) {
             System.out.println("       name: " + configuration.getSchema().getName());

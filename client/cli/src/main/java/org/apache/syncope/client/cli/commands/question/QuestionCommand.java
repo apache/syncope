@@ -45,7 +45,7 @@ public class QuestionCommand extends AbstractCommand {
 
         switch (QuestionOptions.fromName(input.getOption())) {
             case LIST:
-                new QuestionList().list();
+                new QuestionList(input).list();
                 break;
             case READ:
                 new QuestionRead(input).read();
@@ -104,5 +104,4 @@ public class QuestionCommand extends AbstractCommand {
             return options;
         }
     }
-
 }

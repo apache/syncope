@@ -45,7 +45,7 @@ public class UserRead extends AbstractUserCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         userResultManager.notFoundError("User", parameter);
                     } else {
-                        userResultManager.generic("Error: " + ex.getMessage());
+                        userResultManager.genericError(ex.getMessage());
                     }
                     break;
                 } catch (final NumberFormatException ex) {
@@ -57,5 +57,4 @@ public class UserRead extends AbstractUserCommand {
             userResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-
 }
