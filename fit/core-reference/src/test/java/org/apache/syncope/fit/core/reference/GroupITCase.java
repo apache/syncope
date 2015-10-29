@@ -63,6 +63,7 @@ import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -801,6 +802,64 @@ public class GroupITCase extends AbstractITCase {
             }
             resourceService.delete("new-ldap");
         }
+    }
+
+    @Test
+    public void issueSYNCOPE717() {
+        String doubleSchemaName = "double" + getUUIDString();
+
+        // 1. create double schema without conversion pattern
+        PlainSchemaTO schema = new PlainSchemaTO();
+        schema.setKey(doubleSchemaName);
+        schema.setType(AttrSchemaType.Double);
+
+        schema = createSchema(SchemaType.PLAIN, schema);
+        assertNotNull(schema);
+        assertNull(schema.getConversionPattern());
+
+        AnyTypeClassTO minimalGroup = anyTypeClassService.read("minimal group");
+        assertNotNull(minimalGroup);
+        minimalGroup.getPlainSchemas().add(doubleSchemaName);
+        anyTypeClassService.update(minimalGroup);
+
+        // 2. create group, provide valid input value
+        GroupTO groupTO = getBasicSampleTO("syncope717");
+        groupTO.getPlainAttrs().add(attrTO(doubleSchemaName, "11.23"));
+
+        groupTO = createGroup(groupTO);
+        assertNotNull(groupTO);
+        assertEquals("11.23", groupTO.getPlainAttrMap().get(doubleSchemaName).getValues().get(0));
+
+        // 3. update schema, set conversion pattern
+        schema.setConversionPattern("0.000");
+        schemaService.update(SchemaType.PLAIN, schema);
+
+        // 4. re-read group, verify that pattern was applied
+        groupTO = groupService.read(groupTO.getKey());
+        assertNotNull(groupTO);
+        assertEquals("11.230", groupTO.getPlainAttrMap().get(doubleSchemaName).getValues().get(0));
+
+        // 5. modify group with new double value
+        GroupPatch patch = new GroupPatch();
+        patch.setKey(groupTO.getKey());
+        patch.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO(doubleSchemaName, "11.257")).build());
+
+        groupTO = updateGroup(patch);
+        assertNotNull(groupTO);
+        assertEquals("11.257", groupTO.getPlainAttrMap().get(doubleSchemaName).getValues().get(0));
+
+        // 6. update schema, unset conversion pattern
+        schema.setConversionPattern(null);
+        schemaService.update(SchemaType.PLAIN, schema);
+
+        // 7. modify group with new double value, verify that no pattern is applied
+        patch = new GroupPatch();
+        patch.setKey(groupTO.getKey());
+        patch.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO(doubleSchemaName, "11.23")).build());
+
+        groupTO = updateGroup(patch);
+        assertNotNull(groupTO);
+        assertEquals("11.23", groupTO.getPlainAttrMap().get(doubleSchemaName).getValues().get(0));
     }
 
 }
