@@ -222,6 +222,12 @@ public class GroupITCase extends AbstractITCase {
 
         assertEquals(modName, groupTO.getName());
         assertEquals(2, groupTO.getPlainAttrs().size());
+        
+        groupTO.getPlainAttrMap().get("show").getValues().clear();
+        
+        groupTO = groupService.update(groupTO).readEntity(new GenericType<ProvisioningResult<GroupTO>>(){}).getAny();
+        
+        assertFalse(groupTO.getPlainAttrMap().containsKey("show"));
     }
 
     @Test

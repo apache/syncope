@@ -121,9 +121,18 @@ public final class AnyOperations {
         }
 
         for (AttrTO attrTO : updatedAttrs.values()) {
-            AttrPatch patch = new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO).build();
-            if (!patch.isEmpty()) {
-                result.getPlainAttrs().add(patch);
+            if (attrTO.getValues().isEmpty()) {
+                if (!incremental) {
+                    result.getPlainAttrs().add(new AttrPatch.Builder().
+                            operation(PatchOperation.DELETE).
+                            attrTO(new AttrTO.Builder().schema(attrTO.getSchema()).build()).
+                            build());
+                }
+            } else {
+                AttrPatch patch = new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO).build();
+                if (!patch.isEmpty()) {
+                    result.getPlainAttrs().add(patch);
+                }
             }
         }
 
