@@ -130,7 +130,7 @@ public class AjaxDoubleFieldPanel extends FieldPanel<Double> {
             public Double getObject() {
                 Double value = null;
 
-                if (list != null && !list.isEmpty()) {
+                if (list != null && !list.isEmpty() && StringUtils.isNotEmpty(list.get(0).toString())) {
                     try {
                         value = englishDf.parse(list.get(0).toString()).doubleValue();
                     } catch (ParseException e) {
