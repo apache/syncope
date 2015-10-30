@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import org.apache.syncope.client.enduser.resources.ErrorResource;
 import org.apache.syncope.client.enduser.resources.LoginResource;
 import org.apache.syncope.client.enduser.resources.LogoutResource;
 import org.apache.syncope.client.enduser.resources.SchemaResource;
@@ -56,8 +55,6 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
     @Override
     protected void init() {
         super.init();
-
-        LOG.debug("init SyncopeEnduserApplication");
 
         // resource to provide login functionality managed by wicket
         mountResource("/api/login", new ResourceReference("login") {
@@ -123,7 +120,7 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 return new SchemaResource();
             }
         });
-        
+
         mountResource("/api/securityQuestions", new ResourceReference("securityQuestions") {
 
             private static final long serialVersionUID = -128426276529456602L;
@@ -134,15 +131,6 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             }
         });
 
-        mountResource("/api/error", new ResourceReference("error") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new ErrorResource();
-            }
-        });
     }
 
     @Override

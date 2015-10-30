@@ -26,11 +26,6 @@ import org.apache.wicket.request.resource.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Mirror REST resource for obtaining user self operations.
- *
- * @see org.apache.syncope.common.rest.api
- */
 public class UserSelfReadResource extends AbstractResource {
 
     private static final long serialVersionUID = -9184809392631523912L;
@@ -49,6 +44,8 @@ public class UserSelfReadResource extends AbstractResource {
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
 
+        LOG.debug("Requested user self information");
+        
         ResourceResponse response = new ResourceResponse();
         final String selfTOJson = POJOHelper.serialize(userTOAdapter.toUserTORequest(SyncopeEnduserSession.get().
                 getSelfTO()));

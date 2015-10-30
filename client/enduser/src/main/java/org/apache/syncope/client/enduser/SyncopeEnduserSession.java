@@ -20,10 +20,8 @@ package org.apache.syncope.client.enduser;
 
 import java.io.File;
 import java.text.DateFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -53,9 +51,6 @@ public class SyncopeEnduserSession extends WebSession {
     private static final long serialVersionUID = 1284946129513378647L;
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeEnduserSession.class);
-
-    public static final List<Locale> SUPPORTED_LOCALES = Arrays.asList(new Locale[] {
-        Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR") });
 
     protected static final String ENDUSER_PROPERTIES = "enduser.properties";
 
@@ -262,7 +257,6 @@ public class SyncopeEnduserSession extends WebSession {
             }
         } catch (Exception e) {
             LOG.error("Error loading {} file", ENDUSER_PROPERTIES, e);
-//            throw new WicketRuntimeException("Could not read " + ENDUSER_PROPERTIES, e);
         }
 
         this.scheme = properties.getProperty("scheme");

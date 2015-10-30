@@ -59,6 +59,8 @@ public class SchemaResource extends AbstractBaseResource {
     @Override
     protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
 
+        LOG.debug("Search all {} any type kind related schemas", AnyTypeKind.USER.name());
+
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
 
         int responseStatus = 200;
@@ -93,7 +95,7 @@ public class SchemaResource extends AbstractBaseResource {
             });
 
         } catch (Exception e) {
-            LOG.error("Error retrieving " + AnyTypeKind.USER.name() + " class schemas", e);
+            LOG.error("Error retrieving {} any type kind related schemas", AnyTypeKind.USER.name(), e);
             responseStatus = 400;
         }
 

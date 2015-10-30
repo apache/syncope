@@ -54,8 +54,8 @@ public class LoginResource extends AbstractBaseResource {
             LOG.debug("Enduser login, user: {}", username);
 
             if (StringUtils.isBlank(username)) {
-                LOG.error("Could not read credentials from request: username is blank!");
                 responseMessage = "Could not read credentials from request: username is blank!";
+                LOG.error(responseMessage);
                 responseStatus = 400;
             } else {
                 // authenticate user

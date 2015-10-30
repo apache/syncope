@@ -43,13 +43,13 @@ public class SecurityQuestionResource extends AbstractBaseResource {
     @Override
     protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
 
+        LOG.debug("List available security questions");
+
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
 
         int responseStatus = 200;
 
         try {
-
-            LOG.debug("List available security questions");
 
             final List<SecurityQuestionTO> securityQuestionTOs = securityQuestionService.list();
 

@@ -29,7 +29,6 @@ public class UserTOAdapter {
 
     public UserTO fromUserTORequest(final UserTORequest userTORequest, final String oldSelfPassword) {
 
-        // adapter code, to be moved in a new utility class
         final UserTO userTO = new UserTO();
         // set key if in update mode
         final Long key = userTORequest.getKey();

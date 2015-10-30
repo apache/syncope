@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.UserTOAdapter;
 import org.apache.syncope.client.enduser.model.UserTORequest;
@@ -58,15 +59,17 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
             final UserTORequest userTOResponse = POJOHelper.deserialize(IOUtils.toString(request.getInputStream()),
                     UserTORequest.class);
 
-            LOG.debug("userTOResponse: {}", userTOResponse);
+            LOG.trace("userTOResponse: {}", userTOResponse);
 
             // adapt user, change self password only value passed is not null and has changed
             UserTO userTO = userTOAdapter.fromUserTORequest(userTOResponse, SyncopeEnduserSession.get().getPassword());
 
-            LOG.debug("Enduser user self update, user: {}", userTO.toString());
+            LOG.debug("User {} id updating himself", userTO.getUsername());
 
             // update user
-            userSelfService.update(userTO);
+            Response res = userSelfService.update(userTO);
+            responseStatus = res.getStatus();
+            
             responseMessage = "User updated successfully";
 
             response.setWriteCallback(new WriteCallback() {
@@ -78,6 +81,7 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
             });
 
         } catch (final Exception e) {
+            LOG.error("Error while updating user", e);
             responseStatus = 400;
             response.setWriteCallback(new WriteCallback() {
 
@@ -86,7 +90,6 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
                     attributes.getResponse().write(e.getMessage());
                 }
             });
-            LOG.error("Could not read userTO from request", e);
         }
 
         response.setStatusCode(responseStatus);

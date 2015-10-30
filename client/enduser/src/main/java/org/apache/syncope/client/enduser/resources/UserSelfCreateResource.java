@@ -79,6 +79,7 @@ public class UserSelfCreateResource extends AbstractBaseResource {
             });
 
         } catch (final Exception e) {
+            LOG.error("Could not read userTO from request", e);
             responseStatus = 400;
             response.setWriteCallback(new WriteCallback() {
 
@@ -87,7 +88,6 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                     attributes.getResponse().write(e.getMessage());
                 }
             });
-            LOG.error("Could not read userTO from request", e);
         }
 
         response.setStatusCode(responseStatus);
