@@ -40,7 +40,7 @@ under the License.
     </section>
     
     <section name="Forking on GitHub">
-      <p>CXF's git repo is automatically mirrored on github at: <a href="https://github.com/apache/syncope">https://github.com/apache/syncope</a>.</p>
+      <p>Syncope's git repo is automatically mirrored on github at: <a href="https://github.com/apache/syncope">https://github.com/apache/syncope</a>.</p>
 
       <p>You can fork that repository, commit changes to your fork, and submit pull requests through GitHub's pull request mechanisms.</p>      
     </section>
