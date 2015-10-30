@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wizards.any;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
@@ -197,29 +199,49 @@ public class PlainAttrs extends WizardStep {
                 panel.setRequired(required);
                 break;
 
-//            case Date:
+            case Date:
+                panel = new AjaxDateFieldPanel(
+                        "panel", schemaTO.getKey(), new Model<Date>(), schemaTO.getConversionPattern());
+//                
 //                final String dataPattern = schemaTO.getConversionPattern() == null
 //                        ? SyncopeConstants.DEFAULT_DATE_PATTERN
 //                        : schemaTO.getConversionPattern();
 //
 //                if (dataPattern.contains("H")) {
-//                    panel = new DateTimeFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
 //
-//                    if (required) {
-//                        panel.addRequiredLabel();
-//                        ((DateTimeFieldPanel) panel).setFormValidator(form);
-//                    }
-//                    panel.setStyleSheet("ui-widget-content ui-corner-all");
+//                    final DatetimePickerConfig conf = new DatetimePickerConfig().withFormat(
+//                "dd/MM/yyyy HH:mm:ss").with(
+//                            new DatetimePickerIconConfig()
+//                            .useDateIcon(FontAwesomeIconType.calendar)
+//                            .useTimeIcon(FontAwesomeIconType.clock_o)
+//                            .useUpIcon(FontAwesomeIconType.arrow_up)
+//                            .useDownIcon(FontAwesomeIconType.arrow_down)
+//                    );
+//
+//                    add(new DatetimePicker("panel", conf));
+////        
+////                    panel = new DateTimeFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
+////
+////                    if (required) {
+////                        panel.addRequiredLabel();
+////                        ((DateTimeFieldPanel) panel).setFormValidator(form);
+////                    }
+////                    panel.setStyleSheet("ui-widget-content ui-corner-all");
 //                } else {
-//                    panel = new DateTextFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
+//                    add(new DateTextField("panel",
+//                            new DateTextFieldConfig()
+//                            .autoClose(true)
+//                            .withLanguage("es")
+//                            .showTodayButton(DateTextFieldConfig.TodayButton.TRUE)));
+////                    panel = new DateTextFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
 //
-//                    if (required) {
-//                        panel.addRequiredLabel();
-//                    }
+////                    if (required) {
+////                        panel.addRequiredLabel();
+////                    }
 //                }
-//                break;
+                break;
             case Enum:
-                panel = new AjaxDropDownChoicePanel<String>("panel", schemaTO.getKey(), new Model<String>());
+                panel = new AjaxDropDownChoicePanel<String>("panel", schemaTO.getKey(), new Model<String>(), false);
                 ((AjaxDropDownChoicePanel<String>) panel).setChoices(getEnumeratedValues(schemaTO));
 
                 if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {

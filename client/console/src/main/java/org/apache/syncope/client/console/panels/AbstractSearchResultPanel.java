@@ -138,6 +138,8 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
 
         this.realm = realm;
         this.type = type;
+        
+        setWindowClosedReloadCallback(modal);
     }
 
     protected void initResultTable() {
@@ -173,8 +175,6 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
         });
         paginatorForm.add(rowsChooser);
         // ---------------------------
-
-//        setWindowClosedReloadCallback(modal);
     }
 
     public void search(final String fiql, final AjaxRequestTarget target) {

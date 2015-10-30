@@ -87,7 +87,7 @@ public class UserRestClient extends AbstractAnyRestClient {
     }
 
     @Override
-    public UserTO delete(final String etag, final Long key) {
+    public ProvisioningResult<UserTO> delete(final String etag, final Long key) {
         return delete(UserService.class, UserTO.class, etag, key);
     }
 

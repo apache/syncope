@@ -110,7 +110,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
     }
 
     @Override
-    public GroupTO delete(final String etag, final Long key) {
+    public ProvisioningResult<GroupTO> delete(final String etag, final Long key) {
         return delete(GroupService.class, GroupTO.class, etag, key);
     }
 

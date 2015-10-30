@@ -120,7 +120,8 @@ public class DerAttrs extends WizardStep {
                                 model = new Model<String>(values.get(0));
                             }
 
-                            final AjaxTextFieldPanel panel = new AjaxTextFieldPanel("panel", attrTO.getSchema(), model);
+                            final AjaxTextFieldPanel panel = new AjaxTextFieldPanel(
+                                    "panel", attrTO.getSchema(), model, false);
 
                             panel.setEnabled(false);
                             panel.setRequired(true);

@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
+import javax.ws.rs.core.GenericType;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
@@ -28,6 +29,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.rest.api.service.AnyService;
@@ -49,14 +51,15 @@ public abstract class AbstractAnyRestClient extends BaseRestClient {
 
     public abstract ConnObjectTO readConnObject(String resourceName, Long key);
 
-    public abstract AnyTO delete(String etag, Long key);
+    public abstract <T extends AnyTO> ProvisioningResult<T> delete(String etag, Long key);
 
-    protected <T extends AnyTO, E extends AnyService<T, ?>> T delete(
+    protected <T extends AnyTO, E extends AnyService<T, ?>> ProvisioningResult<T> delete(
             final Class<E> serviceClass, final Class<T> objectType, final String etag, final Long key) {
-        T result;
+        ProvisioningResult<T> result;
         synchronized (this) {
             final E service = getService(etag, serviceClass);
-            result = service.delete(key).readEntity(objectType);
+            result = service.delete(key).readEntity(new GenericType<ProvisioningResult<T>>() {
+            });
             resetClient(serviceClass);
         }
         return result;

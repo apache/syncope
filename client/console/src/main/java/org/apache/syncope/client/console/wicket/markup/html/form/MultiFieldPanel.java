@@ -23,11 +23,11 @@ import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -44,7 +44,9 @@ public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<
 
     private final boolean eventTemplate;
 
-    private WebMarkupContainer container;
+    private final WebMarkupContainer container;
+
+    private final Form<?> form;
 
     public MultiFieldPanel(
             final String id, final String name, final IModel<List<E>> model, final FieldPanel<E> panelTemplate) {
@@ -69,12 +71,15 @@ public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<
         container = new WebMarkupContainer("multiValueContainer");
         container.setOutputMarkupId(true);
         add(container);
+
+        form = new Form<>("innerForm");
+        container.add(form);
         // -----------------------
 
         if (model.getObject().isEmpty()) {
-            container.addOrReplace(getNoDataFragment(model, name));
+            form.addOrReplace(getNoDataFragment(model, name));
         } else {
-            container.addOrReplace(getDataFragment(model, name));
+            form.addOrReplace(getDataFragment(model, name));
         }
     }
 
@@ -112,18 +117,20 @@ public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<
                 fieldPanel.setNewModel(item);
                 item.add(fieldPanel.hideLabel().setRenderBodyOnly(true));
 
-                final AjaxLink<Void> minus = new IndicatingAjaxLink<Void>("drop") {
+//                final AjaxLink<Void> minus = new IndicatingAjaxLink<Void>("drop") {
+                final AjaxSubmitLink minus = new AjaxSubmitLink("drop") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+//                    public void onClick(final AjaxRequestTarget target) {
+                    protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                         //Drop current component
                         model.getObject().remove(item.getModelObject());
                         fieldPanel.getField().clearInput();
 
                         if (model.getObject().isEmpty()) {
-                            container.addOrReplace(getNoDataFragment(model, label));
+                            form.addOrReplace(getNoDataFragment(model, label));
                         }
 
                         target.add(container);
@@ -153,17 +160,19 @@ public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<
     }
 
     private Fragment getPlusFragment(final IModel<List<E>> model, final String label) {
-        final AjaxLink<Void> plus = new IndicatingAjaxLink<Void>("add") {
+//        final AjaxLink<Void> plus = new IndicatingAjaxLink<Void>("add") {
+        final AjaxSubmitLink plus = new AjaxSubmitLink("add") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+//            public void onClick(final AjaxRequestTarget target) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 //Add current component
                 model.getObject().add(null);
 
                 if (model.getObject().size() == 1) {
-                    container.addOrReplace(getDataFragment(model, label));
+                    form.addOrReplace(getDataFragment(model, label));
                 }
 
                 target.add(container);
@@ -179,10 +188,6 @@ public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<
 
     public ListView<E> getView() {
         return view;
-    }
-
-    public WebMarkupContainer getContainer() {
-        return container;
     }
 
     @Override

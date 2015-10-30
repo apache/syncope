@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -107,7 +108,7 @@ public class AnyObjectRestClient extends AbstractAnyRestClient {
     }
 
     @Override
-    public AnyObjectTO delete(final String etag, final Long key) {
+    public ProvisioningResult<AnyObjectTO> delete(final String etag, final Long key) {
         return delete(AnyObjectService.class, AnyObjectTO.class, etag, key);
     }
 

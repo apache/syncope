@@ -40,8 +40,8 @@ public class UserDetails extends WizardStep {
         // ------------------------
         // Username
         // ------------------------
-        final FieldPanel<String> username = new AjaxTextFieldPanel("username", "username",
-                new PropertyModel<String>(userTO, "username"));
+        final FieldPanel<String> username = new AjaxTextFieldPanel(
+                "username", "username", new PropertyModel<String>(userTO, "username"), false);
 
         final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("usernameJexlHelp");
 
@@ -61,23 +61,23 @@ public class UserDetails extends WizardStep {
         // ------------------------
         final Form<?> form = new Form<>("passwordInnerForm");
         add(form);
-        
+
         final WebMarkupContainer pwdJexlHelp = JexlHelpUtils.getJexlHelpWebContainer("pwdJexlHelp");
 
         final AjaxLink<?> pwdQuestionMarkJexlHelp = JexlHelpUtils.getAjaxLink(pwdJexlHelp, "pwdQuestionMarkJexlHelp");
         form.add(pwdQuestionMarkJexlHelp);
         pwdQuestionMarkJexlHelp.add(pwdJexlHelp);
 
-        FieldPanel<String> passwordField
-                = new AjaxPasswordFieldPanel("password", "password", new PropertyModel<String>(userTO, "password"));
+        FieldPanel<String> passwordField = new AjaxPasswordFieldPanel(
+                "password", "password", new PropertyModel<String>(userTO, "password"), false);
         passwordField.setRequired(true);
         passwordField.setMarkupId("password");
         passwordField.setPlaceholder("password");
         ((PasswordTextField) passwordField.getField()).setResetPassword(true);
         form.add(passwordField);
 
-        FieldPanel<String> confirmPasswordField
-                = new AjaxPasswordFieldPanel("confirmPassword", "confirmPassword", new Model<String>());
+        FieldPanel<String> confirmPasswordField = new AjaxPasswordFieldPanel(
+                "confirmPassword", "confirmPassword", new Model<String>(), false);
         confirmPasswordField.setRequired(true);
         confirmPasswordField.setMarkupId("confirmPassword");
         confirmPasswordField.setPlaceholder("confirmPassword");

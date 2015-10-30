@@ -72,7 +72,7 @@ public class GroupDetails extends WizardStep {
         this.add(groupOwnerSelectWin);
 
         final AjaxTextFieldPanel name
-                = new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(groupTO, "name"));
+                = new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(groupTO, "name"), false);
 
         final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
 
@@ -88,7 +88,7 @@ public class GroupDetails extends WizardStep {
 
         userOwnerModel = new OwnerModel(groupTO, AnyTypeKind.USER);
         @SuppressWarnings("unchecked")
-        final AjaxTextFieldPanel userOwner = new AjaxTextFieldPanel("userOwner", "userOwner", userOwnerModel);
+        final AjaxTextFieldPanel userOwner = new AjaxTextFieldPanel("userOwner", "userOwner", userOwnerModel, false);
         userOwner.setReadOnly(true);
         userOwner.setOutputMarkupId(true);
         ownerContainer.add(userOwner);
@@ -126,7 +126,8 @@ public class GroupDetails extends WizardStep {
 
         groupOwnerModel = new OwnerModel(groupTO, AnyTypeKind.GROUP);
         @SuppressWarnings("unchecked")
-        final AjaxTextFieldPanel groupOwner = new AjaxTextFieldPanel("groupOwner", "groupOwner", groupOwnerModel);
+        final AjaxTextFieldPanel groupOwner
+                = new AjaxTextFieldPanel("groupOwner", "groupOwner", groupOwnerModel, false);
         groupOwner.setReadOnly(true);
         groupOwner.setOutputMarkupId(true);
         ownerContainer.add(groupOwner);

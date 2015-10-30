@@ -75,7 +75,6 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
             final String realm) {
 
         super(parentId, filtered, fiql, callerRef, restClient, realm, type);
-        //setCustomMarkupId(markupId);
         add(new Label("name", type));
 
         this.schemaNames = new ArrayList<>();
