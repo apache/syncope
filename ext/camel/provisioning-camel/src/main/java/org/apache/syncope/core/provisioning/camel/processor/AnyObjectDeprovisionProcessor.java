@@ -28,19 +28,14 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AnyObjectDeprovisionProcessor implements Processor {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserDeprovisionProcessor.class);
 
     @Autowired
     protected PropagationManager propagationManager;
@@ -56,6 +51,7 @@ public class AnyObjectDeprovisionProcessor implements Processor {
     public void process(final Exchange exchange) {
         Long key = exchange.getIn().getBody(Long.class);
         List<String> resources = exchange.getProperty("resources", List.class);
+        Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.DELETE, resources);
@@ -67,12 +63,7 @@ public class AnyObjectDeprovisionProcessor implements Processor {
                 CollectionUtils.removeAll(anyObjectDAO.findAllResourceNames(anyObjectDAO.authFind(key)), resources));
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         exchange.getOut().setBody(propagationReporter.getStatuses());
     }

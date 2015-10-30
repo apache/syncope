@@ -387,8 +387,21 @@ under the License.
     <jsplumb.version>1.7.5</jsplumb.version>
     
     <wicket.version>7.1.0</wicket.version>
-    <wicket-jqueryui.version>7.0.2</wicket-jqueryui.version>
-
+    <wicket-jqueryui.version>7.1.0</wicket-jqueryui.version>
+    
+    <angular.version>1.4.7</angular.version>
+    <angular-route.version>1.4.7</angular-route.version>
+    <angular-resource.version>1.4.7</angular-resource.version>
+    <angular-cookies.version>1.4.7</angular-cookies.version>
+    <angular-animate.version>1.4.7</angular-animate.version>
+    <angular-ui-router.version>0.2.15</angular-ui-router.version>
+    <angular-ui-bootstrap.version>0.14.0</angular-ui-bootstrap.version>
+    <angular-ui-select.version>0.13.1</angular-ui-select.version>
+    <angular-sanitize.version>1.4.7</angular-sanitize.version>
+    <angular-growl-2.version>0.7.3</angular-growl-2.version>
+    <select2.version>3.4.8</select2.version>
+    <FileSaver.version>0.0.2</FileSaver.version>
+    
     <izpack.version>5.0.5</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
     <maven-invoker.version>2.1.1</maven-invoker.version>
@@ -801,7 +814,7 @@ under the License.
         <artifactId>avalon-framework-impl</artifactId>
         <version>4.3.1</version>
       </dependency>
-      
+            
       <!-- Activiti -->
       <dependency>
         <groupId>org.activiti</groupId>
@@ -987,6 +1000,78 @@ under the License.
         <groupId>org.webjars</groupId>
         <artifactId>jquery-cookie</artifactId>
         <version>${jquery-cookie.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>angular</artifactId>
+        <version>${angular.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>angular-route</artifactId>
+        <version>${angular-route.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>angular-resource</artifactId>
+        <version>${angular-resource.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>angular-cookies</artifactId>
+        <version>${angular-cookies.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>angular-ui-router</artifactId>
+        <version>${angular-ui-router.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>angular-animate</artifactId>
+        <version>${angular-animate.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>angular-ui-bootstrap</artifactId>
+        <version>${angular-ui-bootstrap.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>angular-ui-select</artifactId>
+        <version>${angular-ui-select.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>angular-sanitize</artifactId>
+        <version>${angular-sanitize.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>angular-growl-2</artifactId>
+        <version>${angular-growl-2.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>select2</artifactId>
+        <version>${select2.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>jquery</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>FileSaver.js</artifactId>
+        <version>${FileSaver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>1.47</version>
       </dependency>
       
       <dependency>
@@ -1240,6 +1325,7 @@ under the License.
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
             <runOrder>alphabetical</runOrder>
+            <argLine>-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m -Xss256k</argLine>
           </configuration>
           <executions>
             <execution>
@@ -1270,7 +1356,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>2.4.1</version>
+          <version>2.4.2</version>
         </plugin>
         
         <plugin>
@@ -1364,6 +1450,7 @@ under the License.
             <exclude>**/META-INF/cxf/**</exclude>
             <exclude>**/META-INF/services/**</exclude>
             <exclude>**/META-INF/MANIFEST.MF</exclude>            
+            <exclude>**/META-INF/resources/app/views/**</exclude>            
             <exclude>**/*.csv</exclude>
             <exclude>**/archetype-resources/**</exclude>
             <exclude>**/AdminLTE*/**</exclude>
@@ -1651,7 +1738,7 @@ under the License.
                       <link>http://camel.apache.org/maven/current/camel-core/apidocs/</link>
                       <link>http://camel.apache.org/maven/current/camel-spring/apidocs/</link>
                       <link>http://ci.apache.org/projects/wicket/apidocs/7.x/</link>
-                      <link>http://docs.spring.io/spring/docs/4.1.x/javadoc-api/</link>
+                      <link>http://docs.spring.io/spring/docs/4.2.x/javadoc-api/</link>
                       <link>http://docs.spring.io/spring-security/site/docs/4.0.x/apidocs/</link>
                       <link>http://activiti.org/javadocs/</link>
                     </links>

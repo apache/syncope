@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +33,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "resource")
@@ -54,9 +56,7 @@ public class ResourceTO extends AbstractAnnotatedBean {
 
     private final List<ProvisionTO> provisions = new ArrayList<>();
 
-    private boolean propagationPrimary;
-
-    private int propagationPriority = 0;
+    private Integer propagationPriority;
 
     private boolean randomPwdIfNotProvided;
 
@@ -76,7 +76,11 @@ public class ResourceTO extends AbstractAnnotatedBean {
 
     private Long syncPolicy;
 
-    private final Set<ConnConfProperty> connConfProperties = new HashSet<>();
+    private final Set<ConnConfProperty> confOverride = new HashSet<>();
+
+    private boolean overrideCapabilities = false;
+
+    private final Set<ConnectorCapability> capabilitiesOverride = EnumSet.noneOf(ConnectorCapability.class);
 
     private final List<String> propagationActionsClassNames = new ArrayList<>();
 
@@ -113,19 +117,11 @@ public class ResourceTO extends AbstractAnnotatedBean {
         this.connectorDisplayName = connectorDisplayName;
     }
 
-    public boolean isPropagationPrimary() {
-        return propagationPrimary;
-    }
-
-    public void setPropagationPrimary(final boolean propagationPrimary) {
-        this.propagationPrimary = propagationPrimary;
-    }
-
-    public int getPropagationPriority() {
+    public Integer getPropagationPriority() {
         return propagationPriority;
     }
 
-    public void setPropagationPriority(final int propagationPriority) {
+    public void setPropagationPriority(final Integer propagationPriority) {
         this.propagationPriority = propagationPriority;
     }
 
@@ -203,11 +199,26 @@ public class ResourceTO extends AbstractAnnotatedBean {
         return provisions;
     }
 
-    @XmlElementWrapper(name = "connConfProperties")
+    @XmlElementWrapper(name = "confOverride")
     @XmlElement(name = "property")
-    @JsonProperty("connConfProperties")
-    public Set<ConnConfProperty> getConnConfProperties() {
-        return connConfProperties;
+    @JsonProperty("confOverride")
+    public Set<ConnConfProperty> getConfOverride() {
+        return confOverride;
+    }
+
+    public boolean isOverrideCapabilities() {
+        return overrideCapabilities;
+    }
+
+    public void setOverrideCapabilities(final boolean overrideCapabilities) {
+        this.overrideCapabilities = overrideCapabilities;
+    }
+
+    @XmlElementWrapper(name = "capabilitiesOverride")
+    @XmlElement(name = "capability")
+    @JsonProperty("capabilitiesOverride")
+    public Set<ConnectorCapability> getCapabilitiesOverride() {
+        return capabilitiesOverride;
     }
 
     public TraceLevel getSyncTraceLevel() {

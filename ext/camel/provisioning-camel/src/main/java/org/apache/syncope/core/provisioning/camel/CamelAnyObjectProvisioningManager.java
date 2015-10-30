@@ -36,19 +36,20 @@ public class CamelAnyObjectProvisioningManager
         extends AbstractCamelProvisioningManager implements AnyObjectProvisioningManager {
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final AnyObjectTO any) {
-        return create(any, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> create(final AnyObjectTO any, final boolean nullPriorityAsync) {
+        return create(any, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, List<PropagationStatus>> create(
-            final AnyObjectTO anyObjectTO, final Set<String> excludedResources) {
+            final AnyObjectTO anyObjectTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:createAnyObjectPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
+        props.put("nullPriorityAsync", nullPriorityAsync);
 
         sendMessage("direct:createAnyObject", anyObjectTO, props);
 
@@ -62,19 +63,20 @@ public class CamelAnyObjectProvisioningManager
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final AnyObjectPatch anyPatch) {
-        return update(anyPatch, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> update(final AnyObjectPatch anyPatch, final boolean nullPriorityAsync) {
+        return update(anyPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, List<PropagationStatus>> update(
-            final AnyObjectPatch anyPatch, final Set<String> excludedResources) {
+            final AnyObjectPatch anyPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:updateAnyObjectPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
+        props.put("nullPriorityAsync", nullPriorityAsync);
 
         sendMessage("direct:updateAnyObject", anyPatch, props);
 
@@ -88,19 +90,22 @@ public class CamelAnyObjectProvisioningManager
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long anyObjectObjectKey) {
-        return delete(anyObjectObjectKey, Collections.<String>emptySet());
+    public List<PropagationStatus> delete(final Long anyObjectObjectKey, final boolean nullPriorityAsync) {
+        return delete(anyObjectObjectKey, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<PropagationStatus> delete(final Long anyObjectKey, final Set<String> excludedResources) {
+    public List<PropagationStatus> delete(
+            final Long key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+
         PollingConsumer pollingConsumer = getConsumer("direct:deleteAnyObjectPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
+        props.put("nullPriorityAsync", nullPriorityAsync);
 
-        sendMessage("direct:deleteAnyObject", anyObjectKey, props);
+        sendMessage("direct:deleteAnyObject", key, props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -143,11 +148,14 @@ public class CamelAnyObjectProvisioningManager
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<PropagationStatus> provision(final Long key, final Collection<String> resources) {
+    public List<PropagationStatus> provision(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         PollingConsumer pollingConsumer = getConsumer("direct:provisionAnyObjectPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("resources", resources);
+        props.put("nullPriorityAsync", nullPriorityAsync);
 
         sendMessage("direct:provisionAnyObject", key, props);
 
@@ -162,13 +170,16 @@ public class CamelAnyObjectProvisioningManager
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<PropagationStatus> deprovision(final Long anyObjectKey, final Collection<String> resources) {
+    public List<PropagationStatus> deprovision(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         PollingConsumer pollingConsumer = getConsumer("direct:deprovisionAnyObjectPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("resources", resources);
+        props.put("nullPriorityAsync", nullPriorityAsync);
 
-        sendMessage("direct:deprovisionAnyObject", anyObjectKey, props);
+        sendMessage("direct:deprovisionAnyObject", key, props);
 
         Exchange exchange = pollingConsumer.receive();
 

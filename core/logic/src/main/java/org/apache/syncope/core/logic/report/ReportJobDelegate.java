@@ -33,7 +33,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
-import org.apache.syncope.core.misc.ExceptionUtils2;
+import org.apache.syncope.core.misc.utils.ExceptionUtils2;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;

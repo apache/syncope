@@ -25,8 +25,10 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -42,11 +44,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Load ConnId connector instances.
- */
 @Component
-public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
+public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, SyncopeLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectorManager.class);
 
@@ -55,6 +54,11 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    @Override
+    public Integer getPriority() {
+        return 100;
+    }
 
     private String getBeanName(final ExternalResource resource) {
         return String.format("connInstance-%s-%d-%s",
@@ -72,54 +76,61 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
     }
 
     @Override
-    public Connector createConnector(final ConnInstance connInstance, final Set<ConnConfProperty> configuration) {
-        ConnInstance connInstanceClone = SerializationUtils.clone(connInstance);
+    public ConnInstance buildConnInstanceOverride(
+            final ConnInstance connInstance,
+            final Set<ConnConfProperty> confOverride,
+            final Set<ConnectorCapability> capabilitiesOverride) {
 
-        connInstanceClone.setConfiguration(configuration);
+        ConnInstance override = SerializationUtils.clone(connInstance);
 
-        Connector connector = new ConnectorFacadeProxy(connInstanceClone);
+        Map<String, ConnConfProperty> overridable = new HashMap<>();
+        Set<ConnConfProperty> conf = new HashSet<>();
+
+        for (ConnConfProperty prop : override.getConf()) {
+            if (prop.isOverridable()) {
+                overridable.put(prop.getSchema().getName(), prop);
+            } else {
+                conf.add(prop);
+            }
+        }
+
+        // add overridden properties
+        for (ConnConfProperty prop : confOverride) {
+            if (overridable.containsKey(prop.getSchema().getName()) && !prop.getValues().isEmpty()) {
+                conf.add(prop);
+                overridable.remove(prop.getSchema().getName());
+            }
+        }
+
+        // add overridable properties not overridden
+        conf.addAll(overridable.values());
+
+        override.setConf(conf);
+
+        // replace capabilities
+        if (capabilitiesOverride != null) {
+            override.getCapabilities().clear();
+            override.getCapabilities().addAll(capabilitiesOverride);
+        }
+
+        return override;
+    }
+
+    @Override
+    public Connector createConnector(final ConnInstance connInstance) {
+        Connector connector = new ConnectorFacadeProxy(connInstance);
         ApplicationContextProvider.getBeanFactory().autowireBean(connector);
 
         return connector;
     }
 
     @Override
-    public ConnInstance getOverriddenConnInstance(
-            final ConnInstance connInstance, final Set<ConnConfProperty> overridden) {
-
-        Set<ConnConfProperty> configuration = new HashSet<>();
-        Map<String, ConnConfProperty> overridable = new HashMap<>();
-
-        // add not overridable properties
-        for (ConnConfProperty prop : connInstance.getConfiguration()) {
-            if (prop.isOverridable()) {
-                overridable.put(prop.getSchema().getName(), prop);
-            } else {
-                configuration.add(prop);
-            }
-        }
-
-        // add overridden properties
-        for (ConnConfProperty prop : overridden) {
-            if (overridable.containsKey(prop.getSchema().getName()) && !prop.getValues().isEmpty()) {
-                configuration.add(prop);
-                overridable.remove(prop.getSchema().getName());
-            }
-        }
-
-        // add overridable properties not overridden
-        configuration.addAll(overridable.values());
-
-        connInstance.setConfiguration(configuration);
-
-        return connInstance;
-    }
-
-    @Override
     public void registerConnector(final ExternalResource resource) {
-        ConnInstance connInstance = getOverriddenConnInstance(
-                SerializationUtils.clone(resource.getConnector()), resource.getConnInstanceConfiguration());
-        Connector connector = createConnector(resource.getConnector(), connInstance.getConfiguration());
+        ConnInstance connInstance = buildConnInstanceOverride(
+                resource.getConnector(),
+                resource.getConfOverride(),
+                resource.isOverrideCapabilities() ? resource.getCapabilitiesOverride() : null);
+        Connector connector = createConnector(connInstance);
         LOG.debug("Connector to be registered: {}", connector);
 
         String beanName = getBeanName(resource);
@@ -135,11 +146,6 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
     @Override
     public void unregisterConnector(final String id) {
         ApplicationContextProvider.getBeanFactory().destroySingleton(id);
-    }
-
-    @Override
-    public Integer getPriority() {
-        return 100;
     }
 
     @Transactional(readOnly = true)
@@ -171,7 +177,7 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
     public void unload() {
         int connectors = 0;
         for (ExternalResource resource : resourceDAO.findAll()) {
-            final String beanName = getBeanName(resource);
+            String beanName = getBeanName(resource);
             if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
                 LOG.info("Unegistering resource-connector pair {}-{}", resource, resource.getConnector());
                 unregisterConnector(beanName);

@@ -34,28 +34,25 @@ public class ReportDeleteExecution extends AbstractReportCommand {
     }
 
     public void delete() {
-
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
-
                 try {
-                    reportService.deleteExecution(Long.valueOf(parameter));
+                    reportSyncopeOperations.deleteExecution(parameter);
                     reportResultManager.deletedMessage("Report execution", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         reportResultManager.notFoundError("Report", parameter);
                     } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                        reportResultManager.generic("You cannot delete report " + parameter);
+                        reportResultManager.genericError("You cannot delete report " + parameter);
                     } else {
-                        reportResultManager.generic(ex.getMessage());
+                        reportResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
-                    reportResultManager.managerNumberFormatException("report", parameter);
+                    reportResultManager.numberFormatException("report", parameter);
                 }
             }
         } else {
             reportResultManager.commandOptionError(DELETE_EXECUTION_HELP_MESSAGE);
         }
     }
-
 }

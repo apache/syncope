@@ -42,7 +42,18 @@ public interface PropagationTaskExecutor {
     String MANDATORY_NULL_OR_EMPTY_ATTR_NAME = "__MANDATORY_NULL_OR_EMPTY__";
 
     /**
-     * Execute the given PropagationTask and returns the generated TaskExec.
+     * Creates new instances of {@link PropagationTaskCallable} for usage with
+     * {@link java.util.concurrent.CompletionService}.
+     *
+     * @param task to be executed
+     * @param reporter to report propagation execution status
+     * @return new {@link PropagationTaskCallable} instance for usage with
+     * {@link java.util.concurrent.CompletionService}
+     */
+    PropagationTaskCallable newPropagationTaskCallable(PropagationTask task, PropagationReporter reporter);
+
+    /**
+     * Execute the given PropagationTask and returns the generated {@link TaskExec}.
      *
      * @param task to be executed
      * @return the generated TaskExec
@@ -67,11 +78,13 @@ public interface PropagationTaskExecutor {
     void execute(Collection<PropagationTask> tasks);
 
     /**
-     * Execute a collection of PropagationTask objects and invoke the given handler on each of these.
-     * The process is interrupted as soon as the result of the communication with a primary resource is in error.
+     * Execute a collection of PropagationTask objects.
+     * The process is interrupted as soon as the result of the communication with a resource with non-null priority is
+     * in error.
      *
      * @param tasks to be execute, in given order
      * @param reporter to report propagation execution status
+     * @param nullPriorityAsync asynchronously executes tasks related to resources with no priority
      */
-    void execute(Collection<PropagationTask> tasks, PropagationReporter reporter);
+    void execute(Collection<PropagationTask> tasks, PropagationReporter reporter, boolean nullPriorityAsync);
 }

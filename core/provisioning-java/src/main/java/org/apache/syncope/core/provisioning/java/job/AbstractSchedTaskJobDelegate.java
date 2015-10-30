@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java.job;
 import java.util.Date;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.misc.AuditManager;
-import org.apache.syncope.core.misc.ExceptionUtils2;
+import org.apache.syncope.core.misc.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;

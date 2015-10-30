@@ -88,7 +88,7 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
 
     private String getCipherAlgorithm(final ConnInstance connInstance) {
         ConnConfProperty cipherAlgorithm =
-                CollectionUtils.find(connInstance.getConfiguration(), new Predicate<ConnConfProperty>() {
+                CollectionUtils.find(connInstance.getConf(), new Predicate<ConnConfProperty>() {
 
                     @Override
                     public boolean evaluate(final ConnConfProperty property) {

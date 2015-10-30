@@ -21,8 +21,6 @@ package org.apache.syncope.core.provisioning.java.data;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -58,34 +56,6 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     private EntityFactory entityFactory;
 
     @Override
-    public Set<ConnConfProperty> mergeConnConfProperties(final Set<ConnConfProperty> primary,
-            final Set<ConnConfProperty> secondary) {
-
-        final Set<ConnConfProperty> conf = new HashSet<>();
-
-        // to be used to control managed prop (needed by overridden mechanism)
-        final Set<String> propertyNames = new HashSet<>();
-
-        // get overridden connector configuration properties
-        for (ConnConfProperty prop : primary) {
-            if (!propertyNames.contains(prop.getSchema().getName())) {
-                conf.add(prop);
-                propertyNames.add(prop.getSchema().getName());
-            }
-        }
-
-        // get connector configuration properties
-        for (ConnConfProperty prop : secondary) {
-            if (!propertyNames.contains(prop.getSchema().getName())) {
-                conf.add(prop);
-                propertyNames.add(prop.getSchema().getName());
-            }
-        }
-
-        return conf;
-    }
-
-    @Override
     public ConnInstance getConnInstance(final ConnInstanceTO connInstanceTO) {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
@@ -105,7 +75,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             sce.getElements().add("connectorname");
         }
 
-        if (connInstanceTO.getConfiguration() == null || connInstanceTO.getConfiguration().isEmpty()) {
+        if (connInstanceTO.getConf().isEmpty()) {
             sce.getElements().add("configuration");
         }
 
@@ -129,7 +99,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     }
 
     @Override
-    public ConnInstance updateConnInstance(final long connInstanceId, final ConnInstanceTO connInstanceTO) {
+    public ConnInstance update(final long connInstanceId, final ConnInstanceTO connInstanceTO) {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         if (connInstanceId == 0) {
@@ -156,8 +126,8 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             connInstance.setConnectorName(connInstanceTO.getConnectorName());
         }
 
-        if (connInstanceTO.getConfiguration() != null && !connInstanceTO.getConfiguration().isEmpty()) {
-            connInstance.setConfiguration(connInstanceTO.getConfiguration());
+        if (connInstanceTO.getConf() != null && !connInstanceTO.getConf().isEmpty()) {
+            connInstance.setConf(connInstanceTO.getConf());
         }
 
         if (connInstanceTO.getDisplayName() != null) {
@@ -183,7 +153,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     }
 
     @Override
-    public ConnConfPropSchema buildConnConfPropSchema(final ConfigurationProperty property) {
+    public ConnConfPropSchema build(final ConfigurationProperty property) {
         ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
 
         connConfPropSchema.setName(property.getName());
@@ -218,9 +188,9 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         ConfigurationProperties properties =
                 connIdBundleManager.getConfigurationProperties(connIdBundleManager.getConnectorInfo(connInstance));
         for (final String propName : properties.getPropertyNames()) {
-            ConnConfPropSchema schema = buildConnConfPropSchema(properties.getProperty(propName));
+            ConnConfPropSchema schema = build(properties.getProperty(propName));
 
-            ConnConfProperty property = CollectionUtils.find(connInstanceTO.getConfiguration(),
+            ConnConfProperty property = CollectionUtils.find(connInstanceTO.getConf(),
                     new Predicate<ConnConfProperty>() {
 
                         @Override
@@ -230,9 +200,9 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
                     });
             if (property == null) {
                 property = new ConnConfProperty();
-                connInstanceTO.getConfiguration().add(property);
+                connInstanceTO.getConf().add(property);
             }
-            
+
             property.setSchema(schema);
         }
 

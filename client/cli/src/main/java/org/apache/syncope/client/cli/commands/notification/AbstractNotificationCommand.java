@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.notification;
 
-import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.rest.api.service.NotificationService;
-
 public abstract class AbstractNotificationCommand {
 
-    protected final NotificationService notificationService = SyncopeServices.get(NotificationService.class);
+    protected final NotificationSyncopeOperations notificationSyncopeOperations = new NotificationSyncopeOperations();
     
     protected final NotificationResultManager notificationResultManager = new NotificationResultManager();
 

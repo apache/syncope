@@ -56,7 +56,7 @@ public interface UserSelfService extends JAXRSService {
      * @param userTO user to be created
      * @param storePassword whether password shall be stored internally
      * @return Response object featuring Location header of self-registered user as well as the user
-     * itself - UserTO as Entity
+     * itself - ProvisioningResult as Entity
      */
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -68,7 +68,7 @@ public interface UserSelfService extends JAXRSService {
      * Self-updates user.
      *
      * @param patch modification to be applied to self
-     * @return Response object featuring the updated user - UserTO as Entity
+     * @return Response object featuring the updated user - ProvisioningResult as Entity
      */
     @PATCH
     @Path("{key}")
@@ -80,7 +80,7 @@ public interface UserSelfService extends JAXRSService {
      * Self-updates user.
      *
      * @param user complete update
-     * @return Response object featuring the updated user - UserTO as Entity
+     * @return Response object featuring the updated user - ProvisioningResult as Entity
      */
     @PUT
     @Path("{key}")
@@ -91,7 +91,7 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Self-deletes user.
      *
-     * @return Response object featuring the deleted user - UserTO as Entity
+     * @return Response object featuring the deleted user - ProvisioningResult as Entity
      */
     @DELETE
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -102,7 +102,7 @@ public interface UserSelfService extends JAXRSService {
      *
      * @param password the password value to update
      *
-     * @return Response object featuring the updated user - UserTO as Entity
+     * @return Response object featuring the updated user - ProvisioningResult as Entity
      */
     @POST
     @Path("changePassword")

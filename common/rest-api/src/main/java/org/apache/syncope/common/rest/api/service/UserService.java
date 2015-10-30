@@ -65,7 +65,7 @@ public interface UserService extends AnyService<UserTO, UserPatch> {
      * @param userTO user to be created
      * @param storePassword whether password shall be stored internally
      * @return Response object featuring Location header of created user as well as the user itself
-     * enriched with propagation status information - UserTO as Entity
+     * enriched with propagation status information - ProvisioningResult as Entity
      */
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -79,7 +79,7 @@ public interface UserService extends AnyService<UserTO, UserPatch> {
      *
      * @param statusPatch status update details
      * @return Response object featuring the updated user enriched with propagation status information
-     * - UserTO as Entity
+     * - ProvisioningResult as Entity
      */
     @POST
     @Path("{key}/status")

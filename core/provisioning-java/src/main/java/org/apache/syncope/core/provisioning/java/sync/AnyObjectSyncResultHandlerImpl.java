@@ -32,7 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.sync.AnyObjectSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 
@@ -81,11 +81,11 @@ public class AnyObjectSyncResultHandlerImpl extends AbstractSyncResultHandler im
     }
 
     @Override
-    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningResult result) {
+    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningReport result) {
         AnyObjectTO anyObjectTO = AnyObjectTO.class.cast(anyTO);
 
         Map.Entry<Long, List<PropagationStatus>> created = anyObjectProvisioningManager.create(
-                anyObjectTO, Collections.singleton(profile.getTask().getResource().getKey()));
+                anyObjectTO, Collections.singleton(profile.getTask().getResource().getKey()), true);
 
         result.setKey(created.getKey());
         result.setName(getName(anyTO));
@@ -98,11 +98,12 @@ public class AnyObjectSyncResultHandlerImpl extends AbstractSyncResultHandler im
             final AnyTO before,
             final AnyPatch anyPatch,
             final SyncDelta delta,
-            final ProvisioningResult result) {
+            final ProvisioningReport result) {
 
         AnyObjectPatch anyObjectPatch = AnyObjectPatch.class.cast(anyPatch);
 
-        Map.Entry<Long, List<PropagationStatus>> updated = anyObjectProvisioningManager.update(anyObjectPatch);
+        Map.Entry<Long, List<PropagationStatus>> updated =
+                anyObjectProvisioningManager.update(anyObjectPatch, true);
 
         AnyObjectTO after = anyObjectDataBinder.getAnyObjectTO(updated.getKey());
         result.setName(getName(after));

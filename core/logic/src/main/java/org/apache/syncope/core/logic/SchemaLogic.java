@@ -180,7 +180,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.SCHEMA_READ + "')")
+    @PreAuthorize("isAuthenticated()")
     @SuppressWarnings("unchecked")
     public <T extends AbstractSchemaTO> T read(final SchemaType schemaType, final String schemaName) {
         T read;

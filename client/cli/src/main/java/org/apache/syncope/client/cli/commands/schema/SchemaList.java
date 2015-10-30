@@ -41,7 +41,7 @@ public class SchemaList extends AbstractSchemaCommand {
             try {
                 final SchemaType schemaType = SchemaType.valueOf(input.firstParameter());
                 final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
-                for (final AbstractSchemaTO schemaTO : schemaService.list(schemaType)) {
+                for (final AbstractSchemaTO schemaTO : schemaSyncopeOperations.list(schemaType)) {
                     schemaTOs.add(schemaTO);
                 }
                 switch (schemaType) {
@@ -58,7 +58,7 @@ public class SchemaList extends AbstractSchemaCommand {
                         break;
                 }
             } catch (final SyncopeClientException ex) {
-                schemaResultManager.generic(ex.getMessage());
+                schemaResultManager.genericError(ex.getMessage());
             } catch (final IllegalArgumentException ex) {
                 schemaResultManager.typeNotValidError(
                         "schema", input.firstParameter(), CommandUtils.fromEnumToArray(SchemaType.class));

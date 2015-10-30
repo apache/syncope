@@ -35,20 +35,15 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisioningManager {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AnyObjectProvisioningManager.class);
 
     @Autowired
     protected AnyObjectWorkflowAdapter awfAdapter;
@@ -66,13 +61,13 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     protected AnyObjectDAO anyObjectDAO;
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final AnyObjectTO anyObjectTO) {
-        return create(anyObjectTO, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> create(final AnyObjectTO anyObjectTO, final boolean nullPriorityAsync) {
+        return create(anyObjectTO, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     public Pair<Long, List<PropagationStatus>> create(
-            final AnyObjectTO anyObjectTO, final Set<String> excludedResources) {
+            final AnyObjectTO anyObjectTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         WorkflowResult<Long> created = awfAdapter.create(anyObjectTO);
 
@@ -84,24 +79,21 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final AnyObjectPatch anyObjectPatch) {
-        return update(anyObjectPatch, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> update(
+            final AnyObjectPatch anyObjectPatch, final boolean nullPriorityAsync) {
+
+        return update(anyObjectPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     public Pair<Long, List<PropagationStatus>> update(
-            final AnyObjectPatch anyObjectPatch, final Set<String> excludedResources) {
+            final AnyObjectPatch anyObjectPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         WorkflowResult<Long> updated = awfAdapter.update(anyObjectPatch);
 
@@ -115,23 +107,20 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         return new ImmutablePair<>(updated.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long key) {
-        return delete(key, Collections.<String>emptySet());
+    public List<PropagationStatus> delete(final Long key, final boolean nullPriorityAsync) {
+        return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long key, final Set<String> excludedResources) {
+    public List<PropagationStatus> delete(
+            final Long key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+
         List<PropagationTask> tasks = propagationManager.getDeleteTasks(
                 AnyTypeKind.ANY_OBJECT,
                 key,
@@ -139,12 +128,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         awfAdapter.delete(key);
 
@@ -162,7 +146,9 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     }
 
     @Override
-    public List<PropagationStatus> provision(final Long key, final Collection<String> resources) {
+    public List<PropagationStatus> provision(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.UPDATE, resources);
 
@@ -176,17 +162,15 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 null);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+
         return propagationReporter.getStatuses();
     }
 
     @Override
-    public List<PropagationStatus> deprovision(final Long key, final Collection<String> resources) {
+    public List<PropagationStatus> deprovision(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.DELETE, resources);
 
@@ -197,12 +181,8 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 CollectionUtils.removeAll(anyObjectDAO.findAllResourceNames(anyObjectDAO.authFind(key)), resources));
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+
         return propagationReporter.getStatuses();
     }
 }

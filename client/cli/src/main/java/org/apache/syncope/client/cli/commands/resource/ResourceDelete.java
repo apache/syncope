@@ -35,15 +35,15 @@ public class ResourceDelete extends AbstractResourceCommand {
         if (input.getParameters().length >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    resourceService.delete(parameter);
+                    resourceSyncopeOperations.delete(parameter);
                     resourceResultManager.deletedMessage("resource", parameter);
                 } catch (final NumberFormatException ex) {
-                    resourceResultManager.managerNumberFormatException("resource", parameter);
+                    resourceResultManager.numberFormatException("resource", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         resourceResultManager.notFoundError("Resource", parameter);
                     } else {
-                        resourceResultManager.generic(ex.getMessage());
+                        resourceResultManager.genericError(ex.getMessage());
                     }
                     break;
                 }
@@ -52,5 +52,4 @@ public class ResourceDelete extends AbstractResourceCommand {
             resourceResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
-
 }

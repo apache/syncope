@@ -20,7 +20,7 @@ package org.apache.syncope.core.provisioning.api;
 
 import java.util.Set;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.core.persistence.api.SyncopeLoader;
+import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
@@ -29,16 +29,28 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
  *
  * @see Connector
  */
-public interface ConnectorFactory extends SyncopeLoader {
+public interface ConnectorFactory {
 
     /**
-     * Create connector from given connector instance and configuration properties.
+     * Builds connector instance override over base connector instance, configuration and capabilities override.
+     *
+     * @param connInstance base connector instance
+     * @param confOverride configuration override
+     * @param capabilitiesOverride capabilities override
+     * @return connector instance override over base connector instance, configuration and capabilities override
+     */
+    ConnInstance buildConnInstanceOverride(
+            ConnInstance connInstance,
+            Set<ConnConfProperty> confOverride,
+            Set<ConnectorCapability> capabilitiesOverride);
+
+    /**
+     * Create connector from given connector instance.
      *
      * @param connInstance connector instance
-     * @param configuration configuration properties
      * @return connector
      */
-    Connector createConnector(ConnInstance connInstance, Set<ConnConfProperty> configuration);
+    Connector createConnector(ConnInstance connInstance);
 
     /**
      * Get existing connector for the given resource.
@@ -53,7 +65,6 @@ public interface ConnectorFactory extends SyncopeLoader {
      *
      * @see ExternalResource
      */
-    @Override
     void load();
 
     /**

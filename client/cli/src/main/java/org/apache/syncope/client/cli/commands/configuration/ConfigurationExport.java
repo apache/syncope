@@ -45,24 +45,24 @@ public class ConfigurationExport extends AbstractConfigurationCommand {
         if (input.parameterNumber() == 1) {
             try {
                 XMLUtils.createXMLFile(
-                        (SequenceInputStream) configurationService.export().getEntity(),
+                        (SequenceInputStream) configurationSyncopeOperations.export().getEntity(),
                         input.firstParameter() + EXPORT_FILE_NAME);
-                configurationResultManager.generic(
+                configurationResultManager.genericMessage(
                         input.firstParameter() + EXPORT_FILE_NAME + " successfully created");
             } catch (final IOException ex) {
-                configurationResultManager.generic(ex.getMessage());
+                configurationResultManager.genericError(ex.getMessage());
             } catch (ParserConfigurationException | SAXException | TransformerConfigurationException ex) {
-                configurationResultManager.generic(
+                configurationResultManager.genericError(
                         "Error creating " + input.firstParameter() + EXPORT_FILE_NAME + " " + ex.getMessage());
             } catch (final TransformerException ex) {
                 if (ex.getCause() instanceof FileNotFoundException) {
-                    configurationResultManager.generic("Permission denied on " + input.firstParameter());
+                    configurationResultManager.genericError("Permission denied on " + input.firstParameter());
                 } else {
-                    configurationResultManager.generic(
+                    configurationResultManager.genericError(
                             "Error creating " + input.firstParameter() + EXPORT_FILE_NAME + " " + ex.getMessage());
                 }
             } catch (final SyncopeClientException ex) {
-                configurationResultManager.generic("Error calling configuration service " + ex.getMessage());
+                configurationResultManager.genericError("Error calling configuration service " + ex.getMessage());
             }
         } else {
             configurationResultManager.commandOptionError(EXPORT_HELP_MESSAGE);

@@ -45,7 +45,7 @@ public class SchemaRead extends AbstractSchemaCommand {
                 final SchemaType schemaType = SchemaType.valueOf(input.firstParameter());
                 final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
                 for (final String parameter : parameters) {
-                    schemaTOs.add(schemaService.read(schemaType, parameter));
+                    schemaTOs.add(schemaSyncopeOperations.read(schemaType, parameter));
                 }
                 switch (schemaType) {
                     case PLAIN:
@@ -64,7 +64,7 @@ public class SchemaRead extends AbstractSchemaCommand {
                 if (ex.getMessage().startsWith("NotFound")) {
                     schemaResultManager.notFoundError("Schema", parameters[0]);
                 } else {
-                    schemaResultManager.generic(ex.getMessage());
+                    schemaResultManager.genericError(ex.getMessage());
                 }
             } catch (final IllegalArgumentException ex) {
                 schemaResultManager.typeNotValidError(
@@ -74,5 +74,4 @@ public class SchemaRead extends AbstractSchemaCommand {
             schemaResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-
 }

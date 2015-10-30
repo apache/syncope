@@ -46,7 +46,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationException
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -55,6 +55,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -109,7 +110,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * @return the name of the attribute used to keep track of group memberships
      */
     protected String getGroupMembershipAttrName(final Connector connector) {
-        ConnConfProperty groupMembership = CollectionUtils.find(connector.getActiveConnInstance().getConfiguration(),
+        ConnConfProperty groupMembership = CollectionUtils.find(connector.getConnInstance().getConf(),
                 new Predicate<ConnConfProperty>() {
 
                     @Override
@@ -196,7 +197,12 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
         if (membAttr == null) {
             OperationOptionsBuilder oob = new OperationOptionsBuilder();
             oob.setAttributesToGet(groupMemberName);
-            membAttr = connector.getObjectAttribute(ObjectClass.GROUP, delta.getUid(), oob.build(), groupMemberName);
+            ConnectorObject remoteObj = connector.getObject(ObjectClass.GROUP, delta.getUid(), oob.build());
+            if (remoteObj == null) {
+                LOG.debug("Object for '{}' not found", delta.getUid().getUidValue());
+            } else {
+                membAttr = remoteObj.getAttributeByName(groupMemberName);
+            }
         }
         if (membAttr != null && membAttr.getValue() != null) {
             result = membAttr.getValue();
@@ -311,7 +317,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final A any,
-            final ProvisioningResult result) throws JobExecutionException {
+            final ProvisioningReport result) throws JobExecutionException {
 
         if (!(profile.getTask() instanceof SyncTask)) {
             return;

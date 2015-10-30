@@ -44,6 +44,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -99,18 +100,8 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     private List<JPAProvision> provisions = new ArrayList<>();
 
     /**
-     * Is this resource primary, for propagations?
-     */
-    @NotNull
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer propagationPrimary;
-
-    /**
      * Priority index for propagation ordering.
      */
-    @NotNull
     private Integer propagationPriority;
 
     /**
@@ -153,6 +144,20 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     @Lob
     private String jsonConf;
 
+    @NotNull
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer overrideCapabilities;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "capabilityOverride")
+    @CollectionTable(name = "ExternalResource_capabilitiesOverride",
+            joinColumns =
+            @JoinColumn(name = "resource_name", referencedColumnName = "name"))
+    private Set<ConnectorCapability> capabilitiesOverride = new HashSet<>();
+
     /**
      * (Optional) classes for PropagationAction.
      */
@@ -163,16 +168,13 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
             @JoinColumn(name = "resource_name", referencedColumnName = "name"))
     private List<String> propagationActionsClassNames = new ArrayList<>();
 
-    /**
-     * Default constructor.
-     */
     public JPAExternalResource() {
         super();
 
         enforceMandatoryCondition = getBooleanAsInteger(false);
-        propagationPrimary = 0;
         propagationPriority = 0;
         randomPwdIfNotProvided = 0;
+        overrideCapabilities = 0;
 
         createTraceLevel = TraceLevel.FAILURES;
         updateTraceLevel = TraceLevel.FAILURES;
@@ -238,16 +240,6 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     @Override
     public List<? extends Provision> getProvisions() {
         return provisions;
-    }
-
-    @Override
-    public boolean isPropagationPrimary() {
-        return isBooleanAsInteger(propagationPrimary);
-    }
-
-    @Override
-    public void setPropagationPrimary(final boolean propagationPrimary) {
-        this.propagationPrimary = getBooleanAsInteger(propagationPrimary);
     }
 
     @Override
@@ -357,18 +349,33 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     }
 
     @Override
-    public Set<ConnConfProperty> getConnInstanceConfiguration() {
-        Set<ConnConfProperty> configuration = new HashSet<>();
+    public Set<ConnConfProperty> getConfOverride() {
+        Set<ConnConfProperty> confOverride = new HashSet<>();
         if (!StringUtils.isBlank(jsonConf)) {
-            CollectionUtils.addAll(configuration, POJOHelper.deserialize(jsonConf, ConnConfProperty[].class));
+            CollectionUtils.addAll(confOverride, POJOHelper.deserialize(jsonConf, ConnConfProperty[].class));
         }
 
-        return configuration;
+        return confOverride;
     }
 
     @Override
-    public void setConnInstanceConfiguration(final Set<ConnConfProperty> properties) {
-        jsonConf = POJOHelper.serialize(new HashSet<>(properties));
+    public void setConfOverride(final Set<ConnConfProperty> confOverride) {
+        jsonConf = POJOHelper.serialize(new HashSet<>(confOverride));
+    }
+
+    @Override
+    public boolean isOverrideCapabilities() {
+        return isBooleanAsInteger(overrideCapabilities);
+    }
+
+    @Override
+    public void setOverrideCapabilities(final boolean overrideCapabilities) {
+        this.overrideCapabilities = getBooleanAsInteger(overrideCapabilities);
+    }
+
+    @Override
+    public Set<ConnectorCapability> getCapabilitiesOverride() {
+        return capabilitiesOverride;
     }
 
     @Override

@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -44,6 +45,7 @@ import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
@@ -85,7 +87,8 @@ public class UserSelfITCase extends AbstractITCase {
         SyncopeClient anonClient = clientFactory.create();
         UserTO self = anonClient.getService(UserSelfService.class).
                 create(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org"), true).
-                readEntity(UserTO.class);
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                }).getAny();
         assertNotNull(self);
         assertEquals("createApproval", self.getStatus());
     }
@@ -102,7 +105,8 @@ public class UserSelfITCase extends AbstractITCase {
         SyncopeClient anonClient = clientFactory.create();
         userTO = anonClient.getService(UserSelfService.class).
                 create(userTO, true).
-                readEntity(UserTO.class);
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                }).getAny();
         assertNotNull(userTO);
         assertEquals("createApproval", userTO.getStatus());
         assertFalse(userTO.getMemberships().isEmpty());
@@ -146,7 +150,7 @@ public class UserSelfITCase extends AbstractITCase {
     @Test
     public void updateWithoutApproval() {
         // 1. create user as admin
-        UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org"));
+        UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org")).getAny();
         assertNotNull(created);
         assertFalse(created.getUsername().endsWith("XX"));
 
@@ -157,7 +161,8 @@ public class UserSelfITCase extends AbstractITCase {
 
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
         UserTO updated = authClient.getService(UserSelfService.class).update(userPatch).
-                readEntity(UserTO.class);
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                }).getAny();
         assertNotNull(updated);
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
                 ? "active" : "created", updated.getStatus());
@@ -169,7 +174,7 @@ public class UserSelfITCase extends AbstractITCase {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // 1. create user as admin
-        UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org"));
+        UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org")).getAny();
         assertNotNull(created);
         assertFalse(created.getUsername().endsWith("XX"));
 
@@ -188,7 +193,8 @@ public class UserSelfITCase extends AbstractITCase {
 
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
         UserTO updated = authClient.getService(UserSelfService.class).update(userPatch).
-                readEntity(UserTO.class);
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                }).getAny();
         assertNotNull(updated);
         assertEquals("updateApproval", updated.getStatus());
         assertFalse(updated.getUsername().endsWith("XX"));
@@ -223,11 +229,13 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void delete() {
-        UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org"));
+        UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org")).getAny();
         assertNotNull(created);
 
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
-        UserTO deleted = authClient.getService(UserSelfService.class).delete().readEntity(UserTO.class);
+        UserTO deleted = authClient.getService(UserSelfService.class).delete().readEntity(
+                new GenericType<ProvisioningResult<UserTO>>() {
+                }).getAny();
         assertNotNull(deleted);
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
                 ? "deleteApproval" : null, deleted.getStatus());
@@ -373,7 +381,7 @@ public class UserSelfITCase extends AbstractITCase {
         userPatch = new UserPatch();
         userPatch.setKey(3L);
         userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
-        UserTO vivaldi = updateUser(userPatch);
+        UserTO vivaldi = updateUser(userPatch).getAny();
         assertTrue(vivaldi.isMustChangePassword());
 
         // 2. attempt to access -> fail

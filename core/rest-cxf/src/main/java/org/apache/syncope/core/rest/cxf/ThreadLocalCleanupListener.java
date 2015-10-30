@@ -20,7 +20,7 @@ package org.apache.syncope.core.rest.cxf;
 
 import javax.servlet.ServletRequestEvent;
 import javax.servlet.ServletRequestListener;
-import org.apache.syncope.core.misc.FormatUtils;
+import org.apache.syncope.core.misc.utils.FormatUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.impl.api.local.ThreadClassLoaderManager;
 

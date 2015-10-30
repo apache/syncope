@@ -40,14 +40,14 @@ public class ReportRead extends AbstractReportCommand {
             final List<ReportTO> reportTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    reportTOs.add(reportService.read(Long.valueOf(parameter)));
+                    reportTOs.add(reportSyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
-                    reportResultManager.managerNumberFormatException("report", parameter);
+                    reportResultManager.numberFormatException("report", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         reportResultManager.notFoundError("Report", parameter);
                     } else {
-                        reportResultManager.generic(ex.getMessage());
+                        reportResultManager.genericError(ex.getMessage());
                     }
                 }
             }

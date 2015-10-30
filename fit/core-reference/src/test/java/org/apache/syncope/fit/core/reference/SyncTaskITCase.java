@@ -53,6 +53,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.policy.SyncPolicyTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -153,7 +154,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         inUserTO.getAuxClasses().add("csv");
         inUserTO.getDerAttrs().add(attrTO("csvuserid", null));
 
-        inUserTO = createUser(inUserTO);
+        inUserTO = createUser(inUserTO).getAny();
         assertNotNull(inUserTO);
         assertFalse(inUserTO.getResources().contains(RESOURCE_NAME_CSV));
 
@@ -388,7 +389,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             String originalLocation = anyObjectTO.getPlainAttrMap().get("location").getValues().get(0);
             assertFalse(originalLocation.startsWith(PrefixMappingItemTransformer.PREFIX));
 
-            anyObjectTO = createAnyObject(anyObjectTO);
+            anyObjectTO = createAnyObject(anyObjectTO).getAny();
             assertNotNull(anyObjectTO);
 
             // 2. verify that PrefixMappingItemTransformer was applied during propagation
@@ -456,7 +457,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         userTO.getMemberships().add(new MembershipTO.Builder().group(7L).build());
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
         assertEquals("testuser2", userTO.getUsername());
         assertEquals(1, userTO.getMemberships().size());
@@ -496,7 +497,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertEquals(2, userTO.getMemberships().size());
             assertEquals(4, userTO.getResources().size());
         } finally {
-            UserTO dUserTO = deleteUser(userTO.getKey());
+            UserTO dUserTO = deleteUser(userTO.getKey()).getAny();
             assertNotNull(dUserTO);
         }
     }
@@ -560,7 +561,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_WS2);
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
 
         // change email in order to unmatch the second user
         UserPatch userPatch = new UserPatch();
@@ -587,11 +588,12 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("syncope272@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
-        userTO = createUser(userTO);
+        ProvisioningResult<UserTO> result = createUser(userTO);
+        userTO = result.getAny();
         try {
             assertNotNull(userTO);
-            assertEquals(1, userTO.getPropagationStatusTOs().size());
-            assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
+            assertEquals(1, result.getPropagationStatuses().size());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
             TaskExecTO taskExecTO = execProvisioningTask(taskService, 24L, 50, false);
 
@@ -621,7 +623,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_WS2);
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 
         userTO = userService.read(userTO.getKey());
@@ -665,7 +667,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         UserTO user = UserITCase.getUniqueSampleTO("syncope313-db@syncope.apache.org");
         user.setPassword("security123");
         user.getResources().add(RESOURCE_NAME_TESTDB);
-        user = createUser(user);
+        user = createUser(user).getAny();
         assertNotNull(user);
         assertFalse(user.getResources().isEmpty());
 
@@ -721,7 +723,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         UserTO user = UserITCase.getUniqueSampleTO("syncope313-ldap@syncope.apache.org");
         user.setPassword(oldCleanPassword);
         user.getResources().add(RESOURCE_NAME_LDAP);
-        user = createUser(user);
+        user = createUser(user).getAny();
         assertNotNull(user);
         assertFalse(user.getResources().isEmpty());
 
@@ -730,7 +732,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(user.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().value(newCleanPassword).build());
-        user = updateUser(userPatch);
+        user = updateUser(userPatch).getAny();
 
         // 3. Check that the Syncope user now has the changed password
         Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(user.getUsername(), newCleanPassword).self();
@@ -748,7 +750,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         ResourceTO ldapResource = resourceService.read(RESOURCE_NAME_LDAP);
         ConnInstanceTO resourceConnector = connectorService.read(
                 ldapResource.getConnector(), Locale.ENGLISH.getLanguage());
-        ConnConfProperty property = resourceConnector.getConfigurationMap().get("retrievePasswordsWithSearch");
+        ConnConfProperty property = resourceConnector.getConfMap().get("retrievePasswordsWithSearch");
         property.getValues().clear();
         property.getValues().add(Boolean.TRUE);
         connectorService.update(resourceConnector);

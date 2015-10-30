@@ -23,8 +23,6 @@ jdk:
 # default install is mvn install --quiet -DskipTests=true
 install: mvn --show-version --quiet -P all,skipTests
 script:
-#  - sudo rm /etc/mavenrc
-#  - export MAVEN_OPTS="-Xmx2469m -XX:MaxPermSize=512m -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
   #invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
   - mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
 notifications:

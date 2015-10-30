@@ -36,16 +36,15 @@ public class PolicyDelete extends AbstractPolicyCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    policyService.delete(Long.valueOf(parameter));
+                    policySyncopeOperations.delete(parameter);
                     policyResultManager.deletedMessage("Policy", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
-                    System.out.println("Error:");
                     if (ex.getMessage().startsWith("NotFound")) {
                         policyResultManager.notFoundError("Policy", parameter);
                     } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                        policyResultManager.generic("You cannot delete policy " + parameter);
+                        policyResultManager.genericError("You cannot delete policy " + parameter);
                     } else {
-                        policyResultManager.generic(ex.getMessage());
+                        policyResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
                     policyResultManager.notBooleanDeletedError("policy", parameter);
@@ -55,5 +54,4 @@ public class PolicyDelete extends AbstractPolicyCommand {
             policyResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
-
 }

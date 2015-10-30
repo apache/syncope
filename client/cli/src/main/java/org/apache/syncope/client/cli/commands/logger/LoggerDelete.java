@@ -21,7 +21,6 @@ package org.apache.syncope.client.cli.commands.logger;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.LoggerType;
 
 public class LoggerDelete extends AbstractLoggerCommand {
 
@@ -37,13 +36,13 @@ public class LoggerDelete extends AbstractLoggerCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    loggerService.delete(LoggerType.LOG, parameter);
+                    loggerSyncopeOperations.delete(parameter);
                     loggerResultManager.deletedMessage("Logger", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         loggerResultManager.notFoundError("Logger", parameter);
                     } else {
-                        loggerResultManager.generic(ex.getMessage());
+                        loggerResultManager.genericError(ex.getMessage());
                     }
                 }
             }
@@ -51,5 +50,4 @@ public class LoggerDelete extends AbstractLoggerCommand {
             loggerResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
-
 }

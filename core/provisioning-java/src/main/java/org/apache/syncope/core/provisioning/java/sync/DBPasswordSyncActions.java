@@ -32,7 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -91,7 +91,7 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
     private void parseEncodedPassword(final String password, final Connector connector) {
         if (password != null) {
-            ConnInstance connInstance = connector.getActiveConnInstance();
+            ConnInstance connInstance = connector.getConnInstance();
 
             String cipherAlgorithm = getCipherAlgorithm(connInstance);
             if (!CLEARTEXT.equals(cipherAlgorithm)) {
@@ -108,7 +108,7 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
     private String getCipherAlgorithm(final ConnInstance connInstance) {
         ConnConfProperty cipherAlgorithm =
-                CollectionUtils.find(connInstance.getConfiguration(), new Predicate<ConnConfProperty>() {
+                CollectionUtils.find(connInstance.getConf(), new Predicate<ConnConfProperty>() {
 
                     @Override
                     public boolean evaluate(final ConnConfProperty property) {
@@ -128,7 +128,7 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final A any,
-            final ProvisioningResult result) throws JobExecutionException {
+            final ProvisioningReport result) throws JobExecutionException {
 
         if (any instanceof UserTO && encodedPassword != null && cipher != null) {
             User syncopeUser = userDAO.find(any.getKey());

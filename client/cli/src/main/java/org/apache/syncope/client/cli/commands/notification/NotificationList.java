@@ -18,18 +18,31 @@
  */
 package org.apache.syncope.client.cli.commands.notification;
 
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.NotificationTO;
 
 public class NotificationList extends AbstractNotificationCommand {
 
+    private static final String LIST_HELP_MESSAGE = "notification --list";
+
+    private final Input input;
+
+    public NotificationList(final Input input) {
+        this.input = input;
+    }
+
     public void list() {
-        try {
-            for (final NotificationTO notificationTO : notificationService.list()) {
-                System.out.println(notificationTO);
+        if (input.parameterNumber() == 0) {
+            try {
+                for (final NotificationTO notificationTO : notificationSyncopeOperations.list()) {
+                    System.out.println(notificationTO);
+                }
+            } catch (final SyncopeClientException ex) {
+                notificationResultManager.genericError(ex.getMessage());
             }
-        } catch (final SyncopeClientException ex) {
-            notificationResultManager.generic(ex.getMessage());
+        } else {
+            notificationResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
         }
     }
 }

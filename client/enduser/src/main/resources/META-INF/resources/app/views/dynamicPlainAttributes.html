@@ -1,0 +1,22 @@
+<div id="attribute" class="form-group" ng-repeat="plainSchema in dynamicForm.plainSchemas">
+  <label for="plainSchema.key">{{plainSchema.key}} <span ng-if="Boolean(plainSchema.mandatoryCondition)">*</span></label>
+  <div ng-if="!plainSchema.multivalue">
+    <dynamic-attribute schema="plainSchema" user="user" index="0"></dynamic-attribute>
+  </div>
+
+  <div ng-if="plainSchema.multivalue">
+    <div ng-repeat="field in dynamicForm.attributeTable[plainSchema.key].fields track by $index" ng-model='dynamicForm.attributeTable[plainSchema.key].fields[$index]'>
+      <dynamic-attribute schema="plainSchema" user="user" index="$index"></dynamic-attribute>
+      <span>
+        <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" ng-click="removeAttributeField(plainSchema.key, $index)">
+          <i class="glyphicon glyphicon-minus" title="Remove value"></i>
+        </button>
+      </span>
+    </div>
+    <span>
+      <button class="btn btn-default btn-sm" type="button" ng-click="addAttributeField(plainSchema.key)">
+        <i class="glyphicon glyphicon-plus" title="Add value"></i>
+      </button>
+    </span>
+  </div>
+</div>

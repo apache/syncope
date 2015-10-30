@@ -44,20 +44,21 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
-import org.apache.syncope.core.misc.ConnObjectUtils;
-import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.misc.utils.ConnObjectUtils;
+import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -83,6 +84,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @Autowired
     private AnyObjectDAO anyObjectDAO;
+
+    @Autowired
+    private ConnInstanceDAO connInstanceDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -245,7 +249,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         ConnectorObject connectorObject = connector.getObject(
                 init.getRight().getObjectClass(),
                 new Uid(connObjectKeyValue),
-                connector.getOperationOptions(mapItems));
+                MappingUtils.buildOperationOptions(mapItems));
         if (connectorObject == null) {
             throw new NotFoundException(
                     "Object " + connObjectKeyValue + " with class " + init.getRight().getObjectClass()
@@ -303,10 +307,17 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public void check(final ResourceTO resourceTO) {
-        ConnInstance connInstance = binder.getConnInstance(resourceTO);
-        Connector connector = connFactory.createConnector(connInstance, connInstance.getConfiguration());
+        ConnInstance connInstance = connInstanceDAO.find(resourceTO.getConnector());
+        if (connInstance == null) {
+            throw new NotFoundException("Connector '" + resourceTO.getConnector() + "'");
+        }
 
-        connector.test();
+        connFactory.createConnector(
+                connFactory.buildConnInstanceOverride(
+                        connInstance,
+                        resourceTO.getConfOverride(),
+                        resourceTO.isOverrideCapabilities() ? resourceTO.getCapabilitiesOverride() : null)).
+                test();
     }
 
     @Override

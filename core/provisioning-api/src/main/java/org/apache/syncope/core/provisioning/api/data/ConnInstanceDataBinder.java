@@ -18,31 +18,19 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import java.util.Set;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 
 public interface ConnInstanceDataBinder {
 
-    ConnConfPropSchema buildConnConfPropSchema(ConfigurationProperty property);
+    ConnConfPropSchema build(ConfigurationProperty property);
 
     ConnInstance getConnInstance(ConnInstanceTO connInstanceTO);
 
     ConnInstanceTO getConnInstanceTO(ConnInstance connInstance);
 
-    /**
-     * Merge connector configuration properties avoiding repetition but giving priority to primary set.
-     *
-     * @param primary primary set.
-     * @param secondary secondary set.
-     * @return merged set.
-     */
-    Set<ConnConfProperty> mergeConnConfProperties(Set<ConnConfProperty> primary,
-            Set<ConnConfProperty> secondary);
-
-    ConnInstance updateConnInstance(long connInstanceId, ConnInstanceTO connInstanceTO);
+    ConnInstance update(long key, ConnInstanceTO connInstanceTO);
 
 }

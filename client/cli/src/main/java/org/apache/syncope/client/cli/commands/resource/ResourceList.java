@@ -18,15 +18,28 @@
  */
 package org.apache.syncope.client.cli.commands.resource;
 
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 
 public class ResourceList extends AbstractResourceCommand {
 
+    private static final String LIST_HELP_MESSAGE = "resource --list";
+
+    private final Input input;
+
+    public ResourceList(final Input input) {
+        this.input = input;
+    }
+
     public void list() {
-        try {
-            resourceResultManager.toView(resourceService.list());
-        } catch (final SyncopeClientException ex) {
-            resourceResultManager.generic(ex.getMessage());
+        if (input.parameterNumber() == 0) {
+            try {
+                resourceResultManager.toView(resourceSyncopeOperations.list());
+            } catch (final SyncopeClientException ex) {
+                resourceResultManager.genericError(ex.getMessage());
+            }
+        } else {
+            resourceResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
         }
     }
 }

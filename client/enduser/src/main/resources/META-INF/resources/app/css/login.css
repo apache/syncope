@@ -1,0 +1,103 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+body, html {
+  margin: 45px 0;
+  height: 100%;
+  background-repeat: no-repeat;
+  /*background-image: linear-gradient(rgb(104, 145, 162), #00a65a);*/
+  background-color: #EEEEEE;
+}
+#login-container {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  background-color: #FFF;
+  border-top-right-radius: 4px;
+  border-top-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  -webkit-box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.65);
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.65);
+}
+#login-container .row > div {
+  margin-bottom: 1em;
+}
+#login-container .row > div:last-child {
+  margin-bottom: 0;
+}
+#login-container #logo {
+  position: relative;
+  float: left;
+  margin-left: 15%;
+  border-top-right-radius: 100px;
+  border-top-left-radius: 100px;
+  border-bottom-right-radius: 100px;
+  border-bottom-left-radius: 100px;
+}
+
+#login-container #language{
+  padding: 0px;
+  height: 40px;
+}
+
+#login-container #signup-btn {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+#login-container #signup-btn:hover {
+  background-color: #1d1d1d;
+  border-color: #181818;
+}
+
+.login-btn {
+  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */
+  margin-top: 5px;
+  color: black;
+}
+.login-btn:hover {
+  background: #658D5D;
+}
+
+#login {
+  position: relative;
+  padding: 25px 25px 50px 25px;
+  margin-bottom: 1em;
+}
+#login #login-form {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  text-align: left;
+}
+#login-form{
+  padding: 0 195px;
+  margin: 7%;
+}
+#languageContainer {
+  padding: 0 25px;
+}
+
+.logout{
+  float: right;
+}

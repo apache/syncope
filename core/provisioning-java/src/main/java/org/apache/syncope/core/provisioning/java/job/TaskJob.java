@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java.job;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.syncope.core.misc.FormatUtils;
+import org.apache.syncope.core.misc.utils.FormatUtils;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;

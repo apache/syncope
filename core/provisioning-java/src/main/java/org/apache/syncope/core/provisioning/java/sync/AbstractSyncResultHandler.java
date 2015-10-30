@@ -46,7 +46,7 @@ import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.api.sync.IgnoreProvisionException;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.sync.SyncopeSyncResultHandler;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -72,7 +72,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
     protected abstract ProvisioningManager<?, ?> getProvisioningManager();
 
-    protected abstract AnyTO doCreate(AnyTO anyTO, SyncDelta delta, ProvisioningResult result);
+    protected abstract AnyTO doCreate(AnyTO anyTO, SyncDelta delta, ProvisioningReport result);
 
     protected AnyTO doLink(final AnyTO before, final boolean unlink) {
         AnyPatch patch = newPatch(before.getKey());
@@ -84,7 +84,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         return getAnyTO(update(patch).getResult());
     }
 
-    protected abstract AnyTO doUpdate(AnyTO before, AnyPatch anyPatch, SyncDelta delta, ProvisioningResult result);
+    protected abstract AnyTO doUpdate(AnyTO before, AnyPatch anyPatch, SyncDelta delta, ProvisioningReport result);
 
     protected void doDeprovision(final AnyTypeKind kind, final Long key, final boolean unlink) {
         PropagationByResource propByRes = new PropagationByResource();
@@ -118,7 +118,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             LOG.error("Could not propagate anyObject " + key, e);
         }
 
-        getProvisioningManager().delete(key);
+        getProvisioningManager().delete(key, true);
     }
 
     @Override
@@ -134,11 +134,11 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             doHandle(delta, provision);
             return true;
         } catch (IgnoreProvisionException e) {
-            ProvisioningResult result = new ProvisioningResult();
+            ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.NONE);
             result.setAnyType(provision == null
                     ? getAnyUtils().getAnyTypeKind().name() : provision.getAnyType().getKey());
-            result.setStatus(ProvisioningResult.Status.IGNORE);
+            result.setStatus(ProvisioningReport.Status.IGNORE);
             result.setKey(0L);
             result.setName(delta.getObject().getName().getNameValue());
             profile.getResults().add(result);
@@ -151,23 +151,23 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected List<ProvisioningResult> assign(
+    protected List<ProvisioningReport> assign(
             final SyncDelta delta, final Provision provision, final AnyUtils anyUtils)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("SyncTask not configured for create");
-            return Collections.<ProvisioningResult>emptyList();
+            return Collections.<ProvisioningReport>emptyList();
         }
 
         AnyTO anyTO = connObjectUtils.getAnyTO(delta.getObject(), profile.getTask(), provision, anyUtils);
 
         anyTO.getResources().add(profile.getTask().getResource().getKey());
 
-        ProvisioningResult result = new ProvisioningResult();
+        ProvisioningReport result = new ProvisioningReport();
         result.setOperation(ResourceOperation.CREATE);
         result.setAnyType(provision.getAnyType().getKey());
-        result.setStatus(ProvisioningResult.Status.SUCCESS);
+        result.setStatus(ProvisioningReport.Status.SUCCESS);
         result.setName(getName(anyTO));
 
         if (profile.isDryRun()) {
@@ -184,21 +184,21 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         return Collections.singletonList(result);
     }
 
-    protected List<ProvisioningResult> provision(
+    protected List<ProvisioningReport> provision(
             final SyncDelta delta, final Provision provision, final AnyUtils anyUtils)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("SyncTask not configured for create");
-            return Collections.<ProvisioningResult>emptyList();
+            return Collections.<ProvisioningReport>emptyList();
         }
 
         AnyTO anyTO = connObjectUtils.getAnyTO(delta.getObject(), profile.getTask(), provision, anyUtils);
 
-        ProvisioningResult result = new ProvisioningResult();
+        ProvisioningReport result = new ProvisioningReport();
         result.setOperation(ResourceOperation.CREATE);
         result.setAnyType(provision.getAnyType().getKey());
-        result.setStatus(ProvisioningResult.Status.SUCCESS);
+        result.setStatus(ProvisioningReport.Status.SUCCESS);
         result.setName(getName(anyTO));
 
         if (profile.isDryRun()) {
@@ -219,7 +219,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             final AnyTO anyTO,
             final SyncDelta delta,
             final String operation,
-            final ProvisioningResult result)
+            final ProvisioningReport result)
             throws JobExecutionException {
 
         Object output;
@@ -247,7 +247,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                 action.onError(this.getProfile(), delta, result, e);
             }
         } catch (Exception e) {
-            result.setStatus(ProvisioningResult.Status.FAILURE);
+            result.setStatus(ProvisioningReport.Status.FAILURE);
             result.setMessage(ExceptionUtils.getRootCauseMessage(e));
             LOG.error("Could not create {} {} ", anyTO.getType(), delta.getUid().getUidValue(), e);
             output = e;
@@ -261,31 +261,31 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         audit(operation, resultStatus, null, output, delta);
     }
 
-    protected List<ProvisioningResult> update(final SyncDelta delta, final List<Long> anys,
+    protected List<ProvisioningReport> update(final SyncDelta delta, final List<Long> anys,
             final Provision provision) throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
-            return Collections.<ProvisioningResult>emptyList();
+            return Collections.<ProvisioningReport>emptyList();
         }
 
         LOG.debug("About to update {}", anys);
 
-        List<ProvisioningResult> results = new ArrayList<>();
+        List<ProvisioningReport> results = new ArrayList<>();
 
         SyncDelta workingDelta = delta;
         for (Long key : anys) {
             LOG.debug("About to update {}", key);
 
-            ProvisioningResult result = new ProvisioningResult();
+            ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.UPDATE);
             result.setAnyType(provision.getAnyType().getKey());
-            result.setStatus(ProvisioningResult.Status.SUCCESS);
+            result.setStatus(ProvisioningReport.Status.SUCCESS);
             result.setKey(key);
 
             AnyTO before = getAnyTO(key);
             if (before == null) {
-                result.setStatus(ProvisioningResult.Status.FAILURE);
+                result.setStatus(ProvisioningReport.Status.FAILURE);
                 result.setMessage(String.format("Any '%s(%d)' not found", provision.getAnyType().getKey(), key));
             } else {
                 result.setName(getName(before));
@@ -335,7 +335,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                             action.onError(this.getProfile(), workingDelta, result, e);
                         }
                     } catch (Exception e) {
-                        result.setStatus(ProvisioningResult.Status.FAILURE);
+                        result.setStatus(ProvisioningReport.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                         LOG.error("Could not update {} {}",
                                 provision.getAnyType().getKey(), workingDelta.getUid().getUidValue(), e);
@@ -354,7 +354,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         return results;
     }
 
-    protected List<ProvisioningResult> deprovision(
+    protected List<ProvisioningReport> deprovision(
             final SyncDelta delta,
             final List<Long> anys,
             final Provision provision,
@@ -363,12 +363,12 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
-            return Collections.<ProvisioningResult>emptyList();
+            return Collections.<ProvisioningReport>emptyList();
         }
 
         LOG.debug("About to update {}", anys);
 
-        final List<ProvisioningResult> updResults = new ArrayList<>();
+        final List<ProvisioningReport> updResults = new ArrayList<>();
 
         for (Long key : anys) {
             LOG.debug("About to unassign resource {}", key);
@@ -376,16 +376,16 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             Object output;
             Result resultStatus;
 
-            ProvisioningResult result = new ProvisioningResult();
+            ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.DELETE);
             result.setAnyType(provision.getAnyType().getKey());
-            result.setStatus(ProvisioningResult.Status.SUCCESS);
+            result.setStatus(ProvisioningReport.Status.SUCCESS);
             result.setKey(key);
 
             AnyTO before = getAnyTO(key);
 
             if (before == null) {
-                result.setStatus(ProvisioningResult.Status.FAILURE);
+                result.setStatus(ProvisioningReport.Status.FAILURE);
                 result.setMessage(String.format("Any '%s(%d)' not found", provision.getAnyType().getKey(), key));
             }
 
@@ -430,7 +430,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                             action.onError(this.getProfile(), delta, result, e);
                         }
                     } catch (Exception e) {
-                        result.setStatus(ProvisioningResult.Status.FAILURE);
+                        result.setStatus(ProvisioningReport.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                         LOG.error("Could not update {} {}",
                                 provision.getAnyType().getKey(), delta.getUid().getUidValue(), e);
@@ -452,7 +452,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         return updResults;
     }
 
-    protected List<ProvisioningResult> link(
+    protected List<ProvisioningReport> link(
             final SyncDelta delta,
             final List<Long> anys,
             final Provision provision,
@@ -461,12 +461,12 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
-            return Collections.<ProvisioningResult>emptyList();
+            return Collections.<ProvisioningReport>emptyList();
         }
 
         LOG.debug("About to update {}", anys);
 
-        final List<ProvisioningResult> updResults = new ArrayList<>();
+        final List<ProvisioningReport> updResults = new ArrayList<>();
 
         for (Long key : anys) {
             LOG.debug("About to unassign resource {}", key);
@@ -474,16 +474,16 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             Object output;
             Result resultStatus;
 
-            ProvisioningResult result = new ProvisioningResult();
+            ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.NONE);
             result.setAnyType(provision.getAnyType().getKey());
-            result.setStatus(ProvisioningResult.Status.SUCCESS);
+            result.setStatus(ProvisioningReport.Status.SUCCESS);
             result.setKey(key);
 
             AnyTO before = getAnyTO(key);
 
             if (before == null) {
-                result.setStatus(ProvisioningResult.Status.FAILURE);
+                result.setStatus(ProvisioningReport.Status.FAILURE);
                 result.setMessage(String.format("Any '%s(%d)' not found", provision.getAnyType().getKey(), key));
             }
 
@@ -527,7 +527,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                             action.onError(this.getProfile(), delta, result, e);
                         }
                     } catch (Exception e) {
-                        result.setStatus(ProvisioningResult.Status.FAILURE);
+                        result.setStatus(ProvisioningReport.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                         LOG.error("Could not update {} {}",
                                 provision.getAnyType().getKey(), delta.getUid().getUidValue(), e);
@@ -548,7 +548,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         return updResults;
     }
 
-    protected List<ProvisioningResult> delete(
+    protected List<ProvisioningReport> delete(
             final SyncDelta delta,
             final List<Long> anys,
             final Provision provision)
@@ -556,19 +556,19 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("SyncTask not configured for delete");
-            return Collections.<ProvisioningResult>emptyList();
+            return Collections.<ProvisioningReport>emptyList();
         }
 
         LOG.debug("About to delete {}", anys);
 
-        List<ProvisioningResult> delResults = new ArrayList<>();
+        List<ProvisioningReport> delResults = new ArrayList<>();
 
         SyncDelta workingDelta = delta;
         for (Long key : anys) {
             Object output;
             Result resultStatus = Result.FAILURE;
 
-            ProvisioningResult result = new ProvisioningResult();
+            ProvisioningReport result = new ProvisioningReport();
 
             try {
                 AnyTO before = getAnyTO(key);
@@ -577,7 +577,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                 result.setName(getName(before));
                 result.setOperation(ResourceOperation.DELETE);
                 result.setAnyType(provision.getAnyType().getKey());
-                result.setStatus(ProvisioningResult.Status.SUCCESS);
+                result.setStatus(ProvisioningReport.Status.SUCCESS);
 
                 if (!profile.isDryRun()) {
                     for (SyncActions action : profile.getActions()) {
@@ -595,7 +595,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                     } catch (IgnoreProvisionException e) {
                         throw e;
                     } catch (Exception e) {
-                        result.setStatus(ProvisioningResult.Status.FAILURE);
+                        result.setStatus(ProvisioningReport.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                         LOG.error("Could not delete {} {}", provision.getAnyType().getKey(), key, e);
                         output = e;
@@ -621,7 +621,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         return delResults;
     }
 
-    private List<ProvisioningResult> ignore(
+    private List<ProvisioningReport> ignore(
             final SyncDelta delta,
             final Provision provision,
             final boolean matching)
@@ -629,14 +629,14 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
         LOG.debug("Any to ignore {}", delta.getObject().getUid().getUidValue());
 
-        final List<ProvisioningResult> ignoreResults = new ArrayList<>();
-        ProvisioningResult result = new ProvisioningResult();
+        final List<ProvisioningReport> ignoreResults = new ArrayList<>();
+        ProvisioningReport result = new ProvisioningReport();
 
         result.setKey(null);
         result.setName(delta.getObject().getUid().getUidValue());
         result.setOperation(ResourceOperation.NONE);
         result.setAnyType(provision.getAnyType().getKey());
-        result.setStatus(ProvisioningResult.Status.SUCCESS);
+        result.setStatus(ProvisioningReport.Status.SUCCESS);
         ignoreResults.add(result);
 
         if (!profile.isDryRun()) {

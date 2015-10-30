@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -130,7 +130,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                     ConnectorObject connectorObject = connector.getObject(
                             entry.getKey().getObjectClass(),
                             new Uid(connObjectKey),
-                            connector.getOperationOptions(linkingMappingItems.iterator()));
+                            MappingUtils.buildOperationOptions(linkingMappingItems.iterator()));
 
                     if (connectorObject == null) {
                         LOG.debug("No read from {} about {}", entry.getKey(), connObjectKey);

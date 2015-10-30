@@ -26,30 +26,40 @@ import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 
 public interface UserProvisioningManager extends ProvisioningManager<UserTO, UserPatch> {
 
-    Pair<Long, List<PropagationStatus>> activate(StatusPatch statusPatch);
+    Pair<Long, List<PropagationStatus>> activate(StatusPatch statusPatch, boolean nullPriorityAsync);
 
-    Pair<Long, List<PropagationStatus>> reactivate(StatusPatch statusPatch);
+    Pair<Long, List<PropagationStatus>> reactivate(StatusPatch statusPatch, boolean nullPriorityAsync);
 
-    Pair<Long, List<PropagationStatus>> suspend(StatusPatch statusPatch);
+    Pair<Long, List<PropagationStatus>> suspend(StatusPatch statusPatch, boolean nullPriorityAsync);
 
     void internalSuspend(Long key);
 
-    Pair<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword);
+    Pair<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword, boolean nullPriorityAsync);
 
-    Pair<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword,
-            boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources);
+    Pair<Long, List<PropagationStatus>> create(
+            UserTO userTO,
+            boolean storePassword,
+            boolean disablePwdPolicyCheck,
+            Boolean enabled,
+            Set<String> excludedResources,
+            boolean nullPriorityAsync);
 
-    Pair<Long, List<PropagationStatus>> update(UserPatch userPatch, Long key,
-            ProvisioningResult result, Boolean enabled, Set<String> excludedResources);
+    Pair<Long, List<PropagationStatus>> update(
+            UserPatch userPatch,
+            ProvisioningReport result,
+            Boolean enabled,
+            Set<String> excludedResources,
+            boolean nullPriorityAsync);
 
     void requestPasswordReset(Long key);
 
     void confirmPasswordReset(Long key, String token, String password);
 
-    List<PropagationStatus> provision(Long key, boolean changePwd, String password, Collection<String> resources);
+    List<PropagationStatus> provision(
+            Long key, boolean changePwd, String password, Collection<String> resources, boolean nullPriorityAsync);
 
 }

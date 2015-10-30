@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.resource;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
@@ -38,9 +39,15 @@ public interface ExternalResource extends AnnotatedEntity<String> {
 
     void setConnector(ConnInstance connector);
 
-    Set<ConnConfProperty> getConnInstanceConfiguration();
+    Set<ConnConfProperty> getConfOverride();
 
-    void setConnInstanceConfiguration(Set<ConnConfProperty> properties);
+    void setConfOverride(Set<ConnConfProperty> confOverride);
+
+    boolean isOverrideCapabilities();
+
+    void setOverrideCapabilities(boolean overrideCapabilities);
+
+    Set<ConnectorCapability> getCapabilitiesOverride();
 
     AccountPolicy getAccountPolicy();
 
@@ -79,10 +86,6 @@ public interface ExternalResource extends AnnotatedEntity<String> {
     boolean isEnforceMandatoryCondition();
 
     void setEnforceMandatoryCondition(boolean enforce);
-
-    boolean isPropagationPrimary();
-
-    void setPropagationPrimary(boolean condition);
 
     boolean isRandomPwdIfNotProvided();
 

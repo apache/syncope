@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.patch.LongPatchItem;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
@@ -61,7 +62,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         userTO.getMemberships().add(new MembershipTO.Builder().group(9L).build());
 
         // 1. create user with group 9
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
         assertEquals(9, userTO.getMemberships().get(0).getRightKey());
@@ -83,7 +84,7 @@ public class UserWorkflowITCase extends AbstractITCase {
             userPatch.setKey(1L);
             userPatch.getRoles().add(new LongPatchItem.Builder().
                     operation(PatchOperation.ADD_REPLACE).value(2L).build());
-            rossini = updateUser(userPatch);
+            rossini = updateUser(userPatch).getAny();
         }
         assertTrue(rossini.getRoles().contains(2L));
 
@@ -142,14 +143,15 @@ public class UserWorkflowITCase extends AbstractITCase {
         userTO.getMemberships().add(new MembershipTO.Builder().group(9L).build());
 
         // 1. create user with group 9 (and verify that no propagation occurred)
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
+        ProvisioningResult<UserTO> result = createUser(userTO);
+        assertNotNull(result);
+        userTO = result.getAny();
         assertEquals(1, userTO.getMemberships().size());
         assertEquals(9, userTO.getMemberships().get(0).getRightKey());
         assertEquals("createApproval", userTO.getStatus());
         assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
 
-        assertTrue(userTO.getPropagationStatusTOs().isEmpty());
+        assertTrue(result.getPropagationStatuses().isEmpty());
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
@@ -203,7 +205,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         userPatch.setKey(userTO.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().value("anotherPassword123").build());
 
-        userTO = updateUser(userPatch);
+        userTO = updateUser(userPatch).getAny();
         assertNotNull(userTO);
     }
 
@@ -226,7 +228,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         userTO.getMemberships().add(new MembershipTO.Builder().group(9L).build());
 
         // 1. create user with group 9 (and verify that no propagation occurred)
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
         assertNotEquals(0L, userTO.getKey());
         assertNotNull(userTO.getCreationDate());

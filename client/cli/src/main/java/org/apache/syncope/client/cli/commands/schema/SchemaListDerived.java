@@ -20,21 +20,33 @@ package org.apache.syncope.client.cli.commands.schema;
 
 import java.util.LinkedList;
 import javax.xml.ws.WebServiceException;
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
-import org.apache.syncope.common.lib.types.SchemaType;
 
 public class SchemaListDerived extends AbstractSchemaCommand {
 
+    private static final String LIST_HELP_MESSAGE = "schema --list-derived";
+
+    private final Input input;
+
+    public SchemaListDerived(final Input input) {
+        this.input = input;
+    }
+
     public void listDerived() {
-        try {
-            final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
-            for (final AbstractSchemaTO schemaTO : schemaService.list(SchemaType.DERIVED)) {
-                schemaTOs.add(schemaTO);
+        if (input.parameterNumber() == 0) {
+            try {
+                final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
+                for (final AbstractSchemaTO schemaTO : schemaSyncopeOperations.listDerived()) {
+                    schemaTOs.add(schemaTO);
+                }
+                schemaResultManager.fromListDerived(schemaTOs);
+            } catch (final SyncopeClientException | WebServiceException ex) {
+                schemaResultManager.genericError(ex.getMessage());
             }
-            schemaResultManager.fromListDerived(schemaTOs);
-        } catch (final SyncopeClientException | WebServiceException ex) {
-            schemaResultManager.generic(ex.getMessage());
+        } else {
+            schemaResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
         }
     }
 }

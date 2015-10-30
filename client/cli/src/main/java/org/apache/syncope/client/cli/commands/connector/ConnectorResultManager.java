@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.cli.commands.connector;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
@@ -31,30 +30,13 @@ import org.apache.syncope.common.lib.types.ConnectorCapability;
 
 public class ConnectorResultManager extends CommonsResultManager {
 
-    public void toView(final List<ConnInstanceTO> connInstanceTOs) {
+    public void printConnectors(final List<ConnInstanceTO> connInstanceTOs) {
         for (final ConnInstanceTO connInstanceTO : connInstanceTOs) {
             printConnector(connInstanceTO);
         }
     }
 
-    public void fromListBundles(final List<ConnBundleTO> connBundleTOs) {
-        for (final ConnBundleTO connBundleTO : connBundleTOs) {
-            System.out.println(" > BUNDLE NAME: " + connBundleTO.getBundleName());
-            System.out.println("    connector name: " + connBundleTO.getConnectorName());
-            System.out.println("    display name: " + connBundleTO.getDisplayName());
-            System.out.println("    location: " + connBundleTO.getLocation());
-            System.out.println("    version: " + connBundleTO.getVersion());
-            System.out.println("    PROPERTIES:");
-            printConfPropSchema(connBundleTO.getProperties());
-        }
-    }
-
-    public void fromListConfigurationProperties(final List<ConnConfProperty> connConfPropertys) {
-        printConfiguration(new HashSet<>(connConfPropertys));
-
-    }
-
-    private void printConnector(final ConnInstanceTO connInstanceTO) {
+    public void printConnector(final ConnInstanceTO connInstanceTO) {
         System.out.println(" > CONNECTOR ID: " + connInstanceTO.getKey());
         System.out.println("    bundle name: " + connInstanceTO.getBundleName());
         System.out.println("    connector name: " + connInstanceTO.getConnectorName());
@@ -65,9 +47,10 @@ public class ConnectorResultManager extends CommonsResultManager {
         System.out.println("    CAPABILITIES:");
         printCapabilities(connInstanceTO.getCapabilities());
         System.out.println("    CONFIGURATION:");
-        printConfiguration(connInstanceTO.getConfiguration());
+        printConfiguration(connInstanceTO.getConf());
         System.out.println("    POOL CONFIGURATION:");
         printConfPool(connInstanceTO.getPoolConf());
+        System.out.println("");
     }
 
     private void printCapabilities(final Set<ConnectorCapability> capabilities) {
@@ -84,6 +67,18 @@ public class ConnectorResultManager extends CommonsResultManager {
         System.out.println("       max wait: " + connPoolConfTO.getMaxWait());
     }
 
+    public void printBundles(final List<ConnBundleTO> connBundleTOs) {
+        for (final ConnBundleTO connBundleTO : connBundleTOs) {
+            System.out.println(" > BUNDLE NAME: " + connBundleTO.getBundleName());
+            System.out.println("    connector name: " + connBundleTO.getConnectorName());
+            System.out.println("    display name: " + connBundleTO.getDisplayName());
+            System.out.println("    location: " + connBundleTO.getLocation());
+            System.out.println("    version: " + connBundleTO.getVersion());
+            System.out.println("    PROPERTIES:");
+            printConfPropSchema(connBundleTO.getProperties());
+        }
+    }
+
     private void printConfPropSchema(final List<ConnConfPropSchema> connConfPropSchemas) {
         for (final ConnConfPropSchema connConfPropSchema : connConfPropSchemas) {
             System.out.println("       name: " + connConfPropSchema.getName());
@@ -94,5 +89,10 @@ public class ConnectorResultManager extends CommonsResultManager {
             System.out.println("       default value: " + connConfPropSchema.getDefaultValues().toString());
             System.out.println("");
         }
+    }
+
+    public void printConfigurationProperties(final Set<ConnConfProperty> connConfPropertys) {
+        printConfiguration(connConfPropertys);
+
     }
 }

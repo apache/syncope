@@ -36,17 +36,20 @@ public class CamelGroupProvisioningManager
         extends AbstractCamelProvisioningManager implements GroupProvisioningManager {
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final GroupTO any) {
-        return create(any, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> create(final GroupTO any, final boolean nullPriorityAsync) {
+        return create(any, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> create(final GroupTO groupTO, final Set<String> excludedResources) {
+    public Pair<Long, List<PropagationStatus>> create(
+            final GroupTO groupTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+
         PollingConsumer pollingConsumer = getConsumer("direct:createGroupPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
+        props.put("nullPriorityAsync", nullPriorityAsync);
 
         sendMessage("direct:createGroup", groupTO, props);
 
@@ -61,14 +64,18 @@ public class CamelGroupProvisioningManager
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> create(final GroupTO groupTO, final Map<Long, String> groupOwnerMap,
-            final Set<String> excludedResources) {
+    public Pair<Long, List<PropagationStatus>> create(
+            final GroupTO groupTO,
+            final Map<Long, String> groupOwnerMap,
+            final Set<String> excludedResources,
+            final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:createGroupInSyncPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("groupOwnerMap", groupOwnerMap);
         props.put("excludedResources", excludedResources);
+        props.put("nullPriorityAsync", nullPriorityAsync);
 
         sendMessage("direct:createGroupInSync", groupTO, props);
 
@@ -82,19 +89,20 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final GroupPatch anyPatch) {
-        return update(anyPatch, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> update(final GroupPatch anyPatch, final boolean nullPriorityAsync) {
+        return update(anyPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, List<PropagationStatus>> update(
-            final GroupPatch anyPatch, final Set<String> excludedResources) {
+            final GroupPatch anyPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:updateGroupPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
+        props.put("nullPriorityAsync", nullPriorityAsync);
 
         sendMessage("direct:updateGroup", anyPatch, props);
 
@@ -108,19 +116,22 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long groupObjectKey) {
-        return delete(groupObjectKey, Collections.<String>emptySet());
+    public List<PropagationStatus> delete(final Long key, final boolean nullPriorityAsync) {
+        return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<PropagationStatus> delete(final Long groupKey, final Set<String> excludedResources) {
+    public List<PropagationStatus> delete(
+            final Long key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+
         PollingConsumer pollingConsumer = getConsumer("direct:deleteGroupPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
+        props.put("nullPriorityAsync", nullPriorityAsync);
 
-        sendMessage("direct:deleteGroup", groupKey, props);
+        sendMessage("direct:deleteGroup", key, props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -163,11 +174,14 @@ public class CamelGroupProvisioningManager
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<PropagationStatus> provision(final Long key, final Collection<String> resources) {
+    public List<PropagationStatus> provision(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         PollingConsumer pollingConsumer = getConsumer("direct:provisionGroupPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("resources", resources);
+        props.put("nullPriorityAsync", nullPriorityAsync);
 
         sendMessage("direct:provisionGroup", key, props);
 
@@ -182,11 +196,14 @@ public class CamelGroupProvisioningManager
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<PropagationStatus> deprovision(final Long key, final Collection<String> resources) {
+    public List<PropagationStatus> deprovision(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         PollingConsumer pollingConsumer = getConsumer("direct:deprovisionGroupPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("resources", resources);
+        props.put("nullPriorityAsync", nullPriorityAsync);
 
         sendMessage("direct:deprovisionGroup", key, props);
 

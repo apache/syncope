@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.propagation;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
@@ -30,24 +31,29 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 public interface PropagationReporter {
 
     /**
-     * Report propagation status after executions in case of success or non-blocking failure
-     * (e.g. on secondary resources).
+     * Report propagation status after executions in case blocking failure (e.g. on priority resources).
      *
-     * @param resourceName resource name.
-     * @param execStatus propagation execution status.
-     * @param failureReason propagation execution failure message.
-     * @param beforeObj retrieved connector object before operation execution.
-     * @param afterObj retrieved connector object after operation execution.
-     */
-    void onSuccessOrSecondaryResourceFailures(String resourceName, PropagationTaskExecStatus execStatus,
-            String failureReason, ConnectorObject beforeObj, ConnectorObject afterObj);
-
-    /**
-     * Report propagation status after executions in case blocking failure (e.g. on primary resources).
-     *
+     * @param failingResource failing resource name
      * @param tasks propagation tasks performed before failure
      */
-    void onPrimaryResourceFailure(List<PropagationTask> tasks);
+    void onPriorityResourceFailure(String failingResource, Collection<PropagationTask> tasks);
+
+    /**
+     * Report propagation status after executions in case of success or non-blocking failure
+     * (e.g. on non-priority resources).
+     *
+     * @param propagationTask propagation task
+     * @param execStatus propagation execution status
+     * @param failureReason propagation execution failure message
+     * @param beforeObj retrieved connector object before operation execution
+     * @param afterObj retrieved connector object after operation execution
+     */
+    void onSuccessOrNonPriorityResourceFailures(
+            PropagationTask propagationTask,
+            PropagationTaskExecStatus execStatus,
+            String failureReason,
+            ConnectorObject beforeObj,
+            ConnectorObject afterObj);
 
     /**
      * Returns the list of propagation statuses.

@@ -24,6 +24,8 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 
 public class Help {
 
+    private final HelpResultManager helpResultManager = new HelpResultManager();
+
     public void help() {
         final StringBuilder generalHelpBuilder = new StringBuilder("General help\n");
         try {
@@ -35,9 +37,9 @@ public class Help {
                         .append("\n")
                         .append(" \n");
             }
-            System.out.println(generalHelpBuilder.toString());
+            helpResultManager.toView(generalHelpBuilder.toString());
         } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException e) {
-            new HelpResultManager().generic(e.getMessage());
+            helpResultManager.genericMessage(e.getMessage());
         }
     }
 }

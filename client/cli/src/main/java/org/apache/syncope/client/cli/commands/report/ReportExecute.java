@@ -37,28 +37,25 @@ public class ReportExecute extends AbstractReportCommand {
 
     public void execute() {
         if (input.parameterNumber() == 1) {
-
             try {
-                final Long reportIdToExecute = Long.valueOf(input.firstParameter());
-                reportService.execute(reportIdToExecute);
+                reportSyncopeOperations.execute(input.firstParameter());
                 final List<ReportExecTO> executionList
-                        = reportService.read(reportIdToExecute).getExecutions();
+                        = reportSyncopeOperations.read(input.firstParameter()).getExecutions();
                 final ReportExecTO lastExecution = executionList.get(executionList.size() - 1);
                 reportResultManager.printReportExecution(Arrays.asList(lastExecution));
             } catch (final WebServiceException | SyncopeClientException ex) {
                 if (ex.getMessage().startsWith("NotFound")) {
                     reportResultManager.notFoundError("Report", input.firstParameter());
                 } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                    reportResultManager.generic("You cannot delete report " + input.firstParameter());
+                    reportResultManager.genericError("You cannot delete report " + input.firstParameter());
                 } else {
-                    reportResultManager.generic(ex.getMessage());
+                    reportResultManager.genericError(ex.getMessage());
                 }
             } catch (final NumberFormatException ex) {
-                reportResultManager.managerNumberFormatException("report", input.firstParameter());
+                reportResultManager.numberFormatException("report", input.firstParameter());
             }
         } else {
             reportResultManager.commandOptionError(EXECUTE_HELP_MESSAGE);
         }
     }
-
 }

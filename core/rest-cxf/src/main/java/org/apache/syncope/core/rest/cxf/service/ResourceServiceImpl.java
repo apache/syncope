@@ -28,6 +28,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.patch.ResourceDeassociationPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -35,8 +36,6 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
-import org.apache.syncope.common.lib.wrap.AnyKey;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -134,41 +133,39 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public BulkActionResult bulkDeassociation(
-            final String key, final String anyTypeKey, final ResourceDeassociationAction type,
-            final List<AnyKey> keys) {
-
-        AbstractResourceAssociator<? extends AnyTO> associator = anyTypeKey.equalsIgnoreCase(AnyTypeKind.USER.name())
-                ? userLogic
-                : anyTypeKey.equalsIgnoreCase(AnyTypeKind.GROUP.name())
-                        ? groupLogic
-                        : anyObjectLogic;
+    public BulkActionResult bulkDeassociation(final ResourceDeassociationPatch patch) {
+        AbstractResourceAssociator<? extends AnyTO> associator =
+                patch.getAnyTypeKey().equalsIgnoreCase(AnyTypeKind.USER.name())
+                        ? userLogic
+                        : patch.getAnyTypeKey().equalsIgnoreCase(AnyTypeKind.GROUP.name())
+                                ? groupLogic
+                                : anyObjectLogic;
 
         BulkActionResult result = new BulkActionResult();
 
-        for (AnyKey anyKey : keys) {
-            Set<String> resources = Collections.singleton(key);
+        for (Long anyKey : patch.getAnyKyes()) {
+            Set<String> resources = Collections.singleton(patch.getKey());
             try {
-                switch (type) {
+                switch (patch.getAction()) {
                     case DEPROVISION:
-                        associator.deprovision(anyKey.getElement(), resources);
+                        associator.deprovision(anyKey, resources, isNullPriorityAsync());
                         break;
 
                     case UNASSIGN:
-                        associator.unassign(anyKey.getElement(), resources);
+                        associator.unassign(anyKey, resources, isNullPriorityAsync());
                         break;
 
                     case UNLINK:
-                        associator.unlink(anyKey.getElement(), resources);
+                        associator.unlink(anyKey, resources);
                         break;
 
                     default:
                 }
 
-                result.getResults().put(String.valueOf(anyKey.getElement()), BulkActionResult.Status.SUCCESS);
+                result.getResults().put(String.valueOf(anyKey), BulkActionResult.Status.SUCCESS);
             } catch (Exception e) {
-                LOG.warn("While executing {} on {} {}", type, anyTypeKey, anyKey.getElement(), e);
-                result.getResults().put(String.valueOf(anyKey.getElement()), BulkActionResult.Status.FAILURE);
+                LOG.warn("While executing {} on {} {}", patch.getAction(), patch.getAnyTypeKey(), anyKey, e);
+                result.getResults().put(String.valueOf(anyKey), BulkActionResult.Status.FAILURE);
             }
         }
 

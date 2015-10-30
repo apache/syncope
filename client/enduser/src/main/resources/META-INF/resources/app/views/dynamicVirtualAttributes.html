@@ -1,0 +1,18 @@
+<ui-select on-select="addVirtualAttribute($item, $model)" on-remove="removeVirtualAttribute($item, $model)" multiple 
+           ng-model="dynamicForm.selectedVirSchemas" theme="select2" ng-disabled="false" class="attribute-ui-select">
+  <ui-select-match placeholder="Select virtual attribute...">{{$item.key}}</ui-select-match>
+  <ui-select-choices repeat="virSchema in dynamicForm.virSchemas | propsFilter: {key: $select.search}">
+    <div ng-bind-html="virSchema.key | highlight: $select.search"></div>
+  </ui-select-choices>
+</ui-select>
+
+<ul class="attribute-virtual-value-container">
+  <li class="attribute-virtual-value-field" ng-repeat="selectedVirSchema in dynamicForm.selectedVirSchemas| filter:q as results">
+    {{selectedVirSchema.key}}
+    <input style="font-weight: normal" class="form-control" type="text" ng-disabled="selectedVirSchema.readonly"
+            ng-model="user.virAttrs[selectedVirSchema.key].values[0]"/>
+  </li>
+  <li class="attribute-virtual-value-field" ng-if="results.length == 0">
+    <strong>No virtual attributes selected...</strong>
+  </li>
+</ul>

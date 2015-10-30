@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.connector;
 
-import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.rest.api.service.ConnectorService;
-
 public abstract class AbstractConnectorCommand {
 
-    protected final ConnectorService connectorService = SyncopeServices.get(ConnectorService.class);
+    protected final ConnectorSyncopeOperations connectorSyncopeOperations = new ConnectorSyncopeOperations();
 
     protected final ConnectorResultManager connectorResultManager = new ConnectorResultManager();
 

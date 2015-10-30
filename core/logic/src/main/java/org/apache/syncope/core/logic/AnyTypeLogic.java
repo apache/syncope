@@ -46,7 +46,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
     @Autowired
     private AnyTypeDAO anyTypeDAO;
 
-    @PreAuthorize("hasRole('" + Entitlement.ANYTYPE_READ + "')")
+    @PreAuthorize("isAuthenticated()")
     public AnyTypeTO read(final String key) {
         AnyType anyType = anyTypeDAO.find(key);
         if (anyType == null) {
@@ -58,7 +58,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         return binder.getAnyTypeTO(anyType);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANYTYPE_LIST + "')")
+    @PreAuthorize("isAuthenticated()")
     public List<AnyTypeTO> list() {
         return CollectionUtils.collect(anyTypeDAO.findAll(), new Transformer<AnyType, AnyTypeTO>() {
 

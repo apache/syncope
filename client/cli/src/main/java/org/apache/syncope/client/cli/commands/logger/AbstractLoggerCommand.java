@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.client.cli.commands.logger;
 
-import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.rest.api.service.LoggerService;
-
 public abstract class AbstractLoggerCommand {
 
-    protected final LoggerService loggerService = SyncopeServices.get(LoggerService.class);
-    
+    protected final LoggerSyncopeOperations loggerSyncopeOperations = new LoggerSyncopeOperations();
+
     protected final LoggerResultManager loggerResultManager = new LoggerResultManager();
 
 }

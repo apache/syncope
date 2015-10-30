@@ -31,13 +31,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.patch.ResourceDeassociationPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
-import org.apache.syncope.common.lib.wrap.AnyKey;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 
 /**
@@ -143,19 +142,14 @@ public interface ResourceService extends JAXRSService {
     /**
      * De-associate any objects from the given resource.
      *
-     * @param key name of resource
-     * @param anyTypeKey any object kind
-     * @param type resource de-association action type
-     * @param keys any object keys against which the bulk action will be performed
-     * @return Response object featuring BulkActionResult as Entity
+     * @param patch any objects to be used for propagation-related operations
+     * @return Bulk action result
      */
     @POST
     @Path("{key}/bulkDeassociation/{anyTypeKey}/{action}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    BulkActionResult bulkDeassociation(@NotNull @PathParam("key") String key,
-            @NotNull @PathParam("anyTypeKey") String anyTypeKey,
-            @NotNull @PathParam("action") ResourceDeassociationAction type, @NotNull List<AnyKey> keys);
+    BulkActionResult bulkDeassociation(@NotNull ResourceDeassociationPatch patch);
 
     /**
      * Executes the provided bulk action.

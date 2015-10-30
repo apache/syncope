@@ -28,6 +28,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
@@ -36,6 +37,7 @@ import org.apache.cxf.jaxrs.ext.search.SearchContext;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.common.rest.api.Preference;
@@ -61,27 +63,31 @@ abstract class AbstractServiceImpl implements JAXRSService {
     @Context
     protected SearchContext searchContext;
 
+    protected boolean isNullPriorityAsync() {
+        return BooleanUtils.toBoolean(messageContext.getHttpHeaders().getHeaderString(RESTHeaders.NULL_PRIORITY_ASYNC));
+    }
+
     /**
-     * Reads <tt>Prefer</tt> header from request and parses into a <tt>Preference</tt> instance.
+     * Reads {@code Prefer} header from request and parses into a {@code Preference} instance.
      *
-     * @return a <tt>Preference</tt> instance matching the passed <tt>Prefer</tt> header,
-     * or <tt>Preference.NONE</tt> if missing.
+     * @return a {@code Preference} instance matching the passed {@code Prefer} header,
+     * or {@code Preference.NONE} if missing.
      */
     protected Preference getPreference() {
         return Preference.fromString(messageContext.getHttpHeaders().getHeaderString(RESTHeaders.PREFER));
     }
 
     /**
-     * Builds response to successful <tt>create</tt> request, taking into account any <tt>Prefer</tt> header.
+     * Builds response to successful {@code create} request, taking into account any {@code Prefer} header.
      *
-     * @param id identifier of the created entity
-     * @param entity the entity just created
-     * @return response to successful <tt>create</tt> request
+     * @param provisioningResult the entity just created
+     * @return response to successful {@code create} request
      */
-    protected Response createResponse(final Object id, final Object entity) {
+    protected Response createResponse(final ProvisioningResult<?> provisioningResult) {
+        String entityId = String.valueOf(provisioningResult.getAny().getKey());
         Response.ResponseBuilder builder = Response.
-                created(uriInfo.getAbsolutePathBuilder().path(String.valueOf(id)).build()).
-                header(RESTHeaders.RESOURCE_KEY, id);
+                created(uriInfo.getAbsolutePathBuilder().path(entityId).build()).
+                header(RESTHeaders.RESOURCE_KEY, entityId);
 
         switch (getPreference()) {
             case RETURN_NO_CONTENT:
@@ -90,7 +96,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
             case RETURN_CONTENT:
             case NONE:
             default:
-                builder = builder.entity(entity);
+                builder = builder.entity(provisioningResult);
                 break;
 
         }
@@ -102,7 +108,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
     }
 
     /**
-     * Builds response to successful modification request, taking into account any <tt>Prefer</tt> header.
+     * Builds response to successful modification request, taking into account any {@code Prefer} header.
      *
      * @param entity the entity just modified
      * @return response to successful modification request

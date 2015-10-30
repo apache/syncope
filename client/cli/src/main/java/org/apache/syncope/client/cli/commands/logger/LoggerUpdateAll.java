@@ -25,7 +25,6 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
-import org.apache.syncope.common.lib.types.LoggerType;
 
 public class LoggerUpdateAll extends AbstractLoggerCommand {
 
@@ -41,10 +40,10 @@ public class LoggerUpdateAll extends AbstractLoggerCommand {
         if (input.parameterNumber() == 1) {
             final LinkedList<LoggerTO> loggerTOs = new LinkedList<>();
             boolean failed = false;
-            for (final LoggerTO loggerTO : loggerService.list(LoggerType.LOG)) {
+            for (final LoggerTO loggerTO : loggerSyncopeOperations.list()) {
                 try {
                     loggerTO.setLevel(LoggerLevel.valueOf(input.firstParameter()));
-                    loggerService.update(LoggerType.LOG, loggerTO);
+                    loggerSyncopeOperations.update(loggerTO);
                     loggerTOs.add(loggerTO);
                 } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
                     if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
@@ -53,7 +52,8 @@ public class LoggerUpdateAll extends AbstractLoggerCommand {
                                 input.firstParameter(),
                                 CommandUtils.fromEnumToArray(LoggerLevel.class));
                     } else {
-                        loggerResultManager.generic(ex.getMessage(), UPDATE_ALL_HELP_MESSAGE);
+                        loggerResultManager.genericError(ex.getMessage());
+                        loggerResultManager.genericError(UPDATE_ALL_HELP_MESSAGE);
                     }
                     failed = true;
                     break;

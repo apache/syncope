@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.cli.commands.install;
 
+import java.io.FileNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
@@ -25,6 +26,8 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 
 @Command(name = "install")
 public class InstallCommand extends AbstractCommand {
+
+    private final InstallResultManager installResultManager = new InstallResultManager();
 
     private static final String HELP_MESSAGE = "Usage: install [options]\n"
             + "  Options:\n"
@@ -39,13 +42,18 @@ public class InstallCommand extends AbstractCommand {
 
         switch (Options.fromName(input.getOption())) {
             case INSTALL:
-                new InstallSetup().setup();
+                try {
+                    new InstallSetup().setup();
+                } catch (final FileNotFoundException | IllegalAccessException ex) {
+                    installResultManager.genericError(ex.getMessage());
+                    break;
+                }
                 break;
             case HELP:
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new InstallResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                installResultManager.defaultError(input.getOption(), HELP_MESSAGE);
         }
     }
 
@@ -83,5 +91,4 @@ public class InstallCommand extends AbstractCommand {
             return optionToReturn;
         }
     }
-
 }

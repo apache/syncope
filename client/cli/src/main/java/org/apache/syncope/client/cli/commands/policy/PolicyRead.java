@@ -39,18 +39,18 @@ public class PolicyRead extends AbstractPolicyCommand {
             final LinkedList<AbstractPolicyTO> policyTOs = new LinkedList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    policyTOs.add(policyService.read(Long.valueOf(parameter)));
-                    policyResultManager.fromRead(policyTOs);
+                    policyTOs.add(policySyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
                     policyResultManager.notBooleanDeletedError("policy", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         policyResultManager.notFoundError("Policy", parameter);
                     } else {
-                        policyResultManager.generic(ex.getMessage());
+                        policyResultManager.genericError(ex.getMessage());
                     }
                 }
             }
+            policyResultManager.fromRead(policyTOs);
         } else {
             policyResultManager.commandOptionError(READ_HELP_MESSAGE);
         }

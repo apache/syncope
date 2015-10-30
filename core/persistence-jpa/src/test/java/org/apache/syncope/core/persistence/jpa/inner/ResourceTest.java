@@ -105,7 +105,6 @@ public class ResourceTest extends AbstractTest {
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-basic-save");
         resource.setPropagationPriority(2);
-        resource.setPropagationPrimary(true);
 
         Provision provision = entityFactory.newEntity(Provision.class);
         provision.setAnyType(anyTypeDAO.findUser());
@@ -135,7 +134,6 @@ public class ResourceTest extends AbstractTest {
         assertNotNull(actual.getProvision(anyTypeDAO.findUser()).getMapping());
         assertFalse(actual.getProvision(anyTypeDAO.findUser()).getMapping().getItems().isEmpty());
         assertEquals(Integer.valueOf(2), actual.getPropagationPriority());
-        assertTrue(actual.isPropagationPrimary());
     }
 
     @Test(expected = InvalidEntityException.class)
@@ -264,7 +262,6 @@ public class ResourceTest extends AbstractTest {
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-virtual-mapping");
         resource.setPropagationPriority(2);
-        resource.setPropagationPrimary(true);
 
         Provision provision = entityFactory.newEntity(Provision.class);
         provision.setAnyType(anyTypeDAO.findUser());

@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
@@ -37,6 +36,7 @@ import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
@@ -147,7 +147,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_CREATE + "')")
     @Override
-    public AnyObjectTO create(final AnyObjectTO anyObjectTO) {
+    public ProvisioningResult<AnyObjectTO> create(final AnyObjectTO anyObjectTO, final boolean nullPriorityAsync) {
         Pair<AnyObjectTO, List<LogicActions>> before = beforeCreate(anyObjectTO);
 
         if (before.getLeft().getRealm() == null) {
@@ -163,16 +163,17 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
             throw SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
         }
 
-        Map.Entry<Long, List<PropagationStatus>> created = provisioningManager.create(before.getLeft());
-        AnyObjectTO savedTO = binder.getAnyObjectTO(created.getKey());
-        savedTO.getPropagationStatusTOs().addAll(created.getValue());
+        Pair<Long, List<PropagationStatus>> created =
+                provisioningManager.create(before.getLeft(), nullPriorityAsync);
 
-        return afterCreate(savedTO, before.getValue());
+        return after(binder.getAnyObjectTO(created.getKey()), created.getRight(), before.getRight());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
-    public AnyObjectTO update(final AnyObjectPatch anyObjectPatch) {
+    public ProvisioningResult<AnyObjectTO> update(
+            final AnyObjectPatch anyObjectPatch, final boolean nullPriorityAsync) {
+
         AnyObjectTO anyObjectTO = binder.getAnyObjectTO(anyObjectPatch.getKey());
         Pair<AnyObjectPatch, List<LogicActions>> before = beforeUpdate(anyObjectPatch, anyObjectTO.getRealm());
 
@@ -185,17 +186,15 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
             securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
         }
 
-        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(anyObjectPatch);
+        Pair<Long, List<PropagationStatus>> updated =
+                provisioningManager.update(anyObjectPatch, nullPriorityAsync);
 
-        AnyObjectTO updatedTO = binder.getAnyObjectTO(updated.getKey());
-        updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
-
-        return afterUpdate(updatedTO, before.getRight());
+        return after(binder.getAnyObjectTO(updated.getKey()), updated.getRight(), before.getRight());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_DELETE + "')")
     @Override
-    public AnyObjectTO delete(final Long key) {
+    public ProvisioningResult<AnyObjectTO> delete(final Long key, final boolean nullPriorityAsync) {
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
         Pair<AnyObjectTO, List<LogicActions>> before = beforeDelete(anyObject);
 
@@ -204,13 +203,12 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
                 Collections.singleton(before.getLeft().getRealm()));
         securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
 
-        List<PropagationStatus> statuses = provisioningManager.delete(before.getLeft().getKey());
+        List<PropagationStatus> statuses = provisioningManager.delete(before.getLeft().getKey(), nullPriorityAsync);
 
         AnyObjectTO anyObjectTO = new AnyObjectTO();
         anyObjectTO.setKey(before.getLeft().getKey());
-        anyObjectTO.getPropagationStatusTOs().addAll(statuses);
 
-        return afterDelete(anyObjectTO, before.getRight());
+        return after(anyObjectTO, statuses, before.getRight());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
@@ -261,7 +259,9 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
-    public AnyObjectTO unassign(final Long key, final Collection<String> resources) {
+    public ProvisioningResult<AnyObjectTO> unassign(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         // security checks
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
@@ -279,16 +279,17 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
             }
         }));
 
-        return update(patch);
+        return update(patch, nullPriorityAsync);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
-    public AnyObjectTO assign(
+    public ProvisioningResult<AnyObjectTO> assign(
             final Long key,
             final Collection<String> resources,
             final boolean changepwd,
-            final String password) {
+            final String password,
+            final boolean nullPriorityAsync) {
 
         // security checks
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
@@ -307,12 +308,14 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
             }
         }));
 
-        return update(patch);
+        return update(patch, nullPriorityAsync);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
-    public AnyObjectTO deprovision(final Long key, final Collection<String> resources) {
+    public ProvisioningResult<AnyObjectTO> deprovision(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         // security checks
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
@@ -320,20 +323,22 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
                 Collections.singleton(anyObject.getRealm()));
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
-        List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources);
+        List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
 
-        AnyObjectTO updatedTO = binder.getAnyObjectTO(key);
-        updatedTO.getPropagationStatusTOs().addAll(statuses);
-        return updatedTO;
+        ProvisioningResult<AnyObjectTO> result = new ProvisioningResult<>();
+        result.setAny(binder.getAnyObjectTO(key));
+        result.getPropagationStatuses().addAll(statuses);
+        return result;
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
-    public AnyObjectTO provision(
+    public ProvisioningResult<AnyObjectTO> provision(
             final Long key,
             final Collection<String> resources,
             final boolean changePwd,
-            final String password) {
+            final String password,
+            final boolean nullPriorityAsync) {
 
         // security checks
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
@@ -342,8 +347,12 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
                 Collections.singleton(anyObject.getRealm()));
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
-        anyObject.getPropagationStatusTOs().addAll(provisioningManager.provision(key, resources));
-        return anyObject;
+        List<PropagationStatus> statuses = provisioningManager.provision(key, resources, nullPriorityAsync);
+
+        ProvisioningResult<AnyObjectTO> result = new ProvisioningResult<>();
+        result.setAny(binder.getAnyObjectTO(key));
+        result.getPropagationStatuses().addAll(statuses);
+        return result;
     }
 
     @Override

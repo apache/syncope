@@ -28,8 +28,19 @@ under the License.
                            http://www.springframework.org/schema/task
                            http://www.springframework.org/schema/task/spring-task.xsd">
   
-  <task:annotation-driven executor="connectorExecutor"/>
-  <task:executor id="connectorExecutor" pool-size="10"/>
+  <context:component-scan base-package="org.apache.syncope.core.provisioning.java"/>
+
+  <!-- Used by AsyncConnectorFacade -->
+  <task:annotation-driven executor="AsyncConnectorFacadeExecutor"/>
+  <task:executor id="AsyncConnectorFacadeExecutor"
+                 pool-size="${asyncConnectorFacadeExecutor.poolSize}"/>
+
+  <!-- Used by PriorityPropagationTaskExecutor -->
+  <task:executor id="propagationTaskExecutorAsyncExecutor"
+                 pool-size="${propagationTaskExecutorAsyncExecutor.poolSize}"
+                 queue-capacity="${propagationTaskExecutorAsyncExecutor.queueCapacity}"
+                 rejection-policy="ABORT"/>
+  <bean class="${propagationTaskExecutor}"/>
   
   <bean class="${userProvisioningManager}"/>
   <bean class="${groupProvisioningManager}"/>
@@ -55,7 +66,7 @@ under the License.
   </bean>
 
   <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
-        lazy-init="false" depends-on="quartzDataSourceInit">
+      lazy-init="false" depends-on="quartzDataSourceInit">
     <property name="autoStartup" value="true"/>
     <property name="applicationContextSchedulerContextKey" value="applicationContext"/>
     <property name="waitForJobsToCompleteOnShutdown" value="true"/>
@@ -101,9 +112,6 @@ under the License.
 
   <bean class="org.apache.syncope.core.provisioning.java.propagation.PropagationManagerImpl"/>
   <bean class="org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter" scope="prototype"/>
-
-  <context:component-scan base-package="org.apache.syncope.core.misc"/>  
-  <context:component-scan base-package="org.apache.syncope.core.provisioning.java"/>
 
   <bean id="virAttrCache" class="${virAttrCache}" scope="singleton">
     <constructor-arg value="60"/>

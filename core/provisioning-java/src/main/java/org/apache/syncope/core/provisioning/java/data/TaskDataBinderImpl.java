@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
-import org.apache.syncope.core.misc.TemplateUtils;
+import org.apache.syncope.core.misc.utils.TemplateUtils;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
@@ -299,6 +299,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                             + task.getClass().getName());
                 }
                 ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getKey());
+                ((PropagationTaskTO) taskTO).setAttributes(((PropagationTask) task).getSerializedAttributes());
                 break;
 
             case SCHEDULED:

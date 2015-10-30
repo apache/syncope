@@ -48,10 +48,10 @@ public class ConnectorCommand extends AbstractCommand {
 
         switch (ConnectorOptions.fromName(input.getOption())) {
             case LIST:
-                new ConnectorList().list();
+                new ConnectorList(input).list();
                 break;
             case LIST_BUNDLES:
-                new ConnectorListBundles().list();
+                new ConnectorListBundles(input).list();
                 break;
             case LIST_CONFIGURATION:
                 new ConnectorListConfigurationProperties(input).list();

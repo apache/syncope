@@ -329,7 +329,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         GroupTO groupTO = new GroupTO();
         groupTO.setName(groupName);
         groupTO.setRealm("/even/two");
-        groupTO = createGroup(groupTO);
+        groupTO = createGroup(groupTO).getAny();
         assertNotNull(groupTO);
 
         // 3. verify
@@ -385,7 +385,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO(MAIL_ADDRESS);
         userTO.getMemberships().add(new MembershipTO.Builder().group(7L).build());
 
-        userTO = createUser(userTO);
+        userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
         return userTO.getUsername();
     }

@@ -99,8 +99,8 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
     @Column(name = "capability")
     @CollectionTable(name = "ConnInstance_capabilities",
             joinColumns =
-            @JoinColumn(name = "ConnInstance_id", referencedColumnName = "id"))
-    private Set<ConnectorCapability> capabilities;
+            @JoinColumn(name = "connInstance_id", referencedColumnName = "id"))
+    private Set<ConnectorCapability> capabilities = new HashSet<>();
 
     /**
      * The main configuration for the connector instance. This is directly implemented by the Configuration bean class
@@ -118,7 +118,7 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
      * External resources associated to the connector.
      */
     @OneToMany(cascade = { CascadeType.ALL }, mappedBy = "connector")
-    private List<JPAExternalResource> resources;
+    private List<JPAExternalResource> resources = new ArrayList<>();
 
     /**
      * Connector request timeout. It is not applied in case of sync, full reconciliation and search.
@@ -127,13 +127,6 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
     private Integer connRequestTimeout = DEFAULT_TIMEOUT;
 
     private JPAConnPoolConf poolConf;
-
-    public JPAConnInstance() {
-        super();
-
-        capabilities = new HashSet<>();
-        resources = new ArrayList<>();
-    }
 
     @Override
     public Long getKey() {
@@ -181,7 +174,7 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
     }
 
     @Override
-    public Set<ConnConfProperty> getConfiguration() {
+    public Set<ConnConfProperty> getConf() {
         Set<ConnConfProperty> configuration = new HashSet<>();
         if (!StringUtils.isBlank(jsonConf)) {
             CollectionUtils.addAll(configuration, POJOHelper.deserialize(jsonConf, ConnConfProperty[].class));
@@ -191,8 +184,8 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
     }
 
     @Override
-    public void setConfiguration(final Set<ConnConfProperty> configuration) {
-        jsonConf = POJOHelper.serialize(new HashSet<>(configuration));
+    public void setConf(final Set<ConnConfProperty> conf) {
+        jsonConf = POJOHelper.serialize(new HashSet<>(conf));
     }
 
     @Override
@@ -211,26 +204,16 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
     }
 
     @Override
-    public boolean addResource(final ExternalResource resource) {
+    public boolean add(final ExternalResource resource) {
         checkType(resource, JPAExternalResource.class);
         return this.resources.contains((JPAExternalResource) resource)
                 || this.resources.add((JPAExternalResource) resource);
     }
 
     @Override
-    public boolean removeResource(final ExternalResource resource) {
+    public boolean remove(final ExternalResource resource) {
         checkType(resource, JPAExternalResource.class);
         return this.resources.remove((JPAExternalResource) resource);
-    }
-
-    @Override
-    public boolean addCapability(final ConnectorCapability capabitily) {
-        return capabilities.add(capabitily);
-    }
-
-    @Override
-    public boolean removeCapability(final ConnectorCapability capabitily) {
-        return capabilities.remove(capabitily);
     }
 
     @Override

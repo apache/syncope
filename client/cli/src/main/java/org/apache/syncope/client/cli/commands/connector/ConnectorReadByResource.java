@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.connector;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
 
 public class ConnectorReadByResource extends AbstractConnectorCommand {
 
@@ -38,23 +35,19 @@ public class ConnectorReadByResource extends AbstractConnectorCommand {
 
     public void read() {
         if (input.getParameters().length >= 1) {
-            final List<ConnInstanceTO> connInstanceTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    connInstanceTOs.add(connectorService.readByResource(parameter, READ_HELP_MESSAGE));
+                    connectorResultManager.printConnector(connectorSyncopeOperations.readByResource(parameter));
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         connectorResultManager.notFoundError("Resource", parameter);
                     } else {
-                        connectorResultManager.generic(ex.getMessage());
+                        connectorResultManager.genericError(ex.getMessage());
                     }
-                    break;
                 }
             }
-            connectorResultManager.toView(connInstanceTOs);
         } else {
             connectorResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-
 }

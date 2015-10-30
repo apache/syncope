@@ -59,10 +59,10 @@ public class TaskCommand extends AbstractCommand {
                 new TaskList(input).list();
                 break;
             case LIST_RUNNING_JOBS:
-                new TaskRunningJobs().list();
+                new TaskListRunningJobs(input).list();
                 break;
             case LIST_SCHEDULED_JOBS:
-                new TaskScheduledJobs().list();
+                new TaskListScheduledJobs(input).list();
                 break;
             case READ:
                 new TaskRead(input).read();
@@ -85,7 +85,6 @@ public class TaskCommand extends AbstractCommand {
             default:
                 new TaskResultManager().defaultError(input.getOption(), HELP_MESSAGE);
         }
-
     }
 
     @Override

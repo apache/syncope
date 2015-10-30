@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.SyncPolicySpec;
+import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -185,13 +186,13 @@ public class SyncJobDelegate extends AbstractProvisioningJobDelegate<SyncTask> {
                         connector.getAllObjects(
                                 provision.getObjectClass(),
                                 handler,
-                                connector.getOperationOptions(mapItems));
+                                MappingUtils.buildOperationOptions(mapItems));
                     } else {
                         connector.sync(
                                 provision.getObjectClass(),
                                 provision.getSyncToken(),
                                 handler,
-                                connector.getOperationOptions(mapItems));
+                                MappingUtils.buildOperationOptions(mapItems));
                     }
 
                     if (!dryRun && !syncTask.isFullReconciliation()) {

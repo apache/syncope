@@ -18,16 +18,28 @@
  */
 package org.apache.syncope.client.cli.commands.report;
 
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 
 public class ReportList extends AbstractReportCommand {
 
-    public void list() {
-        try {
-            reportResultManager.fromValueToView(reportService.list());
-        } catch (final SyncopeClientException ex) {
-            reportResultManager.generic(ex.getMessage());
-        }
+    private static final String LIST_HELP_MESSAGE = "report --list";
+
+    private final Input input;
+
+    public ReportList(final Input input) {
+        this.input = input;
     }
 
+    public void list() {
+        if (input.parameterNumber() == 0) {
+            try {
+                reportResultManager.fromValueToView(reportSyncopeOperations.list());
+            } catch (final SyncopeClientException ex) {
+                reportResultManager.genericMessage(ex.getMessage());
+            }
+        } else {
+            reportResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
+        }
+    }
 }

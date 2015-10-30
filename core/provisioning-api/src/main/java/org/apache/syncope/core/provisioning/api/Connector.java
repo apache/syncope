@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
@@ -134,8 +135,7 @@ public interface Connector {
     ConnectorObject getObject(ObjectClass objectClass, Uid uid, OperationOptions options);
 
     /**
-     * Get remote object used by the propagation manager in order to choose for a create (object doesn't exist) or an
-     * update (object exists).
+     * Get remote object with check for intended operation to perform on external resource.
      *
      * @param operationType resource operation type
      * @param objectClass ConnId's object class
@@ -186,40 +186,11 @@ public interface Connector {
             Iterator<? extends MappingItem> mapItems);
 
     /**
-     * Read attribute for a given connector object.
+     * Builds metadata description of ConnId {@link ObjectClass}.
      *
-     * @param objectClass ConnId's object class
-     * @param uid ConnId's Uid
-     * @param options ConnId's OperationOptions
-     * @param attributeName attribute to read
-     * @return attribute (if present)
+     * @return metadata description of ConnId ObjectClass
      */
-    Attribute getObjectAttribute(ObjectClass objectClass, Uid uid, OperationOptions options, String attributeName);
-
-    /**
-     * Read attributes for a given connector object.
-     *
-     * @param objectClass ConnId's object class
-     * @param uid ConnId's Uid
-     * @param options ConnId's OperationOptions
-     * @return attributes (if present)
-     */
-    Set<Attribute> getObjectAttributes(ObjectClass objectClass, Uid uid, OperationOptions options);
-
-    /**
-     * Return resource schema names.
-     *
-     * @param includeSpecial return special attributes (like as __NAME__ or __PASSWORD__) if true
-     * @return schema names
-     */
-    Set<String> getSchemaNames(boolean includeSpecial);
-
-    /**
-     * Return ConnId's object classes supported by this connector.
-     *
-     * @return supported object classes
-     */
-    Set<ObjectClass> getSupportedObjectClasses();
+    Set<ObjectClassInfo> getObjectClassInfo();
 
     /**
      * Validate a connector instance.
@@ -236,14 +207,5 @@ public interface Connector {
      *
      * @return active connector instance.
      */
-    ConnInstance getActiveConnInstance();
-
-    /**
-     * Build options for requesting all mapped connector attributes.
-     *
-     * @param mapItems mapping items
-     * @return options for requesting all mapped connector attributes
-     * @see OperationOptions
-     */
-    OperationOptions getOperationOptions(Iterator<? extends MappingItem> mapItems);
+    ConnInstance getConnInstance();
 }

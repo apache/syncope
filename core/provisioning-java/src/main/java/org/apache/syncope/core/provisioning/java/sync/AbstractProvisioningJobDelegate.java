@@ -34,7 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobExecutionException;
@@ -75,7 +75,7 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
      * @param dryRun dry run?
      * @return report as string
      */
-    protected String createReport(final Collection<ProvisioningResult> provResults, final TraceLevel syncTraceLevel,
+    protected String createReport(final Collection<ProvisioningReport> provResults, final TraceLevel syncTraceLevel,
             final boolean dryRun) {
 
         if (syncTraceLevel == TraceLevel.NONE) {
@@ -88,32 +88,32 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
             report.append("==>Dry run only, no modifications were made<==\n\n");
         }
 
-        List<ProvisioningResult> uSuccCreate = new ArrayList<>();
-        List<ProvisioningResult> uFailCreate = new ArrayList<>();
-        List<ProvisioningResult> uSuccUpdate = new ArrayList<>();
-        List<ProvisioningResult> uFailUpdate = new ArrayList<>();
-        List<ProvisioningResult> uSuccDelete = new ArrayList<>();
-        List<ProvisioningResult> uFailDelete = new ArrayList<>();
-        List<ProvisioningResult> uSuccNone = new ArrayList<>();
-        List<ProvisioningResult> uIgnore = new ArrayList<>();
-        List<ProvisioningResult> gSuccCreate = new ArrayList<>();
-        List<ProvisioningResult> gFailCreate = new ArrayList<>();
-        List<ProvisioningResult> gSuccUpdate = new ArrayList<>();
-        List<ProvisioningResult> gFailUpdate = new ArrayList<>();
-        List<ProvisioningResult> gSuccDelete = new ArrayList<>();
-        List<ProvisioningResult> gFailDelete = new ArrayList<>();
-        List<ProvisioningResult> gSuccNone = new ArrayList<>();
-        List<ProvisioningResult> gIgnore = new ArrayList<>();
-        List<ProvisioningResult> aSuccCreate = new ArrayList<>();
-        List<ProvisioningResult> aFailCreate = new ArrayList<>();
-        List<ProvisioningResult> aSuccUpdate = new ArrayList<>();
-        List<ProvisioningResult> aFailUpdate = new ArrayList<>();
-        List<ProvisioningResult> aSuccDelete = new ArrayList<>();
-        List<ProvisioningResult> aFailDelete = new ArrayList<>();
-        List<ProvisioningResult> aSuccNone = new ArrayList<>();
-        List<ProvisioningResult> aIgnore = new ArrayList<>();
+        List<ProvisioningReport> uSuccCreate = new ArrayList<>();
+        List<ProvisioningReport> uFailCreate = new ArrayList<>();
+        List<ProvisioningReport> uSuccUpdate = new ArrayList<>();
+        List<ProvisioningReport> uFailUpdate = new ArrayList<>();
+        List<ProvisioningReport> uSuccDelete = new ArrayList<>();
+        List<ProvisioningReport> uFailDelete = new ArrayList<>();
+        List<ProvisioningReport> uSuccNone = new ArrayList<>();
+        List<ProvisioningReport> uIgnore = new ArrayList<>();
+        List<ProvisioningReport> gSuccCreate = new ArrayList<>();
+        List<ProvisioningReport> gFailCreate = new ArrayList<>();
+        List<ProvisioningReport> gSuccUpdate = new ArrayList<>();
+        List<ProvisioningReport> gFailUpdate = new ArrayList<>();
+        List<ProvisioningReport> gSuccDelete = new ArrayList<>();
+        List<ProvisioningReport> gFailDelete = new ArrayList<>();
+        List<ProvisioningReport> gSuccNone = new ArrayList<>();
+        List<ProvisioningReport> gIgnore = new ArrayList<>();
+        List<ProvisioningReport> aSuccCreate = new ArrayList<>();
+        List<ProvisioningReport> aFailCreate = new ArrayList<>();
+        List<ProvisioningReport> aSuccUpdate = new ArrayList<>();
+        List<ProvisioningReport> aFailUpdate = new ArrayList<>();
+        List<ProvisioningReport> aSuccDelete = new ArrayList<>();
+        List<ProvisioningReport> aFailDelete = new ArrayList<>();
+        List<ProvisioningReport> aSuccNone = new ArrayList<>();
+        List<ProvisioningReport> aIgnore = new ArrayList<>();
 
-        for (ProvisioningResult provResult : provResults) {
+        for (ProvisioningReport provResult : provResults) {
             AnyType anyType = anyTypeDAO.find(provResult.getAnyType());
 
             switch (provResult.getStatus()) {
@@ -293,76 +293,76 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         if (syncTraceLevel == TraceLevel.FAILURES || syncTraceLevel == TraceLevel.ALL) {
             if (!uFailCreate.isEmpty()) {
                 report.append("\n\nUsers failed to create: ");
-                report.append(ProvisioningResult.produceReport(uFailCreate, syncTraceLevel));
+                report.append(ProvisioningReport.produceReport(uFailCreate, syncTraceLevel));
             }
             if (!uFailUpdate.isEmpty()) {
                 report.append("\nUsers failed to update: ");
-                report.append(ProvisioningResult.produceReport(uFailUpdate, syncTraceLevel));
+                report.append(ProvisioningReport.produceReport(uFailUpdate, syncTraceLevel));
             }
             if (!uFailDelete.isEmpty()) {
                 report.append("\nUsers failed to delete: ");
-                report.append(ProvisioningResult.produceReport(uFailDelete, syncTraceLevel));
+                report.append(ProvisioningReport.produceReport(uFailDelete, syncTraceLevel));
             }
 
             if (!gFailCreate.isEmpty()) {
                 report.append("\n\nGroups failed to create: ");
-                report.append(ProvisioningResult.produceReport(gFailCreate, syncTraceLevel));
+                report.append(ProvisioningReport.produceReport(gFailCreate, syncTraceLevel));
             }
             if (!gFailUpdate.isEmpty()) {
                 report.append("\nGroups failed to update: ");
-                report.append(ProvisioningResult.produceReport(gFailUpdate, syncTraceLevel));
+                report.append(ProvisioningReport.produceReport(gFailUpdate, syncTraceLevel));
             }
             if (!gFailDelete.isEmpty()) {
                 report.append("\nGroups failed to delete: ");
-                report.append(ProvisioningResult.produceReport(gFailDelete, syncTraceLevel));
+                report.append(ProvisioningReport.produceReport(gFailDelete, syncTraceLevel));
             }
 
             if (!aFailCreate.isEmpty()) {
                 report.append("\nAny objects failed to create: ");
-                report.append(ProvisioningResult.produceReport(aFailCreate, syncTraceLevel));
+                report.append(ProvisioningReport.produceReport(aFailCreate, syncTraceLevel));
             }
             if (!aFailUpdate.isEmpty()) {
                 report.append("\nAny objects failed to update: ");
-                report.append(ProvisioningResult.produceReport(aFailUpdate, syncTraceLevel));
+                report.append(ProvisioningReport.produceReport(aFailUpdate, syncTraceLevel));
             }
             if (!aFailDelete.isEmpty()) {
                 report.append("\nAny objects failed to delete: ");
-                report.append(ProvisioningResult.produceReport(aFailDelete, syncTraceLevel));
+                report.append(ProvisioningReport.produceReport(aFailDelete, syncTraceLevel));
             }
         }
 
         // Succeeded, only if on 'ALL' level
         if (syncTraceLevel == TraceLevel.ALL) {
             report.append("\n\nUsers created:\n").
-                    append(ProvisioningResult.produceReport(uSuccCreate, syncTraceLevel)).
+                    append(ProvisioningReport.produceReport(uSuccCreate, syncTraceLevel)).
                     append("\nUsers updated:\n").
-                    append(ProvisioningResult.produceReport(uSuccUpdate, syncTraceLevel)).
+                    append(ProvisioningReport.produceReport(uSuccUpdate, syncTraceLevel)).
                     append("\nUsers deleted:\n").
-                    append(ProvisioningResult.produceReport(uSuccDelete, syncTraceLevel)).
+                    append(ProvisioningReport.produceReport(uSuccDelete, syncTraceLevel)).
                     append("\nUsers no operation:\n").
-                    append(ProvisioningResult.produceReport(uSuccNone, syncTraceLevel)).
+                    append(ProvisioningReport.produceReport(uSuccNone, syncTraceLevel)).
                     append("\nUsers ignored:\n").
-                    append(ProvisioningResult.produceReport(uIgnore, syncTraceLevel));
+                    append(ProvisioningReport.produceReport(uIgnore, syncTraceLevel));
             report.append("\n\nGroups created:\n").
-                    append(ProvisioningResult.produceReport(gSuccCreate, syncTraceLevel)).
+                    append(ProvisioningReport.produceReport(gSuccCreate, syncTraceLevel)).
                     append("\nGroups updated:\n").
-                    append(ProvisioningResult.produceReport(gSuccUpdate, syncTraceLevel)).
+                    append(ProvisioningReport.produceReport(gSuccUpdate, syncTraceLevel)).
                     append("\nGroups deleted:\n").
-                    append(ProvisioningResult.produceReport(gSuccDelete, syncTraceLevel)).
+                    append(ProvisioningReport.produceReport(gSuccDelete, syncTraceLevel)).
                     append("\nGroups no operation:\n").
-                    append(ProvisioningResult.produceReport(gSuccNone, syncTraceLevel)).
+                    append(ProvisioningReport.produceReport(gSuccNone, syncTraceLevel)).
                     append("\nGroups ignored:\n").
-                    append(ProvisioningResult.produceReport(gSuccNone, syncTraceLevel));
+                    append(ProvisioningReport.produceReport(gSuccNone, syncTraceLevel));
             report.append("\n\nAny objects created:\n").
-                    append(ProvisioningResult.produceReport(aSuccCreate, syncTraceLevel)).
+                    append(ProvisioningReport.produceReport(aSuccCreate, syncTraceLevel)).
                     append("\nAny objects updated:\n").
-                    append(ProvisioningResult.produceReport(aSuccUpdate, syncTraceLevel)).
+                    append(ProvisioningReport.produceReport(aSuccUpdate, syncTraceLevel)).
                     append("\nAny objects deleted:\n").
-                    append(ProvisioningResult.produceReport(aSuccDelete, syncTraceLevel)).
+                    append(ProvisioningReport.produceReport(aSuccDelete, syncTraceLevel)).
                     append("\nAny objects no operation:\n").
-                    append(ProvisioningResult.produceReport(aSuccNone, syncTraceLevel)).
+                    append(ProvisioningReport.produceReport(aSuccNone, syncTraceLevel)).
                     append("\nAny objects ignored:\n").
-                    append(ProvisioningResult.produceReport(aSuccNone, syncTraceLevel));
+                    append(ProvisioningReport.produceReport(aSuccNone, syncTraceLevel));
         }
 
         return report.toString();

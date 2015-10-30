@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
@@ -30,8 +28,6 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
  * Clean shutdown for Quartz scheduler.
  */
 public class SchedulerShutdown implements ApplicationContextAware, DisposableBean {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SchedulerShutdown.class);
 
     private ApplicationContext ctx;
 

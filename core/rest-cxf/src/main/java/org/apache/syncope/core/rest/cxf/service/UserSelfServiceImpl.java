@@ -23,6 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -49,8 +50,8 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
             throw sce;
         }
 
-        UserTO created = logic.selfCreate(userTO, storePassword);
-        return createResponse(created.getKey(), created);
+        ProvisioningResult<UserTO> created = logic.selfCreate(userTO, storePassword, isNullPriorityAsync());
+        return createResponse(created);
     }
 
     @Override
@@ -65,7 +66,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public Response update(final UserPatch patch) {
-        UserTO updated = logic.selfUpdate(patch);
+        ProvisioningResult<UserTO> updated = logic.selfUpdate(patch, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 
@@ -77,13 +78,13 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public Response delete() {
-        UserTO deleted = logic.selfDelete();
+        ProvisioningResult<UserTO> deleted = logic.selfDelete(isNullPriorityAsync());
         return modificationResponse(deleted);
     }
 
     @Override
     public Response changePassword(final String password) {
-        UserTO updated = logic.changePassword(password);
+        ProvisioningResult<UserTO> updated = logic.changePassword(password, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 

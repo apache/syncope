@@ -18,15 +18,28 @@
  */
 package org.apache.syncope.client.cli.commands.connector;
 
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 
 public class ConnectorListBundles extends AbstractConnectorCommand {
 
+    private static final String LIST_HELP_MESSAGE = "connector --list-bundles";
+
+    private final Input input;
+
+    public ConnectorListBundles(final Input input) {
+        this.input = input;
+    }
+
     public void list() {
-        try {
-            connectorResultManager.fromListBundles(connectorService.getBundles(null));
-        } catch (final SyncopeClientException ex) {
-            connectorResultManager.generic(ex.getMessage());
+        if (input.parameterNumber() == 0) {
+            try {
+                connectorResultManager.printBundles(connectorSyncopeOperations.getBundles());
+            } catch (final SyncopeClientException ex) {
+                connectorResultManager.genericError(ex.getMessage());
+            }
+        } else {
+            connectorResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
         }
     }
 }

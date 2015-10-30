@@ -22,7 +22,7 @@ import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
@@ -103,14 +103,14 @@ public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public void onError(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final ProvisioningResult result,
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final ProvisioningReport result,
             final Exception error) throws JobExecutionException {
     }
 
     @Override
     public <A extends AnyTO> void after(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any,
-            final ProvisioningResult result)
+            final ProvisioningReport result)
             throws JobExecutionException {
     }
 

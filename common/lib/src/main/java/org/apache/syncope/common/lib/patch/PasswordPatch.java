@@ -55,7 +55,7 @@ public class PasswordPatch extends StringReplacePatchItem {
             return this;
         }
 
-        public Builder values(final String... resources) {
+        public Builder resources(final String... resources) {
             CollectionUtils.addAll(getInstance().getResources(), resources);
             return this;
         }

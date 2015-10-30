@@ -39,14 +39,14 @@ public class TaskRead extends AbstractTaskCommand {
             final LinkedList<AbstractTaskTO> taskTOs = new LinkedList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    taskTOs.add(taskService.read(Long.valueOf(parameter)));
+                    taskTOs.add(taskSyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
                     taskResultManager.notBooleanDeletedError("task", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         taskResultManager.notFoundError("Task", parameter);
                     } else {
-                        taskResultManager.generic("Error: " + ex.getMessage());
+                        taskResultManager.genericError(ex.getMessage());
                     }
                     break;
                 }
@@ -56,5 +56,4 @@ public class TaskRead extends AbstractTaskCommand {
             taskResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-
 }

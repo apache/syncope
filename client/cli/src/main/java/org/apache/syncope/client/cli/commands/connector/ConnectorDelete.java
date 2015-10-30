@@ -40,23 +40,22 @@ public class ConnectorDelete extends AbstractConnectorCommand {
             final List<ConnInstanceTO> connInstanceTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    connectorService.delete(Long.valueOf(parameter));
+                    connectorSyncopeOperations.delete(parameter);
                     connectorResultManager.deletedMessage("connector", parameter);
                 } catch (final NumberFormatException ex) {
-                    connectorResultManager.managerNumberFormatException("connector", parameter);
+                    connectorResultManager.numberFormatException("connector", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         connectorResultManager.notFoundError("Connector", parameter);
                     } else {
-                        connectorResultManager.generic(ex.getMessage());
+                        connectorResultManager.genericError(ex.getMessage());
                     }
                     break;
                 }
             }
-            connectorResultManager.toView(connInstanceTOs);
+            connectorResultManager.printConnectors(connInstanceTOs);
         } else {
             connectorResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
-
 }

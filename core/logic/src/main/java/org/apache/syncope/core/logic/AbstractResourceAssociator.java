@@ -20,18 +20,23 @@ package org.apache.syncope.core.logic;
 
 import java.util.Collection;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 
-public abstract class AbstractResourceAssociator<T extends AnyTO> extends AbstractLogic<T> {
+public abstract class AbstractResourceAssociator<A extends AnyTO> extends AbstractLogic<A> {
 
-    public abstract T unlink(Long id, Collection<String> resources);
+    public abstract A unlink(Long key, Collection<String> resources);
 
-    public abstract T link(Long id, Collection<String> resources);
+    public abstract A link(Long key, Collection<String> resources);
 
-    public abstract T unassign(Long id, Collection<String> resources);
+    public abstract ProvisioningResult<A> unassign(
+            Long key, Collection<String> resources, boolean nullPriorityAsync);
 
-    public abstract T assign(Long id, Collection<String> resources, boolean changepwd, String password);
+    public abstract ProvisioningResult<A> assign(
+            Long key, Collection<String> resources, boolean changepwd, String password, boolean nullPriorityAsync);
 
-    public abstract T deprovision(Long userId, Collection<String> resources);
+    public abstract ProvisioningResult<A> deprovision(
+            Long key, Collection<String> resources, boolean nullPriorityAsync);
 
-    public abstract T provision(Long userId, Collection<String> resources, boolean changepwd, String password);
+    public abstract ProvisioningResult<A> provision(
+            Long key, Collection<String> resources, boolean changepwd, String password, boolean nullPriorityAsync);
 }

@@ -51,16 +51,16 @@ public class SchemaCommand extends AbstractCommand {
                 new SchemaList(input).list();
                 break;
             case LIST_ALL:
-                new SchemaListAll().listAll();
+                new SchemaListAll(input).listAll();
                 break;
             case LIST_PLAIN:
-                new SchemaListPlain().listPlain();
+                new SchemaListPlain(input).listPlain();
                 break;
             case LIST_DERIVED:
-                new SchemaListDerived().listDerived();
+                new SchemaListDerived(input).listDerived();
                 break;
             case LIST_VIRTUAL:
-                new SchemaListVirtual().listVirtual();
+                new SchemaListVirtual(input).listVirtual();
                 break;
             case READ:
                 new SchemaRead(input).read();

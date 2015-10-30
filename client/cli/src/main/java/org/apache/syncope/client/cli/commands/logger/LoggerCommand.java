@@ -51,7 +51,7 @@ public class LoggerCommand extends AbstractCommand {
 
         switch (LoggerOptions.fromName(input.getOption())) {
             case LIST:
-                new LoggerList().list();
+                new LoggerList(input).list();
                 break;
             case READ:
                 new LoggerRead(input).read();
@@ -123,5 +123,4 @@ public class LoggerCommand extends AbstractCommand {
             return options;
         }
     }
-
 }

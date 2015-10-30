@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.client.cli.commands.schema;
 
-import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.rest.api.service.SchemaService;
-
 public abstract class AbstractSchemaCommand {
 
-    protected final SchemaService schemaService = SyncopeServices.get(SchemaService.class);
-    
+    protected final SchemaSyncopeOperations schemaSyncopeOperations = new SchemaSyncopeOperations();
+
     protected final SchemaResultManager schemaResultManager = new SchemaResultManager();
 
 }

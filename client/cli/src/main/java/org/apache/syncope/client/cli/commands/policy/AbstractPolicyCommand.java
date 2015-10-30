@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.client.cli.commands.policy;
 
-import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.rest.api.service.PolicyService;
-
 public abstract class AbstractPolicyCommand {
 
-    protected final PolicyService policyService = SyncopeServices.get(PolicyService.class);
-    
+    protected final PolicySyncopeOperations policySyncopeOperations = new PolicySyncopeOperations();
+
     protected final PolicyResultManager policyResultManager = new PolicyResultManager();
 
 }

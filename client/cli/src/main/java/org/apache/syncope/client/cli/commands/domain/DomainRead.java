@@ -20,11 +20,10 @@ package org.apache.syncope.client.cli.commands.domain;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.DomainTO;
 
 public class DomainRead extends AbstractDomainCommand {
 
-    private static final String READ_HELP_MESSAGE = "domain --read {DOMAIN-KEY} {DOMAIN-KEY} [...]";
+    private static final String READ_HELP_MESSAGE = "domain --read {DOMAIN-NAME} {DOMAIN-NAME} [...]";
 
     private final Input input;
 
@@ -36,13 +35,12 @@ public class DomainRead extends AbstractDomainCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    final DomainTO domainTO = domainService.read(parameter);
-                    domainResultManager.generic(domainTO.getKey());
+                    domainResultManager.printDomain(domainSyncopeOperations.read(parameter));
                 } catch (final SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         domainResultManager.notFoundError("Domain", parameter);
                     } else {
-                        domainResultManager.generic(ex.getMessage());
+                        domainResultManager.genericError(ex.getMessage());
                     }
                 }
             }

@@ -57,92 +57,42 @@ public class PropagationStatus extends AbstractBaseBean {
      */
     private String failureReason;
 
-    /**
-     * After object getter.
-     *
-     * @return after object.
-     */
     public ConnObjectTO getAfterObj() {
         return afterObj;
     }
 
-    /**
-     * After object setter.
-     *
-     * @param afterObj object.
-     */
     public void setAfterObj(final ConnObjectTO afterObj) {
         this.afterObj = afterObj;
     }
 
-    /**
-     * Before object getter.
-     *
-     * @return before object.
-     */
     public ConnObjectTO getBeforeObj() {
         return beforeObj;
     }
 
-    /**
-     * Before object setter.
-     *
-     * @param beforeObj object.
-     */
     public void setBeforeObj(final ConnObjectTO beforeObj) {
         this.beforeObj = beforeObj;
     }
 
-    /**
-     * resource name getter.
-     *
-     * @return resource name.
-     */
     public String getResource() {
         return resource;
     }
 
-    /**
-     * Resource name setter.
-     *
-     * @param resource resource name
-     */
     public void setResource(final String resource) {
         this.resource = resource;
     }
 
-    /**
-     * Propagation execution status getter.
-     *
-     * @return status
-     */
     public PropagationTaskExecStatus getStatus() {
         return status;
     }
 
-    /**
-     * Propagation execution status setter.
-     *
-     * @param status propagation execution status
-     */
     public void setStatus(final PropagationTaskExecStatus status) {
         this.status = status;
     }
 
-    /**
-     * Propagation execution message getter.
-     *
-     * @return failureReason.
-     */
     public String getFailureReason() {
         return failureReason;
     }
 
-    /**
-     * Propagation execution failure message setter.
-     *
-     * @param failureReason describes why this propagation failed
-     */
     public void setFailureReason(final String failureReason) {
         this.failureReason = failureReason;
     }

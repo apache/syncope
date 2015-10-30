@@ -232,7 +232,7 @@ under the License.
   <route id="confirmPwdReset">
     <from uri="direct:confirmPwdReset"/>
     <doTry>
-      <bean ref="uwfAdapter" method="confirmPasswordReset(${property.userKey},${property.token},${property.password})"/>
+      <bean ref="uwfAdapter" method="confirmPasswordReset(${property.key},${property.token},${property.password})"/>
       <process ref="userConfirmPwdResetProcessor"/>
       <to uri="direct:confirmPwdResetPort"/>
       <doCatch>        

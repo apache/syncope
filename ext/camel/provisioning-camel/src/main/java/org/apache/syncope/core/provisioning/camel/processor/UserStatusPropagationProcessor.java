@@ -31,19 +31,14 @@ import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserStatusPropagationProcessor implements Processor {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserStatusPropagationProcessor.class);
 
     @Autowired
     protected PropagationManager propagationManager;
@@ -58,8 +53,8 @@ public class UserStatusPropagationProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
-
         StatusPatch statusPatch = exchange.getProperty("statusPatch", StatusPatch.class);
+        Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.UPDATE, statusPatch.getResources());
@@ -74,12 +69,7 @@ public class UserStatusPropagationProcessor implements Processor {
 
         PropagationReporter propReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propReporter, nullPriorityAsync);
 
         exchange.getOut().setBody(new ImmutablePair<>(updated.getResult(), propReporter.getStatuses()));
     }

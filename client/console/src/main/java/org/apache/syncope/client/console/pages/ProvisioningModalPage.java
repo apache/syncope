@@ -41,8 +41,6 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
-import org.apache.syncope.common.lib.wrap.AbstractWrappable;
-import org.apache.syncope.common.lib.wrap.AnyKey;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -230,22 +228,21 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
 
     private void bulkAssociationAction(
             final AjaxRequestTarget target,
-            final ResourceDeassociationAction type,
+            final ResourceDeassociationAction action,
             final ActionDataTablePanel<StatusBean, String> table,
             final List<IColumn<StatusBean, String>> columns) {
 
-        final List<StatusBean> beans = new ArrayList<>(table.getModelObject());
-        List<AnyKey> subjectKeys = new ArrayList<>();
+        List<StatusBean> beans = new ArrayList<>(table.getModelObject());
+        List<Long> anyKeys = new ArrayList<>();
         for (StatusBean bean : beans) {
-            LOG.debug("Selected bean {}", bean);
-            subjectKeys.add(AbstractWrappable.getInstance(AnyKey.class, bean.getAnyKey()));
+            anyKeys.add(bean.getAnyKey());
         }
 
         if (beans.isEmpty()) {
             modal.close(target);
         } else {
-            final BulkActionResult res = resourceRestClient.bulkAssociationAction(
-                    resourceTO.getKey(), anyTypeKind.name(), type, subjectKeys);
+            BulkActionResult res = resourceRestClient.bulkAssociationAction(resourceTO.getKey(), anyTypeKind.name(),
+                    action, anyKeys);
 
             ((BasePage) pageRef.getPage()).setModalResult(true);
 

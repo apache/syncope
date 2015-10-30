@@ -42,12 +42,12 @@ public class PolicyList extends AbstractPolicyCommand {
             try {
                 final PolicyType policyType = PolicyType.valueOf(input.firstParameter());
                 final LinkedList<AbstractPolicyTO> policyTOs = new LinkedList<>();
-                for (final AbstractPolicyTO policyTO : policyService.list(policyType)) {
+                for (final AbstractPolicyTO policyTO : policySyncopeOperations.list(policyType)) {
                     policyTOs.add(policyTO);
                 }
                 policyResultManager.fromList(policyType, policyTOs);
             } catch (final SyncopeClientException ex) {
-                policyResultManager.generic(ex.getMessage());
+                policyResultManager.genericError(ex.getMessage());
             } catch (final IllegalArgumentException ex) {
                 policyResultManager.typeNotValidError(
                         "policy", input.firstParameter(), CommandUtils.fromEnumToArray(PolicyType.class));

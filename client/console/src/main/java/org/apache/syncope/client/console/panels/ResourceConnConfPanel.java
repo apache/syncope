@@ -41,8 +41,8 @@ public abstract class ResourceConnConfPanel extends AbstractConnectorConfPanel<R
         this.createFlag = createFlag;
 
         final List<ConnConfProperty> connConfProperties = getConnProperties(model.getObject());
-        model.getObject().getConnConfProperties().clear();
-        model.getObject().getConnConfProperties().addAll(connConfProperties);
+        model.getObject().getConfOverride().clear();
+        model.getObject().getConfOverride().addAll(connConfProperties);
 
         setConfPropertyListView("connConfProperties", false);
 
@@ -61,17 +61,17 @@ public abstract class ResourceConnConfPanel extends AbstractConnectorConfPanel<R
         List<ConnConfProperty> props = new ArrayList<>();
         Long connectorKey = resourceTO.getConnector();
         if (connectorKey != null && connectorKey > 0) {
-            for (ConnConfProperty property : restClient.getConnectorProperties(connectorKey)) {
+            for (ConnConfProperty property : restClient.read(connectorKey).getConf()) {
                 if (property.isOverridable()) {
                     props.add(property);
                 }
             }
         }
-        if (createFlag || resourceTO.getConnConfProperties().isEmpty()) {
-            resourceTO.getConnConfProperties().clear();
+        if (createFlag || resourceTO.getConfOverride().isEmpty()) {
+            resourceTO.getConfOverride().clear();
         } else {
             Map<String, ConnConfProperty> valuedProps = new HashMap<>();
-            for (ConnConfProperty prop : resourceTO.getConnConfProperties()) {
+            for (ConnConfProperty prop : resourceTO.getConfOverride()) {
                 valuedProps.put(prop.getSchema().getName(), prop);
             }
 

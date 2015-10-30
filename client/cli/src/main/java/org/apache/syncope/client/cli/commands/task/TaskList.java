@@ -42,12 +42,12 @@ public class TaskList extends AbstractTaskCommand {
             try {
                 final TaskType taskType = TaskType.valueOf(input.firstParameter());
                 final LinkedList<AbstractTaskTO> taskTOs = new LinkedList<>();
-                for (final AbstractTaskTO taskTO : taskService.list(taskType, new TaskQuery()).getResult()) {
+                for (final AbstractTaskTO taskTO : taskSyncopeOperations.list(taskType, new TaskQuery()).getResult()) {
                     taskTOs.add(taskTO);
                 }
                 taskResultManager.fromList(taskType, taskTOs);
             } catch (final SyncopeClientException ex) {
-                taskResultManager.generic(ex.getMessage());
+                taskResultManager.genericError(ex.getMessage());
             } catch (final IllegalArgumentException ex) {
                 taskResultManager.typeNotValidError(
                         "task", input.firstParameter(), CommandUtils.fromEnumToArray(TaskType.class));

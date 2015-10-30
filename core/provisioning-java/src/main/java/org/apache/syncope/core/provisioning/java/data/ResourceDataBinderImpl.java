@@ -33,7 +33,6 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -43,7 +42,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
-import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,9 +64,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
-
-    @Autowired
-    private ConnectorRegistry connRegistry;
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
@@ -100,13 +95,11 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             resource.setConnector(connector);
 
             if (!connector.getResources().contains(resource)) {
-                connector.addResource(resource);
+                connector.add(resource);
             }
         }
 
         resource.setEnforceMandatoryCondition(resourceTO.isEnforceMandatoryCondition());
-
-        resource.setPropagationPrimary(resourceTO.isPropagationPrimary());
 
         resource.setPropagationPriority(resourceTO.getPropagationPriority());
 
@@ -196,7 +189,11 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.setSyncPolicy(resourceTO.getSyncPolicy() == null
                 ? null : (SyncPolicy) policyDAO.find(resourceTO.getSyncPolicy()));
 
-        resource.setConnInstanceConfiguration(new HashSet<>(resourceTO.getConnConfProperties()));
+        resource.setConfOverride(new HashSet<>(resourceTO.getConfOverride()));
+
+        resource.setOverrideCapabilities(resourceTO.isOverrideCapabilities());
+        resource.getCapabilitiesOverride().clear();
+        resource.getCapabilitiesOverride().addAll(resourceTO.getCapabilitiesOverride());
 
         resource.getPropagationActionsClassNames().clear();
         resource.getPropagationActionsClassNames().addAll(resourceTO.getPropagationActionsClassNames());
@@ -270,17 +267,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         return item;
     }
 
-    @Override
-    public ConnInstance getConnInstance(final ResourceTO resourceTO) {
-        ConnInstance connInstance = connInstanceDAO.find(resourceTO.getConnector());
-        if (connInstance == null) {
-            throw new NotFoundException("Connector '" + resourceTO.getConnector() + "'");
-        }
-
-        final ConnInstance connInstanceClone = SerializationUtils.clone(connInstance);
-        return connRegistry.getOverriddenConnInstance(connInstanceClone, resourceTO.getConnConfProperties());
-    }
-
     private void populateMappingTO(final Mapping mapping, final MappingTO mappingTO) {
         mappingTO.setConnObjectLink(mapping.getConnObjectLink());
 
@@ -347,8 +333,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resourceTO.setEnforceMandatoryCondition(resource.isEnforceMandatoryCondition());
 
-        resourceTO.setPropagationPrimary(resource.isPropagationPrimary());
-
         resourceTO.setPropagationPriority(resource.getPropagationPriority());
 
         resourceTO.setRandomPwdIfNotProvided(resource.isRandomPwdIfNotProvided());
@@ -367,7 +351,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setSyncPolicy(resource.getSyncPolicy() == null
                 ? null : resource.getSyncPolicy().getKey());
 
-        resourceTO.getConnConfProperties().addAll(resource.getConnInstanceConfiguration());
+        resourceTO.getConfOverride().addAll(resource.getConfOverride());
+
+        resourceTO.setOverrideCapabilities(resource.isOverrideCapabilities());
+        resourceTO.getCapabilitiesOverride().addAll(resource.getCapabilitiesOverride());
 
         resourceTO.getPropagationActionsClassNames().addAll(resource.getPropagationActionsClassNames());
 

@@ -29,11 +29,10 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
+import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.common.lib.wrap.ConnIdObjectClass;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.springframework.beans.BeanUtils;
@@ -58,9 +57,9 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public ConnInstanceTO create(final ConnInstanceTO connectorTO) {
-        Set<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConfiguration());
-        connectorTO.getConfiguration().clear();
-        connectorTO.getConfiguration().addAll(filteredConf);
+        Set<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConf());
+        connectorTO.getConf().clear();
+        connectorTO.getConf().addAll(filteredConf);
 
         final ConnectorService service = getService(ConnectorService.class);
         final Response response = service.create(connectorTO);
@@ -88,9 +87,9 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public void update(final ConnInstanceTO connectorTO) {
-        Set<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConfiguration());
-        connectorTO.getConfiguration().clear();
-        connectorTO.getConfiguration().addAll(filteredConf);
+        Set<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConf());
+        connectorTO.getConf().clear();
+        connectorTO.getConf().addAll(filteredConf);
         getService(ConnectorService.class).update(connectorTO);
     }
 
@@ -111,24 +110,6 @@ public class ConnectorRestClient extends BaseRestClient {
         }
 
         return bundles;
-    }
-
-    /**
-     * Get all configuration properties for the given connector instance.
-     *
-     * @param connectorId the connector id
-     * @return List of ConnConfProperty, or an empty list in case none found
-     */
-    public List<ConnConfProperty> getConnectorProperties(final Long connectorId) {
-        List<ConnConfProperty> properties = null;
-
-        try {
-            properties = getService(ConnectorService.class).getConfigurationProperties(connectorId);
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting connector configuration properties", e);
-        }
-
-        return properties;
     }
 
     private Set<ConnConfProperty> filterProperties(final Set<ConnConfProperty> properties) {
@@ -162,7 +143,7 @@ public class ConnectorRestClient extends BaseRestClient {
     public boolean check(final ConnInstanceTO connectorTO) {
         ConnInstanceTO toBeChecked = new ConnInstanceTO();
         BeanUtils.copyProperties(connectorTO, toBeChecked, new String[] { "configuration", "configurationMap" });
-        toBeChecked.getConfiguration().addAll(filterProperties(connectorTO.getConfiguration()));
+        toBeChecked.getConf().addAll(filterProperties(connectorTO.getConf()));
 
         boolean check = false;
         try {
@@ -187,28 +168,12 @@ public class ConnectorRestClient extends BaseRestClient {
         return check;
     }
 
-    public List<String> getSchemaNames(final ConnInstanceTO connectorTO) {
-        List<String> schemaNames = new ArrayList<>();
-        try {
-            List<PlainSchemaTO> response = getService(ConnectorService.class).
-                    getSchemaNames(connectorTO.getKey(), connectorTO, false);
-            for (PlainSchemaTO schema : response) {
-                schemaNames.add(schema.getKey());
-            }
-        } catch (Exception e) {
-            LOG.error("While getting schema names", e);
-        } finally {
-            // re-order schema names list
-            Collections.sort(schemaNames);
-        }
+    public List<ConnIdObjectClassTO> buildObjectClassInfo(
+            final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
-        return schemaNames;
-    }
-
-    public List<ConnIdObjectClass> getSupportedObjectClasses(final ConnInstanceTO connectorTO) {
-        List<ConnIdObjectClass> result = Collections.emptyList();
+        List<ConnIdObjectClassTO> result = Collections.emptyList();
         try {
-            result = getService(ConnectorService.class).getSupportedObjectClasses(connectorTO.getKey(), connectorTO);
+            result = getService(ConnectorService.class).buildObjectClassInfo(connInstanceTO, includeSpecial);
         } catch (Exception e) {
             LOG.error("While getting supported object classes", e);
         }

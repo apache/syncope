@@ -41,8 +41,13 @@ public final class FileSystemUtils {
         final File installationDirectory = new File(path);
         return installationDirectory.canWrite();
     }
-    
+
+    public static boolean exists(final String path) {
+        final File installationDirectory = new File(path);
+        return installationDirectory.exists();
+    }
+
     private FileSystemUtils() {
-        
+
     }
 }

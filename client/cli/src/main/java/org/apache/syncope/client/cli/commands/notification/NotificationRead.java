@@ -36,14 +36,14 @@ public class NotificationRead extends AbstractNotificationCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    System.out.println(notificationService.read(Long.valueOf(parameter)));
+                    System.out.println(notificationSyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
                     notificationResultManager.notBooleanDeletedError("notification", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         notificationResultManager.notFoundError("Notification", parameter);
                     } else {
-                        notificationResultManager.generic(ex.getMessage());
+                        notificationResultManager.genericError(ex.getMessage());
                     }
                 }
             }

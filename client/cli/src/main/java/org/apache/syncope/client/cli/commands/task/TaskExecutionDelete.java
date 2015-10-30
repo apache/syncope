@@ -37,15 +37,15 @@ public class TaskExecutionDelete extends AbstractTaskCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    taskService.deleteExecution(Long.valueOf(parameter));
+                    taskSyncopeOperations.deleteExecution(parameter);
                     taskResultManager.deletedMessage("Task execution", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         taskResultManager.notFoundError("Task execution", parameter);
                     } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                        taskResultManager.generic("You cannot delete task execution" + parameter);
+                        taskResultManager.genericError("You cannot delete task execution" + parameter);
                     } else {
-                        taskResultManager.generic(ex.getMessage());
+                        taskResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
                     taskResultManager.notBooleanDeletedError("task execution", parameter);

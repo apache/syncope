@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.report;
 
-import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.rest.api.service.ReportService;
-
 public abstract class AbstractReportCommand {
 
-    protected final ReportService reportService = SyncopeServices.get(ReportService.class);
+    protected final ReportSyncopeOperations reportSyncopeOperations = new ReportSyncopeOperations();
 
     protected final ReportResultManager reportResultManager = new ReportResultManager();
 

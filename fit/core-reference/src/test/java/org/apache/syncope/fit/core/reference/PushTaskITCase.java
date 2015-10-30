@@ -274,7 +274,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
         groupTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "all"));
 
-        groupTO = createGroup(groupTO);
+        groupTO = createGroup(groupTO).getAny();
         assertNotNull(groupTO);
 
         String resourceName = "resource-ldap-grouponly";
@@ -319,6 +319,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
             task.setPerformUpdate(true);
             task.setUnmatchingRule(UnmatchingRule.ASSIGN);
             task.setMatchingRule(MatchingRule.UPDATE);
+            task.getFilters().put(AnyTypeKind.GROUP.name(),
+                    SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo(groupTO.getName()).query());
 
             response = taskService.create(task);
             PushTaskTO push = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);

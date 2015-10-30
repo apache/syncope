@@ -37,7 +37,6 @@ public class TaskExecute extends AbstractTaskCommand {
     public void execute() {
         if (input.parameterNumber() == 2) {
             try {
-                final Long taskIdToExecute = Long.valueOf(input.firstParameter());
                 boolean dryRun = true;
                 if ("false".equalsIgnoreCase(input.secondParameter())) {
                     dryRun = false;
@@ -46,14 +45,15 @@ public class TaskExecute extends AbstractTaskCommand {
                 } else {
                     taskResultManager.notBooleanDeletedError("dry run", input.secondParameter());
                 }
-                taskResultManager.printTaskExecTO(Arrays.asList(taskService.execute(taskIdToExecute, dryRun)));
+                taskResultManager.printTaskExecTO(Arrays.asList(
+                        taskSyncopeOperations.execute(input.firstParameter(), dryRun)));
             } catch (final WebServiceException | SyncopeClientException ex) {
                 if (ex.getMessage().startsWith("NotFound")) {
                     taskResultManager.notFoundError("Task", input.firstParameter());
                 } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                    taskResultManager.generic("You cannot delete task " + input.firstParameter());
+                    taskResultManager.genericError("You cannot delete task " + input.firstParameter());
                 } else {
-                    taskResultManager.generic(ex.getMessage());
+                    taskResultManager.genericError(ex.getMessage());
                 }
             } catch (final NumberFormatException ex) {
                 taskResultManager.notBooleanDeletedError("task", input.firstParameter());
@@ -62,5 +62,4 @@ public class TaskExecute extends AbstractTaskCommand {
             taskResultManager.commandOptionError(EXECUTE_HELP_MESSAGE);
         }
     }
-
 }

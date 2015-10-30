@@ -19,19 +19,28 @@
 package org.apache.syncope.client.cli.commands.logger;
 
 import java.util.LinkedList;
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.LoggerType;
 
 public class LoggerList extends AbstractLoggerCommand {
 
-    public LoggerList() {
+    private static final String LIST_HELP_MESSAGE = "logger --list";
+
+    private final Input input;
+
+    public LoggerList(final Input input) {
+        this.input = input;
     }
 
     public void list() {
-        try {
-            loggerResultManager.fromList(new LinkedList<>(loggerService.list(LoggerType.LOG)));
-        } catch (final SyncopeClientException ex) {
-            loggerResultManager.generic("Error: " + ex.getMessage());
+        if (input.parameterNumber() == 0) {
+            try {
+                loggerResultManager.fromList(new LinkedList<>(loggerSyncopeOperations.list()));
+            } catch (final SyncopeClientException ex) {
+                loggerResultManager.genericError(ex.getMessage());
+            }
+        } else {
+            loggerResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
         }
     }
 }

@@ -63,8 +63,8 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.common.lib.types.PropagationByResource;
-import org.apache.syncope.core.misc.ConnObjectUtils;
-import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.misc.utils.ConnObjectUtils;
+import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -681,7 +681,10 @@ abstract class AbstractAnyDataBinder {
                             + " on resource '" + resource.getKey() + "'");
                 }
 
-                connObjectKeys.put(resource.getKey(), mappingUtils.getConnObjectKeyValue(any, provision));
+                String connObjectKey = mappingUtils.getConnObjectKeyValue(any, provision);
+                if (connObjectKey != null) {
+                    connObjectKeys.put(resource.getKey(), connObjectKey);
+                }
             }
         }
 

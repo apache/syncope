@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.client.cli.commands.configuration;
 
-import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.rest.api.service.ConfigurationService;
-
 public abstract class AbstractConfigurationCommand {
 
-    protected final ConfigurationService configurationService = SyncopeServices.get(ConfigurationService.class);
+    protected final ConfigurationSyncopeOperations configurationSyncopeOperations
+            = new ConfigurationSyncopeOperations();
 
     protected final ConfigurationResultManager configurationResultManager = new ConfigurationResultManager();
 

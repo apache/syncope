@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
@@ -38,11 +37,12 @@ import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.core.misc.RealmUtils;
+import org.apache.syncope.core.misc.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -171,7 +171,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_CREATE + "')")
     @Override
-    public GroupTO create(final GroupTO groupTO) {
+    public ProvisioningResult<GroupTO> create(final GroupTO groupTO, final boolean nullPriorityAsync) {
         Pair<GroupTO, List<LogicActions>> before = beforeCreate(groupTO);
 
         if (before.getLeft().getRealm() == null) {
@@ -183,16 +183,15 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 Collections.singleton(before.getLeft().getRealm()));
         securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
 
-        Map.Entry<Long, List<PropagationStatus>> created = provisioningManager.create(before.getLeft());
-        GroupTO savedTO = binder.getGroupTO(created.getKey());
-        savedTO.getPropagationStatusTOs().addAll(created.getValue());
+        Pair<Long, List<PropagationStatus>> created =
+                provisioningManager.create(before.getLeft(), nullPriorityAsync);
 
-        return afterCreate(savedTO, before.getValue());
+        return after(binder.getGroupTO(created.getKey()), created.getRight(), before.getRight());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Override
-    public GroupTO update(final GroupPatch groupPatch) {
+    public ProvisioningResult<GroupTO> update(final GroupPatch groupPatch, final boolean nullPriorityAsync) {
         GroupTO groupTO = binder.getGroupTO(groupPatch.getKey());
         Pair<GroupPatch, List<LogicActions>> before = beforeUpdate(groupPatch, groupTO.getRealm());
 
@@ -205,17 +204,14 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
             securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
         }
 
-        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(groupPatch);
+        Pair<Long, List<PropagationStatus>> updated = provisioningManager.update(groupPatch, nullPriorityAsync);
 
-        GroupTO updatedTO = binder.getGroupTO(updated.getKey());
-        updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
-
-        return afterUpdate(updatedTO, before.getRight());
+        return after(binder.getGroupTO(updated.getKey()), updated.getRight(), before.getRight());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_DELETE + "')")
     @Override
-    public GroupTO delete(final Long key) {
+    public ProvisioningResult<GroupTO> delete(final Long key, final boolean nullPriorityAsync) {
         GroupTO group = binder.getGroupTO(key);
         Pair<GroupTO, List<LogicActions>> before = beforeDelete(group);
 
@@ -237,13 +233,12 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
             throw sce;
         }
 
-        List<PropagationStatus> statuses = provisioningManager.delete(before.getLeft().getKey());
+        List<PropagationStatus> statuses = provisioningManager.delete(before.getLeft().getKey(), nullPriorityAsync);
 
         GroupTO groupTO = new GroupTO();
         groupTO.setKey(before.getLeft().getKey());
-        groupTO.getPropagationStatusTOs().addAll(statuses);
 
-        return afterDelete(groupTO, before.getRight());
+        return after(groupTO, statuses, before.getRight());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
@@ -294,7 +289,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Override
-    public GroupTO unassign(final Long key, final Collection<String> resources) {
+    public ProvisioningResult<GroupTO> unassign(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         // security checks
         GroupTO group = binder.getGroupTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
@@ -312,16 +309,17 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
             }
         }));
 
-        return update(patch);
+        return update(patch, nullPriorityAsync);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Override
-    public GroupTO assign(
+    public ProvisioningResult<GroupTO> assign(
             final Long key,
             final Collection<String> resources,
             final boolean changepwd,
-            final String password) {
+            final String password,
+            final boolean nullPriorityAsync) {
 
         // security checks
         GroupTO group = binder.getGroupTO(key);
@@ -340,12 +338,14 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
             }
         }));
 
-        return update(patch);
+        return update(patch, nullPriorityAsync);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Override
-    public GroupTO deprovision(final Long key, final Collection<String> resources) {
+    public ProvisioningResult<GroupTO> deprovision(
+            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+
         // security checks
         GroupTO group = binder.getGroupTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
@@ -353,20 +353,22 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 Collections.singleton(group.getRealm()));
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
-        List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources);
+        List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
 
-        GroupTO updatedTO = binder.getGroupTO(key);
-        updatedTO.getPropagationStatusTOs().addAll(statuses);
-        return updatedTO;
+        ProvisioningResult<GroupTO> result = new ProvisioningResult<>();
+        result.setAny(binder.getGroupTO(key));
+        result.getPropagationStatuses().addAll(statuses);
+        return result;
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Override
-    public GroupTO provision(
+    public ProvisioningResult<GroupTO> provision(
             final Long key,
             final Collection<String> resources,
             final boolean changePwd,
-            final String password) {
+            final String password,
+            final boolean nullPriorityAsync) {
 
         // security checks
         GroupTO group = binder.getGroupTO(key);
@@ -375,8 +377,12 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 Collections.singleton(group.getRealm()));
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
-        group.getPropagationStatusTOs().addAll(provisioningManager.provision(key, resources));
-        return group;
+        List<PropagationStatus> statuses = provisioningManager.provision(key, resources, nullPriorityAsync);
+
+        ProvisioningResult<GroupTO> result = new ProvisioningResult<>();
+        result.setAny(binder.getGroupTO(key));
+        result.getPropagationStatuses().addAll(statuses);
+        return result;
     }
 
     @Override

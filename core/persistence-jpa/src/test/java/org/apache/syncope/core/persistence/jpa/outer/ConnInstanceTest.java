@@ -85,7 +85,7 @@ public class ConnInstanceTest extends AbstractTest {
                 || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(2).getKey())
                 || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(3).getKey()));
 
-        connInstance.addCapability(ConnectorCapability.SEARCH);
+        connInstance.getCapabilities().add(ConnectorCapability.SEARCH);
 
         connInstance = connInstanceDAO.save(connInstance);
         assertNotNull(connInstance);

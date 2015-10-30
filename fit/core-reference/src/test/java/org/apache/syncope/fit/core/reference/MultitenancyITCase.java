@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 import java.security.AccessControlException;
 import java.util.List;
 import java.util.Locale;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -36,6 +37,7 @@ import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
@@ -120,7 +122,8 @@ public class MultitenancyITCase extends AbstractITCase {
         Response response = adminClient.getService(UserService.class).create(user);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
-        user = response.readEntity(UserTO.class);
+        user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getAny();
         assertNotNull(user);
     }
 

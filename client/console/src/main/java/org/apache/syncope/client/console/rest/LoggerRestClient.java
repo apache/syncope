@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
+import org.apache.syncope.common.rest.api.LoggerWrapper;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.springframework.stereotype.Component;
 
@@ -43,7 +43,7 @@ public class LoggerRestClient extends BaseRestClient {
     }
 
     public List<AuditLoggerName> listAudits() {
-        return CollectionWrapper.wrapLogger(getService(LoggerService.class).list(LoggerType.AUDIT));
+        return LoggerWrapper.wrap(getService(LoggerService.class).list(LoggerType.AUDIT));
     }
 
     public Map<String, Set<AuditLoggerName>> listAuditsByCategory() {

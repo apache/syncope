@@ -32,9 +32,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
+import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -42,7 +42,6 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
-import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.identityconnectors.common.l10n.CurrentLocale;
@@ -50,7 +49,9 @@ import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorKey;
-import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.AttributeInfo;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -92,7 +93,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_UPDATE + "')")
     public ConnInstanceTO update(final ConnInstanceTO connInstanceTO) {
-        ConnInstance connInstance = binder.updateConnInstance(connInstanceTO.getKey(), connInstanceTO);
+        ConnInstance connInstance = binder.update(connInstanceTO.getKey(), connInstanceTO);
         try {
             connInstance = connInstanceDAO.save(connInstance);
         } catch (SyncopeClientException e) {
@@ -192,7 +193,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                 ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(bundle);
 
                 for (String propName : properties.getPropertyNames()) {
-                    connBundleTO.getProperties().add(binder.buildConnConfPropSchema(properties.getProperty(propName)));
+                    connBundleTO.getProperties().add(binder.build(properties.getProperty(propName)));
                 }
 
                 connectorBundleTOs.add(connBundleTO);
@@ -203,43 +204,32 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
-    @Transactional(readOnly = true)
-    public List<String> getSchemaNames(final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
+    public List<ConnIdObjectClassTO> buildObjectClassInfo(
+            final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
+
         ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getKey());
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
         }
 
-        // consider the possibility to receive overridden properties only
-        Set<ConnConfProperty> conf =
-                binder.mergeConnConfProperties(connInstanceTO.getConfiguration(), connInstance.getConfiguration());
+        Set<ObjectClassInfo> objectClassInfo = connFactory.createConnector(
+                connFactory.buildConnInstanceOverride(connInstance, connInstanceTO.getConf(), null)).
+                getObjectClassInfo();
 
-        // We cannot use Spring bean because this method could be used during resource definition or modification:
-        // bean couldn't exist or couldn't be updated.
-        // This is the reason why we should take a "not mature" connector facade proxy to ask for schema names.
-        return new ArrayList<>(connFactory.createConnector(connInstance, conf).getSchemaNames(includeSpecial));
-    }
+        List<ConnIdObjectClassTO> result = new ArrayList<>(objectClassInfo.size());
+        for (ObjectClassInfo info : objectClassInfo) {
+            ConnIdObjectClassTO connIdObjectClassTO = new ConnIdObjectClassTO();
+            connIdObjectClassTO.setType(info.getType());
+            connIdObjectClassTO.setAuxiliary(info.isAuxiliary());
+            connIdObjectClassTO.setContainer(info.isContainer());
 
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
-    @Transactional(readOnly = true)
-    public List<String> getSupportedObjectClasses(final ConnInstanceTO connInstanceTO) {
-        ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getKey());
-        if (connInstance == null) {
-            throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
-        }
+            for (AttributeInfo attrInfo : info.getAttributeInfo()) {
+                if (includeSpecial || !AttributeUtil.isSpecialName(attrInfo.getName())) {
+                    connIdObjectClassTO.getAttributes().add(attrInfo.getName());
+                }
+            }
 
-        // consider the possibility to receive overridden properties only
-        Set<ConnConfProperty> conf =
-                binder.mergeConnConfProperties(connInstanceTO.getConfiguration(), connInstance.getConfiguration());
-
-        // We cannot use Spring bean because this method could be used during resource definition or modification:
-        // bean couldn't exist or couldn't be updated.
-        // This is the reason why we should take a "not mature" connector facade proxy to ask for object classes.
-        Set<ObjectClass> objectClasses = connFactory.createConnector(connInstance, conf).getSupportedObjectClasses();
-
-        List<String> result = new ArrayList<>(objectClasses.size());
-        for (ObjectClass objectClass : objectClasses) {
-            result.add(objectClass.getObjectClassValue());
+            result.add(connIdObjectClassTO);
         }
 
         return result;
@@ -247,22 +237,8 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
-    public List<ConnConfProperty> getConfigurationProperties(final Long connInstanceKey) {
-
-        ConnInstance connInstance = connInstanceDAO.find(connInstanceKey);
-        if (connInstance == null) {
-            throw new NotFoundException("Connector '" + connInstanceKey + "'");
-        }
-
-        return new ArrayList<>(connInstance.getConfiguration());
-    }
-
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
-    @Transactional(readOnly = true)
     public void check(final ConnInstanceTO connInstanceTO) {
-        Connector connector = connFactory.createConnector(
-                binder.getConnInstance(connInstanceTO), connInstanceTO.getConfiguration());
-        connector.test();
+        connFactory.createConnector(binder.getConnInstance(connInstanceTO)).test();
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
@@ -274,7 +250,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
-        return binder.getConnInstanceTO(connFactory.getConnector(resource).getActiveConnInstance());
+        return binder.getConnInstanceTO(connFactory.getConnector(resource).getConnInstance());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_RELOAD + "')")

@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
@@ -272,16 +273,22 @@ public class NotificationManagerImpl implements NotificationManager {
 
         if (before instanceof UserTO) {
             any = userDAO.find(((UserTO) before).getKey());
-        } else if (output instanceof UserTO) {
-            any = userDAO.find(((UserTO) output).getKey());
+        } else if (output instanceof ProvisioningResult
+                && ((ProvisioningResult) output).getAny() instanceof UserTO) {
+
+            any = userDAO.find(((ProvisioningResult) output).getAny().getKey());
         } else if (before instanceof AnyObjectTO) {
             any = anyObjectDAO.find(((AnyObjectTO) before).getKey());
-        } else if (output instanceof AnyObjectTO) {
-            any = anyObjectDAO.find(((AnyObjectTO) output).getKey());
+        } else if (output instanceof ProvisioningResult
+                && ((ProvisioningResult) output).getAny() instanceof AnyObjectTO) {
+
+            any = anyObjectDAO.find(((ProvisioningResult) output).getAny().getKey());
         } else if (before instanceof GroupTO) {
             any = groupDAO.find(((GroupTO) before).getKey());
-        } else if (output instanceof GroupTO) {
-            any = groupDAO.find(((GroupTO) output).getKey());
+        } else if (output instanceof ProvisioningResult
+                && ((ProvisioningResult) output).getAny() instanceof GroupTO) {
+
+            any = groupDAO.find(((ProvisioningResult) output).getAny().getKey());
         }
 
         AnyType anyType = any == null ? null : any.getType();

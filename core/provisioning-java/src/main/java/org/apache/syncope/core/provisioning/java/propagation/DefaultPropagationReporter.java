@@ -19,12 +19,16 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
-import org.apache.syncope.core.misc.ConnObjectUtils;
+import org.apache.syncope.core.misc.utils.ConnObjectUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,56 +43,68 @@ public class DefaultPropagationReporter implements PropagationReporter {
 
     protected final List<PropagationStatus> statuses = new ArrayList<>();
 
-    @Override
-    public void onSuccessOrSecondaryResourceFailures(final String resource,
-            final PropagationTaskExecStatus executionStatus,
-            final String failureReason, final ConnectorObject beforeObj, final ConnectorObject afterObj) {
+    protected boolean add(final PropagationStatus status) {
+        return CollectionUtils.exists(statuses, new Predicate<PropagationStatus>() {
 
-        PropagationStatus propagation = new PropagationStatus();
-        propagation.setResource(resource);
-        propagation.setStatus(executionStatus);
-        propagation.setFailureReason(failureReason);
+            @Override
+            public boolean evaluate(final PropagationStatus item) {
+                return item.getResource().equals(status.getResource());
+            }
+        })
+                ? false
+                : statuses.add(status);
+    }
+
+    @Override
+    public void onSuccessOrNonPriorityResourceFailures(
+            final PropagationTask propagationTask,
+            final PropagationTaskExecStatus executionStatus,
+            final String failureReason,
+            final ConnectorObject beforeObj,
+            final ConnectorObject afterObj) {
+
+        PropagationStatus status = new PropagationStatus();
+        status.setResource(propagationTask.getResource().getKey());
+        status.setStatus(executionStatus);
+        status.setFailureReason(failureReason);
 
         if (beforeObj != null) {
-            propagation.setBeforeObj(connObjectUtils.getConnObjectTO(beforeObj));
+            status.setBeforeObj(connObjectUtils.getConnObjectTO(beforeObj));
         }
 
         if (afterObj != null) {
-            propagation.setAfterObj(connObjectUtils.getConnObjectTO(afterObj));
+            status.setAfterObj(connObjectUtils.getConnObjectTO(afterObj));
         }
 
-        statuses.add(propagation);
-    }
-
-    private boolean containsPropagationStatusTO(final String resourceName) {
-        for (PropagationStatus status : statuses) {
-            if (resourceName.equals(status.getResource())) {
-                return true;
-            }
-        }
-        return false;
+        add(status);
     }
 
     @Override
-    public void onPrimaryResourceFailure(final List<PropagationTask> tasks) {
-        final String failedResource = statuses.get(statuses.size() - 1).getResource();
+    public void onPriorityResourceFailure(final String failingResource, final Collection<PropagationTask> tasks) {
+        LOG.debug("Propagation error: {} priority resource failed to propagate", failingResource);
 
-        LOG.debug("Propagation error: {} primary resource failed to propagate", failedResource);
+        final PropagationTask propagationTask = CollectionUtils.find(tasks, new Predicate<PropagationTask>() {
 
-        for (PropagationTask propagationTask : tasks) {
-            if (!containsPropagationStatusTO(propagationTask.getResource().getKey())) {
-                PropagationStatus propagationStatusTO = new PropagationStatus();
-                propagationStatusTO.setResource(propagationTask.getResource().getKey());
-                propagationStatusTO.setStatus(PropagationTaskExecStatus.FAILURE);
-                propagationStatusTO.setFailureReason(
-                        "Propagation error: " + failedResource + " primary resource failed to propagate.");
-                statuses.add(propagationStatusTO);
+            @Override
+            public boolean evaluate(final PropagationTask task) {
+                return task.getResource().getKey().equals(failingResource);
             }
+        });
+
+        if (propagationTask == null) {
+            LOG.error("Could not find {} for {}", PropagationTask.class.getName(), failingResource);
+        } else {
+            PropagationStatus status = new PropagationStatus();
+            status.setResource(propagationTask.getResource().getKey());
+            status.setStatus(PropagationTaskExecStatus.FAILURE);
+            status.setFailureReason(
+                    "Propagation error: " + failingResource + " priority resource failed to propagate.");
+            add(status);
         }
     }
 
     @Override
     public List<PropagationStatus> getStatuses() {
-        return statuses;
+        return Collections.unmodifiableList(statuses);
     }
 }

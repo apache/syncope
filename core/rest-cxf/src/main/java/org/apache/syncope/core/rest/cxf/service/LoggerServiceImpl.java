@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.to.EventCategoryTO;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerType;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
+import org.apache.syncope.common.rest.api.LoggerWrapper;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.core.logic.LoggerLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +66,7 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
 
             case AUDIT:
                 List<AuditLoggerName> auditLogger = logic.listAudits();
-                return CollectionWrapper.unwrapLogger(auditLogger);
+                return LoggerWrapper.unwrap(auditLogger);
 
             default:
                 throw new BadRequestException();

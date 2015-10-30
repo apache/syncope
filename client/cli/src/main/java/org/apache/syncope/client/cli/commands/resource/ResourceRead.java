@@ -39,14 +39,14 @@ public class ResourceRead extends AbstractResourceCommand {
             final List<ResourceTO> resourceTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    resourceTOs.add(resourceService.read(parameter));
+                    resourceTOs.add(resourceSyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
-                    resourceResultManager.managerNumberFormatException("resource", parameter);
+                    resourceResultManager.numberFormatException("resource", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         resourceResultManager.notFoundError("Resource", parameter);
                     } else {
-                        resourceResultManager.generic(ex.getMessage());
+                        resourceResultManager.genericError(ex.getMessage());
                     }
                     break;
                 }
@@ -56,5 +56,4 @@ public class ResourceRead extends AbstractResourceCommand {
             resourceResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-
 }

@@ -255,6 +255,19 @@ public class SyncopeClient {
     }
 
     /**
+     * Asks for asynchronous propagation towards external resources with null priority.
+     *
+     * @param <T> any service class
+     * @param serviceClass service class reference
+     * @param nullPriorityAsync whether asynchronous propagation towards external resources with null priority is
+     * requested
+     * @return service instance of the given reference class, with related header set
+     */
+    public <T> T nullPriorityAsync(final Class<T> serviceClass, final boolean nullPriorityAsync) {
+        return header(serviceClass, RESTHeaders.NULL_PRIORITY_ASYNC, nullPriorityAsync);
+    }
+
+    /**
      * Sets the {@code If-Match} or {@code If-None-Match} header on the given service instance.
      *
      * @param <T> any service class

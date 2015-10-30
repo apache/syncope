@@ -161,16 +161,16 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceName);
         resourceTO.setConnector(102L);
 
-        ConnConfProperty p = new ConnConfProperty();
+        ConnConfProperty prop = new ConnConfProperty();
         ConnConfPropSchema schema = new ConnConfPropSchema();
         schema.setType("java.lang.String");
         schema.setName("endpoint");
         schema.setRequired(true);
-        p.setSchema(schema);
-        p.getValues().add("http://invalidurl/");
+        prop.setSchema(schema);
+        prop.getValues().add("http://invalidurl/");
 
-        Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<>(Arrays.asList(p));
-        resourceTO.getConnConfProperties().addAll(connectorConfigurationProperties);
+        Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<>(Arrays.asList(prop));
+        resourceTO.getConfOverride().addAll(connectorConfigurationProperties);
 
         Response response = resourceService.create(resourceTO);
         ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
@@ -455,7 +455,7 @@ public class ResourceITCase extends AbstractITCase {
     public void read() {
         ResourceTO resource = resourceService.read(RESOURCE_NAME_DBVIRATTR);
         assertNotNull(resource);
-        
+
         ProvisionTO provision = resource.getProvision(AnyTypeKind.USER.name());
         assertNotNull(provision);
         assertFalse(provision.getMapping().getItems().isEmpty());
@@ -535,7 +535,7 @@ public class ResourceITCase extends AbstractITCase {
         for (int i = 0; i < 10; i++) {
             GroupTO group = GroupITCase.getSampleTO("group");
             group.getResources().add(RESOURCE_NAME_LDAP);
-            group = createGroup(group);
+            group = createGroup(group).getAny();
             groupKeys.add(group.getKey());
         }
 
@@ -575,7 +575,7 @@ public class ResourceITCase extends AbstractITCase {
                     builder.pagedResultsCookie(list.getPagedResultsCookie());
                 }
             } while (list.getPagedResultsCookie() != null);
-            
+
             assertEquals(totalRead, read.size());
             assertTrue(totalRead >= 10);
         } finally {

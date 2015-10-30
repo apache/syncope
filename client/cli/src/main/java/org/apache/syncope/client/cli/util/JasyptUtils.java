@@ -45,5 +45,4 @@ public final class JasyptUtils {
     public String decrypt(final String encryptedString) {
         return textEncryptor.decrypt(encryptedString);
     }
-
 }

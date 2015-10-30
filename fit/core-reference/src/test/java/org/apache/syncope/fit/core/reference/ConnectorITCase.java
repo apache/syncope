@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,16 +38,18 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
+import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -54,7 +57,6 @@ import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.IntMappingType;
-import org.apache.syncope.common.lib.wrap.ConnIdObjectClass;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.identityconnectors.common.security.GuardedString;
@@ -146,7 +148,7 @@ public class ConnectorITCase extends AbstractITCase {
         conf.add(servicename);
 
         // set connector configuration
-        connectorTO.getConfiguration().addAll(conf);
+        connectorTO.getConf().addAll(conf);
 
         // set connector capabilities
         connectorTO.getCapabilities().add(ConnectorCapability.CREATE);
@@ -253,7 +255,7 @@ public class ConnectorITCase extends AbstractITCase {
         conf.add(servicename);
 
         // set connector configuration
-        connectorTO.getConfiguration().addAll(conf);
+        connectorTO.getConf().addAll(conf);
 
         connectorService.update(connectorTO);
         ConnInstanceTO actual = connectorService.read(connectorTO.getKey(), Locale.ENGLISH.getLanguage());
@@ -397,7 +399,7 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void getConnectorConfiguration() {
-        List<ConnConfProperty> props = connectorService.getConfigurationProperties(104L);
+        Set<ConnConfProperty> props = connectorService.read(104L, Locale.ENGLISH.getLanguage()).getConf();
         assertNotNull(props);
         assertFalse(props.isEmpty());
     }
@@ -408,7 +410,7 @@ public class ConnectorITCase extends AbstractITCase {
 
         boolean check = false;
 
-        for (ConnConfProperty prop : connInstanceTO.getConfiguration()) {
+        for (ConnConfProperty prop : connInstanceTO.getConf()) {
             if ("receiveTimeout".equals(prop.getSchema().getName())) {
                 check = true;
             }
@@ -424,7 +426,7 @@ public class ConnectorITCase extends AbstractITCase {
         Map<String, ConnConfProperty> instanceConfMap;
         for (ConnInstanceTO instance : connectorInstanceTOs) {
             if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
-                instanceConfMap = instance.getConfigurationMap();
+                instanceConfMap = instance.getConfMap();
                 assertEquals("Utente", instanceConfMap.get("user").getSchema().getDisplayName());
             }
         }
@@ -434,7 +436,7 @@ public class ConnectorITCase extends AbstractITCase {
 
         for (ConnInstanceTO instance : connectorInstanceTOs) {
             if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
-                instanceConfMap = instance.getConfigurationMap();
+                instanceConfMap = instance.getConfMap();
                 assertEquals("User", instanceConfMap.get("user").getSchema().getDisplayName());
             }
         }
@@ -516,7 +518,7 @@ public class ConnectorITCase extends AbstractITCase {
         conf.add(passwordColumn);
 
         // set connector configuration
-        connectorTO.getConfiguration().addAll(conf);
+        connectorTO.getConf().addAll(conf);
 
         try {
             connectorService.check(connectorTO);
@@ -538,51 +540,35 @@ public class ConnectorITCase extends AbstractITCase {
     }
 
     @Test
-    public void getSchemaNames() {
-        ConnInstanceTO conn = connectorService.read(101L, Locale.ENGLISH.getLanguage());
+    public void buildObjectClassInfo() {
+        ConnInstanceTO ws = connectorService.read(102L, Locale.ENGLISH.getLanguage());
+        assertNotNull(ws);
 
-        List<PlainSchemaTO> schemaNames = connectorService.getSchemaNames(conn.getKey(), conn, true);
-        assertNotNull(schemaNames);
-        assertFalse(schemaNames.isEmpty());
-        assertNotNull(schemaNames.get(0).getKey());
-        assertNull(schemaNames.get(0).getEnumerationValues());
+        List<ConnIdObjectClassTO> objectClassInfo = connectorService.buildObjectClassInfo(ws, true);
+        assertNotNull(objectClassInfo);
+        assertEquals(1, objectClassInfo.size());
+        assertEquals(ObjectClass.ACCOUNT_NAME, objectClassInfo.get(0).getType());
+        assertTrue(objectClassInfo.get(0).getAttributes().contains("promoThirdPartyDisclaimer"));
 
-        schemaNames = connectorService.getSchemaNames(conn.getKey(), conn, false);
-
-        assertNotNull(schemaNames);
-        assertEquals(1, schemaNames.size());
-
-        conn = connectorService.read(104L, Locale.ENGLISH.getLanguage());
-
-        // to be used with overridden properties
-        conn.getConfiguration().clear();
-
-        schemaNames = connectorService.getSchemaNames(conn.getKey(), conn, true);
-        assertNotNull(schemaNames);
-        assertFalse(schemaNames.isEmpty());
-    }
-
-    @Test
-    public void getSupportedObjectClasses() {
         ConnInstanceTO ldap = connectorService.read(105L, Locale.ENGLISH.getLanguage());
         assertNotNull(ldap);
 
-        List<ConnIdObjectClass> objectClasses = connectorService.getSupportedObjectClasses(ldap.getKey(), ldap);
-        assertNotNull(objectClasses);
+        objectClassInfo = connectorService.buildObjectClassInfo(ldap, true);
+        assertNotNull(objectClassInfo);
+        assertEquals(2, objectClassInfo.size());
+
+        Collection<String> objectClasses = CollectionUtils.collect(objectClassInfo,
+                new Transformer<ConnIdObjectClassTO, String>() {
+
+                    @Override
+                    public String transform(final ConnIdObjectClassTO info) {
+                        return info.getType();
+                    }
+
+                });
         assertEquals(2, objectClasses.size());
-        assertTrue(objectClasses.contains(
-                ConnIdObjectClass.getInstance(ConnIdObjectClass.class, ObjectClass.ACCOUNT_NAME)));
-        assertTrue(objectClasses.contains(
-                ConnIdObjectClass.getInstance(ConnIdObjectClass.class, ObjectClass.GROUP_NAME)));
-
-        ConnInstanceTO csv = connectorService.read(104L, Locale.ENGLISH.getLanguage());
-        assertNotNull(csv);
-
-        objectClasses = connectorService.getSupportedObjectClasses(csv.getKey(), csv);
-        assertNotNull(objectClasses);
-        assertEquals(1, objectClasses.size());
-        assertTrue(objectClasses.contains(
-                ConnIdObjectClass.getInstance(ConnIdObjectClass.class, ObjectClass.ACCOUNT_NAME)));
+        assertTrue(objectClasses.contains(ObjectClass.ACCOUNT_NAME));
+        assertTrue(objectClasses.contains(ObjectClass.GROUP_NAME));
     }
 
     @Test
@@ -631,7 +617,7 @@ public class ConnectorITCase extends AbstractITCase {
         conf.add(servicename);
 
         // set connector configuration
-        connectorTO.getConfiguration().addAll(conf);
+        connectorTO.getConf().addAll(conf);
 
         try {
             try {
@@ -664,7 +650,7 @@ public class ConnectorITCase extends AbstractITCase {
             endpoint.getValues().add("http://localhost:9080/wssample/services/provisioning");
             conf.add(endpoint);
 
-            resourceTO.getConnConfProperties().addAll(conf);
+            resourceTO.getConfOverride().addAll(conf);
 
             ProvisionTO provisionTO = new ProvisionTO();
             provisionTO.setAnyType(AnyTypeKind.USER.name());

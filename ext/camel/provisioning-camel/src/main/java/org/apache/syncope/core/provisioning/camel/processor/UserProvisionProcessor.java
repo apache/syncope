@@ -35,19 +35,14 @@ import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserProvisionProcessor implements Processor {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserProvisionProcessor.class);
 
     @Autowired
     protected PropagationManager propagationManager;
@@ -65,6 +60,7 @@ public class UserProvisionProcessor implements Processor {
         String password = exchange.getProperty("password", String.class);
         @SuppressWarnings("unchecked")
         List<String> resources = exchange.getProperty("resources", List.class);
+        Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(key);
@@ -92,12 +88,7 @@ public class UserProvisionProcessor implements Processor {
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(wfResult, changePwd, null);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
         exchange.getOut().setBody(propagationReporter.getStatuses());
     }
