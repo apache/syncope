@@ -34,7 +34,7 @@ public class RealmList extends AbstractRealmCommand {
     public void list() {
         if (input.parameterNumber() == 0) {
             try {
-                realmResultManager.toView(realmSyncopeOperations.list());
+                realmResultManager.printRealms(realmSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
                 realmResultManager.genericError(ex.getMessage());
             }

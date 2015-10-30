@@ -28,15 +28,15 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "role")
 public class RoleCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: role [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: role [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --details \n"
             + "    --list \n"
             + "    --read \n"
-            + "       Syntax: --read {ROLE-ID} {ROLE-ID} [...]"
+            + "       Syntax: --read {ROLE-ID} {ROLE-ID} [...]\n"
             + "    --delete \n"
-            + "       Syntax: --delete {ROLE-ID} {ROLE-ID} [...]";
+            + "       Syntax: --delete {ROLE-ID} {ROLE-ID} [...]\n";
 
     @Override
     public void execute(final Input input) {

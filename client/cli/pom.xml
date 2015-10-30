@@ -55,7 +55,7 @@ under the License.
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -124,14 +124,6 @@ under the License.
                   <manifestEntries>
                     <Main-Class>org.apache.syncope.client.cli.SyncopeAdm</Main-Class>
                   </manifestEntries>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>messages.properties</resource>
-                  <file>src/main/resources/messages.properties</file>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>messages_it_IT.properties</resource>
-                  <file>src/main/resources/messages_it_IT.properties</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">                                     
                   <resource>META-INF/spring.handlers</resource>                                 

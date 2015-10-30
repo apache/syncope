@@ -49,7 +49,7 @@ public class SchemaRead extends AbstractSchemaCommand {
                 }
                 switch (schemaType) {
                     case PLAIN:
-                        schemaResultManager.fromReadPlain(schemaTOs);
+                        schemaResultManager.printSchemasWithDetails(schemaTOs);
                         break;
                     case DERIVED:
                         schemaResultManager.fromListDerived(schemaTOs);

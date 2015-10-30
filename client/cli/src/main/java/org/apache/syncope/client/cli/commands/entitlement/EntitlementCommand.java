@@ -28,7 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "entitlement")
 public class EntitlementCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: entitlement [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: entitlement [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --list\n"
@@ -39,7 +39,7 @@ public class EntitlementCommand extends AbstractCommand {
             + "    --read-by-userid\n"
             + "       Syntax: --read-by-userid {USER-ID}\n"
             + "    --search-by-role\n"
-            + "       Syntax: --search-by-role {ROLE-ID}";
+            + "       Syntax: --search-by-role {ROLE-ID}\n";
 
     @Override
     public void execute(final Input input) {

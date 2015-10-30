@@ -41,7 +41,7 @@ public class SchemaListPlain extends AbstractSchemaCommand {
                 for (final AbstractSchemaTO schemaTO : schemaSyncopeOperations.listPlain()) {
                     schemaTOs.add(schemaTO);
                 }
-                schemaResultManager.fromListPlain(schemaTOs);
+                schemaResultManager.printSchemas(schemaTOs);
             } catch (final SyncopeClientException | WebServiceException ex) {
                 schemaResultManager.genericError(ex.getMessage());
             }

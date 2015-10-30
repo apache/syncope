@@ -51,7 +51,7 @@ public class TaskRead extends AbstractTaskCommand {
                     break;
                 }
             }
-            taskResultManager.fromRead(taskTOs);
+            taskResultManager.printTasks(taskTOs);
         } else {
             taskResultManager.commandOptionError(READ_HELP_MESSAGE);
         }

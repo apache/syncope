@@ -34,7 +34,7 @@ public class QuestionList extends AbstractQuestionCommand {
     public void list() {
         if (input.parameterNumber() == 0) {
             try {
-                questionResultManager.toView(questionSyncopeOperations.list());
+                questionResultManager.printQuestions(questionSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
                 questionResultManager.genericError(ex.getMessage());
             }

@@ -28,14 +28,14 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "notification")
 public class NotificationCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: notification [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: notification [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --list \n"
             + "    --read \n"
             + "       Syntax: --read {NOTIFICATION-ID} \n"
             + "    --delete \n"
-            + "       Syntax: --delete {NOTIFICATION-ID}";
+            + "       Syntax: --delete {NOTIFICATION-ID}\n";
 
     @Override
     public void execute(final Input input) {

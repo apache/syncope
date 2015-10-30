@@ -52,7 +52,7 @@ public class QuestionRead extends AbstractQuestionCommand {
                     questionResultManager.numberFormatException("security question", parameter);
                 }
             }
-            questionResultManager.toView(questionTOs);
+            questionResultManager.printQuestions(questionTOs);
         } else {
             questionResultManager.commandOptionError(READ_HELP_MESSAGE);
         }

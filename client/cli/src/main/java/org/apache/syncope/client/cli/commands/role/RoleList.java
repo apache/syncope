@@ -34,7 +34,7 @@ public class RoleList extends AbstractRoleCommand {
     public void list() {
         if (input.parameterNumber() == 0) {
             try {
-                roleResultManager.toView(roleSyncopeOperations.list());
+                roleResultManager.printRoles(roleSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
                 roleResultManager.genericError(ex.getMessage());
             }

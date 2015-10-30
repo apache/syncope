@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.types.ConnectorCapability;
 public class ConnectorResultManager extends CommonsResultManager {
 
     public void printConnectors(final List<ConnInstanceTO> connInstanceTOs) {
+        System.out.println("");
         for (final ConnInstanceTO connInstanceTO : connInstanceTOs) {
             printConnector(connInstanceTO);
         }

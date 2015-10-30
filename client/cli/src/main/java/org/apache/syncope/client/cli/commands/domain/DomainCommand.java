@@ -28,7 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "domain")
 public class DomainCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: domain [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: domain [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --details \n"

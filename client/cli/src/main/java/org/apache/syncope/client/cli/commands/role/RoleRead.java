@@ -52,7 +52,7 @@ public class RoleRead extends AbstractRoleCommand {
                     roleResultManager.numberFormatException("user", parameter);
                 }
             }
-            roleResultManager.toView(roleTOs);
+            roleResultManager.printRoles(roleTOs);
         } else {
             roleResultManager.commandOptionError(READ_HELP_MESSAGE);
         }

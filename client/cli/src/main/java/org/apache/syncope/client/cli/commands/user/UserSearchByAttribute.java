@@ -52,7 +52,7 @@ public class UserSearchByAttribute extends AbstractUserCommand {
                     userResultManager.genericMessage("No users found with attribute "
                             + pairParameter.getKey() + " and value " + pairParameter.getValue());
                 } else {
-                    userResultManager.toView(userTOs);
+                    userResultManager.printUsers(userTOs);
                 }
             } catch (final WebServiceException | SyncopeClientException ex) {
                 if (ex.getMessage().startsWith("NotFound")) {

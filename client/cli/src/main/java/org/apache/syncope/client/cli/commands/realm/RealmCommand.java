@@ -28,7 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "realm")
 public class RealmCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: realm [options]\n"
+    private static final String HELP_MESSAGE = "1nUsage: realm [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --details \n"

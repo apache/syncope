@@ -28,7 +28,8 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 
 public class ResourceResultManager extends CommonsResultManager {
 
-    public void toView(final List<ResourceTO> resourceTOs) {
+    public void printResources(final List<ResourceTO> resourceTOs) {
+        System.out.println("");
         for (final ResourceTO resourceTO : resourceTOs) {
             printResource(resourceTO);
         }

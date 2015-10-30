@@ -28,7 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "connector")
 public class ConnectorCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: connector [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: connector [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --details \n"
@@ -39,7 +39,7 @@ public class ConnectorCommand extends AbstractCommand {
             + "    --read \n"
             + "       Syntax: --read {CONNECTOR-ID} {CONNECTOR-ID} [...]\n"
             + "    --delete \n"
-            + "       Syntax: --delete {CONNECTOR-ID} {CONNECTOR-ID} [...]";
+            + "       Syntax: --delete {CONNECTOR-ID} {CONNECTOR-ID} [...]\n";
 
     @Override
     public void execute(final Input input) {

@@ -28,7 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "user")
 public class UserCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: user [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: user [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --list \n"
@@ -46,7 +46,7 @@ public class UserCommand extends AbstractCommand {
             + "    --search-by-resource \n"
             + "       Syntax: --search-by-resource {REALM} {RESOURCE-NAME}\n"
             + "    --delete \n"
-            + "       Syntax: --delete {USER-ID} {USER-ID} [...]";
+            + "       Syntax: --delete {USER-ID} {USER-ID} [...]\n";
 
     @Override
     public void execute(final Input input) {

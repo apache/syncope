@@ -29,7 +29,8 @@ import org.apache.syncope.common.lib.to.UserTO;
 
 public class UserResultManager extends CommonsResultManager {
 
-    public void toView(final List<UserTO> userTOs) {
+    public void printUsers(final List<UserTO> userTOs) {
+        System.out.println("");
         for (final UserTO userTO : userTOs) {
             printUser(userTO);
         }

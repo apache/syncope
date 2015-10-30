@@ -28,14 +28,14 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "question")
 public class QuestionCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: question [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: question [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --list \n"
             + "    --read \n"
             + "       Syntax: --read {QUESTION-ID} {QUESTION-ID} [...]\n"
             + "    --delete \n"
-            + "       Syntax: --delete {QUESTION-ID} {QUESTION-ID} [...]";
+            + "       Syntax: --delete {QUESTION-ID} {QUESTION-ID} [...]\n";
 
     @Override
     public void execute(final Input input) {

@@ -24,7 +24,8 @@ import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 
 public class QuestionResultManager extends CommonsResultManager {
 
-    public void toView(final List<SecurityQuestionTO> questionTOs) {
+    public void printQuestions(final List<SecurityQuestionTO> questionTOs) {
+        System.out.println("");
         for (final SecurityQuestionTO questionTO : questionTOs) {
             printQuestion(questionTO);
         }

@@ -34,7 +34,7 @@ public class ResourceList extends AbstractResourceCommand {
     public void list() {
         if (input.parameterNumber() == 0) {
             try {
-                resourceResultManager.toView(resourceSyncopeOperations.list());
+                resourceResultManager.printResources(resourceSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
                 resourceResultManager.genericError(ex.getMessage());
             }

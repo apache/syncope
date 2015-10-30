@@ -45,7 +45,7 @@ public class UserList extends AbstractUserCommand {
                 final String answer = scanIn.nextLine();
                 if ("yes".equalsIgnoreCase(answer)) {
                     final PagedResult<UserTO> uResult = userSyncopeOperations.list();
-                    userResultManager.toView(new LinkedList<>(uResult.getResult()));
+                    userResultManager.printUsers(new LinkedList<>(uResult.getResult()));
                 } else if ("no".equalsIgnoreCase(answer)) {
                     userResultManager.genericError("List operation skipped");
                 } else {

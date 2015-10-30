@@ -25,7 +25,8 @@ import org.apache.syncope.common.lib.to.DomainTO;
 
 public class DomainResultManager extends CommonsResultManager {
 
-    public void toView(final List<DomainTO> domainTOs) {
+    public void printDomains(final List<DomainTO> domainTOs) {
+        System.out.println("");
         for (final DomainTO domainTO : domainTOs) {
             printDomain(domainTO);
         }
@@ -34,6 +35,7 @@ public class DomainResultManager extends CommonsResultManager {
     public void printDomain(final DomainTO domainTO) {
         System.out.println(" > DOIMAIN NAME: " + domainTO.getKey());
         System.out.println("    chiper algorithm: " + domainTO.getAdminCipherAlgorithm());
+        System.out.println("");
     }
 
     public void printDetails(final Map<String, String> details) {

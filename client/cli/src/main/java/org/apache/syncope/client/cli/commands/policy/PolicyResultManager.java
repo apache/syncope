@@ -29,7 +29,8 @@ import org.apache.syncope.common.lib.types.PolicyType;
 
 public class PolicyResultManager extends CommonsResultManager {
 
-    public void fromRead(final LinkedList<AbstractPolicyTO> policyTOs) {
+    public void printPolicies(final LinkedList<AbstractPolicyTO> policyTOs) {
+        System.out.println("");
         for (AbstractPolicyTO policyTO : policyTOs) {
             if (!policyTOs.isEmpty()) {
                 final PolicyType policyType = policyTO.getType();
@@ -54,7 +55,8 @@ public class PolicyResultManager extends CommonsResultManager {
 
     }
 
-    public void fromList(final PolicyType policyType, final LinkedList<AbstractPolicyTO> policyTOs) {
+    public void printPoliciesByType(final PolicyType policyType, final LinkedList<AbstractPolicyTO> policyTOs) {
+        System.out.println("");
         switch (policyType) {
             case ACCOUNT:
                 for (final AbstractPolicyTO policyTO : policyTOs) {

@@ -26,11 +26,11 @@ import org.apache.syncope.common.lib.to.RoleTO;
 
 public class RoleResultManager extends CommonsResultManager {
 
-    public void toView(final List<RoleTO> roleTOs) {
+    public void printRoles(final List<RoleTO> roleTOs) {
+        System.out.println("");
         for (final RoleTO roleTO : roleTOs) {
             printRole(roleTO);
         }
-        System.out.println("");
     }
 
     private void printRole(final RoleTO roleTO) {

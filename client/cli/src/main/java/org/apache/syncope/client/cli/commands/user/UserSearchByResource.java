@@ -56,7 +56,7 @@ public class UserSearchByResource extends AbstractUserCommand {
                 if (userTOs == null || userTOs.isEmpty()) {
                     userResultManager.genericMessage("No users has " + resource + " assigned");
                 } else {
-                    userResultManager.toView(userTOs);
+                    userResultManager.printUsers(userTOs);
                 }
             } catch (final WebServiceException | SyncopeClientException ex) {
                 userResultManager.genericError(ex.getMessage());

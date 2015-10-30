@@ -21,7 +21,19 @@ under the License.
 
   <appenders>
 
-    <RollingRandomAccessFile name="main" fileName="${log.directory}/cli.log"
+    <RollingRandomAccessFile name="lib" fileName="${log.directory}/cli-lib.log"
+                             filePattern="${log.directory}/cli-lib-%d{yyyy-MM-dd}.log.gz"
+                             immediateFlush="false" append="true">
+      <PatternLayout>
+        <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+      </PatternLayout>
+      <Policies>
+        <TimeBasedTriggeringPolicy/>
+        <SizeBasedTriggeringPolicy size="250 MB"/>
+      </Policies>
+    </RollingRandomAccessFile>
+    
+    <RollingRandomAccessFile name="cli" fileName="${log.directory}/cli.log"
                              filePattern="${log.directory}/cli-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
@@ -36,41 +48,33 @@ under the License.
   </appenders>
 
   <loggers>
-
-    <asyncLogger name="com.beust" additivity="false" level="DEBUG">
-      <appender-ref ref="main"/>
+    
+    <asyncLogger name="org.apache.cxf" additivity="false" level="DEBUG">
+      <appender-ref ref="lib"/>
     </asyncLogger>
     
-    <asyncLogger name="org.apache.cxf" additivity="false" level="OFF">
-      <appender-ref ref="main"/>
+    <asyncLogger name="org.apache.http" additivity="false" level="ERROR">
+      <appender-ref ref="lib"/>
     </asyncLogger>
     
-    <asyncLogger name="org.apache.cxf.interceptor" additivity="false" level="OFF">
-      <appender-ref ref="main"/>
+    <asyncLogger name="org.springframework" additivity="false" level="ERROR">
+      <appender-ref ref="lib"/>
     </asyncLogger>
     
-    <asyncLogger name="org.apache.http" additivity="false" level="OFF">
-      <appender-ref ref="main"/>
+    <asyncLogger name="org.apache.syncope.client.cli" additivity="false" level="DEBUG">
+      <appender-ref ref="cli"/>
     </asyncLogger>
     
-    <asyncLogger name="org.springframework" additivity="false" level="OFF">
-      <appender-ref ref="main"/>
+    <asyncLogger name="org.apache.syncope.client" additivity="false" level="ERROR">
+      <appender-ref ref="lib"/>
     </asyncLogger>
     
-    <asyncLogger name="org.apache.syncope.cli" additivity="false" level="OFF">
-      <appender-ref ref="main"/>
-    </asyncLogger>
-    
-    <asyncLogger name="org.apache.syncope.client" additivity="false" level="OFF">
-      <appender-ref ref="main"/>
-    </asyncLogger>
-    
-    <asyncLogger name="org.apache.syncope.common" additivity="false" level="OFF">
-      <appender-ref ref="main"/>
+    <asyncLogger name="org.apache.syncope.common" additivity="false" level="ERROR">
+      <appender-ref ref="lib"/>
     </asyncLogger>
 
-    <root level="OFF">
-      <appender-ref ref="main"/>
+    <root level="DEBUG">
+      <appender-ref ref="cli"/>
     </root>
   
   </loggers>

@@ -26,12 +26,15 @@ import org.apache.syncope.common.lib.to.RoleTO;
 public class EntitlementResultManager extends CommonsResultManager {
 
     public void toView(final Set<String> entitlements) {
+        System.out.println("");
         for (final String entitlement : entitlements) {
             System.out.println("- " + entitlement);
         }
+        System.out.println("");
     }
 
     public void rolesToView(final Set<RoleTO> roles) {
+        System.out.println("");
         for (final RoleTO role : roles) {
             printRole(role);
         }

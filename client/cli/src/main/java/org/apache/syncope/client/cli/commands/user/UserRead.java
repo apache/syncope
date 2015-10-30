@@ -52,7 +52,7 @@ public class UserRead extends AbstractUserCommand {
                     userResultManager.numberFormatException("user", parameter);
                 }
             }
-            userResultManager.toView(userTOs);
+            userResultManager.printUsers(userTOs);
         } else {
             userResultManager.commandOptionError(READ_HELP_MESSAGE);
         }

@@ -44,7 +44,7 @@ public class PolicyList extends AbstractPolicyCommand {
                 for (final AbstractPolicyTO policyTO : policySyncopeOperations.list(policyType)) {
                     policyTOs.add(policyTO);
                 }
-                policyResultManager.fromList(policyType, policyTOs);
+                policyResultManager.printPoliciesByType(policyType, policyTOs);
             } catch (final SyncopeClientException ex) {
                 policyResultManager.genericError(ex.getMessage());
             } catch (final IllegalArgumentException ex) {

@@ -28,7 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "schema")
 public class SchemaCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: schema [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: schema [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --details \n"
@@ -39,7 +39,7 @@ public class SchemaCommand extends AbstractCommand {
             + "    --read {SCHEMA-TYPE} {SCHEMA-KEY}\n"
             + "        Schema type: PLAIN / DERIVED / VIRTUAL\n"
             + "    --delete {SCHEMA-TYPE} {SCHEMA-KEY}\n"
-            + "        Schema type: PLAIN / DERIVED / VIRTUAL";
+            + "        Schema type: PLAIN / DERIVED / VIRTUAL\n";
 
     @Override
     public void execute(final Input input) {

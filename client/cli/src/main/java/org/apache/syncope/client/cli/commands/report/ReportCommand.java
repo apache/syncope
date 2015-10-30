@@ -28,7 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "report")
 public class ReportCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: report [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: report [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --details\n"
@@ -46,7 +46,7 @@ public class ReportCommand extends AbstractCommand {
             + "       Syntax: --delete-execution {EXECUTION-ID} {EXECUTION-ID} [...]\n"
             + "    --export-execution-result \n"
             + "       Syntax: --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}\n"
-            + "          Format: CSV / HTML / PDF / XML / RTF";
+            + "          Format: CSV / HTML / PDF / XML / RTF\n";
 
     @Override
     public void execute(final Input input) {

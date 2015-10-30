@@ -50,7 +50,7 @@ public class PolicyRead extends AbstractPolicyCommand {
                     }
                 }
             }
-            policyResultManager.fromRead(policyTOs);
+            policyResultManager.printPolicies(policyTOs);
         } else {
             policyResultManager.commandOptionError(READ_HELP_MESSAGE);
         }

@@ -44,7 +44,7 @@ public class TaskList extends AbstractTaskCommand {
                 for (final AbstractTaskTO taskTO : taskSyncopeOperations.list(taskType)) {
                     taskTOs.add(taskTO);
                 }
-                taskResultManager.fromList(taskType, taskTOs);
+                taskResultManager.printTasksType(taskType, taskTOs);
             } catch (final SyncopeClientException ex) {
                 taskResultManager.genericError(ex.getMessage());
             } catch (final IllegalArgumentException ex) {

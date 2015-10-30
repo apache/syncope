@@ -28,7 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "configuration")
 public class ConfigurationCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: configuration [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: configuration [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --get \n"
@@ -39,7 +39,7 @@ public class ConfigurationCommand extends AbstractCommand {
             + "    --delete \n"
             + "       Syntax: --delete {CONF-NAME} {CONF-NAME} [...]\n"
             + "    --export \n"
-            + "       Syntax: --export {WHERE-DIR}";
+            + "       Syntax: --export {WHERE-DIR}\n";
 
     @Override
     public void execute(final Input input) {

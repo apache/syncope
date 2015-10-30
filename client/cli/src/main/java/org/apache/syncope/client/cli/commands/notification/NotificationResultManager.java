@@ -25,6 +25,7 @@ import org.apache.syncope.common.lib.to.NotificationTO;
 public class NotificationResultManager extends CommonsResultManager {
 
     public void printNotifications(final List<NotificationTO> notificationTOs) {
+        System.out.println("");
         for (final NotificationTO notificationTO : notificationTOs) {
             printNotification(notificationTO);
         }
@@ -44,5 +45,6 @@ public class NotificationResultManager extends CommonsResultManager {
         System.out.println("    trace level: " + notificationTO.getTraceLevel());
         System.out.println("    active: " + notificationTO.isActive());
         System.out.println("    self as recipient: " + notificationTO.isSelfAsRecipient());
+        System.out.println("");
     }
 }

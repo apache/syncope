@@ -34,7 +34,7 @@ public class DomainList extends AbstractDomainCommand {
     public void list() {
         if (input.parameterNumber() == 0) {
             try {
-                domainResultManager.toView(domainSyncopeOperations.list());
+                domainResultManager.printDomains(domainSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
                 domainResultManager.genericError(ex.getMessage());
             }

@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.to.VirSchemaTO;
 
 public class SchemaResultManager extends CommonsResultManager {
 
-    public void fromListPlain(final LinkedList<? extends AbstractSchemaTO> schemaTOs) {
+    public void printSchemas(final LinkedList<? extends AbstractSchemaTO> schemaTOs) {
         final Table.TableBuilder tableBuilder
                 = new Table.TableBuilder("plain schemas").header("schema key").header("type").header("mandatory");
         for (final AbstractSchemaTO schemaTO : schemaTOs) {
@@ -42,7 +42,7 @@ public class SchemaResultManager extends CommonsResultManager {
         tableBuilder.build().print();
     }
 
-    public void fromReadPlain(final LinkedList<? extends AbstractSchemaTO> schemaTOs) {
+    public void printSchemasWithDetails(final LinkedList<? extends AbstractSchemaTO> schemaTOs) {
         final Table.TableBuilder tableBuilder
                 = new Table.TableBuilder("plain schema details ")
                 .header("schema key")

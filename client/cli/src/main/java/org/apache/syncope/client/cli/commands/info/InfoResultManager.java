@@ -24,7 +24,7 @@ import org.apache.syncope.client.cli.commands.CommonsResultManager;
 public class InfoResultManager extends CommonsResultManager {
 
     public void printVersion(final String version) {
-        genericMessage(" - Syncope version: " + version);
+        genericMessage("Syncope version: " + version);
     }
 
     public void printPwdResetAllowed(final boolean pwdResetAllowed) {

@@ -28,7 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "resource")
 public class ResourceCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: resource [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: resource [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --details \n"
@@ -36,7 +36,7 @@ public class ResourceCommand extends AbstractCommand {
             + "    --read \n"
             + "       Syntax: --read {CONNECTOR-ID} {CONNECTOR-ID} [...]\n"
             + "    --delete \n"
-            + "       Syntax: --delete {CONNECTOR-ID} {CONNECTOR-ID} [...]";
+            + "       Syntax: --delete {CONNECTOR-ID} {CONNECTOR-ID} [...]\n";
 
     @Override
     public void execute(final Input input) {

@@ -28,7 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "task")
 public class TaskCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: task [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: task [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --details\n"
@@ -46,8 +46,8 @@ public class TaskCommand extends AbstractCommand {
             + "    --delete-execution \n"
             + "       Syntax: --delete-execution {TASK-EXEC-ID} {TASK-EXEC-ID} [...]\n"
             + "    --execute \n"
-            + "       Syntax: --execute {TASK-ID} {DRY-RUN}"
-            + "          Dry run: true / false";
+            + "       Syntax: --execute {TASK-ID} {DRY-RUN}\n"
+            + "          Dry run: true / false\n";
 
     @Override
     public void execute(final Input input) {

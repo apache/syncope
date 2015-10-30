@@ -34,7 +34,8 @@ import org.apache.syncope.common.lib.types.TaskType;
 
 public class TaskResultManager extends CommonsResultManager {
 
-    public void fromRead(final LinkedList<AbstractTaskTO> taskTOs) {
+    public void printTasks(final LinkedList<AbstractTaskTO> taskTOs) {
+        System.out.println("");
         for (final AbstractTaskTO taskTO : taskTOs) {
             if (taskTO instanceof NotificationTaskTO) {
                 printNotificationTask((NotificationTaskTO) taskTO);
@@ -50,7 +51,8 @@ public class TaskResultManager extends CommonsResultManager {
         }
     }
 
-    public void fromList(final TaskType taskType, final LinkedList<AbstractTaskTO> taskTOs) {
+    public void printTasksType(final TaskType taskType, final LinkedList<AbstractTaskTO> taskTOs) {
+        System.out.println("");
         switch (taskType) {
             case NOTIFICATION:
                 for (final AbstractTaskTO taskTO : taskTOs) {
@@ -83,7 +85,6 @@ public class TaskResultManager extends CommonsResultManager {
     }
 
     private void printNotificationTask(final NotificationTaskTO notificationTaskTO) {
-        System.out.println("");
         System.out.println(" - Notification task key: " + notificationTaskTO.getKey());
         System.out.println("     executed: " + notificationTaskTO.isExecuted());
         System.out.println("     sender: " + notificationTaskTO.getSender());
@@ -101,7 +102,6 @@ public class TaskResultManager extends CommonsResultManager {
     }
 
     private void printPropagationTask(final PropagationTaskTO propagationTaskTO) {
-        System.out.println("");
         System.out.println(" - Propagation task key: " + propagationTaskTO.getKey());
         System.out.println("     resource: " + propagationTaskTO.getResource());
         System.out.println("     any key: " + propagationTaskTO.getAnyKey());
@@ -122,7 +122,6 @@ public class TaskResultManager extends CommonsResultManager {
     }
 
     private void printPushTask(final PushTaskTO pushTaskTO) {
-        System.out.println("");
         System.out.println(" - Push task key: " + pushTaskTO.getKey());
         System.out.println("     name: " + pushTaskTO.getName());
         System.out.println("     resource: " + pushTaskTO.getResource());
@@ -148,7 +147,6 @@ public class TaskResultManager extends CommonsResultManager {
     }
 
     private void printScheduledTask(final SchedTaskTO schedTaskTO) {
-        System.out.println("");
         System.out.println(" - Scheduled task key: " + schedTaskTO.getKey());
         System.out.println("     name: " + schedTaskTO.getName());
         System.out.println("     cron expression: " + schedTaskTO.getCronExpression());
@@ -166,7 +164,6 @@ public class TaskResultManager extends CommonsResultManager {
     }
 
     private void printSyncTask(final SyncTaskTO syncTaskTO) {
-        System.out.println("");
         System.out.println(" - Sync task key: " + syncTaskTO.getKey());
         System.out.println("     name: " + syncTaskTO.getName());
         System.out.println("     resource: " + syncTaskTO.getResource());

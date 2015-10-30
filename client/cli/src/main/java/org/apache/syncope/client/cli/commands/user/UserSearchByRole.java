@@ -50,7 +50,7 @@ public class UserSearchByRole extends AbstractUserCommand {
                 if (userTOs == null || userTOs.isEmpty()) {
                     userResultManager.genericMessage("No users has " + role + " assigned");
                 } else {
-                    userResultManager.toView(userTOs);
+                    userResultManager.printUsers(userTOs);
                 }
             } catch (final WebServiceException | SyncopeClientException ex) {
                 userResultManager.genericError(ex.getMessage());

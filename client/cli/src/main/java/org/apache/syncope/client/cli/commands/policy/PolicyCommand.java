@@ -28,7 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "policy")
 public class PolicyCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: policy [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: policy [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --details \n"
@@ -38,7 +38,7 @@ public class PolicyCommand extends AbstractCommand {
             + "    --read \n"
             + "       Syntax: --read {POLICY-ID} {POLICY-ID} [...]\n"
             + "    --delete \n"
-            + "       Syntax: --delete {POLICY-ID} {POLICY-ID} [...]";
+            + "       Syntax: --delete {POLICY-ID} {POLICY-ID} [...]\n";
 
     @Override
     public void execute(final Input input) {

@@ -28,7 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "logger")
 public class LoggerCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: logger [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: logger [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --details \n"
@@ -42,7 +42,7 @@ public class LoggerCommand extends AbstractCommand {
             + "    --create \n"
             + "       Syntax: --create {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]\n"
             + "    --delete \n"
-            + "       Syntax: --delete {LOG-NAME} {LOG-NAME} [...]";
+            + "       Syntax: --delete {LOG-NAME} {LOG-NAME} [...]\n";
 
     @Override
     public void execute(final Input input) {

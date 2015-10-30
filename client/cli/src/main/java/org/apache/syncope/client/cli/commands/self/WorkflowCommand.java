@@ -28,13 +28,13 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "workflow")
 public class WorkflowCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: workflow [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: workflow [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --export-diagram {ANY-TYPE-KIND}\n"
             + "        Any type kind: ANY_OBJECT / USER / GROUP\n"
             + "    --export-definition {ANY-TYPE-KIND}\n"
-            + "        Any type kind: ANY_OBJECT / USER / GROUP";
+            + "        Any type kind: ANY_OBJECT / USER / GROUP\n";
 
     @Override
     public void execute(final Input input) {

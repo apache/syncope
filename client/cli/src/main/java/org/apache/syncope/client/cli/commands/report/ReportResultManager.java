@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.ReportTO;
 public class ReportResultManager extends CommonsResultManager {
 
     public void printReports(final List<ReportTO> reportTOs) {
+        System.out.println("");
         for (final ReportTO reportTO : reportTOs) {
             printReport(reportTO);
         }

@@ -51,7 +51,7 @@ public class ResourceRead extends AbstractResourceCommand {
                     break;
                 }
             }
-            resourceResultManager.toView(resourceTOs);
+            resourceResultManager.printResources(resourceTOs);
         } else {
             resourceResultManager.commandOptionError(READ_HELP_MESSAGE);
         }

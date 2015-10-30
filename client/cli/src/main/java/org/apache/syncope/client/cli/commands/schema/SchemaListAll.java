@@ -45,7 +45,7 @@ public class SchemaListAll extends AbstractSchemaCommand {
                     }
                     switch (schemaType) {
                         case PLAIN:
-                            schemaResultManager.fromListPlain(schemaTOs);
+                            schemaResultManager.printSchemas(schemaTOs);
                             break;
                         case DERIVED:
                             schemaResultManager.fromListDerived(schemaTOs);

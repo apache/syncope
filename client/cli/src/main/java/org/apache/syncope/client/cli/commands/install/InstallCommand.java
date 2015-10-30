@@ -29,10 +29,10 @@ public class InstallCommand extends AbstractCommand {
 
     private final InstallResultManager installResultManager = new InstallResultManager();
 
-    private static final String HELP_MESSAGE = "Usage: install [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: install [options]\n"
             + "  Options:\n"
             + "    --help \n"
-            + "    --setup";
+            + "    --setup\n";
 
     @Override
     public void execute(final Input input) {
