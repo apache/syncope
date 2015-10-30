@@ -49,7 +49,7 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
 
-        int responseStatus = 200;
+        int responseStatus;
         final String responseMessage;
         ResourceResponse response = new ResourceResponse();
 

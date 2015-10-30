@@ -182,8 +182,16 @@ angular.module('self')
                     break;
 
                 }
-              }
-              ;
+              };
+
+              $scope.$watch(function () {
+                return $scope.user.plainAttrs[$scope.schema.key].values[$scope.index];
+              }, function (newValue, oldValue) {
+                $scope.user.plainAttrs[$scope.schema.key].values = $scope.user.plainAttrs[$scope.schema.key].values
+                        .filter(function (n) {
+                          return (n !== undefined && n !== "");
+                        });
+              });
             },
             replace: true
           };

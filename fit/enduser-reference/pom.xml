@@ -318,11 +318,6 @@ under the License.
     
     <profile>
       <id>jrebel</id>
-      
-      <properties>
-        <javaagent>-javaagent:${env.REBEL_HOME}/jrebel.jar</javaagent>
-      </properties>
-      
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
@@ -335,16 +330,85 @@ under the License.
               <classpath>
                 <fallback>default</fallback>
                 <resources>
-                  <resource/>
+                  <resource>
+                    <directory>${basedir}/../../common/lib/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../common/rest-api/target/classes</directory>
+                  </resource>
+
+                  <resource>
+                    <directory>${basedir}/../../core/logic/target/classes</directory>
+                    <excludes>
+                      <exclude>logicContext.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/rest-cxf/target/classes</directory>
+                    <excludes>
+                      <exclude>restCXFContext.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/misc/target/classes</directory>
+                    <excludes>
+                      <exclude>securityContext.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/persistence-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/persistence-jpa/target/classes</directory>
+                    <excludes>
+                      <exclude>persistenceContext.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/provisioning-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/provisioning-java/target/classes</directory>
+                    <excludes>
+                      <exclude>provisioningContext.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/workflow-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/workflow-java/target/classes</directory>
+                    <excludes>
+                      <exclude>workflowContext.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/workflow-activiti/target/classes</directory>
+                    <excludes>
+                      <exclude>workflowActivitiContext.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../ext/camel/provisioning-camel/target/classes</directory>
+                    <excludes>
+                      <exclude>provisioningCamelContext.xml</exclude>
+                    </excludes>
+                  </resource>
+                  
                   <resource>
                     <directory>${basedir}/../../client/enduser/target/classes</directory>
                   </resource>
+
                 </resources>
               </classpath>
               
               <web>
                 <resources>
-                  <resource/>
+                  <resource>
+                    <target>/</target>
+                    <directory>${basedir}/../../ext/swagger-ui/target/classes/META-INF/resources</directory>
+                  </resource>
+
                   <resource>
                     <target>/</target>
                     <directory>${basedir}/../../client/enduser/target/classes/META-INF/resources/</directory>
@@ -373,8 +437,8 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -noverify ${javaagent} -Drebel.spring_plugin=true 
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
+                    -noverify -javaagent:${env.REBEL_HOME}/jrebel.jar -Drebel.spring_plugin=true
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
