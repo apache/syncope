@@ -33,19 +33,19 @@ public class SchemaSyncopeOperations {
     }
 
     public <T extends AbstractSchemaTO> List<T> list(final SchemaType schemaType) {
-        return schemaService.list(schemaType);
+        return schemaService.list(schemaType, null);
     }
 
     public <T extends AbstractSchemaTO> List<T> listVirtual() {
-        return schemaService.list(SchemaType.VIRTUAL);
+        return schemaService.list(SchemaType.VIRTUAL, null);
     }
 
     public <T extends AbstractSchemaTO> List<T> listPlain() {
-        return schemaService.list(SchemaType.PLAIN);
+        return schemaService.list(SchemaType.PLAIN, null);
     }
 
     public <T extends AbstractSchemaTO> List<T> listDerived() {
-        return schemaService.list(SchemaType.DERIVED);
+        return schemaService.list(SchemaType.DERIVED, null);
     }
 
     public void delete(final SchemaType schemaType, final String schemaName) {
