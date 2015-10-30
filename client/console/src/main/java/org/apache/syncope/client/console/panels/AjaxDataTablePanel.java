@@ -61,7 +61,7 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
 
         super(id);
 
-        final BaseModal<?> bulkModalWin = new BaseModal("bulkModal");
+        final BaseModal<?> bulkModalWin = new BaseModal<>("bulkModal");
         add(bulkModalWin);
 
         bulkModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {

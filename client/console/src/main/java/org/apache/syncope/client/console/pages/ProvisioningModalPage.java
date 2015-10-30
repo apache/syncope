@@ -241,8 +241,8 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
         if (beans.isEmpty()) {
             modal.close(target);
         } else {
-            BulkActionResult res = resourceRestClient.bulkAssociationAction(resourceTO.getKey(), anyTypeKind.name(),
-                    action, anyKeys);
+            BulkActionResult res = resourceRestClient.bulkAssociationAction(
+                    resourceTO.getKey(), anyTypeKind.name(), action, anyKeys);
 
             ((BasePage) pageRef.getPage()).setModalResult(true);
 

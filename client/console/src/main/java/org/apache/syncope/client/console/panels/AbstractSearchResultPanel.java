@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.client.console.PreferenceManager;
@@ -27,24 +28,23 @@ import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.event.IEventSource;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractSearchResultPanel<T extends AnyTO> extends Panel implements IEventSource {
+public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardMgtPanel<T> {
 
     private static final long serialVersionUID = -9170191461250434024L;
 
@@ -94,12 +94,6 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends Panel i
     private AnyDataProvider dataProvider;
 
     /**
-     * Modal window to be used for: user profile editing (Global visibility is required); attributes choosing to
-     * display in tables; user status management.
-     */
-    protected final BaseModal<T> modal = new BaseModal<>("modal");
-
-    /**
      * Owner page.
      */
     protected final AbstractBasePage page;
@@ -114,13 +108,16 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends Panel i
      */
     private final String type;
 
-    protected <T extends AnyTO> AbstractSearchResultPanel(final String id, final boolean filtered,
-            final String fiql, final PageReference pageRef, final AbstractAnyRestClient restClient,
-            final String realm, final String type) {
+    protected <T extends AnyTO> AbstractSearchResultPanel(
+            final String id,
+            final boolean filtered,
+            final String fiql,
+            final PageReference pageRef,
+            final AbstractAnyRestClient restClient,
+            final String realm,
+            final String type) {
 
-        super(id);
-
-        add(modal);
+        super(id, pageRef, true);
 
         setOutputMarkupId(true);
 
@@ -133,7 +130,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends Panel i
         this.restClient = restClient;
 
         // Container for user search result
-        container = new WebMarkupContainer("container");
+        container = new WebMarkupContainer("searchContainer");
         container.setOutputMarkupId(true);
         add(container);
 
@@ -177,7 +174,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends Panel i
         paginatorForm.add(rowsChooser);
         // ---------------------------
 
-        setWindowClosedReloadCallback(modal);
+//        setWindowClosedReloadCallback(modal);
     }
 
     public void search(final String fiql, final AjaxRequestTarget target) {
@@ -234,6 +231,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends Panel i
 
             data.getTarget().add(container);
         }
+        super.onEvent(event);
     }
 
     private void setWindowClosedReloadCallback(final BaseModal<?> modal) {
@@ -299,4 +297,50 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends Panel i
     protected abstract <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions();
 
     protected abstract String getPageId();
+
+    public abstract static class Builder<T extends Serializable> extends WizardMgtPanel.Builder<T> {
+
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * Specify if results are about a filtered search or not. Using this attribute it is possible to use this panel
+         * to
+         * show results about user list and user search.
+         */
+        protected final boolean filtered;
+
+        /**
+         * Filter used in case of filtered search.
+         */
+        protected final String fiql;
+
+        protected final AbstractAnyRestClient restClient;
+
+        /**
+         * Realm related to current panel.
+         */
+        protected final String realm;
+
+        /**
+         * Any type related to current panel.
+         */
+        protected final String type;
+
+        protected Builder(
+                final Class<T> reference,
+                final boolean filtered,
+                final String fiql,
+                final PageReference pageRef,
+                final AbstractAnyRestClient restClient,
+                final String realm,
+                final String type) {
+            super(reference, pageRef);
+            this.filtered = filtered;
+            this.fiql = fiql;
+            this.restClient = restClient;
+            this.realm = realm;
+            this.type = type;
+        }
+
+    }
 }

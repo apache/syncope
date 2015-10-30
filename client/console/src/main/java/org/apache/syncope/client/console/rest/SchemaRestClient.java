@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import org.apache.commons.collections4.CollectionUtils;
@@ -60,26 +59,20 @@ public class SchemaRestClient extends BaseRestClient {
         }
     }
 
-    public List<? extends AbstractSchemaTO> getSchemas(final SchemaType schemaType) {
-        List<? extends AbstractSchemaTO> schemas = Collections.emptyList();
+    public <T extends AbstractSchemaTO> List<T> getSchemas(final SchemaType schemaType, final String... kind) {
+        List<T> schemas = new ArrayList<>();
 
         try {
-            schemas = getService(SchemaService.class).list(schemaType);
+            if (kind == null || kind.length == 0) {
+                schemas.addAll(getService(SchemaService.class).<T>list(schemaType, null));
+            } else {
+                for (String clazz : kind) {
+                    schemas.addAll(getService(SchemaService.class).<T>list(schemaType, clazz));
+                }
+            }
         } catch (SyncopeClientException e) {
-            LOG.error("While getting all schemas for {}", schemaType, e);
+            LOG.error("While getting all {} schemas for {}", schemaType, kind, e);
         }
-        return schemas;
-    }
-
-    public List<PlainSchemaTO> getSchemas() {
-        List<PlainSchemaTO> schemas = null;
-
-        try {
-            schemas = getService(SchemaService.class).list(SchemaType.PLAIN);
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting all schemas", e);
-        }
-
         return schemas;
     }
 
@@ -109,7 +102,7 @@ public class SchemaRestClient extends BaseRestClient {
         List<DerSchemaTO> userDerSchemas = null;
 
         try {
-            userDerSchemas = getService(SchemaService.class).list(SchemaType.DERIVED);
+            userDerSchemas = getService(SchemaService.class).list(SchemaType.DERIVED, null);
         } catch (SyncopeClientException e) {
             LOG.error("While getting all user derived schemas", e);
         }
@@ -125,7 +118,7 @@ public class SchemaRestClient extends BaseRestClient {
         List<VirSchemaTO> userVirSchemas = null;
 
         try {
-            userVirSchemas = getService(SchemaService.class).list(SchemaType.VIRTUAL);
+            userVirSchemas = getService(SchemaService.class).list(SchemaType.VIRTUAL, null);
         } catch (SyncopeClientException e) {
             LOG.error("While getting all virtual schemas", e);
         }

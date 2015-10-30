@@ -43,10 +43,10 @@ public abstract class ConnectorConfPanel extends AbstractConnectorConfPanel<Conn
         this.bundles = bundles;
 
         final List<ConnConfProperty> properties = getConnProperties(model.getObject());
-        model.getObject().getConfiguration().clear();
-        model.getObject().getConfiguration().addAll(properties);
+        model.getObject().getConf().clear();
+        model.getObject().getConf().addAll(properties);
 
-        setConfPropertyListView("configuration", true);
+        setConfPropertyListView("conf", true);
     }
 
     /**
@@ -67,10 +67,10 @@ public abstract class ConnectorConfPanel extends AbstractConnectorConfPanel<Conn
                         final ConnConfProperty property = new ConnConfProperty();
                         property.setSchema(key);
 
-                        if (instance.getKey() != 0 && instance.getConfigurationMap().containsKey(key.getName())
-                        && instance.getConfigurationMap().get(key.getName()).getValues() != null) {
-                            property.getValues().addAll(instance.getConfigurationMap().get(key.getName()).getValues());
-                            property.setOverridable(instance.getConfigurationMap().get(key.getName()).isOverridable());
+                        if (instance.getKey() != 0 && instance.getConfMap().containsKey(key.getName())
+                        && instance.getConfMap().get(key.getName()).getValues() != null) {
+                            property.getValues().addAll(instance.getConfMap().get(key.getName()).getValues());
+                            property.setOverridable(instance.getConfMap().get(key.getName()).isOverridable());
                         }
 
                         if (property.getValues().isEmpty() && !key.getDefaultValues().isEmpty()) {

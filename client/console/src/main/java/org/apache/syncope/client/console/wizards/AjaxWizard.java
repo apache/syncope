@@ -16,6 +16,7 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
@@ -23,12 +24,17 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.wizard.Wizard;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.request.cycle.RequestCycle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public abstract class AjaxWizard<T extends Serializable> extends Wizard {
+public abstract class AjaxWizard<T extends Serializable> extends Wizard implements ModalPanel {
 
     private static final long serialVersionUID = 1L;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(AjaxWizard.class);
 
     private final PageReference pageRef;
 
@@ -87,9 +93,15 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard {
      */
     @Override
     public final void onCancel() {
-        onCancelInternal();
-        send(pageRef.getPage(), Broadcast.DEPTH,
-                new NewItemCancelEvent<T>(item, RequestCycle.get().find(AjaxRequestTarget.class)));
+        final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
+        try {
+            onCancelInternal();
+            send(pageRef.getPage(), Broadcast.DEPTH, new NewItemCancelEvent<T>(item, target));
+        } catch (Exception e) {
+            LOG.warn("Wizard error on cancel", e);
+            error(getString("wizard.cancel.error"));
+            feedbackPanel.refresh(target);
+        }
     }
 
     /**
@@ -97,9 +109,15 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard {
      */
     @Override
     public final void onFinish() {
-        onApplyInternal();
-        send(pageRef.getPage(), Broadcast.DEPTH,
-                new NewItemFinishEvent<T>(item, RequestCycle.get().find(AjaxRequestTarget.class)));
+        final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
+        try {
+            onApplyInternal();
+            send(pageRef.getPage(), Broadcast.DEPTH, new NewItemFinishEvent<T>(item, target));
+        } catch (Exception e) {
+            LOG.warn("Wizard error on finish", e);
+            error(getString("wizard.apply.error"));
+            feedbackPanel.refresh(target);
+        }
     }
 
     public T getItem() {
@@ -170,5 +188,15 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard {
             super(item, target);
         }
 
+    }
+
+    @Override
+    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+        onApplyInternal();
+    }
+
+    @Override
+    public void onError(final AjaxRequestTarget target, final Form<?> form) {
+        feedbackPanel.refresh(target);
     }
 }

@@ -25,7 +25,6 @@ import org.apache.syncope.client.console.commons.AttrLayoutType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -33,8 +32,7 @@ public class ConfigurationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 7692363064029538722L;
 
-    @Autowired
-    private SchemaRestClient schemaRestClient;
+    private SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     public List<AttrTO> list() {
         final List<AttrTO> attrTOs = getService(ConfigurationService.class).list();

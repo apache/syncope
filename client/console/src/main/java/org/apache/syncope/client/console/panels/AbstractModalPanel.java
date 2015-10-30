@@ -30,7 +30,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractModalPanel extends Panel {
+public class AbstractModalPanel extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = 8611724965544132636L;
 
@@ -66,10 +66,12 @@ public class AbstractModalPanel extends Panel {
         this.modal.close(target);
     }
 
+    @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         modal.getFeedbackPanel().refresh(target);
     }
 
+    @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
         modal.getFeedbackPanel().refresh(target);
     }

@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.io.ByteArrayInputStream;
+import java.lang.reflect.InvocationTargetException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -61,7 +62,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
     private final Fragment emptyFragment;
 
-    private final PreviewUtils previewUtils = PreviewUtils.getInstance();
+    private final transient PreviewUtils previewUtils = PreviewUtils.getInstance();
 
     public BinaryFieldPanel(final String id, final String name, final IModel<String> model, final String mimeType) {
         super(id, model);
@@ -135,7 +136,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                         uploadForm.addOrReplace(fileUpload);
                         downloadLink.setEnabled(StringUtils.isNotBlank(uploaded));
                         target.add(uploadForm);
-                    } catch (Exception e) {
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
                         ((BasePage) getPage()).getFeedbackPanel().refresh(target);
                         LOG.error("While saving uploaded file", e);
@@ -198,7 +199,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
             if (panelPreview != null) {
                 changePreviewer(panelPreview);
             }
-        } catch (Exception e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             LOG.error("While loading saved file", e);
         }
         downloadLink.setEnabled(StringUtils.isNotBlank(model.getObject()));

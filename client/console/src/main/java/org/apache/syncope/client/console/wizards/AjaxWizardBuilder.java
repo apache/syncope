@@ -28,7 +28,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> {
 
     private final PageReference pageRef;
 
-    private final T defaultItem;
+    private T defaultItem;
 
     private T item;
 
@@ -55,7 +55,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> {
 
     public AjaxWizard<T> build(final boolean edit) {
         final T modelObject = getItem();
-        setItem(null);
+        this.item = null;
 
         return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), pageRef, edit) {
 
@@ -63,34 +63,39 @@ public abstract class AjaxWizardBuilder<T extends Serializable> {
 
             @Override
             protected void onCancelInternal() {
-                AjaxWizardBuilder.this.onCancelInternal();
+                AjaxWizardBuilder.this.onCancelInternal(getItem());
             }
 
             @Override
             protected void onApplyInternal() {
-                AjaxWizardBuilder.this.onApplyInternal();
+                AjaxWizardBuilder.this.onApplyInternal(getItem());
             }
         };
     }
 
     protected abstract WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel);
 
-    protected abstract void onCancelInternal();
+    protected abstract void onCancelInternal(T modelObject);
 
-    protected abstract void onApplyInternal();
+    protected abstract void onApplyInternal(T modelObject);
+
+    protected T getDefaultItem() {
+        return defaultItem;
+    }
 
     private T getItem() {
         return item == null ? SerializationUtils.clone(defaultItem) : item;
     }
 
     /**
-     * Replaces the default value provided with the constructor.
+     * Replaces the default value provided with the constructor and nullify working item object.
      *
      * @param item new value.
      * @return the current wizard factory instance.
      */
     public AjaxWizardBuilder<T> setItem(final T item) {
-        this.item = item;
+        this.defaultItem = item;
+        this.item = null;
         return this;
     }
 }

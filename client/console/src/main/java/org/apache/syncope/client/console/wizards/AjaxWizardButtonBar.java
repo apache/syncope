@@ -71,6 +71,7 @@ public class AjaxWizardButtonBar extends WizardButtonBar {
             @Override
             protected void onClick(final AjaxRequestTarget target, final Form<?> form) {
                 getWizardModel().previous();
+                wizard.modelChanged();
                 target.add(wizard);
             }
 

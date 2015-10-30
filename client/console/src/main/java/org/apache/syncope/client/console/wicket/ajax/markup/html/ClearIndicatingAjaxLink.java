@@ -36,11 +36,13 @@ public abstract class ClearIndicatingAjaxLink<T> extends IndicatingAjaxLink<T> {
     public ClearIndicatingAjaxLink(final String id, final PageReference pageRef) {
         super(id);
         this.pageRef = pageRef;
+        setOutputMarkupId(true);
     }
 
     public ClearIndicatingAjaxLink(final String id, final IModel<T> model, final PageReference pageRef) {
         super(id, model);
         this.pageRef = pageRef;
+        setOutputMarkupId(true);
     }
 
     public ClearIndicatingAjaxLink<T> feedbackPanelAutomaticReload(final boolean reloadFeedbackPanel) {

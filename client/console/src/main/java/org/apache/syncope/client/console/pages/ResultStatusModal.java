@@ -43,6 +43,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.wicket.Component;
@@ -72,7 +73,7 @@ public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel
 
     private static final String IMG_PREFIX = "/img/statuses/";
 
-    private final AnyTO subject;
+    private final ProvisioningResult<AnyTO> provResult;
 
     private final Mode mode;
 
@@ -87,7 +88,7 @@ public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel
 
         private Mode mode;
 
-        private AnyTO subject;
+        private ProvisioningResult<AnyTO> provResult;
 
         private final BaseModal<T> modal;
 
@@ -96,8 +97,8 @@ public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel
         public Builder(
                 final BaseModal<T> modal,
                 final PageReference pageRef,
-                final AnyTO attributable) {
-            this.subject = attributable;
+                final ProvisioningResult<AnyTO> provResult) {
+            this.provResult = provResult;
             this.modal = modal;
             this.pageRef = pageRef;
         }
@@ -119,7 +120,7 @@ public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel
 
         super(modal, pageRef);
 
-        this.subject = builder.subject;
+        this.provResult = builder.provResult;
         statusUtils = new StatusUtils(new UserRestClient());
         if (builder.mode == null) {
             this.mode = Mode.ADMIN;
@@ -145,14 +146,16 @@ public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel
 
             List<PropagationStatus> propagations = new ArrayList<PropagationStatus>();
             propagations.add(syncope);
-            propagations.addAll(subject.getPropagationStatusTOs());
+            propagations.addAll(provResult.getPropagationStatuses());
+
+            AnyTO any = provResult.getAny();
 
             fragment.add(new Label("info",
-                    ((subject instanceof UserTO) && ((UserTO) subject).getUsername() != null)
-                            ? ((UserTO) subject).getUsername()
-                            : ((subject instanceof GroupTO) && ((GroupTO) subject).getName() != null)
-                                    ? ((GroupTO) subject).getName()
-                                    : String.valueOf(subject.getKey())));
+                    ((any instanceof UserTO) && ((UserTO) any).getUsername() != null)
+                            ? ((UserTO) any).getUsername()
+                            : ((any instanceof GroupTO) && ((GroupTO) any).getName() != null)
+                                    ? ((GroupTO) any).getName()
+                                    : String.valueOf(any.getKey())));
 
             final ListView<PropagationStatus> propRes = new ListView<PropagationStatus>("resources",
                     propagations) {
@@ -267,7 +270,7 @@ public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel
 
         // sorted in reversed presentation order
         final List<String> head = new ArrayList<String>();
-        if (subject instanceof UserTO) {
+        if (provResult.getAny() instanceof UserTO) {
             head.add(ConnIdSpecialAttributeName.PASSWORD);
             head.add(ConnIdSpecialAttributeName.ENABLE);
         }
@@ -286,7 +289,7 @@ public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel
         attributes.addAll(beforeAttrMap.keySet());
         attributes.addAll(afterAttrMap.keySet());
 
-        if (!(subject instanceof UserTO)) {
+        if (!(provResult.getAny() instanceof UserTO)) {
             attributes.remove(ConnIdSpecialAttributeName.PASSWORD);
             attributes.remove(ConnIdSpecialAttributeName.ENABLE);
         }
@@ -382,7 +385,7 @@ public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel
         final Image image;
         final String alt, title;
         switch (statusUtils.getStatusBean(
-                subject, resourceName, objectTO, this.subject instanceof GroupTO).getStatus()) {
+                provResult.getAny(), resourceName, objectTO, this.provResult.getAny() instanceof GroupTO).getStatus()) {
 
             case ACTIVE:
                 image = new Image("status",

@@ -34,6 +34,8 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -41,21 +43,28 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
+public final class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
     private final String entitlement = "GROUP_READ";
 
-    public GroupSearchResultPanel(final String type, final String parentId,
-            final boolean filtered, final String fiql, final PageReference callerRef,
-            final AbstractAnyRestClient restClient, final List<AnyTypeClassTO> anyTypeClassTOs, final String realm) {
+    private GroupSearchResultPanel(
+            final String type,
+            final String parentId,
+            final boolean filtered,
+            final String fiql,
+            final PageReference callerRef,
+            final AbstractAnyRestClient restClient,
+            final List<AnyTypeClassTO> anyTypeClassTOs,
+            final String realm) {
 
         super(type, parentId, filtered, fiql, callerRef, restClient, anyTypeClassTOs, realm);
     }
@@ -73,8 +82,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
             } else if (field != null && field.getType().equals(Date.class)) {
                 columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
             } else {
-                columns.add(
-                        new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
             }
         }
 
@@ -115,11 +123,8 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
-                        modal.addOrReplace(new GroupModalPanel(
-                                modal, getPage().getPageReference(), GroupTO.class.cast(model.getObject())));
-
-                        target.add(modal);
-                        modal.show(target);
+                        send(GroupSearchResultPanel.this, Broadcast.BREADTH,
+                                new AjaxWizard.NewItemActionEvent<AnyTO>(model.getObject(), target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<AnyTO>() {
 
@@ -218,5 +223,31 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
     @Override
     protected String getPageId() {
         return pageID;
+    }
+
+    public static final class Builder extends AbstractSearchResultPanel.Builder<GroupTO> {
+
+        private static final long serialVersionUID = 1L;
+
+        private final List<AnyTypeClassTO> anyTypeClassTOs;
+
+        public Builder(
+                final boolean filtered,
+                final String fiql,
+                final PageReference pageRef,
+                final AbstractAnyRestClient restClient,
+                final List<AnyTypeClassTO> anyTypeClassTOs,
+                final String realm,
+                final String type) {
+            super(GroupTO.class, filtered, fiql, pageRef, restClient, realm, type);
+            this.anyTypeClassTOs = anyTypeClassTOs;
+        }
+
+        @Override
+        protected WizardMgtPanel<GroupTO> newInstance(final String parentId) {
+            return new GroupSearchResultPanel(
+                    type, parentId, filtered, fiql, pageRef, restClient, anyTypeClassTOs, realm);
+        }
+
     }
 }

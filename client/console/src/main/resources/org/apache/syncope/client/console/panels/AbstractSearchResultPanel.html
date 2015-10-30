@@ -21,8 +21,8 @@ under the License.
     <title>Search result panel</title>
   </head>
   <body>
-    <wicket:panel>
-      <div wicket:id="container">
+    <wicket:extend>
+      <div wicket:id="searchContainer">
         <span wicket:id="resultTable">[Table]</span>
 
         <span style="float:right">
@@ -38,10 +38,6 @@ under the License.
           </form>
         </span>
       </div>
-
-      <div wicket:id="modal">
-      </div>
-
-    </wicket:panel>
+    </wicket:extend>
   </body>
 </html>

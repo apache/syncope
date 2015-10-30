@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -29,12 +28,13 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AnyDisplayAttributesModalPage;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
-import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -42,12 +42,11 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
@@ -65,9 +64,15 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
 
     private final String entitlement = "USER_LIST";
 
-    public AnySearchResultPanel(final String type, final String parentId, final boolean filtered,
-            final String fiql, final PageReference callerRef, final AbstractAnyRestClient restClient,
-            final List<AnyTypeClassTO> anyTypeClassTOs, final String realm) {
+    protected AnySearchResultPanel(
+            final String type,
+            final String parentId,
+            final boolean filtered,
+            final String fiql,
+            final PageReference callerRef,
+            final AbstractAnyRestClient restClient,
+            final List<AnyTypeClassTO> anyTypeClassTOs,
+            final String realm) {
 
         super(parentId, filtered, fiql, callerRef, restClient, realm, type);
         //setCustomMarkupId(markupId);
@@ -139,16 +144,8 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
-                        final T modelObject = ((AnyObjectRestClient) restClient).<T>read(anyTO.getKey());
-
-                        final IModel<T> model = new CompoundPropertyModel<>(modelObject);
-                        modal.setFormModel(model);
-
-                        // still missing content
-                        target.add(modal);
-
-                        modal.header(new Model<String>(MessageFormat.format(getString("any.edit"), anyTO.getKey())));
-                        modal.show(true);
+                        send(AnySearchResultPanel.this, Broadcast.BREADTH,
+                                new AjaxWizard.NewItemActionEvent<AnyTO>(model.getObject(), target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<AnyTO>() {
 
@@ -221,5 +218,31 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
     @Override
     protected String getPageId() {
         return pageID;
+    }
+
+    public static final class Builder extends AbstractSearchResultPanel.Builder<AnyObjectTO> {
+
+        private static final long serialVersionUID = 1L;
+
+        private final List<AnyTypeClassTO> anyTypeClassTOs;
+
+        public Builder(
+                final boolean filtered,
+                final String fiql,
+                final PageReference pageRef,
+                final AbstractAnyRestClient restClient,
+                final List<AnyTypeClassTO> anyTypeClassTOs,
+                final String realm,
+                final String type) {
+            super(AnyObjectTO.class, filtered, fiql, pageRef, restClient, realm, type);
+            this.anyTypeClassTOs = anyTypeClassTOs;
+        }
+
+        @Override
+        protected WizardMgtPanel<AnyObjectTO> newInstance(final String parentId) {
+            return new AnySearchResultPanel<AnyObjectTO>(
+                    type, parentId, filtered, fiql, pageRef, restClient, anyTypeClassTOs, realm);
+        }
+
     }
 }

@@ -33,11 +33,13 @@ import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -57,6 +59,9 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
     @Autowired
     private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
+    private AnyTypeClassDAO anyTypeClassDAO;
 
     @Autowired
     private SchemaDataBinder binder;
@@ -140,11 +145,13 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
     @PreAuthorize("isAuthenticated()")
     @SuppressWarnings("unchecked")
-    public <T extends AbstractSchemaTO> List<T> list(final SchemaType schemaType) {
+    public <T extends AbstractSchemaTO> List<T> list(final SchemaType schemaType, final String anyTypeClass) {
+        AnyTypeClass clazz = anyTypeClass == null ? null : anyTypeClassDAO.find(anyTypeClass);
         List<T> result;
         switch (schemaType) {
             case VIRTUAL:
-                result = CollectionUtils.collect(virSchemaDAO.findAll(),
+                result = CollectionUtils.collect(
+                        clazz == null ? virSchemaDAO.findAll() : virSchemaDAO.findByAnyTypeClass(clazz),
                         new Transformer<VirSchema, T>() {
 
                             @Override
@@ -155,7 +162,8 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                 break;
 
             case DERIVED:
-                result = CollectionUtils.collect(derSchemaDAO.findAll(),
+                result = CollectionUtils.collect(
+                        clazz == null ? derSchemaDAO.findAll() : derSchemaDAO.findByAnyTypeClass(clazz),
                         new Transformer<DerSchema, T>() {
 
                             @Override
@@ -167,7 +175,8 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
             case PLAIN:
             default:
-                result = CollectionUtils.collect(plainSchemaDAO.findAll(),
+                result = CollectionUtils.collect(
+                        clazz == null ? plainSchemaDAO.findAll() : plainSchemaDAO.findByAnyTypeClass(clazz),
                         new Transformer<PlainSchema, T>() {
 
                             @Override

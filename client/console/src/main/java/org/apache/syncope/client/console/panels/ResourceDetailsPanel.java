@@ -72,12 +72,6 @@ public class ResourceDetailsPanel extends Panel {
                 new PropertyModel<Boolean>(model, "enforceMandatoryCondition"),
                 false));
 
-        container.add(new AjaxCheckBoxPanel(
-                "propagationPrimary",
-                new ResourceModel("propagationPrimary", "propagationPrimary").getObject(),
-                new PropertyModel<Boolean>(model, "propagationPrimary"),
-                false));
-
         container.add(new SpinnerFieldPanel<>(
                 "propagationPriority",
                 "propagationPriority",

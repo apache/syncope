@@ -29,6 +29,8 @@ import java.security.AccessControlException;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -36,6 +38,7 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -83,7 +86,6 @@ public class PlainSchemaITCase extends AbstractITCase {
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
-
             assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }
@@ -99,9 +101,7 @@ public class PlainSchemaITCase extends AbstractITCase {
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
-
-            assertTrue(e.getElements().iterator().next().toString().
-                    contains(EntityViolationType.InvalidSchemaEnum.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidSchemaEnum.name()));
         }
     }
 
@@ -116,7 +116,6 @@ public class PlainSchemaITCase extends AbstractITCase {
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
-
             assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidSchemaEnum.name()));
         }
     }
@@ -160,23 +159,38 @@ public class PlainSchemaITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<PlainSchemaTO> userSchemas = schemaService.list(SchemaType.PLAIN);
-        assertFalse(userSchemas.isEmpty());
-        for (PlainSchemaTO schemaTO : userSchemas) {
+        List<PlainSchemaTO> schemas = schemaService.list(SchemaType.PLAIN, null);
+        assertFalse(schemas.isEmpty());
+        for (PlainSchemaTO schemaTO : schemas) {
             assertNotNull(schemaTO);
         }
+    }
 
-        List<PlainSchemaTO> groupSchemas = schemaService.list(SchemaType.PLAIN);
-        assertFalse(groupSchemas.isEmpty());
-        for (PlainSchemaTO schemaTO : groupSchemas) {
-            assertNotNull(schemaTO);
-        }
+    @Test
+    public void listByAnyTypeClass() {
+        final String clazz = anyTypeService.read(AnyTypeKind.USER.name()).getClasses().get(0);
+        
+        List<PlainSchemaTO> userSchemas = schemaService.list(SchemaType.PLAIN, clazz);
 
-        List<PlainSchemaTO> membershipSchemas = schemaService.list(SchemaType.PLAIN);
-        assertFalse(membershipSchemas.isEmpty());
-        for (PlainSchemaTO schemaTO : membershipSchemas) {
-            assertNotNull(schemaTO);
-        }
+        assertTrue(CollectionUtils.exists(userSchemas, new Predicate<PlainSchemaTO>() {
+
+            @Override
+            public boolean evaluate(final PlainSchemaTO object) {
+                return "fullname".equals(object.getKey());
+            }
+        }));
+
+        assertFalse(CollectionUtils.exists(userSchemas, new Predicate<PlainSchemaTO>() {
+
+            @Override
+            public boolean evaluate(final PlainSchemaTO object) {
+                return "password.cipher.algorithm".equals(object.getKey())
+                        || "rderived_dx".equals(object.getKey())
+                        || "icon".equals(object.getKey())
+                        || "mderived_sx".equals(object.getKey())
+                        || "self.membership.layout".equals(object.getKey());
+            }
+        }));
     }
 
     @Test
@@ -323,13 +337,13 @@ public class PlainSchemaITCase extends AbstractITCase {
     public void anonymous() {
         SchemaService unauthenticated = clientFactory.create().getService(SchemaService.class);
         try {
-            unauthenticated.list(SchemaType.VIRTUAL);
+            unauthenticated.list(SchemaType.VIRTUAL, null);
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
         SchemaService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(SchemaService.class);
-        assertFalse(anonymous.list(SchemaType.VIRTUAL).isEmpty());
+        assertFalse(anonymous.list(SchemaType.VIRTUAL, null).isEmpty());
     }
 }

@@ -107,8 +107,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
                     setStyleSheet("form-control").
                     setRequired(true));
 
-            add(new TextField<String>(
-                    "class", new PropertyModel<String>(item, "objectClass")).setRequired(true));
+            add(new TextField<String>("class", new PropertyModel<String>(item, "objectClass")).setRequired(true));
         }
     }
 
@@ -211,12 +210,12 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
     }
 
     @Override
-    protected void onCancelInternal() {
-        // d nothing
+    protected void onCancelInternal(final ProvisionTO modelObject) {
+        // do nothing
     }
 
     @Override
-    protected void onApplyInternal() {
+    protected void onApplyInternal(final ProvisionTO modelObject) {
         // do nothing
     }
 }

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +38,7 @@ import org.apache.wicket.util.crypt.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PreferenceManager {
+public class PreferenceManager implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PreferenceManager.class);
 
@@ -50,9 +51,11 @@ public class PreferenceManager {
 
     private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[] { 10, 25, 50 });
 
+    private static final long serialVersionUID = 1L;
+
     private final ObjectMapper mapper;
 
-    private final CookieUtils cookieUtils;
+    private final transient CookieUtils cookieUtils;
 
     public PreferenceManager() {
         this.mapper = new ObjectMapper();

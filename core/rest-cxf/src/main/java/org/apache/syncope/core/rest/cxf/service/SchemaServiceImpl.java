@@ -51,8 +51,8 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     }
 
     @Override
-    public <T extends AbstractSchemaTO> List<T> list(final SchemaType schemaType) {
-        return logic.list(schemaType);
+    public <T extends AbstractSchemaTO> List<T> list(final SchemaType schemaType, final String anyTypeClass) {
+        return logic.list(schemaType, anyTypeClass);
     }
 
     @Override

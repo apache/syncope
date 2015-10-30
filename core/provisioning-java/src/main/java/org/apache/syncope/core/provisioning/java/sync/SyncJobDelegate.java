@@ -128,20 +128,17 @@ public class SyncJobDelegate extends AbstractProvisioningJobDelegate<SyncTask> {
         profile.setResAct(getSyncPolicySpec(syncTask).getConflictResolutionAction());
 
         // Prepare handler for SyncDelta objects (any objects)
-        AnyObjectSyncResultHandler ahandler =
-                (AnyObjectSyncResultHandler) ApplicationContextProvider.getBeanFactory().
+        AnyObjectSyncResultHandler ahandler = (AnyObjectSyncResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(AnyObjectSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         ahandler.setProfile(profile);
 
         // Prepare handler for SyncDelta objects (users)
-        UserSyncResultHandler uhandler =
-                (UserSyncResultHandler) ApplicationContextProvider.getBeanFactory().
+        UserSyncResultHandler uhandler = (UserSyncResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(UserSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
         // Prepare handler for SyncDelta objects (groups)
-        GroupSyncResultHandler ghandler =
-                (GroupSyncResultHandler) ApplicationContextProvider.getBeanFactory().
+        GroupSyncResultHandler ghandler = (GroupSyncResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(GroupSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         ghandler.setProfile(profile);
 

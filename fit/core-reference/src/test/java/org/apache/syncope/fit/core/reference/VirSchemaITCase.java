@@ -41,7 +41,7 @@ public class VirSchemaITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<VirSchemaTO> vSchemas = schemaService.list(SchemaType.VIRTUAL);
+        List<VirSchemaTO> vSchemas = schemaService.list(SchemaType.VIRTUAL, null);
         assertFalse(vSchemas.isEmpty());
         for (VirSchemaTO vSchemaTO : vSchemas) {
             assertNotNull(vSchemaTO);

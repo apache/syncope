@@ -31,12 +31,13 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.StatusModalPage;
 import org.apache.syncope.client.console.pages.UserDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
-import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -44,6 +45,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -52,15 +54,21 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
+public final class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
     private final String entitlement = "USER_LIST";
 
-    public UserSearchResultPanel(final String type, final String parentId,
-            final boolean filtered, final String fiql, final PageReference callerRef,
-            final AbstractAnyRestClient restClient, final List<AnyTypeClassTO> anyTypeClassTOs, final String realm) {
+    private UserSearchResultPanel(
+            final String type,
+            final String parentId,
+            final boolean filtered,
+            final String fiql,
+            final PageReference callerRef,
+            final AbstractAnyRestClient restClient,
+            final List<AnyTypeClassTO> anyTypeClassTOs,
+            final String realm) {
 
         super(type, parentId, filtered, fiql, callerRef, restClient, anyTypeClassTOs, realm);
     }
@@ -78,8 +86,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
             } else if (field != null && field.getType().equals(Date.class)) {
                 columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
             } else {
-                columns.add(
-                        new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
             }
         }
 
@@ -98,8 +105,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
             for (String name : UserDisplayAttributesModalPage.USER_DEFAULT_SELECTION) {
-                columns.add(
-                        new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
             }
 
             prefMan.setList(getRequest(), getResponse(), Constants.PREF_USERS_DETAILS_VIEW,
@@ -155,15 +161,8 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
-                        final UserTO modelObject = ((UserRestClient) restClient).read(model.getObject().getKey());
-
-                        final IModel<UserTO> model = new CompoundPropertyModel<>(modelObject);
-                        modal.setFormModel(model);
-
-                        target.add(modal);
-
-                        modal.header(new Model<String>(MessageFormat.format(getString("any.edit"), anyTO.getKey())));
-                        modal.show(true);
+                        send(UserSearchResultPanel.this, Broadcast.BREADTH,
+                                new AjaxWizard.NewItemActionEvent<AnyTO>(model.getObject(), target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<AnyTO>() {
 
@@ -235,5 +234,30 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
     @Override
     protected String getPageId() {
         return pageID;
+    }
+
+    public static final class Builder extends AbstractSearchResultPanel.Builder<UserTO> {
+
+        private static final long serialVersionUID = 1L;
+
+        private final List<AnyTypeClassTO> anyTypeClassTOs;
+
+        public Builder(
+                final boolean filtered,
+                final String fiql,
+                final PageReference pageRef,
+                final AbstractAnyRestClient restClient,
+                final List<AnyTypeClassTO> anyTypeClassTOs,
+                final String realm,
+                final String type) {
+            super(UserTO.class, filtered, fiql, pageRef, restClient, realm, type);
+            this.anyTypeClassTOs = anyTypeClassTOs;
+        }
+
+        @Override
+        protected WizardMgtPanel<UserTO> newInstance(final String parentId) {
+            return new UserSearchResultPanel(
+                    type, parentId, filtered, fiql, pageRef, restClient, anyTypeClassTOs, realm);
+        }
     }
 }

@@ -53,6 +53,8 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         this.model = model;
         this.pageRef = pageRef;
 
+        setOutputMarkupId(true);
+        
         super.add(new Fragment("panelClaim", "emptyFragment", this));
         super.add(new Fragment("panelManageResources", "emptyFragment", this));
         super.add(new Fragment("panelManageUsers", "emptyFragment", this));

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
+import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.DefaultModalCloseButton;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.PrimaryModalButton;
@@ -39,6 +40,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
@@ -63,7 +65,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     private WindowClosedCallback windowClosedCallback;
 
-    private AbstractModalPanel content;
+    private Panel content;
 
     private PrimaryModalButton submitButton;
 
@@ -127,11 +129,19 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         return form.getModelObject();
     }
 
-    public AbstractModalPanel getContent() {
-        return content;
+    public ModalPanel getContent() {
+        return ModalPanel.class.cast(content);
     }
 
-    public BaseModal<T> setContent(final AbstractModalPanel component) {
+    public BaseModal<T> setContent(final ModalPanel component) {
+        if (component instanceof Panel) {
+            return setInternalContent(Panel.class.cast(component));
+        }
+        throw new IllegalArgumentException("Panel instance is required");
+
+    }
+
+    private BaseModal<T> setInternalContent(final Panel component) {
         if (!component.getId().equals(getContentId())) {
             throw new WicketRuntimeException(
                     "Modal content id is wrong. Component ID:" + component.getId() + "; content ID: " + getContentId());

@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
@@ -29,6 +30,7 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StatusPatchType;
@@ -67,16 +69,18 @@ public class UserRestClient extends AbstractAnyRestClient {
                 getResult();
     }
 
-    public UserTO create(final UserTO userTO, final boolean storePassword) {
+    public ProvisioningResult<UserTO> create(final UserTO userTO, final boolean storePassword) {
         Response response = getService(UserService.class).create(userTO, storePassword);
-        return response.readEntity(UserTO.class);
+        return response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        });
     }
 
-    public UserTO update(final String etag, final UserPatch userPatch) {
-        UserTO result;
+    public ProvisioningResult<UserTO> update(final String etag, final UserPatch userPatch) {
+        ProvisioningResult<UserTO> result;
         synchronized (this) {
             UserService service = getService(etag, UserService.class);
-            result = service.update(userPatch).readEntity(UserTO.class);
+            result = service.update(userPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+            });
             resetClient(UserService.class);
         }
         return result;

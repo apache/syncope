@@ -31,7 +31,7 @@ public abstract class ResourceConnConfPanel extends AbstractConnectorConfPanel<R
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private ConnectorRestClient restClient = new ConnectorRestClient();
+    private final ConnectorRestClient restClient = new ConnectorRestClient();
 
     private final boolean createFlag;
 
@@ -40,14 +40,14 @@ public abstract class ResourceConnConfPanel extends AbstractConnectorConfPanel<R
 
         this.createFlag = createFlag;
 
-        final List<ConnConfProperty> connConfProperties = getConnProperties(model.getObject());
+        final List<ConnConfProperty> confOverride = getConnProperties(model.getObject());
         model.getObject().getConfOverride().clear();
-        model.getObject().getConfOverride().addAll(connConfProperties);
+        model.getObject().getConfOverride().addAll(confOverride);
 
-        setConfPropertyListView("connConfProperties", false);
+        setConfPropertyListView("confOverride", false);
 
-        check.setEnabled(!connConfProperties.isEmpty());
-        check.setVisible(!connConfProperties.isEmpty());
+        check.setEnabled(!confOverride.isEmpty());
+        check.setVisible(!confOverride.isEmpty());
     }
 
     /**

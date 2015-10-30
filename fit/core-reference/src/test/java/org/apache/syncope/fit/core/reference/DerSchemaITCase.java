@@ -40,7 +40,7 @@ public class DerSchemaITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<DerSchemaTO> derivedSchemas = schemaService.list(SchemaType.DERIVED);
+        List<DerSchemaTO> derivedSchemas = schemaService.list(SchemaType.DERIVED, null);
         assertFalse(derivedSchemas.isEmpty());
         for (DerSchemaTO derivedSchemaTO : derivedSchemas) {
             assertNotNull(derivedSchemaTO);

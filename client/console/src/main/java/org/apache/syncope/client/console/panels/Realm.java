@@ -22,12 +22,20 @@ import com.googlecode.wicket.jquery.core.panel.LabelPanel;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wizards.any.AnyWizardBuilder;
+import org.apache.syncope.client.console.wizards.any.GroupWizardBuilder;
+import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
@@ -54,13 +62,16 @@ public class Realm extends Panel {
 
     private final AnyObjectRestClient anyObjectRestClient = new AnyObjectRestClient();
 
+    private final PageReference pageRef;
+
     @SuppressWarnings({ "unchecked", "unchecked" })
-    public Realm(final String id, final RealmTO realmTO, final PageReference pageReference) {
+    public Realm(final String id, final RealmTO realmTO, final PageReference pageRef) {
         super(id);
         this.realmTO = realmTO;
         this.anyTypeTOs = anyTypeRestClient.getAll();
+        this.pageRef = pageRef;
 
-        add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageReference)));
+        add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));
     }
 
     public RealmTO getRealmTO() {
@@ -103,19 +114,44 @@ public class Realm extends Panel {
 
         switch (anyTypeTO.getKind()) {
             case USER:
-                panel = new UserSearchResultPanel(anyTypeTO.getKey(), id,
-                        false, null, pageReference, userRestClient, anyTypeRestClient.getAnyTypeClass(
-                                anyTypeTO.getClasses()), realmTO.getFullPath());
+                final UserTO userTO = new UserTO();
+                userTO.setRealm(realmTO.getFullPath());
+                panel = new UserSearchResultPanel.Builder(
+                        false, null, pageReference, userRestClient,
+                        anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
+                        realmTO.getFullPath(),
+                        anyTypeTO.getKey()).
+                        addNewItemPanelBuilder(new UserWizardBuilder(
+                                        BaseModal.CONTENT_ID, userTO, anyTypeTO.getClasses(), pageRef)).
+                        addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
+                        build(id);
                 break;
             case GROUP:
-                panel = new GroupSearchResultPanel(anyTypeTO.getKey(), id,
-                        false, null, pageReference, groupRestClient, anyTypeRestClient.getAnyTypeClass(
-                                anyTypeTO.getClasses()), realmTO.getFullPath());
+                final GroupTO groupTO = new GroupTO();
+                groupTO.setRealm(realmTO.getFullPath());
+                panel = new GroupSearchResultPanel.Builder(
+                        false, null, pageReference, groupRestClient,
+                        anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
+                        realmTO.getFullPath(),
+                        anyTypeTO.getKey()).
+                        addNewItemPanelBuilder(new GroupWizardBuilder(
+                                        BaseModal.CONTENT_ID, groupTO, anyTypeTO.getClasses(), pageRef)).
+                        addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
+                        build(id);
                 break;
             case ANY_OBJECT:
-                panel = new AnySearchResultPanel<>(anyTypeTO.getKey(), id,
-                        false, null, pageReference, anyObjectRestClient, anyTypeRestClient.getAnyTypeClass(
-                                anyTypeTO.getClasses()), realmTO.getFullPath());
+                final AnyObjectTO anyObjectTO = new AnyObjectTO();
+                anyObjectTO.setRealm(realmTO.getFullPath());
+                anyObjectTO.setType(anyTypeTO.getKey());
+                panel = new AnySearchResultPanel.Builder(
+                        false, null, pageReference, anyObjectRestClient,
+                        anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
+                        realmTO.getFullPath(),
+                        anyTypeTO.getKey()).
+                        addNewItemPanelBuilder(new AnyWizardBuilder<AnyObjectTO>(
+                                        BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).
+                        addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
+                        build(id);
                 break;
             default:
                 panel = new LabelPanel(id, null);

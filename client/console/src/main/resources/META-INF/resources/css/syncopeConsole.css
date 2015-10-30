@@ -201,8 +201,23 @@ div.basepage-content{
   overflow: hidden;
 }
 
+.modal-body {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
 .modal {
   background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+}
+
+.wizard-view {
+  max-height: 500px;
+  overflow: auto;
+  padding: 0px 15px 0px 5px;
+}
+
+.wizard-buttons {
+  padding: 10px 0px 5px 0px;
 }
 
 div.realms div.summarize {

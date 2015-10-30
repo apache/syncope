@@ -674,7 +674,7 @@ public class GroupITCase extends AbstractITCase {
             assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
             assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
             group = result.getAny();
-
+            
             // 3. set capability override with only search allowed, but not enable
             ldap.getCapabilitiesOverride().add(ConnectorCapability.SEARCH);
             resourceService.update(ldap);
@@ -867,5 +867,5 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(groupTO);
         assertEquals("11.23", groupTO.getPlainAttrMap().get(doubleSchemaName).getValues().get(0));
     }
-
+    
 }

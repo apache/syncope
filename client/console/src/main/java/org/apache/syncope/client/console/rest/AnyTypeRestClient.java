@@ -20,9 +20,15 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.springframework.stereotype.Component;
@@ -34,6 +40,18 @@ import org.springframework.stereotype.Component;
 public class AnyTypeRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 1L;
+
+    public AnyTypeTO get(final String kind) {
+        AnyTypeTO type = null;
+
+        try {
+            type = getService(AnyTypeService.class).read(kind);
+        } catch (SyncopeClientException e) {
+            LOG.error("While reading all any types", e);
+        }
+
+        return type;
+    }
 
     public List<AnyTypeTO> getAll() {
         List<AnyTypeTO> types = null;
@@ -47,11 +65,28 @@ public class AnyTypeRestClient extends BaseRestClient {
         return types;
     }
 
-    public List<AnyTypeClassTO> getAnyTypeClass(final List<String> anyTypeClassNames) {
+    public List<AnyTypeClassTO> getAnyTypeClass(final String... anyTypeClassNames) {
         List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
         for (String anyTypeClass : anyTypeClassNames) {
             anyTypeClassTOs.add(getService(AnyTypeClassService.class).read(anyTypeClass));
         }
         return anyTypeClassTOs;
+    }
+
+    public ProvisioningResult<AnyObjectTO> create(final AnyObjectTO anyObjectTO) {
+        Response response = getService(AnyObjectService.class).create(anyObjectTO);
+        return response.readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
+        });
+    }
+
+    public ProvisioningResult<AnyObjectTO> update(final String etag, final AnyObjectPatch anyObjectPatch) {
+        ProvisioningResult<AnyObjectTO> result;
+        synchronized (this) {
+            AnyObjectService service = getService(etag, AnyObjectService.class);
+            result = service.update(anyObjectPatch).readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
+            });
+            resetClient(AnyObjectService.class);
+        }
+        return result;
     }
 }

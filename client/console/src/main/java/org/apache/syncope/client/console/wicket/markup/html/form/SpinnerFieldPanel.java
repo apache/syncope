@@ -67,8 +67,8 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
     }
 
     private void init(final String name, final Class<T> reference, final IModel<T> model, final SpinnerConfig conf) {
-        final Spinner<T> spinner = new Spinner<>("spinner", model, conf);
-        add(spinner);
+        field = new Spinner<>("spinner", model, conf);
+        add(field);
 
         this.name = name;
         this.model = model;
