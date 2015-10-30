@@ -19,6 +19,7 @@
 package org.apache.syncope.client.cli.commands.domain;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.to.DomainTO;
 
@@ -33,5 +34,9 @@ public class DomainResultManager extends CommonsResultManager {
     public void printDomain(final DomainTO domainTO) {
         System.out.println(" > DOIMAIN NAME: " + domainTO.getKey());
         System.out.println("    chiper algorithm: " + domainTO.getAdminCipherAlgorithm());
+    }
+
+    public void printDetails(final Map<String, String> details) {
+        printDetails("domains details", details);
     }
 }

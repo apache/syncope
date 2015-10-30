@@ -51,7 +51,7 @@ public class ReportRead extends AbstractReportCommand {
                     }
                 }
             }
-            reportResultManager.fromValueToView(reportTOs);
+            reportResultManager.printReports(reportTOs);
         } else {
             reportResultManager.commandOptionError(READ_HELP_MESSAGE);
         }

@@ -20,6 +20,7 @@ package org.apache.syncope.client.cli.commands.logger;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.client.cli.view.Table;
 import org.apache.syncope.common.lib.to.LoggerTO;
@@ -56,5 +57,9 @@ public class LoggerResultManager extends CommonsResultManager {
                     new LinkedList(Arrays.asList(loggerTO.getKey(), loggerTO.getLevel().getLevel().name())));
         }
         tableBuilder.build().print();
+    }
+
+    public void printDetails(final Map<String, String> details) {
+        printDetails("loggers details", details);
     }
 }

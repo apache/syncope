@@ -19,6 +19,7 @@
 package org.apache.syncope.client.cli.commands.role;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.to.RoleTO;
@@ -53,5 +54,9 @@ public class RoleResultManager extends CommonsResultManager {
         for (final String entitlement : entitlements) {
             System.out.println("       - " + entitlement);
         }
+    }
+
+    public void printDetails(final Map<String, String> details) {
+        printDetails("Roles details", details);
     }
 }

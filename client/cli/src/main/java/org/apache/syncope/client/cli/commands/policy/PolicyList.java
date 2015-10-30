@@ -37,7 +37,6 @@ public class PolicyList extends AbstractPolicyCommand {
     }
 
     public void list() {
-
         if (input.parameterNumber() == 1) {
             try {
                 final PolicyType policyType = PolicyType.valueOf(input.firstParameter());

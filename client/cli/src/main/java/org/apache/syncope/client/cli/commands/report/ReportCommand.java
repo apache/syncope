@@ -31,6 +31,7 @@ public class ReportCommand extends AbstractCommand {
     private static final String HELP_MESSAGE = "Usage: report [options]\n"
             + "  Options:\n"
             + "    --help \n"
+            + "    --details\n"
             + "    --list \n"
             + "    --list-jobs \n"
             + "    --read \n"
@@ -56,6 +57,9 @@ public class ReportCommand extends AbstractCommand {
         switch (Options.fromName(input.getOption())) {
             case LIST:
                 new ReportList(input).list();
+                break;
+            case DETAILS:
+                new ReportDetails(input).details();
                 break;
             case LIST_JOBS:
                 new ReportListJobs(input).list();
@@ -94,6 +98,7 @@ public class ReportCommand extends AbstractCommand {
     private enum Options {
 
         HELP("--help"),
+        DETAILS("--details"),
         LIST("--list"),
         LIST_JOBS("--list-jobs"),
         READ("--read"),

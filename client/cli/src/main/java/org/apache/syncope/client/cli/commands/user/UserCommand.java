@@ -32,7 +32,7 @@ public class UserCommand extends AbstractCommand {
             + "  Options:\n"
             + "    --help \n"
             + "    --list \n"
-            + "    --count \n"
+            + "    --details \n"
             + "    --get-user-key\n"
             + "       Syntax: --get-user-key {USER-ID} {USER-ID} [...]\n"
             + "    --get-username\n"
@@ -55,8 +55,8 @@ public class UserCommand extends AbstractCommand {
         }
 
         switch (UserOptions.fromName(input.getOption())) {
-            case COUNT:
-                new UserCount(input).count();
+            case DETAILS:
+                new UserDetails(input).details();
                 break;
             case LIST:
                 new UserList(input).list();
@@ -98,7 +98,7 @@ public class UserCommand extends AbstractCommand {
     private enum UserOptions {
 
         HELP("--help"),
-        COUNT("--count"),
+        DETAILS("--details"),
         LIST("--list"),
         GET_BY_KEY("--get-user-key"),
         GET_BY_USERNAME("--get-username"),

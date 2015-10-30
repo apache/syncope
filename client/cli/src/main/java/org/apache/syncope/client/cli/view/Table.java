@@ -55,6 +55,7 @@ public final class Table {
     }
 
     public void print() {
+        System.out.println("");
         columnsNumber = headers.size();
         tmpValuesArray = new String[columnsNumber];
 
@@ -69,6 +70,7 @@ public final class Table {
         printBorder();
         printeContent();
         printBorder();
+        System.out.println("");
     }
 
     private void buildTableContentFormat() {

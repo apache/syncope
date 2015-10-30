@@ -31,6 +31,7 @@ public class RealmCommand extends AbstractCommand {
     private static final String HELP_MESSAGE = "Usage: realm [options]\n"
             + "  Options:\n"
             + "    --help \n"
+            + "    --details \n"
             + "    --list \n";
 
     @Override
@@ -39,6 +40,9 @@ public class RealmCommand extends AbstractCommand {
             input.setOption(Options.HELP.getOptionName());
         }
         switch (Options.fromName(input.getOption())) {
+            case DETAILS:
+                new RealmDetails(input).details();
+                break;
             case LIST:
                 new RealmList(input).list();
                 break;
@@ -58,6 +62,7 @@ public class RealmCommand extends AbstractCommand {
     private enum Options {
 
         HELP("--help"),
+        DETAILS("--details"),
         LIST("--list");
 
         private final String optionName;

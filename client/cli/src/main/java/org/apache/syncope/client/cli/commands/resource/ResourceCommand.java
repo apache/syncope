@@ -31,6 +31,7 @@ public class ResourceCommand extends AbstractCommand {
     private static final String HELP_MESSAGE = "Usage: resource [options]\n"
             + "  Options:\n"
             + "    --help \n"
+            + "    --details \n"
             + "    --list \n"
             + "    --read \n"
             + "       Syntax: --read {CONNECTOR-ID} {CONNECTOR-ID} [...]\n"
@@ -44,6 +45,9 @@ public class ResourceCommand extends AbstractCommand {
         }
 
         switch (ResourceOptions.fromName(input.getOption())) {
+            case DETAILS:
+                new ResourceDetails(input).details();
+                break;
             case LIST:
                 new ResourceList(input).list();
                 break;
@@ -69,6 +73,7 @@ public class ResourceCommand extends AbstractCommand {
     private enum ResourceOptions {
 
         HELP("--help"),
+        DETAILS("--details"),
         LIST("--list"),
         READ("--read"),
         DELETE("--delete");

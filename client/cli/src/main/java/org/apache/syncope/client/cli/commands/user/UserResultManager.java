@@ -19,6 +19,7 @@
 package org.apache.syncope.client.cli.commands.user;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -103,5 +104,9 @@ public class UserResultManager extends CommonsResultManager {
         for (final RelationshipTO relationshipTO : relationshipTOs) {
             System.out.println("       type: " + relationshipTO.getType());
         }
+    }
+
+    public void printDetails(final Map<String, String> details) {
+        printDetails("users details", details);
     }
 }

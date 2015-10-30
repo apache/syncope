@@ -19,6 +19,7 @@
 package org.apache.syncope.client.cli.commands.resource;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
@@ -53,6 +54,9 @@ public class ResourceResultManager extends CommonsResultManager {
         System.out.println("    delete trace level: " + resourceTO.getDeleteTraceLevel());
         System.out.println("    update trace level: " + resourceTO.getUpdateTraceLevel());
         System.out.println("    sync trace level: " + resourceTO.getSyncTraceLevel());
+        System.out.println("    enforce mandatory condition: " + resourceTO.isEnforceMandatoryCondition());
+        System.out.println("    override capabilities: " + resourceTO.isOverrideCapabilities());
+        System.out.println("    random password if not provided: " + resourceTO.isRandomPwdIfNotProvided());
         System.out.println("");
     }
 
@@ -88,5 +92,9 @@ public class ResourceResultManager extends CommonsResultManager {
             System.out.println("             password: " + mappingItemTO.isPassword());
             System.out.println("");
         }
+    }
+
+    public void printDetails(final Map<String, String> details) {
+        printDetails("resources details", details);
     }
 }

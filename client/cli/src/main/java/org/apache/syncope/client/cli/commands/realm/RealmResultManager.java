@@ -19,6 +19,7 @@
 package org.apache.syncope.client.cli.commands.realm;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.to.RealmTO;
 
@@ -35,5 +36,9 @@ public class RealmResultManager extends CommonsResultManager {
             System.out.println("    account policy id: " + realmTO.getAccountPolicy());
             System.out.println("    password policy id: " + realmTO.getPasswordPolicy());
         }
+    }
+
+    public void printDetails(final Map<String, String> details) {
+        printDetails("realms details", details);
     }
 }

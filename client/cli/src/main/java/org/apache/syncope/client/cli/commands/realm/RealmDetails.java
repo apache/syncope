@@ -16,30 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.report;
+package org.apache.syncope.client.cli.commands.realm;
 
+import java.util.Map;
+import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 
-public class ReportList extends AbstractReportCommand {
+public class RealmDetails extends AbstractRealmCommand {
 
-    private static final String LIST_HELP_MESSAGE = "report --list";
+    private static final String DETAILS_HELP_MESSAGE = "realm --details";
 
     private final Input input;
 
-    public ReportList(final Input input) {
+    public RealmDetails(final Input input) {
         this.input = input;
     }
 
-    public void list() {
+    public void details() {
         if (input.parameterNumber() == 0) {
             try {
-                reportResultManager.printReports(reportSyncopeOperations.list());
+                final Map<String, String> details = new LinkedMap<>();
+                details.put("Total number", String.valueOf(realmSyncopeOperations.list().size()));
+                realmResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {
-                reportResultManager.genericError(ex.getMessage());
+                realmResultManager.genericError(ex.getMessage());
             }
         } else {
-            reportResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
+            realmResultManager.unnecessaryParameters(input.listParameters(), DETAILS_HELP_MESSAGE);
         }
     }
 }

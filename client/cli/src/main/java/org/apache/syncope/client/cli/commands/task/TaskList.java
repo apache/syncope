@@ -24,7 +24,6 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.rest.api.beans.TaskQuery;
 
 public class TaskList extends AbstractTaskCommand {
 
@@ -42,7 +41,7 @@ public class TaskList extends AbstractTaskCommand {
             try {
                 final TaskType taskType = TaskType.valueOf(input.firstParameter());
                 final LinkedList<AbstractTaskTO> taskTOs = new LinkedList<>();
-                for (final AbstractTaskTO taskTO : taskSyncopeOperations.list(taskType, new TaskQuery()).getResult()) {
+                for (final AbstractTaskTO taskTO : taskSyncopeOperations.list(taskType)) {
                     taskTOs.add(taskTO);
                 }
                 taskResultManager.fromList(taskType, taskTOs);

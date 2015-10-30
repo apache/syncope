@@ -31,6 +31,7 @@ public class LoggerCommand extends AbstractCommand {
     private static final String HELP_MESSAGE = "Usage: logger [options]\n"
             + "  Options:\n"
             + "    --help \n"
+            + "    --details \n"
             + "    --list \n"
             + "    --read \n"
             + "       Syntax: --read {LOG-NAME} {LOG-NAME} [...]\n"
@@ -50,6 +51,9 @@ public class LoggerCommand extends AbstractCommand {
         }
 
         switch (LoggerOptions.fromName(input.getOption())) {
+            case DETAILS:
+                new LoggerDetails(input).details();
+                break;
             case LIST:
                 new LoggerList(input).list();
                 break;
@@ -84,6 +88,7 @@ public class LoggerCommand extends AbstractCommand {
     private enum LoggerOptions {
 
         HELP("--help"),
+        DETAILS("--details"),
         LIST("--list"),
         READ("--read"),
         UPDATE("--update"),

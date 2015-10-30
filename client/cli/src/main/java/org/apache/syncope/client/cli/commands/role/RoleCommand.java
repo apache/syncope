@@ -31,6 +31,7 @@ public class RoleCommand extends AbstractCommand {
     private static final String HELP_MESSAGE = "Usage: role [options]\n"
             + "  Options:\n"
             + "    --help \n"
+            + "    --details \n"
             + "    --list \n"
             + "    --read \n"
             + "       Syntax: --read {ROLE-ID} {ROLE-ID} [...]"
@@ -44,6 +45,9 @@ public class RoleCommand extends AbstractCommand {
         }
 
         switch (RoleOptions.fromName(input.getOption())) {
+            case DETAILS:
+                new RoleDetails(input).details();
+                break;
             case LIST:
                 new RoleList(input).list();
                 break;
@@ -69,6 +73,7 @@ public class RoleCommand extends AbstractCommand {
     private enum RoleOptions {
 
         HELP("--help"),
+        DETAILS("--details"),
         LIST("--list"),
         READ("--read"),
         DELETE("--delete");

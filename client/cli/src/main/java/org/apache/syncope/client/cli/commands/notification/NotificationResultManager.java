@@ -18,8 +18,31 @@
  */
 package org.apache.syncope.client.cli.commands.notification;
 
+import java.util.List;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
+import org.apache.syncope.common.lib.to.NotificationTO;
 
 public class NotificationResultManager extends CommonsResultManager {
 
+    public void printNotifications(final List<NotificationTO> notificationTOs) {
+        for (final NotificationTO notificationTO : notificationTOs) {
+            printNotification(notificationTO);
+        }
+    }
+
+    public void printNotification(final NotificationTO notificationTO) {
+        System.out.println(" > NOTIFICATION ID: " + notificationTO.getKey());
+        System.out.println("    events: " + notificationTO.getEvents());
+        System.out.println("    sender: " + notificationTO.getSender());
+        System.out.println("    subject: " + notificationTO.getSubject());
+        System.out.println("    recipients: " + notificationTO.getRecipients());
+        System.out.println("    recipient attribute name: " + notificationTO.getRecipientAttrName());
+        System.out.println("    template: " + notificationTO.getTemplate());
+        System.out.println("    abouts: " + notificationTO.getAbouts());
+        System.out.println("    recipient attribute types: " + notificationTO.getRecipientAttrType());
+        System.out.println("    static recipient: " + notificationTO.getStaticRecipients());
+        System.out.println("    trace level: " + notificationTO.getTraceLevel());
+        System.out.println("    active: " + notificationTO.isActive());
+        System.out.println("    self as recipient: " + notificationTO.isSelfAsRecipient());
+    }
 }

@@ -64,10 +64,6 @@ public class UserSyncopeOperations {
         userService.delete(Long.valueOf(userId));
     }
 
-    public int count() {
-        return list().getResult().size();
-    }
-
     public String getUsernameFromId(final String userId) {
         return userService.getUsername(Long.valueOf(userId)).getHeaderString(RESTHeaders.USERNAME);
     }

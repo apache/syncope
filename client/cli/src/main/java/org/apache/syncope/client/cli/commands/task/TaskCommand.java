@@ -31,6 +31,7 @@ public class TaskCommand extends AbstractCommand {
     private static final String HELP_MESSAGE = "Usage: task [options]\n"
             + "  Options:\n"
             + "    --help \n"
+            + "    --details\n"
             + "    --list-task \n"
             + "       Syntax: --list-task {TASK-TYPE} \n"
             + "          Task type: NOTIFICATION / PROPAGATION / PUSH / SCHEDULED / SYNCHRONIZATION\n"
@@ -55,6 +56,9 @@ public class TaskCommand extends AbstractCommand {
         }
 
         switch (Options.fromName(input.getOption())) {
+            case DETAILS:
+                new TaskDetails(input).details();
+                break;
             case LIST_TASK:
                 new TaskList(input).list();
                 break;
@@ -95,6 +99,7 @@ public class TaskCommand extends AbstractCommand {
     private enum Options {
 
         HELP("--help"),
+        DETAILS("--details"),
         LIST_TASK("--list-task"),
         LIST_RUNNING_JOBS("--list-running-jobs"),
         LIST_SCHEDULED_JOBS("--list-scheduled-jobs"),
