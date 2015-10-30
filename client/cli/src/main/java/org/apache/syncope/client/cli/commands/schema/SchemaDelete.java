@@ -24,8 +24,12 @@ import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SchemaDelete extends AbstractSchemaCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SchemaDelete.class);
 
     private static final String DELETE_HELP_MESSAGE = "schema --delete {SCHEMA-TYPE} {SCHEMA-KEY}\n"
             + "   Schema type: PLAIN / DERIVED / VIRTUAL";
@@ -45,6 +49,7 @@ public class SchemaDelete extends AbstractSchemaCommand {
                     schemaResultManager.deletedMessage("Schema", parameter);
                 }
             } catch (final SyncopeClientException | WebServiceException ex) {
+                LOG.error("Error deleting schema", ex);
                 if (ex.getMessage().startsWith("NotFound")) {
                     schemaResultManager.notFoundError("Schema", parameters[0]);
                 } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
@@ -53,6 +58,7 @@ public class SchemaDelete extends AbstractSchemaCommand {
                     schemaResultManager.genericError(ex.getMessage());
                 }
             } catch (final IllegalArgumentException ex) {
+                LOG.error("Error deleting schema", ex);
                 schemaResultManager.typeNotValidError(
                         "schema", input.firstParameter(), CommandUtils.fromEnumToArray(SchemaType.class));
             }

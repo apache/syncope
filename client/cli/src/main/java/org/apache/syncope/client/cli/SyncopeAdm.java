@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 public final class SyncopeAdm {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeAdm.class);
-    
+
     private static final ResultManager RESULT_MANAGER = new ResultManager();
 
     public static void main(final String[] args) {
@@ -55,6 +55,7 @@ public final class SyncopeAdm {
                 System.out.println(helpMessage());
             }
         } catch (final ProcessingException e) {
+            LOG.error("Error in main", e);
             RESULT_MANAGER.genericError("Syncope server offline");
             RESULT_MANAGER.genericError(e.getCause().getMessage());
         }
@@ -74,6 +75,7 @@ public final class SyncopeAdm {
                 helpMessageBuilder.append("\n");
             }
         } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException ex) {
+            LOG.error("Error in main", ex);
             RESULT_MANAGER.genericError(ex.getMessage());
         }
 

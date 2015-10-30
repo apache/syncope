@@ -25,8 +25,12 @@ import org.apache.syncope.client.cli.commands.realm.RealmSyncopeOperations;
 import org.apache.syncope.client.cli.commands.resource.ResourceSyncopeOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserSearchByResource extends AbstractUserCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UserSearchByResource.class);
 
     private static final String SEARCH_HELP_MESSAGE = "user --search {REALM} {RESOURCE-NAME}";
 
@@ -59,6 +63,7 @@ public class UserSearchByResource extends AbstractUserCommand {
                     userResultManager.printUsers(userTOs);
                 }
             } catch (final WebServiceException | SyncopeClientException ex) {
+                LOG.error("Error searching user", ex);
                 userResultManager.genericError(ex.getMessage());
                 userResultManager.genericError(SEARCH_HELP_MESSAGE);
             }

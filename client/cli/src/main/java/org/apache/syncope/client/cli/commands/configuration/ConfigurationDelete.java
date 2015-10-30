@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.configuration;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurationDelete extends AbstractConfigurationCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationDelete.class);
 
     private static final String DELETE_HELP_MESSAGE = "configuration --delete {CONF-NAME} {CONF-NAME} [...]";
 
@@ -39,6 +43,7 @@ public class ConfigurationDelete extends AbstractConfigurationCommand {
                     configurationSyncopeOperations.delete(parameter);
                     configurationResultManager.deletedMessage("Configuration", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error deleting configuration", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         configurationResultManager.notFoundError("Configuration", parameter);
                     } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {

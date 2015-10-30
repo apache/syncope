@@ -24,8 +24,12 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PolicyList extends AbstractPolicyCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PolicyList.class);
 
     private static final String LIST_HELP_MESSAGE = "policy --list-policy {POLICY-TYPE}\n"
             + "   Policy type: ACCOUNT / PASSWORD / SYNC / PUSH";
@@ -46,8 +50,10 @@ public class PolicyList extends AbstractPolicyCommand {
                 }
                 policyResultManager.printPoliciesByType(policyType, policyTOs);
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing policy", ex);
                 policyResultManager.genericError(ex.getMessage());
             } catch (final IllegalArgumentException ex) {
+                LOG.error("Error listing policy", ex);
                 policyResultManager.typeNotValidError(
                         "policy", input.firstParameter(), CommandUtils.fromEnumToArray(PolicyType.class));
             }

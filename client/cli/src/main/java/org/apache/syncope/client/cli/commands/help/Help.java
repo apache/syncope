@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.help;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
 import org.apache.syncope.client.cli.util.CommandUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Help {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Help.class);
 
     private final HelpResultManager helpResultManager = new HelpResultManager();
 
@@ -39,6 +43,7 @@ public class Help {
             }
             helpResultManager.toView(generalHelpBuilder.toString());
         } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException e) {
+            LOG.error("Error helping", e);
             helpResultManager.genericMessage(e.getMessage());
         }
     }

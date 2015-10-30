@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.logger;
 import java.util.LinkedList;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoggerList extends AbstractLoggerCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LoggerList.class);
 
     private static final String LIST_HELP_MESSAGE = "logger --list";
 
@@ -37,6 +41,7 @@ public class LoggerList extends AbstractLoggerCommand {
             try {
                 loggerResultManager.fromList(new LinkedList<>(loggerSyncopeOperations.list()));
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing logger", ex);
                 loggerResultManager.genericError(ex.getMessage());
             }
         } else {

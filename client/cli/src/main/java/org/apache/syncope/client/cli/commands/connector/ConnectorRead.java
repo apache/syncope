@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.connector;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectorRead extends AbstractConnectorCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectorRead.class);
 
     private static final String READ_HELP_MESSAGE = "connector --read {CONNECTOR-ID} {CONNECTOR-ID} [...]";
 
@@ -38,8 +42,10 @@ public class ConnectorRead extends AbstractConnectorCommand {
                 try {
                     connectorResultManager.printConnector(connectorSyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error reading connector", ex);
                     connectorResultManager.numberFormatException("connector", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error reading connector", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         connectorResultManager.notFoundError("Connector", parameter);
                     } else {

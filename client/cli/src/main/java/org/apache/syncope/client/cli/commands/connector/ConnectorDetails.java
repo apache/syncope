@@ -22,12 +22,17 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectorDetails extends AbstractConnectorCommand {
 
-    private static final String LIST_HELP_MESSAGE = "connector --details";
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectorDetails.class);
+
+    private static final String DETAILS_HELP_MESSAGE = "connector --details";
 
     private final Input input;
 
@@ -37,40 +42,45 @@ public class ConnectorDetails extends AbstractConnectorCommand {
 
     public void details() {
         if (input.parameterNumber() == 0) {
-            final Map<String, String> details = new LinkedMap<>();
-            final List<ConnInstanceTO> connInstanceTOs = connectorSyncopeOperations.list();
-            int withCreateCapability = 0;
-            int withDeleteCapability = 0;
-            int withSearchCapability = 0;
-            int withSyncCapability = 0;
-            int withUpdateCapability = 0;
-            for (final ConnInstanceTO connInstanceTO : connInstanceTOs) {
-                if (connInstanceTO.getCapabilities().contains(ConnectorCapability.CREATE)) {
-                    withCreateCapability++;
+            try {
+                final Map<String, String> details = new LinkedMap<>();
+                final List<ConnInstanceTO> connInstanceTOs = connectorSyncopeOperations.list();
+                int withCreateCapability = 0;
+                int withDeleteCapability = 0;
+                int withSearchCapability = 0;
+                int withSyncCapability = 0;
+                int withUpdateCapability = 0;
+                for (final ConnInstanceTO connInstanceTO : connInstanceTOs) {
+                    if (connInstanceTO.getCapabilities().contains(ConnectorCapability.CREATE)) {
+                        withCreateCapability++;
+                    }
+                    if (connInstanceTO.getCapabilities().contains(ConnectorCapability.DELETE)) {
+                        withDeleteCapability++;
+                    }
+                    if (connInstanceTO.getCapabilities().contains(ConnectorCapability.SEARCH)) {
+                        withSearchCapability++;
+                    }
+                    if (connInstanceTO.getCapabilities().contains(ConnectorCapability.SYNC)) {
+                        withSyncCapability++;
+                    }
+                    if (connInstanceTO.getCapabilities().contains(ConnectorCapability.UPDATE)) {
+                        withUpdateCapability++;
+                    }
                 }
-                if (connInstanceTO.getCapabilities().contains(ConnectorCapability.DELETE)) {
-                    withDeleteCapability++;
-                }
-                if (connInstanceTO.getCapabilities().contains(ConnectorCapability.SEARCH)) {
-                    withSearchCapability++;
-                }
-                if (connInstanceTO.getCapabilities().contains(ConnectorCapability.SYNC)) {
-                    withSyncCapability++;
-                }
-                if (connInstanceTO.getCapabilities().contains(ConnectorCapability.UPDATE)) {
-                    withUpdateCapability++;
-                }
+                details.put("Total number", String.valueOf(connInstanceTOs.size()));
+                details.put("With create capability", String.valueOf(withCreateCapability));
+                details.put("With delete capability", String.valueOf(withDeleteCapability));
+                details.put("With search capability", String.valueOf(withSearchCapability));
+                details.put("With sync capability", String.valueOf(withSyncCapability));
+                details.put("With update capability", String.valueOf(withUpdateCapability));
+                details.put("Bundles number", String.valueOf(connectorSyncopeOperations.getBundles().size()));
+                connectorResultManager.printDetails(details);
+            } catch (final SyncopeClientException ex) {
+                LOG.error("Error reading details about connector", ex);
+                connectorResultManager.genericError(ex.getMessage());
             }
-            details.put("Total number", String.valueOf(connInstanceTOs.size()));
-            details.put("With create capability", String.valueOf(withCreateCapability));
-            details.put("With delete capability", String.valueOf(withDeleteCapability));
-            details.put("With search capability", String.valueOf(withSearchCapability));
-            details.put("With sync capability", String.valueOf(withSyncCapability));
-            details.put("With update capability", String.valueOf(withUpdateCapability));
-            details.put("Bundles number", String.valueOf(connectorSyncopeOperations.getBundles().size()));
-            connectorResultManager.printDetails(details);
         } else {
-            connectorResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
+            connectorResultManager.unnecessaryParameters(input.listParameters(), DETAILS_HELP_MESSAGE);
         }
     }
 }

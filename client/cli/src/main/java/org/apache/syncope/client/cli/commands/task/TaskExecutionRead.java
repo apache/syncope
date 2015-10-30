@@ -22,8 +22,12 @@ import java.util.Arrays;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TaskExecutionRead extends AbstractTaskCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TaskExecutionRead.class);
 
     private static final String EXECUTION_READ_HELP_MESSAGE = "task --read-execution {TASK-ID} {TASK-ID} [...]";
 
@@ -40,8 +44,10 @@ public class TaskExecutionRead extends AbstractTaskCommand {
                     taskResultManager.printTaskExecTO(
                             Arrays.asList(taskSyncopeOperations.readExecution(parameter)));
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error reading task", ex);
                     taskResultManager.notBooleanDeletedError("task execution", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error reading task", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         taskResultManager.notFoundError("Task execution", parameter);
                     } else {

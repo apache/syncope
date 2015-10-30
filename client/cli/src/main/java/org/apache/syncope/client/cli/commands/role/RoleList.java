@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.role;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoleList extends AbstractRoleCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RoleList.class);
 
     private static final String LIST_HELP_MESSAGE = "role --list";
 
@@ -36,6 +40,7 @@ public class RoleList extends AbstractRoleCommand {
             try {
                 roleResultManager.printRoles(roleSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing role", ex);
                 roleResultManager.genericError(ex.getMessage());
             }
         } else {

@@ -22,8 +22,12 @@ import java.util.Map;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.types.PolicyType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PolicyDetails extends AbstractPolicyCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PolicyDetails.class);
 
     private static final String DETAILS_HELP_MESSAGE = "policy --details";
 
@@ -51,6 +55,7 @@ public class PolicyDetails extends AbstractPolicyCommand {
                 details.put("push policies", String.valueOf(pushPolicySize));
                 policyResultManager.printDetails(details);
             } catch (final Exception ex) {
+                LOG.error("Error reading details about policy", ex);
                 policyResultManager.genericError(ex.getMessage());
             }
         } else {

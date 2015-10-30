@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.report;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReportDelete extends AbstractReportCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ReportDelete.class);
 
     private static final String DELETE_HELP_MESSAGE = "report --delete {REPORT-ID} {REPORT-ID} [...]";
 
@@ -39,6 +43,7 @@ public class ReportDelete extends AbstractReportCommand {
                     reportSyncopeOperations.delete(parameter);
                     reportResultManager.deletedMessage("Report", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
+                    LOG.error("Error deleting report", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         reportResultManager.notFoundError("Report", parameter);
                     } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
@@ -47,6 +52,7 @@ public class ReportDelete extends AbstractReportCommand {
                         reportResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error deleting report", ex);
                     reportResultManager.numberFormatException("report", parameter);
                 }
             }

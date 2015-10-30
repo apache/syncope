@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.question;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QuestionDelete extends AbstractQuestionCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(QuestionDelete.class);
 
     private static final String DELETE_HELP_MESSAGE = "question --delete {QUESTION-ID} {QUESTION-ID} [...]";
 
@@ -39,6 +43,7 @@ public class QuestionDelete extends AbstractQuestionCommand {
                     questionSyncopeOperations.delete(parameter);
                     questionResultManager.deletedMessage("security question", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error deleting question", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         questionResultManager.notFoundError("Security question", parameter);
                     } else {
@@ -46,6 +51,7 @@ public class QuestionDelete extends AbstractQuestionCommand {
                     }
                     break;
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error deleting question", ex);
                     questionResultManager.numberFormatException("security question", parameter);
                 }
             }

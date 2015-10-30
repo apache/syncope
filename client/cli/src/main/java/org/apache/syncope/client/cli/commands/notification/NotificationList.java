@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.notification;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NotificationList extends AbstractNotificationCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NotificationList.class);
 
     private static final String LIST_HELP_MESSAGE = "notification --list";
 
@@ -36,6 +40,7 @@ public class NotificationList extends AbstractNotificationCommand {
             try {
                 notificationResultManager.printNotifications(notificationSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing notification", ex);
                 notificationResultManager.genericError(ex.getMessage());
             }
         } else {

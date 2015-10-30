@@ -24,8 +24,12 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoleRead extends AbstractRoleCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RoleRead.class);
 
     private static final String READ_HELP_MESSAGE = "role --read {ROLE-ID} {ROLE-ID} [...]";
 
@@ -42,6 +46,7 @@ public class RoleRead extends AbstractRoleCommand {
                 try {
                     roleTOs.add(roleSyncopeOperations.read(parameter));
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error reading role", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         roleResultManager.notFoundError("Role", parameter);
                     } else {
@@ -49,6 +54,7 @@ public class RoleRead extends AbstractRoleCommand {
                     }
                     break;
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error reading role", ex);
                     roleResultManager.numberFormatException("user", parameter);
                 }
             }

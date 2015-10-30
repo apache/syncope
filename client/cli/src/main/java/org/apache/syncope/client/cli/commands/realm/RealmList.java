@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.realm;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RealmList extends AbstractRealmCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RealmList.class);
 
     private static final String LIST_HELP_MESSAGE = "realm --list";
 
@@ -36,6 +40,7 @@ public class RealmList extends AbstractRealmCommand {
             try {
                 realmResultManager.printRealms(realmSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing realm", ex);
                 realmResultManager.genericError(ex.getMessage());
             }
         } else {

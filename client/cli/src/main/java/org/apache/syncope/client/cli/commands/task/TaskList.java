@@ -24,8 +24,12 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TaskList extends AbstractTaskCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TaskList.class);
 
     private static final String LIST_HELP_MESSAGE = "task --list-task {TASK-TYPE}\n"
             + "   Task type: NOTIFICATION / PROPAGATION / PUSH / SCHEDULED / SYNCHRONIZATION";
@@ -46,8 +50,10 @@ public class TaskList extends AbstractTaskCommand {
                 }
                 taskResultManager.printTasksType(taskType, taskTOs);
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing task", ex);
                 taskResultManager.genericError(ex.getMessage());
             } catch (final IllegalArgumentException ex) {
+                LOG.error("Error listing task", ex);
                 taskResultManager.typeNotValidError(
                         "task", input.firstParameter(), CommandUtils.fromEnumToArray(TaskType.class));
             }

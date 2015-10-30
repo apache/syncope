@@ -23,8 +23,12 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PolicyRead extends AbstractPolicyCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PolicyRead.class);
 
     private static final String READ_HELP_MESSAGE = "policy --read {POLICY-ID} {POLICY-ID} [...]";
 
@@ -41,8 +45,10 @@ public class PolicyRead extends AbstractPolicyCommand {
                 try {
                     policyTOs.add(policySyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error reading policy", ex);
                     policyResultManager.notBooleanDeletedError("policy", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
+                    LOG.error("Error reading policy", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         policyResultManager.notFoundError("Policy", parameter);
                     } else {

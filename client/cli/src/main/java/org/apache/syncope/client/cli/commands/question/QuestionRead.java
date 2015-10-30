@@ -24,8 +24,12 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QuestionRead extends AbstractQuestionCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(QuestionRead.class);
 
     private static final String READ_HELP_MESSAGE = "question --read {QUESTION-ID} {QUESTION-ID} [...]";
 
@@ -42,6 +46,7 @@ public class QuestionRead extends AbstractQuestionCommand {
                 try {
                     questionTOs.add(questionSyncopeOperations.read(parameter));
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error reading question", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         questionResultManager.notFoundError("Security question", parameter);
                     } else {
@@ -49,6 +54,7 @@ public class QuestionRead extends AbstractQuestionCommand {
                     }
                     break;
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error reading question", ex);
                     questionResultManager.numberFormatException("security question", parameter);
                 }
             }

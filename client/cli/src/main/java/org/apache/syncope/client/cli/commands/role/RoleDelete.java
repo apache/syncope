@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.role;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoleDelete extends AbstractRoleCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RoleDelete.class);
 
     private static final String DELETE_HELP_MESSAGE = "role --delete {ROLE-ID} {ROLE-ID} [...]";
 
@@ -39,6 +43,7 @@ public class RoleDelete extends AbstractRoleCommand {
                     roleSyncopeOperations.delete(parameter);
                     roleResultManager.deletedMessage("role", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error deleting role", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         roleResultManager.notFoundError("Role", parameter);
                     } else {
@@ -46,6 +51,7 @@ public class RoleDelete extends AbstractRoleCommand {
                     }
                     break;
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error deleting role", ex);
                     roleResultManager.numberFormatException("role", parameter);
                 }
             }

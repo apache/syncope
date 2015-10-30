@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.connector;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectorList extends AbstractConnectorCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectorList.class);
 
     private static final String LIST_HELP_MESSAGE = "connector --list";
 
@@ -36,6 +40,7 @@ public class ConnectorList extends AbstractConnectorCommand {
             try {
                 connectorResultManager.printConnectors(connectorSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listening connector", ex);
                 connectorResultManager.genericError(ex.getMessage());
             }
         } else {

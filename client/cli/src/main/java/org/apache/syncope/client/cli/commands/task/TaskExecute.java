@@ -22,8 +22,12 @@ import java.util.Arrays;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TaskExecute extends AbstractTaskCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TaskExecute.class);
 
     private static final String EXECUTE_HELP_MESSAGE = "task --execute {TASK-ID} {DRY-RUN}\n"
             + "          Dry run: true / false";
@@ -48,6 +52,7 @@ public class TaskExecute extends AbstractTaskCommand {
                 taskResultManager.printTaskExecTO(Arrays.asList(
                         taskSyncopeOperations.execute(input.firstParameter(), dryRun)));
             } catch (final WebServiceException | SyncopeClientException ex) {
+                LOG.error("Error executing task", ex);
                 if (ex.getMessage().startsWith("NotFound")) {
                     taskResultManager.notFoundError("Task", input.firstParameter());
                 } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
@@ -56,6 +61,7 @@ public class TaskExecute extends AbstractTaskCommand {
                     taskResultManager.genericError(ex.getMessage());
                 }
             } catch (final NumberFormatException ex) {
+                LOG.error("Error executing task", ex);
                 taskResultManager.notBooleanDeletedError("task", input.firstParameter());
             }
         } else {

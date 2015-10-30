@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.resource;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResourceList extends AbstractResourceCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceList.class);
 
     private static final String LIST_HELP_MESSAGE = "resource --list";
 
@@ -36,6 +40,7 @@ public class ResourceList extends AbstractResourceCommand {
             try {
                 resourceResultManager.printResources(resourceSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing resource", ex);
                 resourceResultManager.genericError(ex.getMessage());
             }
         } else {

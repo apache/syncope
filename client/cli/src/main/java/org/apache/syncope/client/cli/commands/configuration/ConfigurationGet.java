@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.configuration;
 
 import java.util.LinkedList;
 import org.apache.syncope.client.cli.Input;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurationGet extends AbstractConfigurationCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationGet.class);
 
     private static final String GET_HELP_MESSAGE = "configuration --get";
 
@@ -36,6 +40,7 @@ public class ConfigurationGet extends AbstractConfigurationCommand {
             try {
                 configurationResultManager.fromGet(new LinkedList<>(configurationSyncopeOperations.list()));
             } catch (final Exception ex) {
+                LOG.error("Error getting configuration", ex);
                 configurationResultManager.genericError(ex.getMessage());
             }
         } else {

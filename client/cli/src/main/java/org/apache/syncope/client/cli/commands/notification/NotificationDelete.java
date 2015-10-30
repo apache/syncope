@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.notification;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NotificationDelete extends AbstractNotificationCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NotificationDelete.class);
 
     private static final String DELETE_HELP_MESSAGE = "notification --delete {NOTIFICATION-ID} {NOTIFICATION-ID} [...]";
 
@@ -39,6 +43,7 @@ public class NotificationDelete extends AbstractNotificationCommand {
                     notificationSyncopeOperations.delete(parameter);
                     notificationResultManager.deletedMessage("Notification", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
+                    LOG.error("Error deleting notification", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         notificationResultManager.notFoundError("Notification", parameter);
                     } else {

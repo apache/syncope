@@ -23,8 +23,12 @@ import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WorkflowExportDefinition extends AbstractWorkflowCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WorkflowExportDefinition.class);
 
     private static final String EXPORT_HELP_MESSAGE = "workflow --export-definition {ANY-TYPE-KIND}\n";
 
@@ -40,12 +44,14 @@ public class WorkflowExportDefinition extends AbstractWorkflowCommand {
                 final AnyTypeKind anyTypeKind = AnyTypeKind.valueOf(input.firstParameter());
                 System.out.println(" > > > > " + workflowSyncopeOperations.exportDefinition(anyTypeKind).getEntity());
             } catch (final SyncopeClientException | WebServiceException ex) {
+                LOG.error("Error", ex);
                 if (ex.getMessage().startsWith("NotFound")) {
                     workflowResultManager.notFoundError("Workflow", input.firstParameter());
                 } else {
                     workflowResultManager.genericError(ex.getMessage());
                 }
             } catch (final IllegalArgumentException ex) {
+                LOG.error("Error", ex);
                 workflowResultManager.typeNotValidError(
                         "workflow", input.firstParameter(), CommandUtils.fromEnumToArray(AnyTypeKind.class));
             }

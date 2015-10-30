@@ -24,8 +24,12 @@ import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReportDetails extends AbstractReportCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ReportDetails.class);
 
     private static final String LIST_HELP_MESSAGE = "report --details";
 
@@ -50,6 +54,7 @@ public class ReportDetails extends AbstractReportCommand {
                 details.put("Never executed", String.valueOf(withoutExecutions));
                 reportResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error reading details about report", ex);
                 reportResultManager.genericError(ex.getMessage());
             }
         } else {

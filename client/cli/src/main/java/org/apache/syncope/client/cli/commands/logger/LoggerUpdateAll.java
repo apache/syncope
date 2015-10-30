@@ -25,8 +25,12 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoggerUpdateAll extends AbstractLoggerCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LoggerUpdateAll.class);
 
     private static final String UPDATE_ALL_HELP_MESSAGE = "logger --update-all {LOG-LEVEL}";
 
@@ -46,6 +50,7 @@ public class LoggerUpdateAll extends AbstractLoggerCommand {
                     loggerSyncopeOperations.update(loggerTO);
                     loggerTOs.add(loggerTO);
                 } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
+                    LOG.error("Error updating logger", ex);
                     if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
                         loggerResultManager.typeNotValidError(
                                 "logger level",

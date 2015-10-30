@@ -17,14 +17,19 @@
  * under the License.
  */
 package org.apache.syncope.client.cli.commands.resource;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResourceRead extends AbstractResourceCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceRead.class);
 
     private static final String READ_HELP_MESSAGE = "resource --read {RESOURCE-NAME} {RESOURCE-NAME} [...]";
 
@@ -41,8 +46,10 @@ public class ResourceRead extends AbstractResourceCommand {
                 try {
                     resourceTOs.add(resourceSyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error reading resource", ex);
                     resourceResultManager.numberFormatException("resource", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error reading resource", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         resourceResultManager.notFoundError("Resource", parameter);
                     } else {

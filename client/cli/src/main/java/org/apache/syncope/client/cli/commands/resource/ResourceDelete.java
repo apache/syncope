@@ -17,11 +17,16 @@
  * under the License.
  */
 package org.apache.syncope.client.cli.commands.resource;
+
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResourceDelete extends AbstractResourceCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceDelete.class);
 
     private static final String DELETE_HELP_MESSAGE = "resource --delete {RESOURCE-NAME} {RESOURCE-NAME} [...]";
 
@@ -38,8 +43,10 @@ public class ResourceDelete extends AbstractResourceCommand {
                     resourceSyncopeOperations.delete(parameter);
                     resourceResultManager.deletedMessage("resource", parameter);
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error deleting resource", ex);
                     resourceResultManager.numberFormatException("resource", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error deleting resource", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         resourceResultManager.notFoundError("Resource", parameter);
                     } else {

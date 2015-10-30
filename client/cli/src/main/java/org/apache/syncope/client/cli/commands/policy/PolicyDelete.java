@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.policy;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PolicyDelete extends AbstractPolicyCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PolicyDelete.class);
 
     private static final String DELETE_HELP_MESSAGE = "policy --delete {POLICY-ID} {POLICY-ID} [...]";
 
@@ -39,6 +43,7 @@ public class PolicyDelete extends AbstractPolicyCommand {
                     policySyncopeOperations.delete(parameter);
                     policyResultManager.deletedMessage("Policy", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
+                    LOG.error("Error deleting policy", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         policyResultManager.notFoundError("Policy", parameter);
                     } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
@@ -47,6 +52,7 @@ public class PolicyDelete extends AbstractPolicyCommand {
                         policyResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error deleting policy", ex);
                     policyResultManager.notBooleanDeletedError("policy", parameter);
                 }
             }

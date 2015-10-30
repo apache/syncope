@@ -24,8 +24,12 @@ import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoleDetails extends AbstractRoleCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RoleDetails.class);
 
     private static final String DETAILS_HELP_MESSAGE = "role --details";
 
@@ -50,6 +54,7 @@ public class RoleDetails extends AbstractRoleCommand {
                 details.put("Without entitlements", String.valueOf(withoutEntitlements));
                 roleResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error reading details about role", ex);
                 roleResultManager.genericError(ex.getMessage());
             }
         } else {

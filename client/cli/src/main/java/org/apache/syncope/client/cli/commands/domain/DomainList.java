@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.domain;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DomainList extends AbstractDomainCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DomainList.class);
 
     private static final String LIST_HELP_MESSAGE = "domain --list";
 
@@ -36,6 +40,7 @@ public class DomainList extends AbstractDomainCommand {
             try {
                 domainResultManager.printDomains(domainSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing domain", ex);
                 domainResultManager.genericError(ex.getMessage());
             }
         } else {

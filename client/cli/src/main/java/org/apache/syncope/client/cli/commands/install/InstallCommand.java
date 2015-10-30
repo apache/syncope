@@ -23,9 +23,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Command(name = "install")
 public class InstallCommand extends AbstractCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(InstallCommand.class);
 
     private final InstallResultManager installResultManager = new InstallResultManager();
 
@@ -45,6 +49,7 @@ public class InstallCommand extends AbstractCommand {
                 try {
                     new InstallSetup().setup();
                 } catch (final FileNotFoundException | IllegalAccessException ex) {
+                    LOG.error("Error installing CLI", ex);
                     installResultManager.genericError(ex.getMessage());
                     break;
                 }

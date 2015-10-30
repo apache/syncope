@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.info;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.common.lib.to.SyncopeTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Info {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Info.class);
 
     private final SyncopeTO syncopeTO = SyncopeServices.get(SyncopeService.class).info();
 
@@ -32,6 +36,7 @@ public class Info {
         try {
             infoResultManager.printVersion(syncopeTO.getVersion());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -40,6 +45,7 @@ public class Info {
         try {
             infoResultManager.printPwdResetAllowed(syncopeTO.isPwdResetAllowed());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -48,6 +54,7 @@ public class Info {
         try {
             infoResultManager.printPwdResetRequiringSecurityQuestions(syncopeTO.isPwdResetRequiringSecurityQuestions());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -56,6 +63,7 @@ public class Info {
         try {
             infoResultManager.printSelfRegistrationAllowed(syncopeTO.isSelfRegAllowed());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -67,6 +75,7 @@ public class Info {
                     syncopeTO.getUserProvisioningManager(),
                     syncopeTO.getGroupProvisioningManager());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -78,6 +87,7 @@ public class Info {
                     syncopeTO.getUserWorkflowAdapter(),
                     syncopeTO.getGroupWorkflowAdapter());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -86,6 +96,7 @@ public class Info {
         try {
             infoResultManager.printAccountRules(syncopeTO.getAccountRules());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -94,6 +105,7 @@ public class Info {
         try {
             infoResultManager.printConnidLocations(syncopeTO.getConnIdLocations());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -102,6 +114,7 @@ public class Info {
         try {
             infoResultManager.printLogicActions(syncopeTO.getLogicActions());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -110,6 +123,7 @@ public class Info {
         try {
             infoResultManager.printMailTemplates(syncopeTO.getMailTemplates());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -118,6 +132,7 @@ public class Info {
         try {
             infoResultManager.printMappingItemTransformers(syncopeTO.getMappingItemTransformers());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -126,6 +141,7 @@ public class Info {
         try {
             infoResultManager.printPasswordRules(syncopeTO.getPasswordRules());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -134,6 +150,7 @@ public class Info {
         try {
             infoResultManager.printPropagationActions(syncopeTO.getPropagationActions());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -142,6 +159,7 @@ public class Info {
         try {
             infoResultManager.printPushActions(syncopeTO.getPushActions());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -150,6 +168,7 @@ public class Info {
         try {
             infoResultManager.printCorrelationActions(syncopeTO.getPushCorrelationRules());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -158,6 +177,7 @@ public class Info {
         try {
             infoResultManager.printReportlets(syncopeTO.getReportlets());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -166,6 +186,7 @@ public class Info {
         try {
             infoResultManager.printSyncActions(syncopeTO.getSyncActions());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -174,6 +195,7 @@ public class Info {
         try {
             infoResultManager.printCorrelationRules(syncopeTO.getSyncCorrelationRules());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -182,6 +204,7 @@ public class Info {
         try {
             infoResultManager.printJobs(syncopeTO.getTaskJobs());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -190,6 +213,7 @@ public class Info {
         try {
             infoResultManager.printValidators(syncopeTO.getValidators());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -198,6 +222,7 @@ public class Info {
         try {
             infoResultManager.printPasswordGenerator(syncopeTO.getPasswordGenerator());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
@@ -206,6 +231,7 @@ public class Info {
         try {
             infoResultManager.printVirtualAttributeCacheClass(syncopeTO.getVirAttrCache());
         } catch (final Exception ex) {
+            LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }

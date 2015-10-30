@@ -23,8 +23,12 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TaskRead extends AbstractTaskCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TaskRead.class);
 
     private static final String READ_HELP_MESSAGE = "task --read {TASK-ID} {TASK-ID} [...]";
 
@@ -41,8 +45,10 @@ public class TaskRead extends AbstractTaskCommand {
                 try {
                     taskTOs.add(taskSyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error reading task", ex);
                     taskResultManager.notBooleanDeletedError("task", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error reading task", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         taskResultManager.notFoundError("Task", parameter);
                     } else {

@@ -24,8 +24,12 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SchemaList extends AbstractSchemaCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SchemaList.class);
 
     private static final String LIST_HELP_MESSAGE = "schema --list {SCHEMA-TYPE}\n"
             + "   Schema type: PLAIN / DERIVED / VIRTUAL";
@@ -58,8 +62,10 @@ public class SchemaList extends AbstractSchemaCommand {
                         break;
                 }
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing schema", ex);
                 schemaResultManager.genericError(ex.getMessage());
             } catch (final IllegalArgumentException ex) {
+                LOG.error("Error listing schema", ex);
                 schemaResultManager.typeNotValidError(
                         "schema", input.firstParameter(), CommandUtils.fromEnumToArray(SchemaType.class));
             }

@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.report;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReportList extends AbstractReportCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ReportList.class);
 
     private static final String LIST_HELP_MESSAGE = "report --list";
 
@@ -36,6 +40,7 @@ public class ReportList extends AbstractReportCommand {
             try {
                 reportResultManager.printReports(reportSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing report", ex);
                 reportResultManager.genericError(ex.getMessage());
             }
         } else {

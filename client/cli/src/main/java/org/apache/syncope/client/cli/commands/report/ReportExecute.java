@@ -24,8 +24,12 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportExecTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReportExecute extends AbstractReportCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ReportExecute.class);
 
     private static final String EXECUTE_HELP_MESSAGE = "report --execute {REPORT-ID}";
 
@@ -44,6 +48,7 @@ public class ReportExecute extends AbstractReportCommand {
                 final ReportExecTO lastExecution = executionList.get(executionList.size() - 1);
                 reportResultManager.printReportExecution(Arrays.asList(lastExecution));
             } catch (final WebServiceException | SyncopeClientException ex) {
+                LOG.error("Error executin report", ex);
                 if (ex.getMessage().startsWith("NotFound")) {
                     reportResultManager.notFoundError("Report", input.firstParameter());
                 } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
@@ -52,6 +57,7 @@ public class ReportExecute extends AbstractReportCommand {
                     reportResultManager.genericError(ex.getMessage());
                 }
             } catch (final NumberFormatException ex) {
+                LOG.error("Error executin report", ex);
                 reportResultManager.numberFormatException("report", input.firstParameter());
             }
         } else {

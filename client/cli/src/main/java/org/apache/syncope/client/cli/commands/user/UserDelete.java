@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.user;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserDelete extends AbstractUserCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UserDelete.class);
 
     private static final String DELETE_HELP_MESSAGE = "user --delete {USER-ID} {USER-ID} [...]";
 
@@ -39,12 +43,14 @@ public class UserDelete extends AbstractUserCommand {
                     userSyncopeOperations.delete(parameter);
                     userResultManager.deletedMessage("User", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
+                    LOG.error("Error deleting user", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         userResultManager.notFoundError("User", parameter);
                     } else {
                         userResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error deleting user", ex);
                     userResultManager.numberFormatException("user", parameter);
                 }
             }

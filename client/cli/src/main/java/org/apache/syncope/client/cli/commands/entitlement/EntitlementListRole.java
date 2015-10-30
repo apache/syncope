@@ -23,8 +23,12 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EntitlementListRole extends AbstractEntitlementCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(EntitlementListRole.class);
 
     private static final String READ_HELP_MESSAGE = "entitlement --list-role {ENTITLEMENT-NAME}";
 
@@ -46,12 +50,14 @@ public class EntitlementListRole extends AbstractEntitlementCommand {
                     entitlementResultManager.genericMessage("No roles found for entitlement " + input.firstParameter());
                 }
             } catch (final SyncopeClientException | WebServiceException ex) {
+                LOG.error("Error reading entitlement", ex);
                 if (ex.getMessage().startsWith("NotFound")) {
                     entitlementResultManager.notFoundError("User", input.firstParameter());
                 } else {
                     entitlementResultManager.genericError(ex.getMessage());
                 }
             } catch (final NumberFormatException ex) {
+                LOG.error("Error reading entitlement", ex);
                 entitlementResultManager.numberFormatException("user", input.firstParameter());
             }
         } else {

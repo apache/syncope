@@ -24,8 +24,12 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectorDelete extends AbstractConnectorCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectorDelete.class);
 
     private static final String DELETE_HELP_MESSAGE = "connector --delete {CONNECTOR-ID} {CONNECTOR-ID} [...]";
 
@@ -45,7 +49,9 @@ public class ConnectorDelete extends AbstractConnectorCommand {
                 } catch (final NumberFormatException ex) {
                     connectorResultManager.numberFormatException("connector", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error deleting connector", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
+                        LOG.error("Error deleting connector", ex);
                         connectorResultManager.notFoundError("Connector", parameter);
                     } else {
                         connectorResultManager.genericError(ex.getMessage());

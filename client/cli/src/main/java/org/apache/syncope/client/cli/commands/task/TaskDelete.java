@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.task;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TaskDelete extends AbstractTaskCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TaskDelete.class);
 
     private static final String DELETE_HELP_MESSAGE = "task --delete {TASK-ID} {TASK-ID} [...]";
 
@@ -40,6 +44,7 @@ public class TaskDelete extends AbstractTaskCommand {
                     taskSyncopeOperations.delete(parameter);
                     taskResultManager.deletedMessage("Task", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
+                    LOG.error("Error deleting task", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         taskResultManager.notFoundError("Task", parameter);
                     } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
@@ -48,6 +53,7 @@ public class TaskDelete extends AbstractTaskCommand {
                         taskResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error deleting task", ex);
                     taskResultManager.notBooleanDeletedError("task", parameter);
                 }
             }

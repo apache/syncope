@@ -23,8 +23,12 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurationRead extends AbstractConfigurationCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationRead.class);
 
     private static final String READ_HELP_MESSAGE = "configuration --read {CONF-NAME} {CONF-NAME} [...]";
 
@@ -42,6 +46,7 @@ public class ConfigurationRead extends AbstractConfigurationCommand {
                 try {
                     attrList.add(configurationSyncopeOperations.get(parameter));
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error reading configuration", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         configurationResultManager.notFoundError("Configuration", parameter);
                     } else {

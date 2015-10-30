@@ -23,8 +23,12 @@ import javax.xml.ws.WebServiceException;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SchemaDetails extends AbstractSchemaCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SchemaDetails.class);
 
     private static final String DETAILS_HELP_MESSAGE = "schema --details";
 
@@ -49,6 +53,7 @@ public class SchemaDetails extends AbstractSchemaCommand {
                 details.put("virtual schema", String.valueOf(virtualSchemaSize));
                 schemaResultManager.printDetails(details);
             } catch (final SyncopeClientException | WebServiceException ex) {
+                LOG.error("Error reading details about schema", ex);
                 schemaResultManager.genericError(ex.getMessage());
             }
         } else {

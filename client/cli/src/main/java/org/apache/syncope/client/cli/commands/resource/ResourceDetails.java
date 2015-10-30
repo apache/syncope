@@ -24,8 +24,12 @@ import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResourceDetails extends AbstractResourceCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceDetails.class);
 
     private static final String DETAILS_HELP_MESSAGE = "resource --details";
 
@@ -43,6 +47,7 @@ public class ResourceDetails extends AbstractResourceCommand {
                 details.put("Total numbers", String.valueOf(resourceTOs.size()));
                 resourceResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error reading details about resource", ex);
                 resourceResultManager.genericError(ex.getMessage());
             }
         } else {

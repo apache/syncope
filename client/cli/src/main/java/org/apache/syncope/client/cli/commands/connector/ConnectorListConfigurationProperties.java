@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.connector;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectorListConfigurationProperties extends AbstractConnectorCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectorListConfigurationProperties.class);
 
     private static final String LIST_CONFIGURATION_HELP_MESSAGE
             = "connector --list-configuration-properties {CONNECTOR-ID} {CONNECTOR-ID} [...]";
@@ -40,8 +44,10 @@ public class ConnectorListConfigurationProperties extends AbstractConnectorComma
                     connectorResultManager.printConfigurationProperties(
                             connectorSyncopeOperations.read(parameter).getConf());
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error listening connector", ex);
                     connectorResultManager.numberFormatException("connector", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error listening connector", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         connectorResultManager.notFoundError("Connector", parameter);
                     } else {

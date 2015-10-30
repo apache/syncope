@@ -29,9 +29,13 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 public class ReportExportExecution extends AbstractReportCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ReportExportExecution.class);
 
     private static final String EXPORT_EXECUTION_HELP_MESSAGE
             = "report --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}\n"
@@ -74,17 +78,21 @@ public class ReportExportExecution extends AbstractReportCommand {
                             break;
                     }
                 } catch (final WebServiceException | SyncopeClientException ex) {
+                    LOG.error("Error exporting execution", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         reportResultManager.notFoundError("Report", parameter);
                     } else {
                         reportResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error exporting execution", ex);
                     reportResultManager.numberFormatException("report", parameter);
                 } catch (IOException | ParserConfigurationException | SAXException | TransformerException e) {
+                    LOG.error("Error exporting execution", e);
                     reportResultManager.genericError(
                             " - Error creating " + "export_" + parameter + " " + e.getMessage());
                 } catch (final IllegalArgumentException ex) {
+                    LOG.error("Error exporting execution", ex);
                     reportResultManager.typeNotValidError(
                             "format", input.firstParameter(),
                             CommandUtils.fromEnumToArray(ReportExecExportFormat.class));

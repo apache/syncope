@@ -24,8 +24,12 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserRead extends AbstractUserCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UserRead.class);
 
     private static final String READ_HELP_MESSAGE = "user --read {USER-ID} {USER-ID} [...]";
 
@@ -42,6 +46,7 @@ public class UserRead extends AbstractUserCommand {
                 try {
                     userTOs.add(userSyncopeOperations.read(parameter));
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error reading user", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         userResultManager.notFoundError("User", parameter);
                     } else {
@@ -49,6 +54,7 @@ public class UserRead extends AbstractUserCommand {
                     }
                     break;
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error reading user", ex);
                     userResultManager.numberFormatException("user", parameter);
                 }
             }

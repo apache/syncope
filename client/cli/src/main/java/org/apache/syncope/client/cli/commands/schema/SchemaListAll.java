@@ -24,8 +24,12 @@ import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SchemaListAll extends AbstractSchemaCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SchemaListAll.class);
 
     private static final String LIST_HELP_MESSAGE = "schema --list-all";
 
@@ -58,6 +62,7 @@ public class SchemaListAll extends AbstractSchemaCommand {
                     }
                 }
             } catch (final SyncopeClientException | WebServiceException ex) {
+                LOG.error("Error listing schema", ex);
                 schemaResultManager.genericError(ex.getMessage());
             }
         } else {

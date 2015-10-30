@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.notification;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NotificationRead extends AbstractNotificationCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NotificationRead.class);
 
     private static final String READ_HELP_MESSAGE = "notification --read {NOTIFICATION-ID} {NOTIFICATION-ID} [...]";
 
@@ -38,8 +42,10 @@ public class NotificationRead extends AbstractNotificationCommand {
                 try {
                     notificationResultManager.printNotification(notificationSyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error reading notification", ex);
                     notificationResultManager.notBooleanDeletedError("notification", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
+                    LOG.error("Error reading notification", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         notificationResultManager.notFoundError("Notification", parameter);
                     } else {

@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.task;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TaskListScheduledJobs extends AbstractTaskCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TaskListScheduledJobs.class);
 
     private static final String READ_HELP_MESSAGE = "task --list-scheduled-jobs";
 
@@ -36,6 +40,7 @@ public class TaskListScheduledJobs extends AbstractTaskCommand {
             try {
                 taskResultManager.printTaskExecTO(taskSyncopeOperations.listScheduledJobs());
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing task", ex);
                 taskResultManager.genericError(ex.getMessage());
             }
         } else {

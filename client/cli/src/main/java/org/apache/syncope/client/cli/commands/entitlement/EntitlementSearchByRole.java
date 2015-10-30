@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.entitlement;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EntitlementSearchByRole extends AbstractEntitlementCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(EntitlementSearchByRole.class);
 
     private static final String READ_HELP_MESSAGE = "entitlement --search-by-role {ROLE-ID}";
 
@@ -38,12 +42,14 @@ public class EntitlementSearchByRole extends AbstractEntitlementCommand {
                 entitlementResultManager.toView(
                         entitlementSyncopeOperations.entitlementsPerRole(input.firstParameter()));
             } catch (final SyncopeClientException | WebServiceException ex) {
+                LOG.error("Error searching entitlement", ex);
                 if (ex.getMessage().startsWith("NotFound")) {
                     entitlementResultManager.notFoundError("User", input.firstParameter());
                 } else {
                     entitlementResultManager.genericError(ex.getMessage());
                 }
             } catch (final NumberFormatException ex) {
+                LOG.error("Error searching entitlement", ex);
                 entitlementResultManager.numberFormatException("user", input.firstParameter());
             }
         } else {

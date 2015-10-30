@@ -24,8 +24,12 @@ import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoggerDetails extends AbstractLoggerCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LoggerDetails.class);
 
     private static final String LIST_HELP_MESSAGE = "logger --details";
 
@@ -84,6 +88,7 @@ public class LoggerDetails extends AbstractLoggerCommand {
                 details.put("Set to WARN", String.valueOf(warnLevel));
                 loggerResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error reading details about logger", ex);
                 loggerResultManager.genericError(ex.getMessage());
             }
         } else {

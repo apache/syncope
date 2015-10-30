@@ -22,8 +22,12 @@ import java.util.Map;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RealmDetails extends AbstractRealmCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RealmDetails.class);
 
     private static final String DETAILS_HELP_MESSAGE = "realm --details";
 
@@ -40,6 +44,7 @@ public class RealmDetails extends AbstractRealmCommand {
                 details.put("Total number", String.valueOf(realmSyncopeOperations.list().size()));
                 realmResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error reading details about realm", ex);
                 realmResultManager.genericError(ex.getMessage());
             }
         } else {

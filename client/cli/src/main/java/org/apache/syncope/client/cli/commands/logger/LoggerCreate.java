@@ -25,8 +25,12 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoggerCreate extends AbstractLoggerCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LoggerCreate.class);
 
     private static final String CREATE_HELP_MESSAGE
             = "logger --create {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]";
@@ -52,6 +56,7 @@ public class LoggerCreate extends AbstractLoggerCommand {
                     loggerSyncopeOperations.update(loggerTO);
                     loggerTOs.add(loggerTO);
                 } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
+                    LOG.error("Error creating logger", ex);
                     loggerResultManager.typeNotValidError(
                             "logger level", input.firstParameter(), CommandUtils.fromEnumToArray(LoggerLevel.class));
                     failed = true;

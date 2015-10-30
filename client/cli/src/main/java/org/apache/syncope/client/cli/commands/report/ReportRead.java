@@ -24,8 +24,12 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReportRead extends AbstractReportCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ReportRead.class);
 
     private static final String READ_HELP_MESSAGE = "report --read {REPORT-ID} {REPORT-ID} [...]";
 
@@ -42,8 +46,10 @@ public class ReportRead extends AbstractReportCommand {
                 try {
                     reportTOs.add(reportSyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
+                    LOG.error("Error reading report", ex);
                     reportResultManager.numberFormatException("report", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
+                    LOG.error("Error reading report", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         reportResultManager.notFoundError("Report", parameter);
                     } else {

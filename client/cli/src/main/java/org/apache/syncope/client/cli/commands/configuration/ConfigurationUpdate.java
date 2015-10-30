@@ -23,8 +23,12 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurationUpdate extends AbstractConfigurationCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationUpdate.class);
 
     private static final String UPDATE_HELP_MESSAGE
             = "configuration --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]";
@@ -50,11 +54,13 @@ public class ConfigurationUpdate extends AbstractConfigurationCommand {
                     configurationSyncopeOperations.set(attrTO);
                     attrList.add(attrTO);
                 } catch (final IllegalArgumentException ex) {
+                    LOG.error("Error updating configuration", ex);
                     configurationResultManager.genericError(ex.getMessage());
                     configurationResultManager.genericError(UPDATE_HELP_MESSAGE);
                     failed = true;
                     break;
                 } catch (final SyncopeClientException | WebServiceException ex) {
+                    LOG.error("Error updating configuration", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         configurationResultManager.notFoundError("Configuration", pairParameter.getKey());
                     } else if (ex.getMessage().startsWith("InvalidValues")) {

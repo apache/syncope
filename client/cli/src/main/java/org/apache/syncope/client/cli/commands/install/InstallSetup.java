@@ -27,8 +27,12 @@ import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.util.FileSystemUtils;
 import org.apache.syncope.client.cli.util.JasyptUtils;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InstallSetup {
+
+    private static final Logger LOG = LoggerFactory.getLogger(InstallSetup.class);
 
     private final InstallResultManager installResultManager = new InstallResultManager();
 
@@ -167,8 +171,10 @@ public class InstallSetup {
             final SyncopeService syncopeService = SyncopeServices.get(SyncopeService.class);
             installResultManager.installationSuccessful(syncopeService.info().getVersion());
         } catch (final ProcessingException ex) {
+            LOG.error("Error installing CLI", ex);
             installResultManager.manageProcessingException(ex);
         } catch (final Exception e) {
+            LOG.error("Error installing CLI", e);
             installResultManager.manageException(e);
         }
     }

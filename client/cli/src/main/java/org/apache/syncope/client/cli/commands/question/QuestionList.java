@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.question;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QuestionList extends AbstractQuestionCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(QuestionList.class);
 
     private static final String LIST_HELP_MESSAGE = "question --list";
 
@@ -36,6 +40,7 @@ public class QuestionList extends AbstractQuestionCommand {
             try {
                 questionResultManager.printQuestions(questionSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing question", ex);
                 questionResultManager.genericError(ex.getMessage());
             }
         } else {

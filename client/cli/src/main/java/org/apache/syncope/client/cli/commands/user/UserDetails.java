@@ -24,8 +24,12 @@ import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserDetails extends AbstractUserCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UserDetails.class);
 
     private static final String COUNT_HELP_MESSAGE = "user --details";
 
@@ -64,6 +68,7 @@ public class UserDetails extends AbstractUserCommand {
                 details.put("Without roles", String.valueOf(withoutRole));
                 userResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error reading details about user", ex);
                 userResultManager.genericError(ex.getMessage());
             }
         } else {

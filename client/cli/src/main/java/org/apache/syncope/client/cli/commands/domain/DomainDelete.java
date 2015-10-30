@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.domain;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DomainDelete extends AbstractDomainCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DomainDelete.class);
 
     private static final String DELETE_HELP_MESSAGE = "domain --delete {DOMAIN-NAME} {DOMAIN-NAME} [...]";
 
@@ -38,6 +42,7 @@ public class DomainDelete extends AbstractDomainCommand {
                     domainSyncopeOperations.delete(parameter);
                     domainResultManager.deletedMessage("Domain", parameter);
                 } catch (final SyncopeClientException ex) {
+                    LOG.error("Error deleting domain", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         domainResultManager.notFoundError("Domain", parameter);
                     } else {

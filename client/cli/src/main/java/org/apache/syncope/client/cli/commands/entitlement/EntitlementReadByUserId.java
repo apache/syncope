@@ -21,8 +21,12 @@ package org.apache.syncope.client.cli.commands.entitlement;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EntitlementReadByUserId extends AbstractEntitlementCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(EntitlementReadByUserId.class);
 
     private static final String READ_HELP_MESSAGE = "entitlement --read-by-userid {USER-ID}";
 
@@ -38,12 +42,14 @@ public class EntitlementReadByUserId extends AbstractEntitlementCommand {
                 entitlementResultManager.toView(
                         entitlementSyncopeOperations.userIdEntitlements(input.firstParameter()));
             } catch (final SyncopeClientException | WebServiceException ex) {
+                LOG.error("Error reading entitlement", ex);
                 if (ex.getMessage().startsWith("NotFound")) {
                     entitlementResultManager.notFoundError("User", input.firstParameter());
                 } else {
                     entitlementResultManager.genericError(ex.getMessage());
                 }
             } catch (final NumberFormatException ex) {
+                LOG.error("Error reading entitlement", ex);
                 entitlementResultManager.numberFormatException("user", input.firstParameter());
             }
         } else {

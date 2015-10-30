@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.cli.commands.self;
 
-public class AbstractWorkflowCommand {
+public abstract class AbstractWorkflowCommand {
 
     protected final WorkflowResultManager workflowResultManager = new WorkflowResultManager();
 

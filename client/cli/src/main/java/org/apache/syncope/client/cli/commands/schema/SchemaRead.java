@@ -26,8 +26,12 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SchemaRead extends AbstractSchemaCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SchemaRead.class);
 
     private static final String READ_HELP_MESSAGE = "schema --read {SCHEMA-TYPE} {SCHEMA-KEY}\n"
             + "   Schema type: PLAIN / DERIVED / VIRTUAL";
@@ -61,12 +65,14 @@ public class SchemaRead extends AbstractSchemaCommand {
                         break;
                 }
             } catch (final SyncopeClientException | WebServiceException ex) {
+                LOG.error("Error reading schema", ex);
                 if (ex.getMessage().startsWith("NotFound")) {
                     schemaResultManager.notFoundError("Schema", parameters[0]);
                 } else {
                     schemaResultManager.genericError(ex.getMessage());
                 }
             } catch (final IllegalArgumentException ex) {
+                LOG.error("Error reading schema", ex);
                 schemaResultManager.typeNotValidError(
                         "schema", input.firstParameter(), CommandUtils.fromEnumToArray(SchemaType.class));
             }

@@ -22,8 +22,12 @@ import java.util.Map;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DomainDetails extends AbstractDomainCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DomainDetails.class);
 
     private static final String LIST_HELP_MESSAGE = "domain --details";
 
@@ -40,6 +44,7 @@ public class DomainDetails extends AbstractDomainCommand {
                 details.put("Total number", String.valueOf(domainSyncopeOperations.list().size()));
                 domainResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error reading details about domain", ex);
                 domainResultManager.genericError(ex.getMessage());
             }
         } else {

@@ -32,8 +32,12 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TaskDetails extends AbstractTaskCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TaskDetails.class);
 
     private static final String DETAILS_HELP_MESSAGE = "task --details";
 
@@ -125,8 +129,10 @@ public class TaskDetails extends AbstractTaskCommand {
                 details.put("scheduled jobs", String.valueOf(scheduledJobsSize));
                 taskResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error reading details about task", ex);
                 taskResultManager.genericError(ex.getMessage());
             } catch (final IllegalArgumentException ex) {
+                LOG.error("Error reading details about task", ex);
                 taskResultManager.typeNotValidError(
                         "task", input.firstParameter(), CommandUtils.fromEnumToArray(TaskType.class));
             }

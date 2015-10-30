@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.domain;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DomainRead extends AbstractDomainCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DomainRead.class);
 
     private static final String READ_HELP_MESSAGE = "domain --read {DOMAIN-NAME} {DOMAIN-NAME} [...]";
 
@@ -37,6 +41,7 @@ public class DomainRead extends AbstractDomainCommand {
                 try {
                     domainResultManager.printDomain(domainSyncopeOperations.read(parameter));
                 } catch (final SyncopeClientException ex) {
+                    LOG.error("Error reading domain", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         domainResultManager.notFoundError("Domain", parameter);
                     } else {

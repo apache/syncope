@@ -24,8 +24,12 @@ import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.commands.realm.RealmSyncopeOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserSearchByAttribute extends AbstractUserCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UserSearchByAttribute.class);
 
     private static final String SEARCH_HELP_MESSAGE = "user --search-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}";
 
@@ -55,12 +59,14 @@ public class UserSearchByAttribute extends AbstractUserCommand {
                     userResultManager.printUsers(userTOs);
                 }
             } catch (final WebServiceException | SyncopeClientException ex) {
+                LOG.error("Error searching user", ex);
                 if (ex.getMessage().startsWith("NotFound")) {
                     userResultManager.notFoundError("User with " + pairParameter.getKey(), pairParameter.getValue());
                 } else {
                     userResultManager.genericError(ex.getMessage());
                 }
             } catch (final IllegalArgumentException ex) {
+                LOG.error("Error searching user", ex);
                 userResultManager.genericError(ex.getMessage());
                 userResultManager.genericError(SEARCH_HELP_MESSAGE);
             }

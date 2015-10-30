@@ -20,8 +20,12 @@ package org.apache.syncope.client.cli.commands.user;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserGetKey extends AbstractUserCommand {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UserGetKey.class);
 
     private static final String GET_HELP_MESSAGE = "user --get-user-key {USERNAME}";
 
@@ -36,6 +40,7 @@ public class UserGetKey extends AbstractUserCommand {
             try {
                 userResultManager.genericMessage(userSyncopeOperations.getIdFromUsername(input.firstParameter()));
             } catch (final SyncopeClientException ex) {
+                LOG.error("Error getting user", ex);
                 userResultManager.genericError(ex.getMessage());
             }
         } else {
