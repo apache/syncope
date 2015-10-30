@@ -19,6 +19,7 @@
 package org.apache.syncope.client.cli.commands.connector;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
@@ -74,8 +75,6 @@ public class ConnectorResultManager extends CommonsResultManager {
             System.out.println("    display name: " + connBundleTO.getDisplayName());
             System.out.println("    location: " + connBundleTO.getLocation());
             System.out.println("    version: " + connBundleTO.getVersion());
-            System.out.println("    PROPERTIES:");
-            printConfPropSchema(connBundleTO.getProperties());
         }
     }
 
@@ -94,5 +93,9 @@ public class ConnectorResultManager extends CommonsResultManager {
     public void printConfigurationProperties(final Set<ConnConfProperty> connConfPropertys) {
         printConfiguration(connConfPropertys);
 
+    }
+
+    public void printDetails(final Map<String, String> details) {
+        printDetails("connectors details", details);
     }
 }

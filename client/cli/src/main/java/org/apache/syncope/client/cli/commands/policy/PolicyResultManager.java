@@ -19,6 +19,7 @@
 package org.apache.syncope.client.cli.commands.policy;
 
 import java.util.LinkedList;
+import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
@@ -119,5 +120,9 @@ public class PolicyResultManager extends CommonsResultManager {
                     + policyTO.getSpecification().getCorrelationRules().toString());
         }
         System.out.println("");
+    }
+
+    public void printDetails(final Map<String, String> details) {
+        printDetails("policies details", details);
     }
 }

@@ -19,6 +19,7 @@
 package org.apache.syncope.client.cli.commands.report;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.report.AbstractReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
@@ -27,7 +28,7 @@ import org.apache.syncope.common.lib.to.ReportTO;
 
 public class ReportResultManager extends CommonsResultManager {
 
-    public void fromValueToView(final List<ReportTO> reportTOs) {
+    public void printReports(final List<ReportTO> reportTOs) {
         for (final ReportTO reportTO : reportTOs) {
             printReport(reportTO);
         }
@@ -38,8 +39,6 @@ public class ReportResultManager extends CommonsResultManager {
         System.out.println("    name: " + reportTO.getName());
         System.out.println("    cron expression: " + reportTO.getCronExpression());
         System.out.println("    latest execution status: " + reportTO.getLatestExecStatus());
-        System.out.println("    last execution: " + reportTO.getLastExec());
-        System.out.println("    next execution: " + reportTO.getNextExec());
         System.out.println("    start date: " + reportTO.getStartDate());
         System.out.println("    end date: " + reportTO.getEndDate());
         System.out.println("    CONF:");
@@ -72,5 +71,9 @@ public class ReportResultManager extends CommonsResultManager {
             System.out.println("       end date: " + reportExecTO.getEndDate());
             System.out.println("       report id: " + reportExecTO.getReport());
         }
+    }
+    
+    public void printDetails(final Map<String, String> details) {
+        printDetails("reports details", details);
     }
 }

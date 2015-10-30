@@ -144,7 +144,6 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     matching rule: " + pushTaskTO.getMatchingRule());
         System.out.println("     not matching rule: " + pushTaskTO.getUnmatchingRule());
         printTaskExecTO(pushTaskTO.getExecutions());
-
         System.out.println("");
     }
 
@@ -176,19 +175,12 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     description: " + syncTaskTO.getDescription());
         System.out.println("     is full reconciliation: "
                 + syncTaskTO.isFullReconciliation());
-        System.out.println("     is perform create: " + syncTaskTO.isPerformCreate());
-        System.out.println("     is perform delete: " + syncTaskTO.isPerformDelete());
-        System.out.println("     is perform update: " + syncTaskTO.isPerformUpdate());
-        System.out.println("     is sync status: " + syncTaskTO.isSyncStatus());
-        System.out.println("     templates:");
-        for (Map.Entry<String, AnyTO> entrySet : syncTaskTO.getTemplates().entrySet()) {
-            final String key = entrySet.getKey();
-            final AnyTO value = entrySet.getValue();
-            System.out.println("        " + key + " key: " + value.getKey()
-                    + " of realm" + value.getRealm()
-                    + " on resource " + value.getResources());
-
-        }
+        System.out.println("     perform create: " + syncTaskTO.isPerformCreate());
+        System.out.println("     perform delete: " + syncTaskTO.isPerformDelete());
+        System.out.println("     perform update: " + syncTaskTO.isPerformUpdate());
+        System.out.println("     sync status: " + syncTaskTO.isSyncStatus());
+        System.out.println("     TEMPLATES:");
+        printTemplates(syncTaskTO.getTemplates());
         System.out.println("     start date: " + syncTaskTO.getStartDate());
         System.out.println("     end date: " + syncTaskTO.getEndDate());
         System.out.println("     next execution: " + syncTaskTO.getNextExec());
@@ -202,6 +194,17 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     unmatching rule: " + syncTaskTO.getUnmatchingRule());
         printTaskExecTO(syncTaskTO.getExecutions());
         System.out.println("");
+    }
+
+    private void printTemplates(final Map<String, AnyTO> templates) {
+        for (final Map.Entry<String, AnyTO> entrySet : templates.entrySet()) {
+            final String key = entrySet.getKey();
+            final AnyTO value = entrySet.getValue();
+            System.out.println("        " + key + " key: " + value.getKey()
+                    + " of realm" + value.getRealm()
+                    + " on resource " + value.getResources());
+
+        }
     }
 
     public void printTaskExecTO(final List<TaskExecTO> taskExecTOs) {
@@ -218,5 +221,9 @@ public class TaskResultManager extends CommonsResultManager {
             System.out.println("       end date: " + taskExecTO.getEndDate());
             System.out.println("");
         }
+    }
+
+    public void printDetails(final Map<String, String> details) {
+        printDetails("tasks details", details);
     }
 }

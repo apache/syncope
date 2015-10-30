@@ -20,6 +20,7 @@ package org.apache.syncope.client.cli.commands.schema;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.client.cli.view.Table;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
@@ -92,5 +93,9 @@ public class SchemaResultManager extends CommonsResultManager {
                     String.valueOf(((VirSchemaTO) schemaTO).isReadonly()))));
         }
         tableBuilder.build().print();
+    }
+
+    public void printDetails(final Map<String, String> details) {
+        printDetails("Schemas details", details);
     }
 }

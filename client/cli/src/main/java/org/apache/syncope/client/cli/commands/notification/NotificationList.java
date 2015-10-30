@@ -20,7 +20,6 @@ package org.apache.syncope.client.cli.commands.notification;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.NotificationTO;
 
 public class NotificationList extends AbstractNotificationCommand {
 
@@ -35,9 +34,7 @@ public class NotificationList extends AbstractNotificationCommand {
     public void list() {
         if (input.parameterNumber() == 0) {
             try {
-                for (final NotificationTO notificationTO : notificationSyncopeOperations.list()) {
-                    System.out.println(notificationTO);
-                }
+                notificationResultManager.printNotifications(notificationSyncopeOperations.list());
             } catch (final SyncopeClientException ex) {
                 notificationResultManager.genericError(ex.getMessage());
             }

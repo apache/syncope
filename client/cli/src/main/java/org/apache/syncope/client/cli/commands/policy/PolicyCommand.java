@@ -31,6 +31,7 @@ public class PolicyCommand extends AbstractCommand {
     private static final String HELP_MESSAGE = "Usage: policy [options]\n"
             + "  Options:\n"
             + "    --help \n"
+            + "    --details \n"
             + "    --list-policy \n"
             + "       Syntax: --list-policy {POLICY-TYPE} \n"
             + "          Policy type: ACCOUNT / PASSWORD / SYNC / PUSH\n"
@@ -46,6 +47,9 @@ public class PolicyCommand extends AbstractCommand {
         }
 
         switch (Options.fromName(input.getOption())) {
+            case DETAILS:
+                new PolicyDetails(input).details();
+                break;
             case LIST_POLICY:
                 new PolicyList(input).list();
                 break;
@@ -71,6 +75,7 @@ public class PolicyCommand extends AbstractCommand {
     private enum Options {
 
         HELP("--help"),
+        DETAILS("--details"),
         LIST_POLICY("--list-policy"),
         READ("--read"),
         DELETE("--delete");

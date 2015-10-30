@@ -31,6 +31,7 @@ public class SchemaCommand extends AbstractCommand {
     private static final String HELP_MESSAGE = "Usage: schema [options]\n"
             + "  Options:\n"
             + "    --help \n"
+            + "    --details \n"
             + "    --list-all\n"
             + "    --list-plain\n"
             + "    --list-derived\n"
@@ -47,6 +48,9 @@ public class SchemaCommand extends AbstractCommand {
         }
 
         switch (Options.fromName(input.getOption())) {
+            case DETAILS:
+                new SchemaDetails(input).details();
+                break;
             case LIST:
                 new SchemaList(input).list();
                 break;
@@ -84,6 +88,7 @@ public class SchemaCommand extends AbstractCommand {
     private enum Options {
 
         HELP("--help"),
+        DETAILS("--details"),
         LIST("--list"),
         LIST_ALL("--list-all"),
         LIST_PLAIN("--list-plain"),

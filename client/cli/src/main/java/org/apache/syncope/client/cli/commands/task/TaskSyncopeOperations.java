@@ -21,7 +21,6 @@ package org.apache.syncope.client.cli.commands.task;
 import java.util.List;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
-import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -48,8 +47,8 @@ public class TaskSyncopeOperations {
         taskService.read(Long.valueOf(taskId));
     }
 
-    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType type, final TaskQuery query) {
-        return taskService.list(type, query);
+    public List<AbstractTaskTO> list(final TaskType type) {
+        return taskService.list(type, new TaskQuery()).getResult();
     }
 
     public TaskExecTO readExecution(final String executionId) {

@@ -31,6 +31,7 @@ public class DomainCommand extends AbstractCommand {
     private static final String HELP_MESSAGE = "Usage: domain [options]\n"
             + "  Options:\n"
             + "    --help \n"
+            + "    --details \n"
             + "    --list \n"
             + "    --delete \n"
             + "       Syntax: --delete {DOMAIN-NAME} {DOMAIN-NAME} [...]\n";
@@ -41,6 +42,9 @@ public class DomainCommand extends AbstractCommand {
             input.setOption(Options.HELP.getOptionName());
         }
         switch (Options.fromName(input.getOption())) {
+            case DETAILS:
+                new DomainDetails(input).details();
+                break;
             case LIST:
                 new DomainList(input).list();
                 break;
@@ -63,6 +67,7 @@ public class DomainCommand extends AbstractCommand {
     private enum Options {
 
         HELP("--help"),
+        DETAILS("--details"),
         LIST("--list"),
         DELETE("--delete");
 

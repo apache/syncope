@@ -16,30 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.user;
+package org.apache.syncope.client.cli.commands.resource;
 
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.ResourceTO;
 
-public class UserCount extends AbstractUserCommand {
+public class ResourceDetails extends AbstractResourceCommand {
 
-    private static final String COUNT_HELP_MESSAGE = "user --count";
+    private static final String DETAILS_HELP_MESSAGE = "resource --details";
 
     private final Input input;
 
-    public UserCount(final Input input) {
+    public ResourceDetails(final Input input) {
         this.input = input;
     }
 
-    public void count() {
+    public void details() {
         if (input.parameterNumber() == 0) {
             try {
-                userResultManager.genericMessage("Total users: " + userSyncopeOperations.count());
+                final Map<String, String> details = new LinkedMap<>();
+                final List<ResourceTO> resourceTOs = resourceSyncopeOperations.list();
+                details.put("Total numbers", String.valueOf(resourceTOs.size()));
+                resourceResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {
-                userResultManager.genericError(ex.getMessage());
+                resourceResultManager.genericError(ex.getMessage());
             }
         } else {
-            userResultManager.unnecessaryParameters(input.listParameters(), COUNT_HELP_MESSAGE);
+            resourceResultManager.unnecessaryParameters(input.listParameters(), DETAILS_HELP_MESSAGE);
         }
     }
 }

@@ -31,6 +31,7 @@ public class ConnectorCommand extends AbstractCommand {
     private static final String HELP_MESSAGE = "Usage: connector [options]\n"
             + "  Options:\n"
             + "    --help \n"
+            + "    --details \n"
             + "    --list \n"
             + "    --list-bundles \n"
             + "    --list-configuration-properties\n"
@@ -47,6 +48,9 @@ public class ConnectorCommand extends AbstractCommand {
         }
 
         switch (ConnectorOptions.fromName(input.getOption())) {
+            case DETAILS:
+                new ConnectorDetails(input).details();
+                break;
             case LIST:
                 new ConnectorList(input).list();
                 break;
@@ -82,6 +86,7 @@ public class ConnectorCommand extends AbstractCommand {
 
         HELP("--help"),
         LIST("--list"),
+        DETAILS("--details"),
         LIST_BUNDLES("--list-bundles"),
         LIST_CONFIGURATION("--list-configuration-properties"),
         READ("--read"),

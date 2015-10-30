@@ -18,9 +18,13 @@
  */
 package org.apache.syncope.client.cli.commands;
 
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.client.cli.view.Messages;
+import org.apache.syncope.client.cli.view.Table;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 
 public abstract class CommonsResultManager {
@@ -79,5 +83,14 @@ public abstract class CommonsResultManager {
             System.out.println("       overridable: " + configuration.isOverridable());
             System.out.println("");
         }
+    }
+    
+    protected void printDetails(final String title, final Map<String, String> details) {
+        final Table.TableBuilder tableBuilder
+                = new Table.TableBuilder(title).header("detail").header("value");
+        for (final Map.Entry<String, String> entrySet : details.entrySet()) {
+            tableBuilder.rowValues(new LinkedList(Arrays.asList(entrySet.getKey(), entrySet.getValue())));
+        }
+        tableBuilder.build().print();
     }
 }
