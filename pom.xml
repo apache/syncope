@@ -345,7 +345,7 @@ under the License.
 
     <cxf.version>3.0.7-SNAPSHOT</cxf.version>	
     <spring.version>4.0.9.RELEASE</spring.version>
-    <spring-security.version>3.2.8.RELEASE</spring-security.version>
+    <spring-security.version>3.2.9.RELEASE</spring-security.version>
     <jackson.version>2.4.6</jackson.version>
     <velocity.version>1.7</velocity.version>
     <velocitytools.version>2.0</velocitytools.version>
