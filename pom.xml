@@ -333,7 +333,7 @@ under the License.
     <jackson.version>2.6.3</jackson.version>
 
     <spring.version>4.2.2.RELEASE</spring.version>
-    <spring-security.version>4.0.2.RELEASE</spring-security.version>
+    <spring-security.version>4.0.3.RELEASE</spring-security.version>
 
     <openjpa.version>2.4.0</openjpa.version>
     <commons-dbcp.version>2.1.1</commons-dbcp.version>
