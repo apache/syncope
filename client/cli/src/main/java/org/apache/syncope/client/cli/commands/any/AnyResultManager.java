@@ -16,42 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.group;
+package org.apache.syncope.client.cli.commands.any;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.GroupTO;
 
-public class GroupResultManager extends CommonsResultManager {
+public class AnyResultManager extends CommonsResultManager {
 
-    public void printGroups(final List<GroupTO> groupTOs) {
+    public void printAnys(final List<AnyObjectTO> anyObjectTOs) {
         System.out.println("");
-        for (final GroupTO groupTO : groupTOs) {
-            printGroup(groupTO);
+        for (final AnyObjectTO anyObjectTO : anyObjectTOs) {
+            printGroup(anyObjectTO);
         }
     }
 
-    public void printGroup(final GroupTO groupTO) {
-        System.out.println(" > GROUP ID: " + groupTO.getKey());
-        System.out.println("    name: " + groupTO.getName());
-        System.out.println("    display name: " + groupTO.getDisplayName());
-        System.out.println("    type: " + groupTO.getType());
-        System.out.println("    realm: " + groupTO.getRealm());
-        System.out.println("    status: " + groupTO.getStatus());
-        System.out.println("    user owner: " + groupTO.getUserOwner());
-        System.out.println("    group owner: " + groupTO.getGroupOwner());
+    public void printGroup(final AnyObjectTO anyObjectTO) {
+        System.out.println(" > ANY ID: " + anyObjectTO.getKey());
+        System.out.println("    type: " + anyObjectTO.getType());
+        System.out.println("    realm: " + anyObjectTO.getRealm());
+        System.out.println("    status: " + anyObjectTO.getStatus());
         System.out.println("    RESOURCES: ");
-        printResources(groupTO.getResources());
+        printResources(anyObjectTO.getResources());
         System.out.println("    PLAIN ATTRIBUTES: ");
-        printAttributes(groupTO.getPlainAttrs());
+        printAttributes(anyObjectTO.getPlainAttrs());
         System.out.println("    DERIVED ATTRIBUTES: ");
-        printAttributes(groupTO.getDerAttrs());
+        printAttributes(anyObjectTO.getDerAttrs());
         System.out.println("    VIRTUAL ATTRIBUTES: ");
-        printAttributes(groupTO.getVirAttrs());
-        System.out.println("");
+        printAttributes(anyObjectTO.getVirAttrs());
     }
 
     private void printResources(final Set<String> resources) {
@@ -64,6 +59,7 @@ public class GroupResultManager extends CommonsResultManager {
         for (final AttrTO attribute : attributes) {
             printAttribute(attribute);
         }
+        System.out.println("");
     }
 
     public void printAttribute(final AttrTO attribute) {
@@ -76,7 +72,6 @@ public class GroupResultManager extends CommonsResultManager {
             attributeMessageBuilder.append(" - is readonly");
         }
         System.out.println(attributeMessageBuilder.toString());
-        System.out.println("");
     }
 
     public void printDetails(final Map<String, String> details) {
