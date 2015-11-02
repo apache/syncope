@@ -76,7 +76,7 @@ public class SchemaCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new SchemaResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new SchemaResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

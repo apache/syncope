@@ -66,7 +66,7 @@ public class ConfigurationCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new ConfigurationResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new ConfigurationResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
                 break;
         }
     }

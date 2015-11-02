@@ -87,7 +87,7 @@ public class TaskCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new TaskResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new TaskResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

@@ -58,7 +58,7 @@ public class InstallCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                installResultManager.defaultError(input.getOption(), HELP_MESSAGE);
+                installResultManager.defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

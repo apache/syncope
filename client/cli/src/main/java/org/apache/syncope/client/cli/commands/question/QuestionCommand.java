@@ -56,7 +56,7 @@ public class QuestionCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new QuestionResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new QuestionResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

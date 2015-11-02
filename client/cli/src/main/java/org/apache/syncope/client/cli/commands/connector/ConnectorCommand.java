@@ -73,7 +73,7 @@ public class ConnectorCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new ConnectorResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new ConnectorResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

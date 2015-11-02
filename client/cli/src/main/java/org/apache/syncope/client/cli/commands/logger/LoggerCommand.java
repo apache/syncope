@@ -76,7 +76,7 @@ public class LoggerCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new LoggerResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new LoggerResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

@@ -67,7 +67,7 @@ public class EntitlementCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new EntitlementResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new EntitlementResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

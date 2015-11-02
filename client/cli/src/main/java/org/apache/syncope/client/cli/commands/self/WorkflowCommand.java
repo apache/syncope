@@ -53,7 +53,7 @@ public class WorkflowCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new WorkflowResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new WorkflowResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

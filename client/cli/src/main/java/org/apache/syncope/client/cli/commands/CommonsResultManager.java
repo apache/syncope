@@ -57,7 +57,7 @@ public abstract class CommonsResultManager {
         Messages.printCommandOptionMessage(message);
     }
 
-    public void defaultError(final String option, final String helpMessage) {
+    public void defaultOptionMessage(final String option, final String helpMessage) {
         Messages.printDefaultMessage(option, helpMessage);
     }
 

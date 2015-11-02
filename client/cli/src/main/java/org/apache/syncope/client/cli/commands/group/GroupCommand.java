@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.realm;
+package org.apache.syncope.client.cli.commands.group;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,32 +25,52 @@ import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
 
-@Command(name = "realm")
-public class RealmCommand extends AbstractCommand {
+@Command(name = "group")
+public class GroupCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: realm [options]\n"
+    private static final String HELP_MESSAGE = "\nUsage: group [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --details \n"
-            + "    --list \n";
+            + "    --list \n"
+            + "    --read \n"
+            + "       Syntax: --read {GROUP-ID} {GROUP-ID} [...]\n"
+            + "    --read-attr-by-schema-type {GROUP-ID} {SCHEMA-TYPE}\n"
+            + "       Schema type: PLAIN / DERIVED / VIRTUAL\n"
+            + "    --read-attr-by-schema {GROUP-ID} {SCHEMA-TYPE} {SCHEMA-NAME}\n"
+            + "       Schema type: PLAIN / DERIVED / VIRTUAL\n"
+            + "    --delete \n"
+            + "       Syntax: --delete {GROUP-ID} {GROUP-ID} [...]\n";
 
     @Override
     public void execute(final Input input) {
         if (StringUtils.isBlank(input.getOption())) {
-            input.setOption(RealmOptions.HELP.getOptionName());
+            input.setOption(GroupOptions.HELP.getOptionName());
         }
-        switch (RealmOptions.fromName(input.getOption())) {
+        switch (GroupOptions.fromName(input.getOption())) {
             case DETAILS:
-                new RealmDetails(input).details();
+                new GroupDetails(input).details();
                 break;
             case LIST:
-                new RealmList(input).list();
+                new GroupList(input).list();
+                break;
+            case READ:
+                new GroupRead(input).read();
+                break;
+            case READ_ATTRIBUTES_BY_SCHEMA_TYPE:
+                new GroupReadAttributesBySchemaType(input).read();
+                break;
+            case READ_ATTRIBUTES_BY_SCHEMA:
+                new GroupReadAttributeBySchemaTypeAndSchemaName(input).read();
+                break;
+            case DELETE:
+                new GroupDelete(input).delete();
                 break;
             case HELP:
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new RealmResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                new GroupResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 
@@ -59,15 +79,19 @@ public class RealmCommand extends AbstractCommand {
         return HELP_MESSAGE;
     }
 
-    private enum RealmOptions {
+    private enum GroupOptions {
 
         HELP("--help"),
         DETAILS("--details"),
-        LIST("--list");
+        LIST("--list"),
+        READ("--read"),
+        READ_ATTRIBUTES_BY_SCHEMA("--read-attr-by-schema"),
+        READ_ATTRIBUTES_BY_SCHEMA_TYPE("--read-attr-by-schema-type"),
+        DELETE("--delete");
 
         private final String optionName;
 
-        RealmOptions(final String optionName) {
+        GroupOptions(final String optionName) {
             this.optionName = optionName;
         }
 
@@ -79,9 +103,9 @@ public class RealmCommand extends AbstractCommand {
             return (otherName == null) ? false : optionName.equals(otherName);
         }
 
-        public static RealmOptions fromName(final String name) {
-            RealmOptions optionToReturn = HELP;
-            for (final RealmOptions option : RealmOptions.values()) {
+        public static GroupOptions fromName(final String name) {
+            GroupOptions optionToReturn = HELP;
+            for (final GroupOptions option : GroupOptions.values()) {
                 if (option.equalsOptionName(name)) {
                     optionToReturn = option;
                 }
@@ -91,7 +115,7 @@ public class RealmCommand extends AbstractCommand {
 
         public static List<String> toList() {
             final List<String> options = new ArrayList<>();
-            for (final RealmOptions value : values()) {
+            for (final GroupOptions value : values()) {
                 options.add(value.getOptionName());
             }
             return options;

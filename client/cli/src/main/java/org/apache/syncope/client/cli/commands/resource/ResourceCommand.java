@@ -61,7 +61,7 @@ public class ResourceCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new ResourceResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new ResourceResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

@@ -63,7 +63,7 @@ public class PolicyCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new PolicyResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new PolicyResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

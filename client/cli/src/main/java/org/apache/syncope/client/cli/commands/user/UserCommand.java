@@ -86,7 +86,7 @@ public class UserCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new UserResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new UserResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

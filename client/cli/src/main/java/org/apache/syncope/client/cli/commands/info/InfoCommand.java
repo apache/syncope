@@ -108,7 +108,7 @@ public class InfoCommand extends AbstractCommand {
                 System.out.println(CommandUtils.helpMessage("info", Options.toList()));
                 break;
             default:
-                new InfoResultManager().defaultError(
+                new InfoResultManager().defaultOptionMessage(
                         input.getOption(), CommandUtils.helpMessage("info", Options.toList()));
                 break;
         }

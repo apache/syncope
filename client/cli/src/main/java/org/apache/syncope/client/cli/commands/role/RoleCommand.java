@@ -61,7 +61,7 @@ public class RoleCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new RoleResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new RoleResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

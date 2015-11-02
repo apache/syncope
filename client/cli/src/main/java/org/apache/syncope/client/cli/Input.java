@@ -65,7 +65,7 @@ public class Input {
     public String[] getParameters() {
         return parameters;
     }
-    
+
     public List<String> listParameters() {
         return Arrays.asList(parameters);
     }
@@ -73,9 +73,13 @@ public class Input {
     public String firstParameter() {
         return parameters[0];
     }
-    
+
     public String secondParameter() {
         return parameters[1];
+    }
+
+    public String thirdParameter() {
+        return parameters[2];
     }
 
     public String lastParameter() {

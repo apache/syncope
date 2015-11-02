@@ -86,7 +86,7 @@ public class ReportCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new ReportResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new ReportResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

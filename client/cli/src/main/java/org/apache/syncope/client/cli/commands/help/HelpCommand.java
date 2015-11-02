@@ -40,7 +40,7 @@ public class HelpCommand extends AbstractCommand {
                 new Help().help();
                 break;
             default:
-                new HelpResultManager().defaultError(
+                new HelpResultManager().defaultOptionMessage(
                         input.getOption(), CommandUtils.helpMessage("info", Options.toList()));
                 break;
         }
