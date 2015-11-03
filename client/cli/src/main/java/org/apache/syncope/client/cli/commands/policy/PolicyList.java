@@ -31,7 +31,7 @@ public class PolicyList extends AbstractPolicyCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(PolicyList.class);
 
-    private static final String LIST_HELP_MESSAGE = "policy --list-policy {POLICY-TYPE}\n"
+    private static final String LIST_HELP_MESSAGE = "policy --list {POLICY-TYPE}\n"
             + "   Policy type: ACCOUNT / PASSWORD / SYNC / PUSH";
 
     private final Input input;
@@ -43,12 +43,11 @@ public class PolicyList extends AbstractPolicyCommand {
     public void list() {
         if (input.parameterNumber() == 1) {
             try {
-                final PolicyType policyType = PolicyType.valueOf(input.firstParameter());
                 final LinkedList<AbstractPolicyTO> policyTOs = new LinkedList<>();
-                for (final AbstractPolicyTO policyTO : policySyncopeOperations.list(policyType)) {
+                for (final AbstractPolicyTO policyTO : policySyncopeOperations.list(input.firstParameter())) {
                     policyTOs.add(policyTO);
                 }
-                policyResultManager.printPoliciesByType(policyType, policyTOs);
+                policyResultManager.printPoliciesByType(input.firstParameter(), policyTOs);
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error listing policy", ex);
                 policyResultManager.genericError(ex.getMessage());

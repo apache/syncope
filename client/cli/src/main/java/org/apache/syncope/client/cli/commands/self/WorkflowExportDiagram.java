@@ -42,8 +42,7 @@ public class WorkflowExportDiagram extends AbstractWorkflowCommand {
     public void export() {
         if (input.parameterNumber() == 1) {
             try {
-                final AnyTypeKind anyTypeKind = AnyTypeKind.valueOf(input.firstParameter());
-                final Response response = workflowSyncopeOperations.exportDiagram(anyTypeKind);
+                final Response response = workflowSyncopeOperations.exportDiagram(input.firstParameter());
                 final byte[] diagram = IOUtils.readBytesFromStream((InputStream) response.getEntity());
                 final FileOutputStream fos = new FileOutputStream("/tmp/diagram.png");
                 fos.write(diagram);

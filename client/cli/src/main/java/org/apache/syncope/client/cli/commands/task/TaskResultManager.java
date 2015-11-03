@@ -51,9 +51,9 @@ public class TaskResultManager extends CommonsResultManager {
         }
     }
 
-    public void printTasksType(final TaskType taskType, final LinkedList<AbstractTaskTO> taskTOs) {
+    public void printTasksType(final String taskTypeString, final LinkedList<AbstractTaskTO> taskTOs) {
         System.out.println("");
-        switch (taskType) {
+        switch (TaskType.valueOf(taskTypeString)) {
             case NOTIFICATION:
                 for (final AbstractTaskTO taskTO : taskTOs) {
                     printNotificationTask(((NotificationTaskTO) taskTO));

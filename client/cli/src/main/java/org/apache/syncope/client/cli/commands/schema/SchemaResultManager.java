@@ -27,10 +27,47 @@ import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
+import org.apache.syncope.common.lib.types.SchemaType;
 
 public class SchemaResultManager extends CommonsResultManager {
 
-    public void printSchemas(final LinkedList<? extends AbstractSchemaTO> schemaTOs) {
+    public void toView(final String schemaTypeString, final LinkedList<? extends AbstractSchemaTO> schemaTOs) {
+        switch (SchemaType.valueOf(schemaTypeString)) {
+            case PLAIN:
+                printPlainSchemasDetailed(schemaTOs);
+                break;
+            case DERIVED:
+                fromListDerived(schemaTOs);
+                break;
+            case VIRTUAL:
+                fromListVirtual(schemaTOs);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void printPlainSchemasDetailed(final LinkedList<? extends AbstractSchemaTO> schemaTOs) {
+        System.out.println("");
+        for (final AbstractSchemaTO schemaTO : schemaTOs) {
+            printPlanSchemaDetailed((PlainSchemaTO) schemaTO);
+        }
+    }
+
+    private void printPlanSchemaDetailed(final PlainSchemaTO schemaTO) {
+        System.out.println(" > SCHEMA ID: " + schemaTO.getKey());
+        System.out.println("    type: " + schemaTO.getType().toString());
+        System.out.println("    any type class: " + schemaTO.getAnyTypeClass());
+        System.out.println("    conversion pattern: " + schemaTO.getConversionPattern());
+        System.out.println("    mandatory condition: " + schemaTO.getMandatoryCondition());
+        System.out.println("    mime type: " + schemaTO.getMimeType());
+        System.out.println("    validator class: " + schemaTO.getValidatorClass());
+        System.out.println("    chiper algorithm: " + (schemaTO.getCipherAlgorithm() == null
+                ? "" : schemaTO.getCipherAlgorithm().getAlgorithm()));
+        System.out.println("");
+    }
+
+    public void printPlainSchemas(final LinkedList<? extends AbstractSchemaTO> schemaTOs) {
         final Table.TableBuilder tableBuilder
                 = new Table.TableBuilder("plain schemas").header("schema key").header("type").header("mandatory");
         for (final AbstractSchemaTO schemaTO : schemaTOs) {
@@ -38,37 +75,6 @@ public class SchemaResultManager extends CommonsResultManager {
                     ((PlainSchemaTO) schemaTO).getKey(),
                     ((PlainSchemaTO) schemaTO).getType().toString(),
                     ((PlainSchemaTO) schemaTO).getMandatoryCondition())));
-        }
-        tableBuilder.build().print();
-    }
-
-    public void printSchemasWithDetails(final LinkedList<? extends AbstractSchemaTO> schemaTOs) {
-        final Table.TableBuilder tableBuilder
-                = new Table.TableBuilder("plain schema details ")
-                .header("schema key")
-                .header("type class")
-                .header("pattern")
-                .header("enum keys")
-                .header("enum values")
-                .header("mandatory condition")
-                .header("mime type")
-                .header("secret key")
-                .header("class validator")
-                .header("chiper")
-                .header("type");
-        for (final AbstractSchemaTO schemaTO : schemaTOs) {
-            tableBuilder.rowValues(new LinkedList(Arrays.asList(
-                    ((PlainSchemaTO) schemaTO).getKey(),
-                    ((PlainSchemaTO) schemaTO).getAnyTypeClass(),
-                    ((PlainSchemaTO) schemaTO).getConversionPattern(),
-                    ((PlainSchemaTO) schemaTO).getEnumerationKeys(),
-                    ((PlainSchemaTO) schemaTO).getEnumerationValues(),
-                    ((PlainSchemaTO) schemaTO).getMandatoryCondition(),
-                    ((PlainSchemaTO) schemaTO).getMimeType(),
-                    ((PlainSchemaTO) schemaTO).getSecretKey(),
-                    ((PlainSchemaTO) schemaTO).getValidatorClass(),
-                    ((PlainSchemaTO) schemaTO).getCipherAlgorithm(),
-                    ((PlainSchemaTO) schemaTO).getType().toString())));
         }
         tableBuilder.build().print();
     }

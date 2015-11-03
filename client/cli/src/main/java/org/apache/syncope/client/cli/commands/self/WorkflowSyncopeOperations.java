@@ -29,12 +29,12 @@ public class WorkflowSyncopeOperations {
 
     private final WorkflowService workflowService = SyncopeServices.get(WorkflowService.class);
 
-    public Response exportDiagram(final AnyTypeKind anyTypeKind) {
+    public Response exportDiagram(final String anyTypeKindString) {
         WebClient.client(workflowService).accept(RESTHeaders.MEDIATYPE_IMAGE_PNG);
-        return workflowService.exportDiagram(anyTypeKind);
+        return workflowService.exportDiagram(AnyTypeKind.valueOf(anyTypeKindString));
     }
 
-    public Response exportDefinition(final AnyTypeKind anyTypeKind) {
-        return workflowService.exportDefinition(anyTypeKind);
+    public Response exportDefinition(final String anyTypeKindString) {
+        return workflowService.exportDefinition(AnyTypeKind.valueOf(anyTypeKindString));
     }
 }

@@ -28,12 +28,12 @@ public class SchemaSyncopeOperations {
 
     private final SchemaService schemaService = SyncopeServices.get(SchemaService.class);
 
-    public <T extends AbstractSchemaTO> T read(final SchemaType schemaType, final String schemaName) {
-        return schemaService.read(schemaType, schemaName);
+    public <T extends AbstractSchemaTO> T read(final String schemaTypeString, final String schemaName) {
+        return schemaService.read(SchemaType.valueOf(schemaTypeString), schemaName);
     }
 
-    public <T extends AbstractSchemaTO> List<T> list(final SchemaType schemaType) {
-        return schemaService.list(schemaType, null);
+    public <T extends AbstractSchemaTO> List<T> list(final String schemaTypeString) {
+        return schemaService.list(SchemaType.valueOf(schemaTypeString), null);
     }
 
     public <T extends AbstractSchemaTO> List<T> listVirtual() {
@@ -48,7 +48,7 @@ public class SchemaSyncopeOperations {
         return schemaService.list(SchemaType.DERIVED, null);
     }
 
-    public void delete(final SchemaType schemaType, final String schemaName) {
-        schemaService.delete(schemaType, schemaName);
+    public void delete(final String schemaTypeString, final String schemaName) {
+        schemaService.delete(SchemaType.valueOf(schemaTypeString), schemaName);
     }
 }

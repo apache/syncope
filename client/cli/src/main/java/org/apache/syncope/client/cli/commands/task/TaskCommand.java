@@ -32,8 +32,8 @@ public class TaskCommand extends AbstractCommand {
             + "  Options:\n"
             + "    --help \n"
             + "    --details\n"
-            + "    --list-task \n"
-            + "       Syntax: --list-task {TASK-TYPE} \n"
+            + "    --list\n"
+            + "       Syntax: --list {TASK-TYPE} \n"
             + "          Task type: NOTIFICATION / PROPAGATION / PUSH / SCHEDULED / SYNCHRONIZATION\n"
             + "    --list-running-jobs \n"
             + "    --list-scheduled-jobs \n"
@@ -59,7 +59,7 @@ public class TaskCommand extends AbstractCommand {
             case DETAILS:
                 new TaskDetails(input).details();
                 break;
-            case LIST_TASK:
+            case LIST:
                 new TaskList(input).list();
                 break;
             case LIST_RUNNING_JOBS:
@@ -100,7 +100,7 @@ public class TaskCommand extends AbstractCommand {
 
         HELP("--help"),
         DETAILS("--details"),
-        LIST_TASK("--list-task"),
+        LIST("--list"),
         LIST_RUNNING_JOBS("--list-running-jobs"),
         LIST_SCHEDULED_JOBS("--list-scheduled-jobs"),
         READ("--read"),

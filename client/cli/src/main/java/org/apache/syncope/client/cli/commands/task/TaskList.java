@@ -31,7 +31,7 @@ public class TaskList extends AbstractTaskCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskList.class);
 
-    private static final String LIST_HELP_MESSAGE = "task --list-task {TASK-TYPE}\n"
+    private static final String LIST_HELP_MESSAGE = "task --list {TASK-TYPE}\n"
             + "   Task type: NOTIFICATION / PROPAGATION / PUSH / SCHEDULED / SYNCHRONIZATION";
 
     private final Input input;
@@ -43,12 +43,11 @@ public class TaskList extends AbstractTaskCommand {
     public void list() {
         if (input.parameterNumber() == 1) {
             try {
-                final TaskType taskType = TaskType.valueOf(input.firstParameter());
                 final LinkedList<AbstractTaskTO> taskTOs = new LinkedList<>();
-                for (final AbstractTaskTO taskTO : taskSyncopeOperations.list(taskType)) {
+                for (final AbstractTaskTO taskTO : taskSyncopeOperations.list(input.firstParameter())) {
                     taskTOs.add(taskTO);
                 }
-                taskResultManager.printTasksType(taskType, taskTOs);
+                taskResultManager.printTasksType(input.firstParameter(), taskTOs);
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error listing task", ex);
                 taskResultManager.genericError(ex.getMessage());

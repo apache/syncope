@@ -46,24 +46,11 @@ public class SchemaRead extends AbstractSchemaCommand {
         if (input.parameterNumber() >= 2) {
             final String[] parameters = Arrays.copyOfRange(input.getParameters(), 1, input.parameterNumber());
             try {
-                final SchemaType schemaType = SchemaType.valueOf(input.firstParameter());
                 final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
                 for (final String parameter : parameters) {
-                    schemaTOs.add(schemaSyncopeOperations.read(schemaType, parameter));
+                    schemaTOs.add(schemaSyncopeOperations.read(input.firstParameter(), parameter));
                 }
-                switch (schemaType) {
-                    case PLAIN:
-                        schemaResultManager.printSchemasWithDetails(schemaTOs);
-                        break;
-                    case DERIVED:
-                        schemaResultManager.fromListDerived(schemaTOs);
-                        break;
-                    case VIRTUAL:
-                        schemaResultManager.fromListVirtual(schemaTOs);
-                        break;
-                    default:
-                        break;
-                }
+                schemaResultManager.toView(input.firstParameter(), schemaTOs);
             } catch (final SyncopeClientException | WebServiceException ex) {
                 LOG.error("Error reading schema", ex);
                 if (ex.getMessage().startsWith("NotFound")) {

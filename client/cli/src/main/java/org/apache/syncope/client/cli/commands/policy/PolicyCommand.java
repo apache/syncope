@@ -32,7 +32,7 @@ public class PolicyCommand extends AbstractCommand {
             + "  Options:\n"
             + "    --help \n"
             + "    --details \n"
-            + "    --list-policy \n"
+            + "    --list \n"
             + "       Syntax: --list-policy {POLICY-TYPE} \n"
             + "          Policy type: ACCOUNT / PASSWORD / SYNC / PUSH\n"
             + "    --read \n"
@@ -50,7 +50,7 @@ public class PolicyCommand extends AbstractCommand {
             case DETAILS:
                 new PolicyDetails(input).details();
                 break;
-            case LIST_POLICY:
+            case LIST:
                 new PolicyList(input).list();
                 break;
             case READ:
@@ -76,7 +76,7 @@ public class PolicyCommand extends AbstractCommand {
 
         HELP("--help"),
         DETAILS("--details"),
-        LIST_POLICY("--list-policy"),
+        LIST("--list"),
         READ("--read"),
         DELETE("--delete");
 

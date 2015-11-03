@@ -51,11 +51,12 @@ public class TaskDetails extends AbstractTaskCommand {
         if (input.parameterNumber() == 0) {
             try {
                 final Map<String, String> details = new LinkedMap<>();
-                final List<AbstractTaskTO> notificationTaskTOs = taskSyncopeOperations.list(TaskType.NOTIFICATION);
-                final List<AbstractTaskTO> propagationTaskTOs = taskSyncopeOperations.list(TaskType.PROPAGATION);
-                final List<AbstractTaskTO> pushTaskTOs = taskSyncopeOperations.list(TaskType.PUSH);
-                final List<AbstractTaskTO> scheduledTaskTOs = taskSyncopeOperations.list(TaskType.SCHEDULED);
-                final List<AbstractTaskTO> syncTaskTOs = taskSyncopeOperations.list(TaskType.SYNCHRONIZATION);
+                final List<AbstractTaskTO> notificationTaskTOs
+                        = taskSyncopeOperations.list(TaskType.NOTIFICATION.name());
+                final List<AbstractTaskTO> propagationTaskTOs = taskSyncopeOperations.list(TaskType.PROPAGATION.name());
+                final List<AbstractTaskTO> pushTaskTOs = taskSyncopeOperations.list(TaskType.PUSH.name());
+                final List<AbstractTaskTO> scheduledTaskTOs = taskSyncopeOperations.list(TaskType.SCHEDULED.name());
+                final List<AbstractTaskTO> syncTaskTOs = taskSyncopeOperations.list(TaskType.SYNCHRONIZATION.name());
                 final List<TaskExecTO> runningTOs = taskSyncopeOperations.listRunningJobs();
                 final List<TaskExecTO> scheduledTOs = taskSyncopeOperations.listScheduledJobs();
                 final int notificationTaskSize = notificationTaskTOs.size();

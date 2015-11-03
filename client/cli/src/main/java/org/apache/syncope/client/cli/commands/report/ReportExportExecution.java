@@ -19,14 +19,12 @@
 package org.apache.syncope.client.cli.commands.report;
 
 import java.io.IOException;
-import java.io.SequenceInputStream;
 import java.util.Arrays;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
-import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.slf4j.Logger;
@@ -52,31 +50,9 @@ public class ReportExportExecution extends AbstractReportCommand {
             final String[] parameters = Arrays.copyOf(input.getParameters(), input.parameterNumber() - 1);
             for (final String parameter : parameters) {
                 try {
-                    final ReportExecExportFormat format = ReportExecExportFormat.valueOf(input.lastParameter());
-                    final SequenceInputStream report = (SequenceInputStream) reportSyncopeOperations.
-                            exportExecutionResult(parameter, format).getEntity();
-                    switch (format) {
-                        case XML:
-                            final String xmlFinalName = "export_" + parameter + ".xml";
-                            XMLUtils.createXMLFile(report, xmlFinalName);
-                            reportResultManager.genericMessage(xmlFinalName + " successfully created");
-                            break;
-                        case CSV:
-                            reportResultManager.genericError(format + " doesn't supported");
-                            break;
-                        case PDF:
-                            reportResultManager.genericError(format + " doesn't supported");
-                            break;
-                        case HTML:
-                            reportResultManager.genericError(format + " doesn't supported");
-                            break;
-                        case RTF:
-                            reportResultManager.genericError(format + " doesn't supported");
-                            break;
-                        default:
-                            reportResultManager.genericError(format + " doesn't supported");
-                            break;
-                    }
+                    final String result = reportSyncopeOperations.exportExecutionResult(
+                            parameter, input.lastParameter());
+                    reportResultManager.genericMessage(result);
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     LOG.error("Error exporting execution", ex);
                     if (ex.getMessage().startsWith("NotFound")) {

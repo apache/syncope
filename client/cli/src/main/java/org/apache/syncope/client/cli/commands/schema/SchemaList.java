@@ -43,24 +43,11 @@ public class SchemaList extends AbstractSchemaCommand {
     public void list() {
         if (input.parameterNumber() == 1) {
             try {
-                final SchemaType schemaType = SchemaType.valueOf(input.firstParameter());
                 final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
-                for (final AbstractSchemaTO schemaTO : schemaSyncopeOperations.list(schemaType)) {
+                for (final AbstractSchemaTO schemaTO : schemaSyncopeOperations.list(input.firstParameter())) {
                     schemaTOs.add(schemaTO);
                 }
-                switch (schemaType) {
-                    case PLAIN:
-                        schemaResultManager.printSchemas(schemaTOs);
-                        break;
-                    case DERIVED:
-                        schemaResultManager.fromListDerived(schemaTOs);
-                        break;
-                    case VIRTUAL:
-                        schemaResultManager.fromListVirtual(schemaTOs);
-                        break;
-                    default:
-                        break;
-                }
+                schemaResultManager.toView(input.firstParameter(), schemaTOs);
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error listing schema", ex);
                 schemaResultManager.genericError(ex.getMessage());

@@ -55,8 +55,9 @@ public class PolicyResultManager extends CommonsResultManager {
 
     }
 
-    public void printPoliciesByType(final PolicyType policyType, final LinkedList<AbstractPolicyTO> policyTOs) {
+    public void printPoliciesByType(final String policyTypeString, final LinkedList<AbstractPolicyTO> policyTOs) {
         System.out.println("");
+        final PolicyType policyType = PolicyType.valueOf(policyTypeString);
         switch (policyType) {
             case ACCOUNT:
                 for (final AbstractPolicyTO policyTO : policyTOs) {

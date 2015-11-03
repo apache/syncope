@@ -41,10 +41,10 @@ public class PolicyDetails extends AbstractPolicyCommand {
         if (input.parameterNumber() == 0) {
             try {
                 final Map<String, String> details = new LinkedMap<>();
-                final int accountPolicySize = policySyncopeOperations.list(PolicyType.ACCOUNT).size();
-                final int passwordPolicySize = policySyncopeOperations.list(PolicyType.PASSWORD).size();
-                final int syncPolicySize = policySyncopeOperations.list(PolicyType.SYNC).size();
-                final int pushPolicySize = policySyncopeOperations.list(PolicyType.PUSH).size();
+                final int accountPolicySize = policySyncopeOperations.list(PolicyType.ACCOUNT.name()).size();
+                final int passwordPolicySize = policySyncopeOperations.list(PolicyType.PASSWORD.name()).size();
+                final int syncPolicySize = policySyncopeOperations.list(PolicyType.SYNC.name()).size();
+                final int pushPolicySize = policySyncopeOperations.list(PolicyType.PUSH.name()).size();
                 details.put("total number", String.valueOf(accountPolicySize
                         + passwordPolicySize
                         + syncPolicySize

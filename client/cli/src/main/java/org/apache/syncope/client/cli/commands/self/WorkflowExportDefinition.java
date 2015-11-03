@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.cli.commands.self;
 
+import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
@@ -41,8 +42,8 @@ public class WorkflowExportDefinition extends AbstractWorkflowCommand {
     public void export() {
         if (input.parameterNumber() == 1) {
             try {
-                final AnyTypeKind anyTypeKind = AnyTypeKind.valueOf(input.firstParameter());
-                System.out.println(" > > > > " + workflowSyncopeOperations.exportDefinition(anyTypeKind).getEntity());
+
+                final Response response = workflowSyncopeOperations.exportDefinition(input.firstParameter());
             } catch (final SyncopeClientException | WebServiceException ex) {
                 LOG.error("Error", ex);
                 if (ex.getMessage().startsWith("NotFound")) {

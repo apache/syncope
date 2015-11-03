@@ -32,8 +32,8 @@ public class PolicySyncopeOperations {
         return policyService.read(Long.valueOf(policyId));
     }
 
-    public <T extends AbstractPolicyTO> List<T> list(final PolicyType policyType) {
-        return policyService.list(policyType);
+    public <T extends AbstractPolicyTO> List<T> list(final String policyType) {
+        return policyService.list(PolicyType.valueOf(policyType));
     }
 
     public void delete(final String policyId) {

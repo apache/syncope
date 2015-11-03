@@ -18,14 +18,19 @@
  */
 package org.apache.syncope.client.cli.commands.report;
 
+import java.io.IOException;
+import java.io.SequenceInputStream;
 import java.util.List;
-import javax.ws.rs.core.Response;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import org.apache.syncope.client.cli.SyncopeServices;
+import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.service.ReportService;
+import org.xml.sax.SAXException;
 
 public class ReportSyncopeOperations {
 
@@ -39,16 +44,36 @@ public class ReportSyncopeOperations {
         return reportService.read(Long.valueOf(reportId));
     }
 
-    public List<ReportExecTO> listJobs(final JobStatusType jobStatusType) {
-        return reportService.listJobs(jobStatusType);
+    public List<ReportExecTO> listJobs(final String jobStatusType) {
+        return reportService.listJobs(JobStatusType.valueOf(jobStatusType));
     }
 
     public List<ReportTO> list() {
         return reportService.list();
     }
 
-    public Response exportExecutionResult(final String executionKey, final ReportExecExportFormat fmt) {
-        return reportService.exportExecutionResult(Long.valueOf(executionKey), fmt);
+    public String exportExecutionResult(final String executionKey, final String reportExecExportFormat)
+            throws TransformerException, SAXException, IOException, ParserConfigurationException {
+        final ReportExecExportFormat format = ReportExecExportFormat.valueOf(reportExecExportFormat);
+        final SequenceInputStream report = (SequenceInputStream) reportService.exportExecutionResult(Long.valueOf(
+                executionKey), format).getEntity();
+        final String xmlFinalName = "export_" + executionKey + ".xml";
+        switch (format) {
+            case XML:
+                XMLUtils.createXMLFile(report, xmlFinalName);
+                break;
+            case CSV:
+                return format + " doesn't supported";
+            case PDF:
+                return format + " doesn't supported";
+            case HTML:
+                return format + " doesn't supported";
+            case RTF:
+                return format + " doesn't supported";
+            default:
+                return format + " doesn't supported";
+        }
+        return xmlFinalName;
     }
 
     public void execute(final String reportId) {

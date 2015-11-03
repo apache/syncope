@@ -40,7 +40,7 @@ public class ReportListJobs extends AbstractReportCommand {
         if (input.parameterNumber() == 0) {
             try {
                 for (final JobStatusType jobStatusType : JobStatusType.values()) {
-                    reportResultManager.printReportExecution(reportSyncopeOperations.listJobs(jobStatusType));
+                    reportResultManager.printReportExecution(reportSyncopeOperations.listJobs(jobStatusType.name()));
                 }
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error listing report", ex);
