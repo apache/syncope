@@ -378,7 +378,7 @@ under the License.
     <bootstrap.version>3.3.5</bootstrap.version>
     <bootstrap-select.version>1.7.3</bootstrap-select.version>
 
-    <wicket-bootstrap.version>0.10.4-SNAPSHOT</wicket-bootstrap.version>
+    <wicket-bootstrap.version>0.10.4</wicket-bootstrap.version>
     <bootbox.version>4.4.0</bootbox.version>
 
     <font-awesome.version>4.4.0</font-awesome.version>
