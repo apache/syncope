@@ -326,7 +326,7 @@ under the License.
     <connid.ldap.version>1.5.0-SNAPSHOT</connid.ldap.version>
     <connid.ad.version>1.3.0-SNAPSHOT</connid.ad.version>
 
-    <cxf.version>3.1.4-SNAPSHOT</cxf.version>
+    <cxf.version>3.1.4</cxf.version>
 
     <camel.version>2.16.0</camel.version>	
 
