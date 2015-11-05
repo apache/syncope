@@ -2,6 +2,22 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.2.6
+================================================================================
+
+** Bug
+    * [SYNCOPE-686] - Indirect LDAP resource provisioning fails on missing password
+    * [SYNCOPE-691] - Multivalue virtual attribute does not work
+    * [SYNCOPE-702] - Documentation issue on Architecture section
+    * [SYNCOPE-707] - ConfigurationLogic doesn't check the existence of key during deletion.
+    * [SYNCOPE-710] - Password propagation not occuring if other updates are set on different resources
+    * [SYNCOPE-712] - Error while searching roles by parent
+    * [SYNCOPE-716] - Cannot specify conversion pattern during schema creation
+    * [SYNCOPE-717] - Inconsistent double attribute value management
+
+** Improvement
+    * [SYNCOPE-708] - Conform the Logger "service stack" to others
+
 Release Notes - Syncope - Version 1.2.5
 ================================================================================
 
