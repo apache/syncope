@@ -179,14 +179,16 @@ under the License.
                   <goal>java2wadl</goal>
                 </goals>
                 <configuration>
-                  <applicationTitle>Apache Syncope ${project.version}</applicationTitle>
-                  <namespacePrefix>syncope</namespacePrefix>
-                  <addResourceAndMethodIds>true</addResourceAndMethodIds>
-                  <linkAnyMediaTypeToXmlSchema>true</linkAnyMediaTypeToXmlSchema>
-                  <classResourceNames />
-                  <basePackages>org.apache.syncope.common.services</basePackages>
-                  <docProvider>org.apache.cxf.maven_plugin.javatowadl.ResourceMapJavaDocProvider</docProvider>
-                  <attachWadl>true</attachWadl>
+		  <applicationTitle>Apache Syncope ${project.version}</applicationTitle>
+		  <namespacePrefix>syncope</namespacePrefix>
+		  <linkAnyMediaTypeToXmlSchema>true</linkAnyMediaTypeToXmlSchema>
+		  <useJaxbContextForQnames>true</useJaxbContextForQnames>
+		  <addResourceAndMethodIds>true</addResourceAndMethodIds>
+		  <usePathParamsToCompareOperations>false</usePathParamsToCompareOperations>
+		  <classResourceNames />
+		  <basePackages>org.apache.syncope.common.services</basePackages>
+		  <docProvider>org.apache.cxf.maven_plugin.javatowadl.ResourceMapJavaDocProvider</docProvider>
+		  <attachWadl>true</attachWadl>
                 </configuration>
               </execution>
             </executions>
