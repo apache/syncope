@@ -49,10 +49,10 @@ public class UserDetails extends AbstractUserCommand {
                 int activeStatus = 0;
                 int suspendedStatus = 0;
                 for (final UserTO userTO : usersTOs) {
-                    if (!userTO.getResources().isEmpty()) {
+                    if (userTO.getResources().isEmpty()) {
                         withoutResource++;
                     }
-                    if (!userTO.getRoles().isEmpty()) {
+                    if (userTO.getRoles().isEmpty()) {
                         withoutRole++;
                     }
                     if ("active".equalsIgnoreCase(userTO.getStatus())) {
