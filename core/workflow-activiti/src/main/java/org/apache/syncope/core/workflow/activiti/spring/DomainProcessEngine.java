@@ -20,6 +20,7 @@ package org.apache.syncope.core.workflow.activiti.spring;
 
 import java.util.Collections;
 import java.util.Map;
+import org.activiti.engine.DynamicBpmnService;
 import org.activiti.engine.FormService;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.IdentityService;
@@ -97,6 +98,11 @@ public class DomainProcessEngine implements ProcessEngine {
     @Override
     public ProcessEngineConfiguration getProcessEngineConfiguration() {
         return engines.get(AuthContextUtils.getDomain()).getProcessEngineConfiguration();
+    }
+
+    @Override
+    public DynamicBpmnService getDynamicBpmnService() {
+        return engines.get(AuthContextUtils.getDomain()).getDynamicBpmnService();
     }
 
 }
