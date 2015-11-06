@@ -95,6 +95,8 @@ public class InstallResultManager extends CommonsResultManager {
             System.out.println("#                                             #");
             System.out.println("###############################################");
             System.out.println("");
+            System.out.println(e.getMessage());
+            System.out.println("");
         }
     }
 }

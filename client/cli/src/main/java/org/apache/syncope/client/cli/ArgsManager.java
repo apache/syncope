@@ -27,7 +27,7 @@ public final class ArgsManager {
         if (args.length == 0) {
             throw new IllegalArgumentException("Syntax error: no options");
         } else if (!"install".equalsIgnoreCase(args[0])) {
-            final File configFile = new File(InstallConfigFileTemplate.FILE_PATH);
+            final File configFile = new File(InstallConfigFileTemplate.configurationFilePath());
             if (!configFile.exists()) {
                 throw new IllegalArgumentException(
                         "It seems you need to setup the CLI client before. Run install --setup.");

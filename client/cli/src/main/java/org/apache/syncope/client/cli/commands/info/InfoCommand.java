@@ -29,10 +29,9 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 @Command(name = "info")
 public class InfoCommand extends AbstractCommand {
 
-    private final Info info = new Info();
-
     @Override
     public void execute(final Input input) {
+        final Info info = new Info();
         if (StringUtils.isBlank(input.getOption())) {
             input.setOption(Options.HELP.getOptionName());
         }

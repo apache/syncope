@@ -20,7 +20,6 @@ package org.apache.syncope.client.cli.commands.install;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
 import javax.ws.rs.ProcessingException;
 import org.apache.commons.lang3.StringUtils;
@@ -53,14 +52,14 @@ public class InstallSetup {
         installResultManager.printWelcome();
 
         System.out.println("Path to config files of Syncope CLI client will be: "
-                + InstallConfigFileTemplate.DIR_PATH);
+                + InstallConfigFileTemplate.dirPath());
 
-        if (!FileSystemUtils.exists(InstallConfigFileTemplate.DIR_PATH)) {
-            throw new FileNotFoundException("Directory: " + InstallConfigFileTemplate.DIR_PATH + " does not exists!");
+        if (!FileSystemUtils.exists(InstallConfigFileTemplate.dirPath())) {
+            throw new FileNotFoundException("Directory: " + InstallConfigFileTemplate.dirPath() + " does not exists!");
         }
 
-        if (!FileSystemUtils.canWrite(InstallConfigFileTemplate.DIR_PATH)) {
-            throw new IllegalAccessException("Permission denied on " + InstallConfigFileTemplate.DIR_PATH);
+        if (!FileSystemUtils.canWrite(InstallConfigFileTemplate.dirPath())) {
+            throw new IllegalAccessException("Permission denied on " + InstallConfigFileTemplate.dirPath());
         }
         System.out.println("- File system permission checked");
         System.out.println("");
@@ -154,31 +153,26 @@ public class InstallSetup {
 
         final JasyptUtils jasyptUtils = JasyptUtils.getJasyptUtils();
         try {
-            FileSystemUtils.createNewDirectory(InstallConfigFileTemplate.DIR_PATH);
-            final String contentCliPropertiesFile = InstallConfigFileTemplate.createFile(
+
+            final String contentCliPropertiesFile = InstallConfigFileTemplate.cliPropertiesFile(
                     syncopeServerSchema,
                     syncopeServerHostname,
                     syncopeServerPort,
                     syncopeServerRestContext,
                     syncopeAdminUser,
                     jasyptUtils.encrypt(syncopeAdminPassword));
-            FileSystemUtils.createFileWith(InstallConfigFileTemplate.FILE_PATH, contentCliPropertiesFile);
-
-        } catch (final FileNotFoundException | UnsupportedEncodingException ex) {
+            FileSystemUtils.createFileWith(InstallConfigFileTemplate.configurationFilePath(), contentCliPropertiesFile);
+        } catch (final IOException ex) {
             System.out.println(ex.getMessage());
         }
 
         try {
             final SyncopeService syncopeService = SyncopeServices.get(SyncopeService.class);
             final String syncopeVersion = syncopeService.info().getVersion();
-            FileSystemUtils.createScriptFile();
             installResultManager.installationSuccessful(syncopeVersion);
         } catch (final ProcessingException ex) {
             LOG.error("Error installing CLI", ex);
             installResultManager.manageProcessingException(ex);
-        } catch (final FileNotFoundException | UnsupportedEncodingException e) {
-            LOG.error("Error writing script file", e);
-            installResultManager.manageException(e);
         } catch (final Exception e) {
             LOG.error("Error installing CLI", e);
             installResultManager.manageException(e);

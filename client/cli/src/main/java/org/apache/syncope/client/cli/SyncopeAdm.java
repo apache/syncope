@@ -45,6 +45,8 @@ public final class SyncopeAdm {
                 LOG.debug("   > " + parameter);
             }
 
+            System.out.println("");
+            System.out.println("You are runnig: " + input.printCommandFields());
             command.execute(input);
         } catch (final IllegalAccessException | InstantiationException e) {
             System.out.println(helpMessage());

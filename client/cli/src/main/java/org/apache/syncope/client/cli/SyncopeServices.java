@@ -37,7 +37,7 @@ public final class SyncopeServices {
     public static <T> T get(final Class<T> claz) {
         final Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream(InstallConfigFileTemplate.FILE_PATH));
+            properties.load(new FileInputStream(InstallConfigFileTemplate.configurationFilePath()));
         } catch (final IOException e) {
             LOG.error("Error opening properties file", e);
         }

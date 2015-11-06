@@ -14,8 +14,6 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-#cli.installation.directory.linux=/var/tmp/syncope/conf/
-#cli.installation.directory.windows=c:\\Windows\\syncope\\conf\\
-cli.installation.directory.linux=./
-cli.installation.directory.windows=.\\
-cli.installation.filename=cli.properties
+#!/bin/bash
+args=`echo $@`
+java -jar -Xms256m -Xmx512m syncope-client-cli-${project.version}.jar $args

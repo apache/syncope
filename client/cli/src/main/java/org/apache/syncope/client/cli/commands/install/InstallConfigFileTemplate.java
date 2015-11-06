@@ -19,18 +19,14 @@
 package org.apache.syncope.client.cli.commands.install;
 
 import java.util.ResourceBundle;
+import org.apache.syncope.client.cli.util.FileSystemUtils;
 
 public final class InstallConfigFileTemplate {
 
     private static final ResourceBundle CONF = ResourceBundle.getBundle("configuration");
 
-    public static final String DIR_PATH
-            = CONF.getString("cli.installation.directory");
-
-    public static final String FILE_NAME
+    public static final String CONFIGURATION_FILE_NAME
             = CONF.getString("cli.installation.filename");
-
-    public static final String FILE_PATH = DIR_PATH + FILE_NAME;
 
     private static final String SYNCOPE_REST_SERVICES = "syncope.rest.services=%s://%s:%s%s";
 
@@ -38,7 +34,7 @@ public final class InstallConfigFileTemplate {
 
     private static final String SYNCOPE_ADMIN_PASSWORD = "syncope.admin.password=%s";
 
-    public static String createFile(
+    public static String cliPropertiesFile(
             final String schema,
             final String hostname,
             final String port,
@@ -50,6 +46,30 @@ public final class InstallConfigFileTemplate {
         final String syncopeAdminPassword = String.format(SYNCOPE_ADMIN_PASSWORD, password);
 
         return syncopeRestServices + "\n" + syncopeAdminUser + "\n" + syncopeAdminPassword;
+    }
+
+    public static String dirPath() {
+        if (FileSystemUtils.isWindows()) {
+            return CONF.getString("cli.installation.directory.windows");
+        } else {
+            return CONF.getString("cli.installation.directory.linux");
+        }
+    }
+
+    public static String configurationFilePath() {
+        return dirPath() + CONFIGURATION_FILE_NAME;
+    }
+
+    private static String scriptFileName() {
+        if (FileSystemUtils.isWindows()) {
+            return CONF.getString("script.file.name.windows");
+        } else {
+            return CONF.getString("script.file.name.linux");
+        }
+    }
+
+    public static String scriptFilePath() {
+        return dirPath() + scriptFileName();
     }
 
     private InstallConfigFileTemplate() {

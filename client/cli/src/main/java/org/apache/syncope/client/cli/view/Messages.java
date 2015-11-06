@@ -97,7 +97,7 @@ public final class Messages {
         printMessage("Unnecessary parameter: " + parameters, "Usage: " + helpMessage);
     }
 
-    public static String commandHelpMessage(String name) {
+    public static String commandHelpMessage(final String name) {
         return MESSAGES.getString(name + ".help.message");
     }
 

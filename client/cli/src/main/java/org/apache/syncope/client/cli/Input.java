@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.cli;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
@@ -31,19 +32,24 @@ public class Input {
 
     private final String[] parameters;
 
+    private final List<String> commandFields = new ArrayList<>();
+
     public Input(final String[] args)
             throws InstantiationException, IllegalAccessException, IllegalArgumentException {
 
         command = CommandUtils.fromArgs(args[0]);
+        commandFields.add(args[0]);
 
         if (args.length > 1) {
             option = args[1];
+            commandFields.add(args[1]);
         }
 
         if (args.length > 2) {
             parameters = new String[args.length - 2];
             for (int i = 0; i < parameters.length; i++) {
                 parameters[i] = args[i + 2];
+                commandFields.add(args[i + 2]);
             }
         } else {
             parameters = new String[0];
@@ -96,6 +102,14 @@ public class Input {
         }
         final String[] pairParameterArray = parameter.split("=");
         return new PairParameter(pairParameterArray[0], pairParameterArray[1]);
+    }
+
+    public String printCommandFields() {
+        final StringBuilder commandBuilder = new StringBuilder();
+        for (String commandField : commandFields) {
+            commandBuilder.append(commandField).append(" ");
+        }
+        return commandBuilder.toString();
     }
 
     public class PairParameter {
