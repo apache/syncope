@@ -28,13 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "domain")
 public class DomainCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: domain [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --details \n"
-            + "    --list \n"
-            + "    --delete \n"
-            + "       Syntax: --delete {DOMAIN-NAME} {DOMAIN-NAME} [...]\n";
+    private final DomainResultManager domainResultManager = new DomainResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -52,16 +46,16 @@ public class DomainCommand extends AbstractCommand {
                 new DomainDelete(input).delete();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new DomainResultManager().deletedMessage(input.getOption(), HELP_MESSAGE);
+                new DomainResultManager().deletedMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return domainResultManager.commandHelpMessage(getClass());
     }
 
     private enum Options {

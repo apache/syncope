@@ -28,19 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "group")
 public class GroupCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: group [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --details \n"
-            + "    --list \n"
-            + "    --read \n"
-            + "       Syntax: --read {GROUP-ID} {GROUP-ID} [...]\n"
-            + "    --read-attr-by-schema-type {GROUP-ID} {SCHEMA-TYPE}\n"
-            + "       Schema type: PLAIN / DERIVED / VIRTUAL\n"
-            + "    --read-attr-by-schema {GROUP-ID} {SCHEMA-TYPE} {SCHEMA-NAME}\n"
-            + "       Schema type: PLAIN / DERIVED / VIRTUAL\n"
-            + "    --delete \n"
-            + "       Syntax: --delete {GROUP-ID} {GROUP-ID} [...]\n";
+    private final GroupResultManager groupResultManager = new GroupResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -67,16 +55,16 @@ public class GroupCommand extends AbstractCommand {
                 new GroupDelete(input).delete();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new GroupResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                groupResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return groupResultManager.commandHelpMessage(getClass());
     }
 
     private enum GroupOptions {

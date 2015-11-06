@@ -19,8 +19,11 @@
 package org.apache.syncope.client.cli.view;
 
 import java.util.List;
+import java.util.ResourceBundle;
 
 public final class Messages {
+
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages");
 
     private static final String OPTION_COMMAND_MESSAGE_TEMPLATE = "\n - Usage: %s\n";
 
@@ -89,10 +92,15 @@ public final class Messages {
     public static void printDefaultMessage(final String option, final String helpMessage) {
         printMessage(String.format(DEFAULT_MESSAGE_TEMPLATE, option, helpMessage));
     }
-    
+
     public static void printUnnecessaryParameters(final List<String> parameters, final String helpMessage) {
         printMessage("Unnecessary parameter: " + parameters, "Usage: " + helpMessage);
     }
+
+    public static String commandHelpMessage(String name) {
+        return MESSAGES.getString(name + ".help.message");
+    }
+
     private Messages() {
 
     }

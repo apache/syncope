@@ -28,19 +28,8 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "entitlement")
 public class EntitlementCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: entitlement [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --list\n"
-            + "    --list-role\n"
-            + "       Syntax: --list-role {ENTITLEMENT-NAME}\n"
-            + "    --read-by-username\n"
-            + "       Syntax: --read-by-username {USERNAME}\n"
-            + "    --read-by-userid\n"
-            + "       Syntax: --read-by-userid {USER-ID}\n"
-            + "    --search-by-role\n"
-            + "       Syntax: --search-by-role {ROLE-ID}\n";
-
+    private final EntitlementResultManager entitlementResultManager = new EntitlementResultManager();
+    
     @Override
     public void execute(final Input input) {
         if (StringUtils.isBlank(input.getOption())) {
@@ -64,16 +53,16 @@ public class EntitlementCommand extends AbstractCommand {
                 new EntitlementListRole(input).list();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new EntitlementResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                entitlementResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return entitlementResultManager.commandHelpMessage(getClass());
     }
 
     private enum EntitlementOptions {

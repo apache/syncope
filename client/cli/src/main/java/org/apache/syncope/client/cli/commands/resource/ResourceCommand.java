@@ -28,15 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "resource")
 public class ResourceCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: resource [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --details \n"
-            + "    --list \n"
-            + "    --read \n"
-            + "       Syntax: --read {CONNECTOR-ID} {CONNECTOR-ID} [...]\n"
-            + "    --delete \n"
-            + "       Syntax: --delete {CONNECTOR-ID} {CONNECTOR-ID} [...]\n";
+    private final ResourceResultManager resourceResultManager = new ResourceResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -58,16 +50,16 @@ public class ResourceCommand extends AbstractCommand {
                 new ResourceDelete(input).delete();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new ResourceResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                resourceResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return resourceResultManager.commandHelpMessage(getClass());
     }
 
     private enum ResourceOptions {

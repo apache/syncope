@@ -28,25 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "report")
 public class ReportCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: report [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --details\n"
-            + "    --list \n"
-            + "    --list-jobs \n"
-            + "    --read \n"
-            + "       Syntax: --read {REPORT-ID} {REPORT-ID} [...] \n"
-            + "    --delete \n"
-            + "       Syntax: --delete {REPORT-ID} {REPORT-ID} [...]\n"
-            + "    --execute \n"
-            + "       Syntax: --execute {REPORT-ID} \n"
-            + "    --read-execution \n"
-            + "       Syntax: --read-execution {EXECUTION-ID} {EXECUTION-ID} [...]\n"
-            + "    --delete-execution \n"
-            + "       Syntax: --delete-execution {EXECUTION-ID} {EXECUTION-ID} [...]\n"
-            + "    --export-execution-result \n"
-            + "       Syntax: --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}\n"
-            + "          Format: CSV / HTML / PDF / XML / RTF\n";
+    private final ReportResultManager reportResultManager = new ReportResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -83,16 +65,16 @@ public class ReportCommand extends AbstractCommand {
                 new ReportExportExecution(input).export();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new ReportResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                reportResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return reportResultManager.commandHelpMessage(getClass());
     }
 
     private enum Options {

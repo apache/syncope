@@ -19,6 +19,7 @@
 package org.apache.syncope.client.cli.commands.install;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Scanner;
 import javax.ws.rs.ProcessingException;
@@ -169,10 +170,15 @@ public class InstallSetup {
 
         try {
             final SyncopeService syncopeService = SyncopeServices.get(SyncopeService.class);
-            installResultManager.installationSuccessful(syncopeService.info().getVersion());
+            final String syncopeVersion = syncopeService.info().getVersion();
+            FileSystemUtils.createScriptFile();
+            installResultManager.installationSuccessful(syncopeVersion);
         } catch (final ProcessingException ex) {
             LOG.error("Error installing CLI", ex);
             installResultManager.manageProcessingException(ex);
+        } catch (final FileNotFoundException | UnsupportedEncodingException e) {
+            LOG.error("Error writing script file", e);
+            installResultManager.manageException(e);
         } catch (final Exception e) {
             LOG.error("Error installing CLI", e);
             installResultManager.manageException(e);

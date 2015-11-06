@@ -28,17 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "policy")
 public class PolicyCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: policy [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --details \n"
-            + "    --list \n"
-            + "       Syntax: --list-policy {POLICY-TYPE} \n"
-            + "          Policy type: ACCOUNT / PASSWORD / SYNC / PUSH\n"
-            + "    --read \n"
-            + "       Syntax: --read {POLICY-ID} {POLICY-ID} [...]\n"
-            + "    --delete \n"
-            + "       Syntax: --delete {POLICY-ID} {POLICY-ID} [...]\n";
+    private final PolicyResultManager policyResultManager = new PolicyResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -60,16 +50,16 @@ public class PolicyCommand extends AbstractCommand {
                 new PolicyDelete(input).delete();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new PolicyResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                policyResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return policyResultManager.commandHelpMessage(getClass());
     }
 
     private enum Options {

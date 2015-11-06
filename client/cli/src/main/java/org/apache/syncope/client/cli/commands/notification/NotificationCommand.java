@@ -28,14 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "notification")
 public class NotificationCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: notification [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --list \n"
-            + "    --read \n"
-            + "       Syntax: --read {NOTIFICATION-ID} \n"
-            + "    --delete \n"
-            + "       Syntax: --delete {NOTIFICATION-ID}\n";
+    private final NotificationResultManager notificationResultManager = new NotificationResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -54,16 +47,16 @@ public class NotificationCommand extends AbstractCommand {
                 new NotificationDelete(input).delete();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new NotificationResultManager().deletedMessage(input.getOption(), HELP_MESSAGE);
+                notificationResultManager.deletedMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return notificationResultManager.commandHelpMessage(getClass());
     }
 
     private enum Options {

@@ -28,18 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "schema")
 public class SchemaCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: schema [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --details \n"
-            + "    --list-all\n"
-            + "    --list-plain\n"
-            + "    --list-derived\n"
-            + "    --list-virtual\n"
-            + "    --read {SCHEMA-TYPE} {SCHEMA-KEY}\n"
-            + "        Schema type: PLAIN / DERIVED / VIRTUAL\n"
-            + "    --delete {SCHEMA-TYPE} {SCHEMA-KEY}\n"
-            + "        Schema type: PLAIN / DERIVED / VIRTUAL\n";
+    private final SchemaResultManager schemaResultManager = new SchemaResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -73,16 +62,16 @@ public class SchemaCommand extends AbstractCommand {
                 new SchemaDelete(input).delete();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new SchemaResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                schemaResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return schemaResultManager.commandHelpMessage(getClass());
     }
 
     private enum Options {

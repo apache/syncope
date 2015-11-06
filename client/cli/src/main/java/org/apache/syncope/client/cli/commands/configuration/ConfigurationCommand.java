@@ -28,18 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "configuration")
 public class ConfigurationCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: configuration [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --get \n"
-            + "    --read \n"
-            + "       Syntax: --read {CONF-NAME} {CONF-NAME} [...] \n"
-            + "    --update \n"
-            + "       Syntax: --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]\n"
-            + "    --delete \n"
-            + "       Syntax: --delete {CONF-NAME} {CONF-NAME} [...]\n"
-            + "    --export \n"
-            + "       Syntax: --export {WHERE-DIR}\n";
+    private final ConfigurationResultManager configurationResultManager = new ConfigurationResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -63,17 +52,17 @@ public class ConfigurationCommand extends AbstractCommand {
             case EXPORT:
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new ConfigurationResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                new ConfigurationResultManager().defaultOptionMessage(input.getOption(), getHelpMessage());
                 break;
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return configurationResultManager.commandHelpMessage(getClass());
     }
 
     private enum Options {

@@ -28,11 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "realm")
 public class RealmCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: realm [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --details \n"
-            + "    --list \n";
+    private final RealmResultManager realmResultManager = new RealmResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -47,16 +43,16 @@ public class RealmCommand extends AbstractCommand {
                 new RealmList(input).list();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new RealmResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                realmResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return realmResultManager.commandHelpMessage(getClass());
     }
 
     private enum RealmOptions {

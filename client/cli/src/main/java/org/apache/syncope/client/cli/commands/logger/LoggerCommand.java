@@ -28,21 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "logger")
 public class LoggerCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: logger [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --details \n"
-            + "    --list \n"
-            + "    --read \n"
-            + "       Syntax: --read {LOG-NAME} {LOG-NAME} [...]\n"
-            + "    --update \n"
-            + "       Syntax: --update {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]\n"
-            + "    --update-all \n"
-            + "       Syntax: --update-all {LOG-LEVEL} \n"
-            + "    --create \n"
-            + "       Syntax: --create {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]\n"
-            + "    --delete \n"
-            + "       Syntax: --delete {LOG-NAME} {LOG-NAME} [...]\n";
+    private final LoggerResultManager loggerResultManager = new LoggerResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -73,16 +59,16 @@ public class LoggerCommand extends AbstractCommand {
                 new LoggerDelete(input).delete();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new LoggerResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                loggerResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return loggerResultManager.commandHelpMessage(getClass());
     }
 
     private enum LoggerOptions {

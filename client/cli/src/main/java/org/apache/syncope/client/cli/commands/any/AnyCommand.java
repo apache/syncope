@@ -28,19 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "any")
 public class AnyCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: any [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --details \n"
-            + "    --list \n"
-            + "    --read \n"
-            + "       Syntax: --read {ANY-ID} {ANY-ID} [...]\n"
-            + "    --read-attr-by-schema-type {ANY-ID} {SCHEMA-TYPE}\n"
-            + "       Schema type: PLAIN / DERIVED / VIRTUAL\n"
-            + "    --read-attr-by-schema {ANY-ID} {SCHEMA-TYPE} {SCHEMA-NAME}\n"
-            + "       Schema type: PLAIN / DERIVED / VIRTUAL\n"
-            + "    --delete \n"
-            + "       Syntax: --delete {ANY-ID} {ANY-ID} [...]\n";
+    private final AnyResultManager anyResultManager = new AnyResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -66,16 +54,16 @@ public class AnyCommand extends AbstractCommand {
                 new AnyDelete(input).delete();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new AnyResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                anyResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return anyResultManager.commandHelpMessage(getClass());
     }
 
     private enum AnyOptions {

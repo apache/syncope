@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.view.Messages;
 import org.apache.syncope.client.cli.view.Table;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -69,6 +70,10 @@ public abstract class CommonsResultManager {
         Messages.printMessage("Error: " + error);
     }
 
+    public String commandHelpMessage(final Class name) {
+        return Messages.commandHelpMessage(((Command) name.getAnnotation(Command.class)).name());
+    }
+
     protected void printConfiguration(final Set<ConnConfProperty> configurationPropertys) {
         for (final ConnConfProperty configuration : configurationPropertys) {
             System.out.println("       name: " + configuration.getSchema().getName());
@@ -84,7 +89,7 @@ public abstract class CommonsResultManager {
             System.out.println("");
         }
     }
-    
+
     protected void printDetails(final String title, final Map<String, String> details) {
         final Table.TableBuilder tableBuilder
                 = new Table.TableBuilder(title).header("detail").header("value");

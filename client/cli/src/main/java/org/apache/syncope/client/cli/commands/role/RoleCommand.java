@@ -28,15 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "role")
 public class RoleCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: role [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --details \n"
-            + "    --list \n"
-            + "    --read \n"
-            + "       Syntax: --read {ROLE-ID} {ROLE-ID} [...]\n"
-            + "    --delete \n"
-            + "       Syntax: --delete {ROLE-ID} {ROLE-ID} [...]\n";
+    private final RoleResultManager roleResultManager = new RoleResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -58,16 +50,16 @@ public class RoleCommand extends AbstractCommand {
                 new RoleDelete(input).delete();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new RoleResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                roleResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return roleResultManager.commandHelpMessage(getClass());
     }
 
     private enum RoleOptions {

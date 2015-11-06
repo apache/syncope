@@ -28,18 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "connector")
 public class ConnectorCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: connector [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --details \n"
-            + "    --list \n"
-            + "    --list-bundles \n"
-            + "    --list-configuration-properties\n"
-            + "       Syntax: --list-configuration-properties {CONNECTOR-ID} {CONNECTOR-ID} [...]\n"
-            + "    --read \n"
-            + "       Syntax: --read {CONNECTOR-ID} {CONNECTOR-ID} [...]\n"
-            + "    --delete \n"
-            + "       Syntax: --delete {CONNECTOR-ID} {CONNECTOR-ID} [...]\n";
+    private final ConnectorResultManager connectorResultManager = new ConnectorResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -70,16 +59,16 @@ public class ConnectorCommand extends AbstractCommand {
                 new ConnectorDelete(input).delete();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new ConnectorResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                connectorResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return connectorResultManager.commandHelpMessage(getClass());
     }
 
     private enum ConnectorOptions {

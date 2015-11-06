@@ -28,13 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "workflow")
 public class WorkflowCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: workflow [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --export-diagram {ANY-TYPE-KIND}\n"
-            + "        Any type kind: ANY_OBJECT / USER / GROUP\n"
-            + "    --export-definition {ANY-TYPE-KIND}\n"
-            + "        Any type kind: ANY_OBJECT / USER / GROUP\n";
+    private final WorkflowResultManager workflowResultManager = new WorkflowResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -50,16 +44,16 @@ public class WorkflowCommand extends AbstractCommand {
                 new WorkflowExportDefinition(input).export();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new WorkflowResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                workflowResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return workflowResultManager.commandHelpMessage(getClass());
     }
 
     private enum UserWorkflowOptions {

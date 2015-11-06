@@ -28,26 +28,8 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "user")
 public class UserCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: user [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --list \n"
-            + "    --details \n"
-            + "    --get-user-key\n"
-            + "       Syntax: --get-user-key {USERNAME} {USERNAME} [...]\n"
-            + "    --get-username\n"
-            + "       Syntax: --get-username {USER-ID} {USER-ID} [...]\n"
-            + "    --read \n"
-            + "       Syntax: --read {USER-ID} {USER-ID} [...]\n"
-            + "    --search-by-attribute \n"
-            + "       Syntax: --search-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}\n"
-            + "    --search-by-role \n"
-            + "       Syntax: --search-by-role {REALM} {ROLE-ID}\n"
-            + "    --search-by-resource \n"
-            + "       Syntax: --search-by-resource {REALM} {RESOURCE-NAME}\n"
-            + "    --delete \n"
-            + "       Syntax: --delete {USER-ID} {USER-ID} [...]\n";
-
+    private final UserResultManager userResultManager = new UserResultManager();
+    
     @Override
     public void execute(final Input input) {
         if (StringUtils.isBlank(input.getOption())) {
@@ -83,16 +65,16 @@ public class UserCommand extends AbstractCommand {
                 new UserDelete(input).delete();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new UserResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                userResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return userResultManager.commandHelpMessage(getClass());
     }
 
     private enum UserOptions {

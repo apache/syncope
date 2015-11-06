@@ -28,14 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "question")
 public class QuestionCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: question [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --list \n"
-            + "    --read \n"
-            + "       Syntax: --read {QUESTION-ID} {QUESTION-ID} [...]\n"
-            + "    --delete \n"
-            + "       Syntax: --delete {QUESTION-ID} {QUESTION-ID} [...]\n";
+    private final QuestionResultManager questionResultManager = new QuestionResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -53,16 +46,16 @@ public class QuestionCommand extends AbstractCommand {
             case DELETE:
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new QuestionResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                questionResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return questionResultManager.commandHelpMessage(getClass());
     }
 
     private enum QuestionOptions {

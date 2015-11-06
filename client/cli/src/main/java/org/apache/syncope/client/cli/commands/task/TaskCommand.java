@@ -28,26 +28,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 @Command(name = "task")
 public class TaskCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "\nUsage: task [options]\n"
-            + "  Options:\n"
-            + "    --help \n"
-            + "    --details\n"
-            + "    --list\n"
-            + "       Syntax: --list {TASK-TYPE} \n"
-            + "          Task type: NOTIFICATION / PROPAGATION / PUSH / SCHEDULED / SYNCHRONIZATION\n"
-            + "    --list-running-jobs \n"
-            + "    --list-scheduled-jobs \n"
-            + "    --read \n"
-            + "       Syntax: --read {TASK-ID} {TASK-ID} [...]\n"
-            + "    --read-execution \n"
-            + "       Syntax: --read-execution {TASK-EXEC-ID} {TASK-EXEC-ID} [...]\n"
-            + "    --delete \n"
-            + "       Syntax: --delete {TASK-ID} {TASK-ID} [...]\n"
-            + "    --delete-execution \n"
-            + "       Syntax: --delete-execution {TASK-EXEC-ID} {TASK-EXEC-ID} [...]\n"
-            + "    --execute \n"
-            + "       Syntax: --execute {TASK-ID} {DRY-RUN}\n"
-            + "          Dry run: true / false\n";
+    private final TaskResultManager taskResultManager = new TaskResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -84,16 +65,16 @@ public class TaskCommand extends AbstractCommand {
                 new TaskExecute(input).execute();
                 break;
             case HELP:
-                System.out.println(HELP_MESSAGE);
+                System.out.println(getHelpMessage());
                 break;
             default:
-                new TaskResultManager().defaultOptionMessage(input.getOption(), HELP_MESSAGE);
+                taskResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return HELP_MESSAGE;
+        return taskResultManager.commandHelpMessage(getClass());
     }
 
     private enum Options {
