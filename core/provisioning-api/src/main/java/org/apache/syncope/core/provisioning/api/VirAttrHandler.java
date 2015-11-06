@@ -34,7 +34,7 @@ public interface VirAttrHandler {
      * @return virtual attribute values, either for local cache or external resource, if resource is owned by the given
      * any and associated to the given virtual schema; empty list otherwise.
      */
-    List<String> getValues(Any<?, ?> any, VirSchema schema);
+    List<String> getValues(Any<?> any, VirSchema schema);
 
     /**
      * Query external resources (or cache, if configured) associated to the given any for values associated to all
@@ -44,6 +44,6 @@ public interface VirAttrHandler {
      * @param any any object
      * @return virtual attribute values, either for local cache or external resources
      */
-    Map<VirSchema, List<String>> getValues(Any<?, ?> any);
+    Map<VirSchema, List<String>> getValues(Any<?> any);
 
 }

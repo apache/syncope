@@ -86,7 +86,7 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
                         JexlContext jexlContext = new MapContext();
                         JexlUtils.addFieldsToContext(group, jexlContext);
                         JexlUtils.addPlainAttrsToContext(group.getPlainAttrs(), jexlContext);
-                        JexlUtils.addDerAttrsToContext(group.getDerAttrs(), group.getPlainAttrs(), jexlContext);
+                        JexlUtils.addDerAttrsToContext(group, jexlContext);
 
                         String groupConnObjectLinkLink =
                                 JexlUtils.evaluate(provision.getMapping().getConnObjectLink(), jexlContext);

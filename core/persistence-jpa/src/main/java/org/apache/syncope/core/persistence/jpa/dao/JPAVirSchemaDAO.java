@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Collections;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -27,7 +26,6 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Attr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
@@ -75,11 +73,6 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
         TypedQuery<VirSchema> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAVirSchema.class.getSimpleName() + " e", VirSchema.class);
         return query.getResultList();
-    }
-
-    @Override
-    public <T extends Attr<VirSchema, ?>> List<T> findAttrs(final VirSchema schema, final Class<T> reference) {
-        return Collections.emptyList();
     }
 
     @Override

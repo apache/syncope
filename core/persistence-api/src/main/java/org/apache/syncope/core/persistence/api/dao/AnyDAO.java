@@ -18,14 +18,16 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.Schema;
 
-public interface AnyDAO<A extends Any<?, ?>> extends DAO<A, Long> {
+public interface AnyDAO<A extends Any<?>> extends DAO<A, Long> {
 
     A authFind(Long key);
 
@@ -54,6 +56,8 @@ public interface AnyDAO<A extends Any<?, ?>> extends DAO<A, Long> {
     List<A> findAll(Set<String> adminRealms, int page, int itemsPerPage);
 
     List<A> findAll(Set<String> adminRealms, int page, int itemsPerPage, List<OrderByClause> orderBy);
+
+    <S extends Schema> Collection<S> findAllowedSchemas(A any, Class<S> reference);
 
     int count(Set<String> adminRealms);
 

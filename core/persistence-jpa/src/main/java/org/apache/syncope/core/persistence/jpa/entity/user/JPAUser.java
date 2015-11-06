@@ -52,7 +52,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
-import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
@@ -74,7 +73,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 @Entity
 @Table(name = JPAUser.TABLE)
 @Cacheable
-public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr> implements User {
+public class JPAUser extends AbstractAny<UPlainAttr> implements User {
 
     private static final long serialVersionUID = -3905046855521446823L;
 
@@ -99,10 +98,6 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr> implements User {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<JPAUPlainAttr> plainAttrs = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-    @Valid
-    private List<JPAUDerAttr> derAttrs = new ArrayList<>();
 
     private String workflowId;
 
@@ -297,23 +292,6 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr> implements User {
     @Override
     public List<? extends UPlainAttr> getPlainAttrs() {
         return plainAttrs;
-    }
-
-    @Override
-    public boolean add(final UDerAttr attr) {
-        checkType(attr, JPAUDerAttr.class);
-        return derAttrs.add((JPAUDerAttr) attr);
-    }
-
-    @Override
-    public boolean remove(final UDerAttr attr) {
-        checkType(attr, JPAUDerAttr.class);
-        return derAttrs.remove((JPAUDerAttr) attr);
-    }
-
-    @Override
-    public List<? extends UDerAttr> getDerAttrs() {
-        return derAttrs;
     }
 
     @Override

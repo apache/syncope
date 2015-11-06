@@ -43,7 +43,7 @@ public class DerSchemaTest extends AbstractTest {
     @Test
     public void findAll() {
         List<DerSchema> list = derSchemaDAO.findAll();
-        assertEquals(9, list.size());
+        assertEquals(10, list.size());
     }
 
     @Test

@@ -331,6 +331,7 @@ under the License.
   <DerSchema name="csvuserid" expression="firstname + ',' + surname" anyTypeClass_name="csv"/>
   <DerSchema name="cn" expression="surname + ', ' + firstname" anyTypeClass_name="minimal user"/>
   <DerSchema name="noschema" expression="surname + ', ' + notfound" anyTypeClass_name="other"/>
+  <DerSchema name="info" expression="username + ' - ' + creationDate + '[' + failedLogins + ']'" anyTypeClass_name="minimal user"/>
 
   <PlainSchema name="icon" type="String" anyTypeClass_name="minimal group"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>                
@@ -443,10 +444,7 @@ under the License.
   <UPlainAttrValue id="36" attribute_id="125" stringValue="vivaldi@syncope.org"/>
   <UPlainAttr id="126" owner_id="3" schema_name="type"/>
   <UPlainAttrValue id="37" attribute_id="126" stringValue="F"/>
-  
-  <UDerAttr id="100" schema_name="cn" owner_id="3"/>
-  <UDerAttr id="101" schema_name="cn" owner_id="1"/>
-
+   
   <GPlainAttr id="600" owner_id="1" schema_name="icon"/>
   <GPlainAttrValue attribute_id="600" id="40" stringValue="niceIcon"/>
 
@@ -473,14 +471,6 @@ under the License.
   
   <GPlainAttr id="995" owner_id="13" schema_name="title"/>
   <GPlainAttrValue attribute_id="995" id="95" stringValue="r13"/>
-
-  <GDerAttr id="100" owner_id="1" schema_name="rderiveddata"/>
-    
-  <GDerAttr id="101" owner_id="1" schema_name="displayProperty"/>
-  
-  <GDerAttr id="102" owner_id="4" schema_name="displayProperty"/>
-
-  <GDerAttr id="103" owner_id="1" schema_name="rderToBePropagated"/>    
 
   <ConnInstance id="100" displayName="ConnInstance100"
                 location="${connid.location}"
@@ -765,7 +755,7 @@ under the License.
                connObjectKey="0" password="0" purpose="PROPAGATION"/>
   <MappingItem id="111" extAttrName="fullname" mapping_id="1"
                intAttrName="cn" intMappingType="UserDerivedSchema" mandatoryCondition="true"
-               connObjectKey="0" password="0" purpose="BOTH"/>
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
     
   <Provision id="2" resource_name="ws-target-resource-update" anyType_name="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="2" provision_id="2"/>
@@ -846,7 +836,7 @@ under the License.
                connObjectKey="0" password="0" purpose="SYNCHRONIZATION"/>
   <MappingItem id="207" extAttrName="__NAME__" mapping_id="9"
                intAttrName="csvuserid" intMappingType="UserDerivedSchema" mandatoryCondition="true"
-               connObjectKey="1" password="0" purpose="BOTH"/>
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
   <MappingItem id="208" extAttrName="theirgroup" mapping_id="9"
                intAttrName="rderToBePropagated" intMappingType="GroupDerivedSchema" mandatoryCondition="false"
                connObjectKey="0" password="0" purpose="PROPAGATION"/>

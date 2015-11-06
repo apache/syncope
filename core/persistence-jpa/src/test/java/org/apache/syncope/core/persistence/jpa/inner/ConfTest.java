@@ -83,6 +83,7 @@ public class ConfTest extends AbstractTest {
 
         // 2. create conf
         CPlainAttr newConf = entityFactory.newEntity(CPlainAttr.class);
+        newConf.setOwner(confDAO.get());
         newConf.setSchema(useless);
         add(newConf, "2014-06-20");
         confDAO.save(newConf);

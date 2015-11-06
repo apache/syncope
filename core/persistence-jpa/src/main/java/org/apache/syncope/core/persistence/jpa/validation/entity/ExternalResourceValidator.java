@@ -66,6 +66,20 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             return false;
         }
 
+        if (item.getIntMappingType() == IntMappingType.AnyObjectDerivedSchema
+                || item.getIntMappingType() == IntMappingType.GroupDerivedSchema
+                || item.getIntMappingType() == IntMappingType.UserDerivedSchema) {
+
+            if (item.getPurpose() != MappingPurpose.PROPAGATION) {
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidMapping,
+                                " - only " + MappingPurpose.PROPAGATION.name() + " allowed for derived")).
+                        addPropertyNode("purpose").addConstraintViolation();
+
+                return false;
+            }
+        }
+
         if (item.getIntMappingType() == IntMappingType.AnyObjectVirtualSchema
                 || item.getIntMappingType() == IntMappingType.GroupVirtualSchema
                 || item.getIntMappingType() == IntMappingType.UserVirtualSchema) {

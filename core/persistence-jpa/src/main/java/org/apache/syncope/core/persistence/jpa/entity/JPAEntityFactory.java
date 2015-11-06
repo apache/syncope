@@ -60,7 +60,6 @@ import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
-import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
@@ -77,7 +76,6 @@ import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
-import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -96,7 +94,6 @@ import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
@@ -112,7 +109,6 @@ import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASyncTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskExec;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
@@ -194,8 +190,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPAUPlainAttrUniqueValue();
         } else if (reference.equals(DerSchema.class)) {
             result = (T) new JPADerSchema();
-        } else if (reference.equals(UDerAttr.class)) {
-            result = (T) new JPAUDerAttr();
         } else if (reference.equals(VirSchema.class)) {
             result = (T) new JPAVirSchema();
         } else if (reference.equals(Mapping.class)) {
@@ -208,8 +202,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPAGPlainAttrValue();
         } else if (reference.equals(GPlainAttrUniqueValue.class)) {
             result = (T) new JPAGPlainAttrUniqueValue();
-        } else if (reference.equals(GDerAttr.class)) {
-            result = (T) new JPAGDerAttr();
         } else if (reference.equals(CPlainAttr.class)) {
             result = (T) new JPACPlainAttr();
         } else if (reference.equals(CPlainAttrValue.class)) {

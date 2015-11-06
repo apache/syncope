@@ -359,31 +359,6 @@ under the License.
       </id>
     </attributes>
   </entity>
-
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADerAttr">
-    <attributes>
-      <id name="id">
-        <generated-value generator="SEQ_ADerAttr" strategy="TABLE"/>
-        <table-generator name="SEQ_ADerAttr" pk-column-value="SEQ_ADerAttr" initial-value="1000"/>
-      </id>
-    </attributes>
-  </entity>
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerAttr">
-    <attributes>
-      <id name="id">
-        <generated-value generator="SEQ_UDerAttr" strategy="TABLE"/>
-        <table-generator name="SEQ_UDerAttr" pk-column-value="SEQ_UDerAttr" initial-value="1000"/>
-      </id>
-    </attributes>
-  </entity>
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttr">
-    <attributes>
-      <id name="id">
-        <generated-value generator="SEQ_GDerAttr" strategy="TABLE"/>
-        <table-generator name="SEQ_GDerAttr" pk-column-value="SEQ_GDerAttr" initial-value="1000"/>
-      </id>
-    </attributes>
-  </entity>
   
   <entity class="org.apache.syncope.core.persistence.jpa.entity.JPAAnyTemplateRealm">
     <attributes>

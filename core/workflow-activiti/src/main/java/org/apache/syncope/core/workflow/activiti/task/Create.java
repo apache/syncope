@@ -39,8 +39,7 @@ public class Create extends AbstractActivitiServiceTask {
     protected void doExecute(final String executionId) {
         UserTO userTO = engine.getRuntimeService().
                 getVariable(executionId, ActivitiUserWorkflowAdapter.USER_TO, UserTO.class);
-        Boolean storePassword =
-                engine.getRuntimeService().
+        Boolean storePassword = engine.getRuntimeService().
                 getVariable(executionId, ActivitiUserWorkflowAdapter.STORE_PASSWORD, Boolean.class);
         // create and set workflow id
         User user = entityFactory.newEntity(User.class);

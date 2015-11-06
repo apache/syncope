@@ -20,9 +20,8 @@ package org.apache.syncope.core.persistence.api.entity.conf;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.DerAttr;
 
-public interface Conf extends Any<CPlainAttr, DerAttr<?>> {
+public interface Conf extends Any<CPlainAttr> {
 
     void setKey(Long key);
 

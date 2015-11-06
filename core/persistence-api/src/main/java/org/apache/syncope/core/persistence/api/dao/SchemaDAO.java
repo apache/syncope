@@ -20,18 +20,15 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.Attr;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 
-public interface SchemaDAO<S extends Schema, A extends Attr<S, ?>> extends DAO<S, String> {
+public interface SchemaDAO<S extends Schema> extends DAO<S, String> {
 
     S find(String name);
 
     List<S> findByAnyTypeClass(AnyTypeClass anyTypeClass);
 
     List<S> findAll();
-
-    <T extends A> List<T> findAttrs(S schema, Class<T> reference);
 
     S save(S derSchema);
 

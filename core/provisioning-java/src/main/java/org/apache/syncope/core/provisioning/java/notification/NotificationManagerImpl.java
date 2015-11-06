@@ -49,7 +49,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
@@ -57,11 +56,14 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -85,6 +87,9 @@ public class NotificationManagerImpl implements NotificationManager {
     public static final String MAIL_TEMPLATE_HTML_SUFFIX = ".html.vm";
 
     public static final String MAIL_TEMPLATE_TEXT_SUFFIX = ".txt.vm";
+
+    @Autowired
+    private DerSchemaDAO derSchemaDAO;
 
     @Autowired
     private VirSchemaDAO virSchemaDAO;
@@ -144,6 +149,9 @@ public class NotificationManagerImpl implements NotificationManager {
     private ToolManager velocityToolManager;
 
     @Autowired
+    private DerAttrHandler derAttrHander;
+
+    @Autowired
     private VirAttrHandler virAttrHander;
 
     @Autowired
@@ -171,7 +179,7 @@ public class NotificationManagerImpl implements NotificationManager {
      */
     private NotificationTask getNotificationTask(
             final Notification notification,
-            final Any<?, ?> any,
+            final Any<?> any,
             final Map<String, Object> model) {
 
         if (any != null) {
@@ -269,7 +277,7 @@ public class NotificationManagerImpl implements NotificationManager {
             final Object output,
             final Object... input) {
 
-        Any<?, ?> any = null;
+        Any<?> any = null;
 
         if (before instanceof UserTO) {
             any = userDAO.find(((UserTO) before).getKey());
@@ -358,18 +366,20 @@ public class NotificationManagerImpl implements NotificationManager {
                 break;
 
             case UserDerivedSchema:
-                UDerAttr derAttr = user.getDerAttr(recipientAttrName);
-                if (derAttr != null) {
-                    email = derAttr.getValue(user.getPlainAttrs());
+                DerSchema schema = derSchemaDAO.find(recipientAttrName);
+                if (schema == null) {
+                    LOG.warn("Ignoring non existing {} {}", DerSchema.class.getSimpleName(), recipientAttrName);
+                } else {
+                    email = derAttrHander.getValue(user, schema);
                 }
                 break;
 
             case UserVirtualSchema:
-                VirSchema schema = virSchemaDAO.find(recipientAttrName);
-                if (schema == null) {
+                VirSchema virSchema = virSchemaDAO.find(recipientAttrName);
+                if (virSchema == null) {
                     LOG.warn("Ignoring non existing {} {}", VirSchema.class.getSimpleName(), recipientAttrName);
                 } else {
-                    List<String> virAttrValues = virAttrHander.getValues(user, schema);
+                    List<String> virAttrValues = virAttrHander.getValues(user, virSchema);
                     email = virAttrValues.isEmpty() ? null : virAttrValues.get(0);
                 }
                 break;

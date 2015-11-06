@@ -36,12 +36,12 @@ public class AnyObjectPushResultHandlerImpl extends AbstractPushResultHandler im
     }
 
     @Override
-    protected String getName(final Any<?, ?> any) {
+    protected String getName(final Any<?> any) {
         return StringUtils.EMPTY;
     }
 
     @Override
-    protected Any<?, ?> getAny(final long key) {
+    protected Any<?> getAny(final long key) {
         try {
             return anyObjectDAO.authFind(key);
         } catch (Exception e) {

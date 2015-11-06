@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -43,17 +44,25 @@ import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractAnyDAO<A extends Any<?, ?>> extends AbstractDAO<A, Long> implements AnyDAO<A> {
+public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Long> implements AnyDAO<A> {
 
     @Autowired
     protected PlainSchemaDAO plainSchemaDAO;
@@ -405,6 +414,42 @@ public abstract class AbstractAnyDAO<A extends Any<?, ?>> extends AbstractDAO<A,
 
         return searchDAO.search(adminRealms, getAllMatchingCond(), page, itemsPerPage, orderBy,
                 getAnyUtils().getAnyTypeKind());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
+    @SuppressWarnings("unchecked")
+    public <S extends Schema> Collection<S> findAllowedSchemas(final A any, final Class<S> reference) {
+        Set<AnyTypeClass> classes = new HashSet<>();
+        classes.addAll(any.getType().getClasses());
+        classes.addAll(any.getAuxClasses());
+        if (any instanceof User) {
+            for (UMembership memb : ((User) any).getMemberships()) {
+                for (TypeExtension typeExtension : memb.getRightEnd().getTypeExtensions()) {
+                    classes.addAll(typeExtension.getAuxClasses());
+                }
+            }
+        } else if (any instanceof AnyObject) {
+            for (AMembership memb : ((AnyObject) any).getMemberships()) {
+                for (TypeExtension typeExtension : memb.getRightEnd().getTypeExtensions()) {
+                    classes.addAll(typeExtension.getAuxClasses());
+                }
+            }
+        }
+
+        Set<S> result = new HashSet<>();
+
+        for (AnyTypeClass typeClass : classes) {
+            if (reference.equals(PlainSchema.class)) {
+                result.addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+            } else if (reference.equals(DerSchema.class)) {
+                result.addAll((Collection<? extends S>) typeClass.getDerSchemas());
+            } else if (reference.equals(VirSchema.class)) {
+                result.addAll((Collection<? extends S>) typeClass.getVirSchemas());
+            }
+        }
+
+        return result;
     }
 
     @Override

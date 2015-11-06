@@ -41,7 +41,7 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected void provision(final Any<?, ?> any, final Boolean enabled) {
+    protected void provision(final Any<?> any, final Boolean enabled) {
         AnyTO before = getAnyTO(any.getKey());
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -60,12 +60,12 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected String getName(final Any<?, ?> any) {
+    protected String getName(final Any<?> any) {
         return User.class.cast(any).getUsername();
     }
 
     @Override
-    protected Any<?, ?> getAny(final long key) {
+    protected Any<?> getAny(final long key) {
         try {
             return userDAO.authFind(key);
         } catch (Exception e) {

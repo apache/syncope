@@ -25,6 +25,7 @@ import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -37,11 +38,11 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.PlainAttrCheck;
 
 @MappedSuperclass
 @PlainAttrCheck
-public abstract class AbstractPlainAttr<O extends Any<?, ?>>
-        extends AbstractAttr<PlainSchema, O> implements PlainAttr<O> {
+public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractEntity<Long> implements PlainAttr<O> {
 
     private static final long serialVersionUID = -9115431608821806124L;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     @Column(name = "schema_name")
     protected JPAPlainSchema schema;
@@ -55,13 +56,20 @@ public abstract class AbstractPlainAttr<O extends Any<?, ?>>
     public void setSchema(final PlainSchema schema) {
         checkType(schema, JPAPlainSchema.class);
         this.schema = (JPAPlainSchema) schema;
-        checkSchema(this.schema);
     }
 
     protected abstract boolean addForMultiValue(PlainAttrValue attrValue);
 
+    private void checkNonNullSchema() {
+        if (schema == null) {
+            throw new IllegalStateException("First set owner then schema and finally add values");
+        }
+    }
+
     @Override
     public void add(final String value, final PlainAttrValue attrValue) {
+        checkNonNullSchema();
+
         attrValue.setAttr(this);
         getSchema().getValidator().validate(value, attrValue);
 
@@ -77,6 +85,8 @@ public abstract class AbstractPlainAttr<O extends Any<?, ?>>
 
     @Override
     public void add(final String value, final AnyUtils anyUtils) {
+        checkNonNullSchema();
+
         PlainAttrValue attrValue;
         if (getSchema().isUniqueConstraint()) {
             attrValue = anyUtils.newPlainAttrUniqueValue();

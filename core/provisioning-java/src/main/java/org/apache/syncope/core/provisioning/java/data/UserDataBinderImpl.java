@@ -57,6 +57,7 @@ import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -442,12 +443,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             userTO.setSecurityQuestion(user.getSecurityQuestion().getKey());
         }
 
+        Map<DerSchema, String> derAttrValues = derAttrHandler.getValues(user);
         Map<VirSchema, List<String>> virAttrValues = details
                 ? virAttrHander.getValues(user)
                 : Collections.<VirSchema, List<String>>emptyMap();
-
         fillTO(userTO, user.getRealm().getFullPath(), user.getAuxClasses(),
-                user.getPlainAttrs(), user.getDerAttrs(), virAttrValues, userDAO.findAllResources(user));
+                user.getPlainAttrs(), derAttrValues, virAttrValues, userDAO.findAllResources(user));
 
         if (details) {
             // roles

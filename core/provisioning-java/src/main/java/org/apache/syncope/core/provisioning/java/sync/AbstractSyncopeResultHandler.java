@@ -137,7 +137,7 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
 
     protected abstract AnyTO getAnyTO(long key);
 
-    protected abstract Any<?, ?> getAny(long key);
+    protected abstract Any<?> getAny(long key);
 
     protected abstract AnyPatch newPatch(final long key);
 

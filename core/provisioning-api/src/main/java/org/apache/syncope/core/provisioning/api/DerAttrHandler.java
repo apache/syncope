@@ -16,14 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.provisioning.api;
 
-public class UnallowedSchemaException extends RuntimeException {
+import java.util.Map;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 
-    private static final long serialVersionUID = -9206535191442808016L;
+public interface DerAttrHandler {
 
-    public UnallowedSchemaException(final String schemaName) {
-        super(schemaName + " not allowed");
-    }
+    /**
+     * Calculates derived attribute value associated to the given any, for the given derived schema.
+     *
+     * @param any any object
+     * @param schema derived schema
+     * @return derived attribute value
+     */
+    String getValue(Any<?> any, DerSchema schema);
 
+    /**
+     * Calculates derived attributes values associated to the given any.
+     *
+     * @param any any object
+     * @return derived attribute values, either for local cache or external resources
+     */
+    Map<DerSchema, String> getValues(Any<?> any);
 }

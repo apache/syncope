@@ -16,42 +16,46 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.outer;
+package org.apache.syncope.core.provisioning.java;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
-import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
-public class DerSchemaTest extends AbstractTest {
-
-    @Autowired
-    private UserDAO userDAO;
+public class DerAttrTest extends AbstractTest {
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;
 
     @Autowired
-    private DerAttrDAO derAttrDAO;
+    private UserDAO userDAO;
+
+    @Autowired
+    private DerAttrHandler derAttrHandler;
 
     @Test
-    public void test() {
-        DerSchema schema = derSchemaDAO.find("cn");
+    public void derAttrFromSpecialAttrs() {
+        DerSchema info = derSchemaDAO.find("info");
+        assertEquals("username + ' - ' + creationDate + '[' + failedLogins + ']'", info.getExpression());
 
-        derSchemaDAO.delete(schema.getKey());
+        User user = userDAO.find(3L);
+        assertNotNull("did not get expected user", user);
 
-        derSchemaDAO.flush();
-
-        assertNull(derSchemaDAO.find(schema.getKey()));
-        assertNull(derAttrDAO.find(100L, UDerAttr.class));
-        assertNull(userDAO.find(3L).getDerAttr(schema.getKey()));
+        String value = derAttrHandler.getValue(user, info);
+        assertNotNull(value);
+        assertFalse(value.isEmpty());
+        assertTrue(value.startsWith("vivaldi - 2010-10-20"));
+        assertTrue(value.endsWith("[0]"));
     }
 }

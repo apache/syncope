@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,10 +41,8 @@ import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
-import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
@@ -55,7 +52,6 @@ import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -84,6 +80,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,9 +123,6 @@ abstract class AbstractAnyDataBinder {
     protected PlainAttrDAO plainAttrDAO;
 
     @Autowired
-    protected DerAttrDAO derAttrDAO;
-
-    @Autowired
     protected PlainAttrValueDAO plainAttrValueDAO;
 
     @Autowired
@@ -147,6 +141,9 @@ abstract class AbstractAnyDataBinder {
     protected AnyUtilsFactory anyUtilsFactory;
 
     @Autowired
+    protected DerAttrHandler derAttrHandler;
+
+    @Autowired
     protected VirAttrHandler virAttrHander;
 
     @Autowired
@@ -155,7 +152,7 @@ abstract class AbstractAnyDataBinder {
     @Autowired
     protected MappingUtils mappingUtils;
 
-    protected void setRealm(final Any<?, ?> any, final AnyPatch anyPatch) {
+    protected void setRealm(final Any<?> any, final AnyPatch anyPatch) {
         if (anyPatch.getRealm() != null && StringUtils.isNotBlank(anyPatch.getRealm().getValue())) {
             Realm newRealm = realmDAO.find(anyPatch.getRealm().getValue());
             if (newRealm == null) {
@@ -221,7 +218,7 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    private List<String> evaluateMandatoryCondition(final Provision provision, final Any<?, ?> any) {
+    private List<String> evaluateMandatoryCondition(final Provision provision, final Any<?> any) {
         List<String> missingAttrNames = new ArrayList<>();
 
         if (provision != null) {
@@ -231,7 +228,7 @@ abstract class AbstractAnyDataBinder {
                         || item.getPurpose() == MappingPurpose.BOTH)) {
 
                     List<PlainAttrValue> values = mappingUtils.getIntValues(
-                            provision, item, Collections.<Any<?, ?>>singletonList(any));
+                            provision, item, Collections.<Any<?>>singletonList(any));
                     if (values.isEmpty() && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
                         missingAttrNames.add(item.getIntAttrName());
                     }
@@ -243,7 +240,7 @@ abstract class AbstractAnyDataBinder {
     }
 
     private SyncopeClientException checkMandatoryOnResources(
-            final Any<?, ?> any, final Set<ExternalResource> resources) {
+            final Any<?> any, final Set<ExternalResource> resources) {
 
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
@@ -262,14 +259,14 @@ abstract class AbstractAnyDataBinder {
         return reqValMissing;
     }
 
-    private SyncopeClientException checkMandatory(final Any<?, ?> any) {
+    private SyncopeClientException checkMandatory(final Any<?> any, final AnyUtils anyUtils) {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         // Check if there is some mandatory schema defined for which no value has been provided
-        for (PlainSchema schema : any.getAllowedPlainSchemas()) {
+        for (PlainSchema schema : anyUtils.getAllowedSchemas(any, PlainSchema.class)) {
             if (any.getPlainAttr(schema.getKey()) == null
                     && !schema.isReadonly()
-                    && (JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any))) {
+                    && JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any)) {
 
                 LOG.error("Mandatory schema " + schema.getKey() + " not provided with values");
 
@@ -278,20 +275,6 @@ abstract class AbstractAnyDataBinder {
         }
 
         return reqValMissing;
-    }
-
-    private Set<ExternalResource> getAllResources(final Any<?, ?> any) {
-        Set<ExternalResource> resources = new HashSet<>();
-
-        if (any instanceof User) {
-            resources.addAll(userDAO.findAllResources((User) any));
-        } else if (any instanceof Group) {
-            resources.addAll(((Group) any).getResources());
-        } else if (any instanceof AnyObject) {
-            resources.addAll(anyObjectDAO.findAllResources((AnyObject) any));
-        }
-
-        return resources;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -331,11 +314,11 @@ abstract class AbstractAnyDataBinder {
                     Collection<Long> valuesToBeRemoved = CollectionUtils.collect(attr.getValues(),
                             new Transformer<PlainAttrValue, Long>() {
 
-                                @Override
-                                public Long transform(final PlainAttrValue input) {
-                                    return input.getKey();
-                                }
-                            });
+                        @Override
+                        public Long transform(final PlainAttrValue input) {
+                            return input.getKey();
+                        }
+                    });
                     for (Long attrValueKey : valuesToBeRemoved) {
                         plainAttrValueDAO.delete(attrValueKey, anyUtils.plainAttrValueClass());
                     }
@@ -377,48 +360,7 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void processAttrPatch(final Any any, final AttrPatch patch, final DerSchema schema,
-            final AnyUtils anyUtils, final Set<ExternalResource> resources, final PropagationByResource propByRes) {
-
-        DerAttr<?> attr = any.getDerAttr(schema.getKey());
-        if (attr == null) {
-            LOG.debug("No plain attribute found for schema {}", schema);
-
-            switch (patch.getOperation()) {
-                case ADD_REPLACE:
-                    attr = anyUtils.newDerAttr();
-                    ((DerAttr) attr).setOwner(any);
-                    attr.setSchema(schema);
-                    any.add(attr);
-                    break;
-
-                case DELETE:
-                default:
-                    return;
-            }
-        }
-
-        if (patch.getOperation() == PatchOperation.DELETE) {
-            derAttrDAO.delete(attr);
-        }
-
-        for (ExternalResource resource : resources) {
-            for (MappingItem mapItem : MappingUtils.getPropagationMappingItems(resource.getProvision(any.getType()))) {
-                if (schema.getKey().equals(mapItem.getIntAttrName())
-                        && mapItem.getIntMappingType() == anyUtils.derIntMappingType()) {
-
-                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
-
-                    if (mapItem.isConnObjectKey() && !attr.getValue(any.getPlainAttrs()).isEmpty()) {
-                        propByRes.addOldConnObjectKey(resource.getKey(), attr.getValue(any.getPlainAttrs()));
-                    }
-                }
-            }
-        }
-    }
-
-    protected PropagationByResource fill(final Any<?, ?> any, final AnyPatch anyPatch, final AnyUtils anyUtils,
+    protected PropagationByResource fill(final Any<?> any, final AnyPatch anyPatch, final AnyUtils anyUtils,
             final SyncopeClientCompositeException scce) {
 
         PropagationByResource propByRes = new PropagationByResource();
@@ -461,7 +403,7 @@ abstract class AbstractAnyDataBinder {
             }
         }
 
-        Set<ExternalResource> resources = getAllResources(any);
+        Set<ExternalResource> resources = anyUtils.getAllResources(any);
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // 3. plain attributes
@@ -480,20 +422,7 @@ abstract class AbstractAnyDataBinder {
             scce.addException(invalidValues);
         }
 
-        // 4. derived attributes
-        for (AttrPatch patch : anyPatch.getDerAttrs()) {
-            if (patch.getAttrTO() != null) {
-                DerSchema schema = getDerSchema(patch.getAttrTO().getSchema());
-                if (schema == null) {
-                    LOG.debug("Invalid " + DerSchema.class.getSimpleName()
-                            + "{}, ignoring...", patch.getAttrTO().getSchema());
-                } else {
-                    processAttrPatch(any, patch, schema, anyUtils, resources, propByRes);
-                }
-            }
-        }
-
-        SyncopeClientException requiredValuesMissing = checkMandatory(any);
+        SyncopeClientException requiredValuesMissing = checkMandatory(any, anyUtils);
         if (!requiredValuesMissing.isEmpty()) {
             scce.addException(requiredValuesMissing);
         }
@@ -554,23 +483,12 @@ abstract class AbstractAnyDataBinder {
             scce.addException(invalidValues);
         }
 
-        // 2. derived attributes
-        for (AttrTO attributeTO : anyTO.getDerAttrs()) {
-            DerSchema derSchema = getDerSchema(attributeTO.getSchema());
-            if (derSchema != null) {
-                DerAttr derAttr = anyUtils.newDerAttr();
-                derAttr.setOwner(any);
-                derAttr.setSchema(derSchema);
-                any.add(derAttr);
-            }
-        }
-
-        SyncopeClientException requiredValuesMissing = checkMandatory(any);
+        SyncopeClientException requiredValuesMissing = checkMandatory(any, anyUtils);
         if (!requiredValuesMissing.isEmpty()) {
             scce.addException(requiredValuesMissing);
         }
 
-        // 3. realm & resources
+        // 2. realm & resources
         Realm realm = realmDAO.find(anyTO.getRealm());
         if (realm == null) {
             SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
@@ -588,7 +506,7 @@ abstract class AbstractAnyDataBinder {
             }
         }
 
-        requiredValuesMissing = checkMandatoryOnResources(any, getAllResources(any));
+        requiredValuesMissing = checkMandatoryOnResources(any, anyUtils.getAllResources(any));
         if (!requiredValuesMissing.isEmpty()) {
             scce.addException(requiredValuesMissing);
         }
@@ -602,8 +520,8 @@ abstract class AbstractAnyDataBinder {
     protected void fillTO(final AnyTO anyTO,
             final String realmFullPath,
             final Collection<? extends AnyTypeClass> auxClasses,
-            final Collection<? extends PlainAttr<?>> attrs,
-            final Collection<? extends DerAttr<?>> derAttrs,
+            final Collection<? extends PlainAttr<?>> plainAttrs,
+            final Map<DerSchema, String> derAttrs,
             final Map<VirSchema, List<String>> virAttrs,
             final Collection<? extends ExternalResource> resources) {
 
@@ -617,19 +535,19 @@ abstract class AbstractAnyDataBinder {
             }
         }, anyTO.getAuxClasses());
 
-        for (PlainAttr<?> attr : attrs) {
+        for (PlainAttr<?> plainAttr : plainAttrs) {
             AttrTO attrTO = new AttrTO();
-            attrTO.setSchema(attr.getSchema().getKey());
-            attrTO.getValues().addAll(attr.getValuesAsStrings());
-            attrTO.setReadonly(attr.getSchema().isReadonly());
+            attrTO.setSchema(plainAttr.getSchema().getKey());
+            attrTO.getValues().addAll(plainAttr.getValuesAsStrings());
+            attrTO.setReadonly(plainAttr.getSchema().isReadonly());
 
             anyTO.getPlainAttrs().add(attrTO);
         }
 
-        for (DerAttr<?> derAttr : derAttrs) {
+        for (Map.Entry<DerSchema, String> entry : derAttrs.entrySet()) {
             AttrTO attrTO = new AttrTO();
-            attrTO.setSchema(derAttr.getSchema().getKey());
-            attrTO.getValues().add(derAttr.getValue(attrs));
+            attrTO.setSchema(entry.getKey().getKey());
+            attrTO.getValues().add(entry.getValue());
             attrTO.setReadonly(true);
 
             anyTO.getDerAttrs().add(attrTO);
@@ -649,21 +567,21 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    protected RelationshipTO getRelationshipTO(final Relationship<? extends Any<?, ?>, AnyObject> relationship) {
+    protected RelationshipTO getRelationshipTO(final Relationship<? extends Any<?>, AnyObject> relationship) {
         return new RelationshipTO.Builder().
                 left(relationship.getLeftEnd().getType().getKey(), relationship.getLeftEnd().getKey()).
                 right(relationship.getRightEnd().getType().getKey(), relationship.getRightEnd().getKey()).
                 build();
     }
 
-    protected MembershipTO getMembershipTO(final Membership<? extends Any<?, ?>> membership) {
+    protected MembershipTO getMembershipTO(final Membership<? extends Any<?>> membership) {
         return new MembershipTO.Builder().
                 left(membership.getLeftEnd().getType().getKey(), membership.getLeftEnd().getKey()).
                 group(membership.getRightEnd().getKey(), membership.getRightEnd().getName()).
                 build();
     }
 
-    protected Map<String, String> getConnObjectKeys(final Any<?, ?> any) {
+    protected Map<String, String> getConnObjectKeys(final Any<?> any) {
         Map<String, String> connObjectKeys = new HashMap<>();
 
         Iterable<? extends ExternalResource> iterable = any instanceof User

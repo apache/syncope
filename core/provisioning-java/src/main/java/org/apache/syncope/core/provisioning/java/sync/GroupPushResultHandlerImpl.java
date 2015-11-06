@@ -36,12 +36,12 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
     }
 
     @Override
-    protected String getName(final Any<?, ?> any) {
+    protected String getName(final Any<?> any) {
         return Group.class.cast(any).getName();
     }
 
     @Override
-    protected Any<?, ?> getAny(final long key) {
+    protected Any<?> getAny(final long key) {
         try {
             return groupDAO.authFind(key);
         } catch (Exception e) {

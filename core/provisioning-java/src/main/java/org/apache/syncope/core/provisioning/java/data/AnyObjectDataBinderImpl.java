@@ -42,6 +42,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -78,13 +79,12 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         BeanUtils.copyProperties(anyObject, anyObjectTO, IGNORE_PROPERTIES);
 
+        Map<DerSchema, String> derAttrValues = derAttrHandler.getValues(anyObject);
         Map<VirSchema, List<String>> virAttrValues = details
                 ? virAttrHander.getValues(anyObject)
                 : Collections.<VirSchema, List<String>>emptyMap();
-
         fillTO(anyObjectTO, anyObject.getRealm().getFullPath(), anyObject.getAuxClasses(),
-                anyObject.getPlainAttrs(), anyObject.getDerAttrs(), virAttrValues,
-                anyObjectDAO.findAllResources(anyObject));
+                anyObject.getPlainAttrs(), derAttrValues, virAttrValues, anyObjectDAO.findAllResources(anyObject));
 
         if (details) {
             // relationships

@@ -16,10 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.group;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import org.apache.syncope.core.persistence.api.entity.DerAttr;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface GDerAttr extends DerAttr<Group> {
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = AnyValidator.class)
+@Documented
+public @interface AnyCheck {
+
+    String message() default "{org.apache.syncope.core.persistence.validation.any}";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }

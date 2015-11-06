@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 
-public interface DerSchemaDAO extends SchemaDAO<DerSchema, DerAttr<?>> {
+public interface DerSchemaDAO extends SchemaDAO<DerSchema> {
 
 }

@@ -203,7 +203,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     }
 
     private void populateTransitiveResources(
-            final Group group, final Any<?, ?> any, final Map<Long, PropagationByResource> result) {
+            final Group group, final Any<?> any, final Map<Long, PropagationByResource> result) {
 
         PropagationByResource propByRes = new PropagationByResource();
         for (ExternalResource resource : group.getResources()) {

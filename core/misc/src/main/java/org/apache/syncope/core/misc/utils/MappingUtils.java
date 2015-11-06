@@ -44,7 +44,6 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -60,8 +59,10 @@ import org.apache.syncope.core.misc.security.PasswordGenerator;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
@@ -69,6 +70,7 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.identityconnectors.framework.common.FrameworkUtil;
@@ -95,16 +97,22 @@ public class MappingUtils {
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
     private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
 
     @Autowired
+    private DerSchemaDAO derSchemaDAO;
+
+    @Autowired
     private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private DerAttrHandler derAttrHandler;
 
     @Autowired
     private VirAttrHandler virAttrHandler;
@@ -204,7 +212,7 @@ public class MappingUtils {
      * @param connObjectKey connector object key
      * @return the value to be propagated as __NAME__
      */
-    public static Name evaluateNAME(final Any<?, ?> any, final Provision provision, final String connObjectKey) {
+    public static Name evaluateNAME(final Any<?> any, final Provision provision, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
             // LOG error but avoid to throw exception: leave it to the external resource
             LOG.error("Missing ConnObjectKey for '{}': ", provision.getResource());
@@ -219,7 +227,7 @@ public class MappingUtils {
             JexlContext jexlContext = new MapContext();
             JexlUtils.addFieldsToContext(any, jexlContext);
             JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
-            JexlUtils.addDerAttrsToContext(any.getDerAttrs(), any.getPlainAttrs(), jexlContext);
+            JexlUtils.addDerAttrsToContext(any, jexlContext);
             evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
         }
 
@@ -299,7 +307,7 @@ public class MappingUtils {
      */
     @Transactional(readOnly = true)
     public Pair<String, Set<Attribute>> prepareAttrs(
-            final Any<?, ?> any,
+            final Any<?> any,
             final String password,
             final boolean changePwd,
             final Boolean enable,
@@ -371,9 +379,9 @@ public class MappingUtils {
      * @return connObjectLink + prepared attribute
      */
     private Pair<String, Attribute> prepareAttr(
-            final Provision provision, final MappingItem mapItem, final Any<?, ?> any, final String password) {
+            final Provision provision, final MappingItem mapItem, final Any<?> any, final String password) {
 
-        List<Any<?, ?>> anys = new ArrayList<>();
+        List<Any<?>> anys = new ArrayList<>();
 
         switch (mapItem.getIntMappingType().getAnyTypeKind()) {
             case USER:
@@ -480,26 +488,24 @@ public class MappingUtils {
                     result = new ImmutablePair<>(
                             null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
                 }
-            } else {
-                if ((schema != null && schema.isMultivalue())
-                        || anyUtilsFactory.getInstance(any).getAnyTypeKind()
-                        != mapItem.getIntMappingType().getAnyTypeKind()) {
+            } else if ((schema != null && schema.isMultivalue())
+                    || anyUtilsFactory.getInstance(any).getAnyTypeKind()
+                    != mapItem.getIntMappingType().getAnyTypeKind()) {
 
-                    result = new ImmutablePair<>(
-                            null, AttributeBuilder.build(extAttrName, objValues));
-                } else {
-                    result = new ImmutablePair<>(
-                            null, objValues.isEmpty()
-                                    ? AttributeBuilder.build(extAttrName)
-                                    : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
-                }
+                result = new ImmutablePair<>(
+                        null, AttributeBuilder.build(extAttrName, objValues));
+            } else {
+                result = new ImmutablePair<>(
+                        null, objValues.isEmpty()
+                                ? AttributeBuilder.build(extAttrName)
+                                : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
             }
         }
 
         return result;
     }
 
-    private String getGroupOwnerValue(final Provision provision, final Any<?, ?> any) {
+    private String getGroupOwnerValue(final Provision provision, final Any<?> any) {
         Pair<String, Attribute> preparedAttr = prepareAttr(provision, getConnObjectKeyItem(provision), any, null);
         String connObjectKey = preparedAttr.getKey();
 
@@ -516,7 +522,7 @@ public class MappingUtils {
      */
     @Transactional(readOnly = true)
     public List<PlainAttrValue> getIntValues(final Provision provision,
-            final MappingItem mappingItem, final List<Any<?, ?>> anys) {
+            final MappingItem mappingItem, final List<Any<?>> anys) {
 
         LOG.debug("Get attributes for '{}' and mapping type '{}'", anys, mappingItem.getIntMappingType());
 
@@ -527,7 +533,7 @@ public class MappingUtils {
             case UserPlainSchema:
             case GroupPlainSchema:
             case AnyObjectPlainSchema:
-                for (Any<?, ?> any : anys) {
+                for (Any<?> any : anys) {
                     PlainAttr<?> attr = any.getPlainAttr(mappingItem.getIntAttrName());
                     if (attr != null) {
                         if (attr.getUniqueValue() != null) {
@@ -555,20 +561,24 @@ public class MappingUtils {
             case UserDerivedSchema:
             case GroupDerivedSchema:
             case AnyObjectDerivedSchema:
-                for (Any<?, ?> any : anys) {
-                    AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-                    DerAttr<?> attr = any.getDerAttr(mappingItem.getIntAttrName());
-                    if (attr != null) {
-                        PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                        attrValue.setStringValue(attr.getValue(any.getPlainAttrs()));
-                        values.add(attrValue);
-                    }
+                DerSchema derSchema = derSchemaDAO.find(mappingItem.getIntAttrName());
+                if (derSchema != null) {
+                    for (Any<?> any : anys) {
+                        String value = derAttrHandler.getValue(any, derSchema);
+                        if (value != null) {
+                            AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
+                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                            attrValue.setStringValue(value);
+                            values.add(attrValue);
 
-                    LOG.debug("Retrieved attribute {}"
-                            + "\n* IntAttrName {}"
-                            + "\n* IntMappingType {}"
-                            + "\n* Attribute values {}",
-                            attr, mappingItem.getIntAttrName(), mappingItem.getIntMappingType(), values);
+                            LOG.debug("Retrieved values for {}"
+                                    + "\n* IntAttrName {}"
+                                    + "\n* IntMappingType {}"
+                                    + "\n* Attribute values {}",
+                                    derSchema.getKey(), mappingItem.getIntAttrName(), mappingItem.getIntMappingType(),
+                                    values);
+                        }
+                    }
                 }
                 break;
 
@@ -580,7 +590,7 @@ public class MappingUtils {
 
                 VirSchema virSchema = virSchemaDAO.find(mappingItem.getIntAttrName());
                 if (virSchema != null) {
-                    for (Any<?, ?> any : anys) {
+                    for (Any<?> any : anys) {
                         LOG.debug("Expire entry cache {}-{}", any.getKey(), mappingItem.getIntAttrName());
                         virAttrCache.expire(any.getType().getKey(), any.getKey(), mappingItem.getIntAttrName());
 
@@ -604,7 +614,7 @@ public class MappingUtils {
             case UserKey:
             case GroupKey:
             case AnyObjectKey:
-                for (Any<?, ?> any : anys) {
+                for (Any<?> any : anys) {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
                     PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
                     attrValue.setStringValue(any.getKey().toString());
@@ -613,7 +623,7 @@ public class MappingUtils {
                 break;
 
             case Username:
-                for (Any<?, ?> any : anys) {
+                for (Any<?> any : anys) {
                     if (any instanceof User) {
                         UPlainAttrValue attrValue = entityFactory.newEntity(UPlainAttrValue.class);
                         attrValue.setStringValue(((User) any).getUsername());
@@ -623,7 +633,7 @@ public class MappingUtils {
                 break;
 
             case GroupName:
-                for (Any<?, ?> any : anys) {
+                for (Any<?> any : anys) {
                     if (any instanceof Group) {
                         GPlainAttrValue attrValue = entityFactory.newEntity(GPlainAttrValue.class);
                         attrValue.setStringValue(((Group) any).getName());
@@ -640,7 +650,7 @@ public class MappingUtils {
                         ? null
                         : provision.getMapping();
 
-                for (Any<?, ?> any : anys) {
+                for (Any<?> any : anys) {
                     if (any instanceof Group) {
                         Group group = (Group) any;
                         String groupOwnerValue = null;
@@ -686,9 +696,9 @@ public class MappingUtils {
      * @return connObjectKey internal value
      */
     @Transactional(readOnly = true)
-    public String getConnObjectKeyValue(final Any<?, ?> any, final Provision provision) {
+    public String getConnObjectKeyValue(final Any<?> any, final Provision provision) {
         List<PlainAttrValue> values = getIntValues(provision, provision.getMapping().getConnObjectKeyItem(),
-                Collections.<Any<?, ?>>singletonList(any));
+                Collections.<Any<?>>singletonList(any));
         return values == null || values.isEmpty()
                 ? null
                 : values.get(0).getValueAsString();

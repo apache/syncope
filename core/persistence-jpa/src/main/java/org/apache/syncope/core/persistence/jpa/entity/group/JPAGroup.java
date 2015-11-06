@@ -42,7 +42,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
@@ -60,7 +59,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 @Table(name = JPAGroup.TABLE)
 @Cacheable
 @GroupCheck
-public class JPAGroup extends AbstractAny<GPlainAttr, GDerAttr> implements Group {
+public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
 
     private static final long serialVersionUID = -5281258853142421875L;
 
@@ -82,10 +81,6 @@ public class JPAGroup extends AbstractAny<GPlainAttr, GDerAttr> implements Group
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<JPAGPlainAttr> plainAttrs = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-    @Valid
-    private List<JPAGDerAttr> derAttrs = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -180,23 +175,6 @@ public class JPAGroup extends AbstractAny<GPlainAttr, GDerAttr> implements Group
     @Override
     public List<? extends GPlainAttr> getPlainAttrs() {
         return plainAttrs;
-    }
-
-    @Override
-    public boolean add(final GDerAttr attr) {
-        checkType(attr, JPAGDerAttr.class);
-        return derAttrs.add((JPAGDerAttr) attr);
-    }
-
-    @Override
-    public boolean remove(final GDerAttr attr) {
-        checkType(attr, JPAGDerAttr.class);
-        return derAttrs.remove((JPAGDerAttr) attr);
-    }
-
-    @Override
-    public List<? extends GDerAttr> getDerAttrs() {
-        return derAttrs;
     }
 
     @Override

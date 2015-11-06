@@ -24,13 +24,11 @@ import static org.junit.Assert.assertNotNull;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
-import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.LongPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.report.UserReportletConf;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -82,10 +80,6 @@ public class JSONTest {
                 build());
         assertNotNull(patch.getPassword().getValue());
         patch.getRoles().add(new LongPatchItem.Builder().operation(PatchOperation.DELETE).value(7L).build());
-        patch.getDerAttrs().add(new AttrPatch.Builder().
-                operation(PatchOperation.ADD_REPLACE).
-                attrTO(new AttrTO.Builder().schema("derived").build()).
-                build());
 
         ObjectMapper mapper = new ObjectMapper();
 

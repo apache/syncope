@@ -28,7 +28,6 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntit
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.Attr;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Schema;
@@ -59,7 +58,6 @@ public class EntityValidationListener {
                 if (!Entity.class.equals(interf)
                         && !AnnotatedEntity.class.equals(interf)
                         && !Schema.class.equals(interf)
-                        && !Attr.class.equals(interf)
                         && !Task.class.equals(interf)
                         && !Policy.class.equals(interf)
                         && !Any.class.equals(interf)

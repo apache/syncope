@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 
-public interface Membership<L extends Any<?, ?>> extends Relationship<L, Group> {
+public interface Membership<L extends Any<?>> extends Relationship<L, Group> {
 
     @Override
     MembershipType getType();

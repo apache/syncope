@@ -19,11 +19,10 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Attr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 
-public interface VirSchemaDAO extends SchemaDAO<VirSchema, Attr<VirSchema, ?>> {
+public interface VirSchemaDAO extends SchemaDAO<VirSchema> {
 
     List<VirSchema> findByProvision(Provision provision);
 }

@@ -218,7 +218,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
 
         // 1. find any
-        Any<?, ?> any = init.getMiddle().getKind() == AnyTypeKind.USER
+        Any<?> any = init.getMiddle().getKind() == AnyTypeKind.USER
                 ? userDAO.find(anyKey)
                 : init.getMiddle().getKind() == AnyTypeKind.ANY_OBJECT
                         ? anyObjectDAO.find(anyKey)

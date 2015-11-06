@@ -34,49 +34,49 @@ public abstract class DefaultPushActions implements PushActions {
     }
 
     @Override
-    public <A extends Any<?, ?>> A beforeAssign(final ProvisioningProfile<?, ?> profile, final A any)
+    public <A extends Any<?>> A beforeAssign(final ProvisioningProfile<?, ?> profile, final A any)
             throws JobExecutionException {
 
         return any;
     }
 
     @Override
-    public <A extends Any<?, ?>> A beforeProvision(final ProvisioningProfile<?, ?> profile, final A any)
+    public <A extends Any<?>> A beforeProvision(final ProvisioningProfile<?, ?> profile, final A any)
             throws JobExecutionException {
 
         return any;
     }
 
     @Override
-    public <A extends Any<?, ?>> A beforeLink(final ProvisioningProfile<?, ?> profile, final A any)
+    public <A extends Any<?>> A beforeLink(final ProvisioningProfile<?, ?> profile, final A any)
             throws JobExecutionException {
 
         return any;
     }
 
     @Override
-    public <A extends Any<?, ?>> A beforeUnassign(final ProvisioningProfile<?, ?> profile, final A any)
+    public <A extends Any<?>> A beforeUnassign(final ProvisioningProfile<?, ?> profile, final A any)
             throws JobExecutionException {
 
         return any;
     }
 
     @Override
-    public <A extends Any<?, ?>> A beforeDeprovision(final ProvisioningProfile<?, ?> profile, final A any)
+    public <A extends Any<?>> A beforeDeprovision(final ProvisioningProfile<?, ?> profile, final A any)
             throws JobExecutionException {
 
         return any;
     }
 
     @Override
-    public <A extends Any<?, ?>> A beforeUnlink(final ProvisioningProfile<?, ?> profile, final A any)
+    public <A extends Any<?>> A beforeUnlink(final ProvisioningProfile<?, ?> profile, final A any)
             throws JobExecutionException {
 
         return any;
     }
 
     @Override
-    public <A extends Any<?, ?>> void onError(
+    public <A extends Any<?>> void onError(
             final ProvisioningProfile<?, ?> profile, final A any, final ProvisioningReport result,
             final Exception error) throws JobExecutionException {
 
@@ -84,7 +84,7 @@ public abstract class DefaultPushActions implements PushActions {
     }
 
     @Override
-    public <A extends Any<?, ?>> void after(
+    public <A extends Any<?>> void after(
             final ProvisioningProfile<?, ?> profile, final A any, final ProvisioningReport result)
             throws JobExecutionException {
 

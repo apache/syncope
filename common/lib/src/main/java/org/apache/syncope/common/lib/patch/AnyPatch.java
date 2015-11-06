@@ -42,8 +42,6 @@ public abstract class AnyPatch extends AbstractBaseBean {
 
     private final Set<AttrPatch> plainAttrs = new HashSet<>();
 
-    private final Set<AttrPatch> derAttrs = new HashSet<>();
-
     private final Set<AttrTO> virAttrs = new HashSet<>();
 
     private final Set<StringPatchItem> resources = new HashSet<>();
@@ -79,13 +77,6 @@ public abstract class AnyPatch extends AbstractBaseBean {
         return plainAttrs;
     }
 
-    @XmlElementWrapper(name = "derAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("derAttrs")
-    public Set<AttrPatch> getDerAttrs() {
-        return derAttrs;
-    }
-
     @XmlElementWrapper(name = "virAttrs")
     @XmlElement(name = "attribute")
     @JsonProperty("virAttrs")
@@ -105,7 +96,9 @@ public abstract class AnyPatch extends AbstractBaseBean {
      */
     @JsonIgnore
     public boolean isEmpty() {
-        return realm == null && auxClasses.isEmpty() && plainAttrs.isEmpty() && derAttrs.isEmpty()
-                && virAttrs.isEmpty() && resources.isEmpty();
+        return realm == null
+                && auxClasses.isEmpty()
+                && plainAttrs.isEmpty() && virAttrs.isEmpty()
+                && resources.isEmpty();
     }
 }

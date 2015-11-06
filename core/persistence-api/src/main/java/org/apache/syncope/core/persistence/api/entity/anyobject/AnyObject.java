@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 
-public interface AnyObject extends Any<APlainAttr, ADerAttr> {
+public interface AnyObject extends Any<APlainAttr> {
 
     boolean add(ARelationship relationship);
 

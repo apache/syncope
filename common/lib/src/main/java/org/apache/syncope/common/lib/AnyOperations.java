@@ -136,33 +136,11 @@ public final class AnyOperations {
             }
         }
 
-        // 4. derived attributes
-        updatedAttrs = updated.getDerAttrMap();
-        originalAttrs = original.getDerAttrMap();
-
-        result.getDerAttrs().clear();
-
-        if (!incremental) {
-            for (String schema : CollectionUtils.subtract(originalAttrs.keySet(), updatedAttrs.keySet())) {
-                result.getDerAttrs().add(new AttrPatch.Builder().
-                        operation(PatchOperation.DELETE).
-                        attrTO(new AttrTO.Builder().schema(schema).build()).
-                        build());
-            }
-        }
-
-        for (String schema : CollectionUtils.subtract(updatedAttrs.keySet(), originalAttrs.keySet())) {
-            result.getDerAttrs().add(new AttrPatch.Builder().
-                    operation(PatchOperation.ADD_REPLACE).
-                    attrTO(new AttrTO.Builder().schema(schema).build()).
-                    build());
-        }
-
-        // 5. virtual attributes
+        // 4. virtual attributes
         result.getVirAttrs().clear();
         result.getVirAttrs().addAll(updated.getVirAttrs());
 
-        // 6. resources
+        // 5. resources
         result.getResources().clear();
 
         if (!incremental) {
@@ -431,15 +409,11 @@ public final class AnyOperations {
         result.getPlainAttrs().clear();
         result.getPlainAttrs().addAll(AnyOperations.patch(to.getPlainAttrMap(), patch.getPlainAttrs()));
 
-        // 3. derived attributes
-        result.getDerAttrs().clear();
-        result.getDerAttrs().addAll(AnyOperations.patch(to.getDerAttrMap(), patch.getDerAttrs()));
-
-        // 4. virtual attributes
+        // 3. virtual attributes
         result.getVirAttrs().clear();
         result.getVirAttrs().addAll(patch.getVirAttrs());
 
-        // 5. resources
+        // 4. resources
         for (StringPatchItem resourcePatch : patch.getResources()) {
             switch (resourcePatch.getOperation()) {
                 case ADD_REPLACE:

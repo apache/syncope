@@ -21,13 +21,10 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.JPADerSchema;
@@ -36,9 +33,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements DerSchemaDAO {
-
-    @Autowired
-    private DerAttrDAO derAttrDAO;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -68,18 +62,6 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
     }
 
     @Override
-    public <T extends DerAttr<?>> List<T> findAttrs(final DerSchema schema, final Class<T> reference) {
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(((JPADerAttrDAO) derAttrDAO).getJPAEntityReference(reference).getSimpleName()).
-                append(" e WHERE e.schema=:schema");
-
-        TypedQuery<T> query = entityManager().createQuery(queryString.toString(), reference);
-        query.setParameter("schema", schema);
-
-        return query.getResultList();
-    }
-
-    @Override
     public DerSchema save(final DerSchema derSchema) {
         return entityManager().merge(derSchema);
     }
@@ -93,13 +75,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
 
         AnyUtilsFactory anyUtilsFactory = new JPAAnyUtilsFactory();
         for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
-            AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
-
-            for (DerAttr<?> attr : findAttrs(schema, anyUtils.derAttrClass())) {
-                derAttrDAO.delete(attr.getKey(), anyUtils.derAttrClass());
-            }
-
-            resourceDAO.deleteMapping(key, anyUtils.derIntMappingType());
+            resourceDAO.deleteMapping(key, anyUtilsFactory.getInstance(anyTypeKind).derIntMappingType());
         }
 
         if (schema.getAnyTypeClass() != null) {

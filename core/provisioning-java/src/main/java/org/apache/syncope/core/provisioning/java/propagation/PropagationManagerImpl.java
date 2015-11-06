@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -109,8 +110,11 @@ public class PropagationManagerImpl implements PropagationManager {
     @Autowired
     protected MappingUtils mappingUtils;
 
-    protected Any<?, ?> find(final AnyTypeKind kind, final Long key) {
-        AnyDAO<? extends Any<?, ?>> dao;
+    @Autowired
+    protected AnyUtilsFactory anyUtilsFactory;
+
+    protected Any<?> find(final AnyTypeKind kind, final Long key) {
+        AnyDAO<? extends Any<?>> dao;
         switch (kind) {
             case ANY_OBJECT:
                 dao = anyObjectDAO;
@@ -152,7 +156,7 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     protected List<PropagationTask> getCreateTasks(
-            final Any<?, ?> any,
+            final Any<?> any,
             final String password,
             final Boolean enable,
             final PropagationByResource propByRes,
@@ -227,11 +231,11 @@ public class PropagationManagerImpl implements PropagationManager {
                 toBeExcluded.addAll(CollectionUtils.collect(userPatch.getResources(),
                         new Transformer<StringPatchItem, String>() {
 
-                            @Override
-                            public String transform(final StringPatchItem input) {
-                                return input.getValue();
-                            }
-                        }));
+                    @Override
+                    public String transform(final StringPatchItem input) {
+                        return input.getValue();
+                    }
+                }));
                 toBeExcluded.removeAll(pwdResourceNames);
                 tasks.addAll(getUserUpdateTasks(wfResult, true, toBeExcluded));
             }
@@ -249,7 +253,7 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     protected List<PropagationTask> getUpdateTasks(
-            final Any<?, ?> any,
+            final Any<?> any,
             final String password,
             final boolean changePwd,
             final Boolean enable,
@@ -271,7 +275,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final PropagationByResource propByRes,
             final Collection<String> noPropResourceNames) {
 
-        Any<?, ?> any = find(kind, key);
+        Any<?> any = find(kind, key);
 
         PropagationByResource localPropByRes = new PropagationByResource();
 
@@ -289,7 +293,7 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     protected List<PropagationTask> getDeleteTasks(
-            final Any<?, ?> any,
+            final Any<?> any,
             final PropagationByResource propByRes,
             final Collection<String> noPropResourceNames) {
 
@@ -308,7 +312,7 @@ public class PropagationManagerImpl implements PropagationManager {
      * @param vAttrs virtual attributes to be set
      * @return list of propagation tasks created
      */
-    protected List<PropagationTask> createTasks(final Any<?, ?> any,
+    protected List<PropagationTask> createTasks(final Any<?> any,
             final String password, final boolean changePwd,
             final Boolean enable, final boolean deleteOnResource, final PropagationByResource propByRes,
             final Collection<AttrTO> vAttrs) {
@@ -338,22 +342,20 @@ public class PropagationManagerImpl implements PropagationManager {
                 LOG.warn("Ignoring invalid {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
             } else if (schema.isReadonly()) {
                 LOG.warn("Ignoring read-only {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
-            } else {
-                if (any.getAllowedVirSchemas().contains(schema)
-                        && virtualResources.contains(schema.getProvision().getResource().getKey())) {
+            } else if (anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class).contains(schema)
+                    && virtualResources.contains(schema.getProvision().getResource().getKey())) {
 
-                    Set<Attribute> values = vAttrMap.get(schema.getProvision().getResource().getKey());
-                    if (values == null) {
-                        values = new HashSet<>();
-                        vAttrMap.put(schema.getProvision().getResource().getKey(), values);
-                    }
-                    values.add(AttributeBuilder.build(schema.getExtAttrName(), vAttr.getValues()));
-
-                    propByRes.add(ResourceOperation.UPDATE, schema.getProvision().getResource().getKey());
-                } else {
-                    LOG.warn("{} not owned by or {} not allowed for {}",
-                            schema.getProvision().getResource(), schema, any);
+                Set<Attribute> values = vAttrMap.get(schema.getProvision().getResource().getKey());
+                if (values == null) {
+                    values = new HashSet<>();
+                    vAttrMap.put(schema.getProvision().getResource().getKey(), values);
                 }
+                values.add(AttributeBuilder.build(schema.getExtAttrName(), vAttr.getValues()));
+
+                propByRes.add(ResourceOperation.UPDATE, schema.getProvision().getResource().getKey());
+            } else {
+                LOG.warn("{} not owned by or {} not allowed for {}",
+                        schema.getProvision().getResource(), schema, any);
             }
         }
         LOG.debug("With virtual attributes {}:\n{}\n{}", any, propByRes, vAttrMap);

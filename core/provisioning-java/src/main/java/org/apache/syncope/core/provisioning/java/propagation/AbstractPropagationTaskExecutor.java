@@ -266,8 +266,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
     }
 
-    protected Any<?, ?> getAny(final PropagationTask task) {
-        Any<?, ?> any = null;
+    protected Any<?> getAny(final PropagationTask task) {
+        Any<?> any = null;
 
         if (task.getAnyKey() != null) {
             switch (task.getAnyTypeKind()) {
@@ -325,7 +325,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
              * update, this any object used to have the current resource assigned by more than one mean (for example,
              * two different memberships with the same resource).
              */
-            Any<?, ?> any = getAny(task);
+            Any<?> any = getAny(task);
             Collection<String> resources = any instanceof User
                     ? userDAO.findAllResourceNames((User) any)
                     : any instanceof AnyObject

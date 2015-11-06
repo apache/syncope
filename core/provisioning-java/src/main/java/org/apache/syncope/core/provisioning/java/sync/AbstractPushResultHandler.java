@@ -61,9 +61,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     @Autowired
     protected MappingUtils mappingUtils;
 
-    protected abstract String getName(Any<?, ?> any);
+    protected abstract String getName(Any<?> any);
 
-    protected void deprovision(final Any<?, ?> any) {
+    protected void deprovision(final Any<?> any) {
         AnyTO before = getAnyTO(any.getKey());
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -76,7 +76,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 noPropResources));
     }
 
-    protected void provision(final Any<?, ?> any, final Boolean enabled) {
+    protected void provision(final Any<?> any, final Boolean enabled) {
         AnyTO before = getAnyTO(any.getKey());
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -94,7 +94,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     @SuppressWarnings("unchecked")
-    protected void link(final Any<?, ?> any, final Boolean unlink) {
+    protected void link(final Any<?> any, final Boolean unlink) {
         AnyPatch patch = newPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
@@ -104,7 +104,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     @SuppressWarnings("unchecked")
-    protected void unassign(final Any<?, ?> any) {
+    protected void unassign(final Any<?> any) {
         AnyPatch patch = newPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.DELETE).
@@ -115,7 +115,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         deprovision(any);
     }
 
-    protected void assign(final Any<?, ?> any, final Boolean enabled) {
+    protected void assign(final Any<?> any, final Boolean enabled) {
         AnyPatch patch = newPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).
@@ -148,7 +148,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean handle(final long anyKey) {
-        Any<?, ?> any = null;
+        Any<?> any = null;
         try {
             any = getAny(anyKey);
             doHandle(any);
@@ -169,7 +169,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected final void doHandle(final Any<?, ?> any) throws JobExecutionException {
+    protected final void doHandle(final Any<?> any) throws JobExecutionException {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
 
         ProvisioningReport result = new ProvisioningReport();
@@ -399,7 +399,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected Any<?, ?> update(final Any<?, ?> any, final Boolean enabled) {
+    protected Any<?> update(final Any<?> any, final Boolean enabled) {
         boolean changepwd;
         Collection<String> resourceNames;
         if (any instanceof User) {

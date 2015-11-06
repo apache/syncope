@@ -51,7 +51,6 @@ import org.apache.syncope.common.lib.patch.LongReplacePatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -222,33 +221,13 @@ public class GroupITCase extends AbstractITCase {
 
         assertEquals(modName, groupTO.getName());
         assertEquals(2, groupTO.getPlainAttrs().size());
-        
+
         groupTO.getPlainAttrMap().get("show").getValues().clear();
-        
-        groupTO = groupService.update(groupTO).readEntity(new GenericType<ProvisioningResult<GroupTO>>(){}).getAny();
-        
+
+        groupTO = groupService.update(groupTO).readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
+        }).getAny();
+
         assertFalse(groupTO.getPlainAttrMap().containsKey("show"));
-    }
-
-    @Test
-    public void updateRemovingDerAttribute() {
-        GroupTO groupTO = getBasicSampleTO("withderived" + getUUIDString());
-        groupTO.getDerAttrs().add(attrTO("rderivedschema", null));
-
-        groupTO = createGroup(groupTO).getAny();
-
-        assertNotNull(groupTO);
-        assertEquals(1, groupTO.getDerAttrs().size());
-
-        GroupPatch groupPatch = new GroupPatch();
-        groupPatch.setKey(groupTO.getKey());
-        groupPatch.getDerAttrs().add(new AttrPatch.Builder().operation(PatchOperation.DELETE).
-                attrTO(new AttrTO.Builder().schema("rderivedschema").build()).
-                build());
-
-        groupTO = updateGroup(groupPatch).getAny();
-        assertNotNull(groupTO);
-        assertTrue(groupTO.getDerAttrs().isEmpty());
     }
 
     @Test
@@ -680,7 +659,7 @@ public class GroupITCase extends AbstractITCase {
             assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
             assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
             group = result.getAny();
-            
+
             // 3. set capability override with only search allowed, but not enable
             ldap.getCapabilitiesOverride().add(ConnectorCapability.SEARCH);
             resourceService.update(ldap);
@@ -748,6 +727,7 @@ public class GroupITCase extends AbstractITCase {
             MappingItemTO connObjectKey = mapping.getConnObjectKeyItem();
             connObjectKey.setIntMappingType(IntMappingType.GroupDerivedSchema);
             connObjectKey.setIntAttrName("displayProperty");
+            connObjectKey.setPurpose(MappingPurpose.PROPAGATION);
             mapping.setConnObjectKeyItem(connObjectKey);
             mapping.setConnObjectLink("'cn=' + displayProperty + ',ou=groups,o=isp'");
 
@@ -873,5 +853,5 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(groupTO);
         assertEquals("11.23", groupTO.getPlainAttrMap().get(doubleSchemaName).getValues().get(0));
     }
-    
+
 }

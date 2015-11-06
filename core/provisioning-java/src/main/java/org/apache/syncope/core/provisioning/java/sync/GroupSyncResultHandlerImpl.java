@@ -63,7 +63,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected Any<?, ?> getAny(final long key) {
+    protected Any<?> getAny(final long key) {
         try {
             return groupDAO.authFind(key);
         } catch (Exception e) {

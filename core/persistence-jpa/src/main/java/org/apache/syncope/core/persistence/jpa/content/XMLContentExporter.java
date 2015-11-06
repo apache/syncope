@@ -54,7 +54,6 @@ import org.apache.syncope.core.misc.utils.FormatUtils;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReportExec;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUniqueValue;
@@ -62,7 +61,6 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrVal
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskExec;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
@@ -85,9 +83,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
             new HashSet<>(Arrays.asList(new String[] {
                 "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
                 JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
-                JPAUDerAttr.TABLE,
                 JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
-                JPAADerAttr.TABLE,
                 JPAARelationship.TABLE, JPAAMembership.TABLE, JPAURelationship.TABLE, JPAUMembership.TABLE
             }));
 

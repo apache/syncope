@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
@@ -206,12 +207,12 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             groupTO.setGroupOwner(group.getGroupOwner().getKey());
         }
 
+        Map<DerSchema, String> derAttrValues = derAttrHandler.getValues(group);
         Map<VirSchema, List<String>> virAttrValues = details
                 ? virAttrHander.getValues(group)
                 : Collections.<VirSchema, List<String>>emptyMap();
-
         fillTO(groupTO, group.getRealm().getFullPath(), group.getAuxClasses(),
-                group.getPlainAttrs(), group.getDerAttrs(), virAttrValues, group.getResources());
+                group.getPlainAttrs(), derAttrValues, virAttrValues, group.getResources());
 
         if (group.getADynMembership() != null) {
             groupTO.setADynMembershipCond(group.getADynMembership().getFIQLCond());

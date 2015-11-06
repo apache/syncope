@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Column;
@@ -34,23 +33,19 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.jpa.validation.entity.AnyCheck;
 
+@AnyCheck
 @MappedSuperclass
-public abstract class AbstractAny<P extends PlainAttr<?>, D extends DerAttr<?>>
+public abstract class AbstractAny<P extends PlainAttr<?>>
         extends AbstractAnnotatedEntity<Long>
-        implements Any<P, D> {
+        implements Any<P> {
 
     private static final long serialVersionUID = -2666540708092702810L;
 
@@ -114,18 +109,6 @@ public abstract class AbstractAny<P extends PlainAttr<?>, D extends DerAttr<?>>
         });
     }
 
-    @Override
-    public D getDerAttr(final String derSchemaName) {
-        return CollectionUtils.find(getDerAttrs(), new Predicate<D>() {
-
-            @Override
-            public boolean evaluate(final D derAttr) {
-                return derAttr != null && derAttr.getSchema() != null
-                        && derSchemaName.equals(derAttr.getSchema().getKey());
-            }
-        });
-    }
-
     protected abstract List<JPAExternalResource> internalGetResources();
 
     @Override
@@ -159,70 +142,8 @@ public abstract class AbstractAny<P extends PlainAttr<?>, D extends DerAttr<?>>
     private void populateAllowedSchemas(final Collection<? extends AnyTypeClass> anyTypeClasses) {
         for (AnyTypeClass anyTypeClass : anyTypeClasses) {
             allowedPlainSchemas.addAll(anyTypeClass.getPlainSchemas());
-        }
-
-        for (AnyTypeClass anyTypeClass : anyTypeClasses) {
             allowedDerSchemas.addAll(anyTypeClass.getDerSchemas());
-        }
-
-        for (AnyTypeClass anyTypeClass : anyTypeClasses) {
             allowedVirSchemas.addAll(anyTypeClass.getVirSchemas());
         }
     }
-
-    private void populateAllowedSchemas() {
-        synchronized (this) {
-            if (allowedPlainSchemas == null) {
-                allowedPlainSchemas = new HashSet<>();
-            } else {
-                allowedPlainSchemas.clear();
-            }
-            if (allowedDerSchemas == null) {
-                allowedDerSchemas = new HashSet<>();
-            } else {
-                allowedDerSchemas.clear();
-            }
-            if (allowedVirSchemas == null) {
-                allowedVirSchemas = new HashSet<>();
-            } else {
-                allowedVirSchemas.clear();
-            }
-
-            populateAllowedSchemas(getType().getClasses());
-            populateAllowedSchemas(getAuxClasses());
-            if (this instanceof User) {
-                for (UMembership memb : ((User) this).getMemberships()) {
-                    for (TypeExtension typeExtension : memb.getRightEnd().getTypeExtensions()) {
-                        populateAllowedSchemas(typeExtension.getAuxClasses());
-                    }
-                }
-            }
-            if (this instanceof AnyObject) {
-                for (AMembership memb : ((AnyObject) this).getMemberships()) {
-                    for (TypeExtension typeExtension : memb.getRightEnd().getTypeExtensions()) {
-                        populateAllowedSchemas(typeExtension.getAuxClasses());
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public Set<PlainSchema> getAllowedPlainSchemas() {
-        populateAllowedSchemas();
-        return allowedPlainSchemas;
-    }
-
-    @Override
-    public Set<DerSchema> getAllowedDerSchemas() {
-        populateAllowedSchemas();
-        return allowedDerSchemas;
-    }
-
-    @Override
-    public Set<VirSchema> getAllowedVirSchemas() {
-        populateAllowedSchemas();
-        return allowedVirSchemas;
-    }
-
 }

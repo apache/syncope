@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,18 +28,15 @@ import java.util.Set;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.misc.utils.MappingUtils;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -58,32 +54,19 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
     private static final Logger LOG = LoggerFactory.getLogger(VirAttrHandler.class);
 
     @Autowired
-    private AnyObjectDAO anyObjectDAO;
-
-    @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
     private ConnectorFactory connFactory;
 
-    /**
-     * Virtual attribute cache.
-     */
     @Autowired
     private VirAttrCache virAttrCache;
 
     @Autowired
     private MappingUtils mappingUtils;
 
-    private Map<VirSchema, List<String>> getValues(final Any<?, ?> any, final Set<VirSchema> schemas) {
-        Collection<? extends ExternalResource> ownedResources;
-        if (any instanceof User) {
-            ownedResources = userDAO.findAllResources((User) any);
-        } else if (any instanceof AnyObject) {
-            ownedResources = anyObjectDAO.findAllResources((AnyObject) any);
-        } else {
-            ownedResources = ((Group) any).getResources();
-        }
+    @Autowired
+    private AnyUtilsFactory anyUtilsFactory;
+
+    private Map<VirSchema, List<String>> getValues(final Any<?> any, final Set<VirSchema> schemas) {
+        Collection<? extends ExternalResource> ownedResources = anyUtilsFactory.getInstance(any).getAllResources(any);
 
         Map<VirSchema, List<String>> result = new HashMap<>();
 
@@ -159,8 +142,8 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
 
     @Transactional(readOnly = true)
     @Override
-    public List<String> getValues(final Any<?, ?> any, final VirSchema schema) {
-        if (!any.getAllowedVirSchemas().contains(schema)) {
+    public List<String> getValues(final Any<?> any, final VirSchema schema) {
+        if (!anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class).contains(schema)) {
             LOG.debug("{} not allowed for {}", schema, any);
             return Collections.emptyList();
         }
@@ -170,7 +153,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
 
     @Transactional(readOnly = true)
     @Override
-    public Map<VirSchema, List<String>> getValues(final Any<?, ?> any) {
-        return getValues(any, any.getAllowedVirSchemas());
+    public Map<VirSchema, List<String>> getValues(final Any<?> any) {
+        return getValues(any, anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class));
     }
 }

@@ -54,7 +54,7 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected Any<?, ?> getAny(final long key) {
+    protected Any<?> getAny(final long key) {
         try {
             return userDAO.authFind(key);
         } catch (Exception e) {

@@ -18,37 +18,54 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADerAttr;
+import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JPAAnyUtils implements AnyUtils {
 
     private final AnyTypeKind anyTypeKind;
+
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private GroupDAO groupDAO;
+
+    @Autowired
+    private AnyObjectDAO anyObjectDAO;
 
     protected JPAAnyUtils(final AnyTypeKind typeKind) {
         this.anyTypeKind = typeKind;
@@ -60,7 +77,7 @@ public class JPAAnyUtils implements AnyUtils {
     }
 
     @Override
-    public <T extends Any<?, ?>> Class<T> anyClass() {
+    public <T extends Any<?>> Class<T> anyClass() {
         Class result;
 
         switch (anyTypeKind) {
@@ -216,52 +233,6 @@ public class JPAAnyUtils implements AnyUtils {
     }
 
     @Override
-    public <T extends DerAttr<?>> Class<T> derAttrClass() {
-        Class result = null;
-
-        switch (anyTypeKind) {
-            case USER:
-                result = JPAUDerAttr.class;
-                break;
-
-            case GROUP:
-                result = JPAGDerAttr.class;
-                break;
-
-            case ANY_OBJECT:
-                result = JPAADerAttr.class;
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
-    public <T extends DerAttr<?>> T newDerAttr() {
-        T result = null;
-
-        switch (anyTypeKind) {
-            case USER:
-                result = (T) new JPAUDerAttr();
-                break;
-
-            case GROUP:
-                result = (T) new JPAGDerAttr();
-                break;
-
-            case ANY_OBJECT:
-                result = (T) new JPAADerAttr();
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
     public IntMappingType plainIntMappingType() {
         IntMappingType result = null;
 
@@ -351,5 +322,37 @@ public class JPAAnyUtils implements AnyUtils {
         }
 
         return result;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Set<ExternalResource> getAllResources(final Any<?> any) {
+        Set<ExternalResource> resources = new HashSet<>();
+
+        if (any instanceof User) {
+            resources.addAll(userDAO.findAllResources((User) any));
+        } else if (any instanceof Group) {
+            resources.addAll(((Group) any).getResources());
+        } else if (any instanceof AnyObject) {
+            resources.addAll(anyObjectDAO.findAllResources((AnyObject) any));
+        }
+
+        return resources;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public <S extends Schema> Set<S> getAllowedSchemas(final Any<?> any, final Class<S> reference) {
+        Set<S> schemas = new HashSet<>();
+
+        if (any instanceof User) {
+            schemas.addAll(userDAO.findAllowedSchemas((User) any, reference));
+        } else if (any instanceof Group) {
+            schemas.addAll(groupDAO.findAllowedSchemas((Group) any, reference));
+        } else if (any instanceof AnyObject) {
+            schemas.addAll(anyObjectDAO.findAllowedSchemas((AnyObject) any, reference));
+        }
+
+        return schemas;
     }
 }

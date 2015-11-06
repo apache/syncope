@@ -338,7 +338,7 @@ public class ResourceTest extends AbstractTest {
         item.setIntAttrName("mderiveddata");
         item.setExtAttrName("mderiveddata");
         item.setIntMappingType(IntMappingType.AnyObjectDerivedSchema);
-        item.setPurpose(MappingPurpose.BOTH);
+        item.setPurpose(MappingPurpose.PROPAGATION);
         mapping.add(item);
 
         // save the resource

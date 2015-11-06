@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
 
-public interface User extends Any<UPlainAttr, UDerAttr> {
+public interface User extends Any<UPlainAttr> {
 
     String getUsername();
 
@@ -103,18 +103,6 @@ public interface User extends Any<UPlainAttr, UDerAttr> {
 
     @Override
     List<? extends UPlainAttr> getPlainAttrs();
-
-    @Override
-    boolean add(UDerAttr attr);
-
-    @Override
-    boolean remove(UDerAttr derAttr);
-
-    @Override
-    UDerAttr getDerAttr(String derSchemaName);
-
-    @Override
-    List<? extends UDerAttr> getDerAttrs();
 
     boolean add(Role role);
 

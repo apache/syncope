@@ -272,23 +272,27 @@ public class UserITCase extends AbstractITCase {
         resourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
         assertNotNull(resourceTO);
 
-        UserTO userTO = getUniqueSampleTO("syncope222@apache.org");
-        userTO.getResources().add(resourceTO.getKey());
-        userTO.setPassword("newPassword12");
-
         try {
+            UserTO userTO = getUniqueSampleTO("syncope222@apache.org");
+            userTO.getResources().add(resourceTO.getKey());
+            userTO.setPassword("newPassword12");
+
+            try {
+                userTO = createUser(userTO).getAny();
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
+            }
+
+            userTO.getAuxClasses().add("csv");
+            userTO.getDerAttrs().add(new AttrTO.Builder().schema("csvuserid").build());
+
             userTO = createUser(userTO).getAny();
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
+            assertNotNull(userTO);
+            assertEquals(Collections.singleton(resourceTO.getKey()), userTO.getResources());
+        } finally {
+            resourceService.delete(resourceTO.getKey());
         }
-
-        userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
-
-        userTO = createUser(userTO).getAny();
-        assertNotNull(userTO);
-        assertEquals(Collections.singleton("resource-csv-enforcing"), userTO.getResources());
     }
 
     @Test
@@ -590,7 +594,7 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void updateWithouPassword() {
+    public void updateWithoutPassword() {
         UserTO userTO = getUniqueSampleTO("updatewithout@password.com");
 
         userTO = createUser(userTO).getAny();
@@ -599,15 +603,15 @@ public class UserITCase extends AbstractITCase {
 
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
-        userPatch.getDerAttrs().add(new AttrPatch.Builder().operation(PatchOperation.DELETE).
-                attrTO(new AttrTO.Builder().schema("cn").build()).
+        userPatch.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.DELETE).
+                attrTO(new AttrTO.Builder().schema("type").build()).
                 build());
 
         userTO = updateUser(userPatch).getAny();
 
         assertNotNull(userTO);
         assertNotNull(userTO.getDerAttrMap());
-        assertFalse(userTO.getDerAttrMap().containsKey("cn"));
+        assertFalse(userTO.getPlainAttrMap().containsKey("type"));
     }
 
     @Test(expected = SyncopeClientException.class)
@@ -660,8 +664,6 @@ public class UserITCase extends AbstractITCase {
         String newFullName = getUUIDString() + "g.h@t.com";
         userPatch.getPlainAttrs().add(attrAddReplacePatch("fullname", newFullName));
 
-        userPatch.getDerAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
-                attrTO(new AttrTO.Builder().schema("cn").build()).build());
         userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.ADD_REPLACE).
                 membershipTO(new MembershipTO.Builder().group(8L).build()).build());
         userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.ADD_REPLACE).
@@ -972,9 +974,9 @@ public class UserITCase extends AbstractITCase {
         });
         assertEquals(PropagationTaskExecStatus.SUCCESS, byResource.get(RESOURCE_NAME_LDAP).getStatus());
         assertTrue(byResource.get(RESOURCE_NAME_TESTDB).getStatus() == PropagationTaskExecStatus.CREATED
-		   || byResource.get(RESOURCE_NAME_TESTDB).getStatus() == PropagationTaskExecStatus.SUCCESS);
+                || byResource.get(RESOURCE_NAME_TESTDB).getStatus() == PropagationTaskExecStatus.SUCCESS);
         assertTrue(byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == PropagationTaskExecStatus.CREATED
-		   || byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == PropagationTaskExecStatus.SUCCESS);
+                || byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == PropagationTaskExecStatus.SUCCESS);
     }
 
     @Test
@@ -989,7 +991,7 @@ public class UserITCase extends AbstractITCase {
 
         ProvisioningResult<UserTO> result = asyncService.create(user).readEntity(
                 new GenericType<ProvisioningResult<UserTO>>() {
-                });
+        });
         assertNotNull(result);
         verifyAsyncResult(result.getPropagationStatuses());
 
@@ -1001,13 +1003,13 @@ public class UserITCase extends AbstractITCase {
 
         result = asyncService.update(userPatch).readEntity(
                 new GenericType<ProvisioningResult<UserTO>>() {
-                });
+        });
         assertNotNull(result);
         verifyAsyncResult(result.getPropagationStatuses());
 
         result = asyncService.delete(result.getAny().getKey()).readEntity(
                 new GenericType<ProvisioningResult<UserTO>>() {
-                });
+        });
         assertNotNull(result);
         verifyAsyncResult(result.getPropagationStatuses());
     }

@@ -51,7 +51,6 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValid
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.UnallowedSchemaException;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
@@ -114,8 +113,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                     header(RESTHeaders.ERROR_INFO, ex.getMessage());
         } else if (ex instanceof DelegatedAdministrationException) {
             builder = builder(ClientExceptionType.DelegatedAdministration, ExceptionUtils.getRootCauseMessage(ex));
-        } else if (ex instanceof UnallowedSchemaException) {
-            builder = builder(ClientExceptionType.UnallowedSchemas, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException) {
             builder = builder(ClientExceptionType.EntityExists, getJPAMessage(ex));
         } else if (ex instanceof DataIntegrityViolationException || ex instanceof JpaSystemException) {
@@ -134,7 +131,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                     builder = builder(validationEM.toResponse((ValidationException) ex)).
                             header(RESTHeaders.ERROR_CODE, ClientExceptionType.RESTValidation.name()).
                             header(RESTHeaders.ERROR_INFO, ClientExceptionType.RESTValidation.getInfoHeaderValue(
-                                            ExceptionUtils.getRootCauseMessage(ex)));
+                                    ExceptionUtils.getRootCauseMessage(ex)));
 
                     ErrorTO error = new ErrorTO();
                     error.setStatus(ClientExceptionType.RESTValidation.getResponseStatus().getStatusCode());
@@ -147,7 +144,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                 if (builder == null) {
                     builder = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
                             header(RESTHeaders.ERROR_INFO, ClientExceptionType.Unknown.getInfoHeaderValue(
-                                            ExceptionUtils.getRootCauseMessage(ex)));
+                                    ExceptionUtils.getRootCauseMessage(ex)));
 
                     ErrorTO error = new ErrorTO();
                     error.setStatus(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());

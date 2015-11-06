@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -30,18 +33,25 @@ import org.springframework.stereotype.Component;
 @Component
 public class JPAAnyUtilsFactory implements AnyUtilsFactory {
 
+    private final Map<AnyTypeKind, AnyUtils> instances = new HashMap<>(3);
+
     @Override
     public AnyUtils getInstance(final AnyTypeKind anyTypeKind) {
-        return new JPAAnyUtils(anyTypeKind);
+        AnyUtils instance;
+        synchronized (instances) {
+            instance = instances.get(anyTypeKind);
+            if (instance == null) {
+                instance = new JPAAnyUtils(anyTypeKind);
+                ApplicationContextProvider.getBeanFactory().autowireBean(instance);
+                instances.put(anyTypeKind, instance);
+            }
+        }
+
+        return instance;
     }
 
     @Override
-    public AnyUtils getInstance(final String anyTypeKind) {
-        return new JPAAnyUtils(AnyTypeKind.valueOf(anyTypeKind));
-    }
-
-    @Override
-    public AnyUtils getInstance(final Any<?, ?> any) {
+    public AnyUtils getInstance(final Any<?> any) {
         AnyTypeKind type = null;
         if (any instanceof User) {
             type = AnyTypeKind.USER;
@@ -55,7 +65,7 @@ public class JPAAnyUtilsFactory implements AnyUtilsFactory {
             throw new IllegalArgumentException("Any type not supported: " + any.getClass().getName());
         }
 
-        return new JPAAnyUtils(type);
+        return getInstance(type);
     }
 
 }

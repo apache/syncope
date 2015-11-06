@@ -33,12 +33,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADerAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
@@ -51,7 +51,7 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResour
 @Entity
 @Table(name = JPAAnyObject.TABLE)
 @Cacheable
-public class JPAAnyObject extends AbstractAny<APlainAttr, ADerAttr> implements AnyObject {
+public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
 
     private static final long serialVersionUID = 9063766472970643492L;
 
@@ -60,16 +60,13 @@ public class JPAAnyObject extends AbstractAny<APlainAttr, ADerAttr> implements A
     @Id
     private Long id;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPAAnyType type;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<JPAAPlainAttr> plainAttrs = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-    @Valid
-    private List<JPAADerAttr> derAttrs = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -124,23 +121,6 @@ public class JPAAnyObject extends AbstractAny<APlainAttr, ADerAttr> implements A
     @Override
     public List<? extends APlainAttr> getPlainAttrs() {
         return plainAttrs;
-    }
-
-    @Override
-    public boolean add(final ADerAttr attr) {
-        checkType(attr, JPAADerAttr.class);
-        return derAttrs.add((JPAADerAttr) attr);
-    }
-
-    @Override
-    public boolean remove(final ADerAttr attr) {
-        checkType(attr, JPAADerAttr.class);
-        return derAttrs.remove((JPAADerAttr) attr);
-    }
-
-    @Override
-    public List<? extends ADerAttr> getDerAttrs() {
-        return derAttrs;
     }
 
     @Override

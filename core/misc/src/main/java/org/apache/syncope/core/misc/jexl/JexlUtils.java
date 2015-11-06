@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
@@ -34,10 +35,12 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.core.persistence.api.entity.DerAttr;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.misc.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,7 +142,7 @@ public final class JexlUtils {
         }
 
         if (object instanceof Any) {
-            Any<?, ?> any = (Any<?, ?>) object;
+            Any<?> any = (Any<?>) object;
             if (any.getRealm() != null) {
                 context.set("realm", any.getRealm().getName());
             }
@@ -148,12 +151,8 @@ public final class JexlUtils {
         return context;
     }
 
-    public static JexlContext addPlainAttrsToContext(final Collection<? extends PlainAttr<?>> attrs,
-            final JexlContext jexlContext) {
-
-        JexlContext context = jexlContext == null
-                ? new MapContext()
-                : jexlContext;
+    public static void addPlainAttrsToContext(
+            final Collection<? extends PlainAttr<?>> attrs, final JexlContext jexlContext) {
 
         for (PlainAttr<?> attr : attrs) {
             if (attr.getSchema() != null) {
@@ -164,53 +163,26 @@ public final class JexlUtils {
 
                 LOG.debug("Add attribute {} with value {}", attr.getSchema().getKey(), expressionValue);
 
-                context.set(attr.getSchema().getKey(), expressionValue);
+                jexlContext.set(attr.getSchema().getKey(), expressionValue);
             }
         }
-
-        return context;
     }
 
-    public static JexlContext addDerAttrsToContext(final Collection<? extends DerAttr> derAttrs,
-            final Collection<? extends PlainAttr<?>> attrs, final JexlContext jexlContext) {
+    public static void addDerAttrsToContext(final Any<?> any, final JexlContext jexlContext) {
+        Map<DerSchema, String> derAttrs =
+                ApplicationContextProvider.getBeanFactory().getBean(DerAttrHandler.class).getValues(any);
 
-        JexlContext context = jexlContext == null
-                ? new MapContext()
-                : jexlContext;
-
-        for (DerAttr<?> derAttr : derAttrs) {
-            if (derAttr.getSchema() != null) {
-                String expressionValue = derAttr.getValue(attrs);
-                if (expressionValue == null) {
-                    expressionValue = StringUtils.EMPTY;
-                }
-
-                LOG.debug("Add derived attribute {} with value {}", derAttr.getSchema().getKey(), expressionValue);
-
-                context.set(derAttr.getSchema().getKey(), expressionValue);
-            }
+        for (Map.Entry<DerSchema, String> entry : derAttrs.entrySet()) {
+            jexlContext.set(entry.getKey().getKey(), entry.getValue());
         }
-
-        return context;
     }
 
-    public static boolean evaluateMandatoryCondition(final String mandatoryCondition, final Any<?, ?> any) {
+    public static boolean evaluateMandatoryCondition(final String mandatoryCondition, final Any<?> any) {
         JexlContext jexlContext = new MapContext();
         addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
-        addDerAttrsToContext(any.getDerAttrs(), any.getPlainAttrs(), jexlContext);
+        addDerAttrsToContext(any, jexlContext);
 
         return Boolean.parseBoolean(evaluate(mandatoryCondition, jexlContext));
-    }
-
-    public static String evaluate(final String expression,
-            final Any<?, ?> any, final Collection<? extends PlainAttr<?>> attributes) {
-
-        JexlContext jexlContext = new MapContext();
-        JexlUtils.addPlainAttrsToContext(attributes, jexlContext);
-        JexlUtils.addFieldsToContext(any, jexlContext);
-
-        // Evaluate expression using the context prepared before
-        return evaluate(expression, jexlContext);
     }
 
     public static String evaluate(final String expression, final AnyTO anyTO) {
