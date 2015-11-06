@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.client.cli.util;
 
-import org.jasypt.util.text.StrongTextEncryptor;
+import org.jasypt.util.text.BasicTextEncryptor;
 
 public final class JasyptUtils {
 
-    private final StrongTextEncryptor textEncryptor;
+    private final BasicTextEncryptor textEncryptor;
 
     private static JasyptUtils JASYPT_UTILS = null;
 
@@ -34,7 +34,7 @@ public final class JasyptUtils {
     }
 
     private JasyptUtils() {
-        textEncryptor = new StrongTextEncryptor();
+        textEncryptor = new BasicTextEncryptor();
         textEncryptor.setPassword("Ka9s8yadaisj9mud87ssdaifansy");
     }
 
