@@ -497,7 +497,7 @@ svn commit -m "Cleaning up older releases"]]></source>
             <source><![CDATA[
 svn co https://svn.apache.org/repos/asf/syncope/site/
 cd site
-svn rm *.html apidocs rest css images img js
+svn rm *.html apidocs rest css images img js fonts
 svn mv <version>/* .
 svn rm <version>
 svn commit -m "Promoting the staging site"]]></source>
