@@ -325,7 +325,7 @@ under the License.
     <spring-security.version>3.1.7.RELEASE</spring-security.version>
     <aspectj.version>1.7.4</aspectj.version>
     <jackson.version>1.9.13</jackson.version>
-    <xstream.version>1.4.7</xstream.version>
+    <xstream.version>1.4.8</xstream.version>
     <velocity.version>1.7</velocity.version>
     <velocitytools.version>2.0</velocitytools.version>
     <quartz.version>2.1.7</quartz.version>
