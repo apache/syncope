@@ -25,11 +25,13 @@ import java.util.Set;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SyncopeClientExceptionType;
 import org.apache.syncope.common.validation.SyncopeClientCompositeErrorException;
 import org.apache.syncope.common.validation.SyncopeClientException;
 import org.apache.syncope.core.connid.ConnObjectUtil;
+import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AccountPolicy;
 import org.apache.syncope.core.persistence.beans.Entitlement;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
@@ -194,8 +196,6 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
         SyncopeClientCompositeErrorException scce = new SyncopeClientCompositeErrorException(HttpStatus.BAD_REQUEST);
 
-        Set<String> currentResources = role.getResourceNames();
-
         // name
         SyncopeClientException invalidRoles = new SyncopeClientException(SyncopeClientExceptionType.InvalidRoles);
         if (roleMod.getName() != null) {
@@ -203,9 +203,15 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                     role.getParent() == null ? null : role.getParent().getId());
             if (otherRole == null || role.equals(otherRole)) {
                 if (!roleMod.getName().equals(role.getName())) {
-                    propByRes.addAll(ResourceOperation.UPDATE, currentResources);
-                    for (String resource : currentResources) {
-                        propByRes.addOldAccountId(resource, role.getName());
+                    propByRes.addAll(ResourceOperation.UPDATE, role.getResourceNames());
+
+                    for (ExternalResource resource : role.getResources()) {
+                        if (resource.getRmapping() != null) {
+                            AbstractMappingItem accountIdItem = resource.getRmapping().getAccountIdItem();
+                            if (accountIdItem != null && accountIdItem.getIntMappingType() == IntMappingType.RoleName) {
+                                propByRes.addOldAccountId(resource.getName(), role.getName());
+                            }
+                        }
                     }
 
                     role.setName(roleMod.getName());
@@ -313,7 +319,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
         // -------------------------
         // Retrieve all [derived/virtual] attributes (inherited and not)
-        // -------------------------        
+        // -------------------------
         final List<RAttr> allAttributes = role.findLastInheritedAncestorAttributes();
 
         final List<RDerAttr> allDerAttributes = role.findLastInheritedAncestorDerivedAttributes();

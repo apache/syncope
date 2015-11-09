@@ -255,15 +255,14 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // username
         if (userMod.getUsername() != null && !userMod.getUsername().equals(user.getUsername())) {
-            String oldUsername = user.getUsername();
-
             user.setUsername(userMod.getUsername());
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
 
             for (ExternalResource resource : user.getResources()) {
-                for (AbstractMappingItem mapItem : resource.getUmapping().getItems()) {
-                    if (mapItem.isAccountid() && mapItem.getIntMappingType() == IntMappingType.Username) {
-                        propByRes.addOldAccountId(resource.getName(), oldUsername);
+                if (resource.getRmapping() != null) {
+                    AbstractMappingItem accountIdItem = resource.getRmapping().getAccountIdItem();
+                    if (accountIdItem != null && accountIdItem.getIntMappingType() == IntMappingType.RoleName) {
+                        propByRes.addOldAccountId(resource.getName(), user.getUsername());
                     }
                 }
             }
