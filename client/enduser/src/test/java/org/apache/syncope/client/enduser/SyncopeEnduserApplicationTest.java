@@ -38,7 +38,7 @@ public class SyncopeEnduserApplicationTest {
 
         private static final long serialVersionUID = -2500230416352618497L;
 
-        SyncopeEnduserMockSession(Request request) {
+        SyncopeEnduserMockSession(final Request request) {
             super(request);
         }
     }
@@ -50,7 +50,12 @@ public class SyncopeEnduserApplicationTest {
             private static final long serialVersionUID = 1445165406200746511L;
 
             @Override
-            public Session newSession(Request request, Response response) {
+            protected void init() {
+                // just skip over actual init
+            }
+
+            @Override
+            public Session newSession(final Request request, final Response response) {
                 return new SyncopeEnduserMockSession(request);
             }
 

@@ -79,6 +79,12 @@ under the License.
         <artifactId>syncope-client-console</artifactId>
         <version>${syncope.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.apache.syncope.client</groupId>
+        <artifactId>syncope-client-enduser</artifactId>
+        <version>${syncope.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
     
@@ -104,6 +110,7 @@ under the License.
     <module>common</module>
     <module>core</module>
     <module>console</module>
+    <module>enduser</module>
   </modules>
 
 </project>

@@ -53,13 +53,9 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.resource.DynamicJQueryResourceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleApplication.class);
 
     private static final String CONSOLE_PROPERTIES = "console.properties";
 
@@ -101,7 +97,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
                 File consoleDirProps = FileUtils.getFile(consoleDir, CONSOLE_PROPERTIES);
                 if (consoleDirProps.exists() && consoleDirProps.canRead() && consoleDirProps.isFile()) {
                     props.clear();
-                    props.load(FileUtils.openInputStream(consoleDir));
+                    props.load(FileUtils.openInputStream(consoleDirProps));
                 }
             }
         } catch (Exception e) {

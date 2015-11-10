@@ -48,10 +48,6 @@ under the License.
     <asyncLogger name="org.apache.wicket" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
     </asyncLogger>
-
-    <asyncLogger name="org.springframework" additivity="false" level="ERROR">
-      <appender-ref ref="main"/>
-    </asyncLogger>
     
     <asyncLogger name="org.apache.cxf" additivity="false" level="ERROR">
       <appender-ref ref="main"/>

@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.client.enduser;
 
+import java.io.File;
 import java.io.Serializable;
 import org.apache.syncope.client.enduser.pages.HomePage;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
+import org.apache.commons.io.FileUtils;
 import org.apache.syncope.client.enduser.resources.LoginResource;
 import org.apache.syncope.client.enduser.resources.LogoutResource;
 import org.apache.syncope.client.enduser.resources.SchemaResource;
@@ -31,30 +34,85 @@ import org.apache.syncope.client.enduser.resources.SecurityQuestionResource;
 import org.apache.syncope.client.enduser.resources.UserSelfCreateResource;
 import org.apache.syncope.client.enduser.resources.UserSelfReadResource;
 import org.apache.syncope.client.enduser.resources.UserSelfUpdateResource;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 public class SyncopeEnduserApplication extends WebApplication implements Serializable {
 
     private static final long serialVersionUID = -6445919351044845120L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeEnduserApplication.class);
+    private static final String ENDUSER_PROPERTIES = "enduser.properties";
 
     public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
             new Locale[] {
                 Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR")
             }));
 
+    public static SyncopeEnduserApplication get() {
+        return (SyncopeEnduserApplication) WebApplication.get();
+    }
+
+    private String version;
+
+    private String site;
+
+    private String license;
+
+    private String anonymousUser;
+
+    private String anonymousKey;
+
+    private SyncopeClientFactoryBean clientFactory;
+
     @Override
     protected void init() {
         super.init();
+
+        // read enduser.properties
+        Properties props = new Properties();
+        try {
+            props.load(getClass().getResourceAsStream("/" + ENDUSER_PROPERTIES));
+            File enduserDir = new File(props.getProperty("enduser.directory"));
+            if (enduserDir.exists() && enduserDir.canRead() && enduserDir.isDirectory()) {
+                File enduserDirProps = FileUtils.getFile(enduserDir, ENDUSER_PROPERTIES);
+                if (enduserDirProps.exists() && enduserDirProps.canRead() && enduserDirProps.isFile()) {
+                    props.clear();
+                    props.load(FileUtils.openInputStream(enduserDirProps));
+                }
+            }
+        } catch (Exception e) {
+            throw new WicketRuntimeException("Could not read " + ENDUSER_PROPERTIES, e);
+        }
+        version = props.getProperty("version");
+        Assert.notNull(version, "<version> not set");
+        site = props.getProperty("site");
+        Assert.notNull(site, "<site> not set");
+        license = props.getProperty("license");
+        Assert.notNull(license, "<license> not set");
+        anonymousUser = props.getProperty("anonymousUser");
+        Assert.notNull(anonymousUser, "<anonymousUser> not set");
+        anonymousKey = props.getProperty("anonymousKey");
+        Assert.notNull(anonymousKey, "<anonymousKey> not set");
+
+        String scheme = props.getProperty("scheme");
+        Assert.notNull(scheme, "<scheme> not set");
+        String host = props.getProperty("host");
+        Assert.notNull(host, "<host> not set");
+        String port = props.getProperty("port");
+        Assert.notNull(port, "<port> not set");
+        String rootPath = props.getProperty("rootPath");
+        Assert.notNull(rootPath, "<rootPath> not set");
+
+        clientFactory = new SyncopeClientFactoryBean().setAddress(scheme + "://" + host + ":" + port + "/" + rootPath);
+        clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.JSON);
 
         // resource to provide login functionality managed by wicket
         mountResource("/api/login", new ResourceReference("login") {
@@ -142,4 +200,29 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
     public Session newSession(final Request request, final Response response) {
         return new SyncopeEnduserSession(request);
     }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getSite() {
+        return site;
+    }
+
+    public String getLicense() {
+        return license;
+    }
+
+    public String getAnonymousUser() {
+        return anonymousUser;
+    }
+
+    public String getAnonymousKey() {
+        return anonymousKey;
+    }
+
+    public SyncopeClientFactoryBean getClientFactory() {
+        return clientFactory;
+    }
+
 }

@@ -20,7 +20,6 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.UserTOAdapter;
 import org.apache.syncope.client.enduser.model.UserTORequest;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -61,8 +60,7 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                 LOG.debug("Received user self registration request for user: [{}]", userTORequest.getUsername());
                 LOG.trace("Received user self registration request is: [{}]", userTORequest);
                 // adapt request and create user
-                userSelfService.create(userTOAdapter.fromUserTORequest(userTORequest, null),
-                        SyncopeEnduserSession.get().storePassword());
+                userSelfService.create(userTOAdapter.fromUserTORequest(userTORequest, null), true);
                 responseMessage.append("User").append(userTORequest.getUsername()).append("created successfully");
             } else {
                 responseMessage.append(userTORequest == null

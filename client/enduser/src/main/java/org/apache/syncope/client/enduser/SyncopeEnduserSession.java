@@ -18,17 +18,14 @@
  */
 package org.apache.syncope.client.enduser;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -52,35 +49,13 @@ public class SyncopeEnduserSession extends WebSession {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeEnduserSession.class);
 
-    protected static final String ENDUSER_PROPERTIES = "enduser.properties";
+    private final SyncopeClient anonymousClient;
+
+    private SyncopeClient client;
 
     private String username;
 
     private String password;
-
-    private String scheme;
-
-    private String host;
-
-    private String port;
-
-    private String rootPath;
-
-    private String anonymousUser;
-
-    private String anonymousKey;
-
-    private Boolean storePassword;
-
-    private String version;
-
-    private String license;
-
-    private final SyncopeClientFactoryBean clientFactory;
-
-    private SyncopeClient client;
-
-    private final SyncopeClient anonymousClient;
 
     private final SyncopeTO syncopeTO;
 
@@ -95,21 +70,9 @@ public class SyncopeEnduserSession extends WebSession {
     public SyncopeEnduserSession(final Request request) {
         super(request);
 
-        // load properties from classpath file
-        loadProperties();
-
-        clientFactory = new SyncopeClientFactoryBean();
-        clientFactory.setAddress(new StringBuilder(scheme)
-                .append("://")
-                .append(host)
-                .append(":")
-                .append(port)
-                .append("/")
-                .append(rootPath)
-                .toString());
-        clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.JSON);
-
-        anonymousClient = clientFactory.create(anonymousUser, anonymousKey);
+        anonymousClient = SyncopeEnduserApplication.get().getClientFactory().create(
+                SyncopeEnduserApplication.get().getAnonymousUser(),
+                SyncopeEnduserApplication.get().getAnonymousKey());
         syncopeTO = anonymousClient.getService(SyncopeService.class).info();
 
     }
@@ -118,7 +81,8 @@ public class SyncopeEnduserSession extends WebSession {
         boolean authenticated = false;
 
         try {
-            client = clientFactory.setDomain(SyncopeConstants.MASTER_DOMAIN).create(username, password);
+            client = SyncopeEnduserApplication.get().getClientFactory().
+                    setDomain(SyncopeConstants.MASTER_DOMAIN).create(username, password);
 
             Pair<Map<String, Set<String>>, UserTO> self = client.self();
             selfTO = self.getValue();
@@ -169,12 +133,15 @@ public class SyncopeEnduserSession extends WebSession {
     public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
         T service;
 
-        synchronized (clientFactory) {
-            SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
+        synchronized (SyncopeEnduserApplication.get().getClientFactory()) {
+            SyncopeClientFactoryBean.ContentType preType = SyncopeEnduserApplication.get().getClientFactory().
+                    getContentType();
 
-            clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
-            service = clientFactory.create(username, password).getService(serviceClass);
-            clientFactory.setContentType(preType);
+            SyncopeEnduserApplication.get().getClientFactory().
+                    setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
+            service = SyncopeEnduserApplication.get().getClientFactory().
+                    create(username, password).getService(serviceClass);
+            SyncopeEnduserApplication.get().getClientFactory().setContentType(preType);
         }
 
         return service;
@@ -186,42 +153,6 @@ public class SyncopeEnduserSession extends WebSession {
 
     public String getPassword() {
         return password;
-    }
-
-    public String getScheme() {
-        return scheme;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public String getRootPath() {
-        return rootPath;
-    }
-
-    public String getAnonymousUser() {
-        return anonymousUser;
-    }
-
-    public String getAnonymousKey() {
-        return anonymousKey;
-    }
-
-    public Boolean storePassword() {
-        return this.storePassword;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public String getLicense() {
-        return license;
     }
 
     public SyncopeTO getSyncopeTO() {
@@ -240,34 +171,6 @@ public class SyncopeEnduserSession extends WebSession {
         final Locale locale = getLocale() == null ? Locale.ENGLISH : getLocale();
 
         return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
-    }
-
-    private void loadProperties() {
-        Properties properties = new Properties();
-
-        try {
-            properties.load(getClass().getResourceAsStream("/" + ENDUSER_PROPERTIES));
-            File enduserDir = new File(properties.getProperty("enduser.directory"));
-            if (enduserDir.exists() && enduserDir.canRead() && enduserDir.isDirectory()) {
-                File enduserDirProps = FileUtils.getFile(enduserDir, ENDUSER_PROPERTIES);
-                if (enduserDirProps.exists() && enduserDirProps.canRead() && enduserDirProps.isFile()) {
-                    properties.clear();
-                    properties.load(FileUtils.openInputStream(enduserDir));
-                }
-            }
-        } catch (Exception e) {
-            LOG.error("Error loading {} file", ENDUSER_PROPERTIES, e);
-        }
-
-        this.scheme = properties.getProperty("scheme");
-        this.host = properties.getProperty("host");
-        this.port = properties.getProperty("port");
-        this.rootPath = properties.getProperty("rootPath");
-        this.anonymousUser = properties.getProperty("anonymousUser");
-        this.anonymousKey = properties.getProperty("anonymousKey");
-        this.storePassword = Boolean.valueOf(properties.getProperty("storePassword"));
-        version = properties.getProperty("version");
-        license = properties.getProperty("license");
     }
 
 }
