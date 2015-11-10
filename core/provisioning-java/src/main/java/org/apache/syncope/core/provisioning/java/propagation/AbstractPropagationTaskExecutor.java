@@ -575,12 +575,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ConnectorObject obj = null;
         try {
             obj = connector.getObject(
-                    task.getOperation(),
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),
                     MappingUtils.buildOperationOptions(IteratorUtils.chainedIterator(
-                                    MappingUtils.getPropagationMappingItems(provision).iterator(),
-                                    linkingMappingItems.iterator())));
+                            MappingUtils.getPropagationMappingItems(provision).iterator(),
+                            linkingMappingItems.iterator())));
 
             for (MappingItem item : linkingMappingItems) {
                 Attribute attr = obj.getAttributeByName(item.getExtAttrName());

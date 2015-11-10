@@ -30,7 +30,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
-import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -306,39 +305,9 @@ public class ConnectorFacadeProxy implements Connector {
 
     @Override
     public ConnectorObject getObject(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
-        return getObject(null, objectClass, uid, options);
-    }
-
-    @Override
-    public ConnectorObject getObject(
-            final ResourceOperation operationType,
-            final ObjectClass objectClass,
-            final Uid uid,
-            final OperationOptions options) {
-
-        boolean hasCapablities = false;
+        Future<ConnectorObject> future = null;
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
-            if (operationType == null) {
-                hasCapablities = true;
-            } else {
-                switch (operationType) {
-                    case CREATE:
-                        hasCapablities = connInstance.getCapabilities().contains(ConnectorCapability.CREATE);
-                        break;
-
-                    case UPDATE:
-                        hasCapablities = connInstance.getCapabilities().contains(ConnectorCapability.UPDATE);
-                        break;
-
-                    default:
-                        hasCapablities = true;
-                }
-            }
-        }
-
-        Future<ConnectorObject> future = null;
-        if (hasCapablities) {
             future = asyncFacade.getObject(connector, objectClass, uid, options);
         } else {
             LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",

@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -133,21 +132,6 @@ public interface Connector {
      * @return ConnId's connector object for given uid
      */
     ConnectorObject getObject(ObjectClass objectClass, Uid uid, OperationOptions options);
-
-    /**
-     * Get remote object with check for intended operation to perform on external resource.
-     *
-     * @param operationType resource operation type
-     * @param objectClass ConnId's object class
-     * @param uid ConnId's Uid
-     * @param options ConnId's OperationOptions
-     * @return ConnId's connector object for given uid
-     */
-    ConnectorObject getObject(
-            ResourceOperation operationType,
-            ObjectClass objectClass,
-            Uid uid,
-            OperationOptions options);
 
     /**
      * Search for remote objects.
