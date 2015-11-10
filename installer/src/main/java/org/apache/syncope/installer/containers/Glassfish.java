@@ -37,6 +37,10 @@ public class Glassfish extends AbstractContainer {
         return deploy(UNIX_CONSOLE_RELATIVE_PATH);
     }
 
+    public String deployEnduser() {
+        return deploy(UNIX_CONSOLE_RELATIVE_PATH);
+    }
+
     public String deploy(final String what) {
         return String.format(what, installPath, artifactId);
     }

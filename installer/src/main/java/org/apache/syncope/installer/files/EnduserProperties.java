@@ -18,17 +18,17 @@
  */
 package org.apache.syncope.installer.files;
 
-public final class ConsoleProperties {
+public final class EnduserProperties {
 
     public static final String PLACEHOLDER = "scheme=http\n"
             + "host=localhost\n"
             + "port=8080";
 
-    public static final String CONSOLE = "scheme=%s\n"
+    public static final String ENDUSER = "scheme=%s\n"
             + "host=%s\n"
             + "port=%s";
 
-    private ConsoleProperties() {
+    private EnduserProperties() {
         // private constructor for static utility class
     }
 }

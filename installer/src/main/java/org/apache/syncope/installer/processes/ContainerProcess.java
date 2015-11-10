@@ -30,6 +30,7 @@ import org.apache.syncope.installer.containers.Tomcat;
 import org.apache.syncope.installer.containers.jboss.JBoss;
 import org.apache.syncope.installer.enums.Containers;
 import org.apache.syncope.installer.files.ConsoleProperties;
+import org.apache.syncope.installer.files.EnduserProperties;
 import org.apache.syncope.installer.files.GlassfishCoreWebXml;
 import org.apache.syncope.installer.files.MasterDomainXml;
 import org.apache.syncope.installer.utilities.InstallLog;
@@ -156,6 +157,10 @@ public final class ContainerProcess extends BaseProcess {
                 + File.separator + PROPERTIES.getProperty("consolePropertiesFile"));
         String contentConsolePropertiesFile = fileSystemUtils.readFile(consolePropertiesFile);
 
+        File enduserPropertiesFile = new File(syncopeInstallDir + PROPERTIES.getProperty("enduserResDirectory")
+                + File.separator + PROPERTIES.getProperty("enduserPropertiesFile"));
+        String contentEnduserPropertiesFile = fileSystemUtils.readFile(enduserPropertiesFile);
+
         final String scheme;
         final String host;
         final String port;
@@ -185,6 +190,10 @@ public final class ContainerProcess extends BaseProcess {
         fileSystemUtils.writeToFile(consolePropertiesFile,
                 contentConsolePropertiesFile.replace(ConsoleProperties.PLACEHOLDER,
                         String.format(ConsoleProperties.CONSOLE, scheme, host, port)));
+
+        fileSystemUtils.writeToFile(enduserPropertiesFile,
+                contentEnduserPropertiesFile.replace(EnduserProperties.PLACEHOLDER,
+                        String.format(EnduserProperties.ENDUSER, scheme, host, port)));
 
         MavenUtils mavenUtils = new MavenUtils(mavenDir, handler);
         File customMavenProxySettings = null;
@@ -249,6 +258,16 @@ public final class ContainerProcess extends BaseProcess {
                     handler.emitError(messageError, messageError);
                     InstallLog.getInstance().error(messageError);
                 }
+
+                boolean deployEnduserResult = tomcat.deployEnduser();
+                if (deployEnduserResult) {
+                    handler.logOutput("Enduser successfully deployed ", true);
+                    InstallLog.getInstance().info("Enduser successfully deployed ");
+                } else {
+                    final String messageError = "Deploy console on Tomcat failed";
+                    handler.emitError(messageError, messageError);
+                    InstallLog.getInstance().error(messageError);
+                }
                 break;
 
             case JBOSS:
@@ -275,6 +294,16 @@ public final class ContainerProcess extends BaseProcess {
                     handler.emitError(messageError, messageError);
                     InstallLog.getInstance().error(messageError);
                 }
+
+                boolean deployEnduserJBoss = jBoss.deployEnduser();
+                if (deployEnduserJBoss) {
+                    handler.logOutput("Enduser successfully deployed ", true);
+                    InstallLog.getInstance().info("Enduser successfully deployed ");
+                } else {
+                    final String messageError = "Deploy console on JBoss failed";
+                    handler.emitError(messageError, messageError);
+                    InstallLog.getInstance().error(messageError);
+                }
                 break;
 
             case GLASSFISH:
@@ -287,6 +316,8 @@ public final class ContainerProcess extends BaseProcess {
                         + Glassfish.DEPLOY_COMMAND + glassfish.deployCore(), null);
                 fileSystemUtils.exec("sh " + glassfishDir
                         + Glassfish.DEPLOY_COMMAND + glassfish.deployConsole(), null);
+                fileSystemUtils.exec("sh " + glassfishDir
+                        + Glassfish.DEPLOY_COMMAND + glassfish.deployEnduser(), null);
                 break;
 
             default:

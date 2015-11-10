@@ -31,6 +31,8 @@ public class Tomcat extends AbstractContainer {
 
     private static final String DEPLOY_SYNCOPE_CONSOLE_QUERY = "/manager/text/deploy?path=/syncope-console&war=file:";
 
+    private static final String DEPLOY_SYNCOPE_ENDUSER_QUERY = "/manager/text/deploy?path=/syncope-enduser&war=file:";
+
     private final String installPath;
 
     private final String artifactId;
@@ -64,6 +66,18 @@ public class Tomcat extends AbstractContainer {
                     + pathEncoded(String.format(WIN_CONSOLE_RELATIVE_PATH, installPath, artifactId)));
         } else {
             status = httpUtils.getWithBasicAuth(path(DEPLOY_SYNCOPE_CONSOLE_QUERY + UNIX_CONSOLE_RELATIVE_PATH));
+        }
+
+        return status == 200;
+    }
+
+    public boolean deployEnduser() {
+        int status;
+        if (IS_WIN) {
+            status = httpUtils.getWithBasicAuth(DEPLOY_SYNCOPE_ENDUSER_QUERY
+                    + pathEncoded(String.format(WIN_ENDUSER_RELATIVE_PATH, installPath, artifactId)));
+        } else {
+            status = httpUtils.getWithBasicAuth(path(DEPLOY_SYNCOPE_ENDUSER_QUERY + UNIX_ENDUSER_RELATIVE_PATH));
         }
 
         return status == 200;

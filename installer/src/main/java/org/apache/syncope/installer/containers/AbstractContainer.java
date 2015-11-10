@@ -26,6 +26,10 @@ public abstract class AbstractContainer {
 
     protected static final String UNIX_CONSOLE_RELATIVE_PATH = "%s/%s/console/target/syncope-console.war";
 
+    protected static final String UNIX_ENDUSER_RELATIVE_PATH = "%s/%s/enduser/target/syncope-enduser.war";
+
     protected static final String WIN_CONSOLE_RELATIVE_PATH = "%s\\%s\\console\\target\\syncope-console.war";
+
+    protected static final String WIN_ENDUSER_RELATIVE_PATH = "%s\\%s\\enduser\\target\\syncope-enduser.war";
 
 }

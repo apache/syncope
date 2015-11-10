@@ -63,6 +63,10 @@ public class JBoss extends AbstractContainer {
         return deploy(UNIX_CONSOLE_RELATIVE_PATH, "syncope-console.war");
     }
 
+    public boolean deployEnduser() {
+        return deploy(UNIX_ENDUSER_RELATIVE_PATH, "syncope-console.war");
+    }
+
     public boolean deploy(final String whatDeploy, final String warName) {
         final String responseBodyAsString = httpUtils.postWithDigestAuth(
                 String.format(addContentUrl, jbossHost, jbossManagementPort),
