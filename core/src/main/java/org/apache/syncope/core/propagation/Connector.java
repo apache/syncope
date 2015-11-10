@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.types.PropagationMode;
-import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -117,20 +116,6 @@ public interface Connector {
      * @return ConnId's connector object for given uid
      */
     ConnectorObject getObject(ObjectClass objectClass, Uid uid, OperationOptions options);
-
-    /**
-     * Get remote object used by the propagation manager in order to choose for a create (object doesn't exist) or an
-     * update (object exists).
-     *
-     * @param propagationMode propagation mode
-     * @param operationType resource operation type
-     * @param objectClass ConnId's object class
-     * @param uid ConnId's Uid
-     * @param options ConnId's OperationOptions
-     * @return ConnId's connector object for given uid
-     */
-    ConnectorObject getObject(PropagationMode propagationMode, ResourceOperation operationType, ObjectClass objectClass,
-            Uid uid, OperationOptions options);
 
     /**
      * Search for remote objects.

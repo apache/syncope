@@ -491,8 +491,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         ConnectorObject obj = null;
         try {
-            obj = connector.getObject(task.getPropagationMode(),
-                    task.getPropagationOperation(),
+            obj = connector.getObject(
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(accountId),
                     connector.getOperationOptions(AttributableUtil.getInstance(task.getSubjectType()).

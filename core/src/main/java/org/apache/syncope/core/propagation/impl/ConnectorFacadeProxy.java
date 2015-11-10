@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.common.types.PropagationMode;
-import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.connid.ConnPoolConfUtil;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
@@ -305,44 +304,10 @@ public class ConnectorFacadeProxy implements Connector {
 
     @Override
     public ConnectorObject getObject(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
-        return getObject(null, null, objectClass, uid, options);
-    }
-
-    @Override
-    public ConnectorObject getObject(final PropagationMode propagationMode, final ResourceOperation operationType,
-            final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
-
         Future<ConnectorObject> future = null;
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
-            if (operationType == null) {
-                future = asyncFacade.getObject(connector, objectClass, uid, options);
-            } else {
-                switch (operationType) {
-                    case CREATE:
-                        if (propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
-                                ? activeConnInstance.getCapabilities().
-                                contains(ConnectorCapability.ONE_PHASE_CREATE)
-                                : activeConnInstance.getCapabilities().
-                                contains(ConnectorCapability.TWO_PHASES_CREATE))) {
-
-                            future = asyncFacade.getObject(connector, objectClass, uid, options);
-                        }
-                        break;
-                    case UPDATE:
-                        if (propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
-                                ? activeConnInstance.getCapabilities().
-                                contains(ConnectorCapability.ONE_PHASE_UPDATE)
-                                : activeConnInstance.getCapabilities().
-                                contains(ConnectorCapability.TWO_PHASES_UPDATE))) {
-
-                            future = asyncFacade.getObject(connector, objectClass, uid, options);
-                        }
-                        break;
-                    default:
-                        future = asyncFacade.getObject(connector, objectClass, uid, options);
-                }
-            }
+            future = asyncFacade.getObject(connector, objectClass, uid, options);
         } else {
             LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
@@ -351,7 +316,9 @@ public class ConnectorFacadeProxy implements Connector {
         try {
             return future == null ? null : future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
-            future.cancel(true);
+            if (future != null) {
+                future.cancel(true);
+            }
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
