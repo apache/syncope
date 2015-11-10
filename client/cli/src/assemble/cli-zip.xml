@@ -23,14 +23,39 @@ under the License.
                               http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 
   <id>cli</id>
+  
   <formats>
     <format>zip</format>
   </formats>
+  
   <includeBaseDirectory>false</includeBaseDirectory>
+  
   <fileSets>
     <fileSet>
-      <directory>${work.dir}</directory>
+      <directory>${basedir}</directory>
+      <includes>
+        <include>LICENSE</include>
+        <include>NOTICE</include>
+      </includes>
+      <outputDirectory>${project.build.finalName}</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/classes</directory>
+      <includes>
+        <include>syncopeadm.sh</include>
+        <include>syncopeadm.bat</include>
+      </includes>
       <outputDirectory>${project.build.finalName}</outputDirectory>
     </fileSet>
   </fileSets>
+
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>${project.build.finalName}/lib</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
+      <unpack>false</unpack>
+      <scope>runtime</scope>
+    </dependencySet>
+  </dependencySets>
+  
 </assembly>

@@ -30,14 +30,14 @@ public abstract class ComponentClassScanner<T> extends ClassPathScanningCandidat
         super(false);
     }
 
-    @SuppressWarnings("unchecked")
     public final List<Class<? extends T>> getComponentClasses() throws IllegalArgumentException {
         final String basePackage = "org.apache.syncope.client.cli.commands";
         List<Class<? extends T>> classes = new ArrayList<>();
         for (final BeanDefinition candidate : findCandidateComponents(basePackage)) {
-            final Class cls = ClassUtils.
-                    resolveClassName(candidate.getBeanClassName(), ClassUtils.getDefaultClassLoader());
-            classes.add((Class) cls);
+            @SuppressWarnings("unchecked")
+            final Class<? extends T> cls = (Class<? extends T>) ClassUtils.resolveClassName(
+                    candidate.getBeanClassName(), ClassUtils.getDefaultClassLoader());
+            classes.add(cls);
         }
         return classes;
     }

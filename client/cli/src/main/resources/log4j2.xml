@@ -48,27 +48,27 @@ under the License.
   </appenders>
 
   <loggers>
-    
+
     <asyncLogger name="org.apache.cxf" additivity="false" level="DEBUG">
       <appender-ref ref="lib"/>
     </asyncLogger>
-    
+
     <asyncLogger name="org.apache.http" additivity="false" level="ERROR">
       <appender-ref ref="lib"/>
     </asyncLogger>
-    
+
     <asyncLogger name="org.springframework" additivity="false" level="ERROR">
       <appender-ref ref="lib"/>
     </asyncLogger>
-    
+
     <asyncLogger name="org.apache.syncope.client.cli" additivity="false" level="DEBUG">
       <appender-ref ref="cli"/>
     </asyncLogger>
-    
+
     <asyncLogger name="org.apache.syncope.client" additivity="false" level="ERROR">
       <appender-ref ref="lib"/>
     </asyncLogger>
-    
+
     <asyncLogger name="org.apache.syncope.common" additivity="false" level="ERROR">
       <appender-ref ref="lib"/>
     </asyncLogger>
@@ -76,7 +76,7 @@ under the License.
     <root level="DEBUG">
       <appender-ref ref="cli"/>
     </root>
-  
+
   </loggers>
-  
+
 </configuration>

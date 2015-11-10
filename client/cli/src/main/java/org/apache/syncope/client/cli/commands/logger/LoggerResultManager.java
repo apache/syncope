@@ -47,14 +47,15 @@ public class LoggerResultManager extends CommonsResultManager {
         fromCommandToView("deleted loggers", "new level", loggerTOs);
     }
 
-    private void fromCommandToView(final String title,
+    private void fromCommandToView(
+            final String title,
             final String secondHeader,
             final LinkedList<LoggerTO> loggerTOs) {
-        final Table.TableBuilder tableBuilder
-                = new Table.TableBuilder(title).header("logger").header(secondHeader);
+
+        final Table.TableBuilder tableBuilder = new Table.TableBuilder(title).header("logger").header(secondHeader);
         for (final LoggerTO loggerTO : loggerTOs) {
             tableBuilder.rowValues(
-                    new LinkedList(Arrays.asList(loggerTO.getKey(), loggerTO.getLevel().getLevel().name())));
+                    new LinkedList<>(Arrays.asList(loggerTO.getKey(), loggerTO.getLevel().getLevel().name())));
         }
         tableBuilder.build().print();
     }

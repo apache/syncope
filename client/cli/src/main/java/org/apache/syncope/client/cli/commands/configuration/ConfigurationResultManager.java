@@ -33,20 +33,19 @@ public class ConfigurationResultManager extends CommonsResultManager {
     public void fromRead(final LinkedList<AttrTO> attrTOs) {
         fromCommandToView("selected configuration attributes", attrTOs);
     }
-    
+
     public void fromUpdate(final LinkedList<AttrTO> attrTOs) {
         fromCommandToView("updated configuration attributes", attrTOs);
     }
 
     private void fromCommandToView(final String title, final LinkedList<AttrTO> attrTOs) {
-        final Table.TableBuilder tableBuilder
-                = new Table.TableBuilder(title).header("attribute").header("value");
+        final Table.TableBuilder tableBuilder = new Table.TableBuilder(title).header("attribute").header("value");
         for (final AttrTO attrTO : attrTOs) {
             String attrValue = attrTO.getValues().toString();
             attrValue = attrValue.substring(0, attrValue.length() - 1);
             attrValue = attrValue.substring(1, attrValue.length());
             tableBuilder.rowValues(
-                    new LinkedList(Arrays.asList(attrTO.getSchema(), attrValue)));
+                    new LinkedList<>(Arrays.asList(attrTO.getSchema(), attrValue)));
         }
         tableBuilder.build().print();
     }

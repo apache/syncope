@@ -37,8 +37,6 @@ under the License.
 
   <properties>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
-    
-    <work.dir>${project.build.directory}/cli</work.dir>
   </properties>
   
   <dependencies>
@@ -111,78 +109,9 @@ under the License.
       
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <manifestEntries>
-                    <Main-Class>org.apache.syncope.client.cli.SyncopeAdm</Main-Class>
-                  </manifestEntries>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">                                     
-                  <resource>META-INF/spring.handlers</resource>                                 
-                </transformer>                                 
-                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">                                     
-                  <resource>META-INF/spring.schemas</resource>                                 
-                </transformer>                                 
-                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">                                     
-                  <resource>META-INF/cxf/bus-extensions.txt</resource>                                 
-                </transformer>                                 
-                <transformer implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">                                     
-                  <resource>META-INF/wsdl.plugin.xml</resource>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <configuration>
-          <resourceIncludes>src/main/resources/**/*.properties</resourceIncludes>
-        </configuration>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>prepare-cli</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-              <phase>verify</phase>
-            <configuration>
-              <target>
-                <mkdir dir="${work.dir}" />
-
-                <copy file="LICENSE" todir="${work.dir}" />
-                <copy file="NOTICE" todir="${work.dir}" />
-                
-                <copy file="target/syncope-client-cli-${project.version}.jar" todir="${work.dir}" />
-                <copy file="target/classes/syncopeadm.bat" todir="${work.dir}" />
-                <copy file="target/classes/syncopeadm.sh" todir="${work.dir}" />
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
+          <appendAssemblyId>false</appendAssemblyId>
           <descriptors>
             <descriptor>src/assemble/cli-zip.xml</descriptor>
           </descriptors>
@@ -197,6 +126,11 @@ under the License.
           </execution>
         </executions>
       </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
     </plugins>
      
     <resources>
@@ -206,7 +140,7 @@ under the License.
       </resource>
 
       <resource>
-        <directory>../..</directory>
+        <directory>${basedir}</directory>
         <targetPath>META-INF</targetPath>
         <includes>
           <include>LICENSE</include>

@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.client.cli;
 
+import org.apache.syncope.client.cli.commands.AbstractCommand;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
-public class CommandClassScanner extends ComponentClassScanner {
+public class CommandClassScanner extends ComponentClassScanner<AbstractCommand> {
 
     public CommandClassScanner() {
         super();

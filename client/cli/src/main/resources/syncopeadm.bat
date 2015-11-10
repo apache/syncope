@@ -1,3 +1,5 @@
+@ECHO OFF
+
 rem Licensed to the Apache Software Foundation (ASF) under one
 rem or more contributor license agreements.  See the NOTICE file
 rem distributed with this work for additional information
@@ -15,5 +17,11 @@ rem KIND, either express or implied.  See the License for the
 rem specific language governing permissions and limitations
 rem under the License.
 
-@ECHO OFF
-java -jar -Xms256m -Xmx512m syncope-client-cli-${project.version}.jar %*
+setLocal EnableDelayedExpansion
+set CLASSPATH="
+for /R ./lib %%a in (*.jar) do (
+  set CLASSPATH=!CLASSPATH!;%%a
+)
+set CLASSPATH=!CLASSPATH!"
+
+java -Xms256m -Xmx512m -classpath !CLASSPATH! org.apache.syncope.client.cli.SyncopeAdm %*

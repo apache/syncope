@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,6 +16,8 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-#!/bin/bash
-args=`echo $@`
-java -jar -Xms256m -Xmx512m syncope-client-cli-${project.version}.jar $args
+
+LIB=`ls lib`
+CLASSPATH=lib/`echo $LIB | sed "s/jar /jar:lib\//g"`
+
+java -Xms256m -Xmx512m -classpath "$CLASSPATH" org.apache.syncope.client.cli.SyncopeAdm "$@"

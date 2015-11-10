@@ -35,7 +35,7 @@ public final class Table {
 
     private int columnsNumber;
 
-    private String[] tmpValuesArray;
+    private Object[] tmpValuesArray;
 
     private String tableContentFormat;
 

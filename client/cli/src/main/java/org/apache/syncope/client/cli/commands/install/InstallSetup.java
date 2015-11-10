@@ -64,92 +64,91 @@ public class InstallSetup {
         System.out.println("- File system permission checked");
         System.out.println("");
 
-        final Scanner scanIn = new Scanner(System.in);
-        System.out.println("Syncope server schema [http/https]:");
-        String syncopeServerSchemaFromSystemIn = scanIn.nextLine();
-        boolean schemaFounded = false;
-        while (!schemaFounded) {
-            if (("http".equalsIgnoreCase(syncopeServerSchemaFromSystemIn))
-                    || ("https".equalsIgnoreCase(syncopeServerSchemaFromSystemIn))) {
-                syncopeServerSchema = syncopeServerSchemaFromSystemIn;
-                schemaFounded = true;
-            } else {
-                System.out.println("Please use one of below values:");
-                System.out.println("   - http");
-                System.out.println("   - https");
-                syncopeServerSchemaFromSystemIn = scanIn.nextLine();
+        try (Scanner scanIn = new Scanner(System.in)) {
+            System.out.print("Syncope server schema [http/https]: ");
+            String syncopeServerSchemaFromSystemIn = scanIn.nextLine();
+            boolean schemaFound = false;
+            while (!schemaFound) {
+                if (("http".equalsIgnoreCase(syncopeServerSchemaFromSystemIn))
+                        || ("https".equalsIgnoreCase(syncopeServerSchemaFromSystemIn))) {
+                    syncopeServerSchema = syncopeServerSchemaFromSystemIn;
+                    schemaFound = true;
+                } else {
+                    System.out.println("Please use one of below values: ");
+                    System.out.println("   - http");
+                    System.out.println("   - https");
+                    syncopeServerSchemaFromSystemIn = scanIn.nextLine();
+                }
+            }
+
+            System.out.print("Syncope server hostname [e.g. " + syncopeServerHostname + "]: ");
+            String syncopeServerHostnameFromSystemIn = scanIn.nextLine();
+            boolean syncopeServerHostnameFound = false;
+            while (!syncopeServerHostnameFound) {
+                if (StringUtils.isNotBlank(syncopeServerHostnameFromSystemIn)) {
+                    syncopeServerHostname = syncopeServerHostnameFromSystemIn;
+                    syncopeServerHostnameFound = true;
+                } else {
+                    System.out.print("Syncope server hostname [e.g. " + syncopeServerHostname + "]: ");
+                    syncopeServerHostnameFromSystemIn = scanIn.nextLine();
+                }
+            }
+
+            System.out.print("Syncope server port [e.g. " + syncopeServerPort + "]: ");
+            String syncopeServerPortFromSystemIn = scanIn.nextLine();
+            boolean syncopeServerPortFound = false;
+            while (!syncopeServerPortFound) {
+                if (StringUtils.isNotBlank(syncopeServerPortFromSystemIn)) {
+                    syncopeServerPort = syncopeServerPortFromSystemIn;
+                    syncopeServerPortFound = true;
+                } else if (!StringUtils.isNumeric(syncopeServerPortFromSystemIn)) {
+                    System.err.println(syncopeServerPortFromSystemIn + " is not a numeric string, try again");
+                    syncopeServerPortFromSystemIn = scanIn.nextLine();
+                } else {
+                    System.out.print("Syncope server port [e.g. " + syncopeServerPort + "]: ");
+                    syncopeServerPortFromSystemIn = scanIn.nextLine();
+                }
+            }
+
+            System.out.print("Syncope server rest context [e.g. " + syncopeServerRestContext + "]: ");
+            String syncopeServerRestContextFromSystemIn = scanIn.nextLine();
+            boolean syncopeServerRestContextFound = false;
+            while (!syncopeServerRestContextFound) {
+                if (StringUtils.isNotBlank(syncopeServerRestContextFromSystemIn)) {
+                    syncopeServerRestContext = syncopeServerRestContextFromSystemIn;
+                    syncopeServerRestContextFound = true;
+                } else {
+                    System.out.print("Syncope server port [e.g. " + syncopeServerRestContext + "]: ");
+                    syncopeServerRestContextFromSystemIn = scanIn.nextLine();
+                }
+            }
+
+            System.out.print("Syncope admin user: ");
+            String syncopeAdminUserFromSystemIn = scanIn.nextLine();
+            boolean syncopeAdminUserFound = false;
+            while (!syncopeAdminUserFound) {
+                if (StringUtils.isNotBlank(syncopeAdminUserFromSystemIn)) {
+                    syncopeAdminUser = syncopeAdminUserFromSystemIn;
+                    syncopeAdminUserFound = true;
+                } else {
+                    System.out.print("Syncope admin user: ");
+                    syncopeAdminUserFromSystemIn = scanIn.nextLine();
+                }
+            }
+
+            System.out.print("Syncope admin password: ");
+            String syncopeAdminPasswordFromSystemIn = scanIn.nextLine();
+            boolean syncopeAdminPasswordFound = false;
+            while (!syncopeAdminPasswordFound) {
+                if (StringUtils.isNotBlank(syncopeAdminPasswordFromSystemIn)) {
+                    syncopeAdminPassword = syncopeAdminPasswordFromSystemIn;
+                    syncopeAdminPasswordFound = true;
+                } else {
+                    System.out.print("Syncope admin user: ");
+                    syncopeAdminPasswordFromSystemIn = scanIn.nextLine();
+                }
             }
         }
-
-        System.out.println("Syncope server hostname [e.g. " + syncopeServerHostname + "]:");
-        String syncopeServerHostnameFromSystemIn = scanIn.nextLine();
-        boolean syncopeServerHostnameFounded = false;
-        while (!syncopeServerHostnameFounded) {
-            if (StringUtils.isNotBlank(syncopeServerHostnameFromSystemIn)) {
-                syncopeServerHostname = syncopeServerHostnameFromSystemIn;
-                syncopeServerHostnameFounded = true;
-            } else {
-                System.out.println("Syncope server hostname [e.g. " + syncopeServerHostname + "]:");
-                syncopeServerHostnameFromSystemIn = scanIn.nextLine();
-            }
-        }
-
-        System.out.println("Syncope server port [e.g. " + syncopeServerPort + "]:");
-        String syncopeServerPortFromSystemIn = scanIn.nextLine();
-        boolean syncopeServerPortFounded = false;
-        while (!syncopeServerPortFounded) {
-            if (StringUtils.isNotBlank(syncopeServerPortFromSystemIn)) {
-                syncopeServerPort = syncopeServerPortFromSystemIn;
-                syncopeServerPortFounded = true;
-            } else if (!StringUtils.isNumeric(syncopeServerPortFromSystemIn)) {
-                System.out.println(syncopeServerPortFromSystemIn + " is not a numeric string, try again");
-                syncopeServerPortFromSystemIn = scanIn.nextLine();
-            } else {
-                System.out.println("Syncope server port [e.g. " + syncopeServerPort + "]:");
-                syncopeServerPortFromSystemIn = scanIn.nextLine();
-            }
-        }
-
-        System.out.println("Syncope server rest context [e.g. " + syncopeServerRestContext + "]:");
-        String syncopeServerRestContextFromSystemIn = scanIn.nextLine();
-        boolean syncopeServerRestContextFounded = false;
-        while (!syncopeServerRestContextFounded) {
-            if (StringUtils.isNotBlank(syncopeServerRestContextFromSystemIn)) {
-                syncopeServerRestContext = syncopeServerRestContextFromSystemIn;
-                syncopeServerRestContextFounded = true;
-            } else {
-                System.out.println("Syncope server port [e.g. " + syncopeServerRestContext + "]:");
-                syncopeServerRestContextFromSystemIn = scanIn.nextLine();
-            }
-        }
-
-        System.out.println("Syncope admin user:");
-        String syncopeAdminUserFromSystemIn = scanIn.nextLine();
-        boolean syncopeAdminUserFounded = false;
-        while (!syncopeAdminUserFounded) {
-            if (StringUtils.isNotBlank(syncopeAdminUserFromSystemIn)) {
-                syncopeAdminUser = syncopeAdminUserFromSystemIn;
-                syncopeAdminUserFounded = true;
-            } else {
-                System.out.println("Syncope admin user:");
-                syncopeAdminUserFromSystemIn = scanIn.nextLine();
-            }
-        }
-
-        System.out.println("Syncope admin password:");
-        String syncopeAdminPasswordFromSystemIn = scanIn.nextLine();
-        boolean syncopeAdminPasswordFounded = false;
-        while (!syncopeAdminPasswordFounded) {
-            if (StringUtils.isNotBlank(syncopeAdminPasswordFromSystemIn)) {
-                syncopeAdminPassword = syncopeAdminPasswordFromSystemIn;
-                syncopeAdminPasswordFounded = true;
-            } else {
-                System.out.println("Syncope admin user:");
-                syncopeAdminPasswordFromSystemIn = scanIn.nextLine();
-            }
-        }
-
-        scanIn.close();
 
         final JasyptUtils jasyptUtils = JasyptUtils.getJasyptUtils();
         try {

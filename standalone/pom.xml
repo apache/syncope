@@ -208,7 +208,7 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <resourceIncludes>src/main/resources/**/*.properties</resourceIncludes>
+          <resourceIncludes>src/main/resources/**/*.*</resourceIncludes>
         </configuration>
       </plugin>
     </plugins>

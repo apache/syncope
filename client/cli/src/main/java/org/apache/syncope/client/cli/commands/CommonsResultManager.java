@@ -70,8 +70,8 @@ public abstract class CommonsResultManager {
         Messages.printMessage("Error: " + error);
     }
 
-    public String commandHelpMessage(final Class name) {
-        return Messages.commandHelpMessage(((Command) name.getAnnotation(Command.class)).name());
+    public String commandHelpMessage(final Class<?> name) {
+        return Messages.commandHelpMessage(name.getAnnotation(Command.class).name());
     }
 
     protected void printConfiguration(final Set<ConnConfProperty> configurationPropertys) {
@@ -91,10 +91,9 @@ public abstract class CommonsResultManager {
     }
 
     protected void printDetails(final String title, final Map<String, String> details) {
-        final Table.TableBuilder tableBuilder
-                = new Table.TableBuilder(title).header("detail").header("value");
+        final Table.TableBuilder tableBuilder = new Table.TableBuilder(title).header("detail").header("value");
         for (final Map.Entry<String, String> entrySet : details.entrySet()) {
-            tableBuilder.rowValues(new LinkedList(Arrays.asList(entrySet.getKey(), entrySet.getValue())));
+            tableBuilder.rowValues(new LinkedList<>(Arrays.asList(entrySet.getKey(), entrySet.getValue())));
         }
         tableBuilder.build().print();
     }

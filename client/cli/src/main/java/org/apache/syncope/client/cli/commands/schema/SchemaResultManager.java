@@ -68,10 +68,10 @@ public class SchemaResultManager extends CommonsResultManager {
     }
 
     public void printPlainSchemas(final LinkedList<? extends AbstractSchemaTO> schemaTOs) {
-        final Table.TableBuilder tableBuilder
-                = new Table.TableBuilder("plain schemas").header("schema key").header("type").header("mandatory");
+        final Table.TableBuilder tableBuilder =
+                new Table.TableBuilder("plain schemas").header("schema key").header("type").header("mandatory");
         for (final AbstractSchemaTO schemaTO : schemaTOs) {
-            tableBuilder.rowValues(new LinkedList(Arrays.asList(
+            tableBuilder.rowValues(new LinkedList<>(Arrays.asList(
                     ((PlainSchemaTO) schemaTO).getKey(),
                     ((PlainSchemaTO) schemaTO).getType().toString(),
                     ((PlainSchemaTO) schemaTO).getMandatoryCondition())));
@@ -80,10 +80,10 @@ public class SchemaResultManager extends CommonsResultManager {
     }
 
     public void fromListDerived(final LinkedList<? extends AbstractSchemaTO> schemaTOs) {
-        final Table.TableBuilder tableBuilder
-                = new Table.TableBuilder("derived schemas").header("schema key").header("expression");
+        final Table.TableBuilder tableBuilder =
+                new Table.TableBuilder("derived schemas").header("schema key").header("expression");
         for (final AbstractSchemaTO schemaTO : schemaTOs) {
-            tableBuilder.rowValues(new LinkedList(Arrays.asList(
+            tableBuilder.rowValues(new LinkedList<>(Arrays.asList(
                     ((DerSchemaTO) schemaTO).getKey(),
                     ((DerSchemaTO) schemaTO).getExpression())));
         }
@@ -91,10 +91,10 @@ public class SchemaResultManager extends CommonsResultManager {
     }
 
     public void fromListVirtual(final LinkedList<? extends AbstractSchemaTO> schemaTOs) {
-        final Table.TableBuilder tableBuilder
-                = new Table.TableBuilder("virtual schemas").header("schema key").header("readonly");
+        final Table.TableBuilder tableBuilder =
+                new Table.TableBuilder("virtual schemas").header("schema key").header("readonly");
         for (final AbstractSchemaTO schemaTO : schemaTOs) {
-            tableBuilder.rowValues(new LinkedList(Arrays.asList(
+            tableBuilder.rowValues(new LinkedList<>(Arrays.asList(
                     ((VirSchemaTO) schemaTO).getKey(),
                     String.valueOf(((VirSchemaTO) schemaTO).isReadonly()))));
         }
