@@ -27,10 +27,10 @@ under the License.
     <version>2.0.0-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Deb Console</name>
-  <description>Apache Syncope Deb Console</description>
+  <name>Apache Syncope Deb Enduser</name>
+  <description>Apache Syncope Deb Enduser</description>
   <groupId>org.apache.syncope</groupId>
-  <artifactId>syncope-deb-console</artifactId>
+  <artifactId>syncope-deb-enduser</artifactId>
   <packaging>war</packaging>
 
   <properties>
@@ -39,13 +39,8 @@ under the License.
   
   <dependencies>
     <dependency>
-      <groupId>org.apache.syncope.ext.camel</groupId>
-      <artifactId>syncope-ext-camel-client-console</artifactId>
-      <version>${project.version}</version>
-    </dependency>    
-    <dependency>
       <groupId>org.apache.syncope.client</groupId>
-      <artifactId>syncope-client-console</artifactId>
+      <artifactId>syncope-client-enduser</artifactId>
       <version>${project.version}</version>
     </dependency>
     
@@ -89,15 +84,16 @@ under the License.
       </resource>
       
       <resource>
-        <directory>${project.basedir}/../../client/console/src/main/resources</directory>
+        <directory>${project.basedir}/../../client/enduser/src/main/resources</directory>
         <includes>
-          <include>console.properties</include>
+          <include>enduser.properties</include>
+          <include>enduserContext.xml</include>
         </includes>
         <targetPath>${project.build.directory}/etc</targetPath>
         <filtering>true</filtering>
       </resource>
       <resource>
-        <directory>${basedir}/../../fit/console-reference/src/main/resources</directory>
+        <directory>${basedir}/../../fit/enduser-reference/src/main/resources</directory>
         <includes>
           <include>log4j2.xml</include>
         </includes>
@@ -182,7 +178,7 @@ under the License.
             <configuration>
               <verbose>false</verbose>
               <controlDir>${project.basedir}/src/deb/control</controlDir>
-              <deb>${project.build.directory}/apache-syncope-console-${project.version}.deb</deb>
+              <deb>${project.build.directory}/apache-syncope-enduser-${project.version}.deb</deb>
               <dataSet>
                 <data>
                   <type>template</type>
@@ -233,7 +229,7 @@ under the License.
                   <includes>LICENSE,NOTICE</includes>                  
                   <mapper>
                     <type>perm</type>
-                    <prefix>/usr/share/doc/apache-syncope-console</prefix>
+                    <prefix>/usr/share/doc/apache-syncope-enduser</prefix>
                   </mapper>
                 </data>                
               </dataSet>

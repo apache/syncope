@@ -47,6 +47,7 @@ under the License.
   <modules>
     <module>core</module>
     <module>console</module>
+    <module>enduser</module>
   </modules>
 
   <profiles>

@@ -41,7 +41,7 @@ under the License.
       <appender-ref ref="main"/>
     </asyncLogger>
 
-    <asyncLogger name="org.apache.syncope.client.console" additivity="false" level="ERROR">
+    <asyncLogger name="org.apache.syncope.client.enduser" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
     </asyncLogger>
 
