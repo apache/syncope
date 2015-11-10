@@ -72,6 +72,13 @@ under the License.
       <type>war</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.fit</groupId>
+      <artifactId>syncope-fit-enduser-reference</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -148,6 +155,14 @@ under the License.
                 </copy>
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-console/WEB-INF/classes" overwrite="true">
                   <fileset dir="${project.build.outputDirectory}/console" />
+                </copy>
+
+                <!-- Syncope enduser -->
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-enduser">
+                  <fileset dir="../fit/enduser-reference/target/syncope-fit-enduser-reference-${project.version}" includes="**/*" />
+                </copy>
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-enduser/WEB-INF/classes" overwrite="true">
+                  <fileset dir="${project.build.outputDirectory}/enduser" />
                 </copy>
 
                 <mkdir dir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}" />
@@ -257,6 +272,12 @@ under the License.
         <filtering>true</filtering>
       </resource>
       
+      <resource>
+        <directory>../fit/enduser-reference/src/main/resources</directory>
+        <targetPath>enduser</targetPath>
+        <filtering>true</filtering>
+      </resource>
+
       <resource>
         <directory>src/main/resources</directory>
       </resource>

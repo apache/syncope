@@ -25,26 +25,13 @@ under the License.
   
   <!--causes problem if deployed with other fragments-->
   <display-name>Apache Syncope ${syncope.version} Enduser</display-name>
-
-<!--  <context-param>
+  
+  <context-param>
     <param-name>configuration</param-name>
     <param-value>deployment</param-value>
   </context-param>
-    
-  <filter>
-    <filter-name>SyncopeEnduser</filter-name>
-    <filter-class>org.apache.wicket.protocol.ws.javax.JavaxWebSocketFilter</filter-class>
-    <init-param>
-      <param-name>filterMappingUrlPattern</param-name>
-      <param-value>/*</param-value>
-    </init-param>
-    <init-param>
-      <param-name>applicationClassName</param-name>
-      <param-value>org.apache.syncope.client.enduser.SyncopeEnduserApplication</param-value>
-    </init-param>
-  </filter>-->
   
-    <filter>
+  <filter>
     <filter-name>SyncopeEnduser</filter-name>
     <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
     <init-param>

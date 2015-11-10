@@ -1227,6 +1227,7 @@ under the License.
           <version>2.10</version>
           <configuration>
             <outputDirectory>${bundles.directory}</outputDirectory>
+            <useBaseVersion>true</useBaseVersion>
             <artifactItems>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles.soap</groupId>
