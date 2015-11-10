@@ -403,7 +403,7 @@ under the License.
     <select2.version>3.4.8</select2.version>
     <FileSaver.version>0.0.2</FileSaver.version>
     
-    <izpack.version>5.0.5</izpack.version>
+    <izpack.version>5.0.6</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
     <maven-invoker.version>2.1.1</maven-invoker.version>
 
