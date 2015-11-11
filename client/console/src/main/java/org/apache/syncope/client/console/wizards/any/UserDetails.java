@@ -18,23 +18,31 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.Collapsible;
+import java.util.Collections;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.PasswordTextField;
-import org.apache.wicket.markup.html.form.validation.EqualPasswordInputValidator;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 
 public class UserDetails extends WizardStep {
 
     private static final long serialVersionUID = 6592027822510220463L;
+
+    private static final String PASSWORD_CONTENT_PATH = "tabs:0:body:content";
 
     public UserDetails(final UserTO userTO, final boolean resetPassword, final boolean templateMode) {
         // ------------------------
@@ -59,46 +67,44 @@ public class UserDetails extends WizardStep {
         // ------------------------
         // Password
         // ------------------------
-        final Form<?> form = new Form<>("passwordInnerForm");
-        add(form);
+        final Model<Integer> model = Model.of(-1);
 
-        final WebMarkupContainer pwdJexlHelp = JexlHelpUtils.getJexlHelpWebContainer("pwdJexlHelp");
+        final Collapsible collapsible = new Collapsible("collapsePanel", Collections.<ITab>singletonList(
+                new AbstractTab(new ResourceModel("password.change", "Change password")) {
 
-        final AjaxLink<?> pwdQuestionMarkJexlHelp = JexlHelpUtils.getAjaxLink(pwdJexlHelp, "pwdQuestionMarkJexlHelp");
-        form.add(pwdQuestionMarkJexlHelp);
-        pwdQuestionMarkJexlHelp.add(pwdJexlHelp);
+                    private static final long serialVersionUID = 1037272333056449378L;
 
-        FieldPanel<String> passwordField = new AjaxPasswordFieldPanel(
-                "password", "password", new PropertyModel<String>(userTO, "password"), false);
-        passwordField.setRequired(true);
-        passwordField.setMarkupId("password");
-        passwordField.setPlaceholder("password");
-        ((PasswordTextField) passwordField.getField()).setResetPassword(true);
-        form.add(passwordField);
+                    @Override
+                    public Panel getPanel(final String panelId) {
+                        final PasswordPanel panel = new PasswordPanel(panelId, userTO, resetPassword, templateMode);
+                        panel.setEnabled(model.getObject() >= 0);
+                        return panel;
+                    }
+                }
+        ), model) {
 
-        FieldPanel<String> confirmPasswordField = new AjaxPasswordFieldPanel(
-                "confirmPassword", "confirmPassword", new Model<String>(), false);
-        confirmPasswordField.setRequired(true);
-        confirmPasswordField.setMarkupId("confirmPassword");
-        confirmPasswordField.setPlaceholder("confirmPassword");
-        ((PasswordTextField) confirmPasswordField.getField()).setResetPassword(true);
-        form.add(confirmPasswordField);
+            private static final long serialVersionUID = 1L;
 
-        form.add(new EqualPasswordInputValidator(passwordField.getField(), confirmPasswordField.getField()));
+            @Override
+            protected Component newTitle(final String markupId, final ITab tab, final Collapsible.State state) {
+                return super.newTitle(markupId, tab, state).add(new AjaxEventBehavior(Constants.ON_CLICK) {
 
-        if (templateMode) {
-            confirmPasswordField.setEnabled(false);
-            confirmPasswordField.setVisible(false);
-        } else {
-            pwdQuestionMarkJexlHelp.setVisible(false);
+                    private static final long serialVersionUID = 1L;
 
-            ((PasswordTextField) passwordField.getField()).setResetPassword(resetPassword);
-
-            if (!resetPassword) {
-                confirmPasswordField.getField().setModelObject(userTO.getPassword());
+                    @Override
+                    protected void onEvent(final AjaxRequestTarget target) {
+                        model.setObject(model.getObject() == 0 ? -1 : 0);
+                        final Component passwordPanel = get(PASSWORD_CONTENT_PATH);
+                        passwordPanel.setEnabled(model.getObject() >= 0);
+                        target.add(passwordPanel);
+                    }
+                });
             }
-            ((PasswordTextField) confirmPasswordField.getField()).setResetPassword(resetPassword);
-        }
+
+        };
+
+        collapsible.setOutputMarkupId(true);
+        add(collapsible);
         // ------------------------
     }
 }
