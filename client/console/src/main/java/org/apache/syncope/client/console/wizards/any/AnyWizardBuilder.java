@@ -74,11 +74,11 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<T> impl
         if (modelObject.getKey() == 0) {
             actual = anyTypeRestClient.create(AnyObjectTO.class.cast(modelObject));
         } else {
-            final AnyObjectPatch patch = AnyOperations.diff(modelObject, getDefaultItem(), true);
+            final AnyObjectPatch patch = AnyOperations.diff(modelObject, getOriginalItem(), true);
 
             // update user just if it is changed
             if (!patch.isEmpty()) {
-                actual = anyTypeRestClient.update(getDefaultItem().getETagValue(), patch);
+                actual = anyTypeRestClient.update(getOriginalItem().getETagValue(), patch);
             }
         }
     }

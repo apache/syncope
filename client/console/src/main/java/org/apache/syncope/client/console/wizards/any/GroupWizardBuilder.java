@@ -56,11 +56,11 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
         if (modelObject.getKey() == 0) {
             actual = groupRestClient.create(modelObject);
         } else {
-            final GroupPatch patch = AnyOperations.diff(modelObject, getDefaultItem(), true);
+            final GroupPatch patch = AnyOperations.diff(modelObject, getOriginalItem(), true);
 
             // update user just if it is changed
             if (!patch.isEmpty()) {
-                actual = groupRestClient.update(getDefaultItem().getETagValue(), patch);
+                actual = groupRestClient.update(getOriginalItem().getETagValue(), patch);
             }
         }
     }

@@ -124,11 +124,11 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
 
         final AbstractFieldPanel<? extends Serializable> fieldPanel;
         if (isArray) {
-            final MultiFieldPanel multiFieldPanel = new MultiFieldPanel(
-                    "panel",
-                    label.getDefaultModelObjectAsString(),
-                    new PropertyModel<List<String>>(property, "values"),
-                    field, true);
+            final MultiFieldPanel multiFieldPanel = new MultiFieldPanel.Builder(
+                    new PropertyModel<List<String>>(property, "values")).setEventTemplate(true).build(
+                            "panel",
+                            label.getDefaultModelObjectAsString(),
+                            field);
             item.add(multiFieldPanel);
             fieldPanel = multiFieldPanel;
         } else {

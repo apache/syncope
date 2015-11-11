@@ -83,13 +83,12 @@ public class ResourceDetailsPanel extends Panel {
                 new PropertyModel<Boolean>(model, "randomPwdIfNotProvided"),
                 false));
 
-        container.add(new MultiFieldPanel<>(
-                "actionsClasses",
-                "actionsClasses",
-                new PropertyModel<List<String>>(model, "propagationActionsClassNames"),
-                new AjaxDropDownChoicePanel<>("panel", "panel", new Model<String>()).
-                setChoices(actionClassNames).setNullValid(true).setRequired(true),
-                false));
+        container.add(new MultiFieldPanel.Builder<>(
+                new PropertyModel<List<String>>(model, "propagationActionsClassNames")).build(
+                        "actionsClasses",
+                        "actionsClasses",
+                        new AjaxDropDownChoicePanel<>("panel", "panel", new Model<String>())
+                        .setChoices(actionClassNames).setNullValid(true).setRequired(true)));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "createTraceLevel",

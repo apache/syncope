@@ -59,14 +59,14 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
         if (modelObject.getKey() == 0) {
             actual = userRestClient.create(modelObject, storePassword.getObject());
         } else {
-            final UserPatch patch = AnyOperations.diff(modelObject, getDefaultItem(), true);
+            final UserPatch patch = AnyOperations.diff(modelObject, getOriginalItem(), true);
 
 //            if (statusPanel != null) {
 //                patch.setPwdPropRequest(statusPanel.getStatusMod());
 //            }
             // update user just if it is changed
             if (!patch.isEmpty()) {
-                actual = userRestClient.update(getDefaultItem().getETagValue(), patch);
+                actual = userRestClient.update(getOriginalItem().getETagValue(), patch);
             }
         }
     }

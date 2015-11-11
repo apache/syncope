@@ -60,7 +60,7 @@ public class AjaxWizardButtonBar extends WizardButtonBar {
 
             @Override
             public final boolean isEnabled() {
-                return !edit && super.isEnabled() && getWizardModel().isNextAvailable();
+                return super.isEnabled() && getWizardModel().isNextAvailable();
             }
         });
 
@@ -77,7 +77,7 @@ public class AjaxWizardButtonBar extends WizardButtonBar {
 
             @Override
             public final boolean isEnabled() {
-                return !edit && super.isEnabled() && getWizardModel().isPreviousAvailable();
+                return super.isEnabled() && getWizardModel().isPreviousAvailable();
             }
         });
 

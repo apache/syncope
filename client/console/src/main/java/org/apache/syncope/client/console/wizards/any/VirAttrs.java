@@ -125,10 +125,10 @@ public class VirAttrs extends WizardStep {
                             final AjaxTextFieldPanel panel = new AjaxTextFieldPanel(
                                     "panel", attrTO.getSchema(), new Model<String>(), false);
 
-                            item.add(new MultiFieldPanel<String>(
+                            item.add(new MultiFieldPanel.Builder<String>(
+                                            new PropertyModel<List<String>>(attrTO, "values")).build(
                                             "panel",
                                             schema.getKey(),
-                                            new PropertyModel<List<String>>(attrTO, "values"),
                                             panel).setEnabled(!schema.isReadonly()));
                         }
                     };

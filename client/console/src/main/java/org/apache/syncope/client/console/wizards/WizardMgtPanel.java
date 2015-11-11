@@ -112,12 +112,10 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
             final T item = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getItem();
 
             if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent) {
-                if (item != null) {
-                    newItemPanelBuilder.setItem(item);
-                }
+                newItemPanelBuilder.setItem(item);
 
                 final AjaxWizard<T> wizard = newItemPanelBuilder.build(
-                        ((AjaxWizard.NewItemActionEvent<T>) event.getPayload()).getIndex());
+                        ((AjaxWizard.NewItemActionEvent<T>) event.getPayload()).getIndex(), item != null);
 
                 if (wizardInModal) {
                     final IModel<T> model = new CompoundPropertyModel<>(item);

@@ -45,8 +45,8 @@ public abstract class AjaxWizardBuilder<T extends Serializable> {
         this.pageRef = pageRef;
     }
 
-    public AjaxWizard<T> build(final int index) {
-        final AjaxWizard<T> wizard = build(index > 0);
+    public AjaxWizard<T> build(final int index, final boolean edit) {
+        final AjaxWizard<T> wizard = build(edit);
         for (int i = 1; i < index; i++) {
             wizard.getWizardModel().next();
         }
@@ -54,8 +54,8 @@ public abstract class AjaxWizardBuilder<T extends Serializable> {
     }
 
     public AjaxWizard<T> build(final boolean edit) {
-        final T modelObject = getItem();
-        this.item = null;
+        // ge the specified item if available
+        final T modelObject = newModelObject();
 
         return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), pageRef, edit) {
 
@@ -63,12 +63,12 @@ public abstract class AjaxWizardBuilder<T extends Serializable> {
 
             @Override
             protected void onCancelInternal() {
-                AjaxWizardBuilder.this.onCancelInternal(getItem());
+                AjaxWizardBuilder.this.onCancelInternal(modelObject);
             }
 
             @Override
             protected void onApplyInternal() {
-                AjaxWizardBuilder.this.onApplyInternal(getItem());
+                AjaxWizardBuilder.this.onApplyInternal(modelObject);
             }
         };
     }
@@ -79,12 +79,18 @@ public abstract class AjaxWizardBuilder<T extends Serializable> {
 
     protected abstract void onApplyInternal(T modelObject);
 
-    protected T getDefaultItem() {
-        return defaultItem;
+    protected T getOriginalItem() {
+        return item;
     }
 
-    private T getItem() {
-        return item == null ? SerializationUtils.clone(defaultItem) : item;
+    private T newModelObject() {
+        if (item == null) {
+            // keep the original item: the which one before the changes performed during wizard browsing
+            item = SerializationUtils.clone(defaultItem);
+        }
+
+        // instantiate a new model object and return it
+        return SerializationUtils.clone(item);
     }
 
     /**
@@ -94,8 +100,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> {
      * @return the current wizard factory instance.
      */
     public AjaxWizardBuilder<T> setItem(final T item) {
-        this.defaultItem = item;
-        this.item = null;
+        this.item = item;
         return this;
     }
 }

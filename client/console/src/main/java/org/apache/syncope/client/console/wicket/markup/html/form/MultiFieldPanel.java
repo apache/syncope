@@ -34,13 +34,13 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<List<E>> {
+public final class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<List<E>> {
 
     private static final long serialVersionUID = -6322397761456513324L;
 
     private ListView<E> view;
 
-    private final FieldPanel<E> panelTemplate;
+    private final FieldPanel<? extends Serializable> panelTemplate;
 
     private final boolean eventTemplate;
 
@@ -48,16 +48,11 @@ public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<
 
     private final Form<?> form;
 
-    public MultiFieldPanel(
-            final String id, final String name, final IModel<List<E>> model, final FieldPanel<E> panelTemplate) {
-        this(id, name, model, panelTemplate, false);
-    }
-
-    public MultiFieldPanel(
+    private MultiFieldPanel(
             final String id,
             final String name,
             final IModel<List<E>> model,
-            final FieldPanel<E> panelTemplate,
+            final FieldPanel<? extends Serializable> panelTemplate,
             final boolean eventTemplate) {
 
         super(id, name, model);
@@ -100,7 +95,7 @@ public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<
             @Override
             protected void populateItem(final ListItem<E> item) {
 
-                final FieldPanel<E> fieldPanel = panelTemplate.clone();
+                final FieldPanel<? extends Serializable> fieldPanel = panelTemplate.clone();
 
                 if (eventTemplate) {
                     fieldPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -117,13 +112,11 @@ public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<
                 fieldPanel.setNewModel(item);
                 item.add(fieldPanel.hideLabel().setRenderBodyOnly(true));
 
-//                final AjaxLink<Void> minus = new IndicatingAjaxLink<Void>("drop") {
                 final AjaxSubmitLink minus = new AjaxSubmitLink("drop") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-//                    public void onClick(final AjaxRequestTarget target) {
                     protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                         //Drop current component
                         model.getObject().remove(item.getModelObject());
@@ -160,13 +153,11 @@ public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<
     }
 
     private Fragment getPlusFragment(final IModel<List<E>> model, final String label) {
-//        final AjaxLink<Void> plus = new IndicatingAjaxLink<Void>("add") {
         final AjaxSubmitLink plus = new AjaxSubmitLink("add") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-//            public void onClick(final AjaxRequestTarget target) {
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 //Add current component
                 model.getObject().add(null);
@@ -206,6 +197,72 @@ public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<
 
         public AjaxRequestTarget getTarget() {
             return target;
+        }
+    }
+
+    public static class Builder<E extends Serializable> {
+
+        private final IModel<List<E>> model;
+
+        private boolean plusAlwaysAvailable;
+
+        private boolean minusAwaysAvailable;
+
+        private boolean multivalue;
+
+        private boolean eventTemplate = false;
+
+        public Builder(final IModel<List<E>> model) {
+            this.model = model;
+        }
+
+        /**
+         * Show plus button icon to ad more elements.
+         *
+         * @param plusAlwaysAvailable
+         * @return
+         */
+        public Builder<E> setPlusAlwaysAvailable(final boolean plusAlwaysAvailable) {
+            this.plusAlwaysAvailable = plusAlwaysAvailable;
+            return this;
+        }
+
+        /**
+         * Show minus button icon to remove elements included the latest one in order to empty the list explicitly.
+         *
+         * @param minusAwaysAvailable
+         * @return
+         */
+        public Builder<E> setMinusAwaysAvailable(final boolean minusAwaysAvailable) {
+            this.minusAwaysAvailable = minusAwaysAvailable;
+            return this;
+        }
+
+        /**
+         * Set multivalue field.
+         *
+         * @param multivalue
+         * @return
+         */
+        public Builder<E> setMultivalue(final boolean multivalue) {
+            this.multivalue = multivalue;
+            return this;
+        }
+
+        /**
+         * Set on_change event in order to send MultiValueSelectorEvent to page.
+         *
+         * @param eventTemplate
+         * @return
+         * @see MultiValueSelectorEvent
+         */
+        public Builder<E> setEventTemplate(final boolean eventTemplate) {
+            this.eventTemplate = eventTemplate;
+            return this;
+        }
+
+        public MultiFieldPanel<E> build(final String id, final String name, final FieldPanel<E> panelTemplate) {
+            return new MultiFieldPanel<>(id, name, model, panelTemplate, eventTemplate);
         }
     }
 }

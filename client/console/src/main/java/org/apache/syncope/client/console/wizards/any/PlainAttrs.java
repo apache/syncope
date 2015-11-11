@@ -112,10 +112,13 @@ public class PlainAttrs extends WizardStep {
 
                 if (mode == Mode.TEMPLATE || !schemas.get(attributeTO.getSchema()).isMultivalue()) {
                     item.add(panel);
+                    panel.setNewModel(attributeTO.getValues());
                 } else {
-                    item.add(new MultiFieldPanel<String>(
-                            "panel", attributeTO.getSchema(), new PropertyModel<List<String>>(attributeTO, "values"),
-                            panel));
+                    item.add(new MultiFieldPanel.Builder<String>(
+                            new PropertyModel<List<String>>(attributeTO, "values")).build(
+                                    "panel",
+                                    attributeTO.getSchema(),
+                                    panel));
                 }
             }
         }
@@ -202,43 +205,6 @@ public class PlainAttrs extends WizardStep {
             case Date:
                 panel = new AjaxDateFieldPanel(
                         "panel", schemaTO.getKey(), new Model<Date>(), schemaTO.getConversionPattern());
-//                
-//                final String dataPattern = schemaTO.getConversionPattern() == null
-//                        ? SyncopeConstants.DEFAULT_DATE_PATTERN
-//                        : schemaTO.getConversionPattern();
-//
-//                if (dataPattern.contains("H")) {
-//
-//                    final DatetimePickerConfig conf = new DatetimePickerConfig().withFormat(
-//                "dd/MM/yyyy HH:mm:ss").with(
-//                            new DatetimePickerIconConfig()
-//                            .useDateIcon(FontAwesomeIconType.calendar)
-//                            .useTimeIcon(FontAwesomeIconType.clock_o)
-//                            .useUpIcon(FontAwesomeIconType.arrow_up)
-//                            .useDownIcon(FontAwesomeIconType.arrow_down)
-//                    );
-//
-//                    add(new DatetimePicker("panel", conf));
-////        
-////                    panel = new DateTimeFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
-////
-////                    if (required) {
-////                        panel.addRequiredLabel();
-////                        ((DateTimeFieldPanel) panel).setFormValidator(form);
-////                    }
-////                    panel.setStyleSheet("ui-widget-content ui-corner-all");
-//                } else {
-//                    add(new DateTextField("panel",
-//                            new DateTextFieldConfig()
-//                            .autoClose(true)
-//                            .withLanguage("es")
-//                            .showTodayButton(DateTextFieldConfig.TodayButton.TRUE)));
-////                    panel = new DateTextFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
-//
-////                    if (required) {
-////                        panel.addRequiredLabel();
-////                    }
-//                }
                 break;
             case Enum:
                 panel = new AjaxDropDownChoicePanel<String>("panel", schemaTO.getKey(), new Model<String>(), false);
@@ -310,7 +276,6 @@ public class PlainAttrs extends WizardStep {
         }
 
         panel.setReadOnly(readOnly);
-        panel.setNewModel(attributeTO.getValues());
 
         return panel;
     }
@@ -346,16 +311,4 @@ public class PlainAttrs extends WizardStep {
 
         return res;
     }
-
-//    @Override
-//    public void onEvent(final IEvent<?> event) {
-//        if ((event.getPayload() instanceof GroupAttrTemplatesChange)) {
-//            final GroupAttrTemplatesChange update = (GroupAttrTemplatesChange) event.getPayload();
-//            if (attrTemplates != null && update.getType() == AttrTemplatesPanel.Type.gPlainAttrTemplates) {
-//                setSchemas();
-//                setAttrs();
-//                update.getTarget().add(this);
-//            }
-//        }
-//    }
 }

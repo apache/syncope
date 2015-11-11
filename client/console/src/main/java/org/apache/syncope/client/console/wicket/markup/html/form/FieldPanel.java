@@ -112,23 +112,26 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     }
 
     /**
-     * Used by MultiValueSelectorPanel to attach items.
+     * Used by MultiFieldPanel to attach items (usually strings).
+     * This method has to be overridden in case of type conversion is required.
      *
      * @param item item to attach.
      * @return updated FieldPanel object.
+     * @see MultiFieldPanel
      */
-    public FieldPanel<T> setNewModel(final ListItem<T> item) {
-        setNewModel(new IModel<T>() {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public FieldPanel<T> setNewModel(final ListItem item) {
+        return setNewModel(new IModel() {
 
             private static final long serialVersionUID = 6799404673615637845L;
 
             @Override
-            public T getObject() {
+            public Object getObject() {
                 return item.getModelObject();
             }
 
             @Override
-            public void setObject(final T object) {
+            public void setObject(final Object object) {
                 item.setModelObject(object);
             }
 
@@ -137,20 +140,17 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
                 // no detach
             }
         });
-        return this;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public FieldPanel<T> setNewModel(final List<Serializable> list) {
-        setNewModel(new Model() {
+        return setNewModel(new Model() {
 
             private static final long serialVersionUID = 1088212074765051906L;
 
             @Override
             public Serializable getObject() {
-                return list == null || list.isEmpty()
-                        ? null
-                        : list.get(0);
+                return list == null || list.isEmpty() ? null : list.get(0);
             }
 
             @Override
@@ -162,8 +162,6 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
                 }
             }
         });
-
-        return this;
     }
 
     @Override
