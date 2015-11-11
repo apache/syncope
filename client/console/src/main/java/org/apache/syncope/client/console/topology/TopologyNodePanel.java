@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.topology;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import java.io.Serializable;
 import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;

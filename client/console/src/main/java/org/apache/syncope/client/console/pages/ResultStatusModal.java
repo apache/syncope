@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import static org.apache.syncope.client.console.commons.status.Status.ACTIVE;
-import static org.apache.syncope.client.console.commons.status.Status.SUSPENDED;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;

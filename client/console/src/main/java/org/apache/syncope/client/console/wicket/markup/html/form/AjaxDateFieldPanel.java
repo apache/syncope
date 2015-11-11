@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
-import static org.apache.syncope.client.console.wicket.markup.html.form.AbstractFieldPanel.LOG;
-
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.DateTextField;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.DateTextFieldConfig;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.datetime.DatetimePicker;
