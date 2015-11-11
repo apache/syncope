@@ -625,7 +625,27 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For CodeMirror (http://codemirror.net/):
+For LMAX Disruptor (https://lmax-exchange.github.io/disruptor/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Jackson (http://wiki.fasterxml.com/JacksonHome):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For javax.ws.rs-api (http://www.oracle.com/):
+This is licensed under CDDL 1.0, see above.
+
+==
+
+For Joda Time (http://www.joda.org/joda-time/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For jQuery (http://jquery.com/):
 This is licensed under the terms of the MIT license.
 
  Permission is hereby granted, free  of charge, to any person obtaining
@@ -649,42 +669,7 @@ This is licensed under the terms of the MIT license.
 
 ==
 
-For LMAX Disruptor (https://lmax-exchange.github.io/disruptor/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For javax.inject (http://code.google.com/p/atinject/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Jackson (http://wiki.fasterxml.com/JacksonHome):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For javax.ws.rs-api (http://www.oracle.com/):
-This is licensed under CDDL 1.0, see above.
-
-==
-
-For Joda Time (http://www.joda.org/joda-time/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For jQuery (http://jquery.com/):
-This is licensed under the terms of the MIT license, see above.
-
-==
-
 For jQuery UI (http://jqueryui.com/):
-This is licensed under the terms of the MIT license, see above.
-
-==
-
-For Admin LTE (https://github.com/almasaeed2010/AdminLTE/):
 This is licensed under the terms of the MIT license, see above.
 
 ==
