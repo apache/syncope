@@ -27,6 +27,8 @@ public class VirSchemaTO extends AbstractSchemaTO {
 
     private boolean readonly;
 
+    private String resource;
+
     private long provision;
 
     private String extAttrName;
@@ -37,6 +39,14 @@ public class VirSchemaTO extends AbstractSchemaTO {
 
     public void setReadonly(final boolean readonly) {
         this.readonly = readonly;
+    }
+
+    public String getResource() {
+        return resource;
+    }
+
+    public void setResource(final String resource) {
+        this.resource = resource;
     }
 
     public long getProvision() {

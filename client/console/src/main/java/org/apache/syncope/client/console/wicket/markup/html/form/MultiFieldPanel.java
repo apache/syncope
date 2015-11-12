@@ -71,7 +71,7 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
         container.add(form);
         // -----------------------
 
-        if (model.getObject().isEmpty()) {
+        if (model.getObject() != null && model.getObject().isEmpty()) {
             form.addOrReplace(getNoDataFragment(model, name));
         } else {
             form.addOrReplace(getDataFragment(model, name));

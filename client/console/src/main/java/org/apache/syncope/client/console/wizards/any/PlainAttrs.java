@@ -207,7 +207,7 @@ public class PlainAttrs extends WizardStep {
                         "panel", schemaTO.getKey(), new Model<Date>(), schemaTO.getConversionPattern());
                 break;
             case Enum:
-                panel = new AjaxDropDownChoicePanel<String>("panel", schemaTO.getKey(), new Model<String>(), false);
+                panel = new AjaxDropDownChoicePanel<>("panel", schemaTO.getKey(), new Model<String>(), false);
                 ((AjaxDropDownChoicePanel<String>) panel).setChoices(getEnumeratedValues(schemaTO));
 
                 if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
@@ -241,7 +241,7 @@ public class PlainAttrs extends WizardStep {
                 break;
 
             case Long:
-                panel = new SpinnerFieldPanel<Long>("panel", schemaTO.getKey(), Long.class, new Model<Long>());
+                panel = new SpinnerFieldPanel<>("panel", schemaTO.getKey(), Long.class, new Model<Long>());
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -249,7 +249,7 @@ public class PlainAttrs extends WizardStep {
                 break;
 
             case Double:
-                panel = new SpinnerFieldPanel<Double>("panel", schemaTO.getKey(), Double.class, new Model<Double>());
+                panel = new SpinnerFieldPanel<>("panel", schemaTO.getKey(), Double.class, new Model<Double>());
 
                 if (required) {
                     panel.addRequiredLabel();
