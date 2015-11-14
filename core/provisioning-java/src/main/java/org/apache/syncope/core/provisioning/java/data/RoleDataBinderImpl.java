@@ -86,7 +86,7 @@ public class RoleDataBinderImpl implements RoleDataBinder {
             if (realm == null) {
                 LOG.debug("Invalid realm full path {}, ignoring", realmFullPath);
             } else {
-                role.addRealm(realm);
+                role.add(realm);
             }
         }
 

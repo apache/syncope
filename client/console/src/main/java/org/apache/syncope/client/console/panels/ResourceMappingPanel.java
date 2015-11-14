@@ -46,9 +46,9 @@ import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -253,7 +253,7 @@ public class ResourceMappingPanel extends Panel {
                             target.add(ResourceMappingPanel.this);
                         }
                     }
-                }, ActionLink.ActionType.DELETE, Entitlement.RESOURCE_UPDATE);
+                }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_UPDATE);
 
                 item.add(actions.build("toRemove"));
 
@@ -448,11 +448,11 @@ public class ResourceMappingPanel extends Panel {
         return CollectionUtils.collect(connRestClient.buildObjectClassInfo(connInstanceTO, true),
                 new Transformer<ConnIdObjectClassTO, String>() {
 
-                    @Override
-                    public String transform(final ConnIdObjectClassTO input) {
-                        return input.getType();
-                    }
-                },
+            @Override
+            public String transform(final ConnIdObjectClassTO input) {
+                return input.getType();
+            }
+        },
                 new ArrayList<String>());
     }
 

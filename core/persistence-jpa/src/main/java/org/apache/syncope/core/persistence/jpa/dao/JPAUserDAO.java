@@ -34,8 +34,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.misc.policy.AccountPolicyException;
 import org.apache.syncope.core.misc.policy.PasswordPolicyException;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
@@ -103,7 +103,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         if (!AuthContextUtils.getUsername().equals(anonymousUser)
                 && !AuthContextUtils.getUsername().equals(user.getUsername())) {
 
-            Set<String> authRealms = AuthContextUtils.getAuthorizations().get(Entitlement.USER_READ);
+            Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_READ);
             boolean authorized = CollectionUtils.exists(authRealms, new Predicate<String>() {
 
                 @Override

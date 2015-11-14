@@ -30,9 +30,9 @@ public interface Role extends Entity<Long> {
 
     Set<String> getEntitlements();
 
-    boolean addRealm(Realm realm);
+    boolean add(Realm realm);
 
-    boolean removeReam(Realm realm);
+    boolean remove(Realm realm);
 
     List<? extends Realm> getRealms();
 

@@ -24,7 +24,7 @@ import org.apache.syncope.client.console.rest.CamelRouteRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.CamelEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -84,7 +84,7 @@ public class CamelRouteModalPage extends AbstractModalPanel {
 
         };
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, Entitlement.ROUTE_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, CamelEntitlement.ROUTE_UPDATE);
         routeForm.add(submit);
 
         this.add(routeForm);

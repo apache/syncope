@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -57,29 +57,29 @@ public class XMLEditorPopupPage extends BasePopupPage {
         AjaxButton submit =
                 new IndicatingAjaxButton(APPLY, new Model<>(getString(SUBMIT))) {
 
-                    private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -958724007591692537L;
 
-                    @Override
-                    protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                        try {
-                            wfRestClient.updateDefinition(
-                                    MediaType.APPLICATION_XML_TYPE, workflowDefArea.getModelObject());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientException scee) {
-                            error(getString(Constants.ERROR) + ": " + scee.getMessage());
-                        }
-                        feedbackPanel.refresh(target);
-                    }
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                try {
+                    wfRestClient.updateDefinition(
+                            MediaType.APPLICATION_XML_TYPE, workflowDefArea.getModelObject());
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (SyncopeClientException scee) {
+                    error(getString(Constants.ERROR) + ": " + scee.getMessage());
+                }
+                feedbackPanel.refresh(target);
+            }
 
-                    @Override
-                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                        feedbackPanel.refresh(target);
-                    }
-                };
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                feedbackPanel.refresh(target);
+            }
+        };
 
         final Button close = new Button("closePage", new Model<>(getString(CANCEL)));
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, Entitlement.WORKFLOW_DEF_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, StandardEntitlement.WORKFLOW_DEF_UPDATE);
         wfForm.add(submit);
         wfForm.add(close);
         this.add(wfForm);

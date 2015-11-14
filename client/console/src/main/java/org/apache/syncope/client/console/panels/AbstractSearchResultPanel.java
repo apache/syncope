@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.client.console.PreferenceManager;
@@ -55,7 +54,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
      */
     protected PreferenceManager prefMan = new PreferenceManager();
 
-    protected final AbstractAnyRestClient restClient;
+    protected final AbstractAnyRestClient<T> restClient;
 
     /**
      * Number of rows per page.
@@ -86,12 +85,12 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
     /**
      * Result table.
      */
-    private AjaxDataTablePanel<AnyTO, String> resultTable;
+    private AjaxDataTablePanel<T, String> resultTable;
 
     /**
      * Data provider used to search for users.
      */
-    private AnyDataProvider dataProvider;
+    private AnyDataProvider<T> dataProvider;
 
     /**
      * Owner page.
@@ -108,12 +107,12 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
      */
     private final String type;
 
-    protected <T extends AnyTO> AbstractSearchResultPanel(
+    protected AbstractSearchResultPanel(
             final String id,
             final boolean filtered,
             final String fiql,
             final PageReference pageRef,
-            final AbstractAnyRestClient restClient,
+            final AbstractAnyRestClient<T> restClient,
             final String realm,
             final String type) {
 
@@ -138,7 +137,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
 
         this.realm = realm;
         this.type = type;
-        
+
         setWindowClosedReloadCallback(modal);
     }
 
@@ -188,7 +187,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
     }
 
     private void updateResultTable(final boolean create, final int rows) {
-        dataProvider = new AnyDataProvider(restClient, rows, filtered, realm, type);
+        dataProvider = new AnyDataProvider<>(restClient, rows, filtered, realm, type);
         dataProvider.setFIQL(fiql);
 
         final int currentPage = resultTable != null
@@ -216,7 +215,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
         container.addOrReplace(resultTable);
     }
 
-    protected abstract List<IColumn<AnyTO, String>> getColumns();
+    protected abstract List<IColumn<T, String>> getColumns();
 
     @Override
     public void onEvent(final IEvent<?> event) {
@@ -298,9 +297,9 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
 
     protected abstract String getPageId();
 
-    public abstract static class Builder<T extends Serializable> extends WizardMgtPanel.Builder<T> {
+    public abstract static class Builder<T extends AnyTO> extends WizardMgtPanel.Builder<T> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 5088962796986706805L;
 
         /**
          * Specify if results are about a filtered search or not. Using this attribute it is possible to use this panel
@@ -314,7 +313,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
          */
         protected final String fiql;
 
-        protected final AbstractAnyRestClient restClient;
+        protected final AbstractAnyRestClient<T> restClient;
 
         /**
          * Realm related to current panel.
@@ -331,9 +330,10 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
                 final boolean filtered,
                 final String fiql,
                 final PageReference pageRef,
-                final AbstractAnyRestClient restClient,
+                final AbstractAnyRestClient<T> restClient,
                 final String realm,
                 final String type) {
+
             super(reference, pageRef);
             this.filtered = filtered;
             this.fiql = fiql;

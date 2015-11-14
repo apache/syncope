@@ -26,7 +26,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.DomainTO;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
@@ -48,7 +48,7 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
     @Autowired
     private DomainDAO domainDAO;
 
-    @PreAuthorize("hasRole('" + Entitlement.DOMAIN_READ + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + StandardEntitlement.DOMAIN_READ + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public DomainTO read(final String key) {
         Domain domain = domainDAO.find(key);
@@ -72,7 +72,7 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
         }, new ArrayList<DomainTO>());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.DOMAIN_CREATE + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + StandardEntitlement.DOMAIN_CREATE + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public DomainTO create(final DomainTO domainTO) {
         if (!domainsHolder.getDomains().keySet().contains(domainTO.getKey())) {
@@ -82,7 +82,7 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
         return binder.getDomainTO(domainDAO.save(binder.create(domainTO)));
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.DOMAIN_UPDATE + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + StandardEntitlement.DOMAIN_UPDATE + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public DomainTO update(final DomainTO domainTO) {
         Domain domain = domainDAO.find(domainTO.getKey());
@@ -97,7 +97,7 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
         return binder.getDomainTO(domain);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.DOMAIN_DELETE + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + StandardEntitlement.DOMAIN_DELETE + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public DomainTO delete(final String key) {
         Domain domain = domainDAO.find(key);

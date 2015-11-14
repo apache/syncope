@@ -22,6 +22,8 @@ import java.io.StringWriter;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.CamelEntitlement;
+import org.apache.syncope.core.misc.EntitlementsHolder;
 import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
@@ -59,8 +61,6 @@ public class CamelRouteLoader implements SyncopeLoader {
     @Autowired
     private DomainsHolder domainsHolder;
 
-    private boolean loaded = false;
-
     @Override
     public Integer getPriority() {
         return 1000;
@@ -68,19 +68,16 @@ public class CamelRouteLoader implements SyncopeLoader {
 
     @Override
     public void load() {
-        synchronized (this) {
-            if (!loaded) {
-                for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
-                    loadRoutes(entry.getKey(), entry.getValue(),
-                            userRoutesLoader.getResource(), AnyTypeKind.USER);
-                    loadRoutes(entry.getKey(), entry.getValue(),
-                            groupRoutesLoader.getResource(), AnyTypeKind.GROUP);
-                    loadRoutes(entry.getKey(), entry.getValue(),
-                            anyObjectRoutesLoader.getResource(), AnyTypeKind.ANY_OBJECT);
-                }
-                loaded = true;
-            }
+        for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
+            loadRoutes(entry.getKey(), entry.getValue(),
+                    userRoutesLoader.getResource(), AnyTypeKind.USER);
+            loadRoutes(entry.getKey(), entry.getValue(),
+                    groupRoutesLoader.getResource(), AnyTypeKind.GROUP);
+            loadRoutes(entry.getKey(), entry.getValue(),
+                    anyObjectRoutesLoader.getResource(), AnyTypeKind.ANY_OBJECT);
         }
+
+        EntitlementsHolder.getInstance().init(CamelEntitlement.values());
     }
 
     private String nodeToString(final Node content, final DOMImplementationLS domImpl) {

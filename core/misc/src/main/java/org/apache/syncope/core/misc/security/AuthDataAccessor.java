@@ -34,8 +34,9 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.misc.AuditManager;
+import org.apache.syncope.core.misc.EntitlementsHolder;
 import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.misc.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -239,9 +240,11 @@ public class AuthDataAccessor {
     public Set<SyncopeGrantedAuthority> load(final String username) {
         final Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
         if (anonymousUser.equals(username)) {
-            authorities.add(new SyncopeGrantedAuthority(Entitlement.ANONYMOUS));
+            authorities.add(new SyncopeGrantedAuthority(StandardEntitlement.ANONYMOUS));
         } else if (adminUser.equals(username)) {
-            CollectionUtils.collect(Entitlement.values(), new Transformer<String, SyncopeGrantedAuthority>() {
+            CollectionUtils.collect(
+                    EntitlementsHolder.getInstance().getValues(),
+                    new Transformer<String, SyncopeGrantedAuthority>() {
 
                 @Override
                 public SyncopeGrantedAuthority transform(final String entitlement) {
@@ -255,7 +258,7 @@ public class AuthDataAccessor {
             }
 
             if (user.isMustChangePassword()) {
-                authorities.add(new SyncopeGrantedAuthority(Entitlement.MUST_CHANGE_PASSWORD));
+                authorities.add(new SyncopeGrantedAuthority(StandardEntitlement.MUST_CHANGE_PASSWORD));
             } else {
                 // Give entitlements as assigned by roles (with realms, where applicable) - assigned either
                 // statically and dynamically
@@ -283,7 +286,9 @@ public class AuthDataAccessor {
                 // Give group entitlements for owned groups
                 for (Group group : groupDAO.findOwnedByUser(user.getKey())) {
                     for (String entitlement : Arrays.asList(
-                            Entitlement.GROUP_READ, Entitlement.GROUP_UPDATE, Entitlement.GROUP_DELETE)) {
+                            StandardEntitlement.GROUP_READ,
+                            StandardEntitlement.GROUP_UPDATE,
+                            StandardEntitlement.GROUP_DELETE)) {
 
                         SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
                         authority.addRealm(

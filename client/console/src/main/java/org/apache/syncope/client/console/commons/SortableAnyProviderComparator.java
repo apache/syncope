@@ -29,19 +29,19 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 
-public class SortableAnyProviderComparator extends SortableDataProviderComparator<AnyTO> {
+public class SortableAnyProviderComparator<T extends AnyTO> extends SortableDataProviderComparator<T> {
 
     private static final long serialVersionUID = 1775967163571699258L;
 
     private static final Set<String> INLINE_PROPS = new HashSet<>(Arrays.asList(
             new String[] { "key", "status", "token", "username" }));
 
-    public SortableAnyProviderComparator(final SortableDataProvider<AnyTO, String> provider) {
+    public SortableAnyProviderComparator(final SortableDataProvider<T, String> provider) {
         super(provider);
     }
 
     @Override
-    public int compare(final AnyTO any1, final AnyTO any2) {
+    public int compare(final T any1, final T any2) {
         if (INLINE_PROPS.contains(provider.getSort().getProperty())) {
             return super.compare(any1, any2);
         }

@@ -38,7 +38,7 @@ import org.apache.syncope.client.console.wizards.provision.ProvisionWizardBuilde
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -103,7 +103,7 @@ public class ResourceModal extends AbstractResourceModal {
                 send(pageRef.getPage(), Broadcast.DEPTH,
                         new AjaxWizard.NewItemActionEvent<>(provisionTO, 2, target));
             }
-        }, ActionLink.ActionType.MAPPING, Entitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
+        }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
 
             private static final long serialVersionUID = -3722207913631435514L;
 
@@ -112,7 +112,8 @@ public class ResourceModal extends AbstractResourceModal {
                 send(pageRef.getPage(), Broadcast.DEPTH,
                         new AjaxWizard.NewItemActionEvent<>(provisionTO, 3, target));
             }
-        }, ActionLink.ActionType.ACCOUNT_LINK, Entitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
+        }, ActionLink.ActionType.ACCOUNT_LINK, StandardEntitlement.RESOURCE_UPDATE).addAction(
+                new ActionLink<ProvisionTO>() {
 
             private static final long serialVersionUID = -3722207913631435524L;
 
@@ -122,26 +123,28 @@ public class ResourceModal extends AbstractResourceModal {
                 send(pageRef.getPage(), Broadcast.DEPTH,
                         new AjaxWizard.NewItemFinishEvent<>(provisionTO, target));
             }
-        }, ActionLink.ActionType.RESET_TIME, Entitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
+        }, ActionLink.ActionType.RESET_TIME, StandardEntitlement.RESOURCE_UPDATE).addAction(
+                        new ActionLink<ProvisionTO>() {
 
-            private static final long serialVersionUID = -3722207913631435534L;
+                    private static final long serialVersionUID = -3722207913631435534L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                send(pageRef.getPage(), Broadcast.DEPTH,
-                        new AjaxWizard.NewItemActionEvent<>(SerializationUtils.clone(provisionTO), target));
-            }
-        }, ActionLink.ActionType.CLONE, Entitlement.RESOURCE_CREATE).addAction(new ActionLink<ProvisionTO>() {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                        send(pageRef.getPage(), Broadcast.DEPTH,
+                                new AjaxWizard.NewItemActionEvent<>(SerializationUtils.clone(provisionTO), target));
+                    }
+                }, ActionLink.ActionType.CLONE, StandardEntitlement.RESOURCE_CREATE).addAction(
+                        new ActionLink<ProvisionTO>() {
 
-            private static final long serialVersionUID = -3722207913631435544L;
+                    private static final long serialVersionUID = -3722207913631435544L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                model.getObject().getProvisions().remove(provisionTO);
-                send(pageRef.getPage(), Broadcast.DEPTH,
-                        new AjaxWizard.NewItemFinishEvent<ProvisionTO>(null, target));
-            }
-        }, ActionLink.ActionType.DELETE, Entitlement.RESOURCE_DELETE);
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                        model.getObject().getProvisions().remove(provisionTO);
+                        send(pageRef.getPage(), Broadcast.DEPTH,
+                                new AjaxWizard.NewItemFinishEvent<ProvisionTO>(null, target));
+                    }
+                }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_DELETE);
 
         builder.addNewItemPanelBuilder(new ProvisionWizardBuilder("wizard", model.getObject(), pageRef));
         builder.addNotificationPanel(modal.getFeedbackPanel());
@@ -180,7 +183,7 @@ public class ResourceModal extends AbstractResourceModal {
                         modal.getFeedbackPanel().refresh(target);
                     }
                 };
-                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE, Entitlement.CONNECTOR_READ);
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE, StandardEntitlement.CONNECTOR_READ);
                 return panel;
             }
         });
@@ -222,11 +225,11 @@ public class ResourceModal extends AbstractResourceModal {
                     int uConnObjectKeyCount = CollectionUtils.countMatches(
                             provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
 
-                                @Override
-                                public boolean evaluate(final MappingItemTO item) {
-                                    return item.isConnObjectKey();
-                                }
-                            });
+                        @Override
+                        public boolean evaluate(final MappingItemTO item) {
+                            return item.isConnObjectKey();
+                        }
+                    });
 
                     connObjectKeyError = uConnObjectKeyCount != 1;
                 }

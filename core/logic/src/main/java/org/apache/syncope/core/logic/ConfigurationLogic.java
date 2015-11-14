@@ -22,7 +22,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
@@ -59,7 +59,7 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
     @Autowired
     private GroupWorkflowAdapter gwfAdapter;
 
-    @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_DELETE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_DELETE + "')")
     public void delete(final String schema) {
         CPlainAttr conf = confDAO.find(schema);
         if (conf == null) {
@@ -72,7 +72,7 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
         confDAO.delete(schema);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_LIST + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_LIST + "')")
     public List<AttrTO> list() {
         return binder.getConfTO(confDAO.get());
     }
@@ -97,12 +97,12 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_SET + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_SET + "')")
     public void set(final AttrTO value) {
         confDAO.save(binder.getAttribute(value));
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_EXPORT + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_EXPORT + "')")
     @Transactional(readOnly = true)
     public void export(final OutputStream os) {
         try {

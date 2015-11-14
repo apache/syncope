@@ -62,7 +62,7 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
 
     protected final String pageID = "Any";
 
-    private final String entitlement = "USER_LIST";
+    protected final String entitlement;
 
     protected AnySearchResultPanel(
             final String type,
@@ -70,11 +70,14 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
             final boolean filtered,
             final String fiql,
             final PageReference callerRef,
-            final AbstractAnyRestClient restClient,
+            final AbstractAnyRestClient<T> restClient,
             final List<AnyTypeClassTO> anyTypeClassTOs,
-            final String realm) {
+            final String realm,
+            final String entitlement) {
 
         super(parentId, filtered, fiql, callerRef, restClient, realm, type);
+        this.entitlement = entitlement;
+
         add(new Label("name", type));
 
         this.schemaNames = new ArrayList<>();
@@ -90,68 +93,64 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
     }
 
     @Override
-    protected List<IColumn<AnyTO, String>> getColumns() {
-
-        final List<IColumn<AnyTO, String>> columns = new ArrayList<IColumn<AnyTO, String>>();
+    protected List<IColumn<T, String>> getColumns() {
+        final List<IColumn<T, String>> columns = new ArrayList<>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_ANY_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(AnyObjectTO.class, name);
 
             if ("token".equalsIgnoreCase(name)) {
-                columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<T, String>(new ResourceModel(name, name), name, name));
             } else if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<T, String>(new ResourceModel(name, name), name, name));
             } else {
-                columns.add(
-                        new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<T, String>(new ResourceModel(name, name), name, name));
             }
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_ANY_ATTRIBUTES_VIEW)) {
             if (schemaNames.contains(name)) {
-                columns.add(new AttrColumn(name, SchemaType.PLAIN));
+                columns.add(new AttrColumn<T>(name, SchemaType.PLAIN));
             }
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_ANY_DERIVED_ATTRIBUTES_VIEW)) {
             if (dSchemaNames.contains(name)) {
-                columns.add(new AttrColumn(name, SchemaType.DERIVED));
+                columns.add(new AttrColumn<T>(name, SchemaType.DERIVED));
             }
         }
 
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
             for (String name : AnyDisplayAttributesModalPage.ANY_DEFAULT_SELECTION) {
-                columns.add(
-                        new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<T, String>(new ResourceModel(name, name), name, name));
             }
 
         }
 
-        columns.add(new ActionColumn<AnyTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<T, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
-            public ActionLinksPanel<AnyTO> getActions(final String componentId, final IModel<AnyTO> model) {
+            public ActionLinksPanel<T> getActions(final String componentId, final IModel<T> model) {
+                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.builder(page.getPageReference());
 
-                final ActionLinksPanel.Builder<AnyTO> panel = ActionLinksPanel.builder(page.getPageReference());
-
-                panel.add(new ActionLink<AnyTO>() {
+                panel.add(new ActionLink<T>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
                         send(AnySearchResultPanel.this, Broadcast.BREADTH,
-                                new AjaxWizard.NewItemActionEvent<AnyTO>(model.getObject(), target));
+                                new AjaxWizard.NewItemActionEvent<>(model.getObject(), target));
                     }
-                }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<AnyTO>() {
+                }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<T>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
+                    public void onClick(final AjaxRequestTarget target, final T anyTO) {
                         try {
                             restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
                             info(getString(Constants.OPERATION_SUCCEEDED));
@@ -178,7 +177,7 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         // still missing content
-                        target.add(modal.setContent(new AnyDisplayAttributesModalPage<T>(
+                        target.add(modal.setContent(new AnyDisplayAttributesModalPage<>(
                                 modal, page.getPageReference(), schemaNames, dSchemaNames)));
 
                         modal.header(new ResourceModel("any.attr.display", ""));
@@ -205,7 +204,7 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
 
     @Override
     protected <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions() {
-        final List<ActionLink.ActionType> bulkActions = new ArrayList<ActionLink.ActionType>();
+        final List<ActionLink.ActionType> bulkActions = new ArrayList<>();
 
         bulkActions.add(ActionLink.ActionType.DELETE);
         bulkActions.add(ActionLink.ActionType.SUSPEND);
@@ -221,7 +220,7 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
 
     public static final class Builder extends AbstractSearchResultPanel.Builder<AnyObjectTO> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -6828423611982275640L;
 
         private final List<AnyTypeClassTO> anyTypeClassTOs;
 
@@ -229,18 +228,19 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
                 final boolean filtered,
                 final String fiql,
                 final PageReference pageRef,
-                final AbstractAnyRestClient restClient,
+                final AbstractAnyRestClient<AnyObjectTO> restClient,
                 final List<AnyTypeClassTO> anyTypeClassTOs,
                 final String realm,
                 final String type) {
+
             super(AnyObjectTO.class, filtered, fiql, pageRef, restClient, realm, type);
             this.anyTypeClassTOs = anyTypeClassTOs;
         }
 
         @Override
         protected WizardMgtPanel<AnyObjectTO> newInstance(final String parentId) {
-            return new AnySearchResultPanel<AnyObjectTO>(
-                    type, parentId, filtered, fiql, pageRef, restClient, anyTypeClassTOs, realm);
+            return new AnySearchResultPanel<>(
+                    type, parentId, filtered, fiql, pageRef, restClient, anyTypeClassTOs, realm, type + "_LIST");
         }
 
     }

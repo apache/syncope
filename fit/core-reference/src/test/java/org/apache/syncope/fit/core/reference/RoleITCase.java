@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class RoleITCase extends AbstractITCase {
         RoleTO role = new RoleTO();
         role.setName(name + getUUIDString());
         role.getRealms().add("/even");
-        role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
+        role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
 
         return role;
     }
@@ -62,44 +62,46 @@ public class RoleITCase extends AbstractITCase {
     public void read() {
         RoleTO roleTO = roleService.read(3L);
         assertNotNull(roleTO);
-        assertTrue(roleTO.getEntitlements().contains(Entitlement.GROUP_READ));
+        assertTrue(roleTO.getEntitlements().contains(StandardEntitlement.GROUP_READ));
     }
 
     @Test
     public void create() {
         RoleTO role = new RoleTO();
-        role.setName("new" + getUUIDString());
         role.getRealms().add(SyncopeConstants.ROOT_REALM);
         role.getRealms().add("/even/two");
-        role.getEntitlements().add(Entitlement.LOG_LIST);
-        role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
+        role.getEntitlements().add(StandardEntitlement.LOG_LIST);
+        role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
 
-        Response response = roleService.create(role);
+        try {
+            createRole(role);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidRole, e.getType());
+        }
 
-        RoleTO actual = getObject(response.getLocation(), RoleService.class, RoleTO.class);
-        assertNotNull(actual);
+        role.setName("new" + getUUIDString());
+        role = createRole(role);
+        assertNotNull(role);
     }
 
     @Test
     public void update() {
         RoleTO role = getSampleRoleTO("update");
-        Response response = roleService.create(role);
+        role = createRole(role);
+        assertNotNull(role);
 
-        RoleTO actual = getObject(response.getLocation(), RoleService.class, RoleTO.class);
-        assertNotNull(actual);
-
-        role = actual;
-        assertFalse(role.getEntitlements().contains(Entitlement.WORKFLOW_TASK_LIST));
+        assertFalse(role.getEntitlements().contains(StandardEntitlement.WORKFLOW_TASK_LIST));
         assertFalse(role.getRealms().contains("/even/two"));
 
-        role.getEntitlements().add(Entitlement.WORKFLOW_TASK_LIST);
+        role.getEntitlements().add(StandardEntitlement.WORKFLOW_TASK_LIST);
         role.getRealms().add("/even/two");
 
         roleService.update(role);
 
-        actual = roleService.read(role.getKey());
-        assertTrue(actual.getEntitlements().contains(Entitlement.WORKFLOW_TASK_LIST));
-        assertTrue(actual.getRealms().contains("/even/two"));
+        role = roleService.read(role.getKey());
+        assertTrue(role.getEntitlements().contains(StandardEntitlement.WORKFLOW_TASK_LIST));
+        assertTrue(role.getRealms().contains("/even/two"));
     }
 
     @Test

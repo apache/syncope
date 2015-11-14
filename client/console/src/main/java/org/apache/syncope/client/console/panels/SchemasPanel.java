@@ -41,8 +41,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.SelectChoiceRenderer;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -77,14 +77,14 @@ public class SchemasPanel extends Panel {
     private static final Map<SchemaType, String> PAGINATOR_ROWS_KEYS =
             new HashMap<SchemaType, String>() {
 
-                private static final long serialVersionUID = 3109256773218160485L;
+        private static final long serialVersionUID = 3109256773218160485L;
 
-                {
-                    put(SchemaType.PLAIN, Constants.PREF_CONF_SCHEMA_PAGINATOR_ROWS);
-                    put(SchemaType.DERIVED, Constants.PREF_CONF_SCHEMA_PAGINATOR_ROWS);
-                    put(SchemaType.VIRTUAL, Constants.PREF_CONF_SCHEMA_PAGINATOR_ROWS);
-                }
-            };
+        {
+            put(SchemaType.PLAIN, Constants.PREF_CONF_SCHEMA_PAGINATOR_ROWS);
+            put(SchemaType.DERIVED, Constants.PREF_CONF_SCHEMA_PAGINATOR_ROWS);
+            put(SchemaType.VIRTUAL, Constants.PREF_CONF_SCHEMA_PAGINATOR_ROWS);
+        }
+    };
 
     private static final Map<SchemaType, List<String>> COL_NAMES = new HashMap<SchemaType, List<String>>() {
 
@@ -181,19 +181,19 @@ public class SchemasPanel extends Panel {
                     final IColumn<AbstractSchemaTO, String> column =
                             new PropertyColumn<AbstractSchemaTO, String>(new ResourceModel(field), field, field) {
 
-                                private static final long serialVersionUID = 3282547854226892169L;
+                        private static final long serialVersionUID = 3282547854226892169L;
 
-                                @Override
-                                public String getCssClass() {
-                                    String css = super.getCssClass();
-                                    if ("key".equals(field)) {
-                                        css = StringUtils.isBlank(css)
-                                                ? "medium_fixedsize"
-                                                : css + " medium_fixedsize";
-                                    }
-                                    return css;
-                                }
-                            };
+                        @Override
+                        public String getCssClass() {
+                            String css = super.getCssClass();
+                            if ("key".equals(field)) {
+                                css = StringUtils.isBlank(css)
+                                        ? "medium_fixedsize"
+                                        : css + " medium_fixedsize";
+                            }
+                            return css;
+                        }
+                    };
                     columns.add(column);
                 }
             }
@@ -228,7 +228,8 @@ public class SchemasPanel extends Panel {
                         modal.show(true);
                         target.add(modal.setContent(new SchemaModalPanel(modal, pageReference, false)));
                     }
-                }, ActionLink.ActionType.EDIT, Entitlement.SCHEMA_UPDATE).addWithRoles(new ActionLink<Serializable>() {
+                }, ActionLink.ActionType.EDIT, StandardEntitlement.SCHEMA_UPDATE).addWithRoles(
+                        new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
 
@@ -254,7 +255,7 @@ public class SchemasPanel extends Panel {
 
                         target.add(webContainer);
                     }
-                }, ActionLink.ActionType.DELETE, Entitlement.SCHEMA_DELETE);
+                }, ActionLink.ActionType.DELETE, StandardEntitlement.SCHEMA_DELETE);
 
                 item.add(actionLinks.build(componentId));
             }

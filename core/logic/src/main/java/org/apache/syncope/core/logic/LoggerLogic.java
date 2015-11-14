@@ -47,7 +47,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -99,32 +99,32 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         }, new ArrayList<LoggerTO>());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.LOG_LIST + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
     public List<LoggerTO> listLogs() {
         return list(LoggerType.LOG);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.AUDIT_LIST + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_LIST + "')")
     @Transactional(readOnly = true)
     public List<AuditLoggerName> listAudits() {
         return CollectionUtils.collect(
                 IteratorUtils.filteredIterator(list(LoggerType.AUDIT).iterator(), PredicateUtils.notNullPredicate()),
                 new Transformer<LoggerTO, AuditLoggerName>() {
 
-                    @Override
-                    public AuditLoggerName transform(final LoggerTO logger) {
-                        AuditLoggerName result = null;
-                        try {
-                            result = AuditLoggerName.fromLoggerName(logger.getKey());
-                        } catch (Exception e) {
-                            LOG.warn("Unexpected audit logger name: {}", logger.getKey(), e);
-                        }
+            @Override
+            public AuditLoggerName transform(final LoggerTO logger) {
+                AuditLoggerName result = null;
+                try {
+                    result = AuditLoggerName.fromLoggerName(logger.getKey());
+                } catch (Exception e) {
+                    LOG.warn("Unexpected audit logger name: {}", logger.getKey(), e);
+                }
 
-                        return result;
-                    }
-                }, new ArrayList<AuditLoggerName>());
+                return result;
+            }
+        }, new ArrayList<AuditLoggerName>());
     }
 
     private void throwInvalidLogger(final LoggerType type) {
@@ -134,7 +134,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         throw sce;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.LOG_READ + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + StandardEntitlement.LOG_READ + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
     public LoggerTO readLog(final String name) {
@@ -146,7 +146,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         throw new NotFoundException("Logger " + name);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.AUDIT_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_READ + "')")
     @Transactional(readOnly = true)
     public LoggerTO readAudit(final String name) {
         for (final AuditLoggerName logger : listAudits()) {
@@ -192,13 +192,13 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.LOG_SET_LEVEL + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + StandardEntitlement.LOG_SET_LEVEL + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public LoggerTO setLogLevel(final String name, final Level level) {
         return setLevel(name, level, LoggerType.LOG);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.AUDIT_ENABLE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_ENABLE + "')")
     public void enableAudit(final AuditLoggerName auditLoggerName) {
         try {
             setLevel(auditLoggerName.toLoggerName(), Level.DEBUG, LoggerType.AUDIT);
@@ -234,13 +234,13 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         return loggerToDelete;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.LOG_DELETE + "') and authentication.details.domain == "
+    @PreAuthorize("hasRole('" + StandardEntitlement.LOG_DELETE + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public LoggerTO deleteLog(final String name) {
         return delete(name, LoggerType.LOG);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.AUDIT_DISABLE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_DISABLE + "')")
     public void disableAudit(final AuditLoggerName auditLoggerName) {
         try {
             delete(auditLoggerName.toLoggerName(), LoggerType.AUDIT);
@@ -253,7 +253,8 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         }
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.AUDIT_LIST + "') or hasRole('" + Entitlement.NOTIFICATION_LIST + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_LIST + "') or hasRole('"
+            + StandardEntitlement.NOTIFICATION_LIST + "')")
     public List<EventCategoryTO> listAuditEvents() {
         // use set to avoid duplications or null elements
         Set<EventCategoryTO> events = new HashSet<>();

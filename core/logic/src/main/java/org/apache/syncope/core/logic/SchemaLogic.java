@@ -31,8 +31,8 @@ import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -89,7 +89,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
         return found;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.SCHEMA_CREATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.SCHEMA_CREATE + "')")
     @SuppressWarnings("unchecked")
     public <T extends AbstractSchemaTO> T create(final SchemaType schemaType, final T schemaTO) {
         if (StringUtils.isBlank(schemaTO.getKey())) {
@@ -122,7 +122,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
         return created;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.SCHEMA_DELETE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.SCHEMA_DELETE + "')")
     public void delete(final SchemaType schemaType, final String schemaName) {
         if (!doesSchemaExist(schemaType, schemaName)) {
             throw new NotFoundException(schemaType + "/" + schemaName);
@@ -154,11 +154,11 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                         clazz == null ? virSchemaDAO.findAll() : virSchemaDAO.findByAnyTypeClass(clazz),
                         new Transformer<VirSchema, T>() {
 
-                            @Override
-                            public T transform(final VirSchema input) {
-                                return (T) binder.getVirSchemaTO(input);
-                            }
-                        }, new ArrayList<T>());
+                    @Override
+                    public T transform(final VirSchema input) {
+                        return (T) binder.getVirSchemaTO(input);
+                    }
+                }, new ArrayList<T>());
                 break;
 
             case DERIVED:
@@ -166,11 +166,11 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                         clazz == null ? derSchemaDAO.findAll() : derSchemaDAO.findByAnyTypeClass(clazz),
                         new Transformer<DerSchema, T>() {
 
-                            @Override
-                            public T transform(final DerSchema input) {
-                                return (T) binder.getDerSchemaTO(input);
-                            }
-                        }, new ArrayList<T>());
+                    @Override
+                    public T transform(final DerSchema input) {
+                        return (T) binder.getDerSchemaTO(input);
+                    }
+                }, new ArrayList<T>());
                 break;
 
             case PLAIN:
@@ -179,11 +179,11 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                         clazz == null ? plainSchemaDAO.findAll() : plainSchemaDAO.findByAnyTypeClass(clazz),
                         new Transformer<PlainSchema, T>() {
 
-                            @Override
-                            public T transform(final PlainSchema input) {
-                                return (T) binder.getPlainSchemaTO(input);
-                            }
-                        }, new ArrayList<T>());
+                    @Override
+                    public T transform(final PlainSchema input) {
+                        return (T) binder.getPlainSchemaTO(input);
+                    }
+                }, new ArrayList<T>());
         }
 
         return result;
@@ -225,7 +225,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
         return read;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.SCHEMA_UPDATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.SCHEMA_UPDATE + "')")
     public <T extends AbstractSchemaTO> void update(final SchemaType schemaType, final T schemaTO) {
         if (!doesSchemaExist(schemaType, schemaTO.getKey())) {
             throw new NotFoundException(schemaType + "/" + schemaTO.getKey());

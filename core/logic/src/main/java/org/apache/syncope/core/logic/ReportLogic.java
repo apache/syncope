@@ -55,9 +55,9 @@ import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.core.logic.report.TextSerializer;
 import org.apache.syncope.common.lib.to.AbstractExecTO;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -84,7 +84,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     @Autowired
     private EntityFactory entityFactory;
 
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_CREATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_CREATE + "')")
     public ReportTO create(final ReportTO reportTO) {
         Report report = entityFactory.newEntity(Report.class);
         binder.getReport(report, reportTO);
@@ -103,7 +103,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         return binder.getReportTO(report);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_UPDATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_UPDATE + "')")
     public ReportTO update(final ReportTO reportTO) {
         Report report = reportDAO.find(reportTO.getKey());
         if (report == null) {
@@ -126,7 +126,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         return binder.getReportTO(report);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_LIST + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
     public List<ReportTO> list() {
         return CollectionUtils.collect(reportDAO.findAll(),
                 new Transformer<Report, ReportTO>() {
@@ -138,7 +138,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
                 }, new ArrayList<ReportTO>());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
     public ReportTO read(final Long reportKey) {
         Report report = reportDAO.find(reportKey);
         if (report == null) {
@@ -147,7 +147,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         return binder.getReportTO(report);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
     @Transactional(readOnly = true)
     public ReportExecTO readExecution(final Long executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
@@ -157,7 +157,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         return binder.getReportExecTO(reportExec);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
     public void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
             final ReportExecExportFormat format) {
 
@@ -223,7 +223,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         }
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
     public ReportExec getAndCheckReportExec(final Long executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {
@@ -239,7 +239,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         return reportExec;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_EXECUTE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
     public ReportExecTO execute(final Long reportKey) {
         Report report = reportDAO.find(reportKey);
         if (report == null) {
@@ -268,7 +268,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_DELETE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
     public ReportTO delete(final Long reportKey) {
         Report report = reportDAO.find(reportKey);
         if (report == null) {
@@ -281,7 +281,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         return deletedReport;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_DELETE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
     public ReportExecTO deleteExecution(final Long executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {
@@ -324,12 +324,12 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @Override
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_LIST + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
     public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, final Class<E> reference) {
         return super.listJobs(type, reference);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_EXECUTE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
     public void actionJob(final Long reportKey, final JobAction action) {
         Report report = reportDAO.find(reportKey);
         if (report == null) {

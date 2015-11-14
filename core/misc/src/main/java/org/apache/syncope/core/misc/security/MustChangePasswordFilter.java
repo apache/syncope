@@ -28,7 +28,7 @@ import javax.servlet.ServletResponse;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -59,11 +59,11 @@ public class MustChangePasswordFilter implements Filter {
                     SecurityContextHolder.getContext().getAuthentication().getAuthorities(),
                     new Predicate<GrantedAuthority>() {
 
-                        @Override
-                        public boolean evaluate(final GrantedAuthority authority) {
-                            return Entitlement.MUST_CHANGE_PASSWORD.equals(authority.getAuthority());
-                        }
-                    });
+                @Override
+                public boolean evaluate(final GrantedAuthority authority) {
+                    return StandardEntitlement.MUST_CHANGE_PASSWORD.equals(authority.getAuthority());
+                }
+            });
 
             SecurityContextHolderAwareRequestWrapper wrapper =
                     SecurityContextHolderAwareRequestWrapper.class.cast(request);

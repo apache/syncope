@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.MatrixParam;
@@ -44,6 +45,6 @@ public interface AnyObjectService extends AnyService<AnyObjectTO, AnyObjectPatch
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<AnyObjectTO> list(@MatrixParam("type") String type, @BeanParam AnyListQuery listQuery);
+    PagedResult<AnyObjectTO> list(@NotNull @MatrixParam("type") String type, @BeanParam AnyListQuery listQuery);
 
 }

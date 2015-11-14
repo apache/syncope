@@ -264,6 +264,37 @@ public class SearchCond extends AbstractSearchCond {
         this.type = type;
     }
 
+    public String hasAnyTypeCond() {
+        String anyTypeName = null;
+
+        if (type == null) {
+            return anyTypeName;
+        }
+
+        switch (type) {
+            case LEAF:
+            case NOT_LEAF:
+                if (anyTypeCond != null) {
+                    anyTypeName = anyTypeCond.getAnyTypeName();
+                }
+                break;
+
+            case AND:
+            case OR:
+                if (leftNodeCond != null) {
+                    anyTypeName = leftNodeCond.hasAnyTypeCond();
+                }
+                if (anyTypeName == null && rightNodeCond != null) {
+                    anyTypeName = rightNodeCond.hasAnyTypeCond();
+                }
+                break;
+
+            default:
+        }
+
+        return anyTypeName;
+    }
+
     @Override
     public boolean isValid() {
         boolean isValid = false;

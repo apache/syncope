@@ -29,7 +29,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -38,6 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.misc.utils.RealmUtils;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
@@ -72,7 +72,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Override
     protected void securityChecks(final Group group) {
-        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_READ);
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_READ);
         boolean authorized = CollectionUtils.exists(authRealms, new Predicate<String>() {
 
             @Override

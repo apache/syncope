@@ -26,7 +26,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -67,12 +67,12 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
         }, new ArrayList<AnyTypeClassTO>());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANYTYPECLASS_CREATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPECLASS_CREATE + "')")
     public AnyTypeClassTO create(final AnyTypeClassTO anyTypeClassTO) {
         return binder.getAnyTypeClassTO(anyTypeClassDAO.save(binder.create(anyTypeClassTO)));
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANYTYPECLASS_UPDATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPECLASS_UPDATE + "')")
     public AnyTypeClassTO update(final AnyTypeClassTO anyTypeClassTO) {
         AnyTypeClass anyType = anyTypeClassDAO.find(anyTypeClassTO.getKey());
         if (anyType == null) {
@@ -86,7 +86,7 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
         return binder.getAnyTypeClassTO(anyType);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANYTYPECLASS_DELETE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPECLASS_DELETE + "')")
     public AnyTypeClassTO delete(final String key) {
         AnyTypeClass anyTypeClass = anyTypeClassDAO.find(key);
         if (anyTypeClass == null) {

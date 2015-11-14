@@ -44,7 +44,7 @@ import org.springframework.stereotype.Component;
  * Console client for invoking rest users services.
  */
 @Component
-public class UserRestClient extends AbstractAnyRestClient {
+public class UserRestClient extends AbstractAnyRestClient<UserTO> {
 
     private static final long serialVersionUID = -1575748964398293968L;
 

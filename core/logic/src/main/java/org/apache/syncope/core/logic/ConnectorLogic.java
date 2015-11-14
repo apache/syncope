@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -75,7 +75,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     @Autowired
     private ConnectorFactory connFactory;
 
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_CREATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_CREATE + "')")
     public ConnInstanceTO create(final ConnInstanceTO connInstanceTO) {
         ConnInstance connInstance = binder.getConnInstance(connInstanceTO);
         try {
@@ -91,7 +91,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         return binder.getConnInstanceTO(connInstance);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_UPDATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_UPDATE + "')")
     public ConnInstanceTO update(final ConnInstanceTO connInstanceTO) {
         ConnInstance connInstance = binder.update(connInstanceTO.getKey(), connInstanceTO);
         try {
@@ -107,7 +107,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         return binder.getConnInstanceTO(connInstance);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_DELETE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_DELETE + "')")
     public ConnInstanceTO delete(final Long connInstanceKey) {
         ConnInstance connInstance = connInstanceDAO.find(connInstanceKey);
         if (connInstance == null) {
@@ -130,7 +130,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         return connToDelete;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_LIST + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_LIST + "')")
     @Transactional(readOnly = true)
     public List<ConnInstanceTO> list(final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
@@ -138,24 +138,24 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         List<ConnInstanceTO> result = CollectionUtils.collect(connInstanceDAO.findAll().iterator(),
                 new Transformer<ConnInstance, ConnInstanceTO>() {
 
-                    @Override
-                    public ConnInstanceTO transform(final ConnInstance connInstance) {
-                        ConnInstanceTO result = null;
-                        try {
-                            result = binder.getConnInstanceTO(connInstance);
-                        } catch (NotFoundException e) {
-                            LOG.error("Connector '{}#{}' not found",
-                                    connInstance.getBundleName(), connInstance.getVersion());
-                        }
+            @Override
+            public ConnInstanceTO transform(final ConnInstance connInstance) {
+                ConnInstanceTO result = null;
+                try {
+                    result = binder.getConnInstanceTO(connInstance);
+                } catch (NotFoundException e) {
+                    LOG.error("Connector '{}#{}' not found",
+                            connInstance.getBundleName(), connInstance.getVersion());
+                }
 
-                        return result;
-                    }
-                }, new ArrayList<ConnInstanceTO>());
+                return result;
+            }
+        }, new ArrayList<ConnInstanceTO>());
         CollectionUtils.filter(result, PredicateUtils.notNullPredicate());
         return result;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public ConnInstanceTO read(final Long connInstanceKey, final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
@@ -168,7 +168,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         return binder.getConnInstanceTO(connInstance);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public List<ConnBundleTO> getBundles(final String lang) {
         if (StringUtils.isBlank(lang)) {
@@ -203,7 +203,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         return connectorBundleTOs;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
     public List<ConnIdObjectClassTO> buildObjectClassInfo(
             final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
@@ -235,13 +235,13 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public void check(final ConnInstanceTO connInstanceTO) {
         connFactory.createConnector(binder.getConnInstance(connInstanceTO)).test();
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public ConnInstanceTO readByResource(final String resourceName, final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
@@ -253,7 +253,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         return binder.getConnInstanceTO(connFactory.getConnector(resource).getConnInstance());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_RELOAD + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_RELOAD + "')")
     @Transactional(readOnly = true)
     public void reload() {
         connFactory.unload();

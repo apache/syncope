@@ -38,10 +38,14 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
+import org.apache.syncope.common.lib.patch.LongPatchItem;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -51,16 +55,20 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.UserService;
+import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
@@ -100,19 +108,19 @@ public class AuthenticationITCase extends AbstractITCase {
         // 2. as anonymous
         Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).self();
         assertEquals(1, self.getKey().size());
-        assertTrue(self.getKey().keySet().contains(Entitlement.ANONYMOUS));
+        assertTrue(self.getKey().keySet().contains(StandardEntitlement.ANONYMOUS));
         assertEquals(ANONYMOUS_UNAME, self.getValue().getUsername());
 
         // 3. as admin
         self = adminClient.self();
-        assertEquals(Entitlement.values().size(), self.getKey().size());
-        assertFalse(self.getKey().keySet().contains(Entitlement.ANONYMOUS));
+        assertEquals(syncopeService.info().getEntitlements().size(), self.getKey().size());
+        assertFalse(self.getKey().keySet().contains(StandardEntitlement.ANONYMOUS));
         assertEquals(ADMIN_UNAME, self.getValue().getUsername());
 
         // 4. as user
         self = clientFactory.create("bellini", ADMIN_PWD).self();
         assertFalse(self.getKey().isEmpty());
-        assertFalse(self.getKey().keySet().contains(Entitlement.ANONYMOUS));
+        assertFalse(self.getKey().keySet().contains(StandardEntitlement.ANONYMOUS));
         assertEquals("bellini", self.getValue().getUsername());
     }
 
@@ -202,11 +210,11 @@ public class AuthenticationITCase extends AbstractITCase {
         Set<Long> matchedUserKeys = CollectionUtils.collect(matchedUsers.getResult(),
                 new Transformer<UserTO, Long>() {
 
-                    @Override
-                    public Long transform(final UserTO input) {
-                        return input.getKey();
-                    }
-                }, new HashSet<Long>());
+            @Override
+            public Long transform(final UserTO input) {
+                return input.getKey();
+            }
+        }, new HashSet<Long>());
         assertTrue(matchedUserKeys.contains(1L));
         assertFalse(matchedUserKeys.contains(2L));
         assertFalse(matchedUserKeys.contains(5L));
@@ -235,11 +243,11 @@ public class AuthenticationITCase extends AbstractITCase {
             // 1. create role for full user administration, under realm /even/two
             RoleTO role = new RoleTO();
             role.setName("Delegated user admin");
-            role.getEntitlements().add(Entitlement.USER_CREATE);
-            role.getEntitlements().add(Entitlement.USER_UPDATE);
-            role.getEntitlements().add(Entitlement.USER_DELETE);
-            role.getEntitlements().add(Entitlement.USER_LIST);
-            role.getEntitlements().add(Entitlement.USER_READ);
+            role.getEntitlements().add(StandardEntitlement.USER_CREATE);
+            role.getEntitlements().add(StandardEntitlement.USER_UPDATE);
+            role.getEntitlements().add(StandardEntitlement.USER_DELETE);
+            role.getEntitlements().add(StandardEntitlement.USER_LIST);
+            role.getEntitlements().add(StandardEntitlement.USER_READ);
             role.getRealms().add("/even/two");
 
             roleKey = Long.valueOf(roleService.create(role).getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -383,6 +391,79 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals("active", userTO.getStatus());
 
         assertEquals(0, goodPwdClient.self().getValue().getFailedLogins(), 0);
+    }
+
+    @Test
+    public void anyTypeEntitlement() {
+        final String anyTypeKey = "FOLDER " + getUUIDString();
+
+        // 1. no entitlement exists (yet) for the any type to be created
+        assertFalse(CollectionUtils.exists(syncopeService.info().getEntitlements(), new Predicate<String>() {
+
+            @Override
+            public boolean evaluate(final String entitlement) {
+                return entitlement.contains(anyTypeKey);
+            }
+        }));
+
+        // 2. create plain schema, any type class and any type
+        PlainSchemaTO path = new PlainSchemaTO();
+        path.setKey("path" + getUUIDString());
+        path.setType(AttrSchemaType.String);
+        path = createSchema(SchemaType.PLAIN, path);
+
+        AnyTypeClassTO anyTypeClass = new AnyTypeClassTO();
+        anyTypeClass.setKey("folder" + getUUIDString());
+        anyTypeClass.getPlainSchemas().add(path.getKey());
+        anyTypeClassService.create(anyTypeClass);
+
+        AnyTypeTO anyTypeTO = new AnyTypeTO();
+        anyTypeTO.setKey(anyTypeKey);
+        anyTypeTO.setKind(AnyTypeKind.ANY_OBJECT);
+        anyTypeTO.getClasses().add(anyTypeClass.getKey());
+        anyTypeService.create(anyTypeTO);
+
+        // 2. now entitlement exists for the any type just created
+        assertTrue(CollectionUtils.exists(syncopeService.info().getEntitlements(), new Predicate<String>() {
+
+            @Override
+            public boolean evaluate(final String entitlement) {
+                return entitlement.contains(anyTypeKey);
+            }
+        }));
+
+        // 3. attempt to create an instance of the type above: fail because no entitlement was assigned
+        AnyObjectTO folder = new AnyObjectTO();
+        folder.setRealm(SyncopeConstants.ROOT_REALM);
+        folder.setType(anyTypeKey);
+        folder.getPlainAttrs().add(attrTO(path.getKey(), "/home"));
+
+        SyncopeClient belliniClient = clientFactory.create("bellini", ADMIN_PWD);
+        try {
+            belliniClient.getService(AnyObjectService.class).create(folder);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
+        }
+
+        // 4. give create entitlement for the any type just created
+        RoleTO role = new RoleTO();
+        role.setName("role" + getUUIDString());
+        role.getRealms().add(SyncopeConstants.ROOT_REALM);
+        role.getEntitlements().add(anyTypeKey + "_READ");
+        role.getEntitlements().add(anyTypeKey + "_CREATE");
+        role = createRole(role);
+
+        UserTO bellini = readUser("bellini");
+        UserPatch patch = new UserPatch();
+        patch.setKey(bellini.getKey());
+        patch.getRoles().add(new LongPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(role.getKey()).build());
+        bellini = updateUser(patch).getAny();
+        assertTrue(bellini.getRoles().contains(role.getKey()));
+
+        // 5. now the instance of the type above can be created successfully
+        belliniClient.getService(AnyObjectService.class).create(folder);
     }
 
     @Test

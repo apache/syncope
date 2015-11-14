@@ -41,6 +41,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -62,76 +63,75 @@ public final class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> 
             final boolean filtered,
             final String fiql,
             final PageReference callerRef,
-            final AbstractAnyRestClient restClient,
+            final AbstractAnyRestClient<GroupTO> restClient,
             final List<AnyTypeClassTO> anyTypeClassTOs,
-            final String realm) {
+            final String realm,
+            final String entitlement) {
 
-        super(type, parentId, filtered, fiql, callerRef, restClient, anyTypeClassTOs, realm);
+        super(type, parentId, filtered, fiql, callerRef, restClient, anyTypeClassTOs, realm, entitlement);
     }
 
     @Override
-    protected List<IColumn<AnyTO, String>> getColumns() {
-
-        final List<IColumn<AnyTO, String>> columns = new ArrayList<>();
+    protected List<IColumn<GroupTO, String>> getColumns() {
+        final List<IColumn<GroupTO, String>> columns = new ArrayList<>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(GroupTO.class, name);
 
             if ("token".equalsIgnoreCase(name)) {
-                columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
             } else if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
             } else {
-                columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
             }
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_ATTRIBUTES_VIEW)) {
             if (schemaNames.contains(name)) {
-                columns.add(new AttrColumn(name, SchemaType.PLAIN));
+                columns.add(new AttrColumn<GroupTO>(name, SchemaType.PLAIN));
             }
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_DERIVED_ATTRIBUTES_VIEW)) {
             if (dSchemaNames.contains(name)) {
-                columns.add(new AttrColumn(name, SchemaType.DERIVED));
+                columns.add(new AttrColumn<GroupTO>(name, SchemaType.DERIVED));
             }
         }
 
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
             for (String name : GroupDisplayAttributesModalPage.GROUP_DEFAULT_SELECTION) {
-                columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
             }
 
             prefMan.setList(getRequest(), getResponse(), Constants.PREF_GROUP_DETAILS_VIEW,
                     Arrays.asList(GroupDisplayAttributesModalPage.GROUP_DEFAULT_SELECTION));
         }
 
-        columns.add(new ActionColumn<AnyTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<GroupTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
-            public ActionLinksPanel<AnyTO> getActions(final String componentId, final IModel<AnyTO> model) {
+            public ActionLinksPanel<GroupTO> getActions(final String componentId, final IModel<GroupTO> model) {
+                final ActionLinksPanel.Builder<GroupTO> panel = ActionLinksPanel.builder(page.getPageReference());
 
-                final ActionLinksPanel.Builder<AnyTO> panel = ActionLinksPanel.builder(page.getPageReference());
-
-                panel.add(new ActionLink<AnyTO>() {
+                panel.add(new ActionLink<GroupTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
+                    public void onClick(final AjaxRequestTarget target, final GroupTO anyTO) {
                         send(GroupSearchResultPanel.this, Broadcast.BREADTH,
                                 new AjaxWizard.NewItemActionEvent<AnyTO>(model.getObject(), target));
                     }
-                }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<AnyTO>() {
+                }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<GroupTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
+                    public void onClick(final AjaxRequestTarget target, final GroupTO anyTO) {
                         try {
                             restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
                             info(getString(Constants.OPERATION_SUCCEEDED));
@@ -235,10 +235,11 @@ public final class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> 
                 final boolean filtered,
                 final String fiql,
                 final PageReference pageRef,
-                final AbstractAnyRestClient restClient,
+                final AbstractAnyRestClient<GroupTO> restClient,
                 final List<AnyTypeClassTO> anyTypeClassTOs,
                 final String realm,
                 final String type) {
+
             super(GroupTO.class, filtered, fiql, pageRef, restClient, realm, type);
             this.anyTypeClassTOs = anyTypeClassTOs;
         }
@@ -246,7 +247,8 @@ public final class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> 
         @Override
         protected WizardMgtPanel<GroupTO> newInstance(final String parentId) {
             return new GroupSearchResultPanel(
-                    type, parentId, filtered, fiql, pageRef, restClient, anyTypeClassTOs, realm);
+                    type, parentId, filtered, fiql, pageRef, restClient, anyTypeClassTOs, realm,
+                    StandardEntitlement.GROUP_SEARCH);
         }
 
     }

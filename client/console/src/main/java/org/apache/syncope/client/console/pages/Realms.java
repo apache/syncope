@@ -29,7 +29,7 @@ import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicating
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -147,8 +147,8 @@ public class Realms extends BasePage {
 
         deleteLink.add(new ConfirmationModalBehavior());
 
-        if (SyncopeConsoleSession.get().owns(Entitlement.REALM_DELETE)) {
-            MetaDataRoleAuthorizationStrategy.authorize(deleteLink, ENABLE, Entitlement.REALM_DELETE);
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REALM_DELETE)) {
+            MetaDataRoleAuthorizationStrategy.authorize(deleteLink, ENABLE, StandardEntitlement.REALM_DELETE);
         }
 
         content.addOrReplace(deleteLink);
@@ -172,7 +172,7 @@ public class Realms extends BasePage {
                         Realms.this.getPageReference(),
                         realmTO,
                         realmSidebarPanel.getCurrentRealm().getFullPath(),
-                        Entitlement.REALM_CREATE,
+                        StandardEntitlement.REALM_CREATE,
                         true);
                 target.add(modal.setContent(panel));
 
@@ -181,8 +181,8 @@ public class Realms extends BasePage {
             }
         };
 
-        if (SyncopeConsoleSession.get().owns(Entitlement.REALM_CREATE)) {
-            MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE, Entitlement.REALM_CREATE);
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REALM_CREATE)) {
+            MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE, StandardEntitlement.REALM_CREATE);
         }
 
         content.addOrReplace(createLink);
@@ -205,7 +205,7 @@ public class Realms extends BasePage {
                         Realms.this.getPageReference(),
                         realmTO,
                         realmTO.getFullPath(),
-                        Entitlement.REALM_UPDATE,
+                        StandardEntitlement.REALM_UPDATE,
                         false);
                 target.add(modal.setContent(panel));
 
@@ -214,8 +214,8 @@ public class Realms extends BasePage {
             }
         };
 
-        if (SyncopeConsoleSession.get().owns(Entitlement.REALM_UPDATE)) {
-            MetaDataRoleAuthorizationStrategy.authorize(editLink, ENABLE, Entitlement.REALM_UPDATE);
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REALM_UPDATE)) {
+            MetaDataRoleAuthorizationStrategy.authorize(editLink, ENABLE, StandardEntitlement.REALM_UPDATE);
         }
 
         content.addOrReplace(editLink);

@@ -54,7 +54,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         this.pageRef = pageRef;
 
         setOutputMarkupId(true);
-        
+
         super.add(new Fragment("panelClaim", "emptyFragment", this));
         super.add(new Fragment("panelManageResources", "emptyFragment", this));
         super.add(new Fragment("panelManageUsers", "emptyFragment", this));
@@ -601,18 +601,18 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment.addOrReplace(
                         new IndicatingOnConfirmAjaxLink<Void>("unassignLink", pageRef, "confirmUnassign") {
 
-                            private static final long serialVersionUID = -6957616042924610294L;
+                    private static final long serialVersionUID = -6957616042924610294L;
 
-                            @Override
-                            protected void onClickInternal(final AjaxRequestTarget target) {
-                                link.onClick(target, model.getObject());
-                            }
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
 
-                            @Override
-                            public String getAjaxIndicatorMarkupId() {
-                                return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
-                            }
-                        }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case ASSIGN:
@@ -640,18 +640,18 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment.addOrReplace(
                         new IndicatingOnConfirmAjaxLink<Void>("deprovisionLink", pageRef, "confirmDeprovision") {
 
-                            private static final long serialVersionUID = -6957616042924610295L;
+                    private static final long serialVersionUID = -6957616042924610295L;
 
-                            @Override
-                            protected void onClickInternal(final AjaxRequestTarget target) {
-                                link.onClick(target, model.getObject());
-                            }
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
 
-                            @Override
-                            public String getAjaxIndicatorMarkupId() {
-                                return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
-                            }
-                        }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case PROVISION:
@@ -927,8 +927,8 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
          */
         public ActionLinksPanel<T> build(final String id, final T modelObject) {
             final ActionLinksPanel<T> panel = modelObject == null
-                    ? new ActionLinksPanel<T>(id, new Model<T>(), this.pageRef)
-                    : new ActionLinksPanel<T>(id, new Model<T>(modelObject), this.pageRef);
+                    ? new ActionLinksPanel<>(id, new Model<T>(), this.pageRef)
+                    : new ActionLinksPanel<>(id, new Model<>(modelObject), this.pageRef);
 
             panel.setDisableIndicator(disableIndicator);
 

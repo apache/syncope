@@ -53,6 +53,7 @@ public enum ClientExceptionType {
     InvalidVirSchema(Response.Status.BAD_REQUEST),
     InvalidMapping(Response.Status.BAD_REQUEST),
     InvalidRealm(Response.Status.BAD_REQUEST),
+    InvalidRole(Response.Status.BAD_REQUEST),
     InvalidUser(Response.Status.BAD_REQUEST),
     InvalidExternalResource(Response.Status.BAD_REQUEST),
     InvalidNotification(Response.Status.BAD_REQUEST),

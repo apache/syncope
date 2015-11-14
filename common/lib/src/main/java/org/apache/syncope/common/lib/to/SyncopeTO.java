@@ -59,6 +59,8 @@ public class SyncopeTO extends AbstractBaseBean {
 
     private String passwordGenerator;
 
+    private final List<String> entitlements = new ArrayList<>();
+
     private final List<String> reportlets = new ArrayList<>();
 
     private final List<String> accountRules = new ArrayList<>();
@@ -142,6 +144,13 @@ public class SyncopeTO extends AbstractBaseBean {
 
     public void setPasswordGenerator(final String passwordGenerator) {
         this.passwordGenerator = passwordGenerator;
+    }
+
+    @XmlElementWrapper(name = "entitlements")
+    @XmlElement(name = "entitlement")
+    @JsonProperty("entitlements")
+    public List<String> getEntitlements() {
+        return entitlements;
     }
 
     @XmlElementWrapper(name = "reportlets")

@@ -35,25 +35,24 @@ import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
-public abstract class AbstractAnyRestClient extends BaseRestClient {
+public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestClient {
 
     private static final long serialVersionUID = 1962529678091410544L;
 
     public abstract int count(String realm);
 
-    public abstract List<? extends AnyTO> list(
-            String realm, int page, int size, final SortParam<String> sort, final String type);
+    public abstract List<T> list(String realm, int page, int size, final SortParam<String> sort, final String type);
 
     public abstract int searchCount(String realm, String fiql, final String type);
 
-    public abstract List<? extends AnyTO> search(
+    public abstract List<T> search(
             String realm, String fiql, int page, int size, final SortParam<String> sort, final String type);
 
     public abstract ConnObjectTO readConnObject(String resourceName, Long key);
 
-    public abstract <T extends AnyTO> ProvisioningResult<T> delete(String etag, Long key);
+    public abstract ProvisioningResult<T> delete(String etag, Long key);
 
-    protected <T extends AnyTO, E extends AnyService<T, ?>> ProvisioningResult<T> delete(
+    protected <E extends AnyService<T, ?>> ProvisioningResult<T> delete(
             final Class<E> serviceClass, final Class<T> objectType, final String etag, final Long key) {
         ProvisioningResult<T> result;
         synchronized (this) {

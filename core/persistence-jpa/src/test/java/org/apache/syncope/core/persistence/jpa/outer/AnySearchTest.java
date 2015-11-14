@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -86,10 +86,10 @@ public class AnySearchTest extends AbstractTest {
         // 1. create role with dynamic membership
         Role role = entityFactory.newEntity(Role.class);
         role.setName("new");
-        role.addRealm(realmDAO.getRoot());
-        role.addRealm(realmDAO.find("/even/two"));
-        role.getEntitlements().add(Entitlement.LOG_LIST);
-        role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
+        role.add(realmDAO.getRoot());
+        role.add(realmDAO.find("/even/two"));
+        role.getEntitlements().add(StandardEntitlement.LOG_LIST);
+        role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
 
         DynRoleMembership dynMembership = entityFactory.newEntity(DynRoleMembership.class);
         dynMembership.setFIQLCond("cool==true");

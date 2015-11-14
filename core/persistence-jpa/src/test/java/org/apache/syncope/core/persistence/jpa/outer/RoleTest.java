@@ -30,7 +30,7 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -99,10 +99,10 @@ public class RoleTest extends AbstractTest {
         // 1. create role with dynamic membership
         Role role = entityFactory.newEntity(Role.class);
         role.setName("new");
-        role.addRealm(realmDAO.getRoot());
-        role.addRealm(realmDAO.find("/even/two"));
-        role.getEntitlements().add(Entitlement.LOG_LIST);
-        role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
+        role.add(realmDAO.getRoot());
+        role.add(realmDAO.find("/even/two"));
+        role.getEntitlements().add(StandardEntitlement.LOG_LIST);
+        role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
 
         DynRoleMembership dynMembership = entityFactory.newEntity(DynRoleMembership.class);
         dynMembership.setFIQLCond("cool==true");
@@ -166,10 +166,10 @@ public class RoleTest extends AbstractTest {
         // 0. create role
         Role role = entityFactory.newEntity(Role.class);
         role.setName("new");
-        role.addRealm(realmDAO.getRoot());
-        role.addRealm(realmDAO.find("/even/two"));
-        role.getEntitlements().add(Entitlement.LOG_LIST);
-        role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
+        role.add(realmDAO.getRoot());
+        role.add(realmDAO.find("/even/two"));
+        role.getEntitlements().add(StandardEntitlement.LOG_LIST);
+        role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
 
         role = roleDAO.save(role);
         assertNotNull(role);

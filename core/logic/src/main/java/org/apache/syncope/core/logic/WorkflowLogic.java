@@ -22,7 +22,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -57,19 +57,19 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
                 : WorkflowDefinitionFormat.XML;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
     public void exportAnyObjectDefinition(final MediaType format, final OutputStream os) {
         exportDefinition(awfAdapter, getFormat(format), os);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
     public void exportUserDefinition(final MediaType format, final OutputStream os) {
         exportDefinition(uwfAdapter, getFormat(format), os);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
     public void exportGroupDefinition(final MediaType format, final OutputStream os) {
         exportDefinition(gwfAdapter, getFormat(format), os);
@@ -79,19 +79,19 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
         adapter.exportDiagram(os);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
     public void exportAnyObjectDiagram(final OutputStream os) {
         exportDiagram(awfAdapter, os);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
     public void exportUserDiagram(final OutputStream os) {
         exportDiagram(uwfAdapter, os);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
     public void exportGroupDiagram(final OutputStream os) {
         exportDiagram(gwfAdapter, os);
@@ -103,17 +103,17 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
         adapter.importDefinition(format, definition);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_UPDATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_UPDATE + "')")
     public void importAnyObjectDefinition(final MediaType format, final String definition) {
         importDefinition(awfAdapter, getFormat(format), definition);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_UPDATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_UPDATE + "')")
     public void importUserDefinition(final MediaType format, final String definition) {
         importDefinition(uwfAdapter, getFormat(format), definition);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_UPDATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_UPDATE + "')")
     public void importGroupDefinition(final MediaType format, final String definition) {
         importDefinition(gwfAdapter, getFormat(format), definition);
     }

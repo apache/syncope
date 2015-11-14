@@ -27,6 +27,7 @@ import org.apache.wicket.PageReference;
 
 /**
  * Modal window with Display user attributes form.
+ *
  * @param <T>
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -41,6 +42,7 @@ public class AnyDisplayAttributesModalPage<T extends AnyTO> extends DisplayAttri
             final PageReference pageRef,
             final List<String> schemaNames,
             final List<String> dSchemaNames) {
+
         super(modal, pageRef, schemaNames, dSchemaNames);
     }
 

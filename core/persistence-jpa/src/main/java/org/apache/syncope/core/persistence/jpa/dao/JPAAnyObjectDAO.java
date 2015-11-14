@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,14 +28,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.core.misc.EntitlementsHolder;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
@@ -66,7 +62,8 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Override
     protected void securityChecks(final AnyObject anyObject) {
-        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_READ);
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
+                getFor(anyObject.getType().getKey(), EntitlementsHolder.AnyEntitlement.READ));
         boolean authorized = CollectionUtils.exists(authRealms, new Predicate<String>() {
 
             @Override
@@ -77,24 +74,6 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         if (authRealms == null || authRealms.isEmpty() || !authorized) {
             throw new DelegatedAdministrationException(AnyTypeKind.ANY_OBJECT, anyObject.getKey());
         }
-    }
-
-    @Override
-    public final List<AnyObject> findAll(final String anyTypeName,
-            final Set<String> adminRealms, final int page, final int itemsPerPage) {
-
-        return findAll(anyTypeName, adminRealms, page, itemsPerPage, Collections.<OrderByClause>emptyList());
-    }
-
-    @Override
-    public final List<AnyObject> findAll(final String anyTypeName,
-            final Set<String> adminRealms, final int page, final int itemsPerPage, final List<OrderByClause> orderBy) {
-
-        AnyTypeCond anyTypeCond = new AnyTypeCond();
-        anyTypeCond.setAnyTypeName(anyTypeName);
-
-        return searchDAO.search(adminRealms, SearchCond.getLeafCond(anyTypeCond), page, itemsPerPage, orderBy,
-                getAnyUtils().getAnyTypeKind());
     }
 
     @Override

@@ -27,7 +27,7 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.rest.CamelRouteRestClient;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.CamelEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -119,7 +119,7 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
         WebMarkupContainer routeContainer = new WebMarkupContainer("camelRoutesContainer");
         routeContainer.add(routeTable);
         routeContainer.setOutputMarkupId(true);
-        MetaDataRoleAuthorizationStrategy.authorize(routeContainer, ENABLE, Entitlement.ROUTE_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(routeContainer, ENABLE, CamelEntitlement.ROUTE_LIST);
         add(routeContainer);
     }
 
@@ -129,7 +129,7 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
 
         private final SortableDataProviderComparator<CamelRouteTO> comparator;
 
-       CamelRouteProvider() {
+        CamelRouteProvider() {
             setSort("key", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
@@ -155,8 +155,8 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
                     ? restClient.list(AnyTypeKind.USER).size()
                     : 0)
                     + (restClient.isCamelEnabledFor(AnyTypeKind.GROUP)
-                            ? restClient.list(AnyTypeKind.GROUP).size()
-                            : 0);
+                    ? restClient.list(AnyTypeKind.GROUP).size()
+                    : 0);
         }
 
         @Override

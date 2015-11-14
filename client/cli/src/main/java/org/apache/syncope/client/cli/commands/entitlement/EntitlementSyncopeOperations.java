@@ -19,24 +19,29 @@
 package org.apache.syncope.client.cli.commands.entitlement;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.commands.role.RoleSyncopeOperations;
 import org.apache.syncope.client.cli.commands.user.UserSyncopeOperations;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.SyncopeTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 
 public class EntitlementSyncopeOperations {
+
+    private final SyncopeTO syncopeTO = SyncopeServices.get(SyncopeService.class).info();
 
     private final UserSyncopeOperations userSyncopeOperations = new UserSyncopeOperations();
 
     private final RoleSyncopeOperations roleSyncopeOperations = new RoleSyncopeOperations();
 
-    public Set<String> list() {
-        return Entitlement.values();
+    public List<String> list() {
+        return syncopeTO.getEntitlements();
     }
-    
+
     public boolean exists(final String entitlement) {
         return list().contains(entitlement);
     }

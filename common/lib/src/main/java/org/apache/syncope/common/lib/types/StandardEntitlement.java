@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
-public final class Entitlement {
+public final class StandardEntitlement {
 
     public static final String ANONYMOUS = "ANONYMOUS";
 
@@ -107,18 +107,6 @@ public final class Entitlement {
     public static final String GROUP_UPDATE = "GROUP_UPDATE";
 
     public static final String GROUP_DELETE = "GROUP_DELETE";
-
-    public static final String ANY_OBJECT_SEARCH = "ANY_OBJECT_SEARCH";
-
-    public static final String ANY_OBJECT_LIST = "ANY_OBJECT_LIST";
-
-    public static final String ANY_OBJECT_CREATE = "ANY_OBJECT_CREATE";
-
-    public static final String ANY_OBJECT_READ = "ANY_OBJECT_READ";
-
-    public static final String ANY_OBJECT_UPDATE = "ANY_OBJECT_UPDATE";
-
-    public static final String ANY_OBJECT_DELETE = "ANY_OBJECT_DELETE";
 
     public static final String RESOURCE_LIST = "RESOURCE_LIST";
 
@@ -234,31 +222,25 @@ public final class Entitlement {
 
     public static final String SECURITY_QUESTION_DELETE = "SECURITY_QUESTION_DELETE";
 
-    public static final String ROUTE_READ = "ROUTE_READ";
-
-    public static final String ROUTE_LIST = "ROUTE_LIST";
-
-    public static final String ROUTE_UPDATE = "ROUTE_UPDATE";
-
-    private static final Set<String> ENTITLEMENTS;
+    private static final Set<String> VALUES;
 
     static {
         Set<String> values = new TreeSet<>();
-        for (Field field : Entitlement.class.getDeclaredFields()) {
+        for (Field field : StandardEntitlement.class.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers()) && String.class.equals(field.getType())) {
                 values.add(field.getName());
             }
         }
         values.remove(ANONYMOUS);
         values.remove(MUST_CHANGE_PASSWORD);
-        ENTITLEMENTS = Collections.unmodifiableSet(values);
+        VALUES = Collections.unmodifiableSet(values);
     }
 
     public static Set<String> values() {
-        return ENTITLEMENTS;
+        return VALUES;
     }
 
-    private Entitlement() {
+    private StandardEntitlement() {
         // private constructor for static utility class
     }
 }

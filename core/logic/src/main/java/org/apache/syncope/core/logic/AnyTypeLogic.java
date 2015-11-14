@@ -28,7 +28,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.misc.EntitlementsHolder;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -69,12 +70,14 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         }, new ArrayList<AnyTypeTO>());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANYTYPE_CREATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_CREATE + "')")
     public AnyTypeTO create(final AnyTypeTO anyTypeTO) {
-        return binder.getAnyTypeTO(anyTypeDAO.save(binder.create(anyTypeTO)));
+        AnyTypeTO result = binder.getAnyTypeTO(anyTypeDAO.save(binder.create(anyTypeTO)));
+        EntitlementsHolder.getInstance().addFor(result.getKey());
+        return result;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANYTYPE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_UPDATE + "')")
     public AnyTypeTO update(final AnyTypeTO anyTypeTO) {
         AnyType anyType = anyTypeDAO.find(anyTypeTO.getKey());
         if (anyType == null) {
@@ -82,13 +85,17 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
             throw new NotFoundException(String.valueOf(anyTypeTO.getKey()));
         }
 
+        EntitlementsHolder.getInstance().removeFor(anyTypeTO.getKey());
+
         binder.update(anyType, anyTypeTO);
         anyType = anyTypeDAO.save(anyType);
 
-        return binder.getAnyTypeTO(anyType);
+        AnyTypeTO result = binder.getAnyTypeTO(anyType);
+        EntitlementsHolder.getInstance().addFor(result.getKey());
+        return result;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANYTYPE_DELETE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_DELETE + "')")
     public AnyTypeTO delete(final String key) {
         AnyType anyType = anyTypeDAO.find(key);
         if (anyType == null) {
@@ -105,6 +112,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
             sce.getElements().add(e.getMessage());
             throw sce;
         }
+        EntitlementsHolder.getInstance().removeFor(deleted.getKey());
         return deleted;
     }
 

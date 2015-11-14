@@ -29,7 +29,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.misc.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.misc.security.SyncopeGrantedAuthority;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -60,14 +60,14 @@ public class MultitenancyTest extends AbstractTest {
 
     @BeforeClass
     public static void setAuthContext() {
-        List<GrantedAuthority> authorities = CollectionUtils.collect(Entitlement.values(),
+        List<GrantedAuthority> authorities = CollectionUtils.collect(StandardEntitlement.values(),
                 new Transformer<String, GrantedAuthority>() {
 
-                    @Override
-                    public GrantedAuthority transform(final String entitlement) {
-                        return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
-                    }
-                }, new ArrayList<GrantedAuthority>());
+            @Override
+            public GrantedAuthority transform(final String entitlement) {
+                return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
+            }
+        }, new ArrayList<GrantedAuthority>());
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 new org.springframework.security.core.userdetails.User(

@@ -28,7 +28,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.syncope.common.lib.to.AnyTO;
 
-public class AttrColumn extends AbstractColumn<AnyTO, String> {
+public class AttrColumn<T extends AnyTO> extends AbstractColumn<T, String> {
 
     private static final long serialVersionUID = 2624734332447371372L;
 
@@ -45,8 +45,9 @@ public class AttrColumn extends AbstractColumn<AnyTO, String> {
     }
 
     @Override
-    public void populateItem(final Item<ICellPopulator<AnyTO>> cellItem, final String componentId,
-            final IModel<AnyTO> rowModel) {
+    public void populateItem(
+            final Item<ICellPopulator<T>> cellItem, final String componentId, final IModel<T> rowModel) {
+
         List<String> values = null;
 
         switch (schemaType) {
@@ -73,12 +74,10 @@ public class AttrColumn extends AbstractColumn<AnyTO, String> {
 
         if (values == null || values.isEmpty()) {
             cellItem.add(new Label(componentId, ""));
+        } else if (values.size() == 1) {
+            cellItem.add(new Label(componentId, values.get(0)));
         } else {
-            if (values.size() == 1) {
-                cellItem.add(new Label(componentId, values.get(0)));
-            } else {
-                cellItem.add(new Label(componentId, values.toString()));
-            }
+            cellItem.add(new Label(componentId, values.toString()));
         }
     }
 }

@@ -26,7 +26,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
@@ -44,7 +44,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
     @Autowired
     private RelationshipTypeDAO relationshipTypeDAO;
 
-    @PreAuthorize("hasRole('" + Entitlement.RELATIONSHIPTYPE_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.RELATIONSHIPTYPE_READ + "')")
     public RelationshipTypeTO read(final String key) {
         RelationshipType relationshipType = relationshipTypeDAO.find(key);
         if (relationshipType == null) {
@@ -56,24 +56,24 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
         return binder.getRelationshipTypeTO(relationshipType);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.RELATIONSHIPTYPE_LIST + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.RELATIONSHIPTYPE_LIST + "')")
     public List<RelationshipTypeTO> list() {
         return CollectionUtils.collect(relationshipTypeDAO.findAll(),
                 new Transformer<RelationshipType, RelationshipTypeTO>() {
 
-                    @Override
-                    public RelationshipTypeTO transform(final RelationshipType input) {
-                        return binder.getRelationshipTypeTO(input);
-                    }
-                }, new ArrayList<RelationshipTypeTO>());
+            @Override
+            public RelationshipTypeTO transform(final RelationshipType input) {
+                return binder.getRelationshipTypeTO(input);
+            }
+        }, new ArrayList<RelationshipTypeTO>());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.RELATIONSHIPTYPE_CREATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.RELATIONSHIPTYPE_CREATE + "')")
     public RelationshipTypeTO create(final RelationshipTypeTO relationshipTypeTO) {
         return binder.getRelationshipTypeTO(relationshipTypeDAO.save(binder.create(relationshipTypeTO)));
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.RELATIONSHIPTYPE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.RELATIONSHIPTYPE_UPDATE + "')")
     public RelationshipTypeTO update(final RelationshipTypeTO relationshipTypeTO) {
         RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTypeTO.getKey());
         if (relationshipType == null) {
@@ -87,7 +87,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
         return binder.getRelationshipTypeTO(relationshipType);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.RELATIONSHIPTYPE_DELETE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.RELATIONSHIPTYPE_DELETE + "')")
     public RelationshipTypeTO delete(final String key) {
         RelationshipType relationshipType = relationshipTypeDAO.find(key);
         if (relationshipType == null) {

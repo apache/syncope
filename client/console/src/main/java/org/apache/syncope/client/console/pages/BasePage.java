@@ -24,7 +24,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -68,10 +68,11 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         add(todosContainer);
         Label todos = new Label("todos", "0");
         todosContainer.add(todos);
-        if (SyncopeConsoleSession.get().owns(Entitlement.WORKFLOW_FORM_LIST)) {
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_LIST)) {
             todos.setDefaultModelObject(userWorkflowRestClient.getForms().size());
         }
-        MetaDataRoleAuthorizationStrategy.authorize(todosContainer, WebPage.RENDER, Entitlement.WORKFLOW_FORM_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(todosContainer, WebPage.RENDER,
+                StandardEntitlement.WORKFLOW_FORM_LIST);
 
         // menu
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("dashboard"));
@@ -86,13 +87,13 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         liContainer = new WebMarkupContainer(getLIContainerId("schemas"));
         confULContainer.add(liContainer);
         BookmarkablePageLink<Page> schemaLink = new BookmarkablePageLink<>("schemas", Schemas.class);
-//        MetaDataRoleAuthorizationStrategy.authorize(schemaLink, WebPage.ENABLE, Entitlement.SCHEMA_LIST);
+//        MetaDataRoleAuthorizationStrategy.authorize(schemaLink, WebPage.ENABLE, StandardEntitlement.SCHEMA_LIST);
         liContainer.add(schemaLink);
 
         liContainer = new WebMarkupContainer(getLIContainerId("workflow"));
         confULContainer.add(liContainer);
         BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("workflow", Workflow.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, Entitlement.WORKFLOW_DEF_READ);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("realms"));

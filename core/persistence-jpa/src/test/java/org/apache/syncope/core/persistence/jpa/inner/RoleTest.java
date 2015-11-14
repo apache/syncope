@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -50,7 +50,7 @@ public class RoleTest extends AbstractTest {
         assertNotNull(role1.getName());
         assertFalse(role1.getRealms().isEmpty());
         assertFalse(role1.getEntitlements().isEmpty());
-        assertTrue(role1.getEntitlements().contains(Entitlement.USER_LIST));
+        assertTrue(role1.getEntitlements().contains(StandardEntitlement.USER_LIST));
 
         Role role2 = roleDAO.find(role1.getName());
         assertEquals(role1, role2);
@@ -70,10 +70,10 @@ public class RoleTest extends AbstractTest {
     public void save() {
         Role role = entityFactory.newEntity(Role.class);
         role.setName("new");
-        role.addRealm(realmDAO.getRoot());
-        role.addRealm(realmDAO.find("/even/two"));
-        role.getEntitlements().add(Entitlement.LOG_LIST);
-        role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
+        role.add(realmDAO.getRoot());
+        role.add(realmDAO.find("/even/two"));
+        role.getEntitlements().add(StandardEntitlement.LOG_LIST);
+        role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
 
         Role actual = roleDAO.save(role);
         assertNotNull(actual);

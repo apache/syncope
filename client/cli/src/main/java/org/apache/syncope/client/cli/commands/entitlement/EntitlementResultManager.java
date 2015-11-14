@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.client.cli.commands.entitlement;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.to.RoleTO;
 
 public class EntitlementResultManager extends CommonsResultManager {
 
-    public void toView(final Set<String> entitlements) {
+    public void toView(final Collection<String> entitlements) {
         System.out.println("");
         for (final String entitlement : entitlements) {
             System.out.println("- " + entitlement);
@@ -33,7 +32,7 @@ public class EntitlementResultManager extends CommonsResultManager {
         System.out.println("");
     }
 
-    public void rolesToView(final Set<RoleTO> roles) {
+    public void rolesToView(final Collection<RoleTO> roles) {
         System.out.println("");
         for (final RoleTO role : roles) {
             printRole(role);
@@ -48,7 +47,7 @@ public class EntitlementResultManager extends CommonsResultManager {
         System.out.println("");
     }
 
-    private void printRealms(final List<String> realms) {
+    private void printRealms(final Collection<String> realms) {
         for (final String realm : realms) {
             System.out.println("       - " + realm);
         }

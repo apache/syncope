@@ -29,7 +29,6 @@ import org.apache.syncope.client.console.panels.SchemasPanel;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -44,6 +43,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.syncope.client.console.panels.SchemaModalPanel;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
 public class Schemas extends BasePage {
@@ -134,8 +134,8 @@ public class Schemas extends BasePage {
             }
         };
 
-        if (SyncopeConsoleSession.get().owns(Entitlement.SCHEMA_CREATE)) {
-            MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE, Entitlement.SCHEMA_CREATE);
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.SCHEMA_CREATE)) {
+            MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE, StandardEntitlement.SCHEMA_CREATE);
         }
 
         return createLink;

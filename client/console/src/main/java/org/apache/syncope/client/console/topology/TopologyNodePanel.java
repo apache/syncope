@@ -33,7 +33,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -140,14 +140,14 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                 modal.header(new Model<>(MessageFormat.format(getString("connector.new"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.addSumbitButton(), ENABLE, Entitlement.CONNECTOR_CREATE);
+                        authorize(modal.addSumbitButton(), ENABLE, StandardEntitlement.CONNECTOR_CREATE);
 
                 modal.show(true);
             }
         };
         fragment.add(create);
 
-        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, Entitlement.CONNECTOR_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.CONNECTOR_CREATE);
 
         return fragment;
     }
@@ -175,7 +175,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
         fragment.add(delete);
         delete.add(new ConfirmationModalBehavior());
 
-        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, Entitlement.CONNECTOR_DELETE);
+        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.CONNECTOR_DELETE);
 
         final AjaxLink<String> create = new ClearIndicatingAjaxLink<String>("create", pageRef) {
 
@@ -195,14 +195,14 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                 modal.header(new Model<>(MessageFormat.format(getString("resource.new"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.addSumbitButton(), ENABLE, Entitlement.RESOURCE_CREATE);
+                        authorize(modal.addSumbitButton(), ENABLE, StandardEntitlement.RESOURCE_CREATE);
 
                 modal.show(true);
             }
         };
         fragment.add(create);
 
-        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, Entitlement.RESOURCE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.RESOURCE_CREATE);
 
         final AjaxLink<String> edit = new ClearIndicatingAjaxLink<String>("edit", pageRef) {
 
@@ -220,14 +220,14 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                 modal.header(new Model<>(MessageFormat.format(getString("connector.edit"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.addSumbitButton(), ENABLE, Entitlement.CONNECTOR_UPDATE);
+                        authorize(modal.addSumbitButton(), ENABLE, StandardEntitlement.CONNECTOR_UPDATE);
 
                 modal.show(true);
             }
         };
         fragment.add(edit);
 
-        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, Entitlement.CONNECTOR_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.CONNECTOR_UPDATE);
 
         return fragment;
     }
@@ -257,7 +257,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
         delete.add(new ConfirmationModalBehavior());
 
-        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, Entitlement.RESOURCE_DELETE);
+        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.RESOURCE_DELETE);
 
         final AjaxLink<String> edit = new ClearIndicatingAjaxLink<String>("edit", pageRef) {
 
@@ -275,14 +275,14 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                 modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.addSumbitButton(), ENABLE, Entitlement.RESOURCE_UPDATE);
+                        authorize(modal.addSumbitButton(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
 
                 modal.show(true);
             }
         };
         fragment.add(edit);
 
-        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, Entitlement.RESOURCE_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
 
         return fragment;
     }

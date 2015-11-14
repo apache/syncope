@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -50,15 +49,6 @@ public class AnyObjectTest extends AbstractTest {
     public void findAll() {
         List<AnyObject> list = anyObjectDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 100);
         assertFalse(list.isEmpty());
-    }
-
-    @Test
-    public void findAllByType() {
-        List<AnyObject> list = anyObjectDAO.findAll("PRINTER", SyncopeConstants.FULL_ADMIN_REALMS, 1, 100);
-        assertFalse(list.isEmpty());
-
-        list = anyObjectDAO.findAll("UNEXISTING", SyncopeConstants.FULL_ADMIN_REALMS, 1, 100);
-        assertTrue(list.isEmpty());
     }
 
     @Test

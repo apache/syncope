@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
@@ -31,7 +30,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -39,8 +37,8 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.core.misc.EntitlementsHolder;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -48,10 +46,10 @@ import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,68 +72,58 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
     @Autowired
     protected AnyObjectProvisioningManager provisioningManager;
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_READ + "')")
     @Transactional(readOnly = true)
     @Override
     public AnyObjectTO read(final Long key) {
         return binder.getAnyObjectTO(key);
     }
 
-    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     @Override
     public int count(final List<String> realms) {
-        return anyObjectDAO.count(getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realms));
+        throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_LIST + "')")
     @Transactional(readOnly = true)
     @Override
     public List<AnyObjectTO> list(
             final int page, final int size, final List<OrderByClause> orderBy,
             final List<String> realms, final boolean details) {
 
-        return list(null, page, size, orderBy, realms, details);
+        throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_LIST + "')")
-    @Transactional(readOnly = true)
-    public List<AnyObjectTO> list(final String type,
-            final int page, final int size, final List<OrderByClause> orderBy,
-            final List<String> realms, final boolean details) {
-
-        Set<String> effectiveRealms = getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realms);
-
-        return CollectionUtils.collect(StringUtils.isBlank(type)
-                ? anyObjectDAO.findAll(effectiveRealms, page, size, orderBy)
-                : anyObjectDAO.findAll(type, effectiveRealms, page, size, orderBy),
-                new Transformer<AnyObject, AnyObjectTO>() {
-
-                    @Override
-                    public AnyObjectTO transform(final AnyObject input) {
-                        return binder.getAnyObjectTO(input, details);
-                    }
-                }, new ArrayList<AnyObjectTO>());
-    }
-
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
-    public int searchCount(final SearchCond searchCondition, final List<String> realms) {
-        return searchDAO.count(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_SEARCH), realms),
-                searchCondition, AnyTypeKind.ANY_OBJECT);
+    public int searchCount(final SearchCond searchCond, final List<String> realms) {
+        if (searchCond.hasAnyTypeCond() == null) {
+            throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
+        }
+
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
+                        getFor(searchCond.hasAnyTypeCond(), EntitlementsHolder.AnyEntitlement.SEARCH)),
+                realms);
+
+        return searchDAO.count(effectiveRealms, searchCond, AnyTypeKind.ANY_OBJECT);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
-    public List<AnyObjectTO> search(final SearchCond searchCondition, final int page, final int size,
+    public List<AnyObjectTO> search(final SearchCond searchCond, final int page, final int size,
             final List<OrderByClause> orderBy, final List<String> realms, final boolean details) {
 
+        if (searchCond.hasAnyTypeCond() == null) {
+            throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
+        }
+
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
+                        getFor(searchCond.hasAnyTypeCond(), EntitlementsHolder.AnyEntitlement.SEARCH)),
+                realms);
+
         List<AnyObject> matchingAnyObjects = searchDAO.search(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_SEARCH), realms),
-                searchCondition, page, size, orderBy, AnyTypeKind.ANY_OBJECT);
+                effectiveRealms, searchCond, page, size, orderBy, AnyTypeKind.ANY_OBJECT);
         return CollectionUtils.collect(matchingAnyObjects, new Transformer<AnyObject, AnyObjectTO>() {
 
             @Override
@@ -145,7 +133,6 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         }, new ArrayList<AnyObjectTO>());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_CREATE + "')")
     @Override
     public ProvisioningResult<AnyObjectTO> create(final AnyObjectTO anyObjectTO, final boolean nullPriorityAsync) {
         Pair<AnyObjectTO, List<LogicActions>> before = beforeCreate(anyObjectTO);
@@ -153,23 +140,21 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         if (before.getLeft().getRealm() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
         }
-
-        Set<String> effectiveRealms = getEffectiveRealms(
-                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_CREATE),
-                Collections.singleton(before.getLeft().getRealm()));
-        securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
-
         if (before.getLeft().getType() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
         }
 
-        Pair<Long, List<PropagationStatus>> created =
-                provisioningManager.create(before.getLeft(), nullPriorityAsync);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
+                        getFor(before.getLeft().getType(), EntitlementsHolder.AnyEntitlement.CREATE)),
+                Collections.singleton(before.getLeft().getRealm()));
+        securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
+
+        Pair<Long, List<PropagationStatus>> created = provisioningManager.create(before.getLeft(), nullPriorityAsync);
 
         return after(binder.getAnyObjectTO(created.getKey()), created.getRight(), before.getRight());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
     public ProvisioningResult<AnyObjectTO> update(
             final AnyObjectPatch anyObjectPatch, final boolean nullPriorityAsync) {
@@ -177,29 +162,29 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         AnyObjectTO anyObjectTO = binder.getAnyObjectTO(anyObjectPatch.getKey());
         Pair<AnyObjectPatch, List<LogicActions>> before = beforeUpdate(anyObjectPatch, anyObjectTO.getRealm());
 
-        if (before.getLeft().getRealm() != null && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())) {
-            Set<String> requestedRealms = new HashSet<>();
-            requestedRealms.add(before.getLeft().getRealm().getValue());
-            Set<String> effectiveRealms = getEffectiveRealms(
-                    AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
-                    requestedRealms);
-            securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
-        }
+        String realm =
+                before.getLeft().getRealm() != null && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())
+                ? before.getLeft().getRealm().getValue()
+                : anyObjectTO.getRealm();
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
+                        getFor(anyObjectTO.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
+                Collections.singleton(realm));
+        securityChecks(effectiveRealms, realm, before.getLeft().getKey());
 
-        Pair<Long, List<PropagationStatus>> updated =
-                provisioningManager.update(anyObjectPatch, nullPriorityAsync);
+        Pair<Long, List<PropagationStatus>> updated = provisioningManager.update(anyObjectPatch, nullPriorityAsync);
 
         return after(binder.getAnyObjectTO(updated.getKey()), updated.getRight(), before.getRight());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_DELETE + "')")
     @Override
     public ProvisioningResult<AnyObjectTO> delete(final Long key, final boolean nullPriorityAsync) {
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
         Pair<AnyObjectTO, List<LogicActions>> before = beforeDelete(anyObject);
 
         Set<String> effectiveRealms = getEffectiveRealms(
-                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_DELETE),
+                AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
+                        getFor(before.getLeft().getType(), EntitlementsHolder.AnyEntitlement.DELETE)),
                 Collections.singleton(before.getLeft().getRealm()));
         securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
 
@@ -211,13 +196,13 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         return after(anyObjectTO, statuses, before.getRight());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
     public AnyObjectTO unlink(final Long key, final Collection<String> resources) {
         // security checks
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
-                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
+                        getFor(anyObject.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
                 Collections.singleton(anyObject.getRealm()));
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
@@ -234,13 +219,13 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         return binder.getAnyObjectTO(provisioningManager.unlink(patch));
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
     public AnyObjectTO link(final Long key, final Collection<String> resources) {
         // security checks
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
-                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
+                        getFor(anyObject.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
                 Collections.singleton(anyObject.getRealm()));
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
@@ -257,7 +242,6 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         return binder.getAnyObjectTO(provisioningManager.link(patch));
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
     public ProvisioningResult<AnyObjectTO> unassign(
             final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
@@ -265,7 +249,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         // security checks
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
-                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
+                        getFor(anyObject.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
                 Collections.singleton(anyObject.getRealm()));
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
@@ -282,7 +267,6 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         return update(patch, nullPriorityAsync);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
     public ProvisioningResult<AnyObjectTO> assign(
             final Long key,
@@ -294,7 +278,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         // security checks
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
-                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
+                        getFor(anyObject.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
                 Collections.singleton(anyObject.getRealm()));
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
@@ -311,7 +296,6 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         return update(patch, nullPriorityAsync);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
     public ProvisioningResult<AnyObjectTO> deprovision(
             final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
@@ -319,7 +303,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         // security checks
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
-                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
+                        getFor(anyObject.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
                 Collections.singleton(anyObject.getRealm()));
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
@@ -331,7 +316,6 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         return result;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
     public ProvisioningResult<AnyObjectTO> provision(
             final Long key,
@@ -343,7 +327,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         // security checks
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
-                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
+                        getFor(anyObject.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
                 Collections.singleton(anyObject.getRealm()));
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 

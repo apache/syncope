@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
+import org.apache.syncope.core.misc.EntitlementsHolder;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -127,6 +128,8 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
         syncopeTO.setGroupProvisioningManager(gProvisioningManager.getClass().getName());
         syncopeTO.setVirAttrCache(virAttrCache.getClass().getName());
         syncopeTO.setPasswordGenerator(passwordGenerator.getClass().getName());
+
+        syncopeTO.getEntitlements().addAll(EntitlementsHolder.getInstance().getValues());
 
         syncopeTO.getReportlets().addAll(implLookup.getClassNames(Type.REPORTLET));
         syncopeTO.getAccountRules().addAll(implLookup.getClassNames(Type.ACCOUNT_RULE));

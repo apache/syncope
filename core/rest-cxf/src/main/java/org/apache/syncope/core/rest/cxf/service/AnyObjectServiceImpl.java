@@ -18,17 +18,17 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.AnyObjectLogic;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,29 +51,25 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
     }
 
     @Override
+    public PagedResult<AnyObjectTO> list(final AnyListQuery listQuery) {
+        throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
+    }
+
+    @Override
     public PagedResult<AnyObjectTO> list(final String type, final AnyListQuery listQuery) {
         if (StringUtils.isBlank(type)) {
             return super.list(listQuery);
         }
 
-        CollectionUtils.transform(listQuery.getRealms(), new Transformer<String, String>() {
+        AnySearchQuery searchQuery = new AnySearchQuery();
+        searchQuery.setFiql(new AnyObjectFiqlSearchConditionBuilder().type(type).query());
+        searchQuery.setDetails(listQuery.isDetails());
+        searchQuery.setOrderBy(listQuery.getOrderBy());
+        searchQuery.setPage(listQuery.getPage());
+        searchQuery.setSize(listQuery.getSize());
+        searchQuery.setRealms(listQuery.getRealms());
 
-            @Override
-            public String transform(final String input) {
-                return StringUtils.prependIfMissing(input, SyncopeConstants.ROOT_REALM);
-            }
-        });
-
-        return buildPagedResult(
-                logic.list(
-                        type,
-                        listQuery.getPage(),
-                        listQuery.getSize(),
-                        getOrderByClauses(listQuery.getOrderBy()),
-                        listQuery.getRealms(),
-                        listQuery.isDetails()),
-                listQuery.getPage(),
-                listQuery.getSize(),
-                getAnyLogic().count(listQuery.getRealms()));
+        return search(searchQuery);
     }
+
 }

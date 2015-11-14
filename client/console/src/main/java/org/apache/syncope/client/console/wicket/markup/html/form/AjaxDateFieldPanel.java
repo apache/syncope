@@ -68,6 +68,7 @@ public class AjaxDateFieldPanel extends FieldPanel<Date> {
 
                         // T0DO: trying to resolve issue 730.
                         @Override
+                        @SuppressWarnings("unchecked")
                         public <C> IConverter<C> getConverter(final Class<C> type) {
                             return (IConverter<C>) new DateConverter() {
 

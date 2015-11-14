@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -109,7 +109,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @Autowired
     private ConnectorFactory connFactory;
 
-    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_CREATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_CREATE + "')")
     public ResourceTO create(final ResourceTO resourceTO) {
         if (StringUtils.isBlank(resourceTO.getKey())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
@@ -135,7 +135,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return binder.getResourceTO(resource);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_UPDATE + "')")
     public ResourceTO update(final ResourceTO resourceTO) {
         ExternalResource resource = resourceDAO.find(resourceTO.getKey());
         if (resource == null) {
@@ -156,7 +156,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return binder.getResourceTO(resource);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_DELETE + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_DELETE + "')")
     public ResourceTO delete(final String resourceName) {
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
@@ -170,7 +170,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return resourceToDelete;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_READ + "')")
     @Transactional(readOnly = true)
     public ResourceTO read(final String resourceName) {
         ExternalResource resource = resourceDAO.find(resourceName);
@@ -212,7 +212,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return ImmutableTriple.of(resource, anyType, provision);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_GET_CONNOBJECT + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_GET_CONNOBJECT + "')")
     @Transactional(readOnly = true)
     public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final Long anyKey) {
         Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
@@ -268,7 +268,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return connObjectUtils.getConnObjectTO(connectorObject);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_LIST_CONNOBJECT + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_LIST_CONNOBJECT + "')")
     @Transactional(readOnly = true)
     public Pair<SearchResult, List<ConnObjectTO>> listConnObjects(final String key, final String anyTypeKey,
             final Integer size, final String pagedResultsCookie, final List<OrderByClause> orderBy) {
@@ -304,7 +304,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return ImmutablePair.of(searchResult[0], connObjects);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public void check(final ResourceTO resourceTO) {
         ConnInstance connInstance = connInstanceDAO.find(resourceTO.getConnector());

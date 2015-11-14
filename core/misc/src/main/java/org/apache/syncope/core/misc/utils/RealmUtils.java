@@ -48,8 +48,10 @@ public final class RealmUtils {
 
     public static Set<String> normalize(final Collection<String> realms) {
         Set<String> normalized = new HashSet<>();
-        for (String realm : realms) {
-            normalizingAddTo(normalized, realm);
+        if (realms != null) {
+            for (String realm : realms) {
+                normalizingAddTo(normalized, realm);
+            }
         }
 
         return normalized;

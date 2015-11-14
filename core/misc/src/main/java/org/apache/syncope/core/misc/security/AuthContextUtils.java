@@ -28,7 +28,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.core.misc.EntitlementsHolder;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -91,14 +91,14 @@ public final class AuthContextUtils {
     }
 
     private static void setFakeAuth(final String domain) {
-        List<GrantedAuthority> authorities = CollectionUtils.collect(Entitlement.values(),
+        List<GrantedAuthority> authorities = CollectionUtils.collect(EntitlementsHolder.getInstance().getValues(),
                 new Transformer<String, GrantedAuthority>() {
 
-                    @Override
-                    public GrantedAuthority transform(final String entitlement) {
-                        return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
-                    }
-                }, new ArrayList<GrantedAuthority>());
+            @Override
+            public GrantedAuthority transform(final String entitlement) {
+                return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
+            }
+        }, new ArrayList<GrantedAuthority>());
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 new User(ApplicationContextProvider.getBeanFactory().getBean("adminUser", String.class),

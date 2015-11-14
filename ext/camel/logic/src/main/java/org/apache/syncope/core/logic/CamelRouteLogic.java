@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.CamelEntitlement;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
@@ -47,7 +47,7 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
     @Autowired
     private SyncopeCamelContext context;
 
-    @PreAuthorize("hasRole('" + Entitlement.ROUTE_LIST + "')")
+    @PreAuthorize("hasRole('" + CamelEntitlement.ROUTE_LIST + "')")
     @Transactional(readOnly = true)
     public List<CamelRouteTO> list(final AnyTypeKind anyTypeKind) {
         List<CamelRouteTO> routes = new ArrayList<>();
@@ -58,7 +58,7 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
         return routes;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ROUTE_READ + "')")
+    @PreAuthorize("hasRole('" + CamelEntitlement.ROUTE_READ + "')")
     @Transactional(readOnly = true)
     public CamelRouteTO read(final String key) {
         CamelRoute route = routeDAO.find(key);
@@ -69,7 +69,7 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
         return binder.getRouteTO(route);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ROUTE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + CamelEntitlement.ROUTE_UPDATE + "')")
     public void update(final CamelRouteTO routeTO) {
         CamelRoute route = routeDAO.find(routeTO.getKey());
         if (route == null) {
@@ -82,7 +82,7 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
         context.updateContext(routeTO.getKey());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.ROUTE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + CamelEntitlement.ROUTE_UPDATE + "')")
     public void restartContext() {
         context.restartContext();
     }

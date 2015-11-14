@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
  * Console client for invoking Rest Group's services.
  */
 @Component
-public class GroupRestClient extends AbstractAnyRestClient {
+public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
 
     private static final long serialVersionUID = -8549081557283519638L;
 

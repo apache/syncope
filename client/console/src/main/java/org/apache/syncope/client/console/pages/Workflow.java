@@ -22,7 +22,7 @@ import java.io.File;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.link.VeilPopupSettings;
-import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.image.Image;
@@ -45,20 +45,20 @@ public class Workflow extends BasePage {
         noActivitiEnabledForUsers.setOutputMarkupPlaceholderTag(true);
         add(noActivitiEnabledForUsers);
 
-        WebMarkupContainer workflowDefContainer = new WebMarkupContainer("workflowDefContainer");
-        workflowDefContainer.setOutputMarkupPlaceholderTag(true);
+        WebMarkupContainer workflowDef = new WebMarkupContainer("workflowDefContainer");
+        workflowDef.setOutputMarkupPlaceholderTag(true);
 
         if (wfRestClient.isActivitiEnabledForUsers()) {
             noActivitiEnabledForUsers.setVisible(false);
         } else {
-            workflowDefContainer.setVisible(false);
+            workflowDef.setVisible(false);
         }
 
         BookmarkablePageLink<Void> activitiModeler =
                 new BookmarkablePageLink<>("activitiModeler", ActivitiModelerPopupPage.class);
         activitiModeler.setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
-        MetaDataRoleAuthorizationStrategy.authorize(activitiModeler, ENABLE, Entitlement.WORKFLOW_DEF_READ);
-        workflowDefContainer.add(activitiModeler);
+        MetaDataRoleAuthorizationStrategy.authorize(activitiModeler, ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
+        workflowDef.add(activitiModeler);
         // Check if Activiti Modeler directory is found
         boolean activitiModelerEnabled = false;
         try {
@@ -71,8 +71,8 @@ public class Workflow extends BasePage {
 
         BookmarkablePageLink<Void> xmlEditor = new BookmarkablePageLink<>("xmlEditor", XMLEditorPopupPage.class);
         xmlEditor.setPopupSettings(new VeilPopupSettings().setHeight(480).setWidth(800));
-        MetaDataRoleAuthorizationStrategy.authorize(xmlEditor, ENABLE, Entitlement.WORKFLOW_DEF_READ);
-        workflowDefContainer.add(xmlEditor);
+        MetaDataRoleAuthorizationStrategy.authorize(xmlEditor, ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
+        workflowDef.add(xmlEditor);
 
         Image workflowDefDiagram = new Image("workflowDefDiagram", new Model<IResource>()) {
 
@@ -93,10 +93,10 @@ public class Workflow extends BasePage {
                 };
             }
         };
-        workflowDefContainer.add(workflowDefDiagram);
+        workflowDef.add(workflowDefDiagram);
 
-        MetaDataRoleAuthorizationStrategy.authorize(workflowDefContainer, ENABLE, Entitlement.WORKFLOW_DEF_READ);
-        add(workflowDefContainer);
+        MetaDataRoleAuthorizationStrategy.authorize(workflowDef, ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
+        add(workflowDef);
     }
 
 }

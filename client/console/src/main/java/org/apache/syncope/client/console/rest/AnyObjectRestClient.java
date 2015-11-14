@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
  * Console client for invoking Rest any type class services.
  */
 @Component
-public class AnyObjectRestClient extends AbstractAnyRestClient {
+public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
 
     private static final long serialVersionUID = -8874495991295283249L;
 
@@ -54,8 +54,9 @@ public class AnyObjectRestClient extends AbstractAnyRestClient {
     }
 
     @Override
-    public List<? extends AnyTO> list(final String realm, final int page, final int size, final SortParam<String> sort,
+    public List<AnyObjectTO> list(final String realm, final int page, final int size, final SortParam<String> sort,
             final String type) {
+
         return list(type, realm).getResult();
     }
 
@@ -70,9 +71,10 @@ public class AnyObjectRestClient extends AbstractAnyRestClient {
     }
 
     @Override
-    public List<? extends AnyTO> search(final String realm, final String fiql, final int page, final int size,
+    public List<AnyObjectTO> search(final String realm, final String fiql, final int page, final int size,
             final SortParam<String> sort,
             final String type) {
+
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
