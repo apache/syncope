@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.panels.AbstractModalPanel.FORM;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -30,10 +29,16 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractSchemaDetailsPanel extends Panel {
 
     private static final long serialVersionUID = -9096843774956370327L;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractSchemaDetailsPanel.class);
+
+    protected static final String FORM = "form";
 
     /**
      * Schema rest client for create and update operations
@@ -51,9 +56,9 @@ public abstract class AbstractSchemaDetailsPanel extends Panel {
     protected final Form<AbstractSchemaTO> schemaForm;
 
     protected final AbstractSchemaTO schemaTO;
-    
+
     private final AbstractBasePage page;
-    
+
     public AbstractSchemaDetailsPanel(
             final String id,
             final PageReference pageReference,

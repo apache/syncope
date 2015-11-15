@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.panels.AbstractModalPanel.LOG;
-
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
@@ -58,7 +56,7 @@ public class DerSchemaDetails extends AbstractSchemaDetailsPanel {
     @Override
     public void getOnSubmit(final AjaxRequestTarget target,
             final BaseModal<?> modal, final Form<?> form, final PageReference pageReference, final boolean createFlag) {
-        
+
         try {
             final DerSchemaTO updatedDerSchemaTO = DerSchemaTO.class.cast(form.getModelObject());
             if (createFlag) {

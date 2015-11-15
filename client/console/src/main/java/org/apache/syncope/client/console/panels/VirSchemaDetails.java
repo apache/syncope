@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.panels.AbstractModalPanel.LOG;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

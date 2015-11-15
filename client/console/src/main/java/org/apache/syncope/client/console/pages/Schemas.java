@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
