@@ -34,6 +34,7 @@ import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
+import org.apache.syncope.core.provisioning.api.sync.ReconciliationFilterBuilder;
 
 /**
  * Entry point for making requests on underlying connector bundles.
@@ -103,7 +104,21 @@ public interface Connector {
      * @param handler to be used to handle deltas.
      * @param options ConnId's OperationOptions.
      */
-    void getAllObjects(ObjectClass objectClass, SyncResultsHandler handler, OperationOptions options);
+    void fullReconciliation(ObjectClass objectClass, SyncResultsHandler handler, OperationOptions options);
+
+    /**
+     * Fetches remote objects (for use during filtered reconciliation).
+     *
+     * @param objectClass ConnId's object class.
+     * @param filterBuilder reconciliation filter builder
+     * @param handler to be used to handle deltas.
+     * @param options ConnId's OperationOptions.
+     */
+    void filteredReconciliation(
+            ObjectClass objectClass,
+            ReconciliationFilterBuilder filterBuilder,
+            SyncResultsHandler handler,
+            OperationOptions options);
 
     /**
      * Sync remote objects from a connector instance.

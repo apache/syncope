@@ -20,11 +20,14 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.common.lib.types.SyncMode;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
+import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASyncTask;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
+import org.apache.syncope.core.provisioning.api.sync.ReconciliationFilterBuilder;
 
 public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTaskCheck, ProvisioningTask> {
 
@@ -76,6 +79,30 @@ public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTas
                                 getTemplate(EntityViolationType.InvalidProvisioningTask, "Invalid class name")).
                                 addPropertyNode("actionsClassName").addConstraintViolation();
                     }
+                }
+            }
+
+            if (isValid && task instanceof SyncTask
+                    && ((SyncTask) task).getSyncMode() == SyncMode.FILTERED_RECONCILIATION) {
+
+                Class<?> filterBuilderClass = null;
+                boolean isAssignable = false;
+                try {
+                    filterBuilderClass = Class.forName(((SyncTask) task).getReconciliationFilterBuilderClassName());
+                    isAssignable = ReconciliationFilterBuilder.class.isAssignableFrom(filterBuilderClass);
+                } catch (Exception e) {
+                    LOG.error("Invalid {} specified",
+                            ReconciliationFilterBuilder.class.getName(), SyncActions.class.getName(), e);
+                    isValid = false;
+                }
+
+                if (filterBuilderClass == null || !isAssignable) {
+                    isValid = false;
+
+                    context.disableDefaultConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(
+                            getTemplate(EntityViolationType.InvalidProvisioningTask, "Invalid class name")).
+                            addPropertyNode("reconciliationFilterBuilderClassName").addConstraintViolation();
                 }
             }
         }

@@ -27,7 +27,7 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
 /**
- * Default (empty) implementation of SyncActions.
+ * Default (empty) implementation of {@link SyncActions}.
  */
 public abstract class DefaultSyncActions implements SyncActions {
 

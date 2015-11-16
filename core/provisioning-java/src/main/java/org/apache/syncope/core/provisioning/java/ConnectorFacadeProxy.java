@@ -66,6 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ClassUtils;
+import org.apache.syncope.core.provisioning.api.sync.ReconciliationFilterBuilder;
 
 public class ConnectorFacadeProxy implements Connector {
 
@@ -332,10 +333,22 @@ public class ConnectorFacadeProxy implements Connector {
     }
 
     @Override
-    public void getAllObjects(
-            final ObjectClass objectClass, final SyncResultsHandler handler, final OperationOptions options) {
+    public void fullReconciliation(
+            final ObjectClass objectClass,
+            final SyncResultsHandler handler,
+            final OperationOptions options) {
 
-        search(objectClass, null, new ResultsHandler() {
+        filteredReconciliation(objectClass, null, handler, options);
+    }
+
+    @Override
+    public void filteredReconciliation(
+            final ObjectClass objectClass,
+            final ReconciliationFilterBuilder filterBuilder,
+            final SyncResultsHandler handler,
+            final OperationOptions options) {
+
+        search(objectClass, filterBuilder == null ? null : filterBuilder.build(), new ResultsHandler() {
 
             @Override
             public boolean handle(final ConnectorObject obj) {

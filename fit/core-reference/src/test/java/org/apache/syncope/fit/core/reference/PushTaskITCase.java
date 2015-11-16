@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -67,7 +66,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void getPushActionsClasses() {
-        List<String> actions = syncopeService.info().getPushActions();
+        Set<String> actions = syncopeService.info().getPushActions();
         assertNotNull(actions);
     }
 

@@ -170,8 +170,7 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     realm destination: " + syncTaskTO.getDestinationRealm());
         System.out.println("     cron expression: " + syncTaskTO.getCronExpression());
         System.out.println("     description: " + syncTaskTO.getDescription());
-        System.out.println("     is full reconciliation: "
-                + syncTaskTO.isFullReconciliation());
+        System.out.println("     sync mode: " + syncTaskTO.getSyncMode());
         System.out.println("     perform create: " + syncTaskTO.isPerformCreate());
         System.out.println("     perform delete: " + syncTaskTO.isPerformDelete());
         System.out.println("     perform update: " + syncTaskTO.isPerformUpdate());

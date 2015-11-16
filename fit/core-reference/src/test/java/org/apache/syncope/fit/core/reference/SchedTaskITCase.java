@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
@@ -47,7 +48,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void getJobClasses() {
-        List<String> jobClasses = syncopeService.info().getTaskJobs();
+        Set<String> jobClasses = syncopeService.info().getTaskJobs();
         assertNotNull(jobClasses);
         assertFalse(jobClasses.isEmpty());
     }

@@ -140,6 +140,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             final SyncTask syncTask = (SyncTask) task;
             final SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
+            syncTask.setSyncMode(syncTaskTO.getSyncMode());
+            syncTask.setReconciliationFilterBuilderClassName(syncTaskTO.getReconciliationFilterBuilderClassName());
+
             syncTask.setDestinationRealm(realmDAO.find(syncTaskTO.getDestinationRealm()));
 
             syncTask.setJobDelegateClassName(SyncJobDelegate.class.getName());
@@ -175,8 +178,6 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                     return syncTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey());
                 }
             });
-
-            syncTask.setFullReconciliation(syncTaskTO.isFullReconciliation());
         }
 
         // 3. fill the remaining fields
@@ -289,7 +290,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         taskTO.setEndDate(latestExec == null ? null : latestExec.getEndDate());
 
         for (TaskExec execution : task.getExecs()) {
-            taskTO.getExecutions().add(getTaskExecTO(execution));
+            if (execution != null) {
+                taskTO.getExecutions().add(getTaskExecTO(execution));
+            }
         }
 
         switch (taskUtils.getType()) {

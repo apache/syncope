@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.common.lib.types.SyncMode;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -217,6 +218,7 @@ public class TaskTest extends AbstractTest {
         SyncTask task = entityFactory.newEntity(SyncTask.class);
         task.setName("saveSyncTask");
         task.setDescription("SyncTask description");
+        task.setSyncMode(SyncMode.FULL_RECONCILIATION);
         task.add(template);
         task.setCronExpression("BLA BLA");
         task.setMatchingRule(MatchingRule.UPDATE);
@@ -274,6 +276,7 @@ public class TaskTest extends AbstractTest {
         task.setResource(resource);
         task.setName("issueSYNCOPE144");
         task.setDescription("issueSYNCOPE144 Description");
+        task.setSyncMode(SyncMode.FULL_RECONCILIATION);
         task.getActionsClassNames().add(SyncActions.class.getName());
         task.setMatchingRule(MatchingRule.UPDATE);
         task.setUnmatchingRule(UnmatchingRule.PROVISION);

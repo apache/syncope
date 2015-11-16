@@ -19,7 +19,6 @@
 package org.apache.syncope.client.cli.commands.entitlement;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.syncope.client.cli.SyncopeServices;
@@ -38,7 +37,7 @@ public class EntitlementSyncopeOperations {
 
     private final RoleSyncopeOperations roleSyncopeOperations = new RoleSyncopeOperations();
 
-    public List<String> list() {
+    public Set<String> list() {
         return syncopeTO.getEntitlements();
     }
 

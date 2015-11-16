@@ -19,18 +19,23 @@
 package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.List;
+import org.apache.syncope.common.lib.types.SyncMode;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface SyncTask extends ProvisioningTask {
 
+    SyncMode getSyncMode();
+
+    void setSyncMode(SyncMode syncMode);
+
+    String getReconciliationFilterBuilderClassName();
+
+    void setReconciliationFilterBuilderClassName(String reconciliationFilterBuilderClassName);
+
     Realm getDestinatioRealm();
 
     void setDestinationRealm(Realm destinationRealm);
-
-    boolean isFullReconciliation();
-
-    void setFullReconciliation(boolean condition);
 
     boolean add(AnyTemplateSyncTask template);
 

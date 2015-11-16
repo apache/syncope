@@ -50,6 +50,7 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.apache.syncope.core.provisioning.api.sync.ReconciliationFilterBuilder;
 
 public class SyncJobDelegate extends AbstractProvisioningJobDelegate<SyncTask> {
 
@@ -166,11 +167,6 @@ public class SyncJobDelegate extends AbstractProvisioningJobDelegate<SyncTask> {
                 }
 
                 try {
-                    SyncToken latestSyncToken = null;
-                    if (!syncTask.isFullReconciliation()) {
-                        latestSyncToken = connector.getLatestSyncToken(provision.getObjectClass());
-                    }
-
                     Set<MappingItem> linkinMappingItems = new HashSet<>();
                     for (VirSchema virSchema : virSchemaDAO.findByProvision(provision)) {
                         linkinMappingItems.add(virSchema.asLinkingMappingItem());
@@ -179,29 +175,42 @@ public class SyncJobDelegate extends AbstractProvisioningJobDelegate<SyncTask> {
                             provision.getMapping().getItems().iterator(),
                             linkinMappingItems.iterator());
 
-                    if (syncTask.isFullReconciliation()) {
-                        connector.getAllObjects(
-                                provision.getObjectClass(),
-                                handler,
-                                MappingUtils.buildOperationOptions(mapItems));
-                    } else {
-                        connector.sync(
-                                provision.getObjectClass(),
-                                provision.getSyncToken(),
-                                handler,
-                                MappingUtils.buildOperationOptions(mapItems));
-                    }
+                    switch (syncTask.getSyncMode()) {
+                        case INCREMENTAL:
+                            SyncToken latestSyncToken = connector.getLatestSyncToken(provision.getObjectClass());
+                            connector.sync(
+                                    provision.getObjectClass(),
+                                    provision.getSyncToken(),
+                                    handler,
+                                    MappingUtils.buildOperationOptions(mapItems));
+                            if (!dryRun) {
+                                provision.setSyncToken(latestSyncToken);
+                                resourceDAO.save(provision.getResource());
+                            }
+                            break;
 
-                    if (!dryRun && !syncTask.isFullReconciliation()) {
-                        try {
-                            provision.setSyncToken(latestSyncToken);
-                            resourceDAO.save(provision.getResource());
-                        } catch (Exception e) {
-                            throw new JobExecutionException("While updating SyncToken", e);
-                        }
+                        case FILTERED_RECONCILIATION:
+                            ReconciliationFilterBuilder filterBuilder =
+                                    (ReconciliationFilterBuilder) ApplicationContextProvider.getBeanFactory().
+                                    createBean(Class.forName(syncTask.getReconciliationFilterBuilderClassName()),
+                                            AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                            connector.filteredReconciliation(
+                                    provision.getObjectClass(),
+                                    filterBuilder,
+                                    handler,
+                                    MappingUtils.buildOperationOptions(mapItems));
+                            break;
+
+                        case FULL_RECONCILIATION:
+                        default:
+                            connector.fullReconciliation(
+                                    provision.getObjectClass(),
+                                    handler,
+                                    MappingUtils.buildOperationOptions(mapItems));
+                            break;
                     }
                 } catch (Throwable t) {
-                    throw new JobExecutionException("While syncing on connector", t);
+                    throw new JobExecutionException("While syncing from connector", t);
                 }
             }
         }

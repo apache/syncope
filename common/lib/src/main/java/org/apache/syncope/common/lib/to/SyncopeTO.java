@@ -19,8 +19,8 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -41,7 +41,7 @@ public class SyncopeTO extends AbstractBaseBean {
 
     private boolean pwdResetRequiringSecurityQuestions;
 
-    private final List<String> connIdLocations = new ArrayList<>();
+    private final Set<String> connIdLocations = new HashSet<>();
 
     private String anyObjectWorkflowAdapter;
 
@@ -59,33 +59,35 @@ public class SyncopeTO extends AbstractBaseBean {
 
     private String passwordGenerator;
 
-    private final List<String> entitlements = new ArrayList<>();
+    private final Set<String> entitlements = new HashSet<>();
 
-    private final List<String> reportlets = new ArrayList<>();
+    private final Set<String> reportlets = new HashSet<>();
 
-    private final List<String> accountRules = new ArrayList<>();
+    private final Set<String> accountRules = new HashSet<>();
 
-    private final List<String> passwordRules = new ArrayList<>();
+    private final Set<String> passwordRules = new HashSet<>();
 
-    private final List<String> mappingItemTransformers = new ArrayList<>();
+    private final Set<String> mappingItemTransformers = new HashSet<>();
 
-    private final List<String> taskJobs = new ArrayList<>();
+    private final Set<String> taskJobs = new HashSet<>();
 
-    private final List<String> logicActions = new ArrayList<>();
+    private final Set<String> reconciliationFilterBuilders = new HashSet<>();
 
-    private final List<String> propagationActions = new ArrayList<>();
+    private final Set<String> logicActions = new HashSet<>();
 
-    private final List<String> syncActions = new ArrayList<>();
+    private final Set<String> propagationActions = new HashSet<>();
 
-    private final List<String> pushActions = new ArrayList<>();
+    private final Set<String> syncActions = new HashSet<>();
 
-    private final List<String> syncCorrelationRules = new ArrayList<>();
+    private final Set<String> pushActions = new HashSet<>();
 
-    private final List<String> pushCorrelationRules = new ArrayList<>();
+    private final Set<String> syncCorrelationRules = new HashSet<>();
 
-    private final List<String> validators = new ArrayList<>();
+    private final Set<String> pushCorrelationRules = new HashSet<>();
 
-    private final List<String> mailTemplates = new ArrayList<>();
+    private final Set<String> validators = new HashSet<>();
+
+    private final Set<String> mailTemplates = new HashSet<>();
 
     public String getVersion() {
         return version;
@@ -106,7 +108,7 @@ public class SyncopeTO extends AbstractBaseBean {
     @XmlElementWrapper(name = "connIdLocations")
     @XmlElement(name = "connIdLocation")
     @JsonProperty("connIdLocations")
-    public List<String> getConnIdLocations() {
+    public Set<String> getConnIdLocations() {
         return connIdLocations;
     }
 
@@ -149,98 +151,105 @@ public class SyncopeTO extends AbstractBaseBean {
     @XmlElementWrapper(name = "entitlements")
     @XmlElement(name = "entitlement")
     @JsonProperty("entitlements")
-    public List<String> getEntitlements() {
+    public Set<String> getEntitlements() {
         return entitlements;
     }
 
     @XmlElementWrapper(name = "reportlets")
     @XmlElement(name = "reportlet")
     @JsonProperty("reportlets")
-    public List<String> getReportlets() {
+    public Set<String> getReportlets() {
         return reportlets;
     }
 
     @XmlElementWrapper(name = "accountRules")
     @XmlElement(name = "accountRule")
     @JsonProperty("accountRules")
-    public List<String> getAccountRules() {
+    public Set<String> getAccountRules() {
         return accountRules;
     }
 
     @XmlElementWrapper(name = "passwordRules")
     @XmlElement(name = "passwordRule")
     @JsonProperty("passwordRules")
-    public List<String> getPasswordRules() {
+    public Set<String> getPasswordRules() {
         return passwordRules;
     }
 
     @XmlElementWrapper(name = "mappingItemTransformers")
     @XmlElement(name = "mappingItemTransformer")
     @JsonProperty("mappingItemTransformers")
-    public List<String> getMappingItemTransformers() {
+    public Set<String> getMappingItemTransformers() {
         return mappingItemTransformers;
     }
 
     @XmlElementWrapper(name = "taskJobs")
     @XmlElement(name = "taskJob")
     @JsonProperty("taskJobs")
-    public List<String> getTaskJobs() {
+    public Set<String> getTaskJobs() {
         return taskJobs;
+    }
+
+    @XmlElementWrapper(name = "reconciliationFilterBuilders")
+    @XmlElement(name = "reconciliationFilterBuilder")
+    @JsonProperty("reconciliationFilterBuilders")
+    public Set<String> getReconciliationFilterBuilders() {
+        return reconciliationFilterBuilders;
     }
 
     @XmlElementWrapper(name = "logicActions")
     @XmlElement(name = "logicAction")
     @JsonProperty("logicActions")
-    public List<String> getLogicActions() {
+    public Set<String> getLogicActions() {
         return logicActions;
     }
 
     @XmlElementWrapper(name = "propagationActions")
     @XmlElement(name = "propagationAction")
     @JsonProperty("propagationActions")
-    public List<String> getPropagationActions() {
+    public Set<String> getPropagationActions() {
         return propagationActions;
     }
 
     @XmlElementWrapper(name = "syncActions")
     @XmlElement(name = "syncAction")
     @JsonProperty("syncActions")
-    public List<String> getSyncActions() {
+    public Set<String> getSyncActions() {
         return syncActions;
     }
 
     @XmlElementWrapper(name = "pushActions")
     @XmlElement(name = "pushAction")
     @JsonProperty("pushActions")
-    public List<String> getPushActions() {
+    public Set<String> getPushActions() {
         return pushActions;
     }
 
     @XmlElementWrapper(name = "syncCorrelationRules")
     @XmlElement(name = "syncCorrelationRule")
     @JsonProperty("syncCorrelationRules")
-    public List<String> getSyncCorrelationRules() {
+    public Set<String> getSyncCorrelationRules() {
         return syncCorrelationRules;
     }
 
     @XmlElementWrapper(name = "pushCorrelationRules")
     @XmlElement(name = "pushCorrelationRule")
     @JsonProperty("pushCorrelationRules")
-    public List<String> getPushCorrelationRules() {
+    public Set<String> getPushCorrelationRules() {
         return pushCorrelationRules;
     }
 
     @XmlElementWrapper(name = "validators")
     @XmlElement(name = "validator")
     @JsonProperty("validators")
-    public List<String> getValidators() {
+    public Set<String> getValidators() {
         return validators;
     }
 
     @XmlElementWrapper(name = "mailTemplates")
     @XmlElement(name = "mailTemplate")
     @JsonProperty("mailTemplates")
-    public List<String> getMailTemplates() {
+    public Set<String> getMailTemplates() {
         return mailTemplates;
     }
 

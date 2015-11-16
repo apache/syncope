@@ -59,7 +59,10 @@ public class InfoCommand extends AbstractCommand {
                 info.accountRules();
                 break;
             case CONNID_LOCATION:
-                info.connidLocation();
+                info.connidLocations();
+                break;
+            case RECONCILIATION_FILTER_BUILDERS:
+                info.reconciliationFilterBuilders();
                 break;
             case LOGIC_ACTIONS:
                 info.logicActions();
@@ -128,6 +131,7 @@ public class InfoCommand extends AbstractCommand {
         WORKFLOW_ADAPTER("--workflow-adapter-classes"),
         ACCOUNT_RULES("--account-rules-classes"),
         CONNID_LOCATION("--connid-locations"),
+        RECONCILIATION_FILTER_BUILDERS("--reconciliation-filter-builders"),
         LOGIC_ACTIONS("--logic-actions"),
         MAIL_TEMPLATES("--mail-templates"),
         MAPPING_ITEM_TRANSFORMERS("--mapping-item-transformers"),

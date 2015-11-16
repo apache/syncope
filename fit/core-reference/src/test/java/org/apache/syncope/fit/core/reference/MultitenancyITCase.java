@@ -49,6 +49,7 @@ import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.SyncMode;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
@@ -186,9 +187,9 @@ public class MultitenancyITCase extends AbstractITCase {
         // create sync task
         SyncTaskTO task = new SyncTaskTO();
         task.setName("LDAP Sync Task");
-        task.setDestinationRealm("/");
+        task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         task.setResource(resource.getKey());
-        task.setFullReconciliation(true);
+        task.setSyncMode(SyncMode.FULL_RECONCILIATION);
         task.setPerformCreate(true);
 
         response = adminClient.getService(TaskService.class).create(task);

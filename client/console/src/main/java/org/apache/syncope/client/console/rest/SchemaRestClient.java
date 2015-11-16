@@ -51,10 +51,8 @@ public class SchemaRestClient extends BaseRestClient {
                 if (!allowed.contains(schema.getKey())) {
                     itor.remove();
                 }
-            } else {
-                if (allowed.contains(schema.getKey())) {
-                    itor.remove();
-                }
+            } else if (allowed.contains(schema.getKey())) {
+                itor.remove();
             }
         }
     }
@@ -197,7 +195,7 @@ public class SchemaRestClient extends BaseRestClient {
         List<String> response = null;
 
         try {
-            response = SyncopeConsoleSession.get().getSyncopeTO().getValidators();
+            response = new ArrayList<>(SyncopeConsoleSession.get().getSyncopeTO().getValidators());
         } catch (SyncopeClientException e) {
             LOG.error("While getting all validators", e);
         }

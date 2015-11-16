@@ -22,21 +22,22 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.common.lib.types.SyncMode;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
@@ -51,6 +52,12 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
 
     private static final long serialVersionUID = -4141057723006682563L;
 
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private SyncMode syncMode;
+
+    private String reconciliationFilterBuilderClassName;
+
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPARealm destinationRealm;
 
@@ -64,16 +71,31 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "syncTask")
     private List<JPAAnyTemplateSyncTask> templates = new ArrayList<>();
 
-    @Basic
-    @Min(0)
-    @Max(1)
-    private Integer fullReconciliation;
-
     /**
      * Default constructor.
      */
     public JPASyncTask() {
         super(TaskType.SYNCHRONIZATION, null);
+    }
+
+    @Override
+    public SyncMode getSyncMode() {
+        return syncMode;
+    }
+
+    @Override
+    public void setSyncMode(final SyncMode syncMode) {
+        this.syncMode = syncMode;
+    }
+
+    @Override
+    public String getReconciliationFilterBuilderClassName() {
+        return reconciliationFilterBuilderClassName;
+    }
+
+    @Override
+    public void setReconciliationFilterBuilderClassName(final String reconciliationFilterBuilderClassName) {
+        this.reconciliationFilterBuilderClassName = reconciliationFilterBuilderClassName;
     }
 
     @Override
@@ -90,16 +112,6 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     @Override
     public Set<String> getActionsClassNames() {
         return actionsClassNames;
-    }
-
-    @Override
-    public boolean isFullReconciliation() {
-        return isBooleanAsInteger(fullReconciliation);
-    }
-
-    @Override
-    public void setFullReconciliation(final boolean fullReconciliation) {
-        this.fullReconciliation = getBooleanAsInteger(fullReconciliation);
     }
 
     @Override

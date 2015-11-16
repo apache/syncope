@@ -53,6 +53,7 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
+import org.apache.syncope.core.provisioning.api.sync.ReconciliationFilterBuilder;
 
 /**
  * Cache class names for all implementations of Syncope interfaces found in classpath, for later usage.
@@ -93,6 +94,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(MappingItemTransformer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SchedTaskJobDelegate.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(ReconciliationFilterBuilder.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(LogicActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PropagationActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SyncActions.class));
@@ -142,6 +144,10 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                         && !PushJobDelegate.class.isAssignableFrom(clazz)) {
 
                     classNames.get(Type.TASKJOBDELEGATE).add(bd.getBeanClassName());
+                }
+
+                if (ReconciliationFilterBuilder.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.RECONCILIATION_FILTER_BUILDER).add(bd.getBeanClassName());
                 }
 
                 if (LogicActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {

@@ -136,6 +136,8 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
         syncopeTO.getPasswordRules().addAll(implLookup.getClassNames(Type.PASSWORD_RULE));
         syncopeTO.getMappingItemTransformers().addAll(implLookup.getClassNames(Type.MAPPING_ITEM_TRANSFORMER));
         syncopeTO.getTaskJobs().addAll(implLookup.getClassNames(Type.TASKJOBDELEGATE));
+        syncopeTO.getReconciliationFilterBuilders().
+                addAll(implLookup.getClassNames(Type.RECONCILIATION_FILTER_BUILDER));
         syncopeTO.getLogicActions().addAll(implLookup.getClassNames(Type.LOGIC_ACTIONS));
         syncopeTO.getPropagationActions().addAll(implLookup.getClassNames(Type.PROPAGATION_ACTIONS));
         syncopeTO.getSyncActions().addAll(implLookup.getClassNames(Type.SYNC_ACTIONS));

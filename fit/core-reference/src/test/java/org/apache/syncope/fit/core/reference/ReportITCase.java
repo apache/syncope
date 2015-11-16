@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
@@ -53,7 +54,7 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void getReportletClasses() {
-        List<String> reportlets = syncopeService.info().getReportlets();
+        Set<String> reportlets = syncopeService.info().getReportlets();
         assertNotNull(reportlets);
         assertFalse(reportlets.isEmpty());
     }

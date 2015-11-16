@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.types.SyncMode;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +52,8 @@ public class TaskDetails extends AbstractTaskCommand {
         if (input.parameterNumber() == 0) {
             try {
                 final Map<String, String> details = new LinkedMap<>();
-                final List<AbstractTaskTO> notificationTaskTOs
-                        = taskSyncopeOperations.list(TaskType.NOTIFICATION.name());
+                final List<AbstractTaskTO> notificationTaskTOs =
+                        taskSyncopeOperations.list(TaskType.NOTIFICATION.name());
                 final List<AbstractTaskTO> propagationTaskTOs = taskSyncopeOperations.list(TaskType.PROPAGATION.name());
                 final List<AbstractTaskTO> pushTaskTOs = taskSyncopeOperations.list(TaskType.PUSH.name());
                 final List<AbstractTaskTO> scheduledTaskTOs = taskSyncopeOperations.list(TaskType.SCHEDULED.name());
@@ -105,7 +106,7 @@ public class TaskDetails extends AbstractTaskCommand {
                             || ((SyncTaskTO) syncTaskTO).getExecutions().isEmpty()) {
                         syncNotExecuted++;
                     }
-                    if (((SyncTaskTO) syncTaskTO).isFullReconciliation()) {
+                    if (((SyncTaskTO) syncTaskTO).getSyncMode() == SyncMode.FULL_RECONCILIATION) {
                         syncFull++;
                     }
                 }

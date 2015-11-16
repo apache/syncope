@@ -35,6 +35,7 @@ public interface ImplementationLookup extends SyncopeLoader {
         PASSWORD_RULE,
         MAPPING_ITEM_TRANSFORMER,
         TASKJOBDELEGATE,
+        RECONCILIATION_FILTER_BUILDER,
         LOGIC_ACTIONS,
         PROPAGATION_ACTIONS,
         SYNC_ACTIONS,

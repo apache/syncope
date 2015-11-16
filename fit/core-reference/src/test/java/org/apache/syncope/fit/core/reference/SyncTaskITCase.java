@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -59,9 +58,11 @@ import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.lib.types.SyncMode;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.misc.security.Encryptor;
@@ -87,7 +88,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void getSyncActionsClasses() {
-        List<String> actions = syncopeService.info().getSyncActions();
+        Set<String> actions = syncopeService.info().getSyncActions();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }
@@ -110,6 +111,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         task.setName("Test create Sync");
         task.setDestinationRealm("/");
         task.setResource(RESOURCE_NAME_WS2);
+        task.setSyncMode(SyncMode.FULL_RECONCILIATION);
 
         UserTO userTemplate = new UserTO();
         userTemplate.getResources().add(RESOURCE_NAME_WS2);
@@ -249,34 +251,42 @@ public class SyncTaskITCase extends AbstractTaskITCase {
     @Test
     public void dryRun() {
         TaskExecTO execution = execProvisioningTask(taskService, SYNC_TASK_ID, 50, true);
-        assertEquals("Execution of task " + execution.getTask() + " failed with message " + execution.getMessage(),
+        assertEquals(
+                "Execution of task " + execution.getTask() + " failed with message " + execution.getMessage(),
                 "SUCCESS", execution.getStatus());
     }
 
     @Test
     public void reconcileFromDB() {
-        // update sync task
-        TaskExecTO execution = execProvisioningTask(taskService, 7L, 50, false);
-        assertNotNull(execution.getStatus());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
-
-        UserTO userTO = readUser("testuser1");
-        assertNotNull(userTO);
-        assertEquals("reconciled@syncope.apache.org", userTO.getPlainAttrMap().get("userId").getValues().get(0));
-        assertEquals("suspended", userTO.getStatus());
-
-        // enable user on external resource
+        UserTO userTO = null;
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        jdbcTemplate.execute("UPDATE TEST SET STATUS=TRUE");
+        try {
+            TaskExecTO execution = execProvisioningTask(taskService, 7L, 50, false);
+            assertNotNull(execution.getStatus());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
-        // re-execute the same SyncTask: now user must be active
-        execution = execProvisioningTask(taskService, 7L, 50, false);
-        assertNotNull(execution.getStatus());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+            userTO = readUser("testuser1");
+            assertNotNull(userTO);
+            assertEquals("reconciled@syncope.apache.org", userTO.getPlainAttrMap().get("userId").getValues().get(0));
+            assertEquals("suspended", userTO.getStatus());
 
-        userTO = readUser("testuser1");
-        assertNotNull(userTO);
-        assertEquals("active", userTO.getStatus());
+            // enable user on external resource
+            jdbcTemplate.execute("UPDATE TEST SET status=TRUE WHERE id='testuser1'");
+
+            // re-execute the same SyncTask: now user must be active
+            execution = execProvisioningTask(taskService, 7L, 50, false);
+            assertNotNull(execution.getStatus());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+
+            userTO = readUser("testuser1");
+            assertNotNull(userTO);
+            assertEquals("active", userTO.getStatus());
+        } finally {
+            jdbcTemplate.execute("UPDATE TEST SET status=FALSE WHERE id='testUser1'");
+            if (userTO != null) {
+                userService.delete(userTO.getKey());
+            }
+        }
     }
 
     /**
@@ -373,11 +383,11 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             MappingItemTO mappingItem = CollectionUtils.find(
                     provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
 
-                        @Override
-                        public boolean evaluate(final MappingItemTO object) {
-                            return "location".equals(object.getIntAttrName());
-                        }
-                    });
+                @Override
+                public boolean evaluate(final MappingItemTO object) {
+                    return "location".equals(object.getIntAttrName());
+                }
+            });
             assertNotNull(mappingItem);
             mappingItem.getMappingItemTransformerClassNames().clear();
             mappingItem.getMappingItemTransformerClassNames().add(PrefixMappingItemTransformer.class.getName());
@@ -432,6 +442,54 @@ public class SyncTaskITCase extends AbstractTaskITCase {
                     resourceService.read(RESOURCE_NAME_DBSCRIPTED).getProvision(anyObjectTO.getType()).getSyncToken());
         } finally {
             resourceService.update(originalResource);
+        }
+    }
+
+    @Test
+    public void filteredReconciliation() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        SyncTaskTO task = null;
+        UserTO userTO = null;
+        try {
+            // 1. create 2 users on testsync
+            jdbcTemplate.execute("INSERT INTO testsync VALUES (1001, 'user1', 'Doe', 'mail1@apache.org')");
+            jdbcTemplate.execute("INSERT INTO testsync VALUES (1002, 'user2', 'Rossi', 'mail2@apache.org')");
+
+            // 2. create new sync task for test-db, with reconciliation filter (surname 'Rossi') 
+            task = taskService.read(10L);
+            task.setSyncMode(SyncMode.FILTERED_RECONCILIATION);
+            task.setReconciliationFilterBuilderClassName(TestReconciliationFilterBuilder.class.getName());
+            Response response = taskService.create(task);
+            task = getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
+            assertNotNull(task);
+            assertEquals(
+                    TestReconciliationFilterBuilder.class.getName(),
+                    task.getReconciliationFilterBuilderClassName());
+
+            // 3. exec task
+            TaskExecTO execution = execProvisioningTask(taskService, task.getKey(), 50, false);
+            assertNotNull(execution.getStatus());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+
+            // 4. verify that only enabled user was synchronized
+            userTO = readUser("user2");
+            assertNotNull(userTO);
+
+            try {
+                readUser("user1");
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.NotFound, e.getType());
+            }
+        } finally {
+            jdbcTemplate.execute("DELETE FROM testsync WHERE id = 1001");
+            jdbcTemplate.execute("DELETE FROM testsync WHERE id = 1002");
+            if (task != null && task.getKey() != 7L) {
+                taskService.delete(task.getKey());
+            }
+            if (userTO != null) {
+                userService.delete(userTO.getKey());
+            }
         }
     }
 
@@ -542,14 +600,13 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         task.setName("Test Sync Rule");
         task.setResource(RESOURCE_NAME_WS2);
-        task.setFullReconciliation(true);
+        task.setSyncMode(SyncMode.FULL_RECONCILIATION);
         task.setPerformCreate(true);
         task.setPerformDelete(true);
         task.setPerformUpdate(true);
 
         Response response = taskService.create(task);
-        SyncTaskTO actual = getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
-        assertNotNull(actual);
+        task = getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
 
         UserTO userTO = UserITCase.getUniqueSampleTO("s258_1@apache.org");
         userTO.getResources().clear();
@@ -570,9 +627,9 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         userService.update(userPatch);
 
-        execProvisioningTask(taskService, actual.getKey(), 50, false);
+        execProvisioningTask(taskService, task.getKey(), 50, false);
 
-        SyncTaskTO executed = taskService.read(actual.getKey());
+        SyncTaskTO executed = taskService.read(task.getKey());
         assertEquals(1, executed.getExecutions().size());
 
         // asser for just one match
@@ -688,7 +745,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         syncTask.setName("DB Sync Task");
         syncTask.setPerformCreate(true);
         syncTask.setPerformUpdate(true);
-        syncTask.setFullReconciliation(true);
+        syncTask.setSyncMode(SyncMode.FULL_RECONCILIATION);
         syncTask.setResource(RESOURCE_NAME_TESTDB);
         syncTask.getActionsClassNames().add(DBPasswordSyncActions.class.getName());
         Response taskResponse = taskService.create(syncTask);
@@ -761,7 +818,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         syncTask.setName("LDAP Sync Task");
         syncTask.setPerformCreate(true);
         syncTask.setPerformUpdate(true);
-        syncTask.setFullReconciliation(true);
+        syncTask.setSyncMode(SyncMode.FULL_RECONCILIATION);
         syncTask.setResource(RESOURCE_NAME_LDAP);
         syncTask.getActionsClassNames().add(LDAPPasswordSyncActions.class.getName());
         Response taskResponse = taskService.create(syncTask);

@@ -101,9 +101,18 @@ public class Info {
         }
     }
 
-    public void connidLocation() {
+    public void connidLocations() {
         try {
             infoResultManager.printConnidLocations(syncopeTO.getConnIdLocations());
+        } catch (final Exception ex) {
+            LOG.error("Information error", ex);
+            infoResultManager.genericError(ex.getMessage());
+        }
+    }
+
+    public void reconciliationFilterBuilders() {
+        try {
+            infoResultManager.printReconciliationFilterBuilders(syncopeTO.getReconciliationFilterBuilders());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());

@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
+import org.apache.syncope.common.lib.types.SyncMode;
 
 @XmlRootElement(name = "syncTask")
 @XmlType
@@ -36,13 +37,31 @@ public class SyncTaskTO extends AbstractProvisioningTaskTO {
 
     private static final long serialVersionUID = -2143537546915809017L;
 
+    private SyncMode syncMode;
+
+    private String reconciliationFilterBuilderClassName;
+
     private String destinationRealm;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     @JsonIgnore
     private final Map<String, AnyTO> templates = new HashMap<>();
 
-    private boolean fullReconciliation;
+    public SyncMode getSyncMode() {
+        return syncMode;
+    }
+
+    public void setSyncMode(final SyncMode syncMode) {
+        this.syncMode = syncMode;
+    }
+
+    public String getReconciliationFilterBuilderClassName() {
+        return reconciliationFilterBuilderClassName;
+    }
+
+    public void setReconciliationFilterBuilderClassName(final String reconciliationFilterBuilderClassName) {
+        this.reconciliationFilterBuilderClassName = reconciliationFilterBuilderClassName;
+    }
 
     public String getDestinationRealm() {
         return destinationRealm;
@@ -55,13 +74,5 @@ public class SyncTaskTO extends AbstractProvisioningTaskTO {
     @JsonProperty
     public Map<String, AnyTO> getTemplates() {
         return templates;
-    }
-
-    public boolean isFullReconciliation() {
-        return fullReconciliation;
-    }
-
-    public void setFullReconciliation(final boolean fullReconciliation) {
-        this.fullReconciliation = fullReconciliation;
     }
 }

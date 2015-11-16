@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
+import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AttrLayoutType;
@@ -82,7 +83,7 @@ public class ConfigurationRestClient extends BaseRestClient {
         getService(ConfigurationService.class).delete(key);
     }
 
-    public List<String> getMailTemplates() {
+    public Set<String> getMailTemplates() {
         return SyncopeConsoleSession.get().getSyncopeTO().getMailTemplates();
     }
 
