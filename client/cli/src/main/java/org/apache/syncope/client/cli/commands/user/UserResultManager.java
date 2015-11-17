@@ -105,7 +105,7 @@ public class UserResultManager extends CommonsResultManager {
         final Table.TableBuilder tableBuilder
                 = new Table.TableBuilder("Users not deleted").header("user id").header("cause");
         for (final Map.Entry<String, String> entrySet : users.entrySet()) {
-            tableBuilder.rowValues(new LinkedList(Arrays.asList(entrySet.getKey(), entrySet.getValue())));
+            tableBuilder.rowValues(new LinkedList<>(Arrays.asList(entrySet.getKey(), entrySet.getValue())));
         }
         tableBuilder.build().print();
     }
