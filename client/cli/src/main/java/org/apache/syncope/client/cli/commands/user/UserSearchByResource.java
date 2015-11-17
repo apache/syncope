@@ -21,8 +21,6 @@ package org.apache.syncope.client.cli.commands.user;
 import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
-import org.apache.syncope.client.cli.commands.realm.RealmSyncopeOperations;
-import org.apache.syncope.client.cli.commands.resource.ResourceSyncopeOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.slf4j.Logger;
@@ -44,13 +42,11 @@ public class UserSearchByResource extends AbstractUserCommand {
         if (input.parameterNumber() == 2) {
             final String realm = input.firstParameter();
             final String resource = input.secondParameter();
-            final RealmSyncopeOperations realmSyncopeOperations = new RealmSyncopeOperations();
-            final ResourceSyncopeOperations resourceSyncopeOperations = new ResourceSyncopeOperations();
             try {
                 List<UserTO> userTOs = null;
                 if (!realmSyncopeOperations.exists(realm)) {
                     userResultManager.genericMessage("Operation performed on root realm because " + realm
-                            + "does not exists");
+                            + " does not exists");
                 }
                 if (!resourceSyncopeOperations.exists(resource)) {
                     userResultManager.notFoundError("Resource", resource);

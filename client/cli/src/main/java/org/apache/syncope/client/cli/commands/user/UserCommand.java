@@ -64,6 +64,12 @@ public class UserCommand extends AbstractCommand {
             case DELETE:
                 new UserDelete(input).delete();
                 break;
+            case DELETE_ALL:
+                new UserDeleteAll(input).delete();
+                break;
+            case DELETE_BY_ATTRIBUTE:
+                new UserDeleteByAttribute(input).delete();
+                break;
             case HELP:
                 System.out.println(getHelpMessage());
                 break;
@@ -88,7 +94,9 @@ public class UserCommand extends AbstractCommand {
         SEARCH_BY_ATTRIBUTE("--search-by-attribute"),
         SEARCH_BY_ROLE("--search-by-role"),
         SEARCH_BY_RESOURCE("--search-by-resource"),
-        DELETE("--delete");
+        DELETE("--delete"),
+        DELETE_ALL("--delete-all"),
+        DELETE_BY_ATTRIBUTE("--delete-by-attribute");
 
         private final String optionName;
 

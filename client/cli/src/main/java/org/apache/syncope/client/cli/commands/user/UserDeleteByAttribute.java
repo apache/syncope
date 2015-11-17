@@ -18,43 +18,52 @@
  */
 package org.apache.syncope.client.cli.commands.user;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UserSearchByAttribute extends AbstractUserCommand {
+public class UserDeleteByAttribute extends AbstractUserCommand {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserSearchByAttribute.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserDeleteByAttribute.class);
 
-    private static final String SEARCH_HELP_MESSAGE = "user --search-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}";
+    private static final String SEARCH_HELP_MESSAGE = "user --delete-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}";
 
     private final Input input;
 
-    public UserSearchByAttribute(final Input input) {
+    public UserDeleteByAttribute(final Input input) {
         this.input = input;
     }
 
-    public void search() {
+    public void delete() {
         if (input.parameterNumber() == 2) {
             final String realm = input.firstParameter();
             final Input.PairParameter pairParameter = input.toPairParameter(input.secondParameter());
             try {
-                List<UserTO> userTOs;
                 if (!realmSyncopeOperations.exists(realm)) {
-                    userResultManager.genericMessage("Operation performed on root realm because " + realm
-                            + " does not exists");
+                    userResultManager.notFoundError("Realm", realm);
+                    return;
                 }
-                userTOs = userSyncopeOperations.searchByAttribute(
+                final Map<String, BulkActionResult.Status> results = userSyncopeOperations.deleteByAttribute(
                         realm, pairParameter.getKey(), pairParameter.getValue());
-                if (userTOs == null || userTOs.isEmpty()) {
-                    userResultManager.genericMessage("No users found with attribute "
-                            + pairParameter.getKey() + " and value " + pairParameter.getValue());
-                } else {
-                    userResultManager.printUsers(userTOs);
+                final Map<String, String> users = new HashMap<>();
+                int deletedUsers = 0;
+                for (final Map.Entry<String, BulkActionResult.Status> entrySet : results.entrySet()) {
+                    final String userId = entrySet.getKey();
+                    final BulkActionResult.Status status = entrySet.getValue();
+                    if (!BulkActionResult.Status.SUCCESS.equals(status)) {
+                        users.put(userId, status.name());
+                    } else {
+                        deletedUsers++;
+                    }
+                }
+                userResultManager.genericMessage("Deleted users: " + deletedUsers);
+                if (!users.isEmpty()) {
+                    userResultManager.printUndeletedUsers(users);
                 }
             } catch (final WebServiceException | SyncopeClientException ex) {
                 LOG.error("Error searching user", ex);

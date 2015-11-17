@@ -18,9 +18,13 @@
  */
 package org.apache.syncope.client.cli.commands.user;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.to.BulkAction;
+import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -30,6 +34,15 @@ import org.apache.syncope.common.rest.api.service.UserService;
 public class UserSyncopeOperations {
 
     private final UserService userService = SyncopeServices.get(UserService.class);
+
+    public boolean auth(final String username, final String password) {
+        try {
+            SyncopeServices.testUsernameAndPassword(username, password);
+            return true;
+        } catch (final Exception e) {
+            return false;
+        }
+    }
 
     public List<UserTO> searchByRole(final String realm, final String role) {
         return userService.search(
@@ -60,15 +73,41 @@ public class UserSyncopeOperations {
         return userService.read(Long.valueOf(userId));
     }
 
-    public void delete(final String userId) {
-        userService.delete(Long.valueOf(userId));
-    }
-
     public String getUsernameFromId(final String userId) {
         return userService.getUsername(Long.valueOf(userId)).getHeaderString(RESTHeaders.USERNAME);
     }
 
     public String getIdFromUsername(final String username) {
         return userService.getUserKey(username).getHeaderString(RESTHeaders.USER_KEY);
+    }
+
+    public void delete(final String userId) {
+        userService.delete(Long.valueOf(userId));
+    }
+
+    public Map<String, BulkActionResult.Status> deleteByAttribute(
+            final String realm, final String attributeName, final String attributeValue) {
+        final List<UserTO> users = userService.search(
+                SyncopeClient.getAnySearchQueryBuilder().realm(realm).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is(attributeName).equalTo(attributeValue)
+                        .query()).build()).getResult();
+        return deleteBulk(users);
+    }
+
+    public Map<String, BulkActionResult.Status> deleteAll(final String realm) {
+        final AnyListQuery anyListQuery = new AnyListQuery();
+        anyListQuery.setDetails(false);
+        anyListQuery.setRealms(Arrays.asList(realm));
+        return deleteBulk(userService.list(anyListQuery).getResult());
+    }
+
+    private Map<String, BulkActionResult.Status> deleteBulk(final List<UserTO> users) {
+        final BulkAction bulkAction = new BulkAction();
+        bulkAction.setType(BulkAction.Type.DELETE);
+        for (UserTO user : users) {
+            bulkAction.getTargets().add(String.valueOf(user.getKey()));
+        }
+        final BulkActionResult bulkResult = userService.bulk(bulkAction);
+        return bulkResult.getResults();
     }
 }

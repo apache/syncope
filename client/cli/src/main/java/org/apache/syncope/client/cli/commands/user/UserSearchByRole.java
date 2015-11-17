@@ -21,7 +21,6 @@ package org.apache.syncope.client.cli.commands.user;
 import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
-import org.apache.syncope.client.cli.commands.realm.RealmSyncopeOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.slf4j.Logger;
@@ -43,12 +42,11 @@ public class UserSearchByRole extends AbstractUserCommand {
         if (input.parameterNumber() == 2) {
             final String realm = input.firstParameter();
             final String role = input.secondParameter();
-            final RealmSyncopeOperations realmSyncopeOperations = new RealmSyncopeOperations();
             try {
                 List<UserTO> userTOs;
                 if (!realmSyncopeOperations.exists(realm)) {
                     userResultManager.genericMessage("Operation performed on root realm because "
-                            + realm + "does not exists");
+                            + realm + " does not exists");
                 }
                 userTOs = userSyncopeOperations.searchByRole(realm, input.secondParameter());
                 if (userTOs == null || userTOs.isEmpty()) {

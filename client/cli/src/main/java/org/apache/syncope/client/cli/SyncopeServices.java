@@ -25,6 +25,7 @@ import org.apache.syncope.client.cli.commands.install.InstallConfigFileTemplate;
 import org.apache.syncope.client.cli.util.JasyptUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +56,18 @@ public final class SyncopeServices {
 
     public static String getAddress() {
         return SYNCOPE_ADDRESS;
+    }
+
+    public static void testUsernameAndPassword(final String username, final String password) {
+        final Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream(InstallConfigFileTemplate.configurationFilePath()));
+        } catch (final IOException e) {
+            LOG.error("Error opening properties file", e);
+        }
+        final SyncopeClient syncopeClient = new SyncopeClientFactoryBean()
+                .setAddress(properties.getProperty("syncope.rest.services")).create(username, password);
+        syncopeClient.getService(SyncopeService.class).info();
     }
 
     private SyncopeServices() {

@@ -36,7 +36,8 @@ public class InstallCommand extends AbstractCommand {
     private static final String HELP_MESSAGE = "\nUsage: install [options]\n"
             + "  Options:\n"
             + "    --help \n"
-            + "    --setup\n";
+            + "    --setup\n"
+            + "    --setup-debug\n";
 
     @Override
     public void execute(final Input input) {
@@ -45,9 +46,18 @@ public class InstallCommand extends AbstractCommand {
         }
 
         switch (Options.fromName(input.getOption())) {
-            case INSTALL:
+            case SETUP:
                 try {
                     new InstallSetup().setup();
+                } catch (final FileNotFoundException | IllegalAccessException ex) {
+                    LOG.error("Error installing CLI", ex);
+                    installResultManager.genericError(ex.getMessage());
+                    break;
+                }
+                break;
+            case SETUP_DEBUG:
+                try {
+                    new InstallSetupForDebug().setup();
                 } catch (final FileNotFoundException | IllegalAccessException ex) {
                     LOG.error("Error installing CLI", ex);
                     installResultManager.genericError(ex.getMessage());
@@ -70,7 +80,8 @@ public class InstallCommand extends AbstractCommand {
     private enum Options {
 
         HELP("--help"),
-        INSTALL("--setup");
+        SETUP("--setup"),
+        SETUP_DEBUG("--setup-debug");
 
         private final String optionName;
 

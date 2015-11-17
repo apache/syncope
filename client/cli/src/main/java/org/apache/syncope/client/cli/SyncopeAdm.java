@@ -52,9 +52,11 @@ public final class SyncopeAdm {
             System.out.println(helpMessage());
         } catch (final IllegalArgumentException ex) {
             LOG.error("Error in main", ex);
-            RESULT_MANAGER.genericError(ex.getMessage());
             if (!ex.getMessage().startsWith("It seems you")) {
+                System.out.println("");
                 System.out.println(helpMessage());
+            } else {
+                RESULT_MANAGER.genericError(ex.getMessage());
             }
         } catch (final ProcessingException e) {
             LOG.error("Error in main", e);

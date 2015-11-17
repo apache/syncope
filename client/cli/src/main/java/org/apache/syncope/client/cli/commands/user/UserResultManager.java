@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.client.cli.commands.user;
 
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
+import org.apache.syncope.client.cli.view.Table;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
@@ -92,19 +94,20 @@ public class UserResultManager extends CommonsResultManager {
             System.out.println(attributeSentence);
         }
     }
-
-    private void printPropagationStatus(final List<PropagationStatus> propagationStatuses) {
-        for (final PropagationStatus propagationStatus : propagationStatuses) {
-            System.out.println("       status: " + propagationStatus.getStatus());
-            System.out.println("       resource: " + propagationStatus.getResource());
-            System.out.println("       failure reason: " + propagationStatus.getFailureReason());
-        }
-    }
-
+    
     private void printRelationships(final List<RelationshipTO> relationshipTOs) {
         for (final RelationshipTO relationshipTO : relationshipTOs) {
             System.out.println("       type: " + relationshipTO.getType());
         }
+    }
+    
+    public void printUndeletedUsers(final Map<String, String> users) {
+        final Table.TableBuilder tableBuilder
+                = new Table.TableBuilder("Users not deleted").header("user id").header("cause");
+        for (final Map.Entry<String, String> entrySet : users.entrySet()) {
+            tableBuilder.rowValues(new LinkedList(Arrays.asList(entrySet.getKey(), entrySet.getValue())));
+        }
+        tableBuilder.build().print();
     }
 
     public void printDetails(final Map<String, String> details) {

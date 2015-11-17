@@ -18,8 +18,15 @@
  */
 package org.apache.syncope.client.cli.commands.user;
 
+import org.apache.syncope.client.cli.commands.realm.RealmSyncopeOperations;
+import org.apache.syncope.client.cli.commands.resource.ResourceSyncopeOperations;
+
 public abstract class AbstractUserCommand {
 
+    protected final RealmSyncopeOperations realmSyncopeOperations = new RealmSyncopeOperations();
+    
+    protected final ResourceSyncopeOperations resourceSyncopeOperations = new ResourceSyncopeOperations();
+    
     protected final UserSyncopeOperations userSyncopeOperations = new UserSyncopeOperations();
 
     protected final UserResultManager userResultManager = new UserResultManager();
