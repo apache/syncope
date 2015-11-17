@@ -40,7 +40,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GroupDetails extends Details {
+public class GroupDetails extends Details<GroupTO> {
 
     private static final long serialVersionUID = 855618618337931784L;
 

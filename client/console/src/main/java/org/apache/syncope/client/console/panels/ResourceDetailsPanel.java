@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import org.apache.syncope.client.console.wizards.any.AnnotatedBeanPanel;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;

@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -21,17 +20,44 @@ under the License.
   <head><title></title></head>
   <body>
     <wicket:panel>
-      <div class="tabbable tabs-left" style="margin-right: 0; border-right: 0;">
-        <ul class="nav nav-tabs" style="margin-right: 0; border-right: 0;" wicket:id="tabs-container">
-          <li wicket:id="tabs">
-            <a data-toggle="tab" href="#" wicket:id="link">
-              <span wicket:id="title">[tab title]</span>
-            </a>
-          </li>
-        </ul>
-        <div class="tab-content" style="min-height: 100%; padding-left: 20px; border-left: 1px solid #ddd;">
-          <div wicket:id="panel" class="tab-pane active">[tab]</div>
+      <div class="information">
+        <div class="infoleft">
+          <div class="infolabel"> 
+            <wicket:message key="creationDate"/>:
+          </div>
+          <div>
+            <span wicket:id="creationDate" />
+          </div>
         </div>
+
+        <div class="inforight">
+          <div class="infolabel">
+            <wicket:message key="lastChangeDate"/>:
+          </div>
+          <div>
+            <span wicket:id="lastChangeDate" />
+          </div>
+        </div>
+
+        <div class="infoleft">
+          <div class="infolabel">
+            <wicket:message key="creator"/>:
+          </div>
+          <div>
+            <span wicket:id="creator" />
+          </div>
+        </div>
+
+        <div class="inforight">
+          <div class="infolabel">
+            <wicket:message key="lastModifier"/>:
+          </div>
+          <div>
+            <span wicket:id="lastModifier" />
+          </div>
+        </div>
+
+        <wicket:child />
       </div>
     </wicket:panel>
   </body>

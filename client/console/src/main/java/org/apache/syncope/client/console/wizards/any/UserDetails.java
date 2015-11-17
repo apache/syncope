@@ -41,7 +41,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class UserDetails extends Details {
+public class UserDetails extends Details<UserTO> {
 
     private static final long serialVersionUID = 6592027822510220463L;
 
@@ -128,5 +128,10 @@ public class UserDetails extends Details {
         collapsible.setOutputMarkupId(true);
         add(collapsible);
         // ------------------------        
+    }
+
+    @Override
+    protected AnnotatedBeanPanel getGeneralStatusInformation(final String id, final UserTO anyTO) {
+        return new UserInformationPanel(id, anyTO);
     }
 }

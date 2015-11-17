@@ -70,11 +70,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     private final boolean wizardInModal;
 
-    public WizardMgtPanel(final String id, final PageReference pageRef) {
+    protected WizardMgtPanel(final String id, final PageReference pageRef) {
         this(id, pageRef, false);
     }
 
-    public WizardMgtPanel(final String id, final PageReference pageRef, final boolean wizardInModal) {
+    protected WizardMgtPanel(final String id, final PageReference pageRef, final boolean wizardInModal) {
         super(id);
         setOutputMarkupId(true);
         this.pageRef = pageRef;

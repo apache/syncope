@@ -25,7 +25,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.IModel;
 
-public class Details extends WizardStep {
+public class Details<T extends AnyTO> extends WizardStep {
 
     private static final long serialVersionUID = 6592027822510220463L;
 
@@ -33,7 +33,7 @@ public class Details extends WizardStep {
 
     protected final StatusPanel statusPanel;
 
-    public <T extends AnyTO> Details(
+    public Details(
             final T anyTO,
             final IModel<List<StatusBean>> statusModel,
             final PageReference pageRef,
@@ -41,6 +41,15 @@ public class Details extends WizardStep {
         this.pageRef = pageRef;
 
         statusPanel = new StatusPanel("status", anyTO, statusModel, pageRef);
-        add(statusPanel.setEnabled(includeStatusPanel).setVisible(includeStatusPanel).setRenderBodyOnly(true));
+
+        add(statusPanel.setEnabled(includeStatusPanel).
+                setVisible(includeStatusPanel).setRenderBodyOnly(true));
+
+        add(getGeneralStatusInformation("generalStatusInformation", anyTO).
+                setEnabled(includeStatusPanel).setVisible(includeStatusPanel).setRenderBodyOnly(true));
+    }
+
+    protected AnnotatedBeanPanel getGeneralStatusInformation(final String id, final T anyTO) {
+        return new AnnotatedBeanPanel(id, anyTO);
     }
 }

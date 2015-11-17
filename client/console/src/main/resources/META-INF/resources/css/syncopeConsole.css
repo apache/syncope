@@ -237,3 +237,49 @@ span.overridable div.checkbox {
 div#resource-modal.modal-lg {
   width: 1200px;
 }
+
+/**
+  BEGIN - Style for Information panel
+*/
+div.information{
+  margin: 30px 0px 20px 0px; 
+  border: 1px solid #DDDDDD; 
+  font-size: 10px;
+  color: #555555;
+  display: inline-table; 
+  width: 100%; 
+  clear: both; 
+  float:none;
+}
+
+div.infolabel{
+  margin-left: 5px; 
+  float:left; 
+  width: 150px;
+  font-weight: bold
+}
+
+div.infoleft{
+  float:left; 
+  display: inline-table; 
+  width: 50%
+}
+
+div.inforight{ 
+  display: inline-table; 
+  width: 50%
+}
+
+div.inforow{
+  display: inline-table;
+  width: 100%
+}
+
+div.wrap{
+  word-wrap: break-word; 
+  width: 550px; 
+  margin-left: 155px;
+}
+/**
+END - Style for Information panel
+*/

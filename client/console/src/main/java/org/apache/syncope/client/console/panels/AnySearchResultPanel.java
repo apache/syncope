@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -76,6 +77,8 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
             final String entitlement) {
 
         super(parentId, filtered, fiql, callerRef, restClient, realm, type);
+        modal.size(Modal.Size.Large);
+
         this.entitlement = entitlement;
 
         add(new Label("name", type));

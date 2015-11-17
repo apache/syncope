@@ -17,6 +17,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.rest.UserRestClient;
@@ -27,7 +28,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
 
 public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
@@ -54,12 +54,10 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
 
     @Override
     protected void onApplyInternal(final UserTO modelObject) {
-        Model<Boolean> storePassword = Model.of(true);
-
         final ProvisioningResult<UserTO> actual;
 
         if (modelObject.getKey() == 0) {
-            actual = userRestClient.create(modelObject, storePassword.getObject());
+            actual = userRestClient.create(modelObject, StringUtils.isNotBlank(modelObject.getPassword()));
         } else {
             final UserPatch patch = AnyOperations.diff(modelObject, getOriginalItem(), true);
 

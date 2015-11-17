@@ -16,83 +16,54 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html>
-  <wicket:head>
-    <style>
-      div.information{
-        margin-top: 30px; 
-        border: 1px solid #DDDDDD; 
-        font-size: 8px;
-        color: #555555;
-        display: inline-table; 
-        width: 100%; 
-        clear: both; 
-        float:none;
-      }
-
-      div.infolabel{
-        margin-left: 5px; 
-        float:left; 
-        width: 150px;
-        font-weight: bold
-      }
-
-      div.infoleft{
-        float:left; 
-        display: inline-table; 
-        width: 50%
-      }
-
-      div.inforight{ 
-        display: inline-table; 
-        width: 50%
-      }
-
-      div.inforow{
-        display: inline-table;
-        width: 100%
-      }
-    </style>
-  </wicket:head>
-  <wicket:panel>
-    <div class="information">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <head><title></title></head>
+  <body>
+    <wicket:extend>
       <div class="infoleft">
-        <div class="infolabel"> 
-          <wicket:message key="creationDate"/>:
+        <div class="infolabel">
+          <wicket:message key="lastLoginDate"/>:
         </div>
         <div>
-          <span wicket:id="creationDate" />
+          <span wicket:id="lastLoginDate"/>
         </div>
       </div>
 
       <div class="inforight">
         <div class="infolabel">
-          <wicket:message key="lastChangeDate"/>:
+          <wicket:message key="failedLogins"/>:
         </div>
         <div>
-          <span wicket:id="lastChangeDate" />
+          <span wicket:id="failedLogins"/>
         </div>
       </div>
 
       <div class="infoleft">
         <div class="infolabel">
-          <wicket:message key="creator"/>:
+          <wicket:message key="changePwdDate"/>:
         </div>
         <div>
-          <span wicket:id="creator" />
+          <span wicket:id="changePwdDate"/>
         </div>
       </div>
 
       <div class="inforight">
         <div class="infolabel">
-          <wicket:message key="lastModifier"/>:
+          <wicket:message key="tokenExpireTime"/>
         </div>
         <div>
-          <span wicket:id="lastModifier" />
+          <span wicket:id="tokenExpireTime"/>
         </div>
       </div>
 
-      <wicket:child />
-    </div>
-  </wicket:panel>
+      <div class="inforow">
+        <div class="infolabel">
+          <wicket:message key="token"/>:
+        </div>
+        <div class="wrap">
+          <span wicket:id="token"/>
+        </div>
+      </div>
+    </wicket:extend>
+  </body>
 </html>

@@ -90,7 +90,7 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<T> impl
     protected AnyWizardBuilder<T> addOptionalDetailsPanel(final T modelObject, final WizardModel wizardModel) {
         if (modelObject.getKey() > 0) {
             wizardModel.add(
-                    new Details(modelObject, new ListModel<>(Collections.<StatusBean>emptyList()), pageRef, true));
+                    new Details<T>(modelObject, new ListModel<>(Collections.<StatusBean>emptyList()), pageRef, true));
         }
         return this;
     }
