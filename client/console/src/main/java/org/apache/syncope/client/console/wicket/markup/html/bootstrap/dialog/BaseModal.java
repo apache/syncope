@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.NotificationAwareComponent;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
@@ -46,7 +47,7 @@ import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BaseModal<T extends Serializable> extends Modal<T> {
+public class BaseModal<T extends Serializable> extends Modal<T> implements NotificationAwareComponent {
 
     private static final long serialVersionUID = -6142277554912316095L;
 
@@ -107,6 +108,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     }
 
+    @Override
     public NotificationPanel getFeedbackPanel() {
         return feedbackPanel;
     }

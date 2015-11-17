@@ -96,7 +96,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         try {
             onCancelInternal();
-            send(pageRef.getPage(), Broadcast.DEPTH, new NewItemCancelEvent<T>(item, target));
+            send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemCancelEvent<T>(item, target));
         } catch (Exception e) {
             LOG.warn("Wizard error on cancel", e);
             error(getString("wizard.cancel.error"));
@@ -112,7 +112,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         try {
             onApplyInternal();
-            send(pageRef.getPage(), Broadcast.DEPTH, new NewItemFinishEvent<T>(item, target));
+            send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<T>(item, target));
         } catch (Exception e) {
             LOG.warn("Wizard error on finish", e);
             error(getString("wizard.apply.error"));
@@ -153,9 +153,13 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         public AjaxRequestTarget getTarget() {
             return target;
         }
+
+        public abstract String getEventDescription();
     }
 
     public static class NewItemActionEvent<T> extends NewItemEvent<T> {
+
+        private static final String EVENT_DESCRIPTION = "new";
 
         private int index = 0;
 
@@ -172,22 +176,56 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
             return index;
         }
 
+        @Override
+        public String getEventDescription() {
+            return NewItemActionEvent.EVENT_DESCRIPTION;
+        }
+    }
+
+    public static class EditItemActionEvent<T> extends NewItemActionEvent<T> {
+
+        private static final String EVENT_DESCRIPTION = "edit";
+
+        public EditItemActionEvent(final T item, final AjaxRequestTarget target) {
+            super(item, target);
+        }
+
+        public EditItemActionEvent(final T item, final int index, final AjaxRequestTarget target) {
+            super(item, index, target);
+        }
+
+        @Override
+        public String getEventDescription() {
+            return EditItemActionEvent.EVENT_DESCRIPTION;
+        }
     }
 
     public static class NewItemCancelEvent<T> extends NewItemEvent<T> {
+
+        private static final String EVENT_DESCRIPTION = "cancel";
 
         public NewItemCancelEvent(final T item, final AjaxRequestTarget target) {
             super(item, target);
         }
 
+        @Override
+        public String getEventDescription() {
+            return NewItemCancelEvent.EVENT_DESCRIPTION;
+        }
     }
 
     public static class NewItemFinishEvent<T> extends NewItemEvent<T> {
+
+        private static final String EVENT_DESCRIPTION = "cancel";
 
         public NewItemFinishEvent(final T item, final AjaxRequestTarget target) {
             super(item, target);
         }
 
+        @Override
+        public String getEventDescription() {
+            return NewItemFinishEvent.EVENT_DESCRIPTION;
+        }
     }
 
     @Override

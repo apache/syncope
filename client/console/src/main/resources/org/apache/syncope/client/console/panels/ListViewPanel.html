@@ -33,17 +33,27 @@ under the License.
             <table class="table table-hover">
               <tbody>
                 <tr>
+                  <th id="check">
+                    <input type="checkbox" wicket:id="groupselector" />
+                  </th>
                   <th wicket:id="names"><span wicket:id="name"/></th>
                   <th />
                 </tr>
-                <tr wicket:id="beans">
-                  <td wicket:id="fields"><span wicket:id="field"/></td>
-                  <td>
-                    <div class="listview-actions">
-                      <span wicket:id="actions">[actions]</span>
-                    </div>
-                  </td>
-                </tr>
+
+                <span wicket:id="group">
+                  <tr wicket:id="beans">
+                    <td id="check">
+                      <input type="checkbox" wicket:id="check"/>
+                    </td>
+                    <td wicket:id="fields"><span wicket:id="field"/></td>
+                    <td>
+                      <div class="listview-actions">
+                        <span wicket:id="actions">[actions]</span>
+                      </div>
+                    </td>
+                  </tr>
+                </span>
+
               </tbody></table>
           </div><!-- /.box-body -->
         </div><!-- /.box -->

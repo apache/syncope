@@ -99,7 +99,7 @@ public class AnyDataProvider<T extends AnyTO> extends SortableDataProvider<T, St
                     ? 0
                     : restClient.searchCount(realm, fiql, type);
         } else {
-            result = restClient.count(realm);
+            result = restClient.count(type, realm);
         }
 
         return result;

@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.NotificationAwareComponent;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.wicket.markup.head.HeaderItem;
@@ -29,7 +30,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractBasePage extends WebPage {
+public class AbstractBasePage extends WebPage implements NotificationAwareComponent {
 
     private static final long serialVersionUID = 8611724965544132636L;
 
@@ -64,6 +65,7 @@ public class AbstractBasePage extends WebPage {
         add(feedbackPanel);
     }
 
+    @Override
     public NotificationPanel getFeedbackPanel() {
         return feedbackPanel;
     }

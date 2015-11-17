@@ -48,9 +48,9 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
     }
 
     @Override
-    public int count(final String realm) {
-        return getService(AnyObjectService.class).list(SyncopeClient.getAnyListQueryBuilder().realm(realm).page(1).size(
-                1).build()).getTotalCount();
+    public int count(final String type, final String realm) {
+        return getService(AnyObjectService.class).list(
+                type, SyncopeClient.getAnyListQueryBuilder().realm(realm).page(1).size(1).build()).getTotalCount();
     }
 
     @Override

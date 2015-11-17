@@ -15,7 +15,10 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -23,13 +26,17 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.util.ListModel;
 
 public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
 
     private static final long serialVersionUID = 1L;
 
     private final UserRestClient userRestClient = new UserRestClient();
+
+    private final IModel<List<StatusBean>> statusModel;
 
     /**
      * Construct.
@@ -42,17 +49,12 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
     public UserWizardBuilder(
             final String id, final UserTO userTO, final List<String> anyTypeClasses, final PageReference pageRef) {
         super(id, userTO, anyTypeClasses, pageRef);
-    }
-
-    @Override
-    protected WizardModel buildModelSteps(final UserTO modelObject, final WizardModel wizardModel) {
-        wizardModel.add(new UserDetails(modelObject, false, false));
-        return super.buildModelSteps(modelObject, wizardModel);
+        statusModel = new ListModel<>(new ArrayList<StatusBean>());
     }
 
     @Override
     protected void onApplyInternal(final UserTO modelObject) {
-        Model<Boolean> storePassword = new Model<>(true);
+        Model<Boolean> storePassword = Model.of(true);
 
         final ProvisioningResult<UserTO> actual;
 
@@ -61,13 +63,33 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
         } else {
             final UserPatch patch = AnyOperations.diff(modelObject, getOriginalItem(), true);
 
-//            if (statusPanel != null) {
-//                patch.setPwdPropRequest(statusPanel.getStatusMod());
-//            }
+            if (!statusModel.getObject().isEmpty()) {
+                patch.setPassword(StatusUtils.buildPasswordPatch(modelObject.getPassword(), statusModel.getObject()));
+            }
+
             // update user just if it is changed
             if (!patch.isEmpty()) {
                 actual = userRestClient.update(getOriginalItem().getETagValue(), patch);
             }
         }
+    }
+
+    @Override
+    protected UserWizardBuilder addOptionalDetailsPanel(final UserTO modelObject, final WizardModel wizardModel) {
+        wizardModel.add(new UserDetails(modelObject, statusModel, false, false, pageRef, modelObject.getKey() > 0));
+        return this;
+    }
+
+    /**
+     * Overrides default setItem() in order to clean statusModel as well.
+     *
+     * @param item item to be set.
+     * @return the current wizard.
+     */
+    @Override
+    public UserWizardBuilder setItem(final UserTO item) {
+        super.setItem(item);
+        statusModel.getObject().clear();
+        return this;
     }
 }

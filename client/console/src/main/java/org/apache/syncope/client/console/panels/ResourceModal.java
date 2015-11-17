@@ -88,7 +88,7 @@ public class ResourceModal extends AbstractResourceModal {
         //--------------------------------
         // Resource provision panels
         //--------------------------------
-        final ListViewPanel.Builder<ProvisionTO> builder = ListViewPanel.builder(ProvisionTO.class, pageRef);
+        final ListViewPanel.Builder<ProvisionTO> builder = new ListViewPanel.Builder<>(ProvisionTO.class, pageRef);
         builder.setItems(model.getObject().getProvisions());
         builder.includes("anyType", "objectClass");
 

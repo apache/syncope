@@ -55,8 +55,6 @@ public final class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> 
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    private final String entitlement = "GROUP_READ";
-
     private GroupSearchResultPanel(
             final String type,
             final String parentId,
@@ -123,8 +121,8 @@ public final class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> 
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final GroupTO anyTO) {
-                        send(GroupSearchResultPanel.this, Broadcast.BREADTH,
-                                new AjaxWizard.NewItemActionEvent<AnyTO>(model.getObject(), target));
+                        send(GroupSearchResultPanel.this, Broadcast.EXACT,
+                                new AjaxWizard.EditItemActionEvent<AnyTO>(model.getObject(), target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<GroupTO>() {
 

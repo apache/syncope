@@ -38,9 +38,9 @@ public class PasswordPanel extends Panel {
     public PasswordPanel(
             final String id, final UserTO userTO, final boolean resetPassword, final boolean templateMode) {
         super(id);
-        
+
         setOutputMarkupId(true);
-        
+
         final Form<?> form = new Form<>("passwordInnerForm");
         add(form);
 

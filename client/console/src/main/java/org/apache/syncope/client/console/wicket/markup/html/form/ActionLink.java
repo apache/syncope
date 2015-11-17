@@ -29,6 +29,8 @@ public abstract class ActionLink<T> implements Serializable {
 
     private T modelObject;
 
+    private boolean enabled = true;
+
     public ActionLink() {
     }
 
@@ -98,5 +100,18 @@ public abstract class ActionLink<T> implements Serializable {
     public ActionLink<T> feedbackPanelAutomaticReload(final boolean reloadFeedbackPanel) {
         this.reloadFeedbackPanel = reloadFeedbackPanel;
         return this;
+    }
+
+    protected boolean statusCondition(final T modelObject) {
+        return true;
+    }
+
+    public final ActionLink<T> disable() {
+        this.enabled = false;
+        return this;
+    }
+
+    public final boolean isEnabled(final T modelObject) {
+        return this.enabled && statusCondition(modelObject);
     }
 }

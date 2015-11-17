@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ImagePanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -48,9 +49,9 @@ public class StatusUtils implements Serializable {
 
     private static final String IMG_PREFIX = "/img/statuses/";
 
-    private final AbstractAnyRestClient restClient;
+    private final AbstractAnyRestClient<?> restClient;
 
-    public StatusUtils(final AbstractAnyRestClient restClient) {
+    public StatusUtils(final AbstractAnyRestClient<?> restClient) {
         this.restClient = restClient;
     }
 
@@ -137,6 +138,20 @@ public class StatusUtils implements Serializable {
         return name != null && name.getValues() != null && !name.getValues().isEmpty()
                 ? name.getValues().get(0)
                 : null;
+    }
+
+    public static PasswordPatch buildPasswordPatch(final String password, final Collection<StatusBean> statuses) {
+        final PasswordPatch.Builder builder = new PasswordPatch.Builder();
+        builder.value(password);
+
+        for (StatusBean status : statuses) {
+            if ("syncope".equalsIgnoreCase(status.getResourceName())) {
+                builder.onSyncope(true);
+            } else {
+                builder.resource(status.getResourceName());
+            }
+        }
+        return builder.build();
     }
 
     public static StatusPatch buildStatusPatch(final Collection<StatusBean> statuses) {

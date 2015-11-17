@@ -34,9 +34,11 @@ under the License.
 
         <wicket:child />
 
-        <div class="modal-footer" style="text-align: right">
-          <a haref="#"  class="btn btn-primary" wicket:id="add">Add</a>
-        </div>
+        <wicket:enclosure child="add">
+          <div class="modal-footer" style="text-align: right">
+            <a haref="#"  class="btn btn-primary" wicket:id="add">Add</a>
+          </div>
+        </wicket:enclosure>
       </wicket:fragment>
 
       <div wicket:id="modal" />

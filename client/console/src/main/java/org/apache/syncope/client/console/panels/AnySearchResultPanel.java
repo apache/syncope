@@ -142,8 +142,8 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
-                        send(AnySearchResultPanel.this, Broadcast.BREADTH,
-                                new AjaxWizard.NewItemActionEvent<>(model.getObject(), target));
+                        send(AnySearchResultPanel.this, Broadcast.EXACT,
+                                new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<T>() {
 

@@ -15,7 +15,9 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.GroupPatch;
@@ -23,6 +25,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.model.util.ListModel;
 
 public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
 
@@ -44,12 +47,6 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
     }
 
     @Override
-    protected WizardModel buildModelSteps(final GroupTO modelObject, final WizardModel wizardModel) {
-        wizardModel.add(new GroupDetails(modelObject, false));
-        return super.buildModelSteps(modelObject, wizardModel);
-    }
-
-    @Override
     protected void onApplyInternal(final GroupTO modelObject) {
         final ProvisioningResult<GroupTO> actual;
 
@@ -63,5 +60,12 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
                 actual = groupRestClient.update(getOriginalItem().getETagValue(), patch);
             }
         }
+    }
+
+    @Override
+    protected GroupWizardBuilder addOptionalDetailsPanel(final GroupTO modelObject, final WizardModel wizardModel) {
+        wizardModel.add(new GroupDetails(modelObject,
+                new ListModel<>(Collections.<StatusBean>emptyList()), false, pageRef, modelObject.getKey() > 0));
+        return this;
     }
 }

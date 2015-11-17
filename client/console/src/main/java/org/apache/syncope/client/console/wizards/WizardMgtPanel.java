@@ -34,7 +34,8 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 
 public abstract class WizardMgtPanel<T extends Serializable> extends Panel implements IEventSource {
 
@@ -94,7 +95,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                send(WizardMgtPanel.this, Broadcast.BREADTH, new AjaxWizard.NewItemActionEvent<T>(null, target));
+                send(WizardMgtPanel.this, Broadcast.EXACT, new AjaxWizard.NewItemActionEvent<T>(null, target));
             }
         };
 
@@ -107,15 +108,15 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
-            final AjaxRequestTarget target = AjaxWizard.NewItemEvent.class.cast(event.getPayload()).getTarget();
-
-            final T item = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getItem();
+            final AjaxWizard.NewItemEvent<T> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
+            final AjaxRequestTarget target = newItemEvent.getTarget();
+            final T item = newItemEvent.getItem();
 
             if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent) {
                 newItemPanelBuilder.setItem(item);
 
                 final AjaxWizard<T> wizard = newItemPanelBuilder.build(
-                        ((AjaxWizard.NewItemActionEvent<T>) event.getPayload()).getIndex(), item != null);
+                        ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(), item != null);
 
                 if (wizardInModal) {
                     final IModel<T> model = new CompoundPropertyModel<>(item);
@@ -123,7 +124,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
                     target.add(modal.setContent(wizard));
 
-                    modal.header(new ResourceModel("item.new", "New item"));
+                    modal.header(new StringResourceModel(
+                            String.format("any.%s", newItemEvent.getEventDescription()),
+                            this,
+                            new Model<T>(wizard.getItem())));
+
                     modal.show(true);
                 } else {
                     final Fragment fragment = new Fragment("content", "wizard", WizardMgtPanel.this);

@@ -16,8 +16,10 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Mode;
+import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -27,6 +29,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.model.util.ListModel;
 
 public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<T> implements Serializable {
 
@@ -52,6 +55,7 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<T> impl
 
     @Override
     protected WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel) {
+        addOptionalDetailsPanel(modelObject, wizardModel);
         wizardModel.add(new PlainAttrs(modelObject, null, Mode.ADMIN, anyTypeClasses.toArray(new String[] {})));
         wizardModel.add(new DerAttrs(modelObject, anyTypeClasses.toArray(new String[] {})));
         wizardModel.add(new VirAttrs(modelObject, anyTypeClasses.toArray(new String[] {})));
@@ -81,5 +85,13 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<T> impl
                 actual = anyTypeRestClient.update(getOriginalItem().getETagValue(), patch);
             }
         }
+    }
+
+    protected AnyWizardBuilder<T> addOptionalDetailsPanel(final T modelObject, final WizardModel wizardModel) {
+        if (modelObject.getKey() > 0) {
+            wizardModel.add(
+                    new Details(modelObject, new ListModel<>(Collections.<StatusBean>emptyList()), pageRef, true));
+        }
+        return this;
     }
 }

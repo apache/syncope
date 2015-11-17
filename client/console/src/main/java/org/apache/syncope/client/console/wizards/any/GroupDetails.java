@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.util.List;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
+import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -26,19 +28,19 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GroupDetails extends WizardStep {
+public class GroupDetails extends Details {
 
     private static final long serialVersionUID = 855618618337931784L;
 
@@ -57,7 +59,14 @@ public class GroupDetails extends WizardStep {
 
     private final OwnerModel groupOwnerModel;
 
-    public GroupDetails(final GroupTO groupTO, final boolean templateMode) {
+    public GroupDetails(
+            final GroupTO groupTO,
+            final IModel<List<StatusBean>> statusModel,
+            final boolean templateMode,
+            final PageReference pageRef,
+            final boolean includeStatusPanel) {
+        super(groupTO, statusModel, pageRef, includeStatusPanel);
+
         ownerContainer = new WebMarkupContainer("ownerContainer");
         ownerContainer.setOutputMarkupId(true);
         this.add(ownerContainer);

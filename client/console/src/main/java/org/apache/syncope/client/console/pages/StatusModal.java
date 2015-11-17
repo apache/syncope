@@ -64,7 +64,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
+public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
 
     private static final long serialVersionUID = -9148734710505211261L;
 
@@ -102,7 +102,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
 
     private final List<IColumn<StatusBean, String>> columns;
 
-    public StatusModalPage(
+    public StatusModal(
             final BaseModal<T> modal,
             final PageReference pageRef,
             final AnyTO attributableTO) {
@@ -110,7 +110,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
         this(modal, pageRef, attributableTO, false);
     }
 
-    public StatusModalPage(
+    public StatusModal(
             final BaseModal<T> modal,
             final PageReference pageRef,
             final AnyTO anyTO,
@@ -206,7 +206,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
         pwdMgt = new WebMarkupContainer("pwdMgt");
         pwdMgtFragment.add(pwdMgt.setOutputMarkupId(true));
 
-        pwdMgtForm = new Form("pwdMgtForm");
+        pwdMgtForm = new Form<>("pwdMgtForm");
         pwdMgtForm.setVisible(false).setEnabled(false);
         pwdMgt.add(pwdMgtForm);
 
@@ -403,7 +403,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                 public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
 
                     if (anyTO instanceof UserTO) {
-                        StatusModalPage.this.passwordManagement(
+                        StatusModal.this.passwordManagement(
                                 target, ResourceAssociationAction.PROVISION, table.getModelObject());
                     } else {
                         try {
@@ -460,7 +460,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                 @Override
                 public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                     if (anyTO instanceof UserTO) {
-                        StatusModalPage.this.passwordManagement(
+                        StatusModal.this.passwordManagement(
                                 target, ResourceAssociationAction.ASSIGN, table.getModelObject());
                     } else {
                         try {

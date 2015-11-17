@@ -26,9 +26,9 @@ public abstract class AjaxWizardBuilder<T extends Serializable> {
 
     private final String id;
 
-    private final PageReference pageRef;
+    protected final PageReference pageRef;
 
-    private T defaultItem;
+    private final T defaultItem;
 
     private T item;
 
@@ -102,5 +102,9 @@ public abstract class AjaxWizardBuilder<T extends Serializable> {
     public AjaxWizardBuilder<T> setItem(final T item) {
         this.item = item;
         return this;
+    }
+
+    public PageReference getPageReference() {
+        return pageRef;
     }
 }

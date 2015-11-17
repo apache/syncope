@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.wicket.ajax.markup.html;
 
-import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.commons.NotificationAwareComponent;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -54,9 +54,9 @@ public abstract class ClearIndicatingAjaxLink<T> extends IndicatingAjaxLink<T> {
 
     @Override
     public final void onClick(final AjaxRequestTarget target) {
-        Page page = pageRef.getPage();
-        if (reloadFeedbackPanel && page instanceof BasePage) {
-            target.add(((BasePage) page).getFeedbackPanel());
+        final Page page = pageRef.getPage();
+        if (reloadFeedbackPanel && page instanceof NotificationAwareComponent) {
+            ((NotificationAwareComponent) page).getFeedbackPanel().refresh(target);
         }
         onClickInternal(target);
     }

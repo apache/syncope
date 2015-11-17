@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.pages.StatusModalPage;
+import org.apache.syncope.client.console.pages.StatusModal;
 import org.apache.syncope.client.console.pages.UserDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -130,8 +130,8 @@ public final class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                         final IModel<UserTO> model = new CompoundPropertyModel<>(anyTO);
                         modal.setFormModel(model);
 
-                        target.add(modal.setContent(
-                                new StatusModalPage<>(modal, page.getPageReference(), model.getObject())));
+                        target.add(modal.
+                                setContent(new StatusModal<>(modal, page.getPageReference(), model.getObject())));
 
                         modal.header(new Model<>(MessageFormat.format(getString("any.edit"), anyTO.getKey())));
                         modal.show(true);
@@ -145,8 +145,8 @@ public final class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                         final IModel<UserTO> model = new CompoundPropertyModel<>(anyTO);
                         modal.setFormModel(model);
 
-                        target.add(modal.setContent(
-                                new StatusModalPage<>(modal, page.getPageReference(), model.getObject(), true)));
+                        target.add(modal.setContent(new StatusModal<>(modal, page.getPageReference(), model.getObject(),
+                                true)));
 
                         modal.header(new Model<>(MessageFormat.format(getString("any.edit"), anyTO.getKey())));
                         modal.show(true);
@@ -156,9 +156,9 @@ public final class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO anyTO) {
-                        send(UserSearchResultPanel.this, Broadcast.BREADTH,
-                                new AjaxWizard.NewItemActionEvent<AnyTO>(model.getObject(), target));
+                    public void onClick(final AjaxRequestTarget target, final UserTO modelObject) {
+                        send(UserSearchResultPanel.this, Broadcast.EXACT,
+                                new AjaxWizard.EditItemActionEvent<AnyTO>(model.getObject(), target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<UserTO>() {
 

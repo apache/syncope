@@ -69,8 +69,8 @@ public class PlainAttrs extends WizardStep {
 
     private final String[] anyTypeClass;
 
-    public <T extends AnyTO> PlainAttrs(final T entityTO, final Form<?> form, final Mode mode,
-            final String... anyTypeClass) {
+    public <T extends AnyTO> PlainAttrs(
+            final T entityTO, final Form<?> form, final Mode mode, final String... anyTypeClass) {
         this.setOutputMarkupId(true);
 
         this.entityTO = entityTO;

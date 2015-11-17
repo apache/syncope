@@ -54,7 +54,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     }
 
     @Override
-    public int count(final String realm) {
+    public int count(final String realm, final String type) {
         return getService(UserService.class).
                 list(SyncopeClient.getAnyListQueryBuilder().realm(realm).page(1).size(1).build()).
                 getTotalCount();

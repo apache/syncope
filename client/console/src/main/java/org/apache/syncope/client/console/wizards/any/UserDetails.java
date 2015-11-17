@@ -20,31 +20,41 @@ package org.apache.syncope.client.console.wizards.any;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.Collapsible;
 import java.util.Collections;
-import org.apache.syncope.client.console.commons.Constants;
+import java.util.List;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
+import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Component;
-import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
-import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class UserDetails extends WizardStep {
+public class UserDetails extends Details {
 
     private static final long serialVersionUID = 6592027822510220463L;
 
-    private static final String PASSWORD_CONTENT_PATH = "tabs:0:body:content";
+    private static final String PASSWORD_CONTENT_PATH = "body:content";
 
-    public UserDetails(final UserTO userTO, final boolean resetPassword, final boolean templateMode) {
+    public UserDetails(
+            final UserTO userTO,
+            final IModel<List<StatusBean>> statusModel,
+            final boolean resetPassword,
+            final boolean templateMode,
+            final PageReference pageRef,
+            final boolean includeStatusPanel) {
+        super(userTO, statusModel, pageRef, includeStatusPanel);
         // ------------------------
         // Username
         // ------------------------
@@ -87,24 +97,36 @@ public class UserDetails extends WizardStep {
 
             @Override
             protected Component newTitle(final String markupId, final ITab tab, final Collapsible.State state) {
-                return super.newTitle(markupId, tab, state).add(new AjaxEventBehavior(Constants.ON_CLICK) {
+                return new AjaxLink<Integer>(markupId) {
 
                     private static final long serialVersionUID = 1L;
 
                     @Override
-                    protected void onEvent(final AjaxRequestTarget target) {
+                    protected void onComponentTag(final ComponentTag tag) {
+                        super.onComponentTag(tag);
+                        tag.put("style", "color: #337ab7 !important");
+                    }
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
                         model.setObject(model.getObject() == 0 ? -1 : 0);
-                        final Component passwordPanel = get(PASSWORD_CONTENT_PATH);
-                        passwordPanel.setEnabled(model.getObject() >= 0);
+
+                        boolean enable = model.getObject() >= 0;
+
+                        final Component passwordPanel = getParent().get(PASSWORD_CONTENT_PATH);
+                        passwordPanel.setEnabled(enable);
+                        statusPanel.setCheckAvailability(enable
+                                ? ListViewPanel.CheckAvailability.AVAILABLE
+                                : ListViewPanel.CheckAvailability.DISABLED);
+
                         target.add(passwordPanel);
                     }
-                });
+                }.setBody(new ResourceModel("password.change", "Change password ..."));
             }
-
         };
 
         collapsible.setOutputMarkupId(true);
         add(collapsible);
-        // ------------------------
+        // ------------------------        
     }
 }

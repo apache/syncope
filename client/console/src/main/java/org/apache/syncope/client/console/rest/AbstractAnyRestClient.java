@@ -39,7 +39,7 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
 
     private static final long serialVersionUID = 1962529678091410544L;
 
-    public abstract int count(String realm);
+    public abstract int count(String realm, String type);
 
     public abstract List<T> list(String realm, int page, int size, final SortParam<String> sort, final String type);
 

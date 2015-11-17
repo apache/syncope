@@ -50,7 +50,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
     }
 
     @Override
-    public int count(final String realm) {
+    public int count(final String realm, final String type) {
         return getService(GroupService.class).
                 list(SyncopeClient.getAnyListQueryBuilder().realm(realm).page(1).size(1).build()).
                 getTotalCount();
