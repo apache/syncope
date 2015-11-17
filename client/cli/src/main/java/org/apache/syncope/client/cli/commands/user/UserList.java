@@ -44,8 +44,7 @@ public class UserList extends AbstractUserCommand {
             try {
                 final Scanner scanIn = new Scanner(System.in);
                 System.out.println(
-                        "\nThis operation could be print a lot of information "
-                        + "on your screen. Do you want to continue? [yes/no]");
+                        "\nThis operation might produce very heavy output. Do you want to continue? [yes/no]");
                 final String answer = scanIn.nextLine();
                 if ("yes".equalsIgnoreCase(answer)) {
                     final PagedResult<UserTO> uResult = userSyncopeOperations.list();
