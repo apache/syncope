@@ -56,6 +56,7 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<T> impl
     @Override
     protected WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel) {
         addOptionalDetailsPanel(modelObject, wizardModel);
+        wizardModel.add(new AuxClasses(modelObject, anyTypeClasses.toArray(new String[] {})));
         wizardModel.add(new PlainAttrs(modelObject, null, Mode.ADMIN, anyTypeClasses.toArray(new String[] {})));
         wizardModel.add(new DerAttrs(modelObject, anyTypeClasses.toArray(new String[] {})));
         wizardModel.add(new VirAttrs(modelObject, anyTypeClasses.toArray(new String[] {})));

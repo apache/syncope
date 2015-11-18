@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -26,10 +27,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.Mode;
-import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -40,56 +42,58 @@ import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel
 import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
-public class PlainAttrs extends WizardStep {
+public class PlainAttrs extends AbstractAttrs {
 
     private static final long serialVersionUID = 552437609667518888L;
-
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
-
-    private final AnyTO entityTO;
 
     private final Mode mode;
 
     private Map<String, PlainSchemaTO> schemas = new LinkedHashMap<>();
 
-    private final String[] anyTypeClass;
-
     public <T extends AnyTO> PlainAttrs(
             final T entityTO, final Form<?> form, final Mode mode, final String... anyTypeClass) {
+        super(entityTO);
         this.setOutputMarkupId(true);
 
-        this.entityTO = entityTO;
         this.mode = mode;
-        this.anyTypeClass = anyTypeClass;
 
-        setSchemas();
-        setAttrs();
-
-        add(new ListView<AttrTO>("schemas", new PropertyModel<List<AttrTO>>(entityTO, "plainAttrs") {
+        final LoadableDetachableModel<List<AttrTO>> plainAttrTOs = new LoadableDetachableModel<List<AttrTO>>() {
 
             private static final long serialVersionUID = 1L;
 
             @Override
-            public List<AttrTO> getObject() {
-                return new ArrayList<>(super.getObject());
-            }
+            protected List<AttrTO> load() {
+                setSchemas(CollectionUtils.collect(
+                        anyTypeRestClient.getAnyTypeClass(entityTO.getAuxClasses().toArray(new String[] {})),
+                        new Transformer<AnyTypeClassTO, String>() {
 
-        }) {
+                            @Override
+                            public String transform(final AnyTypeClassTO input) {
+                                return input.getKey();
+                            }
+                        }, new ArrayList<String>(Arrays.asList(anyTypeClass))));
+                setAttrs();
+                return new ArrayList<>(entityTO.getPlainAttrs());
+            }
+        };
+
+        add(new ListView<AttrTO>("schemas", plainAttrTOs) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
@@ -121,14 +125,14 @@ public class PlainAttrs extends WizardStep {
                                     panel));
                 }
             }
-        }
-        );
+        });
     }
 
-    private void setSchemas() {
+    private void setSchemas(final List<String> anyTypeClasses) {
 
         AttrTO attrLayout = null;
-        final List<PlainSchemaTO> schemaTOs = schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeClass);
+        final List<PlainSchemaTO> schemaTOs
+                = schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeClasses.toArray(new String[] {}));
 
         schemas.clear();
 

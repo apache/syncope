@@ -19,123 +19,113 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Fragment;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
-public class VirAttrs extends WizardStep {
+public class VirAttrs extends AbstractAttrs {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private SchemaRestClient schemaRestClient = new SchemaRestClient();
-
-    private final Map<String, VirSchemaTO> schemas = new TreeMap<String, VirSchemaTO>();
-
     public <T extends AnyTO> VirAttrs(final T entityTO, final String... anyTypeClass) {
+        super(entityTO);
         this.setOutputMarkupId(true);
 
-        final IModel<List<String>> virSchemas = new LoadableDetachableModel<List<String>>() {
+        final LoadableDetachableModel<List<AttrTO>> virAttrTOs = new LoadableDetachableModel<List<AttrTO>>() {
 
-            private static final long serialVersionUID = 5275935387613157437L;
+            private static final long serialVersionUID = 1L;
 
             @Override
-            protected List<String> load() {
-                List<VirSchemaTO> schemaTOs = schemaRestClient.getSchemas(SchemaType.VIRTUAL, anyTypeClass);
+            protected List<AttrTO> load() {
+                final List<String> classes = CollectionUtils.collect(
+                        anyTypeRestClient.getAnyTypeClass(entityTO.getAuxClasses().toArray(new String[] {})),
+                        new Transformer<AnyTypeClassTO, String>() {
 
-                schemas.clear();
+                            @Override
+                            public String transform(final AnyTypeClassTO input) {
+                                return input.getKey();
+                            }
+                        }, new ArrayList<String>(Arrays.asList(anyTypeClass)));
 
-                for (VirSchemaTO schemaTO : schemaTOs) {
-                    schemas.put(schemaTO.getKey(), schemaTO);
-                }
+                final List<VirSchemaTO> virSchemas
+                        = schemaRestClient.getSchemas(SchemaType.VIRTUAL, classes.toArray(new String[] {}));
 
-                return new ArrayList<>(schemas.keySet());
+                final Map<String, AttrTO> currents = entityTO.getVirAttrMap();
+                entityTO.getVirAttrs().clear();
+
+                return CollectionUtils.collect(virSchemas, new Transformer<VirSchemaTO, AttrTO>() {
+
+                    @Override
+                    public AttrTO transform(final VirSchemaTO input) {
+                        AttrTO attrTO = currents.get(input.getKey());
+                        if (attrTO == null) {
+                            attrTO = new AttrTO();
+                            attrTO.setSchema(input.getKey());
+                            attrTO.getValues().add(StringUtils.EMPTY);
+                        } else if (attrTO.getValues().isEmpty()) {
+                            attrTO.getValues().add("");
+                        }
+
+                        attrTO.setReadonly(input.isReadonly());
+                        return attrTO;
+                    }
+                }, new ArrayList<>(entityTO.getVirAttrs()));
             }
         };
 
-        final Map<String, AttrTO> virAttrMap = entityTO.getVirAttrMap();
-        CollectionUtils.collect(virSchemas.getObject(), new Transformer<String, AttrTO>() {
+        final WebMarkupContainer attributesContainer = new WebMarkupContainer("virAttrContainer");
+        attributesContainer.setOutputMarkupId(true);
+        add(attributesContainer);
+
+        ListView<AttrTO> attributes = new ListView<AttrTO>("attrs", virAttrTOs) {
+
+            private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
-            public AttrTO transform(final String input) {
-                AttrTO attrTO = virAttrMap.get(input);
-                if (attrTO == null) {
-                    attrTO = new AttrTO();
-                    attrTO.setSchema(input);
-                    attrTO.getValues().add(StringUtils.EMPTY);
-                } else if (attrTO.getValues().isEmpty()) {
-                    attrTO.getValues().add("");
+            public void renderHead(final IHeaderResponse response) {
+                super.renderHead(response);
+                if (virAttrTOs.getObject().isEmpty()) {
+                    response.render(OnDomReadyHeaderItem.forScript(
+                            String.format("$('#emptyPlaceholder').append(\"%s\")", getString("attribute.empty.list"))));
                 }
-
-                return attrTO;
             }
-        }, entityTO.getVirAttrs());
 
-        final Fragment fragment;
-        if (entityTO.getVirAttrs().isEmpty()) {
-            // show empty list message
-            fragment = new Fragment("content", "empty", this);
-        } else {
-            fragment = new Fragment("content", "attributes", this);
+            @Override
+            @SuppressWarnings("unchecked")
+            protected void populateItem(final ListItem<AttrTO> item) {
+                AttrTO attrTO = item.getModelObject();
 
-            final WebMarkupContainer attributesContainer = new WebMarkupContainer("virAttrContainer");
-            attributesContainer.setOutputMarkupId(true);
-            fragment.add(attributesContainer);
+                attrTO.setReadonly(attrTO.isReadonly());
 
-            ListView<AttrTO> attributes = new ListView<AttrTO>("attrs",
-                    new PropertyModel<List<AttrTO>>(entityTO, "virAttrs") {
+                final AjaxTextFieldPanel panel = new AjaxTextFieldPanel(
+                        "panel", attrTO.getSchema(), new Model<String>(), false);
 
-                        private static final long serialVersionUID = 1L;
+                item.add(new MultiFieldPanel.Builder<String>(
+                        new PropertyModel<List<String>>(attrTO, "values")).build(
+                                "panel",
+                                attrTO.getSchema(),
+                                panel).setEnabled(!attrTO.isReadonly()));
+            }
+        };
 
-                        @Override
-                        public List<AttrTO> getObject() {
-                            return new ArrayList<>(entityTO.getVirAttrs());
-                        }
-
-                    }) {
-
-                        private static final long serialVersionUID = 9101744072914090143L;
-
-                        @Override
-                        @SuppressWarnings("unchecked")
-                        protected void populateItem(final ListItem<AttrTO> item) {
-                            AttrTO attrTO = item.getModelObject();
-                            final VirSchemaTO schema = schemas.get(attrTO.getSchema());
-
-                            attrTO.setReadonly(schema.isReadonly());
-
-                            final AjaxTextFieldPanel panel = new AjaxTextFieldPanel(
-                                    "panel", attrTO.getSchema(), new Model<String>(), false);
-
-                            item.add(new MultiFieldPanel.Builder<String>(
-                                            new PropertyModel<List<String>>(attrTO, "values")).build(
-                                            "panel",
-                                            schema.getKey(),
-                                            panel).setEnabled(!schema.isReadonly()));
-                        }
-                    };
-
-            attributesContainer.add(attributes);
-        }
-
-        add(fragment);
+        attributesContainer.add(attributes);
     }
 }

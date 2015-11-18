@@ -16,27 +16,18 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org" xmlns:message="http://xmlns.jcp.org/jsf/composite">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org" >
   <head><title></title></head>
   <body>
     <wicket:panel>
-      <span wicket:id="content">[CONTENT]</span>
-      
-      <wicket:fragment wicket:id="empty">
-        <div class="attribute.empty.list">
-          <wicket:message key="attribute.empty.list"/>
+      <div id="emptyPlaceholder"/>
+      <div wicket:id="derAttrContainer">
+        <div class="form-group" wicket:id="attrs">
+          <span wicket:id="panel">
+            [panel for dynamic input type markup]
+          </span>
         </div>
-      </wicket:fragment>
-      
-      <wicket:fragment wicket:id="attributes">
-        <div wicket:id="derAttrContainer">
-          <div class="form-group" wicket:id="attrs">
-            <span wicket:id="panel">
-              [panel for dynamic input type markup]
-            </span>
-          </div>
-        </div>
-      </wicket:fragment>
+      </div>
     </wicket:panel>
   </body>
 </html>

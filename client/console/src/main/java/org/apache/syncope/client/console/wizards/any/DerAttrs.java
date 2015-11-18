@@ -19,120 +19,120 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.MarkupStream;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class DerAttrs extends WizardStep {
+public class DerAttrs extends AbstractAttrs {
 
     private static final long serialVersionUID = -5387344116983102292L;
 
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
-
     public <T extends AnyTO> DerAttrs(final T entityTO, final String... anyTypeClass) {
-
+        super(entityTO);
         setOutputMarkupId(true);
 
-        final IModel<List<String>> derSchemas = new LoadableDetachableModel<List<String>>() {
+        final LoadableDetachableModel<List<AttrTO>> derAttrTOs = new LoadableDetachableModel<List<AttrTO>>() {
 
-            private static final long serialVersionUID = 5275935387613157437L;
+            private static final long serialVersionUID = 1L;
 
             @Override
-            protected List<String> load() {
-                List<DerSchemaTO> derSchemaNames = schemaRestClient.getSchemas(SchemaType.DERIVED, anyTypeClass);
+            protected List<AttrTO> load() {
+                final List<String> classes = CollectionUtils.collect(
+                        anyTypeRestClient.getAnyTypeClass(entityTO.getAuxClasses().toArray(new String[] {})),
+                        new Transformer<AnyTypeClassTO, String>() {
 
-                return new ArrayList<>(CollectionUtils.collect(derSchemaNames, new Transformer<DerSchemaTO, String>() {
+                            @Override
+                            public String transform(final AnyTypeClassTO input) {
+                                return input.getKey();
+                            }
+                        }, new ArrayList<String>(Arrays.asList(anyTypeClass)));
+
+                final List<DerSchemaTO> derSchemas
+                        = schemaRestClient.getSchemas(SchemaType.DERIVED, classes.toArray(new String[] {}));
+
+                final Map<String, AttrTO> currents = entityTO.getDerAttrMap();
+                entityTO.getDerAttrs().clear();
+
+                return CollectionUtils.collect(derSchemas, new Transformer<DerSchemaTO, AttrTO>() {
 
                     @Override
-                    public String transform(final DerSchemaTO input) {
-                        return input.getKey();
+                    public AttrTO transform(final DerSchemaTO input) {
+                        AttrTO attrTO = currents.get(input.getKey());
+                        if (attrTO == null) {
+                            attrTO = new AttrTO();
+                            attrTO.setSchema(input.getKey());
+                        }
+                        return attrTO;
                     }
-                }));
+                }, new ArrayList<>(entityTO.getDerAttrs()));
             }
         };
 
-        final Map<String, AttrTO> derAttrMap = entityTO.getDerAttrMap();
-        CollectionUtils.collect(derSchemas.getObject(), new Transformer<String, AttrTO>() {
+        final WebMarkupContainer attributesContainer = new WebMarkupContainer("derAttrContainer");
+        attributesContainer.setOutputMarkupId(true);
+        add(attributesContainer);
+
+        ListView<AttrTO> attributes = new ListView<AttrTO>("attrs", derAttrTOs) {
+
+            private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
-            public AttrTO transform(final String input) {
-                AttrTO attrTO = derAttrMap.get(input);
-                if (attrTO == null) {
-                    attrTO = new AttrTO();
-                    attrTO.setSchema(input);
+            public void renderHead(final IHeaderResponse response) {
+                super.renderHead(response);
+                if (derAttrTOs.getObject().isEmpty()) {
+                    response.render(OnDomReadyHeaderItem.forScript(
+                            String.format("$('#emptyPlaceholder').append(\"%s\")", getString("attribute.empty.list"))));
                 }
-                return attrTO;
             }
-        }, entityTO.getDerAttrs());
 
-        final Fragment fragment;
-        if (entityTO.getDerAttrs().isEmpty()) {
-            // show empty list message
-            fragment = new Fragment("content", "empty", this);
-        } else {
-            fragment = new Fragment("content", "attributes", this);
+            @Override
+            public void onComponentTagBody(final MarkupStream markupStream, final ComponentTag openTag) {
+                super.onComponentTagBody(markupStream, openTag);
+                openTag.put("class", "empty");
+            }
 
-            final WebMarkupContainer attributesContainer = new WebMarkupContainer("derAttrContainer");
-            attributesContainer.setOutputMarkupId(true);
-            fragment.add(attributesContainer);
+            @Override
+            protected void populateItem(final ListItem<AttrTO> item) {
+                final AttrTO attrTO = item.getModelObject();
 
-            ListView<AttrTO> attributes = new ListView<AttrTO>("attrs",
-                    new PropertyModel<List<AttrTO>>(entityTO, "derAttrs") {
+                final IModel<String> model;
+                final List<String> values = attrTO.getValues();
+                if (values == null || values.isEmpty()) {
+                    model = new ResourceModel("derived.emptyvalue.message", StringUtils.EMPTY);
+                } else {
+                    model = new Model<String>(values.get(0));
+                }
 
-                        private static final long serialVersionUID = 1L;
+                final AjaxTextFieldPanel panel = new AjaxTextFieldPanel(
+                        "panel", attrTO.getSchema(), model, false);
 
-                        @Override
-                        public List<AttrTO> getObject() {
-                            return new ArrayList<>(entityTO.getDerAttrs());
-                        }
+                panel.setEnabled(false);
+                panel.setRequired(true);
+                panel.setOutputMarkupId(true);
+                item.add(panel);
 
-                    }) {
-
-                        private static final long serialVersionUID = 9101744072914090143L;
-
-                        @Override
-                        protected void populateItem(final ListItem<AttrTO> item) {
-                            final AttrTO attrTO = item.getModelObject();
-
-                            final IModel<String> model;
-                            final List<String> values = attrTO.getValues();
-                            if (values == null || values.isEmpty()) {
-                                model = new ResourceModel("derived.emptyvalue.message", StringUtils.EMPTY);
-                            } else {
-                                model = new Model<String>(values.get(0));
-                            }
-
-                            final AjaxTextFieldPanel panel = new AjaxTextFieldPanel(
-                                    "panel", attrTO.getSchema(), model, false);
-
-                            panel.setEnabled(false);
-                            panel.setRequired(true);
-                            panel.setOutputMarkupId(true);
-                            item.add(panel);
-
-                        }
-                    };
-            attributesContainer.add(attributes);
-        }
-
-        add(fragment);
+            }
+        };
+        attributesContainer.add(attributes);
     }
 }
