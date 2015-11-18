@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <!--
    Licensed to the Apache Software Foundation (ASF) under one or more
    contributor license agreements.  See the NOTICE file distributed with
@@ -17,52 +16,41 @@
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-
-    <div style="display: inline-table;">
-      <input type="hidden" wicket:id="recorder"/>
-
-      <div style="display: table-row">
-        <div id="choices" style="display: table-cell; text-align: center; font-weight: bold;">
+    <input type="hidden" wicket:id="recorder"/>
+    <div class="col-md-4">
+      <div class="form-group">
+        <label>
           <span wicket:id="availableHeader">[available header]</span>
-        </div>
-
-        <div id="buttons" style="display: table-cell;">
-        </div>
-
-        <div id="selections" style="display: table-cell; text-align: center; font-weight: bold;">
-          <span wicket:id="selectedHeader">[selected header]</span>
-        </div>
+        </label>
+        <select class="form-control" style="min-width: 100px;" wicket:id="choices">[choices]</select>
       </div>
-
-      <div style="display: table-row">
-        <div id="choices" style="display: table-cell;">
-          <select class="choicesSelect" style="min-width: 100px;" wicket:id="choices">[choices]</select>	
-        </div>
-
-        <div id="buttons" style="display: table-cell; width: 30px; text-align: center; vertical-align: middle;">
-          <div style="padding-bottom: 2px;">
-            <a wicket:id="addAllButton"><img src="img/addAll.png" alt="remove icon"/></a>
-          </div>
-          <div style="padding-top: 2px; padding-bottom: 2px;">
-            <a wicket:id="removeAllButton"><img src="img/removeAll.png" alt="move up icon"/></a>
-          </div>
-          <div style="padding-top: 2px; padding-bottom: 2px;">
-            <a wicket:id="addButton"><img src="img/add.png" alt="add icon"/></a>
-          </div>
-          <div style="padding-top: 2px; padding-bottom: 2px;">
-            <a wicket:id="removeButton"><img src="img/remove.png" alt="remove icon"/></a>
-          </div>
-          <div style="padding-top: 2px; padding-bottom: 2px;">
-            <a wicket:id="moveUpButton"><img src="img/moveUp.png" alt="move up icon"/></a>
-          </div>
-          <div style="padding-top: 2px;">
-            <a wicket:id="moveDownButton"><img src="img/moveDown.png" alt="move down icon"/></a>
-          </div>
-        </div>
-
-        <div id="selections" style="display: table-cell;">
-          <select class="selectionSelect" style="min-width: 100px;" wicket:id="selection">[selection]</select>	
-        </div>
+    </div>
+    <div style="width: 20px; float: left; padding-top: 30px; text-align: center">
+      <div style="padding-top: 2px;">
+        <a wicket:id="addAllButton"><i class="glyphicon glyphicon-forward"></i></a>
+      </div>
+      <div style="padding-top: 2px;">
+        <a wicket:id="removeAllButton"><i class="glyphicon glyphicon-backward"></i></a>
+      </div>
+      <div style="padding-top: 2px;">
+        <a wicket:id="addButton"><i class="glyphicon glyphicon-triangle-right"></i></a>
+      </div>
+      <div style="padding-top: 2px;">
+        <a wicket:id="removeButton"><i class="glyphicon glyphicon-triangle-left"></i></a>
+      </div>
+      <div style="padding-top: 2px;">
+        <a wicket:id="moveUpButton"><i class="glyphicon glyphicon-triangle-top"></i></a>
+      </div>
+      <div style="padding-top: 2px;">
+        <a wicket:id="moveDownButton"><i class="glyphicon glyphicon-triangle-bottom"></i></a>
+      </div>          
+    </div>
+    <div class="col-md-4">
+      <div class="form-group">
+        <label>
+          <span wicket:id="selectedHeader">[selected header]</span>
+        </label>
+        <select class="form-control" style="min-width: 100px;" wicket:id="selection">[selection]</select>	
       </div>
     </div>
   </wicket:panel>
