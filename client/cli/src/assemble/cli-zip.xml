@@ -46,6 +46,7 @@ under the License.
         <include>syncopeadm.bat</include>
       </includes>
       <outputDirectory>${project.build.finalName}</outputDirectory>
+      <fileMode>0755</fileMode>
     </fileSet>
   </fileSets>
 
