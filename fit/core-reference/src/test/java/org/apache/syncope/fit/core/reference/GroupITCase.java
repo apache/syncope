@@ -76,6 +76,8 @@ import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -159,7 +161,7 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void list() {
         PagedResult<GroupTO> groupTOs =
-                groupService.list(SyncopeClient.getAnyListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
+                groupService.list(new AnyListQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
         assertNotNull(groupTOs);
         assertTrue(groupTOs.getResult().size() >= 8);
         for (GroupTO groupTO : groupTOs.getResult()) {
@@ -558,16 +560,14 @@ public class GroupITCase extends AbstractITCase {
     public void anonymous() {
         GroupService unauthenticated = clientFactory.create().getService(GroupService.class);
         try {
-            unauthenticated.
-                    list(SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
+            unauthenticated.list(new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
         GroupService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(GroupService.class);
-        assertFalse(anonymous.list(SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
-                build()).
+        assertFalse(anonymous.list(new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).
                 getResult().isEmpty());
     }
 

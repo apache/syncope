@@ -35,13 +35,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.logic.notification.NotificationJob;
 
@@ -166,7 +166,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
     protected NotificationTaskTO findNotificationTaskBySender(final String sender) {
         PagedResult<NotificationTaskTO> tasks =
-                taskService.list(TaskType.NOTIFICATION, SyncopeClient.getTaskQueryBuilder().build());
+                taskService.list(TaskType.NOTIFICATION, new TaskQuery.Builder().build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 

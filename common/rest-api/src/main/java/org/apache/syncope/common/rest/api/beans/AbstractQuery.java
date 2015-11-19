@@ -28,6 +28,42 @@ public abstract class AbstractQuery extends AbstractBaseBean {
 
     private static final long serialVersionUID = -371488230250055359L;
 
+    protected abstract static class Builder<Q extends AbstractQuery, B extends Builder<Q, B>> {
+
+        private Q instance;
+
+        protected abstract Q newInstance();
+
+        protected Q getInstance() {
+            if (instance == null) {
+                instance = newInstance();
+            }
+            return instance;
+        }
+
+        @SuppressWarnings("unchecked")
+        public B page(final Integer page) {
+            getInstance().setPage(page);
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public B size(final Integer size) {
+            getInstance().setSize(size);
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public B orderBy(final String orderBy) {
+            getInstance().setOrderBy(orderBy);
+            return (B) this;
+        }
+
+        public Q build() {
+            return getInstance();
+        }
+    }
+
     private Integer page;
 
     private Integer size;

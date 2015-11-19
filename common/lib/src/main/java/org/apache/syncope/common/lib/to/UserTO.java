@@ -43,9 +43,9 @@ public class UserTO extends AnyTO {
 
     private String password;
 
-    private final List<Long> roles = new ArrayList<>();
+    private final List<String> roles = new ArrayList<>();
 
-    private final List<Long> dynRoles = new ArrayList<>();
+    private final List<String> dynRoles = new ArrayList<>();
 
     private String token;
 
@@ -92,14 +92,14 @@ public class UserTO extends AnyTO {
     @XmlElementWrapper(name = "roles")
     @XmlElement(name = "role")
     @JsonProperty("roles")
-    public List<Long> getRoles() {
+    public List<String> getRoles() {
         return roles;
     }
 
     @XmlElementWrapper(name = "dynRoles")
     @XmlElement(name = "role")
     @JsonProperty("dynRoles")
-    public List<Long> getDynRoles() {
+    public List<String> getDynRoles() {
         return dynRoles;
     }
 

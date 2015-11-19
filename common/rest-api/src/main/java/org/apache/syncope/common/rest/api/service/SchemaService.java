@@ -20,6 +20,7 @@ package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -28,11 +29,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 
 /**
  * REST operations for attribute schemas.
@@ -55,17 +56,18 @@ public interface SchemaService extends JAXRSService {
             @NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 
     /**
-     * Returns a list of schemas with matching type, for the given anyTypeClass if provided.
+     * Returns a list of schemas matching type and the given query.
      *
      * @param <T> actual SchemaTO
      * @param type type for schemas to be listed
-     * @param anyTypeClass any type class name
+     * @param query query conditions
      * @return list of schemas with matching type, for the given anyTypeClass if provided
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> List<T> list(@NotNull @PathParam("type") SchemaType type, 
-            @QueryParam("anyType") String anyTypeClass);
+    <T extends AbstractSchemaTO> List<T> list(
+            @NotNull @PathParam("type") SchemaType type,
+            @BeanParam SchemaQuery query);
 
     /**
      * Creates a new schema.

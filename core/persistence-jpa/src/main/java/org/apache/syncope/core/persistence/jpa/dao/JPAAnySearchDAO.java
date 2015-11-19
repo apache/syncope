@@ -399,10 +399,8 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
             if (any == null) {
                 LOG.error("Could not find {} with id {}, even though returned by the native query",
                         typeKind, actualKey);
-            } else {
-                if (!result.contains(any)) {
-                    result.add(any);
-                }
+            } else if (!result.contains(any)) {
+                result.add(any);
             }
         }
 
@@ -554,7 +552,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
 
         query.append("SELECT DISTINCT any_id ").append("FROM ").
                 append(svs.role().name).append(" WHERE ").
-                append("role_id=?").append(setParameter(parameters, cond.getRoleKey())).
+                append("role_name=?").append(setParameter(parameters, cond.getRoleKey())).
                 append(')');
 
         if (not) {
@@ -565,7 +563,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
 
         query.append("SELECT DISTINCT any_id ").append("FROM ").
                 append(svs.dynrolemembership().name).append(" WHERE ").
-                append("role_id=?").append(setParameter(parameters, cond.getRoleKey())).
+                append("role_name=?").append(setParameter(parameters, cond.getRoleKey())).
                 append(')');
 
         return query.toString();
@@ -721,20 +719,18 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
                     append(" WHERE any_id NOT IN (SELECT any_id FROM ").
                     append(svs.nullAttr().name).
                     append(" WHERE schema_name='").append(schema.getKey()).append("')");
+        } else if (cond.getType() == AttributeCond.Type.ISNULL) {
+            query.append(svs.nullAttr().name).
+                    append(" WHERE schema_name='").append(schema.getKey()).append("'");
         } else {
-            if (cond.getType() == AttributeCond.Type.ISNULL) {
-                query.append(svs.nullAttr().name).
-                        append(" WHERE schema_name='").append(schema.getKey()).append("'");
+            if (schema.isUniqueConstraint()) {
+                query.append(svs.uniqueAttr().name);
             } else {
-                if (schema.isUniqueConstraint()) {
-                    query.append(svs.uniqueAttr().name);
-                } else {
-                    query.append(svs.attr().name);
-                }
-                query.append(" WHERE schema_name='").append(schema.getKey());
-
-                fillAttributeQuery(query, attrValue, schema, cond, not, parameters, svs);
+                query.append(svs.attr().name);
             }
+            query.append(" WHERE schema_name='").append(schema.getKey());
+
+            fillAttributeQuery(query, attrValue, schema, cond, not, parameters, svs);
         }
 
         return query.toString();

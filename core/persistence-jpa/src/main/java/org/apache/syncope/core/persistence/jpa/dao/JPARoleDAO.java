@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
-import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -37,30 +36,14 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPARoleDAO extends AbstractDAO<Role, Long> implements RoleDAO {
+public class JPARoleDAO extends AbstractDAO<Role, String> implements RoleDAO {
 
     @Autowired
     private AnySearchDAO searchDAO;
 
     @Override
-    public Role find(final Long key) {
+    public Role find(final String key) {
         return entityManager().find(JPARole.class, key);
-    }
-
-    @Override
-    public Role find(final String name) {
-        TypedQuery<Role> query = entityManager().createQuery(
-                "SELECT e FROM " + JPARole.class.getSimpleName() + " e WHERE e.name=:name", Role.class);
-        query.setParameter("name", name);
-
-        Role result = null;
-        try {
-            result = query.getSingleResult();
-        } catch (NoResultException e) {
-            LOG.debug("Found more than one match", e);
-        }
-
-        return result;
     }
 
     @Override
@@ -108,7 +91,7 @@ public class JPARoleDAO extends AbstractDAO<Role, Long> implements RoleDAO {
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         Role role = find(key);
         if (role == null) {
             return;

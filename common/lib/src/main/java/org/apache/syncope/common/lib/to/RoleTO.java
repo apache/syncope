@@ -36,9 +36,7 @@ public class RoleTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 4560822655754800031L;
 
-    private long key;
-
-    private String name;
+    private String key;
 
     private final Set<String> entitlements = new HashSet<>();
 
@@ -46,21 +44,13 @@ public class RoleTO extends AbstractBaseBean {
 
     private String dynMembershipCond;
 
-    public long getKey() {
+    public String getKey() {
         return key;
     }
 
     @PathParam("key")
-    public void setKey(final long key) {
+    public void setKey(final String key) {
         this.key = key;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
     }
 
     @XmlElementWrapper(name = "entitlements")

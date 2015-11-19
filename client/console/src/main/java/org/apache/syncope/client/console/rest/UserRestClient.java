@@ -23,7 +23,6 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -34,6 +33,8 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StatusPatchType;
+import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -56,7 +57,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     @Override
     public int count(final String realm, final String type) {
         return getService(UserService.class).
-                list(SyncopeClient.getAnyListQueryBuilder().realm(realm).page(1).size(1).build()).
+                list(new AnyListQuery.Builder().realm(realm).page(1).size(1).build()).
                 getTotalCount();
     }
 
@@ -64,7 +65,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     public List<UserTO> list(final String realm, final int page, final int size, final SortParam<String> sort,
             final String type) {
         return getService(UserService.class).
-                list(SyncopeClient.getAnyListQueryBuilder().realm(realm).page(page).size(size).
+                list(new AnyListQuery.Builder().realm(realm).page(page).size(size).
                         orderBy(toOrderBy(sort)).details(false).build()).getResult();
     }
 
@@ -103,7 +104,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     @Override
     public int searchCount(final String realm, final String fiql, final String type) {
         return getService(UserService.class).
-                search(SyncopeClient.getAnySearchQueryBuilder().realm(realm).fiql(fiql).page(1).size(1).build()).
+                search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(1).size(1).build()).
                 getTotalCount();
     }
 
@@ -113,7 +114,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
             final String type) {
 
         return getService(UserService.class).
-                search(SyncopeClient.getAnySearchQueryBuilder().realm(realm).fiql(fiql).page(page).size(size).
+                search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
                         orderBy(toOrderBy(sort)).details(false).build()).getResult();
     }
 

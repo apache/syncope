@@ -26,6 +26,20 @@ public class AnyQuery extends AbstractQuery {
 
     private static final long serialVersionUID = -371488230250055359L;
 
+    public static class Builder extends AbstractQuery.Builder<AnyQuery, Builder> {
+
+        @Override
+        protected AnyQuery newInstance() {
+            return new AnyQuery();
+        }
+
+        public Builder details(final boolean details) {
+            getInstance().setDetails(details);
+            return this;
+        }
+
+    }
+
     private Boolean details;
 
     public boolean isDetails() {

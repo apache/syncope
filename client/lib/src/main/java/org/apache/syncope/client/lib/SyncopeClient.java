@@ -30,11 +30,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.lib.builders.AnyQueryBuilder;
-import org.apache.syncope.client.lib.builders.AnyListQueryBuilder;
-import org.apache.syncope.client.lib.builders.AnySearchQueryBuilder;
-import org.apache.syncope.client.lib.builders.ConnObjectTOListQueryBuilder;
-import org.apache.syncope.client.lib.builders.TaskQueryBuilder;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
@@ -114,56 +109,6 @@ public class SyncopeClient {
     }
 
     /**
-     * Returns a new instance of {@link TaskQueryBuilder}, for assisted building of some service's {@code list()}
-     * arguments.
-     *
-     * @return default instance of {@link AnyQueryBuilder}
-     */
-    public static TaskQueryBuilder getTaskQueryBuilder() {
-        return new TaskQueryBuilder();
-    }
-
-    /**
-     * Returns a new instance of {@link AnyQueryBuilder}, for assisted building of some service's {@code list()}
-     * arguments.
-     *
-     * @return default instance of {@link AnyQueryBuilder}
-     */
-    public static AnyQueryBuilder getAnyQueryBuilder() {
-        return new AnyQueryBuilder();
-    }
-
-    /**
-     * Returns a new instance of {@link AnyListQueryBuilder}, for assisted building of some service's {@code list()}
-     * arguments.
-     *
-     * @return default instance of {@link AnyListQueryBuilder}
-     */
-    public static AnyListQueryBuilder getAnyListQueryBuilder() {
-        return new AnyListQueryBuilder();
-    }
-
-    /**
-     * Returns a new instance of {@link AnySearchQueryBuilder}, for assisted building of some service's
-     * {@code search()} arguments.
-     *
-     * @return default instance of {@link AnySearchQueryBuilder}
-     */
-    public static AnySearchQueryBuilder getAnySearchQueryBuilder() {
-        return new AnySearchQueryBuilder();
-    }
-
-    /**
-     * Returns a new instance of {@link ConnObjectTOListQueryBuilder}, for assisted building of some service's
-     * {@code list()} arguments.
-     *
-     * @return default instance of {@link ConnObjectTOListQueryBuilder}
-     */
-    public static ConnObjectTOListQueryBuilder getConnObjectTOListQueryBuilder() {
-        return new ConnObjectTOListQueryBuilder();
-    }
-
-    /**
      * Creates an instance of the given service class, with configured content type and authentication.
      *
      * @param <T> any service class
@@ -196,7 +141,7 @@ public class SyncopeClient {
                     (Map<String, Set<String>>) new ObjectMapper().readValue(
                             response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS),
                             new TypeReference<HashMap<String, Set<String>>>() {
-                            }),
+                    }),
                     response.readEntity(UserTO.class));
         } catch (IOException e) {
             throw new IllegalStateException(e);

@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.LongPatchItem;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.report.UserReportletConf;
@@ -79,7 +79,7 @@ public class JSONTest {
                 value("newpassword").
                 build());
         assertNotNull(patch.getPassword().getValue());
-        patch.getRoles().add(new LongPatchItem.Builder().operation(PatchOperation.DELETE).value(7L).build());
+        patch.getRoles().add(new StringPatchItem.Builder().operation(PatchOperation.DELETE).value("role").build());
 
         ObjectMapper mapper = new ObjectMapper();
 

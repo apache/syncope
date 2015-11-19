@@ -45,15 +45,12 @@ public class RoleTest extends AbstractTest {
 
     @Test
     public void find() {
-        Role role1 = roleDAO.find(2L);
-        assertNotNull(role1);
-        assertNotNull(role1.getName());
-        assertFalse(role1.getRealms().isEmpty());
-        assertFalse(role1.getEntitlements().isEmpty());
-        assertTrue(role1.getEntitlements().contains(StandardEntitlement.USER_LIST));
-
-        Role role2 = roleDAO.find(role1.getName());
-        assertEquals(role1, role2);
+        Role role = roleDAO.find("User manager");
+        assertNotNull(role);
+        assertNotNull(role.getKey());
+        assertFalse(role.getRealms().isEmpty());
+        assertFalse(role.getEntitlements().isEmpty());
+        assertTrue(role.getEntitlements().contains(StandardEntitlement.USER_LIST));
     }
 
     @Test
@@ -69,7 +66,7 @@ public class RoleTest extends AbstractTest {
     @Test
     public void save() {
         Role role = entityFactory.newEntity(Role.class);
-        role.setName("new");
+        role.setKey("new");
         role.add(realmDAO.getRoot());
         role.add(realmDAO.find("/even/two"));
         role.getEntitlements().add(StandardEntitlement.LOG_LIST);
@@ -81,9 +78,9 @@ public class RoleTest extends AbstractTest {
 
     @Test
     public void delete() {
-        assertNotNull(roleDAO.find(3L));
+        assertNotNull(roleDAO.find("Other"));
 
-        roleDAO.delete(3L);
-        assertNull(roleDAO.find(3L));
+        roleDAO.delete("Other");
+        assertNull(roleDAO.find("Other"));
     }
 }

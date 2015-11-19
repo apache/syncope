@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -40,9 +41,9 @@ public class DerSchemaITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<DerSchemaTO> derivedSchemas = schemaService.list(SchemaType.DERIVED, null);
-        assertFalse(derivedSchemas.isEmpty());
-        for (DerSchemaTO derivedSchemaTO : derivedSchemas) {
+        List<DerSchemaTO> derSchemas = schemaService.list(SchemaType.DERIVED, new SchemaQuery.Builder().build());
+        assertFalse(derSchemas.isEmpty());
+        for (DerSchemaTO derivedSchemaTO : derSchemas) {
             assertNotNull(derivedSchemaTO);
         }
     }

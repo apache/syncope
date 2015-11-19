@@ -56,7 +56,7 @@ public interface RoleService extends JAXRSService {
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    RoleTO read(@NotNull @PathParam("key") Long key);
+    RoleTO read(@NotNull @PathParam("key") String key);
 
     /**
      * Creates a new role.
@@ -85,5 +85,5 @@ public interface RoleService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") Long key);
+    void delete(@NotNull @PathParam("key") String key);
 }

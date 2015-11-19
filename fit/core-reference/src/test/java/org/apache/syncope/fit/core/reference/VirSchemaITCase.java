@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import static org.apache.syncope.fit.core.reference.AbstractITCase.clientFactory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.security.AccessControlException;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -32,6 +34,8 @@ import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.rest.api.beans.SchemaQuery;
+import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -41,7 +45,7 @@ public class VirSchemaITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<VirSchemaTO> vSchemas = schemaService.list(SchemaType.VIRTUAL, null);
+        List<VirSchemaTO> vSchemas = schemaService.list(SchemaType.VIRTUAL, new SchemaQuery.Builder().build());
         assertFalse(vSchemas.isEmpty());
         for (VirSchemaTO vSchemaTO : vSchemas) {
             assertNotNull(vSchemaTO);
@@ -85,6 +89,20 @@ public class VirSchemaITCase extends AbstractITCase {
         assertNotNull(csv);
         assertEquals(1, csv.getProvisions().size());
         assertTrue(csv.getProvisions().get(0).getVirSchemas().isEmpty());
+    }
+
+    @Test
+    public void anonymous() {
+        SchemaService unauthenticated = clientFactory.create().getService(SchemaService.class);
+        try {
+            unauthenticated.list(SchemaType.VIRTUAL, new SchemaQuery.Builder().build());
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+
+        SchemaService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(SchemaService.class);
+        assertFalse(anonymous.list(SchemaType.VIRTUAL, new SchemaQuery.Builder().build()).isEmpty());
     }
 
     @Test

@@ -64,6 +64,8 @@ import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SyncMode;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.provisioning.java.sync.DBPasswordSyncActions;
@@ -95,8 +97,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void list() {
-        PagedResult<SyncTaskTO> tasks =
-                taskService.list(TaskType.SYNCHRONIZATION, SyncopeClient.getTaskQueryBuilder().build());
+        PagedResult<SyncTaskTO> tasks = taskService.list(TaskType.SYNCHRONIZATION, new TaskQuery.Builder().build());
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
             if (!(task instanceof SyncTaskTO)) {
@@ -163,7 +164,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // -----------------------------
         try {
             int usersPre = userService.list(
-                    SyncopeClient.getAnyListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPre);
 
@@ -219,7 +220,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
             // check for sync results
             int usersPost = userService.list(
-                    SyncopeClient.getAnyListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPost);
             assertEquals(usersPre + 8, usersPost);
@@ -294,7 +295,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
      */
     private void ldapCleanup() {
         PagedResult<GroupTO> matchingGroups = groupService.search(
-                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
                 build());
         if (matchingGroups.getSize() > 0) {
@@ -308,7 +309,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             }
         }
         PagedResult<UserTO> matchingUsers = userService.search(
-                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query()).
                 build());
         if (matchingUsers.getSize() > 0) {
@@ -336,7 +337,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // 2. verify that synchronized group is found
         PagedResult<GroupTO> matchingGroups = groupService.search(
-                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
                 build());
         assertNotNull(matchingGroups);
@@ -344,7 +345,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // 3. verify that synchronized user is found
         PagedResult<UserTO> matchingUsers = userService.search(
-                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query()).
                 build());
         assertNotNull(matchingUsers);
@@ -413,7 +414,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
             PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(
-                    SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getAnyObjectSearchConditionBuilder().type("PRINTER").and().
                             is("location").equalTo("sync*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
@@ -432,7 +433,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
             // hence PrefixMappingItemTransformer was applied during sync)
             matchingPrinters = anyObjectService.search(
-                    SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getAnyObjectSearchConditionBuilder().type("PRINTER").and().
                             is("location").equalTo("sync*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);

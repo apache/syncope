@@ -41,7 +41,7 @@ public class RoleITCase extends AbstractITCase {
 
     public static RoleTO getSampleRoleTO(final String name) {
         RoleTO role = new RoleTO();
-        role.setName(name + getUUIDString());
+        role.setKey(name + getUUIDString());
         role.getRealms().add("/even");
         role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
 
@@ -60,7 +60,7 @@ public class RoleITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        RoleTO roleTO = roleService.read(3L);
+        RoleTO roleTO = roleService.read("Other");
         assertNotNull(roleTO);
         assertTrue(roleTO.getEntitlements().contains(StandardEntitlement.GROUP_READ));
     }
@@ -80,7 +80,7 @@ public class RoleITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.InvalidRole, e.getType());
         }
 
-        role.setName("new" + getUUIDString());
+        role.setKey("new" + getUUIDString());
         role = createRole(role);
         assertNotNull(role);
     }

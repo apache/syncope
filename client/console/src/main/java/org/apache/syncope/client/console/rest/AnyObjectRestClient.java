@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -29,6 +28,7 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -50,7 +50,7 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
     @Override
     public int count(final String type, final String realm) {
         return getService(AnyObjectService.class).list(
-                type, SyncopeClient.getAnyListQueryBuilder().realm(realm).page(1).size(1).build()).getTotalCount();
+                type, new AnyListQuery.Builder().realm(realm).page(1).size(1).build()).getTotalCount();
     }
 
     @Override
@@ -62,7 +62,7 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
 
     public PagedResult<AnyObjectTO> list(final String type, final String realm) {
         return getService(AnyObjectService.class).
-                list(type, SyncopeClient.getAnyListQueryBuilder().realm(realm).build());
+                list(type, new AnyListQuery.Builder().realm(realm).build());
     }
 
     @Override

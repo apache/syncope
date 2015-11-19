@@ -98,11 +98,11 @@ public class SearchCondConverterTest {
 
     @Test
     public void roles() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().inRoles(1L).query();
-        assertEquals(SpecialAttr.ROLES + "==1", fiqlExpression);
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().inRoles("User reviewer").query();
+        assertEquals(SpecialAttr.ROLES + "==User reviewer", fiqlExpression);
 
         RoleCond roleCond = new RoleCond();
-        roleCond.setRoleKey(1L);
+        roleCond.setRoleKey("User reviewer");
         SearchCond simpleCond = SearchCond.getLeafCond(roleCond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));

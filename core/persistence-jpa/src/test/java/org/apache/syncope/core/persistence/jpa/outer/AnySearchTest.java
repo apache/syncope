@@ -85,7 +85,7 @@ public class AnySearchTest extends AbstractTest {
     public void searchByDynMembership() {
         // 1. create role with dynamic membership
         Role role = entityFactory.newEntity(Role.class);
-        role.setName("new");
+        role.setKey("new");
         role.add(realmDAO.getRoot());
         role.add(realmDAO.find("/even/two"));
         role.getEntitlements().add(StandardEntitlement.LOG_LIST);

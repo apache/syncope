@@ -53,7 +53,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         if (anyType == null) {
             LOG.error("Could not find anyType '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(key));
+            throw new NotFoundException(key);
         }
 
         return binder.getAnyTypeTO(anyType);
@@ -82,7 +82,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         AnyType anyType = anyTypeDAO.find(anyTypeTO.getKey());
         if (anyType == null) {
             LOG.error("Could not find anyType '" + anyTypeTO.getKey() + "'");
-            throw new NotFoundException(String.valueOf(anyTypeTO.getKey()));
+            throw new NotFoundException(anyTypeTO.getKey());
         }
 
         EntitlementsHolder.getInstance().removeFor(anyTypeTO.getKey());
@@ -101,7 +101,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         if (anyType == null) {
             LOG.error("Could not find anyType '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(key));
+            throw new NotFoundException(key);
         }
 
         AnyTypeTO deleted = binder.getAnyTypeTO(anyType);

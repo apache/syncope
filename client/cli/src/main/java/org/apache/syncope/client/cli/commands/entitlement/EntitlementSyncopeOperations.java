@@ -48,8 +48,8 @@ public class EntitlementSyncopeOperations {
     public Set<String> usernameEntitlements(final String username) {
         final Set<String> entitlements = new TreeSet<>();
         final UserTO userTO = userSyncopeOperations.read(userSyncopeOperations.getIdFromUsername(username));
-        for (final Long role : userTO.getRoles()) {
-            entitlements.addAll(roleSyncopeOperations.read(String.valueOf(role)).getEntitlements());
+        for (final String role : userTO.getRoles()) {
+            entitlements.addAll(roleSyncopeOperations.read(role).getEntitlements());
         }
         return entitlements;
     }
@@ -57,8 +57,8 @@ public class EntitlementSyncopeOperations {
     public Set<String> userIdEntitlements(final String userId) {
         final Set<String> entitlements = new TreeSet<>();
         final UserTO userTO = userSyncopeOperations.read(userId);
-        for (final Long role : userTO.getRoles()) {
-            entitlements.addAll(roleSyncopeOperations.read(String.valueOf(role)).getEntitlements());
+        for (final String role : userTO.getRoles()) {
+            entitlements.addAll(roleSyncopeOperations.read(role).getEntitlements());
         }
         return entitlements;
     }

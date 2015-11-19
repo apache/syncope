@@ -92,7 +92,7 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     @JoinTable(joinColumns =
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "role_id"))
+            @JoinColumn(name = "role_name"))
     private List<JPARole> roles = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
@@ -442,8 +442,8 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
                 res = passwordHistory.subList(size >= passwordHistory.size()
                         ? 0
                         : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm == null
-                                        ? password
-                                        : Encryptor.getInstance().encode(password, cipherAlgorithm));
+                                ? password
+                                : Encryptor.getInstance().encode(password, cipherAlgorithm));
             } catch (Exception e) {
                 LOG.error("Error evaluating password history", e);
             }

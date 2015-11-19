@@ -50,7 +50,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
         if (relationshipType == null) {
             LOG.error("Could not find relationshipType '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(key));
+            throw new NotFoundException(key);
         }
 
         return binder.getRelationshipTypeTO(relationshipType);
@@ -78,7 +78,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
         RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTypeTO.getKey());
         if (relationshipType == null) {
             LOG.error("Could not find relationshipType '" + relationshipTypeTO.getKey() + "'");
-            throw new NotFoundException(String.valueOf(relationshipTypeTO.getKey()));
+            throw new NotFoundException(relationshipTypeTO.getKey());
         }
 
         binder.update(relationshipType, relationshipTypeTO);
@@ -93,7 +93,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
         if (relationshipType == null) {
             LOG.error("Could not find relationshipType '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(key));
+            throw new NotFoundException(key);
         }
 
         RelationshipTypeTO deleted = binder.getRelationshipTypeTO(relationshipType);

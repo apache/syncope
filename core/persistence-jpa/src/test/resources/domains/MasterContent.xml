@@ -8,7 +8,7 @@ to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
 
-  http://www.apache.org/licenses/LICENSE-2.0
+     http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
@@ -170,37 +170,37 @@ under the License.
   
   <ARelationship id="1" left_anyObject_id="1" right_anyObject_id="2" type_name="neighborhood"/>
   
-  <SyncopeRole id="1" name="User reviewer"/>
-  <SyncopeRole_entitlements entitlement="USER_READ" role_id="1"/>
-  <SyncopeRole_entitlements entitlement="USER_LIST" role_id="1"/>
-  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_id="1"/>
-  <SyncopeRole_Realm role_id="1" realm_id="2"/>
-  <SyncopeRole_Realm role_id="1" realm_id="3"/>
+  <SyncopeRole name="User reviewer"/>
+  <SyncopeRole_entitlements entitlement="USER_READ" role_name="User reviewer"/>
+  <SyncopeRole_entitlements entitlement="USER_LIST" role_name="User reviewer"/>
+  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_name="User reviewer"/>
+  <SyncopeRole_Realm role_name="User reviewer" realm_id="2"/>
+  <SyncopeRole_Realm role_name="User reviewer" realm_id="3"/>
   
-  <SyncopeRole id="2" name="User manager"/>
-  <SyncopeRole_entitlements entitlement="USER_READ" role_id="2"/>
-  <SyncopeRole_entitlements entitlement="USER_LIST" role_id="2"/>
-  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_id="2"/>
-  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_id="2"/>
-  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_SUBMIT" role_id="2"/>
-  <SyncopeRole_Realm role_id="2" realm_id="1"/>
+  <SyncopeRole name="User manager"/>
+  <SyncopeRole_entitlements entitlement="USER_READ" role_name="User manager"/>
+  <SyncopeRole_entitlements entitlement="USER_LIST" role_name="User manager"/>
+  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_name="User manager"/>
+  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_name="User manager"/>
+  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_SUBMIT" role_name="User manager"/>
+  <SyncopeRole_Realm role_name="User manager" realm_id="1"/>
 
-  <SyncopeRole id="3" name="Other"/>
-  <SyncopeRole_entitlements entitlement="SCHEMA_READ" role_id="3"/>
-  <SyncopeRole_entitlements entitlement="GROUP_READ" role_id="3"/>
-  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_id="3"/>
-  <SyncopeRole_Realm role_id="3" realm_id="2"/>
+  <SyncopeRole name="Other"/>
+  <SyncopeRole_entitlements entitlement="SCHEMA_READ" role_name="Other"/>
+  <SyncopeRole_entitlements entitlement="GROUP_READ" role_name="Other"/>
+  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_name="Other"/>
+  <SyncopeRole_Realm role_name="Other" realm_id="2"/>
   
-  <SyncopeRole id="4" name="Search for /even/two"/>
-  <SyncopeRole_entitlements entitlement="USER_READ" role_id="4"/>
-  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_id="4"/>
-  <SyncopeRole_Realm role_id="4" realm_id="4"/>
+  <SyncopeRole name="Search for /even/two"/>
+  <SyncopeRole_entitlements entitlement="USER_READ" role_name="Search for /even/two"/>
+  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_name="Search for /even/two"/>
+  <SyncopeRole_Realm role_name="Search for /even/two" realm_id="4"/>
 
   <SyncopeUser id="1" workflowId="4" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                realm_id="3"
                username="rossini" creator="admin" lastModifier="admin"
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser_SyncopeRole user_id="1" role_id="3"/>
+  <SyncopeUser_SyncopeRole user_id="1" role_name="Other"/>
   <SyncopeUser id="2" workflowId="6" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                realm_id="1"
                username="verdi" creator="admin" lastModifier="admin"
@@ -213,13 +213,13 @@ under the License.
                realm_id="1"
                username="bellini" creator="admin" lastModifier="admin"
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser_SyncopeRole user_id="4" role_id="1"/>
-  <SyncopeUser_SyncopeRole user_id="4" role_id="2"/>
+  <SyncopeUser_SyncopeRole user_id="4" role_name="User reviewer"/>
+  <SyncopeUser_SyncopeRole user_id="4" role_name="User manager"/>
   <SyncopeUser id="5" workflowId="12" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                realm_id="1"
                username="puccini" creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser_SyncopeRole user_id="5" role_id="4"/>
+  <SyncopeUser_SyncopeRole user_id="5" role_name="Search for /even/two"/>
   
   <SyncopeGroup id="1" name="root"
                 realm_id="1"

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -85,13 +86,13 @@ public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implem
             return;
         }
 
-        for (PlainSchema schema : plainSchemaDAO.findByAnyTypeClass(anyTypeClass)) {
+        for (PlainSchema schema : plainSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass))) {
             schema.setAnyTypeClass(null);
         }
-        for (DerSchema schema : derSchemaDAO.findByAnyTypeClass(anyTypeClass)) {
+        for (DerSchema schema : derSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass))) {
             schema.setAnyTypeClass(null);
         }
-        for (VirSchema schema : virSchemaDAO.findByAnyTypeClass(anyTypeClass)) {
+        for (VirSchema schema : virSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass))) {
             schema.setAnyTypeClass(null);
         }
 

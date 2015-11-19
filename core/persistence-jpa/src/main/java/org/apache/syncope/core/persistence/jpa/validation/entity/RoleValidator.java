@@ -16,34 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.lib.builders;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import javax.validation.ConstraintValidatorContext;
+import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.core.persistence.api.entity.Role;
 
-public class AnyQueryBuilder extends AbstractQueryBuilder<AnyQuery, AnyQueryBuilder> {
-
-    @Override
-    protected AnyQuery newInstance() {
-        return new AnyQuery();
-    }
+public class RoleValidator extends AbstractValidator<RoleCheck, Role> {
 
     @Override
-    public AnyQueryBuilder page(final Integer page) {
-        return AnyQueryBuilder.class.cast(super.page(page));
-    }
+    public boolean isValid(final Role role, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
 
-    @Override
-    public AnyQueryBuilder size(final Integer size) {
-        return AnyQueryBuilder.class.cast(super.size(size));
-    }
+        if (role.getKey() == null || !NAME_PATTERN.matcher(role.getKey()).matches()) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidName, "Invalid Role name")).
+                    addPropertyNode("name").addConstraintViolation();
+            return false;
+        }
 
-    @Override
-    public AnyQueryBuilder orderBy(final String orderBy) {
-        return AnyQueryBuilder.class.cast(super.orderBy(orderBy));
-    }
-
-    public AnyQueryBuilder details(final boolean details) {
-        getInstance().setDetails(details);
-        return this;
+        return true;
     }
 }

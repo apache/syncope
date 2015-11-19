@@ -24,6 +24,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.core.logic.SchemaLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +52,8 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     }
 
     @Override
-    public <T extends AbstractSchemaTO> List<T> list(final SchemaType schemaType, final String anyTypeClass) {
-        return logic.list(schemaType, anyTypeClass);
+    public <T extends AbstractSchemaTO> List<T> list(final SchemaType schemaType, final SchemaQuery query) {
+        return logic.list(schemaType, query.getAnyTypeClasses());
     }
 
     @Override

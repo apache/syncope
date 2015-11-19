@@ -30,12 +30,12 @@ public class RoleSyncopeOperations {
     public List<RoleTO> list() {
         return roleService.list();
     }
-    
-    public RoleTO read(final String roleId) {
-        return roleService.read(Long.valueOf(roleId));
+
+    public RoleTO read(final String role) {
+        return roleService.read(role);
     }
-    
-    public void delete(final String roleId) {
-        roleService.delete(Long.valueOf(roleId));
+
+    public void delete(final String role) {
+        roleService.delete(role);
     }
 }

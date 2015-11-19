@@ -37,37 +37,34 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.jpa.validation.entity.RoleCheck;
 
 @Entity
 @Table(name = JPARole.TABLE)
 @Cacheable
-public class JPARole extends AbstractEntity<Long> implements Role {
+@RoleCheck
+public class JPARole extends AbstractEntity<String> implements Role {
 
     private static final long serialVersionUID = -7657701119422588832L;
 
     public static final String TABLE = "SyncopeRole";
 
     @Id
-    private Long id;
-
-    @Column(unique = true)
-    @NotNull
     private String name;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "entitlement")
     @CollectionTable(name = "SyncopeRole_entitlements",
             joinColumns =
-            @JoinColumn(name = "role_id", referencedColumnName = "id"))
+            @JoinColumn(name = "role_name", referencedColumnName = "name"))
     private Set<String> entitlements = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "role_id"),
+            @JoinColumn(name = "role_name"),
             inverseJoinColumns =
             @JoinColumn(name = "realm_id"))
     @Valid
@@ -78,17 +75,12 @@ public class JPARole extends AbstractEntity<Long> implements Role {
     private JPADynRoleMembership dynMembership;
 
     @Override
-    public Long getKey() {
-        return id;
-    }
-
-    @Override
-    public String getName() {
+    public String getKey() {
         return name;
     }
 
     @Override
-    public void setName(final String name) {
+    public void setKey(final String name) {
         this.name = name;
     }
 

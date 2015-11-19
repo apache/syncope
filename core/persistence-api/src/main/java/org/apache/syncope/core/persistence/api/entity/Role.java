@@ -22,11 +22,9 @@ import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import java.util.List;
 import java.util.Set;
 
-public interface Role extends Entity<Long> {
+public interface Role extends Entity<String> {
 
-    String getName();
-
-    void setName(String name);
+    void setKey(String name);
 
     Set<String> getEntitlements();
 

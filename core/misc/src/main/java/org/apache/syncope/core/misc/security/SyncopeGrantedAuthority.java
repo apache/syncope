@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.misc.security;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
@@ -53,7 +53,7 @@ public class SyncopeGrantedAuthority implements GrantedAuthority {
         return RealmUtils.normalizingAddTo(realms, newRealm);
     }
 
-    public void addRealms(final List<String> newRealms) {
+    public void addRealms(final Collection<String> newRealms) {
         CollectionUtils.forAllDo(newRealms, new Closure<String>() {
 
             @Override

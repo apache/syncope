@@ -18,12 +18,41 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import java.util.ArrayList;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public class AnySearchQuery extends AnyListQuery {
 
     private static final long serialVersionUID = -6736562952418964707L;
+
+    public static class Builder extends AbstractQuery.Builder<AnySearchQuery, Builder> {
+
+        @Override
+        protected AnySearchQuery newInstance() {
+            return new AnySearchQuery();
+        }
+
+        public Builder details(final boolean details) {
+            getInstance().setDetails(details);
+            return this;
+        }
+
+        public Builder realm(final String realm) {
+            if (getInstance().getRealms() == null) {
+                getInstance().setRealms(new ArrayList<String>());
+            }
+            getInstance().getRealms().add(realm);
+
+            return this;
+        }
+
+        public Builder fiql(final String fiql) {
+            getInstance().setFiql(fiql);
+
+            return this;
+        }
+    }
 
     private String fiql;
 

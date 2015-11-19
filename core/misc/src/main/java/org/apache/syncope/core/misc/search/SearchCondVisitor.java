@@ -113,7 +113,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
                         case ROLES:
                             RoleCond roleCond = new RoleCond();
-                            roleCond.setRoleKey(Long.valueOf(value));
+                            roleCond.setRoleKey(value);
                             leaf = SearchCond.getLeafCond(roleCond);
                             break;
 

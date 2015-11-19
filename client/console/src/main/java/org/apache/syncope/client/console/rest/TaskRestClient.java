@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -31,6 +30,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
@@ -63,16 +63,16 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      */
     public int count(final String kind) {
         return getService(TaskService.class).
-                list(TaskType.fromString(kind), SyncopeClient.getTaskQueryBuilder().page(1).size(1).build()).
+                list(TaskType.fromString(kind), new TaskQuery.Builder().page(1).size(1).build()).
                 getTotalCount();
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractTaskTO> List<T> list(final Class<T> reference,
-            final int page, final int size, final SortParam<String> sort) {
+    public <T extends AbstractTaskTO> List<T> list(
+            final Class<T> reference, final int page, final int size, final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
-                list(getTaskType(reference), SyncopeClient.getTaskQueryBuilder().page(page).size(size).
+                list(getTaskType(reference), new TaskQuery.Builder().page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
                 getResult();
     }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.Collection;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -45,13 +46,16 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
     }
 
     @Override
-    public List<VirSchema> findByAnyTypeClass(final AnyTypeClass anyTypeClass) {
+    public List<VirSchema> findByAnyTypeClasses(final Collection<AnyTypeClass> anyTypeClasses) {
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(JPAVirSchema.class.getSimpleName()).
-                append(" e WHERE e.anyTypeClass=:anyTypeClass");
+                append(" e WHERE ");
+        for (AnyTypeClass anyTypeClass : anyTypeClasses) {
+            queryString.append("e.anyTypeClass.name='").append(anyTypeClass.getKey()).append("' OR");
+        }
 
-        TypedQuery<VirSchema> query = entityManager().createQuery(queryString.toString(), VirSchema.class);
-        query.setParameter("anyTypeClass", anyTypeClass);
+        TypedQuery<VirSchema> query = entityManager().createQuery(
+                queryString.substring(0, queryString.length() - 3), VirSchema.class);
 
         return query.getResultList();
     }

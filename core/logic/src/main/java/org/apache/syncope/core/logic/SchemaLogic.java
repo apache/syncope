@@ -145,13 +145,26 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
     @PreAuthorize("isAuthenticated()")
     @SuppressWarnings("unchecked")
-    public <T extends AbstractSchemaTO> List<T> list(final SchemaType schemaType, final String anyTypeClass) {
-        AnyTypeClass clazz = anyTypeClass == null ? null : anyTypeClassDAO.find(anyTypeClass);
+    public <T extends AbstractSchemaTO> List<T> list(
+            final SchemaType schemaType, final List<String> anyTypeClasses) {
+
+        List<AnyTypeClass> classes = new ArrayList<>(anyTypeClasses == null ? 0 : anyTypeClasses.size());
+        if (anyTypeClasses != null) {
+            for (String anyTypeClass : anyTypeClasses) {
+                AnyTypeClass clazz = anyTypeClassDAO.find(anyTypeClass);
+                if (clazz == null) {
+                    LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), anyTypeClass);
+                } else {
+                    classes.add(clazz);
+                }
+            }
+        }
+
         List<T> result;
         switch (schemaType) {
             case VIRTUAL:
                 result = CollectionUtils.collect(
-                        clazz == null ? virSchemaDAO.findAll() : virSchemaDAO.findByAnyTypeClass(clazz),
+                        classes.isEmpty() ? virSchemaDAO.findAll() : virSchemaDAO.findByAnyTypeClasses(classes),
                         new Transformer<VirSchema, T>() {
 
                     @Override
@@ -163,7 +176,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
             case DERIVED:
                 result = CollectionUtils.collect(
-                        clazz == null ? derSchemaDAO.findAll() : derSchemaDAO.findByAnyTypeClass(clazz),
+                        classes.isEmpty() ? derSchemaDAO.findAll() : derSchemaDAO.findByAnyTypeClasses(classes),
                         new Transformer<DerSchema, T>() {
 
                     @Override
@@ -176,7 +189,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
             case PLAIN:
             default:
                 result = CollectionUtils.collect(
-                        clazz == null ? plainSchemaDAO.findAll() : plainSchemaDAO.findByAnyTypeClass(clazz),
+                        classes.isEmpty() ? plainSchemaDAO.findAll() : plainSchemaDAO.findByAnyTypeClasses(classes),
                         new Transformer<PlainSchema, T>() {
 
                     @Override

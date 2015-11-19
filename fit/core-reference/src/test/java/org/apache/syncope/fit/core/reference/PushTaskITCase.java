@@ -52,6 +52,7 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.TaskService;
@@ -79,8 +80,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void list() {
-        PagedResult<PushTaskTO> tasks = taskService.list(
-                TaskType.PUSH, SyncopeClient.getTaskQueryBuilder().build());
+        PagedResult<PushTaskTO> tasks = taskService.list(TaskType.PUSH, new TaskQuery.Builder().build());
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
             if (!(task instanceof PushTaskTO)) {

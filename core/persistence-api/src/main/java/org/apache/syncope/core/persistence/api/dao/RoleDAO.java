@@ -23,11 +23,9 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface RoleDAO extends DAO<Role, Long> {
+public interface RoleDAO extends DAO<Role, String> {
 
-    Role find(Long key);
-
-    Role find(String name);
+    Role find(String key);
 
     List<Role> findByRealm(Realm realm);
 
@@ -37,7 +35,7 @@ public interface RoleDAO extends DAO<Role, Long> {
 
     void delete(Role role);
 
-    void delete(Long key);
+    void delete(String key);
 
     void refreshDynMemberships(User user);
 }

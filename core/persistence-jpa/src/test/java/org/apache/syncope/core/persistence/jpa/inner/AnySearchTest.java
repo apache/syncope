@@ -91,7 +91,7 @@ public class AnySearchTest extends AbstractTest {
         assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(groupCond), AnyTypeKind.USER));
 
         RoleCond roleCond = new RoleCond();
-        roleCond.setRoleKey(3L);
+        roleCond.setRoleKey("Other");
         assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(roleCond), AnyTypeKind.USER));
     }
 
@@ -228,7 +228,7 @@ public class AnySearchTest extends AbstractTest {
     @Test
     public void searchByRole() {
         RoleCond roleCond = new RoleCond();
-        roleCond.setRoleKey(3L);
+        roleCond.setRoleKey("Other");
 
         List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
                 SearchCond.getLeafCond(roleCond), AnyTypeKind.USER);

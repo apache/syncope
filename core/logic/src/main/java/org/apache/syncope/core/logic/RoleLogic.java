@@ -44,12 +44,12 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     private RoleDAO roleDAO;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_READ + "')")
-    public RoleTO read(final Long roleKey) {
-        Role role = roleDAO.find(roleKey);
+    public RoleTO read(final String key) {
+        Role role = roleDAO.find(key);
         if (role == null) {
-            LOG.error("Could not find role '" + roleKey + "'");
+            LOG.error("Could not find role '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(roleKey));
+            throw new NotFoundException(key);
         }
 
         return binder.getRoleTO(role);
@@ -76,7 +76,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
         Role role = roleDAO.find(roleTO.getKey());
         if (role == null) {
             LOG.error("Could not find role '" + roleTO.getKey() + "'");
-            throw new NotFoundException(String.valueOf(roleTO.getKey()));
+            throw new NotFoundException(roleTO.getKey());
         }
 
         binder.update(role, roleTO);
@@ -86,16 +86,16 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_DELETE + "')")
-    public RoleTO delete(final Long roleKey) {
-        Role role = roleDAO.find(roleKey);
+    public RoleTO delete(final String key) {
+        Role role = roleDAO.find(key);
         if (role == null) {
-            LOG.error("Could not find role '" + roleKey + "'");
+            LOG.error("Could not find role '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(roleKey));
+            throw new NotFoundException(key);
         }
 
         RoleTO deleted = binder.getRoleTO(role);
-        roleDAO.delete(roleKey);
+        roleDAO.delete(key);
         return deleted;
     }
 
@@ -103,12 +103,12 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     protected RoleTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long key = null;
+        String key = null;
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
-                    key = (Long) args[i];
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
                 } else if (args[i] instanceof RoleTO) {
                     key = ((RoleTO) args[i]).getKey();
                 }

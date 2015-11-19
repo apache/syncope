@@ -22,13 +22,13 @@ public class RoleCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = 3581958527829522490L;
 
-    private Long roleKey;
+    private String roleKey;
 
-    public Long getRoleKey() {
+    public String getRoleKey() {
         return roleKey;
     }
 
-    public void setRoleKey(final Long roleKey) {
+    public void setRoleKey(final String roleKey) {
         this.roleKey = roleKey;
     }
 

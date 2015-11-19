@@ -16,33 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.lib.builders;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class ConnObjectTOListQueryBuilder {
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
-    private final ConnObjectTOListQuery instance = new ConnObjectTOListQuery();
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = RoleValidator.class)
+@Documented
+public @interface RoleCheck {
 
-    public ConnObjectTOListQueryBuilder size(final Integer size) {
-        instance.setSize(size);
+    String message() default "{org.apache.syncope.core.persistence.validation.role}";
 
-        return this;
-    }
+    Class<?>[] groups() default {};
 
-    public ConnObjectTOListQueryBuilder pagedResultsCookie(final String pagedResultsCookie) {
-        instance.setPagedResultsCookie(pagedResultsCookie);
-
-        return this;
-    }
-
-    public ConnObjectTOListQueryBuilder orderBy(final String orderBy) {
-        instance.setOrderBy(orderBy);
-
-        return this;
-    }
-
-    public ConnObjectTOListQuery build() {
-        return instance;
-    }
+    Class<? extends Payload>[] payload() default {};
 }

@@ -98,7 +98,7 @@ public class RoleTest extends AbstractTest {
 
         // 1. create role with dynamic membership
         Role role = entityFactory.newEntity(Role.class);
-        role.setName("new");
+        role.setKey("new");
         role.add(realmDAO.getRoot());
         role.add(realmDAO.find("/even/two"));
         role.getEntitlements().add(StandardEntitlement.LOG_LIST);
@@ -165,7 +165,7 @@ public class RoleTest extends AbstractTest {
     public void delete() {
         // 0. create role
         Role role = entityFactory.newEntity(Role.class);
-        role.setName("new");
+        role.setKey("new");
         role.add(realmDAO.getRoot());
         role.add(realmDAO.find("/even/two"));
         role.getEntitlements().add(StandardEntitlement.LOG_LIST);

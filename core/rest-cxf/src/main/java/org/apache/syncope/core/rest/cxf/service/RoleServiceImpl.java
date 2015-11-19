@@ -40,14 +40,14 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public RoleTO read(final Long roleKey) {
-        return logic.read(roleKey);
+    public RoleTO read(final String key) {
+        return logic.read(key);
     }
 
     @Override
     public Response create(final RoleTO roleTO) {
         RoleTO created = logic.create(roleTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getKey())).build();
+        URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, created.getKey()).
                 build();
@@ -59,8 +59,8 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public void delete(final Long roleKey) {
-        logic.delete(roleKey);
+    public void delete(final String key) {
+        logic.delete(key);
     }
 
 }

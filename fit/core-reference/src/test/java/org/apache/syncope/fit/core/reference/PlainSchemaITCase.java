@@ -25,7 +25,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.security.AccessControlException;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -44,7 +43,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.rest.api.service.SchemaService;
+import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -159,7 +158,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<PlainSchemaTO> schemas = schemaService.list(SchemaType.PLAIN, null);
+        List<PlainSchemaTO> schemas = schemaService.list(SchemaType.PLAIN, new SchemaQuery.Builder().build());
         assertFalse(schemas.isEmpty());
         for (PlainSchemaTO schemaTO : schemas) {
             assertNotNull(schemaTO);
@@ -169,8 +168,9 @@ public class PlainSchemaITCase extends AbstractITCase {
     @Test
     public void listByAnyTypeClass() {
         final String clazz = anyTypeService.read(AnyTypeKind.USER.name()).getClasses().get(0);
-        
-        List<PlainSchemaTO> userSchemas = schemaService.list(SchemaType.PLAIN, clazz);
+
+        List<PlainSchemaTO> userSchemas = schemaService.list(
+                SchemaType.PLAIN, new SchemaQuery.Builder().anyTypeClass(clazz).build());
 
         assertTrue(CollectionUtils.exists(userSchemas, new Predicate<PlainSchemaTO>() {
 
@@ -331,19 +331,5 @@ public class PlainSchemaITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
             assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
-    }
-
-    @Test
-    public void anonymous() {
-        SchemaService unauthenticated = clientFactory.create().getService(SchemaService.class);
-        try {
-            unauthenticated.list(SchemaType.VIRTUAL, null);
-            fail();
-        } catch (AccessControlException e) {
-            assertNotNull(e);
-        }
-
-        SchemaService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(SchemaService.class);
-        assertFalse(anonymous.list(SchemaType.VIRTUAL, null).isEmpty());
     }
 }

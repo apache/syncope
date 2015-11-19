@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.Collection;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -43,13 +44,16 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
     }
 
     @Override
-    public List<DerSchema> findByAnyTypeClass(final AnyTypeClass anyTypeClass) {
+    public List<DerSchema> findByAnyTypeClasses(final Collection<AnyTypeClass> anyTypeClasses) {
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(JPADerSchema.class.getSimpleName()).
-                append(" e WHERE e.anyTypeClass=:anyTypeClass");
+                append(" e WHERE ");
+        for (AnyTypeClass anyTypeClass : anyTypeClasses) {
+            queryString.append("e.anyTypeClass.name='").append(anyTypeClass.getKey()).append("' OR");
+        }
 
-        TypedQuery<DerSchema> query = entityManager().createQuery(queryString.toString(), DerSchema.class);
-        query.setParameter("anyTypeClass", anyTypeClass);
+        TypedQuery<DerSchema> query = entityManager().createQuery(
+                queryString.substring(0, queryString.length() - 3), DerSchema.class);
 
         return query.getResultList();
     }

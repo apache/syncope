@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 
 public class SchemaSyncopeOperations {
@@ -33,19 +34,19 @@ public class SchemaSyncopeOperations {
     }
 
     public <T extends AbstractSchemaTO> List<T> list(final String schemaTypeString) {
-        return schemaService.list(SchemaType.valueOf(schemaTypeString), null);
-    }
-
-    public <T extends AbstractSchemaTO> List<T> listVirtual() {
-        return schemaService.list(SchemaType.VIRTUAL, null);
+        return schemaService.list(SchemaType.valueOf(schemaTypeString), new SchemaQuery.Builder().build());
     }
 
     public <T extends AbstractSchemaTO> List<T> listPlain() {
-        return schemaService.list(SchemaType.PLAIN, null);
+        return schemaService.list(SchemaType.PLAIN, new SchemaQuery.Builder().build());
     }
 
     public <T extends AbstractSchemaTO> List<T> listDerived() {
-        return schemaService.list(SchemaType.DERIVED, null);
+        return schemaService.list(SchemaType.DERIVED, new SchemaQuery.Builder().build());
+    }
+
+    public <T extends AbstractSchemaTO> List<T> listVirtual() {
+        return schemaService.list(SchemaType.VIRTUAL, new SchemaQuery.Builder().build());
     }
 
     public void delete(final String schemaTypeString, final String schemaName) {

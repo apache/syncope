@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
 
 public class UserSyncopeOperations {
@@ -46,21 +47,21 @@ public class UserSyncopeOperations {
 
     public List<UserTO> searchByRole(final String realm, final String role) {
         return userService.search(
-                SyncopeClient.getAnySearchQueryBuilder().realm(realm).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles(Long.valueOf(role))
+                new AnySearchQuery.Builder().realm(realm).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles(role)
                         .query()).build()).getResult();
     }
 
     public List<UserTO> searchByResource(final String realm, final String resource) {
         return userService.search(
-                SyncopeClient.getAnySearchQueryBuilder().realm(realm).
+                new AnySearchQuery.Builder().realm(realm).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().hasResources(resource)
                         .query()).build()).getResult();
     }
 
     public List<UserTO> searchByAttribute(final String realm, final String attributeName, final String attributeValue) {
         return userService.search(
-                SyncopeClient.getAnySearchQueryBuilder().realm(realm).
+                new AnySearchQuery.Builder().realm(realm).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is(attributeName).equalTo(attributeValue)
                         .query()).build()).getResult();
     }
@@ -88,7 +89,7 @@ public class UserSyncopeOperations {
     public Map<String, BulkActionResult.Status> deleteByAttribute(
             final String realm, final String attributeName, final String attributeValue) {
         final List<UserTO> users = userService.search(
-                SyncopeClient.getAnySearchQueryBuilder().realm(realm).
+                new AnySearchQuery.Builder().realm(realm).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is(attributeName).equalTo(attributeValue)
                         .query()).build()).getResult();
         return deleteBulk(users);

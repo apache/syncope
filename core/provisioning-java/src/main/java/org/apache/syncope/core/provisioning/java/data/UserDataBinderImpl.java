@@ -32,10 +32,10 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.LongPatchItem;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.RelationshipPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
@@ -164,7 +164,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // roles
-        for (Long roleKey : userTO.getRoles()) {
+        for (String roleKey : userTO.getRoles()) {
             Role role = roleDAO.find(roleKey);
             if (role == null) {
                 LOG.warn("Ignoring unknown role with id {}", roleKey);
@@ -317,7 +317,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         // roles
-        for (LongPatchItem patch : userPatch.getRoles()) {
+        for (StringPatchItem patch : userPatch.getRoles()) {
             Role role = roleDAO.find(patch.getValue());
             if (role == null) {
                 LOG.warn("Ignoring unknown role with key {}", patch.getValue());
@@ -452,10 +452,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         if (details) {
             // roles
-            CollectionUtils.collect(user.getRoles(), new Transformer<Role, Long>() {
+            CollectionUtils.collect(user.getRoles(), new Transformer<Role, String>() {
 
                 @Override
-                public Long transform(final Role role) {
+                public String transform(final Role role) {
                     return role.getKey();
                 }
             }, userTO.getRoles());
@@ -480,10 +480,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }, userTO.getMemberships());
 
             // dynamic memberships
-            CollectionUtils.collect(userDAO.findDynRoleMemberships(user), new Transformer<Role, Long>() {
+            CollectionUtils.collect(userDAO.findDynRoleMemberships(user), new Transformer<Role, String>() {
 
                 @Override
-                public Long transform(final Role role) {
+                public String transform(final Role role) {
                     return role.getKey();
                 }
             }, userTO.getDynRoles());

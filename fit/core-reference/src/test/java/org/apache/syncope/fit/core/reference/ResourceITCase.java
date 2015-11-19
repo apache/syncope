@@ -35,8 +35,6 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.client.lib.builders.ConnObjectTOListQueryBuilder;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -53,6 +51,7 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.FixMethodOrder;
@@ -542,7 +541,7 @@ public class ResourceITCase extends AbstractITCase {
         int totalRead = 0;
         Set<String> read = new HashSet<>();
         try {
-            ConnObjectTOListQueryBuilder builder = SyncopeClient.getConnObjectTOListQueryBuilder().size(10);
+            ConnObjectTOListQuery.Builder builder = new ConnObjectTOListQuery.Builder().size(10);
             PagedConnObjectTOResult list;
             do {
                 list = null;

@@ -35,7 +35,6 @@ import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.RelationshipPatch;
 import org.apache.syncope.common.lib.patch.AbstractReplacePatchItem;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
-import org.apache.syncope.common.lib.patch.LongPatchItem;
 import org.apache.syncope.common.lib.patch.LongReplacePatchItem;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
@@ -110,14 +109,14 @@ public final class AnyOperations {
             CollectionUtils.forAllDo(CollectionUtils.subtract(originalAttrs.keySet(), updatedAttrs.keySet()),
                     new Closure<String>() {
 
-                        @Override
-                        public void execute(final String schema) {
-                            result.getPlainAttrs().add(new AttrPatch.Builder().
-                                    operation(PatchOperation.DELETE).
-                                    attrTO(new AttrTO.Builder().schema(schema).build()).
-                                    build());
-                        }
-                    });
+                @Override
+                public void execute(final String schema) {
+                    result.getPlainAttrs().add(new AttrPatch.Builder().
+                            operation(PatchOperation.DELETE).
+                            attrTO(new AttrTO.Builder().schema(schema).build()).
+                            build());
+                }
+            });
         }
 
         for (AttrTO attrTO : updatedAttrs.values()) {
@@ -254,15 +253,15 @@ public final class AnyOperations {
 
         // 4. roles
         if (!incremental) {
-            for (Long toRemove : CollectionUtils.subtract(original.getRoles(), updated.getRoles())) {
+            for (String toRemove : CollectionUtils.subtract(original.getRoles(), updated.getRoles())) {
                 result.getRoles().add(
-                        new LongPatchItem.Builder().operation(PatchOperation.DELETE).value(toRemove).build());
+                        new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(toRemove).build());
             }
         }
 
-        for (Long toAdd : CollectionUtils.subtract(updated.getRoles(), original.getRoles())) {
+        for (String toAdd : CollectionUtils.subtract(updated.getRoles(), original.getRoles())) {
             result.getRoles().add(
-                    new LongPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(toAdd).build());
+                    new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(toAdd).build());
         }
 
         // 5. relationships
@@ -522,7 +521,7 @@ public final class AnyOperations {
         }
 
         // 5. roles
-        for (LongPatchItem rolePatch : userPatch.getRoles()) {
+        for (StringPatchItem rolePatch : userPatch.getRoles()) {
             switch (rolePatch.getOperation()) {
                 case ADD_REPLACE:
                     result.getRoles().add(rolePatch.getValue());

@@ -28,8 +28,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -109,18 +109,21 @@ public class ExceptionMapperITCase extends AbstractITCase {
     }
 
     @Test
-    public void sameRoleName() {
-        // Create the first role
-        RoleTO roleTO1 = new RoleTO();
-        String roleUUID = getUUIDString();
-        roleTO1.setName("child1" + roleUUID);
-        createRole(roleTO1);
+    public void sameGroupName() {
+        String groupUUID = getUUIDString();
 
-        // Create the second role, with the same parent and the same role of roleTO1
-        RoleTO roleTO2 = new RoleTO();
-        roleTO2.setName("child1" + roleUUID);
+        // Create the first group
+        GroupTO groupTO1 = new GroupTO();
+        groupTO1.setName("child1" + groupUUID);
+        groupTO1.setRealm(SyncopeConstants.ROOT_REALM);
+        createGroup(groupTO1);
+
+        // Create the second group, with the same name of groupTO1
+        GroupTO groupTO2 = new GroupTO();
+        groupTO2.setName("child1" + groupUUID);
+        groupTO2.setRealm(SyncopeConstants.ROOT_REALM);
         try {
-            createRole(roleTO2);
+            createGroup(groupTO2);
             fail();
         } catch (Exception e) {
             String message = ERROR_MESSAGES.getProperty("errMessage.UniqueConstraintViolation");

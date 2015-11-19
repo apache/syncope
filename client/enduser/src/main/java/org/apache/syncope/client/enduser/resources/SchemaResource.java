@@ -21,6 +21,7 @@ package org.apache.syncope.client.enduser.resources;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.model.SchemaResponse;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -29,6 +30,7 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
@@ -51,9 +53,9 @@ public class SchemaResource extends AbstractBaseResource {
     private final SchemaService schemaService;
 
     public SchemaResource() {
-        anyTypeService = getService(AnyTypeService.class);
-        anyTypeClassService = getService(AnyTypeClassService.class);
-        schemaService = getService(SchemaService.class);
+        anyTypeService = SyncopeEnduserSession.get().getService(AnyTypeService.class);
+        anyTypeClassService = SyncopeEnduserSession.get().getService(AnyTypeClassService.class);
+        schemaService = SyncopeEnduserSession.get().getService(SchemaService.class);
     }
 
     @Override
@@ -66,22 +68,14 @@ public class SchemaResource extends AbstractBaseResource {
         int responseStatus = 200;
 
         try {
-
             final AnyTypeTO anyTypeUserTO = anyTypeService.read(AnyTypeKind.USER.name());
 
-            final List<PlainSchemaTO> plainSchemas = new ArrayList<>();
-            final List<DerSchemaTO> derSchemas = new ArrayList<>();
-            final List<VirSchemaTO> virSchemas = new ArrayList<>();
-
-            // read all USER type schemas
-            for (String clazz : anyTypeUserTO.getClasses()) {
-                plainSchemas.addAll(getSchemaTOs(anyTypeClassService.read(clazz).getPlainSchemas(), SchemaType.PLAIN,
-                        PlainSchemaTO.class));
-                derSchemas.addAll(getSchemaTOs(anyTypeClassService.read(clazz).getDerSchemas(), SchemaType.DERIVED,
-                        DerSchemaTO.class));
-                virSchemas.addAll(getSchemaTOs(anyTypeClassService.read(clazz).getVirSchemas(), SchemaType.VIRTUAL,
-                        VirSchemaTO.class));
-            }
+            final List<PlainSchemaTO> plainSchemas = schemaService.list(
+                    SchemaType.PLAIN, new SchemaQuery.Builder().anyTypeClasses(anyTypeUserTO.getClasses()).build());
+            final List<DerSchemaTO> derSchemas = schemaService.list(
+                    SchemaType.DERIVED, new SchemaQuery.Builder().anyTypeClasses(anyTypeUserTO.getClasses()).build());
+            final List<VirSchemaTO> virSchemas = schemaService.list(
+                    SchemaType.VIRTUAL, new SchemaQuery.Builder().anyTypeClasses(anyTypeUserTO.getClasses()).build());
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
@@ -93,7 +87,6 @@ public class SchemaResource extends AbstractBaseResource {
                             virSchemas(virSchemas)));
                 }
             });
-
         } catch (Exception e) {
             LOG.error("Error retrieving {} any type kind related schemas", AnyTypeKind.USER.name(), e);
             responseStatus = 400;

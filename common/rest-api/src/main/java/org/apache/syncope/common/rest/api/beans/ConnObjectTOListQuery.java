@@ -32,6 +32,31 @@ public class ConnObjectTOListQuery implements Serializable {
 
     private static final long serialVersionUID = -371488230250055359L;
 
+    public static class Builder {
+
+        private final ConnObjectTOListQuery instance = new ConnObjectTOListQuery();
+
+        public Builder size(final Integer size) {
+            instance.setSize(size);
+            return this;
+        }
+
+        public Builder pagedResultsCookie(final String pagedResultsCookie) {
+            instance.setPagedResultsCookie(pagedResultsCookie);
+            return this;
+        }
+
+        public Builder orderBy(final String orderBy) {
+            instance.setOrderBy(orderBy);
+            return this;
+        }
+
+        public ConnObjectTOListQuery build() {
+            return instance;
+        }
+
+    }
+
     private Integer size;
 
     private String pagedResultsCookie;

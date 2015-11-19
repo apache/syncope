@@ -75,8 +75,8 @@ public class UserResultManager extends CommonsResultManager {
         }
     }
 
-    private void printRole(final List<Long> roles) {
-        for (final Long role : roles) {
+    private void printRole(final List<String> roles) {
+        for (final String role : roles) {
             System.out.println("       - " + role);
         }
     }
@@ -94,16 +94,16 @@ public class UserResultManager extends CommonsResultManager {
             System.out.println(attributeSentence);
         }
     }
-    
+
     private void printRelationships(final List<RelationshipTO> relationshipTOs) {
         for (final RelationshipTO relationshipTO : relationshipTOs) {
             System.out.println("       type: " + relationshipTO.getType());
         }
     }
-    
+
     public void printUndeletedUsers(final Map<String, String> users) {
-        final Table.TableBuilder tableBuilder
-                = new Table.TableBuilder("Users not deleted").header("user id").header("cause");
+        final Table.TableBuilder tableBuilder =
+                new Table.TableBuilder("Users not deleted").header("user id").header("cause");
         for (final Map.Entry<String, String> entrySet : users.entrySet()) {
             tableBuilder.rowValues(new LinkedList<>(Arrays.asList(entrySet.getKey(), entrySet.getValue())));
         }

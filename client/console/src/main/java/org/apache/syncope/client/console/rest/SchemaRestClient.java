@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.springframework.stereotype.Component;
 
@@ -62,11 +63,11 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             if (kind == null || kind.length == 0) {
-                schemas.addAll(getService(SchemaService.class).<T>list(schemaType, null));
+                schemas.addAll(getService(SchemaService.class).
+                        <T>list(schemaType, new SchemaQuery.Builder().build()));
             } else {
-                for (String clazz : kind) {
-                    schemas.addAll(getService(SchemaService.class).<T>list(schemaType, clazz));
-                }
+                schemas.addAll(getService(SchemaService.class).
+                        <T>list(schemaType, new SchemaQuery.Builder().anyTypeClasses(kind).build()));
             }
         } catch (SyncopeClientException e) {
             LOG.error("While getting all {} schemas for {}", schemaType, kind, e);
@@ -96,32 +97,8 @@ public class SchemaRestClient extends BaseRestClient {
         return getSchemaNames(SchemaType.PLAIN);
     }
 
-    public List<DerSchemaTO> getDerSchemas() {
-        List<DerSchemaTO> userDerSchemas = null;
-
-        try {
-            userDerSchemas = getService(SchemaService.class).list(SchemaType.DERIVED, null);
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting all user derived schemas", e);
-        }
-
-        return userDerSchemas;
-    }
-
     public List<String> getDerSchemaNames() {
         return getSchemaNames(SchemaType.DERIVED);
-    }
-
-    public List<VirSchemaTO> getVirSchemas() {
-        List<VirSchemaTO> userVirSchemas = null;
-
-        try {
-            userVirSchemas = getService(SchemaService.class).list(SchemaType.VIRTUAL, null);
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting all virtual schemas", e);
-        }
-
-        return userVirSchemas;
     }
 
     public List<String> getVirSchemaNames() {

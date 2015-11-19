@@ -50,6 +50,8 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.SyncMode;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
@@ -101,7 +103,8 @@ public class MultitenancyITCase extends AbstractITCase {
 
     @Test
     public void readPlainSchemas() {
-        assertEquals(17, adminClient.getService(SchemaService.class).list(SchemaType.PLAIN, null).size());
+        assertEquals(17, adminClient.getService(SchemaService.class).
+                list(SchemaType.PLAIN, new SchemaQuery.Builder().build()).size());
     }
 
     @Test
@@ -209,7 +212,7 @@ public class MultitenancyITCase extends AbstractITCase {
 
         // verify that synchronized user is found
         PagedResult<UserTO> matchingUsers = adminClient.getService(UserService.class).search(
-                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query()).
                 build());
         assertNotNull(matchingUsers);

@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.misc.security;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.Closure;
@@ -260,6 +260,8 @@ public class AuthDataAccessor {
             if (user.isMustChangePassword()) {
                 authorities.add(new SyncopeGrantedAuthority(StandardEntitlement.MUST_CHANGE_PASSWORD));
             } else {
+                final Map<String, Set<String>> entForRealms = new HashMap<>();
+
                 // Give entitlements as assigned by roles (with realms, where applicable) - assigned either
                 // statically and dynamically
                 for (final Role role : userDAO.findAllRoles(user)) {
@@ -267,18 +269,19 @@ public class AuthDataAccessor {
 
                         @Override
                         public void execute(final String entitlement) {
-                            SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
-                            authorities.add(authority);
+                            Set<String> realms = entForRealms.get(entitlement);
+                            if (realms == null) {
+                                realms = new HashSet<>();
+                                entForRealms.put(entitlement, realms);
+                            }
 
-                            List<String> realmFullPahs = new ArrayList<>();
                             CollectionUtils.collect(role.getRealms(), new Transformer<Realm, String>() {
 
                                 @Override
                                 public String transform(final Realm realm) {
                                     return realm.getFullPath();
                                 }
-                            }, realmFullPahs);
-                            authority.addRealms(realmFullPahs);
+                            }, realms);
                         }
                     });
                 }
@@ -290,11 +293,21 @@ public class AuthDataAccessor {
                             StandardEntitlement.GROUP_UPDATE,
                             StandardEntitlement.GROUP_DELETE)) {
 
-                        SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
-                        authority.addRealm(
-                                RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
-                        authorities.add(authority);
+                        Set<String> realms = entForRealms.get(entitlement);
+                        if (realms == null) {
+                            realms = new HashSet<>();
+                            entForRealms.put(entitlement, realms);
+                        }
+
+                        realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
                     }
+                }
+
+                // Finally normalize realms for each given entitlement and generate authorities
+                for (Map.Entry<String, Set<String>> entry : entForRealms.entrySet()) {
+                    SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entry.getKey());
+                    authority.addRealms(RealmUtils.normalize(entry.getValue()));
+                    authorities.add(authority);
                 }
             }
         }

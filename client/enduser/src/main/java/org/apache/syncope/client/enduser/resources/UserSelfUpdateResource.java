@@ -43,7 +43,7 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
 
     public UserSelfUpdateResource() {
         userTOAdapter = new UserTOAdapter();
-        userSelfService = getService(UserSelfService.class);
+        userSelfService = SyncopeEnduserSession.get().getService(UserSelfService.class);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
             // update user
             Response res = userSelfService.update(userTO);
             responseStatus = res.getStatus();
-            
+
             responseMessage = "User updated successfully";
 
             response.setWriteCallback(new WriteCallback() {

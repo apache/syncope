@@ -90,13 +90,13 @@ under the License.
   <entry key="user_search_role">
     CREATE VIEW user_search_role AS
 
-    SELECT ss.user_id AS any_id, ss.role_id AS role_id
+    SELECT ss.user_id AS any_id, ss.role_name AS role_name
     FROM SyncopeUser_SyncopeRole ss
   </entry>
   <entry key="user_search_dynrmemb">
     CREATE VIEW user_search_dynrmemb AS
 
-    SELECT ds.user_id AS any_id, d.role_id AS role_id
+    SELECT ds.user_id AS any_id, d.role_name AS role_name
     FROM DynRoleMembership d, DynRoleMembership_User ds
     WHERE d.id = ds.dynRoleMembership_id
   </entry>

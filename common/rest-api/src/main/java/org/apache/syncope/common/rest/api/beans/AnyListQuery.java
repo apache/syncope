@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.MatrixParam;
@@ -26,6 +27,28 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 public class AnyListQuery extends AnyQuery {
 
     private static final long serialVersionUID = -5197167078435619636L;
+
+    public static class Builder extends AbstractQuery.Builder<AnyListQuery, Builder> {
+
+        @Override
+        protected AnyListQuery newInstance() {
+            return new AnyListQuery();
+        }
+
+        public Builder details(final boolean details) {
+            getInstance().setDetails(details);
+            return this;
+        }
+
+        public Builder realm(final String realm) {
+            if (getInstance().getRealms() == null) {
+                getInstance().setRealms(new ArrayList<String>());
+            }
+            getInstance().getRealms().add(realm);
+
+            return this;
+        }
+    }
 
     private List<String> realms;
 

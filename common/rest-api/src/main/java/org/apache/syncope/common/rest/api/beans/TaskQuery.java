@@ -27,6 +27,30 @@ public class TaskQuery extends AbstractQuery {
 
     private static final long serialVersionUID = -8792519310029596796L;
 
+    public static class Builder extends AbstractQuery.Builder<TaskQuery, Builder> {
+
+        @Override
+        protected TaskQuery newInstance() {
+            return new TaskQuery();
+        }
+
+        public Builder resource(final String resource) {
+            getInstance().setResource(resource);
+            return this;
+        }
+
+        public Builder anyTypeKind(final AnyTypeKind anyTypeKind) {
+            getInstance().setAnyTypeKind(anyTypeKind);
+            return this;
+        }
+
+        public Builder anyTypeKey(final Long anyTypeKey) {
+            getInstance().setAnyTypeKey(anyTypeKey);
+            return this;
+        }
+
+    }
+
     private String resource;
 
     private AnyTypeKind anyTypeKind;

@@ -75,7 +75,7 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
     @Override
     public void update(final Role role, final RoleTO roleTO) {
-        role.setName(roleTO.getName());
+        role.setKey(roleTO.getKey());
 
         role.getEntitlements().clear();
         role.getEntitlements().addAll(roleTO.getEntitlements());
@@ -93,17 +93,15 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         // dynamic membership
         if (role.getKey() == null && roleTO.getDynMembershipCond() != null) {
             setDynMembership(role, roleTO.getDynMembershipCond());
-        } else {
-            if (role.getDynMembership() != null && roleTO.getDynMembershipCond() == null) {
-                role.setDynMembership(null);
-            } else if (role.getDynMembership() == null && roleTO.getDynMembershipCond() != null) {
-                setDynMembership(role, roleTO.getDynMembershipCond());
-            } else if (role.getDynMembership() != null && roleTO.getDynMembershipCond() != null
-                    && !role.getDynMembership().getFIQLCond().equals(roleTO.getDynMembershipCond())) {
+        } else if (role.getDynMembership() != null && roleTO.getDynMembershipCond() == null) {
+            role.setDynMembership(null);
+        } else if (role.getDynMembership() == null && roleTO.getDynMembershipCond() != null) {
+            setDynMembership(role, roleTO.getDynMembershipCond());
+        } else if (role.getDynMembership() != null && roleTO.getDynMembershipCond() != null
+                && !role.getDynMembership().getFIQLCond().equals(roleTO.getDynMembershipCond())) {
 
-                role.getDynMembership().getMembers().clear();
-                setDynMembership(role, roleTO.getDynMembershipCond());
-            }
+            role.getDynMembership().getMembers().clear();
+            setDynMembership(role, roleTO.getDynMembershipCond());
         }
     }
 
@@ -112,7 +110,6 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         RoleTO roleTO = new RoleTO();
 
         roleTO.setKey(role.getKey());
-        roleTO.setName(role.getName());
         roleTO.getEntitlements().addAll(role.getEntitlements());
 
         CollectionUtils.collect(role.getRealms(), new Transformer<Realm, String>() {

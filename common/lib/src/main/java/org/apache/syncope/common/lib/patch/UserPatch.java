@@ -46,7 +46,7 @@ public class UserPatch extends AnyPatch {
 
     private final Set<MembershipPatch> memberships = new HashSet<>();
 
-    private final Set<LongPatchItem> roles = new HashSet<>();
+    private final Set<StringPatchItem> roles = new HashSet<>();
 
     public StringReplacePatchItem getUsername() {
         return username;
@@ -105,7 +105,7 @@ public class UserPatch extends AnyPatch {
     @XmlElementWrapper(name = "roles")
     @XmlElement(name = "role")
     @JsonProperty("roles")
-    public Set<LongPatchItem> getRoles() {
+    public Set<StringPatchItem> getRoles() {
         return roles;
     }
 

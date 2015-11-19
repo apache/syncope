@@ -22,7 +22,6 @@ import java.util.List;
 import javax.ws.rs.core.GenericType;
 
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -30,6 +29,8 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.GroupService;
@@ -52,7 +53,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
     @Override
     public int count(final String realm, final String type) {
         return getService(GroupService.class).
-                list(SyncopeClient.getAnyListQueryBuilder().realm(realm).page(1).size(1).build()).
+                list(new AnyListQuery.Builder().realm(realm).page(1).size(1).build()).
                 getTotalCount();
     }
 
@@ -60,7 +61,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
     public List<GroupTO> list(final String realm, final int page, final int size, final SortParam<String> sort,
             final String type) {
         return getService(GroupService.class).
-                list(SyncopeClient.getAnyListQueryBuilder().realm(realm).page(page).size(size).
+                list(new AnyListQuery.Builder().realm(realm).page(page).size(size).
                         orderBy(toOrderBy(sort)).details(false).build()).
                 getResult();
     }
@@ -68,7 +69,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
     @Override
     public int searchCount(final String realm, final String fiql, final String type) {
         return getService(GroupService.class).
-                search(SyncopeClient.getAnySearchQueryBuilder().realm(realm).fiql(fiql).page(1).size(1).build()).
+                search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(1).size(1).build()).
                 getTotalCount();
     }
 
@@ -78,7 +79,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
             final String type) {
 
         return getService(GroupService.class).
-                search(SyncopeClient.getAnySearchQueryBuilder().realm(realm).fiql(fiql).page(page).size(size).
+                search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
                         orderBy(toOrderBy(sort)).details(false).build()).
                 getResult();
     }

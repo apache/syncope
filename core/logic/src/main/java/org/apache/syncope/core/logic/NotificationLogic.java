@@ -44,12 +44,12 @@ public class NotificationLogic extends AbstractTransactionalLogic<NotificationTO
     private NotificationDataBinder binder;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_READ + "')")
-    public NotificationTO read(final Long notificationKey) {
-        Notification notification = notificationDAO.find(notificationKey);
+    public NotificationTO read(final Long key) {
+        Notification notification = notificationDAO.find(key);
         if (notification == null) {
-            LOG.error("Could not find notification '" + notificationKey + "'");
+            LOG.error("Could not find notification '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(notificationKey));
+            throw new NotFoundException(String.valueOf(key));
         }
 
         return binder.getNotificationTO(notification);
@@ -86,16 +86,16 @@ public class NotificationLogic extends AbstractTransactionalLogic<NotificationTO
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_DELETE + "')")
-    public NotificationTO delete(final Long notificationKey) {
-        Notification notification = notificationDAO.find(notificationKey);
+    public NotificationTO delete(final Long key) {
+        Notification notification = notificationDAO.find(key);
         if (notification == null) {
-            LOG.error("Could not find notification '" + notificationKey + "'");
+            LOG.error("Could not find notification '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(notificationKey));
+            throw new NotFoundException(String.valueOf(key));
         }
 
         NotificationTO deleted = binder.getNotificationTO(notification);
-        notificationDAO.delete(notificationKey);
+        notificationDAO.delete(key);
         return deleted;
     }
 

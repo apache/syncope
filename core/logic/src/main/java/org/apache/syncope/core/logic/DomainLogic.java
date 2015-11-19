@@ -55,7 +55,7 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
         if (domain == null) {
             LOG.error("Could not find domain '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(key));
+            throw new NotFoundException(key);
         }
 
         return binder.getDomainTO(domain);
@@ -88,7 +88,7 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
         Domain domain = domainDAO.find(domainTO.getKey());
         if (domain == null) {
             LOG.error("Could not find domain '" + domainTO.getKey() + "'");
-            throw new NotFoundException(String.valueOf(domainTO.getKey()));
+            throw new NotFoundException(domainTO.getKey());
         }
 
         binder.update(domain, domainTO);
@@ -104,7 +104,7 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
         if (domain == null) {
             LOG.error("Could not find domain '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(key));
+            throw new NotFoundException(key);
         }
 
         DomainTO deleted = binder.getDomainTO(domain);

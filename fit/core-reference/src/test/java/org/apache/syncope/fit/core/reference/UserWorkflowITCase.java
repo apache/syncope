@@ -30,8 +30,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.LongPatchItem;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -76,17 +76,17 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form.getTaskId());
         assertNull(form.getOwner());
 
-        // 3. claim task as rossini, with role 2 granting entitlement to claim forms but not in group 7,
+        // 3. claim task as rossini, with role "User manager" granting entitlement to claim forms but not in group 7,
         // designated for approval in workflow definition: fail
         UserTO rossini = userService.read(1L);
-        if (!rossini.getRoles().contains(2L)) {
+        if (!rossini.getRoles().contains("User manager")) {
             UserPatch userPatch = new UserPatch();
             userPatch.setKey(1L);
-            userPatch.getRoles().add(new LongPatchItem.Builder().
-                    operation(PatchOperation.ADD_REPLACE).value(2L).build());
+            userPatch.getRoles().add(new StringPatchItem.Builder().
+                    operation(PatchOperation.ADD_REPLACE).value("User manager").build());
             rossini = updateUser(userPatch).getAny();
         }
-        assertTrue(rossini.getRoles().contains(2L));
+        assertTrue(rossini.getRoles().contains("User manager"));
 
         UserWorkflowService userService2 = clientFactory.create("rossini", ADMIN_PWD).
                 getService(UserWorkflowService.class);
@@ -97,7 +97,7 @@ public class UserWorkflowITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.Workflow, e.getType());
         }
 
-        // 4. claim task from bellini, with role 2 and in group 7
+        // 4. claim task from bellini, with role "User manager" and in group 7
         UserWorkflowService userService3 = clientFactory.create("bellini", ADMIN_PWD).
                 getService(UserWorkflowService.class);
         form = userService3.claimForm(form.getTaskId());

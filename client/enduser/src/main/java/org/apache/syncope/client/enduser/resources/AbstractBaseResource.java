@@ -30,19 +30,7 @@ public abstract class AbstractBaseResource extends AbstractResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBaseResource.class);
 
-    protected <T> T getService(final Class<T> serviceClass) {
-        return SyncopeEnduserSession.get().getService(serviceClass);
-    }
-
-    protected <T> T getService(final String etag, final Class<T> serviceClass) {
-        return SyncopeEnduserSession.get().getService(etag, serviceClass);
-    }
-
-    protected <T> void resetClient(final Class<T> serviceClass) {
-        SyncopeEnduserSession.get().resetClient(serviceClass);
-    }
-
-    protected boolean isSelfRegistrationAllowed() {
+    protected final boolean isSelfRegistrationAllowed() {
         Boolean result = null;
         try {
             result = SyncopeEnduserSession.get().getSyncopeTO().isSelfRegAllowed();

@@ -50,7 +50,7 @@ public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionB
         return newBuilderInstance().is(SpecialAttr.GROUPS.toString()).inGroups(group, moreGroups);
     }
 
-    public CompleteCondition inRoles(final Long role, final Long... moreRoles) {
+    public CompleteCondition inRoles(final String role, final String... moreRoles) {
         return newBuilderInstance().is(SpecialAttr.ROLES.toString()).inRoles(role, moreRoles);
     }
 
@@ -99,13 +99,13 @@ public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionB
         }
 
         @Override
-        public CompleteCondition inRoles(final Long role, final Long... moreRoles) {
+        public CompleteCondition inRoles(final String role, final String... moreRoles) {
             this.result = SpecialAttr.ROLES.toString();
             return condition(FiqlParser.EQ, role, (Object[]) moreRoles);
         }
 
         @Override
-        public CompleteCondition notInRoles(final Long role, final Long... moreRoles) {
+        public CompleteCondition notInRoles(final String role, final String... moreRoles) {
             this.result = SpecialAttr.ROLES.toString();
             return condition(FiqlParser.NEQ, role, (Object[]) moreRoles);
         }

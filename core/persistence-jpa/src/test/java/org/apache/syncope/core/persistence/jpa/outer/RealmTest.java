@@ -45,7 +45,7 @@ public class RealmTest extends AbstractTest {
         Realm realm = realmDAO.find("/odd");
         assertNotNull(realm);
 
-        Role role = roleDAO.find(1L);
+        Role role = roleDAO.find("User reviewer");
         assertTrue(role.getRealms().contains(realm));
 
         int beforeSize = role.getRealms().size();
@@ -54,7 +54,7 @@ public class RealmTest extends AbstractTest {
 
         realmDAO.flush();
 
-        role = roleDAO.find(1L);
+        role = roleDAO.find("User reviewer");
         assertEquals(beforeSize - 1, role.getRealms().size());
     }
 }

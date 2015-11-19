@@ -189,7 +189,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
     public boolean isValid(final ExternalResource resource, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (!NAME_PATTERN.matcher(resource.getKey()).matches()) {
+        if (resource.getKey() == null || !NAME_PATTERN.matcher(resource.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidName, "Invalid Resource name")).
                     addPropertyNode("name").addConstraintViolation();

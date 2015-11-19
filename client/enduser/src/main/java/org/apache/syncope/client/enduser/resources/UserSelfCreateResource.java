@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.UserTOAdapter;
 import org.apache.syncope.client.enduser.model.UserTORequest;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -40,7 +41,7 @@ public class UserSelfCreateResource extends AbstractBaseResource {
 
     public UserSelfCreateResource() {
         userTOAdapter = new UserTOAdapter();
-        userSelfService = getService(UserSelfService.class);
+        userSelfService = SyncopeEnduserSession.get().getService(UserSelfService.class);
     }
 
     @Override

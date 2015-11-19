@@ -38,9 +38,9 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
-import org.apache.syncope.common.lib.patch.LongPatchItem;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -65,10 +65,10 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.UserService;
-import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
@@ -167,7 +167,7 @@ public class AuthenticationITCase extends AbstractITCase {
     @Test
     public void testUserRead() {
         UserTO userTO = UserITCase.getUniqueSampleTO("testuserread@test.org");
-        userTO.getRoles().add(2L);
+        userTO.getRoles().add("User manager");
 
         userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
@@ -192,7 +192,7 @@ public class AuthenticationITCase extends AbstractITCase {
     @Test
     public void testUserSearch() {
         UserTO userTO = UserITCase.getUniqueSampleTO("testusersearch@test.org");
-        userTO.getRoles().add(1L);
+        userTO.getRoles().add("User reviewer");
 
         userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
@@ -203,7 +203,7 @@ public class AuthenticationITCase extends AbstractITCase {
                 getService(UserService.class);
 
         PagedResult<UserTO> matchedUsers = userService2.search(
-                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("key").query()).build());
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
@@ -223,7 +223,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserService userService3 = clientFactory.create("puccini", ADMIN_PWD).getService(UserService.class);
 
         matchedUsers = userService3.search(
-                SyncopeClient.getAnySearchQueryBuilder().realm("/even/two").
+                new AnySearchQuery.Builder().realm("/even/two").
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
         assertNotNull(matchedUsers);
         assertTrue(CollectionUtils.matchesAll(matchedUsers.getResult(), new Predicate<UserTO>() {
@@ -237,12 +237,12 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void delegatedUserCRUD() {
-        Long roleKey = null;
+        String roleKey = null;
         Long delegatedAdminKey = null;
         try {
             // 1. create role for full user administration, under realm /even/two
             RoleTO role = new RoleTO();
-            role.setName("Delegated user admin");
+            role.setKey("Delegated user admin");
             role.getEntitlements().add(StandardEntitlement.USER_CREATE);
             role.getEntitlements().add(StandardEntitlement.USER_UPDATE);
             role.getEntitlements().add(StandardEntitlement.USER_DELETE);
@@ -250,7 +250,7 @@ public class AuthenticationITCase extends AbstractITCase {
             role.getEntitlements().add(StandardEntitlement.USER_READ);
             role.getRealms().add("/even/two");
 
-            roleKey = Long.valueOf(roleService.create(role).getHeaderString(RESTHeaders.RESOURCE_KEY));
+            roleKey = roleService.create(role).getHeaderString(RESTHeaders.RESOURCE_KEY);
             assertNotNull(roleKey);
 
             // 2. as admin, create delegated admin user, and assign the role just created
@@ -327,7 +327,7 @@ public class AuthenticationITCase extends AbstractITCase {
     @Test
     public void checkFailedLogins() {
         UserTO userTO = UserITCase.getUniqueSampleTO("checkFailedLogin@syncope.apache.org");
-        userTO.getRoles().add(2L);
+        userTO.getRoles().add("User manager");
 
         userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
@@ -353,7 +353,7 @@ public class AuthenticationITCase extends AbstractITCase {
     public void checkUserSuspension() {
         UserTO userTO = UserITCase.getUniqueSampleTO("checkSuspension@syncope.apache.org");
         userTO.setRealm("/odd");
-        userTO.getRoles().add(2L);
+        userTO.getRoles().add("User manager");
 
         userTO = createUser(userTO).getAny();
         long userKey = userTO.getKey();
@@ -448,7 +448,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 4. give create entitlement for the any type just created
         RoleTO role = new RoleTO();
-        role.setName("role" + getUUIDString());
+        role.setKey("role" + getUUIDString());
         role.getRealms().add(SyncopeConstants.ROOT_REALM);
         role.getEntitlements().add(anyTypeKey + "_READ");
         role.getEntitlements().add(anyTypeKey + "_CREATE");
@@ -457,7 +457,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO bellini = readUser("bellini");
         UserPatch patch = new UserPatch();
         patch.setKey(bellini.getKey());
-        patch.getRoles().add(new LongPatchItem.Builder().
+        patch.getRoles().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(role.getKey()).build());
         bellini = updateUser(patch).getAny();
         assertTrue(bellini.getRoles().contains(role.getKey()));
