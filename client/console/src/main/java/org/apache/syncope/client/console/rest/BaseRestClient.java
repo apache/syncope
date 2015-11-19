@@ -26,6 +26,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,19 +37,23 @@ public abstract class BaseRestClient implements Serializable {
 
     private static final long serialVersionUID = 1523999867826481989L;
 
-    protected <T> T getService(final Class<T> serviceClass) {
+    public static SyncopeService getSyncopeService() {
+        return getService(SyncopeService.class);
+    }
+
+    protected static <T> T getService(final Class<T> serviceClass) {
         return SyncopeConsoleSession.get().getService(serviceClass);
     }
 
-    protected <T> T getService(final String etag, final Class<T> serviceClass) {
+    protected static <T> T getService(final String etag, final Class<T> serviceClass) {
         return SyncopeConsoleSession.get().getService(etag, serviceClass);
     }
 
-    protected <T> void resetClient(final Class<T> serviceClass) {
+    protected static <T> void resetClient(final Class<T> serviceClass) {
         SyncopeConsoleSession.get().resetClient(serviceClass);
     }
 
-    protected String toOrderBy(final SortParam<String> sort) {
+    protected static String toOrderBy(final SortParam<String> sort) {
         OrderByClauseBuilder builder = SyncopeClient.getOrderByClauseBuilder();
 
         String property = sort.getProperty();
@@ -65,7 +70,8 @@ public abstract class BaseRestClient implements Serializable {
         return builder.build();
     }
 
-    protected <E extends JAXRSService, T> T getObject(final E service, final URI location, final Class<T> resultClass) {
+    protected static <E extends JAXRSService, T> T getObject(final E service, final URI location,
+            final Class<T> resultClass) {
         WebClient webClient = WebClient.fromClient(WebClient.client(service));
         webClient.accept(SyncopeConsoleApplication.get().getMediaType()).to(location.toASCIIString(), false);
         return webClient.get(resultClass);

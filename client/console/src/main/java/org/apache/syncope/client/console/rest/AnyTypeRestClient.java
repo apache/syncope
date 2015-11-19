@@ -65,6 +65,18 @@ public class AnyTypeRestClient extends BaseRestClient {
         return types;
     }
 
+    public static List<AnyTypeClassTO> getAllAnyTypeClass() {
+        List<AnyTypeClassTO> types = null;
+
+        try {
+            types = getService(AnyTypeClassService.class).list();
+        } catch (SyncopeClientException e) {
+            LOG.error("While reading all any types", e);
+        }
+
+        return types;
+    }
+
     public List<AnyTypeClassTO> getAnyTypeClass(final String... anyTypeClassNames) {
         List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
         for (String anyTypeClass : anyTypeClassNames) {

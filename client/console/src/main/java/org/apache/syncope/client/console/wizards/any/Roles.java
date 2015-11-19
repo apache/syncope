@@ -22,43 +22,30 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class Resources extends WizardStep {
+public class Roles extends WizardStep {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    public <T extends AnyTO> Resources(final T entityTO) {
+    public <T extends AnyTO> Roles(final UserTO entityTO) {
         this.setOutputMarkupId(true);
 
-        add(new AjaxPalettePanel<>("resources",
-                new PropertyModel<List<String>>(entityTO, "resources") {
-
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public List<String> getObject() {
-                        return new ArrayList<>(entityTO.getResources());
-                    }
-
-                    @Override
-                    public void setObject(final List<String> object) {
-                        entityTO.getResources().clear();
-                        entityTO.getResources().addAll(object);
-                    }
-                },
+        add(new AjaxPalettePanel<>("roles",
+                new PropertyModel<List<String>>(entityTO, "roles"),
                 new ListModel<>(CollectionUtils.collect(
-                                ResourceRestClient.getAll(),
-                                new Transformer<ResourceTO, String>() {
+                                RoleRestClient.getAll(),
+                                new Transformer<RoleTO, String>() {
 
                                     @Override
-                                    public String transform(final ResourceTO input) {
+                                    public String transform(final RoleTO input) {
                                         return input.getKey();
                                     }
                                 }, new ArrayList<String>()))).setOutputMarkupId(true));

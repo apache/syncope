@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.util.ListModel;
@@ -58,11 +59,22 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<T> impl
     @Override
     protected WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel) {
         final String[] clazzes = anyTypeClasses.toArray(new String[] {});
+        // optional details panel step
         addOptionalDetailsPanel(modelObject, wizardModel);
+
         wizardModel.add(new AuxClasses(modelObject, clazzes));
+
+        // attributes panel steps
         wizardModel.add(new PlainAttrs(modelObject, null, Mode.ADMIN, clazzes));
         wizardModel.add(new DerAttrs(modelObject, clazzes));
         wizardModel.add(new VirAttrs(modelObject, clazzes));
+
+        // role panel step (jst available for users)
+        if ((this instanceof UserWizardBuilder) && (modelObject instanceof UserTO)) {
+            wizardModel.add(new Roles(UserTO.class.cast(modelObject)));
+        }
+
+        // resource panel step
         wizardModel.add(new Resources(modelObject));
         return wizardModel;
     }

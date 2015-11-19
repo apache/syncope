@@ -55,11 +55,11 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
                 append(JPAPlainSchema.class.getSimpleName()).
                 append(" e WHERE ");
         for (AnyTypeClass anyTypeClass : anyTypeClasses) {
-            queryString.append("e.anyTypeClass.name='").append(anyTypeClass.getKey()).append("' OR");
+            queryString.append("e.anyTypeClass.name='").append(anyTypeClass.getKey()).append("' OR ");
         }
 
         TypedQuery<PlainSchema> query = entityManager().createQuery(
-                queryString.substring(0, queryString.length() - 3), PlainSchema.class);
+                queryString.substring(0, queryString.length() - 4), PlainSchema.class);
 
         return query.getResultList();
     }

@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractResourceModal.CreateEvent;
+import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -41,7 +42,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPane
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -90,51 +90,51 @@ public class Topology extends BasePage {
         }
     };
 
-    private final LoadableDetachableModel<Map<String, List<ConnInstanceTO>>> connModel =
-            new LoadableDetachableModel<Map<String, List<ConnInstanceTO>>>() {
+    private final LoadableDetachableModel<Map<String, List<ConnInstanceTO>>> connModel
+            = new LoadableDetachableModel<Map<String, List<ConnInstanceTO>>>() {
 
-        private static final long serialVersionUID = 5275935387613157432L;
+                private static final long serialVersionUID = 5275935387613157432L;
 
-        @Override
-        protected Map<String, List<ConnInstanceTO>> load() {
-            final Map<String, List<ConnInstanceTO>> res = new HashMap<>();
+                @Override
+                protected Map<String, List<ConnInstanceTO>> load() {
+                    final Map<String, List<ConnInstanceTO>> res = new HashMap<>();
 
-            for (ConnInstanceTO conn : connectorRestClient.getAllConnectors()) {
-                final List<ConnInstanceTO> conns;
-                if (res.containsKey(conn.getLocation())) {
-                    conns = res.get(conn.getLocation());
-                } else {
-                    conns = new ArrayList<>();
-                    res.put(conn.getLocation(), conns);
+                    for (ConnInstanceTO conn : connectorRestClient.getAllConnectors()) {
+                        final List<ConnInstanceTO> conns;
+                        if (res.containsKey(conn.getLocation())) {
+                            conns = res.get(conn.getLocation());
+                        } else {
+                            conns = new ArrayList<>();
+                            res.put(conn.getLocation(), conns);
+                        }
+                        conns.add(conn);
+                    }
+
+                    return res;
                 }
-                conns.add(conn);
-            }
+            };
 
-            return res;
-        }
-    };
+    private final LoadableDetachableModel<Pair<List<URI>, List<URI>>> csModel
+            = new LoadableDetachableModel<Pair<List<URI>, List<URI>>>() {
 
-    private final LoadableDetachableModel<Pair<List<URI>, List<URI>>> csModel =
-            new LoadableDetachableModel<Pair<List<URI>, List<URI>>>() {
+                private static final long serialVersionUID = 5275935387613157433L;
 
-        private static final long serialVersionUID = 5275935387613157433L;
+                @Override
+                protected Pair<List<URI>, List<URI>> load() {
+                    final List<URI> connectorServers = new ArrayList<>();
+                    final List<URI> filePaths = new ArrayList<>();
 
-        @Override
-        protected Pair<List<URI>, List<URI>> load() {
-            final List<URI> connectorServers = new ArrayList<>();
-            final List<URI> filePaths = new ArrayList<>();
+                    for (String location : SyncopeConsoleSession.get().getSyncopeTO().getConnIdLocations()) {
+                        if (location.startsWith(CONNECTOR_SERVER_LOCATION_PREFIX)) {
+                            connectorServers.add(URI.create(location));
+                        } else {
+                            filePaths.add(URI.create(location));
+                        }
+                    }
 
-            for (String location : SyncopeConsoleSession.get().getSyncopeTO().getConnIdLocations()) {
-                if (location.startsWith(CONNECTOR_SERVER_LOCATION_PREFIX)) {
-                    connectorServers.add(URI.create(location));
-                } else {
-                    filePaths.add(URI.create(location));
+                    return Pair.of(connectorServers, filePaths);
                 }
-            }
-
-            return Pair.of(connectorServers, filePaths);
-        }
-    };
+            };
 
     protected enum SupportedOperation {
 
@@ -200,7 +200,7 @@ public class Topology extends BasePage {
         syncopeTopologyNode.setX(origX);
         syncopeTopologyNode.setY(origY);
 
-        final URI uri = WebClient.client(SyncopeConsoleSession.get().getService(SyncopeService.class)).getBaseURI();
+        final URI uri = WebClient.client(BaseRestClient.getSyncopeService()).getBaseURI();
         syncopeTopologyNode.setHost(uri.getHost());
         syncopeTopologyNode.setPort(uri.getPort());
 
@@ -400,37 +400,37 @@ public class Topology extends BasePage {
                 final ListView<TopologyNode> innerListView = new ListView<TopologyNode>("resources",
                         new ArrayList<>(connections.get(connectorId).values())) {
 
-                    private static final long serialVersionUID = 1L;
+                            private static final long serialVersionUID = 1L;
 
-                    private final int size = getModelObject().size() + 1;
+                            private final int size = getModelObject().size() + 1;
 
-                    @Override
-                    protected void populateItem(final ListItem<TopologyNode> item) {
-                        final TopologyNode topologynode = item.getModelObject();
-                        final TopologyNode parent = connectors.get(connectorId);
+                            @Override
+                            protected void populateItem(final ListItem<TopologyNode> item) {
+                                final TopologyNode topologynode = item.getModelObject();
+                                final TopologyNode parent = connectors.get(connectorId);
 
-                        // Set position
-                        int kx = size >= 16 ? 800 : (48 * size);
-                        int ky = size < 4 ? 100 : size < 6 ? 350 : 750;
+                                // Set position
+                                int kx = size >= 16 ? 800 : (48 * size);
+                                int ky = size < 4 ? 100 : size < 6 ? 350 : 750;
 
-                        final double hpos;
-                        if (parent == null || parent.getY() < syncopeTopologyNode.getY()) {
-                            hpos = Math.PI;
-                        } else {
-                            hpos = 0.0;
-                        }
+                                final double hpos;
+                                if (parent == null || parent.getY() < syncopeTopologyNode.getY()) {
+                                    hpos = Math.PI;
+                                } else {
+                                    hpos = 0.0;
+                                }
 
-                        int x = (int) Math.round((parent == null ? origX : parent.getX())
-                                + kx * Math.cos(hpos + Math.PI * (item.getIndex() + 1) / size));
-                        int y = (int) Math.round((parent == null ? origY : parent.getY())
-                                + ky * Math.sin(hpos + Math.PI * (item.getIndex() + 1) / size));
+                                int x = (int) Math.round((parent == null ? origX : parent.getX())
+                                        + kx * Math.cos(hpos + Math.PI * (item.getIndex() + 1) / size));
+                                int y = (int) Math.round((parent == null ? origY : parent.getY())
+                                        + ky * Math.sin(hpos + Math.PI * (item.getIndex() + 1) / size));
 
-                        topologynode.setX(x);
-                        topologynode.setY(y);
+                                topologynode.setX(x);
+                                topologynode.setY(y);
 
-                        item.add(topologyNodePanel("res", topologynode));
-                    }
-                };
+                                item.add(topologyNodePanel("res", topologynode));
+                            }
+                        };
 
                 innerListView.setOutputMarkupId(true);
                 item.add(innerListView);
