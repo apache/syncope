@@ -16,8 +16,10 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
+
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
@@ -55,11 +57,13 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<T> impl
 
     @Override
     protected WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel) {
+        final String[] clazzes = anyTypeClasses.toArray(new String[] {});
         addOptionalDetailsPanel(modelObject, wizardModel);
-        wizardModel.add(new AuxClasses(modelObject, anyTypeClasses.toArray(new String[] {})));
-        wizardModel.add(new PlainAttrs(modelObject, null, Mode.ADMIN, anyTypeClasses.toArray(new String[] {})));
-        wizardModel.add(new DerAttrs(modelObject, anyTypeClasses.toArray(new String[] {})));
-        wizardModel.add(new VirAttrs(modelObject, anyTypeClasses.toArray(new String[] {})));
+        wizardModel.add(new AuxClasses(modelObject, clazzes));
+        wizardModel.add(new PlainAttrs(modelObject, null, Mode.ADMIN, clazzes));
+        wizardModel.add(new DerAttrs(modelObject, clazzes));
+        wizardModel.add(new VirAttrs(modelObject, clazzes));
+        wizardModel.add(new Resources(modelObject));
         return wizardModel;
     }
 

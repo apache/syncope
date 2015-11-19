@@ -34,11 +34,8 @@ public class AuxClasses extends WizardStep {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    private final AnyTO entityTO;
-
     public <T extends AnyTO> AuxClasses(final T entityTO, final String... anyTypeClass) {
         this.setOutputMarkupId(true);
-        this.entityTO = entityTO;
 
         final AnyTypeClassService service = SyncopeConsoleSession.get().getService(AnyTypeClassService.class);
 
@@ -53,7 +50,7 @@ public class AuxClasses extends WizardStep {
 
         add(new AjaxPalettePanel<>(
                 "auxClasses",
-                new PropertyModel<List<String>>(this.entityTO, "auxClasses"),
+                new PropertyModel<List<String>>(entityTO, "auxClasses"),
                 new ListModel<>(choices),
                 true).setOutputMarkupId(true));
     }

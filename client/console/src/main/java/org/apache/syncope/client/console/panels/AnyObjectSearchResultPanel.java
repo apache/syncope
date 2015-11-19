@@ -51,7 +51,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultPanel<T> {
+public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchResultPanel<T> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -65,7 +65,7 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
 
     protected final String entitlement;
 
-    protected AnySearchResultPanel(
+    protected AnyObjectSearchResultPanel(
             final String type,
             final String parentId,
             final boolean filtered,
@@ -145,7 +145,7 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
-                        send(AnySearchResultPanel.this, Broadcast.EXACT,
+                        send(AnyObjectSearchResultPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<T>() {
@@ -242,7 +242,7 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
 
         @Override
         protected WizardMgtPanel<AnyObjectTO> newInstance(final String parentId) {
-            return new AnySearchResultPanel<>(
+            return new AnyObjectSearchResultPanel<>(
                     type, parentId, filtered, fiql, pageRef, restClient, anyTypeClassTOs, realm, type + "_LIST");
         }
 

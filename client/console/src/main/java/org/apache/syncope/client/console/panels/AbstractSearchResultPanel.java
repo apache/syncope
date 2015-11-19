@@ -191,10 +191,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
         dataProvider.setFIQL(fiql);
 
         final int currentPage = resultTable != null
-                ? (create
-                        ? (int) resultTable.getPageCount() - 1
-                        : (int) resultTable.getCurrentPage())
-                : 0;
+                ? (create ? (int) resultTable.getPageCount() - 1 : (int) resultTable.getCurrentPage()) : 0;
 
         resultTable = new AjaxDataTablePanel<>(
                 "resultTable",
@@ -303,8 +300,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
 
         /**
          * Specify if results are about a filtered search or not. Using this attribute it is possible to use this panel
-         * to
-         * show results about user list and user search.
+         * to show results about user list and user search.
          */
         protected final boolean filtered;
 

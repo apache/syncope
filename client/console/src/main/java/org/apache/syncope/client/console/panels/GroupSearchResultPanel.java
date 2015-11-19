@@ -51,7 +51,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public final class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
+public final class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 

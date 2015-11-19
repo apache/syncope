@@ -55,7 +55,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public final class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
+public final class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 

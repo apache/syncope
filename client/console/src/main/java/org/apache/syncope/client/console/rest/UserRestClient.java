@@ -65,8 +65,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
             final String type) {
         return getService(UserService.class).
                 list(SyncopeClient.getAnyListQueryBuilder().realm(realm).page(page).size(size).
-                        orderBy(toOrderBy(sort)).details(false).build()).
-                getResult();
+                        orderBy(toOrderBy(sort)).details(false).build()).getResult();
     }
 
     public ProvisioningResult<UserTO> create(final UserTO userTO, final boolean storePassword) {
@@ -115,8 +114,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
 
         return getService(UserService.class).
                 search(SyncopeClient.getAnySearchQueryBuilder().realm(realm).fiql(fiql).page(page).size(size).
-                        orderBy(toOrderBy(sort)).details(false).build()).
-                getResult();
+                        orderBy(toOrderBy(sort)).details(false).build()).getResult();
     }
 
     @Override

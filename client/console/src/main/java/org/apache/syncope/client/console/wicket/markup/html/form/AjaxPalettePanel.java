@@ -51,7 +51,7 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel<List<T>> {
         setOutputMarkupId(true);
     }
 
-    protected Palette<T> createPalette(final IModel<List<T>> model, final ListModel<T> choices,
+    protected final Palette<T> createPalette(final IModel<List<T>> model, final ListModel<T> choices,
             final IChoiceRenderer<T> renderer, final boolean allowOrder, final boolean allowMoveAll) {
 
         return new NonI18nPalette<>("paletteField", model, choices, renderer, 8, allowOrder, allowMoveAll);
