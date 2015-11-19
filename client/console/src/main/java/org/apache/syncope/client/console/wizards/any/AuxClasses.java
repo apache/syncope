@@ -112,22 +112,6 @@ public class AuxClasses extends WizardStep {
         }
         add(fragment);
 
-//        add(new AjaxPalettePanel<>(
-//                "auxClasses",
-//                new PropertyModel<List<String>>(entityTO, "auxClasses"),
-//                new ListModel<String>(ListUtils.<String>subtract(
-//                                CollectionUtils.<AnyTypeClassTO, String, List<String>>collect(
-//                                        AnyTypeRestClient.getAllAnyTypeClass(),
-//                                        new Transformer<AnyTypeClassTO, String>() {
-//
-//                                            @Override
-//                                            public String transform(final AnyTypeClassTO input) {
-//                                                return input.getKey();
-//                                            }
-//                                        }, new ArrayList<String>()),
-//                                Arrays.<String>asList(anyTypeClass))),
-//                true).setOutputMarkupId(true));
-//        
         final List<String> current = Arrays.asList(anyTypeClass);
 
         final List<String> choices = new ArrayList<String>();
