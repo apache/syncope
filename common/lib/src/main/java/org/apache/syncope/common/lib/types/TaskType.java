@@ -23,32 +23,10 @@ import javax.xml.bind.annotation.XmlEnum;
 @XmlEnum
 public enum TaskType {
 
-    PROPAGATION("propagation"),
-    NOTIFICATION("notification"),
-    SCHEDULED("sched"),
-    SYNCHRONIZATION("sync"),
-    PUSH("push");
+    PROPAGATION,
+    NOTIFICATION,
+    SCHEDULED,
+    SYNCHRONIZATION,
+    PUSH;
 
-    private final String name;
-
-    TaskType(final String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    public static TaskType fromString(final String name) {
-        if (name != null) {
-            for (TaskType t : TaskType.values()) {
-                if (t.name.equalsIgnoreCase(name)) {
-                    return t;
-                }
-            }
-        }
-
-        return null;
-    }
 }

@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.types.SchemaType;
 
 public class SchemaQuery extends AbstractBaseBean {
 
@@ -32,6 +34,11 @@ public class SchemaQuery extends AbstractBaseBean {
     public static class Builder {
 
         private final SchemaQuery instance = new SchemaQuery();
+
+        public Builder type(final SchemaType type) {
+            instance.setType(type);
+            return this;
+        }
 
         public Builder anyTypeClass(final String anyTypeClass) {
             if (instance.getAnyTypeClasses() == null) {
@@ -54,11 +61,25 @@ public class SchemaQuery extends AbstractBaseBean {
         }
 
         public SchemaQuery build() {
+            if (instance.type == null) {
+                throw new IllegalArgumentException("type is required");
+            }
             return instance;
         }
     }
 
+    private SchemaType type;
+
     private List<String> anyTypeClasses;
+
+    public SchemaType getType() {
+        return type;
+    }
+
+    @PathParam("type")
+    public void setType(final SchemaType type) {
+        this.type = type;
+    }
 
     public List<String> getAnyTypeClasses() {
         return anyTypeClasses;

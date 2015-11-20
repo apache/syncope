@@ -43,8 +43,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     @Test
     public void paginatedList() {
         PagedResult<PropagationTaskTO> tasks = taskService.list(
-                TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(1).size(2).build());
+                new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(2).build());
         assertNotNull(tasks);
         assertEquals(2, tasks.getResult().size());
 
@@ -53,8 +52,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         }
 
         tasks = taskService.list(
-                TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(2).size(2).build());
+                new TaskQuery.Builder().type(TaskType.PROPAGATION).page(2).size(2).build());
         assertNotNull(tasks);
         assertEquals(2, tasks.getPage());
         assertEquals(2, tasks.getResult().size());
@@ -64,8 +62,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         }
 
         tasks = taskService.list(
-                TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(1000).size(2).build());
+                new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1000).size(2).build());
         assertNotNull(tasks);
         assertTrue(tasks.getResult().isEmpty());
     }
@@ -87,7 +84,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     @Test
     public void bulkAction() {
         PagedResult<PropagationTaskTO> before = taskService.list(
-                TaskType.PROPAGATION, new TaskQuery.Builder().build());
+                new TaskQuery.Builder().type(TaskType.PROPAGATION).build());
 
         // create user with testdb resource
         UserTO userTO = UserITCase.getUniqueSampleTO("taskBulk@apache.org");
@@ -95,7 +92,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         createUser(userTO);
 
         List<PropagationTaskTO> after = new ArrayList<>(
-                taskService.<PropagationTaskTO>list(TaskType.PROPAGATION, new TaskQuery.Builder().build()).
+                taskService.<PropagationTaskTO>list(new TaskQuery.Builder().type(TaskType.PROPAGATION).build()).
                 getResult());
         after.removeAll(before.getResult());
         assertFalse(after.isEmpty());
@@ -109,7 +106,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
         taskService.bulk(bulkAction);
 
-        assertFalse(taskService.list(TaskType.PROPAGATION, new TaskQuery.Builder().build()).getResult().
+        assertFalse(taskService.list(new TaskQuery.Builder().type(TaskType.PROPAGATION).build()).getResult().
                 containsAll(after));
     }
 }

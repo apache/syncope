@@ -150,8 +150,7 @@ public class UserITCase extends AbstractITCase {
     public void createUserWithNoPropagation() {
         // get task list
         PagedResult<PropagationTaskTO> tasks = taskService.list(
-                TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(1).size(1).build());
+                new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -166,8 +165,7 @@ public class UserITCase extends AbstractITCase {
 
         // get the new task list
         tasks = taskService.list(
-                TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(1).size(1).build());
+                new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -356,8 +354,7 @@ public class UserITCase extends AbstractITCase {
     public void create() {
         // get task list
         PagedResult<PropagationTaskTO> tasks = taskService.list(
-                TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(1).size(1).build());
+                new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -397,9 +394,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(newUserTO.getCreationDate());
 
         // get the new task list
-        tasks = taskService.list(
-                TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(1).size(1).build());
+        tasks = taskService.list(new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -693,8 +688,8 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void updatePasswordOnly() {
-        int beforeTasks = taskService.list(TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(1).size(1).build()).getTotalCount();
+        int beforeTasks = taskService.list(
+                new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(1).build()).getTotalCount();
         assertFalse(beforeTasks <= 0);
 
         UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
@@ -711,8 +706,8 @@ public class UserITCase extends AbstractITCase {
         // check for changePwdDate
         assertNotNull(userTO.getChangePwdDate());
 
-        int afterTasks = taskService.list(TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(1).size(1).build()).getTotalCount();
+        int afterTasks = taskService.list(
+                new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(1).build()).getTotalCount();
         assertFalse(beforeTasks <= 0);
 
         assertTrue(beforeTasks < afterTasks);
@@ -723,8 +718,7 @@ public class UserITCase extends AbstractITCase {
     public void verifyTaskRegistration() {
         // get task list
         PagedResult<PropagationTaskTO> tasks = taskService.list(
-                TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(1).size(1).build());
+                new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -743,9 +737,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = taskService.list(
-                TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(1).size(1).build());
+        tasks = taskService.list(new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -769,9 +761,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = taskService.list(
-                TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(1).size(1).build());
+        tasks = taskService.list(new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(1).build());
 
         maxKey = newMaxKey;
         newMaxKey = tasks.getResult().iterator().next().getKey();
@@ -791,9 +781,7 @@ public class UserITCase extends AbstractITCase {
         userService.delete(userTO.getKey());
 
         // get the new task list
-        tasks = taskService.list(
-                TaskType.PROPAGATION,
-                new TaskQuery.Builder().page(1).size(1).build());
+        tasks = taskService.list(new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(1).build());
 
         maxKey = newMaxKey;
         newMaxKey = tasks.getResult().iterator().next().getKey();
@@ -1529,6 +1517,7 @@ public class UserITCase extends AbstractITCase {
             ProvisioningResult<UserTO> result = updateUser(userPatch);
             assertNotNull(result);
             userTO = result.getAny();
+            assertNotNull(userTO);
 
             // 5. verify that propagation was successful
             List<PropagationStatus> props = result.getPropagationStatuses();

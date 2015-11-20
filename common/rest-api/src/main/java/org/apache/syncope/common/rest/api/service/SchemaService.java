@@ -56,18 +56,15 @@ public interface SchemaService extends JAXRSService {
             @NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 
     /**
-     * Returns a list of schemas matching type and the given query.
+     * Returns a list of schemas matching the given query.
      *
      * @param <T> actual SchemaTO
-     * @param type type for schemas to be listed
      * @param query query conditions
      * @return list of schemas with matching type, for the given anyTypeClass if provided
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> List<T> list(
-            @NotNull @PathParam("type") SchemaType type,
-            @BeanParam SchemaQuery query);
+    <T extends AbstractSchemaTO> List<T> list(@BeanParam SchemaQuery query);
 
     /**
      * Creates a new schema.

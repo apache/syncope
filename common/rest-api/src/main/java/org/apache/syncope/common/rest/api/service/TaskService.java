@@ -42,7 +42,6 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 
 /**
@@ -75,18 +74,15 @@ public interface TaskService extends JAXRSService {
     TaskExecTO readExecution(@NotNull @PathParam("executionKey") Long executionKey);
 
     /**
-     * Returns a paged list of existing tasks matching type and the given query.
+     * Returns a paged list of existing tasks matching the given query.
      *
-     * @param type type of tasks to be listed
      * @param query query conditions
      * @param <T> type of taskTO
      * @return paged list of existing tasks matching type and the given query
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> PagedResult<T> list(
-            @NotNull @MatrixParam("type") TaskType type,
-            @BeanParam TaskQuery query);
+    <T extends AbstractTaskTO> PagedResult<T> list(@BeanParam TaskQuery query);
 
     /**
      * Creates a new task.

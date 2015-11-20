@@ -48,7 +48,7 @@ public class TaskSyncopeOperations {
     }
 
     public List<AbstractTaskTO> list(final String type) {
-        return taskService.list(TaskType.valueOf(type), new TaskQuery()).getResult();
+        return taskService.list(new TaskQuery.Builder().type(TaskType.valueOf(type)).build()).getResult();
     }
 
     public TaskExecTO readExecution(final String executionId) {

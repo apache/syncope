@@ -158,7 +158,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<PlainSchemaTO> schemas = schemaService.list(SchemaType.PLAIN, new SchemaQuery.Builder().build());
+        List<PlainSchemaTO> schemas = schemaService.list(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
         assertFalse(schemas.isEmpty());
         for (PlainSchemaTO schemaTO : schemas) {
             assertNotNull(schemaTO);
@@ -170,7 +170,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         final String clazz = anyTypeService.read(AnyTypeKind.USER.name()).getClasses().get(0);
 
         List<PlainSchemaTO> userSchemas = schemaService.list(
-                SchemaType.PLAIN, new SchemaQuery.Builder().anyTypeClass(clazz).build());
+                new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClass(clazz).build());
 
         assertTrue(CollectionUtils.exists(userSchemas, new Predicate<PlainSchemaTO>() {
 

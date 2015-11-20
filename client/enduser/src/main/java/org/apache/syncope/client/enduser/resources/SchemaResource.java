@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
-import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
@@ -48,13 +47,10 @@ public class SchemaResource extends AbstractBaseResource {
 
     private final AnyTypeService anyTypeService;
 
-    private final AnyTypeClassService anyTypeClassService;
-
     private final SchemaService schemaService;
 
     public SchemaResource() {
         anyTypeService = SyncopeEnduserSession.get().getService(AnyTypeService.class);
-        anyTypeClassService = SyncopeEnduserSession.get().getService(AnyTypeClassService.class);
         schemaService = SyncopeEnduserSession.get().getService(SchemaService.class);
     }
 
@@ -71,11 +67,14 @@ public class SchemaResource extends AbstractBaseResource {
             final AnyTypeTO anyTypeUserTO = anyTypeService.read(AnyTypeKind.USER.name());
 
             final List<PlainSchemaTO> plainSchemas = schemaService.list(
-                    SchemaType.PLAIN, new SchemaQuery.Builder().anyTypeClasses(anyTypeUserTO.getClasses()).build());
+                    new SchemaQuery.Builder().type(SchemaType.PLAIN).
+                    anyTypeClasses(anyTypeUserTO.getClasses()).build());
             final List<DerSchemaTO> derSchemas = schemaService.list(
-                    SchemaType.DERIVED, new SchemaQuery.Builder().anyTypeClasses(anyTypeUserTO.getClasses()).build());
+                    new SchemaQuery.Builder().type(SchemaType.DERIVED).
+                    anyTypeClasses(anyTypeUserTO.getClasses()).build());
             final List<VirSchemaTO> virSchemas = schemaService.list(
-                    SchemaType.VIRTUAL, new SchemaQuery.Builder().anyTypeClasses(anyTypeUserTO.getClasses()).build());
+                    new SchemaQuery.Builder().type(SchemaType.VIRTUAL).
+                    anyTypeClasses(anyTypeUserTO.getClasses()).build());
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 

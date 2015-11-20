@@ -19,8 +19,10 @@
 package org.apache.syncope.common.rest.api.beans;
 
 import javax.validation.constraints.Min;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public class TaskQuery extends AbstractQuery {
@@ -32,6 +34,11 @@ public class TaskQuery extends AbstractQuery {
         @Override
         protected TaskQuery newInstance() {
             return new TaskQuery();
+        }
+
+        public Builder type(final TaskType type) {
+            getInstance().setType(type);
+            return this;
         }
 
         public Builder resource(final String resource) {
@@ -49,13 +56,32 @@ public class TaskQuery extends AbstractQuery {
             return this;
         }
 
+        @Override
+        public TaskQuery build() {
+            if (getInstance().type == null) {
+                throw new IllegalArgumentException("type is required");
+            }
+            return super.build();
+        }
+
     }
+
+    private TaskType type;
 
     private String resource;
 
     private AnyTypeKind anyTypeKind;
 
     private Long anyTypeKey;
+
+    public TaskType getType() {
+        return type;
+    }
+
+    @MatrixParam("type")
+    public void setType(final TaskType type) {
+        this.type = type;
+    }
 
     public String getResource() {
         return resource;
