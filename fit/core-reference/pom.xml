@@ -38,7 +38,7 @@ under the License.
     <jdbcdriver.artifactId>h2</jdbcdriver.artifactId>
     
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
-    <work.dir>${project.build.directory}/cli-test</work.dir>
+    <cli-test.dir>${project.build.directory}/cli-test</cli-test.dir>
   </properties>
 
   <dependencies>
@@ -153,26 +153,6 @@ under the License.
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>cli-test</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <phase>pre-integration-test</phase>
-            <configuration>
-              <target>
-                <mkdir dir="${work.dir}" />
-                <unzip src="../../client/cli/target/syncope-client-cli-${project.version}.zip" dest="${work.dir}"/>
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
@@ -201,11 +181,14 @@ under the License.
         <inherited>true</inherited>
         <executions>
           <execution>
-            <id>setupCSV</id>
+            <id>setupCSV_CLI</id>
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
                 <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true"/>
+
+                <mkdir dir="${cli-test.dir}"/>
+                <unzip src="${basedir}/../../client/cli/target/syncope-client-cli-${project.version}.zip" dest="${cli-test.dir}"/>
               </target>
             </configuration>
             <goals>

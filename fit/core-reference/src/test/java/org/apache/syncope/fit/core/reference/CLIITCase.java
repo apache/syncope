@@ -22,11 +22,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -35,93 +40,105 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class CLIITCase extends AbstractITCase {
 
-    private static final String LINUX_SCRIPT_DIR = "/target/cli-test/syncope-client-cli-2.0.0-SNAPSHOT";
+    private static final String SCRIPT_FILENAME = "syncopeadm";
 
-    private static final String LINUX_SCRIPT_FILENAME = "syncopeadm.sh";
-
-    private static ProcessBuilder processBuilder;
+    private static ProcessBuilder PROCESS_BUILDER;
 
     @BeforeClass
     public static void install() {
+        Properties props = new Properties();
+        InputStream propStream = null;
         try {
-            final File f = new File(".");
-            final File buildDirectory = new File(f.getCanonicalPath() + LINUX_SCRIPT_DIR);
-            processBuilder = new ProcessBuilder();
-            processBuilder.directory(buildDirectory);
-            final String[] command = {"/bin/bash", LINUX_SCRIPT_FILENAME, "install", "--setup-debug"};
-            processBuilder.command(command);
-            final Process process = processBuilder.start();
+            propStream = ExceptionMapperITCase.class.getResourceAsStream("/cli-test.properties");
+            props.load(propStream);
+
+            File workDir = new File(props.getProperty("cli-work.dir"));
+            PROCESS_BUILDER = new ProcessBuilder();
+            PROCESS_BUILDER.directory(workDir);
+
+            PROCESS_BUILDER.command(getCommand("install", "--setup-debug"));
+            Process process = PROCESS_BUILDER.start();
             process.waitFor();
-            final File cliPropertiesFile = new File(buildDirectory + "/cli.properties");
+
+            File cliPropertiesFile = new File(workDir + File.separator + "cli.properties");
             assertTrue(cliPropertiesFile.exists());
-        } catch (final IOException | InterruptedException ex) {
-            fail(ex.getMessage());
+        } catch (IOException | InterruptedException e) {
+            fail(e.getMessage());
+        } finally {
+            IOUtils.closeQuietly(propStream);
         }
+    }
+
+    private static String[] getCommand(final String... arguments) {
+        List<String> command = new ArrayList<>();
+
+        if (SystemUtils.IS_OS_WINDOWS) {
+            command.add("cmd");
+            command.add(SCRIPT_FILENAME + ".bat");
+        } else {
+            command.add("/bin/bash");
+            command.add(SCRIPT_FILENAME + ".sh");
+        }
+
+        CollectionUtils.addAll(command, arguments);
+
+        return command.toArray(new String[command.size()]);
     }
 
     @Test
     public void runScriptWithoutOptions() {
         try {
-            final String[] command = {"/bin/bash", LINUX_SCRIPT_FILENAME};
-            processBuilder.command(command);
-            final Process process = processBuilder.start();
-            final String result = readScriptOutput(process.getInputStream());
+            PROCESS_BUILDER.command(getCommand());
+            Process process = PROCESS_BUILDER.start();
+
+            String result = IOUtils.toString(process.getInputStream());
             assertTrue(result.startsWith("\nUsage: Main [options]"));
             assertTrue(result.contains("entitlement --help"));
             assertTrue(result.contains("group --help"));
+
             process.destroy();
-        } catch (IOException ex) {
-            fail(ex.getMessage());
+        } catch (IOException e) {
+            fail(e.getMessage());
         }
     }
 
     @Test
     public void entitlementCount() {
         try {
-            final String[] command = {"/bin/bash", LINUX_SCRIPT_FILENAME, "entitlement", "--list"};
-            processBuilder.command(command);
-            final Process process = processBuilder.start();
-            final BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            int entitlementsNumber = 0;
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.startsWith("-")) {
-                    entitlementsNumber++;
+            PROCESS_BUILDER.command(getCommand("entitlement", "--list"));
+            Process process = PROCESS_BUILDER.start();
+
+            int entitlements = CollectionUtils.countMatches(IOUtils.readLines(process.getInputStream()),
+                    new Predicate<String>() {
+
+                @Override
+                public boolean evaluate(final String line) {
+                    return line.startsWith("-");
                 }
-            }
-            assertEquals(112, entitlementsNumber);
-        } catch (IOException ex) {
-            fail(ex.getMessage());
+            });
+            assertEquals(syncopeService.info().getEntitlements().size(), entitlements);
+        } catch (IOException e) {
+            fail(e.getMessage());
         }
     }
 
     @Test
     public void connectorCount() {
         try {
-            final String[] command = {"/bin/bash", LINUX_SCRIPT_FILENAME, "connector", "--list-bundles"};
-            processBuilder.command(command);
-            final Process process = processBuilder.start();
-            final BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            int bundlesNumber = 0;
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.startsWith(" > BUNDLE NAME:")) {
-                    bundlesNumber++;
-                }
-            }
-            assertEquals(8, bundlesNumber);
-        } catch (IOException ex) {
-            fail(ex.getMessage());
-        }
-    }
+            PROCESS_BUILDER.command(getCommand("connector", "--list-bundles"));
+            Process process = PROCESS_BUILDER.start();
 
-    private static String readScriptOutput(final InputStream inputStream) throws IOException {
-        final BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-        final StringBuilder resultBuilder = new StringBuilder();
-        String line;
-        while ((line = br.readLine()) != null) {
-            resultBuilder.append(line).append("\n");
+            int bundles = CollectionUtils.countMatches(IOUtils.readLines(process.getInputStream()),
+                    new Predicate<String>() {
+
+                @Override
+                public boolean evaluate(final String line) {
+                    return line.startsWith(" > BUNDLE NAME:");
+                }
+            });
+            assertEquals(connectorService.getBundles(null).size(), bundles);
+        } catch (IOException e) {
+            fail(e.getMessage());
         }
-        return resultBuilder.toString();
     }
 }
