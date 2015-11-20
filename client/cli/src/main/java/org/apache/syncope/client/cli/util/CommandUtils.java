@@ -75,7 +75,7 @@ public final class CommandUtils {
         }
         return types;
     }
-    
+
     public static String helpMessage(final String command, final List<String> options) {
         final StringBuilder helpMessageBuilder = new StringBuilder(String.format("\nUsage: %s [options]\n", command));
         helpMessageBuilder.append("  Options:\n");

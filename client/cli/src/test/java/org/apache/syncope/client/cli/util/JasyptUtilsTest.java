@@ -18,33 +18,25 @@
  */
 package org.apache.syncope.client.cli.util;
 
-import org.jasypt.util.text.BasicTextEncryptor;
+import static org.junit.Assert.assertEquals;
 
-public final class JasyptUtils {
+import org.junit.Test;
 
-    private static final String JASYPT_KEY = "Ka9s8yadaisj9mud87ssdaifansy";
+public class JasyptUtilsTest {
 
-    private final BasicTextEncryptor textEncryptor;
-
-    private static JasyptUtils JASYPT_UTILS = null;
-
-    public static JasyptUtils getJasyptUtils() {
-        if (JASYPT_UTILS == null) {
-            JASYPT_UTILS = new JasyptUtils();
-        }
-        return JASYPT_UTILS;
+    @Test
+    public void singleton() {
+        final JasyptUtils jasyptUtils = JasyptUtils.getJasyptUtils();
+        final JasyptUtils jasyptUtils2 = JasyptUtils.getJasyptUtils();
+        assertEquals(jasyptUtils, jasyptUtils2);
     }
 
-    private JasyptUtils() {
-        textEncryptor = new BasicTextEncryptor();
-        textEncryptor.setPassword(JASYPT_KEY);
-    }
-
-    public String encrypt(final String password) {
-        return textEncryptor.encrypt(password);
-    }
-
-    public String decrypt(final String encryptedString) {
-        return textEncryptor.decrypt(encryptedString);
+    @Test
+    public void encryption() {
+        final String password = "password";
+        final JasyptUtils jasyptUtils = JasyptUtils.getJasyptUtils();
+        final String encPassword = jasyptUtils.encrypt(password);
+        final String decPassword = jasyptUtils.decrypt(encPassword);
+        assertEquals(password, decPassword);
     }
 }

@@ -81,6 +81,11 @@ under the License.
       <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
