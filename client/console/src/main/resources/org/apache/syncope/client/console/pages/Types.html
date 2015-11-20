@@ -29,12 +29,12 @@ under the License.
             <div class="box-tools pull-right">
               <ul class="nav navbar-nav actions">
                 <li>
-                  <a wicket:message="title:createAnyTypeClass"><!--                  <a wicket:id="createAnyTypeClassLink">-->
+                  <a wicket:message="title:createAnyTypeClass" wicket:id="createAnyTypeClass">
                     <i class="glyphicon glyphicon-duplicate"></i>
                   </a>                  
                 </li>
                 <li>
-                  <a wicket:message="title:createSchema" wicket:id="createSchemaLink">
+                  <a wicket:message="title:createSchema" wicket:id="createSchema">
                     <i class="glyphicon glyphicon-list-alt"></i>
                   </a>                  
                 </li>
@@ -49,6 +49,8 @@ under the License.
         </div>
       </div>
     </div>
-      <div wicket:id="modal"></div>
+    <div wicket:id="schemaModal"></div>
+    <div wicket:id="anyTypeClassModal"></div>
+    <div wicket:id="anyTypeModal"></div>
   </wicket:extend>
 </html>

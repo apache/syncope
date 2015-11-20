@@ -121,7 +121,6 @@ public class SchemasPanel extends Panel {
         final Collapsible collapsible = new Collapsible("collapsePanel", buildTabList());
         collapsible.setOutputMarkupId(true);
         add(collapsible);
-
     }
 
     private List<ITab> buildTabList() {

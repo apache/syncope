@@ -84,11 +84,11 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         WebMarkupContainer confULContainer = new WebMarkupContainer(getULContainerId("configuration"));
         confLIContainer.add(confULContainer);
 
-        liContainer = new WebMarkupContainer(getLIContainerId("schemas"));
+        liContainer = new WebMarkupContainer(getLIContainerId("types"));
         confULContainer.add(liContainer);
-        BookmarkablePageLink<Page> schemaLink = new BookmarkablePageLink<>("schemas", Schemas.class);
-//        MetaDataRoleAuthorizationStrategy.authorize(schemaLink, WebPage.ENABLE, StandardEntitlement.SCHEMA_LIST);
-        liContainer.add(schemaLink);
+        BookmarkablePageLink<Page> typesLink = new BookmarkablePageLink<>("types", Types.class);
+        MetaDataRoleAuthorizationStrategy.authorize(typesLink, WebPage.ENABLE, StandardEntitlement.SCHEMA_LIST);
+        liContainer.add(typesLink);
 
         liContainer = new WebMarkupContainer(getLIContainerId("workflow"));
         confULContainer.add(liContainer);

@@ -37,30 +37,29 @@ public class Resources extends WizardStep {
     public <T extends AnyTO> Resources(final T entityTO) {
         this.setOutputMarkupId(true);
 
-        add(new AjaxPalettePanel<>("resources",
+        add(new AjaxPalettePanel.Builder<String>().build("resources",
                 new PropertyModel<List<String>>(entityTO, "resources") {
 
-                    private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public List<String> getObject() {
+                return new ArrayList<>(entityTO.getResources());
+            }
+
+            @Override
+            public void setObject(final List<String> object) {
+                entityTO.getResources().clear();
+                entityTO.getResources().addAll(object);
+            }
+        }, new ListModel<>(CollectionUtils.collect(
+                        ResourceRestClient.getAll(),
+                        new Transformer<ResourceTO, String>() {
 
                     @Override
-                    public List<String> getObject() {
-                        return new ArrayList<>(entityTO.getResources());
+                    public String transform(final ResourceTO input) {
+                        return input.getKey();
                     }
-
-                    @Override
-                    public void setObject(final List<String> object) {
-                        entityTO.getResources().clear();
-                        entityTO.getResources().addAll(object);
-                    }
-                },
-                new ListModel<>(CollectionUtils.collect(
-                                ResourceRestClient.getAll(),
-                                new Transformer<ResourceTO, String>() {
-
-                                    @Override
-                                    public String transform(final ResourceTO input) {
-                                        return input.getKey();
-                                    }
-                                }, new ArrayList<String>()))).setOutputMarkupId(true));
+                }, new ArrayList<String>()))).setOutputMarkupId(true));
     }
 }

@@ -38,16 +38,17 @@ public class Roles extends WizardStep {
     public <T extends AnyTO> Roles(final UserTO entityTO) {
         this.setOutputMarkupId(true);
 
-        add(new AjaxPalettePanel<>("roles",
-                new PropertyModel<List<String>>(entityTO, "roles"),
-                new ListModel<>(CollectionUtils.collect(
+        add(new AjaxPalettePanel.Builder<String>()
+                .build("roles",
+                        new PropertyModel<List<String>>(entityTO, "roles"),
+                        new ListModel<>(CollectionUtils.collect(
                                 RoleRestClient.getAll(),
                                 new Transformer<RoleTO, String>() {
 
-                                    @Override
-                                    public String transform(final RoleTO input) {
-                                        return input.getKey();
-                                    }
-                                }, new ArrayList<String>()))).setOutputMarkupId(true));
+                            @Override
+                            public String transform(final RoleTO input) {
+                                return input.getKey();
+                            }
+                        }, new ArrayList<String>()))).setOutputMarkupId(true));
     }
 }

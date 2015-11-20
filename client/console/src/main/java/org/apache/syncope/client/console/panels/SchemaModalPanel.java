@@ -90,7 +90,7 @@ public class SchemaModalPanel extends AbstractModalPanel {
 
         if (createFlag) {
             try {
-                Class<? extends AbstractSchemaTO> schemaTOClass = schemaType.getToClass();
+                final Class<? extends AbstractSchemaTO> schemaTOClass = schemaType.getToClass();
                 modal.setFormModel((AbstractSchemaTO) schemaTOClass.newInstance());
             } catch (InstantiationException | IllegalAccessException ex) {
                 LOG.error("SchemaType not found", ex);

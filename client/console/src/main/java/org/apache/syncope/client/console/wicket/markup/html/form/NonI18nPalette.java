@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.util.Collection;
+import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
@@ -40,4 +41,14 @@ public class NonI18nPalette<T> extends Palette<T> {
     protected boolean localizeDisplayValues() {
         return false;
     }
+
+    @Override
+    protected Component newAvailableHeader(final String componentId) {
+        return super.newAvailableHeader(componentId);
+    }
+
+    @Override
+    protected Component newSelectedHeader(final String componentId) {
+        return super.newSelectedHeader(componentId);
+    }   
 }

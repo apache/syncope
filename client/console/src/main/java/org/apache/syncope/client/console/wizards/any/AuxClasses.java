@@ -61,16 +61,17 @@ public class AuxClasses extends WizardStep {
                     ? UserTO.class.cast(entityTO).getMemberships()
                     : AnyObjectTO.class.cast(entityTO).getMemberships();
 
-            fragment.add(new AjaxPalettePanel<>(
-                    "groups",
-                    new ListModel<String>(CollectionUtils.collect(memberships,
+            fragment.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true)
+                    .build(
+                            "groups",
+                            new ListModel<String>(CollectionUtils.collect(memberships,
                                     new Transformer<MembershipTO, String>() {
 
-                                        @Override
-                                        public String transform(final MembershipTO input) {
-                                            return String.format("[%d] %s", input.getRightKey(), input.getGroupName());
-                                        }
-                                    }, new ArrayList<String>())) {
+                                @Override
+                                public String transform(final MembershipTO input) {
+                                    return String.format("[%d] %s", input.getRightKey(), input.getGroupName());
+                                }
+                            }, new ArrayList<String>())) {
 
                         private static final long serialVersionUID = 1L;
 
@@ -94,38 +95,37 @@ public class AuxClasses extends WizardStep {
                                     }
 
                                     return new MembershipTO.Builder().left(entityTO.getType(), entityTO.getKey()).
-                                    group(groupKey, groupName).build();
+                                            group(groupKey, groupName).build();
                                 }
                             }, memberships);
                         }
                     },
-                    new ListModel<>(CollectionUtils.collect(groupRestClient.list(
-                                            entityTO.getRealm(), -1, -1, new SortParam<>("name", true), null),
+                            new ListModel<>(CollectionUtils.collect(groupRestClient.list(
+                                    entityTO.getRealm(), -1, -1, new SortParam<>("name", true), null),
                                     new Transformer<GroupTO, String>() {
 
-                                        @Override
-                                        public String transform(final GroupTO input) {
-                                            return String.format("[%d] %s", input.getKey(), input.getName());
-                                        }
-                                    }, new ArrayList<String>())),
-                    true).setOutputMarkupId(true));
+                                @Override
+                                public String transform(final GroupTO input) {
+                                    return String.format("[%d] %s", input.getKey(), input.getName());
+                                }
+                            }, new ArrayList<String>()))).setOutputMarkupId(true));
         }
         add(fragment);
 
         final List<String> current = Arrays.asList(anyTypeClass);
 
-        final List<String> choices = new ArrayList<String>();
+        final List<String> choices = new ArrayList<>();
         for (AnyTypeClassTO aux : AnyTypeRestClient.getAllAnyTypeClass()) {
             if (!current.contains(aux.getKey())) {
                 choices.add(aux.getKey());
             }
         }
 
-        add(new AjaxPalettePanel<>(
-                "auxClasses",
-                new PropertyModel<List<String>>(entityTO, "auxClasses"),
-                new ListModel<>(choices),
-                true).setOutputMarkupId(true));
+        add(new AjaxPalettePanel.Builder<String>().
+                setAllowOrder(true)
+                .build("auxClasses",
+                        new PropertyModel<List<String>>(entityTO, "auxClasses"),
+                        new ListModel<>(choices)).setOutputMarkupId(true));
 
     }
 }
