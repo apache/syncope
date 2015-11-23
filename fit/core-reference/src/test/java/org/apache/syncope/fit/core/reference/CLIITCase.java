@@ -32,6 +32,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -111,12 +112,14 @@ public class CLIITCase extends AbstractITCase {
             int entitlements = CollectionUtils.countMatches(IOUtils.readLines(process.getInputStream()),
                     new Predicate<String>() {
 
-                @Override
-                public boolean evaluate(final String line) {
-                    return line.startsWith("-");
-                }
-            });
+                        @Override
+                        public boolean evaluate(final String line) {
+                            return line.startsWith("-");
+                        }
+                    });
             assertEquals(syncopeService.info().getEntitlements().size(), entitlements);
+
+            process.destroy();
         } catch (IOException e) {
             fail(e.getMessage());
         }
@@ -131,12 +134,87 @@ public class CLIITCase extends AbstractITCase {
             int bundles = CollectionUtils.countMatches(IOUtils.readLines(process.getInputStream()),
                     new Predicate<String>() {
 
-                @Override
-                public boolean evaluate(final String line) {
-                    return line.startsWith(" > BUNDLE NAME:");
-                }
-            });
+                        @Override
+                        public boolean evaluate(final String line) {
+                            return line.startsWith(" > BUNDLE NAME:");
+                        }
+                    });
             assertEquals(connectorService.getBundles(null).size(), bundles);
+
+            process.destroy();
+        } catch (IOException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void userRead() {
+        final long userId = 1;
+        try {
+            PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf(userId)));
+            final Process process = PROCESS_BUILDER.start();
+            final String result = IOUtils.toString(process.getInputStream());
+            assertTrue(result.contains("username: " + userService.read(userId).getUsername()));
+            process.destroy();
+
+            PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf("1"), String.valueOf("2"),
+                    String.valueOf("3"), String.valueOf("4"), String.valueOf("5")));
+            final Process process2 = PROCESS_BUILDER.start();
+            int users = CollectionUtils.countMatches(IOUtils.readLines(process2.getInputStream()),
+                    new Predicate<String>() {
+
+                        @Override
+                        public boolean evaluate(final String line) {
+                            return line.startsWith(" > USER ID:");
+                        }
+                    });
+            assertEquals(userService.list(new AnyListQuery()).getResult().size(), users);
+
+            process2.destroy();
+        } catch (IOException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void roleRead() {
+        final String roleId = "Search for realm evenTwo";
+        try {
+            PROCESS_BUILDER.command(getCommand("role", "--read", roleId));
+            final Process process = PROCESS_BUILDER.start();
+            final String result = IOUtils.toString(process.getInputStream());
+            assertTrue(result.contains(roleService.read(roleId).getEntitlements().iterator().next()));
+
+            process.destroy();
+        } catch (IOException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void reportNotExists() {
+        try {
+            PROCESS_BUILDER.command(getCommand("report", "--read", "2"));
+            final Process process = PROCESS_BUILDER.start();
+            final String result = IOUtils.toString(process.getInputStream());
+            assertTrue(result.contains("- Report 2 doesn't exist"));
+
+            process.destroy();
+        } catch (IOException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void policyError() {
+        try {
+            PROCESS_BUILDER.command(getCommand("policy", "--read", "wrong"));
+            final Process process = PROCESS_BUILDER.start();
+            final String result = IOUtils.toString(process.getInputStream());
+            assertTrue(result.contains(
+                    "- Error reading wrong. It isn't a valid policy value because it isn't a boolean value"));
+
+            process.destroy();
         } catch (IOException e) {
             fail(e.getMessage());
         }

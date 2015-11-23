@@ -42,10 +42,6 @@ public final class FileSystemUtils {
         return installationDirectory.exists();
     }
 
-    public static boolean isWindows() {
-        return (System.getProperty("os.name").toLowerCase().contains("win"));
-    }
-
     private FileSystemUtils() {
 
     }

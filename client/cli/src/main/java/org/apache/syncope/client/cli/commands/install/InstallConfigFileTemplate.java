@@ -19,7 +19,7 @@
 package org.apache.syncope.client.cli.commands.install;
 
 import java.util.ResourceBundle;
-import org.apache.syncope.client.cli.util.FileSystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 public final class InstallConfigFileTemplate {
 
@@ -49,7 +49,7 @@ public final class InstallConfigFileTemplate {
     }
 
     public static String dirPath() {
-        if (FileSystemUtils.isWindows()) {
+        if (SystemUtils.IS_OS_WINDOWS) {
             return CONF.getString("cli.installation.directory.windows");
         } else {
             return CONF.getString("cli.installation.directory.linux");
@@ -61,7 +61,7 @@ public final class InstallConfigFileTemplate {
     }
 
     private static String scriptFileName() {
-        if (FileSystemUtils.isWindows()) {
+        if (SystemUtils.IS_OS_WINDOWS) {
             return CONF.getString("script.file.name.windows");
         } else {
             return CONF.getString("script.file.name.linux");
