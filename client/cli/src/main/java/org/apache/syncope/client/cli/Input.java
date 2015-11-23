@@ -48,8 +48,8 @@ public class Input {
         if (args.length > 2) {
             parameters = new String[args.length - 2];
             for (int i = 0; i < parameters.length; i++) {
-                parameters[i] = args[i + 2];
-                commandFields.add(args[i + 2]);
+                parameters[i] = args[i + 2].replaceAll("\\\\", "");
+                commandFields.add(parameters[i]);
             }
         } else {
             parameters = new String[0];
@@ -106,7 +106,7 @@ public class Input {
 
     public String printCommandFields() {
         final StringBuilder commandBuilder = new StringBuilder();
-        for (String commandField : commandFields) {
+        for (final String commandField : commandFields) {
             commandBuilder.append(commandField).append(" ");
         }
         return commandBuilder.toString();
