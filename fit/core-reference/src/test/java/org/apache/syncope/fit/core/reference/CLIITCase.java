@@ -168,7 +168,7 @@ public class CLIITCase extends AbstractITCase {
                             return line.startsWith(" > USER ID:");
                         }
                     });
-            assertEquals(userService.list(new AnyListQuery()).getResult().size(), users);
+            assertEquals(5, users);
 
             process2.destroy();
         } catch (IOException e) {
