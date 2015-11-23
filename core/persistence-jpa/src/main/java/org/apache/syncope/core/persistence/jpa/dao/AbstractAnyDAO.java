@@ -34,6 +34,7 @@ import org.apache.commons.jexl2.parser.Parser;
 import org.apache.commons.jexl2.parser.ParserConstants;
 import org.apache.commons.jexl2.parser.Token;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -396,10 +397,8 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
     }
 
     @Override
-    public final List<A> findAll(final Set<String> adminRealms,
-            final int page, final int itemsPerPage) {
-
-        return findAll(adminRealms, page, itemsPerPage, Collections.<OrderByClause>emptyList());
+    public final List<A> findAll() {
+        return findAll(SyncopeConstants.FULL_ADMIN_REALMS, -1, -1, Collections.<OrderByClause>emptyList());
     }
 
     private SearchCond getAllMatchingCond() {

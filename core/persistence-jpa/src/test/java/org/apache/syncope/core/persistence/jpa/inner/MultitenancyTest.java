@@ -95,7 +95,7 @@ public class MultitenancyTest extends AbstractTest {
     @Test
     public void createUser() {
         assertNull(realmDAO.getRoot().getPasswordPolicy());
-        assertTrue(userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 1000).isEmpty());
+        assertTrue(userDAO.findAll().isEmpty());
 
         User user = entityFactory.newEntity(User.class);
         user.setRealm(realmDAO.getRoot());

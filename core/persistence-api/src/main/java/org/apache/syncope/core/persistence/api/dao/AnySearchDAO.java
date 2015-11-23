@@ -36,25 +36,21 @@ public interface AnySearchDAO extends DAO<Any<?>, Long> {
     int count(Set<String> adminRealms, SearchCond searchCondition, AnyTypeKind kind);
 
     /**
-     * @param adminRealms realms for which the caller owns the proper entitlement(s)
      * @param searchCondition the search condition
      * @param kind any object
      * @param <T> any
      * @return the list of any objects matching the given search condition
      */
-    <T extends Any<?>> List<T> search(
-            Set<String> adminRealms, SearchCond searchCondition, AnyTypeKind kind);
+    <T extends Any<?>> List<T> search(SearchCond searchCondition, AnyTypeKind kind);
 
     /**
-     * @param adminRealms the set of admin groups owned by the caller
      * @param searchCondition the search condition
      * @param orderBy list of ordering clauses
      * @param kind any object
      * @param <T> any
      * @return the list of any objects matching the given search condition
      */
-    <T extends Any<?>> List<T> search(
-            Set<String> adminRealms, SearchCond searchCondition, List<OrderByClause> orderBy, AnyTypeKind kind);
+    <T extends Any<?>> List<T> search(SearchCond searchCondition, List<OrderByClause> orderBy, AnyTypeKind kind);
 
     /**
      * @param adminRealms realms for which the caller owns the proper entitlement(s)

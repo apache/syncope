@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic.report;
 
-import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.misc.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
@@ -71,27 +71,6 @@ public class UserReportlet extends AbstractReportlet {
     private AnyObjectDataBinder anyObjectDataBinder;
 
     private UserReportletConf conf;
-
-    private List<User> getPagedUsers(final int page) {
-        List<User> result;
-
-        if (StringUtils.isBlank(conf.getMatchingCond())) {
-            result = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, page, PAGE_SIZE);
-        } else {
-            result = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                    SearchCondConverter.convert(conf.getMatchingCond()),
-                    page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), AnyTypeKind.USER);
-        }
-
-        return result;
-    }
-
-    private int count() {
-        return StringUtils.isBlank(conf.getMatchingCond())
-                ? userDAO.count(SyncopeConstants.FULL_ADMIN_REALMS)
-                : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.USER);
-    }
 
     private void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
             throws SAXException {
@@ -369,6 +348,13 @@ public class UserReportlet extends AbstractReportlet {
         handler.endElement("", "", "configurations");
     }
 
+    private int count() {
+        return StringUtils.isBlank(conf.getMatchingCond())
+                ? userDAO.count(SyncopeConstants.FULL_ADMIN_REALMS)
+                : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
+                        SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.USER);
+    }
+
     @Override
     protected void doExtract(final ReportletConf conf, final ContentHandler handler) throws SAXException {
         if (conf instanceof UserReportletConf) {
@@ -378,8 +364,17 @@ public class UserReportlet extends AbstractReportlet {
         }
 
         doExtractConf(handler);
-        for (int i = 1; i <= (count() / PAGE_SIZE) + 1; i++) {
-            doExtract(handler, getPagedUsers(i));
+
+        if (StringUtils.isBlank(this.conf.getMatchingCond())) {
+            doExtract(handler, userDAO.findAll());
+        } else {
+            for (int page = 1; page <= (count() / PAGE_SIZE) + 1; page++) {
+                List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
+                        SearchCondConverter.convert(this.conf.getMatchingCond()),
+                        page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), AnyTypeKind.USER);
+                doExtract(handler, users);
+            }
+
         }
     }
 }

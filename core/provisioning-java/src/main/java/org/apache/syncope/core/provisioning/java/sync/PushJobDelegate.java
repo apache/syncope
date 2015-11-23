@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -90,6 +91,22 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         return result;
     }
 
+    protected void handle(
+            final List<? extends Any<?>> anys,
+            final SyncopePushResultHandler handler,
+            final ExternalResource resource)
+            throws JobExecutionException {
+
+        for (Any<?> any : anys) {
+            try {
+                handler.handle(any.getKey());
+            } catch (Exception e) {
+                LOG.warn("Failure pushing '{}' on '{}'", any, resource, e);
+                throw new JobExecutionException("While pushing " + any + " on " + resource, e);
+            }
+        }
+    }
+
     @Override
     protected String doExecuteProvisioning(
             final PushTask pushTask,
@@ -139,41 +156,38 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         for (Provision provision : pushTask.getResource().getProvisions()) {
             if (provision.getMapping() != null) {
                 AnyDAO<?> anyDAO = getAnyDAO(provision.getAnyType().getKind());
+
+                SyncopePushResultHandler handler;
+                switch (provision.getAnyType().getKind()) {
+                    case USER:
+                        handler = uhandler;
+                        break;
+
+                    case GROUP:
+                        handler = ghandler;
+                        break;
+
+                    case ANY_OBJECT:
+                    default:
+                        handler = ahandler;
+                }
+
                 String filter = pushTask.getFilter(provision.getAnyType()) == null
                         ? null
                         : pushTask.getFilter(provision.getAnyType()).get();
-
-                int count = anyDAO.count(SyncopeConstants.FULL_ADMIN_REALMS);
-                for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
-                    List<? extends Any<?>> localAnys = StringUtils.isBlank(filter)
-                            ? anyDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, page, PAGE_SIZE)
-                            : searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                                    SearchCondConverter.convert(filter),
-                                    Collections.<OrderByClause>emptyList(), provision.getAnyType().getKind());
-
-                    for (Any<?> any : localAnys) {
-                        SyncopePushResultHandler handler;
-                        switch (provision.getAnyType().getKind()) {
-                            case USER:
-                                handler = uhandler;
-                                break;
-
-                            case GROUP:
-                                handler = ghandler;
-                                break;
-
-                            case ANY_OBJECT:
-                            default:
-                                handler = ahandler;
-                        }
-
-                        try {
-                            handler.handle(any.getKey());
-                        } catch (Exception e) {
-                            LOG.warn("Failure pushing '{}' on '{}'", any, pushTask.getResource(), e);
-                            throw new JobExecutionException(
-                                    "While pushing " + any + " on " + pushTask.getResource(), e);
-                        }
+                if (StringUtils.isBlank(filter)) {
+                    handle(anyDAO.findAll(), handler, pushTask.getResource());
+                } else {
+                    int count = anyDAO.count(SyncopeConstants.FULL_ADMIN_REALMS);
+                    for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
+                        List<? extends Any<?>> anys = searchDAO.search(
+                                SyncopeConstants.FULL_ADMIN_REALMS,
+                                SearchCondConverter.convert(filter),
+                                page,
+                                PAGE_SIZE,
+                                Collections.<OrderByClause>emptyList(),
+                                provision.getAnyType().getKind());
+                        handle(anys, handler, pushTask.getResource());
                     }
                 }
             }

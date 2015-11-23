@@ -28,12 +28,11 @@ import org.activiti.engine.identity.GroupQuery;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 
 public class SyncopeGroupQueryImpl implements GroupQuery {
 
-    private GroupDAO groupDAO;
+    private final GroupDAO groupDAO;
 
     private Long groupId;
 
@@ -103,7 +102,7 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
         return new GroupEntity(group.getKey().toString());
     }
 
-    private void execute(final int page, final int itemsPerPage) {
+    private void execute() {
         if (groupId != null) {
             org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup = groupDAO.find(groupId);
             if (syncopeGroup == null) {
@@ -113,24 +112,22 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
             }
         }
         if (result == null) {
-            result = CollectionUtils.collect(
-                    groupDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, page, itemsPerPage),
+            result = CollectionUtils.collect(groupDAO.findAll(),
                     new Transformer<org.apache.syncope.core.persistence.api.entity.group.Group, Group>() {
 
-                        @Override
-                        public Group transform(final org.apache.syncope.core.persistence.api.entity.group.Group user) {
-                            return fromSyncopeGroup(user);
-                        }
+                @Override
+                public Group transform(final org.apache.syncope.core.persistence.api.entity.group.Group user) {
+                    return fromSyncopeGroup(user);
+                }
 
-                    },
-                    new ArrayList<Group>());
+            }, new ArrayList<Group>());
         }
     }
 
     @Override
     public long count() {
         if (result == null) {
-            execute(-1, -1);
+            execute();
         }
         return result.size();
     }
@@ -138,7 +135,7 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
     @Override
     public Group singleResult() {
         if (result == null) {
-            execute(-1, -1);
+            execute();
         }
         if (result.isEmpty()) {
             throw new ActivitiException("Empty result");
@@ -150,7 +147,7 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
     @Override
     public List<Group> list() {
         if (result == null) {
-            execute(-1, -1);
+            execute();
         }
         return result;
     }

@@ -53,8 +53,23 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A, Long> {
 
     List<A> findByResource(ExternalResource resource);
 
-    List<A> findAll(Set<String> adminRealms, int page, int itemsPerPage);
+    /**
+     * Find any objects without any limitation.
+     *
+     * @return all any objects of type {@link A} available.
+     */
+    List<A> findAll();
 
+    /**
+     * Find any objects visible from the given admin realms, according to given page and items per page, sorted as
+     * required.
+     *
+     * @param adminRealms admin realms
+     * @param page search result page
+     * @param itemsPerPage items per search result page
+     * @param orderBy ordering clauses
+     * @return any objects of type {@link A} matching the provided conditions
+     */
     List<A> findAll(Set<String> adminRealms, int page, int itemsPerPage, List<OrderByClause> orderBy);
 
     <S extends Schema> Collection<S> findAllowedSchemas(A any, Class<S> reference);

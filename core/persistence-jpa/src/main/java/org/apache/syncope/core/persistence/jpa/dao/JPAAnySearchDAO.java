@@ -37,6 +37,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.misc.utils.RealmUtils;
@@ -150,18 +151,15 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
     }
 
     @Override
-    public <T extends Any<?>> List<T> search(
-            final Set<String> adminRealms, final SearchCond searchCondition, final AnyTypeKind typeKind) {
-
-        return search(adminRealms, searchCondition, Collections.<OrderByClause>emptyList(), typeKind);
+    public <T extends Any<?>> List<T> search(final SearchCond searchCondition, final AnyTypeKind typeKind) {
+        return search(searchCondition, Collections.<OrderByClause>emptyList(), typeKind);
     }
 
     @Override
     public <T extends Any<?>> List<T> search(
-            final Set<String> adminRealms, final SearchCond searchCondition, final List<OrderByClause> orderBy,
-            final AnyTypeKind typeKind) {
+            final SearchCond searchCondition, final List<OrderByClause> orderBy, final AnyTypeKind typeKind) {
 
-        return search(adminRealms, searchCondition, -1, -1, orderBy, typeKind);
+        return search(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, -1, -1, orderBy, typeKind);
     }
 
     @Override

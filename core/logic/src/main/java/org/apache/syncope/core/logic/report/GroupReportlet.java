@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic.report;
 
-import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +36,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,27 +59,6 @@ public class GroupReportlet extends AbstractReportlet {
     private GroupDataBinder groupDataBinder;
 
     private GroupReportletConf conf;
-
-    private List<Group> getPagedGroups(final int page) {
-        List<Group> result;
-
-        if (StringUtils.isBlank(conf.getMatchingCond())) {
-            result = groupDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, page, PAGE_SIZE);
-        } else {
-            result = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                    SearchCondConverter.convert(conf.getMatchingCond()),
-                    page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), AnyTypeKind.GROUP);
-        }
-
-        return result;
-    }
-
-    private int count() {
-        return StringUtils.isBlank(conf.getMatchingCond())
-                ? groupDAO.count(SyncopeConstants.FULL_ADMIN_REALMS)
-                : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.GROUP);
-    }
 
     private void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
             throws SAXException {
@@ -299,6 +278,13 @@ public class GroupReportlet extends AbstractReportlet {
         handler.endElement("", "", "configurations");
     }
 
+    private int count() {
+        return StringUtils.isBlank(conf.getMatchingCond())
+                ? groupDAO.count(SyncopeConstants.FULL_ADMIN_REALMS)
+                : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
+                        SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.GROUP);
+    }
+
     @Override
     protected void doExtract(final ReportletConf conf, final ContentHandler handler) throws SAXException {
         if (conf instanceof GroupReportletConf) {
@@ -308,8 +294,16 @@ public class GroupReportlet extends AbstractReportlet {
         }
 
         doExtractConf(handler);
-        for (int i = 1; i <= (count() / PAGE_SIZE) + 1; i++) {
-            doExtract(handler, getPagedGroups(i));
+
+        if (StringUtils.isBlank(this.conf.getMatchingCond())) {
+            doExtract(handler, groupDAO.findAll());
+        } else {
+            for (int page = 1; page <= (count() / PAGE_SIZE) + 1; page++) {
+                List<Group> groups = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
+                        SearchCondConverter.convert(this.conf.getMatchingCond()),
+                        page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), AnyTypeKind.GROUP);
+                doExtract(handler, groups);
+            }
         }
     }
 }

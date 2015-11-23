@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.SyncPolicySpec;
 import org.apache.syncope.core.misc.utils.MappingUtils;
@@ -34,7 +33,6 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -123,11 +121,11 @@ public class SyncUtils {
                 new EqualsFilter(new Name(name)),
                 new ResultsHandler() {
 
-                    @Override
-                    public boolean handle(final ConnectorObject obj) {
-                        return found.add(obj);
-                    }
-                },
+            @Override
+            public boolean handle(final ConnectorObject obj) {
+                return found.add(obj);
+            }
+        },
                 MappingUtils.buildOperationOptions(MappingUtils.getSyncMappingItems(provision).iterator()));
 
         if (found.isEmpty()) {
@@ -249,12 +247,7 @@ public class SyncUtils {
             final ConnectorObject connObj, final SyncCorrelationRule rule, final AnyTypeKind type) {
 
         List<Long> result = new ArrayList<>();
-        for (Any<?> any : searchDAO.search(
-                SyncopeConstants.FULL_ADMIN_REALMS,
-                rule.getSearchCond(connObj),
-                Collections.<OrderByClause>emptyList(),
-                type)) {
-
+        for (Any<?> any : searchDAO.search(rule.getSearchCond(connObj), type)) {
             result.add(any.getKey());
         }
 

@@ -129,7 +129,7 @@ public class AnySearchTest extends AbstractTest {
 
         assertTrue(cond.isValid());
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
     }
@@ -143,7 +143,7 @@ public class AnySearchTest extends AbstractTest {
         SearchCond cond = SearchCond.getNotLeafCond(fullnameLeafCond);
         assertTrue(cond.isValid());
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(4, users.size());
 
@@ -164,7 +164,7 @@ public class AnySearchTest extends AbstractTest {
         SearchCond cond = SearchCond.getLeafCond(coolLeafCond);
         assertTrue(cond.isValid());
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 
@@ -211,16 +211,14 @@ public class AnySearchTest extends AbstractTest {
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroupKey(1L);
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                SearchCond.getLeafCond(groupCond), AnyTypeKind.USER);
+        List<User> users = searchDAO.search(SearchCond.getLeafCond(groupCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(2, users.size());
 
         groupCond = new MembershipCond();
         groupCond.setGroupKey(5L);
 
-        users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                SearchCond.getNotLeafCond(groupCond), AnyTypeKind.USER);
+        users = searchDAO.search(SearchCond.getNotLeafCond(groupCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(5, users.size());
     }
@@ -230,8 +228,7 @@ public class AnySearchTest extends AbstractTest {
         RoleCond roleCond = new RoleCond();
         roleCond.setRoleKey("Other");
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                SearchCond.getLeafCond(roleCond), AnyTypeKind.USER);
+        List<User> users = searchDAO.search(SearchCond.getLeafCond(roleCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
     }
@@ -241,16 +238,14 @@ public class AnySearchTest extends AbstractTest {
         AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.ISNULL);
         coolLeafCond.setSchema("cool");
 
-        List<User> users = searchDAO.search(
-                SyncopeConstants.FULL_ADMIN_REALMS, SearchCond.getLeafCond(coolLeafCond), AnyTypeKind.USER);
+        List<User> users = searchDAO.search(SearchCond.getLeafCond(coolLeafCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(4, users.size());
 
         coolLeafCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         coolLeafCond.setSchema("cool");
 
-        users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                SearchCond.getLeafCond(coolLeafCond), AnyTypeKind.USER);
+        users = searchDAO.search(SearchCond.getLeafCond(coolLeafCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
     }
@@ -266,7 +261,7 @@ public class AnySearchTest extends AbstractTest {
         SearchCond searchCondition = SearchCond.getAndCond(SearchCond.getNotLeafCond(ws2), SearchCond.getLeafCond(ws1));
         assertTrue(searchCondition.isValid());
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER);
+        List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
     }
@@ -277,8 +272,7 @@ public class AnySearchTest extends AbstractTest {
         booleanCond.setSchema("show");
         booleanCond.setExpression("true");
 
-        List<Group> matchingGroups = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                SearchCond.getLeafCond(booleanCond), AnyTypeKind.GROUP);
+        List<Group> matchingGroups = searchDAO.search(SearchCond.getLeafCond(booleanCond), AnyTypeKind.GROUP);
         assertNotNull(matchingGroups);
         assertFalse(matchingGroups.isEmpty());
     }
@@ -297,9 +291,7 @@ public class AnySearchTest extends AbstractTest {
                 SearchCond.getLeafCond(usernameLeafCond),
                 SearchCond.getLeafCond(idRightCond));
 
-        List<User> matchingUsers = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                searchCondition, AnyTypeKind.USER);
-
+        List<User> matchingUsers = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.size());
         assertEquals("rossini", matchingUsers.iterator().next().getUsername());
@@ -322,9 +314,7 @@ public class AnySearchTest extends AbstractTest {
 
         assertTrue(searchCondition.isValid());
 
-        List<Group> matchingGroups = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                searchCondition, AnyTypeKind.GROUP);
-
+        List<Group> matchingGroups = searchDAO.search(searchCondition, AnyTypeKind.GROUP);
         assertNotNull(matchingGroups);
         assertEquals(1, matchingGroups.size());
         assertEquals("root", matchingGroups.iterator().next().getName());
@@ -345,7 +335,7 @@ public class AnySearchTest extends AbstractTest {
                 SearchCond.getLeafCond(usernameLeafCond),
                 SearchCond.getLeafCond(idRightCond));
 
-        List<User> matchingUsers = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
+        List<User> matchingUsers = searchDAO.search(
                 searchCondition, AnyTypeKind.USER);
         assertNotNull(matchingUsers);
         assertEquals(2, matchingUsers.size());
@@ -360,7 +350,7 @@ public class AnySearchTest extends AbstractTest {
         SearchCond searchCondition = SearchCond.getLeafCond(idLeafCond);
         assertTrue(searchCondition.isValid());
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER);
+        List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals(1L, users.iterator().next().getKey(), 0);
@@ -372,7 +362,7 @@ public class AnySearchTest extends AbstractTest {
         searchCondition = SearchCond.getNotLeafCond(idLeafCond);
         assertTrue(searchCondition.isValid());
 
-        users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER);
+        users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(2, users.size());
         assertTrue(CollectionUtils.exists(users, new Predicate<User>() {
@@ -392,14 +382,12 @@ public class AnySearchTest extends AbstractTest {
         SearchCond searchCondition = SearchCond.getLeafCond(tcond);
         assertTrue(searchCondition.isValid());
 
-        List<AnyObject> printers = searchDAO.search(
-                SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.ANY_OBJECT);
+        List<AnyObject> printers = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
         assertNotNull(printers);
         assertEquals(2, printers.size());
 
         tcond.setAnyTypeName("UNEXISTING");
-        printers = searchDAO.search(
-                SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.ANY_OBJECT);
+        printers = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
         assertNotNull(printers);
         assertTrue(printers.isEmpty());
     }
@@ -425,8 +413,7 @@ public class AnySearchTest extends AbstractTest {
         orderByClause.setDirection(OrderByClause.Direction.ASC);
         orderByClauses.add(orderByClause);
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                searchCondition, orderByClauses, AnyTypeKind.USER);
+        List<User> users = searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);
         assertEquals(searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER),
                 users.size());
     }
@@ -442,7 +429,7 @@ public class AnySearchTest extends AbstractTest {
         OrderByClause orderByClause = new OrderByClause();
         orderByClause.setField("name");
 
-        List<Group> groups = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
+        List<Group> groups = searchDAO.search(
                 searchCondition, Collections.singletonList(orderByClause), AnyTypeKind.GROUP);
         assertEquals(searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
                 searchCondition, AnyTypeKind.GROUP),
@@ -461,7 +448,7 @@ public class AnySearchTest extends AbstractTest {
                 SearchCond.getAndCond(SearchCond.getNotLeafCond(ws2), SearchCond.getNotLeafCond(ws1));
         assertTrue(searchCondition.isValid());
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER);
+        List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(2, users.size());
         assertTrue(CollectionUtils.exists(users, new Predicate<User>() {
@@ -482,7 +469,7 @@ public class AnySearchTest extends AbstractTest {
         SearchCond searchCondition = SearchCond.getLeafCond(cond);
         assertTrue(searchCondition.isValid());
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER);
+        List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertTrue(users.isEmpty());
     }
@@ -496,7 +483,7 @@ public class AnySearchTest extends AbstractTest {
         SearchCond searchCondition = SearchCond.getLeafCond(cond);
         assertTrue(searchCondition.isValid());
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER);
+        List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
     }

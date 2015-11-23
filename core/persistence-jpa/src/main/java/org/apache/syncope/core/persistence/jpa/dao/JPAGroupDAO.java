@@ -27,7 +27,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -133,10 +132,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             return Collections.<Group>emptyList();
         }
 
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPAGroup.class.getSimpleName()).
-                append(" e WHERE e.groupOwner=:owner ");
-
-        TypedQuery<Group> query = entityManager().createQuery(queryString.toString(), Group.class);
+        TypedQuery<Group> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.groupOwner=:owner", Group.class);
         query.setParameter("owner", owner);
 
         return query.getResultList();
@@ -166,7 +163,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     public Group save(final Group group) {
         // refresh dynaminc memberships
         if (group.getADynMembership() != null) {
-            List<AnyObject> matching = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
+            List<AnyObject> matching = searchDAO.search(
                     SearchCondConverter.convert(group.getADynMembership().getFIQLCond()), AnyTypeKind.ANY_OBJECT);
 
             group.getADynMembership().getMembers().clear();
@@ -175,7 +172,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             }
         }
         if (group.getUDynMembership() != null) {
-            List<User> matching = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
+            List<User> matching = searchDAO.search(
                     SearchCondConverter.convert(group.getUDynMembership().getFIQLCond()), AnyTypeKind.USER);
 
             group.getUDynMembership().getMembers().clear();
@@ -261,7 +258,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public void refreshDynMemberships(final AnyObject anyObject) {
-        for (Group role : findAll(SyncopeConstants.FULL_ADMIN_REALMS, -1, -1)) {
+        for (Group role : findAll()) {
             if (role.getADynMembership() != null && !searchDAO.matches(anyObject,
                     SearchCondConverter.convert(role.getADynMembership().getFIQLCond()), AnyTypeKind.ANY_OBJECT)) {
 
@@ -273,7 +270,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public void refreshDynMemberships(final User user) {
-        for (Group role : findAll(SyncopeConstants.FULL_ADMIN_REALMS, -1, -1)) {
+        for (Group role : findAll()) {
             if (role.getUDynMembership() != null && !searchDAO.matches(user,
                     SearchCondConverter.convert(role.getUDynMembership().getFIQLCond()), AnyTypeKind.USER)) {
 

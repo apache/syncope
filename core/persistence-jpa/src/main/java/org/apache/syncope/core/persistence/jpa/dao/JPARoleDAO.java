@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -65,7 +64,7 @@ public class JPARoleDAO extends AbstractDAO<Role, String> implements RoleDAO {
     public Role save(final Role role) {
         // refresh dynaminc memberships
         if (role.getDynMembership() != null) {
-            List<User> matchingUsers = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
+            List<User> matchingUsers = searchDAO.search(
                     SearchCondConverter.convert(role.getDynMembership().getFIQLCond()), AnyTypeKind.USER);
 
             role.getDynMembership().getMembers().clear();

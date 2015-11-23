@@ -27,7 +27,6 @@ import org.activiti.engine.identity.UserQuery;
 import org.activiti.engine.impl.persistence.entity.UserEntity;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -35,9 +34,9 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 
 public class SyncopeUserQueryImpl implements UserQuery {
 
-    private UserDAO userDAO;
+    private final UserDAO userDAO;
 
-    private GroupDAO groupDAO;
+    private final GroupDAO groupDAO;
 
     private String username;
 
@@ -135,15 +134,13 @@ public class SyncopeUserQueryImpl implements UserQuery {
         return new UserEntity(user.getUsername());
     }
 
-    private void execute(final int page, final int itemsPerPage) {
+    private void execute() {
         if (username != null) {
             org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.find(username);
             if (user == null) {
                 result = Collections.<User>emptyList();
-            } else {
-                if (memberOf == null || userDAO.findAllGroupKeys(user).contains(memberOf)) {
-                    result = Collections.singletonList(fromSyncopeUser(user));
-                }
+            } else if (memberOf == null || userDAO.findAllGroupKeys(user).contains(memberOf)) {
+                result = Collections.singletonList(fromSyncopeUser(user));
             }
         }
         if (memberOf != null) {
@@ -163,24 +160,22 @@ public class SyncopeUserQueryImpl implements UserQuery {
         }
         // THIS CAN BE *VERY* DANGEROUS
         if (result == null) {
-            result = CollectionUtils.collect(
-                    userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, page, itemsPerPage),
+            result = CollectionUtils.collect(userDAO.findAll(),
                     new Transformer<org.apache.syncope.core.persistence.api.entity.user.User, User>() {
 
-                        @Override
-                        public User transform(final org.apache.syncope.core.persistence.api.entity.user.User user) {
-                            return fromSyncopeUser(user);
-                        }
+                @Override
+                public User transform(final org.apache.syncope.core.persistence.api.entity.user.User user) {
+                    return fromSyncopeUser(user);
+                }
 
-                    },
-                    new ArrayList<User>());
+            }, new ArrayList<User>());
         }
     }
 
     @Override
     public long count() {
         if (result == null) {
-            execute(-1, -1);
+            execute();
         }
         return result.size();
     }
@@ -188,7 +183,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
     @Override
     public User singleResult() {
         if (result == null) {
-            execute(-1, -1);
+            execute();
         }
         if (result.isEmpty()) {
             throw new ActivitiException("Empty result");
@@ -200,7 +195,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
     @Override
     public List<User> list() {
         if (result == null) {
-            execute(-1, -1);
+            execute();
         }
         return result;
     }
@@ -208,9 +203,9 @@ public class SyncopeUserQueryImpl implements UserQuery {
     @Override
     public List<User> listPage(final int firstResult, final int maxResults) {
         if (result == null) {
-            execute((firstResult / maxResults) + 1, maxResults);
+            execute();
         }
-        return result;
+        return result.subList(firstResult, firstResult + maxResults - 1);
     }
 
     @Override

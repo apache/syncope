@@ -47,7 +47,7 @@ public class AnyObjectTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<AnyObject> list = anyObjectDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 100);
+        List<AnyObject> list = anyObjectDAO.findAll();
         assertFalse(list.isEmpty());
     }
 

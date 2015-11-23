@@ -189,7 +189,7 @@ public class NotificationManagerImpl implements NotificationManager {
         List<User> recipients = new ArrayList<>();
 
         if (notification.getRecipients() != null) {
-            recipients.addAll(searchDAO.<User>search(SyncopeConstants.FULL_ADMIN_REALMS,
+            recipients.addAll(searchDAO.<User>search(
                     SearchCondConverter.convert(notification.getRecipients()),
                     Collections.<OrderByClause>emptyList(), AnyTypeKind.USER));
         }

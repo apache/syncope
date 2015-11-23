@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -61,7 +60,7 @@ public class AnySearchTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE95() {
-        Set<Group> groups = new HashSet<>(groupDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 100));
+        Set<Group> groups = new HashSet<>(groupDAO.findAll());
         for (Group group : groups) {
             groupDAO.delete(group.getKey());
         }
@@ -74,7 +73,7 @@ public class AnySearchTest extends AbstractTest {
         SearchCond cond = SearchCond.getLeafCond(coolLeafCond);
         assertTrue(cond.isValid());
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 
@@ -106,8 +105,7 @@ public class AnySearchTest extends AbstractTest {
         RoleCond roleCond = new RoleCond();
         roleCond.setRoleKey(role.getKey());
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                SearchCond.getLeafCond(roleCond), AnyTypeKind.USER);
+        List<User> users = searchDAO.search(SearchCond.getLeafCond(roleCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals(4L, users.get(0).getKey(), 0);

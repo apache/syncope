@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -35,6 +36,7 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.misc.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.misc.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +55,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<User> list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 100);
+        List<User> list = userDAO.findAll();
         assertEquals("did not get expected number of users", 5, list.size());
     }
 
@@ -67,19 +69,20 @@ public class UserTest extends AbstractTest {
     @Test
     public void findAllByPageAndSize() {
         // get first page
-        List<User> list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 2);
+        List<User> list = userDAO.findAll(
+                SyncopeConstants.FULL_ADMIN_REALMS, 1, 2, Collections.<OrderByClause>emptyList());
         assertEquals("did not get expected number of users", 2, list.size());
 
         // get second page
-        list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 2, 2);
+        list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 2, 2, Collections.<OrderByClause>emptyList());
         assertEquals("did not get expected number of users", 2, list.size());
 
         // get second page with uncomplete set
-        list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 2, 3);
+        list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 2, 3, Collections.<OrderByClause>emptyList());
         assertEquals("did not get expected number of users", 2, list.size());
 
         // get unexistent page
-        list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 3, 2);
+        list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 3, 2, Collections.<OrderByClause>emptyList());
         assertEquals("did not get expected number of users", 1, list.size());
     }
 
