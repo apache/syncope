@@ -26,10 +26,11 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement
 @XmlType
-public class ConnConfProperty extends AbstractCommonsLangType implements Comparable<ConnConfProperty> {
+public class ConnConfProperty extends AbstractBaseBean implements Comparable<ConnConfProperty> {
 
     private static final long serialVersionUID = -8391413960221862238L;
 
