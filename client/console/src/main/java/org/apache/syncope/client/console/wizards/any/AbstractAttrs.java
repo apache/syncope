@@ -18,9 +18,21 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.extensions.wizard.WizardStep;
 
 public abstract class AbstractAttrs extends WizardStep {
@@ -31,9 +43,51 @@ public abstract class AbstractAttrs extends WizardStep {
 
     protected final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
+    private final GroupRestClient groupRestClient = new GroupRestClient();
+
     protected final AnyTO entityTO;
 
     public AbstractAttrs(final AnyTO entityTO) {
         this.entityTO = entityTO;
+    }
+
+    protected Set<String> getAllAuxClasses() {
+        final List<MembershipTO> memberships;
+        final List<Long> dyngroups;
+        if (entityTO instanceof UserTO) {
+            memberships = UserTO.class.cast(entityTO).getMemberships();
+            dyngroups = UserTO.class.cast(entityTO).getDynGroups();
+        } else if (entityTO instanceof AnyObjectTO) {
+            memberships = AnyObjectTO.class.cast(entityTO).getMemberships();
+            dyngroups = AnyObjectTO.class.cast(entityTO).getDynGroups();
+        } else {
+            memberships = Collections.<MembershipTO>emptyList();
+            dyngroups = Collections.<Long>emptyList();
+        }
+
+        final List<GroupTO> groups = new ArrayList<>();
+        CollectionUtils.collect(memberships, new Transformer<MembershipTO, GroupTO>() {
+
+            @Override
+            public GroupTO transform(final MembershipTO input) {
+                dyngroups.remove(input.getRightKey());
+                return groupRestClient.read(input.getRightKey());
+            }
+        }, groups);
+
+        CollectionUtils.collect(dyngroups, new Transformer<Long, GroupTO>() {
+
+            @Override
+            public GroupTO transform(final Long input) {
+                return groupRestClient.read(input);
+            }
+        }, groups);
+
+        final Set<String> auxClasses = new HashSet<>(entityTO.getAuxClasses());
+        for (GroupTO groupTO : groups) {
+            auxClasses.addAll(groupTO.getAuxClasses());
+        }
+
+        return auxClasses;
     }
 }

@@ -56,7 +56,7 @@ public class VirAttrs extends AbstractAttrs {
             @Override
             protected List<AttrTO> load() {
                 final List<String> classes = CollectionUtils.collect(
-                        anyTypeRestClient.getAnyTypeClass(entityTO.getAuxClasses().toArray(new String[] {})),
+                        anyTypeRestClient.getAnyTypeClass(getAllAuxClasses().toArray(new String[] {})),
                         new Transformer<AnyTypeClassTO, String>() {
 
                             @Override

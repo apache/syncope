@@ -80,7 +80,7 @@ public class PlainAttrs extends AbstractAttrs {
             @Override
             protected List<AttrTO> load() {
                 setSchemas(CollectionUtils.collect(
-                        anyTypeRestClient.getAnyTypeClass(entityTO.getAuxClasses().toArray(new String[] {})),
+                        anyTypeRestClient.getAnyTypeClass(getAllAuxClasses().toArray(new String[] {})),
                         new Transformer<AnyTypeClassTO, String>() {
 
                             @Override

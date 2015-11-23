@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,7 +47,7 @@ public class AuxClasses extends WizardStep {
 
     private final GroupRestClient groupRestClient = new GroupRestClient();
 
-    private static final Pattern GROUP_ID_PATTERN = Pattern.compile("\\[(\\d)\\]? (.*)");
+    private static final Pattern GROUP_ID_PATTERN = Pattern.compile("\\[(\\d*)\\]? (.*)");
 
     public <T extends AnyTO> AuxClasses(final T entityTO, final String... anyTypeClass) {
         this.setOutputMarkupId(true);
@@ -57,21 +58,39 @@ public class AuxClasses extends WizardStep {
         } else {
             fragment = new Fragment("groups", "groupsFragment", this);
 
-            final List<MembershipTO> memberships = entityTO instanceof UserTO
-                    ? UserTO.class.cast(entityTO).getMemberships()
-                    : AnyObjectTO.class.cast(entityTO).getMemberships();
+            final ArrayList<String> available = CollectionUtils.collect(
+                    groupRestClient.list(entityTO.getRealm(), -1, -1, new SortParam<>("name", true), null),
+                    new Transformer<GroupTO, String>() {
 
-            fragment.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true)
-                    .build(
-                            "groups",
-                            new ListModel<String>(CollectionUtils.collect(memberships,
+                        @Override
+                        public String transform(final GroupTO input) {
+                            return String.format("[%d] %s", input.getKey(), input.getName());
+                        }
+                    }, new ArrayList<String>());
+
+            final List<MembershipTO> memberships;
+            final List<Long> dyngroups;
+
+            if (entityTO instanceof UserTO) {
+                memberships = UserTO.class.cast(entityTO).getMemberships();
+                dyngroups = UserTO.class.cast(entityTO).getDynGroups();
+            } else if (entityTO instanceof AnyObjectTO) {
+                memberships = AnyObjectTO.class.cast(entityTO).getMemberships();
+                dyngroups = AnyObjectTO.class.cast(entityTO).getDynGroups();
+            } else {
+                memberships = Collections.<MembershipTO>emptyList();
+                dyngroups = Collections.<Long>emptyList();
+            }
+
+            fragment.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build(
+                    "groups", new ListModel<String>(CollectionUtils.collect(memberships,
                                     new Transformer<MembershipTO, String>() {
 
-                                @Override
-                                public String transform(final MembershipTO input) {
-                                    return String.format("[%d] %s", input.getRightKey(), input.getGroupName());
-                                }
-                            }, new ArrayList<String>())) {
+                                        @Override
+                                        public String transform(final MembershipTO input) {
+                                            return String.format("[%d] %s", input.getRightKey(), input.getGroupName());
+                                        }
+                                    }, new ArrayList<String>())) {
 
                         private static final long serialVersionUID = 1L;
 
@@ -84,31 +103,35 @@ public class AuxClasses extends WizardStep {
                                 @Override
                                 public MembershipTO transform(final String input) {
                                     final Matcher m = GROUP_ID_PATTERN.matcher(input);
-                                    final String groupName;
-                                    final long groupKey;
+                                    final String name;
+                                    final long key;
                                     if (m.matches()) {
-                                        groupKey = Long.parseLong(m.group(1));
-                                        groupName = m.group(2);
+                                        key = Long.parseLong(m.group(1));
+                                        name = m.group(2);
                                     } else {
-                                        groupKey = -1L;
-                                        groupName = input;
+                                        key = -1L;
+                                        name = input;
                                     }
 
-                                    return new MembershipTO.Builder().left(entityTO.getType(), entityTO.getKey()).
-                                            group(groupKey, groupName).build();
+                                    return new MembershipTO.Builder().
+                                    left(entityTO.getType(), entityTO.getKey()).group(key, name).build();
                                 }
                             }, memberships);
                         }
                     },
-                            new ListModel<>(CollectionUtils.collect(groupRestClient.list(
-                                    entityTO.getRealm(), -1, -1, new SortParam<>("name", true), null),
-                                    new Transformer<GroupTO, String>() {
+                    new ListModel<>(available)).setOutputMarkupId(true));
 
-                                @Override
-                                public String transform(final GroupTO input) {
-                                    return String.format("[%d] %s", input.getKey(), input.getName());
-                                }
-                            }, new ArrayList<String>()))).setOutputMarkupId(true));
+            fragment.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build(
+                    "dyngroups", new ListModel<String>(CollectionUtils.collect(dyngroups,
+                                    new Transformer<Long, String>() {
+
+                                        @Override
+                                        public String transform(final Long input) {
+                                            final GroupTO groupTO = groupRestClient.read(input);
+                                            return String.format("[%d] %s", groupTO.getKey(), groupTO.getName());
+                                        }
+                                    }, new ArrayList<String>())),
+                    new ListModel<>(available)).setEnabled(false).setOutputMarkupId(true));
         }
         add(fragment);
 
@@ -121,11 +144,8 @@ public class AuxClasses extends WizardStep {
             }
         }
 
-        add(new AjaxPalettePanel.Builder<String>().
-                setAllowOrder(true)
-                .build("auxClasses",
-                        new PropertyModel<List<String>>(entityTO, "auxClasses"),
-                        new ListModel<>(choices)).setOutputMarkupId(true));
-
+        add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("auxClasses",
+                new PropertyModel<List<String>>(entityTO, "auxClasses"),
+                new ListModel<>(choices)).setOutputMarkupId(true));
     }
 }
