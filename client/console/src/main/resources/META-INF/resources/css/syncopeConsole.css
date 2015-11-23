@@ -216,8 +216,20 @@ div.basepage-content{
   padding: 0px 15px 0px 5px;
 }
 
+.wizard-form {
+  height:580px;  
+}
+
 .wizard-buttons {
   padding: 10px 0px 5px 0px;
+  position: fixed;
+  top: 590px;
+  right: 30px;
+}
+
+.wizard-buttons input.pull-left {
+  position: fixed;
+  left: 30px;
 }
 
 div.realms div.summarize {

@@ -35,7 +35,7 @@ public abstract class AjaxWizardButton extends AjaxButton {
             final String labelResourceKey,
             final boolean formprocessing) {
         super(id, form);
-        this.setLabel(new ResourceModel(labelResourceKey));
+        this.setLabel(new ResourceModel(labelResourceKey, labelResourceKey));
         this.wizard = wizard;
         setDefaultFormProcessing(formprocessing);
     }

@@ -17,21 +17,20 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
+  <head>
+    <title></title>
+  </head>
   <body>
-    <wicket:panel>
-      <div class="col-xs-12">
-        <div class="box">
-          <div class="box-header">
-            <h3 class="box-title">
-              <wicket:message key="roles.palette">[ROLES]</wicket:message>
-            </h3>
-          </div>
-          <div class="box-body">
-            <span wicket:id="roles">[ROLES]</span>
-          </div>
-        </div>
+    <wicket:panel xmlns:wicket="http://wicket.apache.org">
+
+      <div>
+        <input wicket:id="cancel" type="submit" wicket:message="value:cancel" class="btn btn-default pull-left"/>
+        <input wicket:id="previous" type="submit" wicket:message="value:previous" class="btn btn-default"/>
+        <input wicket:id="next" type="submit" wicket:message="value:next"  class="btn btn-default"/>
+        <input wicket:id="last" type="submit" wicket:message="value:last"  class="btn btn-default"/>
+        <input wicket:id="finish" type="submit" wicket:message="value:finish" class="btn btn-primary"/>
       </div>
+
     </wicket:panel>
   </body>
 </html>
