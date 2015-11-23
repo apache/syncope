@@ -191,10 +191,10 @@ under the License.
   <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_name="Other"/>
   <SyncopeRole_Realm role_name="Other" realm_id="2"/>
   
-  <SyncopeRole name="Search for /even/two"/>
-  <SyncopeRole_entitlements entitlement="USER_READ" role_name="Search for /even/two"/>
-  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_name="Search for /even/two"/>
-  <SyncopeRole_Realm role_name="Search for /even/two" realm_id="4"/>
+  <SyncopeRole name="Search for realm evenTwo"/>
+  <SyncopeRole_entitlements entitlement="USER_READ" role_name="Search for realm evenTwo"/>
+  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_name="Search for realm evenTwo"/>
+  <SyncopeRole_Realm role_name="Search for realm evenTwo" realm_id="4"/>
 
   <SyncopeUser id="1" workflowId="4" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                realm_id="3"
@@ -219,7 +219,7 @@ under the License.
                realm_id="1"
                username="puccini" creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser_SyncopeRole user_id="5" role_name="Search for /even/two"/>
+  <SyncopeUser_SyncopeRole user_id="5" role_name="Search for realm evenTwo"/>
   
   <SyncopeGroup id="1" name="root"
                 realm_id="1"

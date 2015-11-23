@@ -60,9 +60,9 @@ public class RoleITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        RoleTO roleTO = roleService.read("Other");
+        RoleTO roleTO = roleService.read("Search for realm evenTwo");
         assertNotNull(roleTO);
-        assertTrue(roleTO.getEntitlements().contains(StandardEntitlement.GROUP_READ));
+        assertTrue(roleTO.getEntitlements().contains(StandardEntitlement.USER_READ));
     }
 
     @Test
