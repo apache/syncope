@@ -19,11 +19,9 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +29,7 @@ import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -128,17 +127,17 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         // type extensions
-        for (Map.Entry<String, Set<String>> entry : groupTO.getTypeExtensions().entrySet()) {
-            AnyType anyType = anyTypeDAO.find(entry.getKey());
+        for (TypeExtensionTO typeExtTO : groupTO.getTypeExtensions()) {
+            AnyType anyType = anyTypeDAO.find(typeExtTO.getAnyType());
             if (anyType == null) {
-                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), entry.getKey());
+                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType());
             } else {
                 TypeExtension typeExt = entityFactory.newEntity(TypeExtension.class);
                 typeExt.setAnyType(anyType);
                 typeExt.setGroup(group);
                 group.add(typeExt);
 
-                for (String name : entry.getValue()) {
+                for (String name : typeExtTO.getAuxClasses()) {
                     AnyTypeClass anyTypeClass = anyTypeClassDAO.find(name);
                     if (anyTypeClass == null) {
                         LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), name);
@@ -224,10 +223,10 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         // type extensions
-        for (Map.Entry<String, Set<String>> entry : groupPatch.getTypeExtensions().entrySet()) {
-            AnyType anyType = anyTypeDAO.find(entry.getKey());
+        for (TypeExtensionTO typeExtTO : groupPatch.getTypeExtensions()) {
+            AnyType anyType = anyTypeDAO.find(typeExtTO.getAnyType());
             if (anyType == null) {
-                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), entry.getKey());
+                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType());
             } else {
                 TypeExtension typeExt = group.getTypeExtension(anyType);
                 if (typeExt == null) {
@@ -238,7 +237,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 }
 
                 // add all classes contained in the TO
-                for (String name : entry.getValue()) {
+                for (String name : typeExtTO.getAuxClasses()) {
                     AnyTypeClass anyTypeClass = anyTypeClassDAO.find(name);
                     if (anyTypeClass == null) {
                         LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), name);
@@ -249,7 +248,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 // remove all classes not contained in the TO
                 for (Iterator<? extends AnyTypeClass> itor = typeExt.getAuxClasses().iterator(); itor.hasNext();) {
                     AnyTypeClass anyTypeClass = itor.next();
-                    if (!entry.getValue().contains(anyTypeClass.getKey())) {
+                    if (!typeExtTO.getAuxClasses().contains(anyTypeClass.getKey())) {
                         itor.remove();
                     }
                 }
@@ -264,7 +263,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         // remove all type extensions not contained in the TO
         for (Iterator<? extends TypeExtension> itor = group.getTypeExtensions().iterator(); itor.hasNext();) {
             TypeExtension typeExt = itor.next();
-            if (!groupPatch.getTypeExtensions().containsKey(typeExt.getAnyType().getKey())) {
+            if (groupPatch.getTypeExtension(typeExt.getAnyType().getKey()) == null) {
                 itor.remove();
             }
         }
@@ -308,14 +307,17 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         for (TypeExtension typeExt : group.getTypeExtensions()) {
-            groupTO.getTypeExtensions().put(typeExt.getAnyType().getKey(),
-                    CollectionUtils.collect(typeExt.getAuxClasses(), new Transformer<AnyTypeClass, String>() {
+            TypeExtensionTO typeExtTO = new TypeExtensionTO();
+            typeExtTO.setAnyType(typeExt.getAnyType().getKey());
+            typeExtTO.getAuxClasses().addAll(CollectionUtils.collect(typeExt.getAuxClasses(),
+                    new Transformer<AnyTypeClass, String>() {
 
-                        @Override
-                        public String transform(final AnyTypeClass clazz) {
-                            return clazz.getKey();
-                        }
-                    }, new HashSet<String>()));
+                @Override
+                public String transform(final AnyTypeClass clazz) {
+                    return clazz.getKey();
+                }
+            }));
+            groupTO.getTypeExtensions().add(typeExtTO);
         }
 
         return groupTO;

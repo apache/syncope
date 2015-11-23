@@ -20,13 +20,14 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "group")
@@ -45,9 +46,7 @@ public class GroupTO extends AnyTO {
 
     private String udynMembershipCond;
 
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
-    private final Map<String, Set<String>> typeExtensions = new HashMap<>();
+    private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
     @Override
     public String getType() {
@@ -99,21 +98,22 @@ public class GroupTO extends AnyTO {
         this.udynMembershipCond = uDynMembershipCond;
     }
 
-    @JsonProperty
-    public Map<String, Set<String>> getTypeExtensions() {
+    @JsonIgnore
+    public TypeExtensionTO getTypeExtension(final String anyType) {
+        return CollectionUtils.find(typeExtensions, new Predicate<TypeExtensionTO>() {
+
+            @Override
+            public boolean evaluate(final TypeExtensionTO typeExtension) {
+                return anyType != null && anyType.equals(typeExtension.getAnyType());
+            }
+        });
+    }
+
+    @XmlElementWrapper(name = "typeExtensions")
+    @XmlElement(name = "typeExtension")
+    @JsonProperty("typeExtensions")
+    public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;
     }
 
-    public static long fromDisplayName(final String displayName) {
-        long result = 0;
-        if (displayName != null && !displayName.isEmpty() && displayName.indexOf(' ') != -1) {
-            try {
-                result = Long.valueOf(displayName.split(" ")[0]);
-            } catch (NumberFormatException e) {
-                // ignore
-            }
-        }
-
-        return result;
-    }
 }

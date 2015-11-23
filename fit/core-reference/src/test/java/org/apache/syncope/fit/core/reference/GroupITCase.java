@@ -28,9 +28,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessControlException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -65,6 +62,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -692,25 +690,34 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void typeExtensions() {
+        TypeExtensionTO typeExtension = new TypeExtensionTO();
+        typeExtension.setAnyType(AnyTypeKind.USER.name());
+        typeExtension.getAuxClasses().add("csv");
+
         GroupTO groupTO = getBasicSampleTO("typeExtensions");
-        groupTO.getTypeExtensions().put(AnyTypeKind.USER.name(), Collections.singleton("csv"));
+        groupTO.getTypeExtensions().add(typeExtension);
 
         groupTO = createGroup(groupTO).getAny();
         assertNotNull(groupTO);
         assertEquals(1, groupTO.getTypeExtensions().size());
-        assertEquals(1, groupTO.getTypeExtensions().get(AnyTypeKind.USER.name()).size());
-        assertEquals(Collections.singleton("csv"), groupTO.getTypeExtensions().get(AnyTypeKind.USER.name()));
+        assertEquals(1, groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().size());
+        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().contains("csv"));
+
+        typeExtension = new TypeExtensionTO();
+        typeExtension.setAnyType(AnyTypeKind.USER.name());
+        typeExtension.getAuxClasses().add("csv");
+        typeExtension.getAuxClasses().add("other");
 
         GroupPatch groupPatch = new GroupPatch();
         groupPatch.setKey(groupTO.getKey());
-        groupPatch.getTypeExtensions().put(AnyTypeKind.USER.name(), new HashSet<>(Arrays.asList("csv", "other")));
+        groupPatch.getTypeExtensions().add(typeExtension);
 
         groupTO = updateGroup(groupPatch).getAny();
         assertNotNull(groupTO);
         assertEquals(1, groupTO.getTypeExtensions().size());
-        assertEquals(2, groupTO.getTypeExtensions().get(AnyTypeKind.USER.name()).size());
-        assertTrue(groupTO.getTypeExtensions().get(AnyTypeKind.USER.name()).contains("csv"));
-        assertTrue(groupTO.getTypeExtensions().get(AnyTypeKind.USER.name()).contains("other"));
+        assertEquals(2, groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().size());
+        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().contains("csv"));
+        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().contains("other"));
     }
 
     @Test

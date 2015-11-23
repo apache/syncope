@@ -20,13 +20,15 @@ package org.apache.syncope.common.lib.patch;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 
 @XmlRootElement(name = "groupPatch")
 @XmlType
@@ -44,9 +46,7 @@ public class GroupPatch extends AnyPatch {
 
     private StringReplacePatchItem udynMembershipCond;
 
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    @JsonIgnore
-    private final Map<String, Set<String>> typeExtensions = new HashMap<>();
+    private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
     public StringReplacePatchItem getName() {
         return name;
@@ -88,8 +88,21 @@ public class GroupPatch extends AnyPatch {
         this.udynMembershipCond = udynMembershipCond;
     }
 
-    @JsonProperty
-    public Map<String, Set<String>> getTypeExtensions() {
+    @JsonIgnore
+    public TypeExtensionTO getTypeExtension(final String anyType) {
+        return CollectionUtils.find(typeExtensions, new Predicate<TypeExtensionTO>() {
+
+            @Override
+            public boolean evaluate(final TypeExtensionTO typeExtension) {
+                return anyType != null && anyType.equals(typeExtension.getAnyType());
+            }
+        });
+    }
+
+    @XmlElementWrapper(name = "typeExtensions")
+    @XmlElement(name = "typeExtension")
+    @JsonProperty("typeExtensions")
+    public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;
     }
 
