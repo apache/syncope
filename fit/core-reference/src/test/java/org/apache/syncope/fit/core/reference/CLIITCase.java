@@ -148,16 +148,20 @@ public class CLIITCase extends AbstractITCase {
 
     @Test
     public void userRead() {
-        final long userId = 1;
+        final long userId1 = 1;
+        final long userId2 = 2;
+        final long userId3 = 3;
+        final long userId4 = 4;
+        final long userId5 = 5;
         try {
-            PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf(userId)));
+            PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf(userId1)));
             final Process process = PROCESS_BUILDER.start();
             final String result = IOUtils.toString(process.getInputStream());
-            assertTrue(result.contains("username: " + userService.read(userId).getUsername()));
+            assertTrue(result.contains("username: " + userService.read(userId1).getUsername()));
             process.destroy();
 
-            PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf("1"), String.valueOf("2"),
-                    String.valueOf("3"), String.valueOf("4"), String.valueOf("5")));
+            PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf(userId1), String.valueOf(userId2),
+                    String.valueOf(userId3), String.valueOf(userId4), String.valueOf(userId5)));
             final Process process2 = PROCESS_BUILDER.start();
             int users = CollectionUtils.countMatches(IOUtils.readLines(process2.getInputStream()),
                     new Predicate<String>() {
@@ -170,6 +174,18 @@ public class CLIITCase extends AbstractITCase {
             assertEquals(5, users);
 
             process2.destroy();
+
+            PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf(userId1), String.valueOf(userId2),
+                    String.valueOf(userId3), String.valueOf(userId4), String.valueOf(userId5)));
+            final Process process3 = PROCESS_BUILDER.start();
+            final String result3 = IOUtils.toString(process3.getInputStream());
+            assertTrue(
+                    result3.contains("username: " + userService.read(userId1).getUsername())
+                    && result3.contains("username: " + userService.read(userId2).getUsername())
+                    && result3.contains("username: " + userService.read(userId3).getUsername())
+                    && result3.contains("username: " + userService.read(userId4).getUsername())
+                    && result3.contains("username: " + userService.read(userId5).getUsername()));
+            process3.destroy();
         } catch (IOException e) {
             fail(e.getMessage());
         }
