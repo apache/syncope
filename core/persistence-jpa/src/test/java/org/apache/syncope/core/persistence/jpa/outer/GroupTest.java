@@ -48,6 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -119,6 +120,30 @@ public class GroupTest extends AbstractTest {
         assertFalse(ownedGroups.isEmpty());
         assertEquals(1, ownedGroups.size());
         assertTrue(ownedGroups.contains(group));
+    }
+
+    @Test
+    public void create() {
+        Group group = entityFactory.newEntity(Group.class);
+        group.setRealm(realmDAO.getRoot());
+        group.setName("new");
+
+        TypeExtension typeExt = entityFactory.newEntity(TypeExtension.class);
+        typeExt.setAnyType(anyTypeDAO.findUser());
+        typeExt.add(anyTypeClassDAO.find("csv"));
+        typeExt.add(anyTypeClassDAO.find("other"));
+
+        group.add(typeExt);
+        typeExt.setGroup(group);
+
+        groupDAO.save(group);
+
+        groupDAO.flush();
+
+        group = groupDAO.find("new");
+        assertNotNull(group);
+        assertEquals(1, group.getTypeExtensions().size());
+        assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).getAuxClasses().size());
     }
 
     @Test

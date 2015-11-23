@@ -112,7 +112,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
             }
             syncope.setStatus(syncopeStatus);
         } else if (any instanceof GroupTO) {
-            syncope.setConnObjectLink(((GroupTO) any).getDisplayName());
+            syncope.setConnObjectLink(((GroupTO) any).getName());
             syncope.setStatus(Status.ACTIVE);
         }
 
@@ -138,21 +138,30 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                 if ("status".equalsIgnoreCase(key)) {
                     return new Label("field", StringUtils.EMPTY) {
 
-                        private static final long serialVersionUID = 1L;
+                        private static final long serialVersionUID = 4755868673082976208L;
 
                         @Override
                         protected void onComponentTag(final ComponentTag tag) {
                             super.onComponentTag(tag);
-                            if (bean.getStatus() == Status.OBJECT_NOT_FOUND) {
-                                tag.put("class", "glyphicon glyphicon-remove-circle");
-                            } else if (bean.getStatus() == Status.UNDEFINED
-                                    || bean.getStatus() == Status.CREATED
-                                    || bean.getStatus() == Status.NOT_YET_SUBMITTED) {
-                                tag.put("class", "glyphicon glyphicon-question-sign");
-                            } else if (bean.getStatus() == Status.SUSPENDED) {
-                                tag.put("class", "glyphicon glyphicon-ban-circle");
-                            } else if (bean.getStatus() == Status.ACTIVE) {
-                                tag.put("class", "glyphicon glyphicon-ok-circle");
+                            if (null != bean.getStatus()) {
+                                switch (bean.getStatus()) {
+                                    case OBJECT_NOT_FOUND:
+                                        tag.put("class", "glyphicon glyphicon-remove-circle");
+                                        break;
+                                    case UNDEFINED:
+                                    case CREATED:
+                                    case NOT_YET_SUBMITTED:
+                                        tag.put("class", "glyphicon glyphicon-question-sign");
+                                        break;
+                                    case SUSPENDED:
+                                        tag.put("class", "glyphicon glyphicon-ban-circle");
+                                        break;
+                                    case ACTIVE:
+                                        tag.put("class", "glyphicon glyphicon-ok-circle");
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
 
                             tag.put("alt", "status icon");

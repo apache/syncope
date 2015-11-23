@@ -28,6 +28,9 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessControlException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -273,28 +276,6 @@ public class GroupITCase extends AbstractITCase {
         assertEquals("admin", groupTO.getCreator());
         assertEquals("puccini", groupTO.getLastModifier());
         assertTrue(groupTO.getCreationDate().before(groupTO.getLastChangeDate()));
-    }
-
-    @Test
-    public void issue178() {
-        GroupTO groupTO = new GroupTO();
-        String groupName = "torename" + getUUIDString();
-        groupTO.setName(groupName);
-        groupTO.setRealm("/");
-
-        GroupTO actual = createGroup(groupTO).getAny();
-
-        assertNotNull(actual);
-        assertEquals(groupName, actual.getName());
-
-        GroupPatch groupPatch = new GroupPatch();
-        groupPatch.setKey(actual.getKey());
-        String renamedGroup = "renamed" + getUUIDString();
-        groupPatch.setName(new StringReplacePatchItem.Builder().value(renamedGroup).build());
-
-        actual = updateGroup(groupPatch).getAny();
-        assertNotNull(actual);
-        assertEquals(renamedGroup, actual.getName());
     }
 
     @Test
@@ -707,6 +688,51 @@ public class GroupITCase extends AbstractITCase {
             ldap.setOverrideCapabilities(false);
             resourceService.update(ldap);
         }
+    }
+
+    @Test
+    public void typeExtensions() {
+        GroupTO groupTO = getBasicSampleTO("typeExtensions");
+        groupTO.getTypeExtensions().put(AnyTypeKind.USER.name(), Collections.singleton("csv"));
+
+        groupTO = createGroup(groupTO).getAny();
+        assertNotNull(groupTO);
+        assertEquals(1, groupTO.getTypeExtensions().size());
+        assertEquals(1, groupTO.getTypeExtensions().get(AnyTypeKind.USER.name()).size());
+        assertEquals(Collections.singleton("csv"), groupTO.getTypeExtensions().get(AnyTypeKind.USER.name()));
+
+        GroupPatch groupPatch = new GroupPatch();
+        groupPatch.setKey(groupTO.getKey());
+        groupPatch.getTypeExtensions().put(AnyTypeKind.USER.name(), new HashSet<>(Arrays.asList("csv", "other")));
+
+        groupTO = updateGroup(groupPatch).getAny();
+        assertNotNull(groupTO);
+        assertEquals(1, groupTO.getTypeExtensions().size());
+        assertEquals(2, groupTO.getTypeExtensions().get(AnyTypeKind.USER.name()).size());
+        assertTrue(groupTO.getTypeExtensions().get(AnyTypeKind.USER.name()).contains("csv"));
+        assertTrue(groupTO.getTypeExtensions().get(AnyTypeKind.USER.name()).contains("other"));
+    }
+
+    @Test
+    public void issue178() {
+        GroupTO groupTO = new GroupTO();
+        String groupName = "torename" + getUUIDString();
+        groupTO.setName(groupName);
+        groupTO.setRealm("/");
+
+        GroupTO actual = createGroup(groupTO).getAny();
+
+        assertNotNull(actual);
+        assertEquals(groupName, actual.getName());
+
+        GroupPatch groupPatch = new GroupPatch();
+        groupPatch.setKey(actual.getKey());
+        String renamedGroup = "renamed" + getUUIDString();
+        groupPatch.setName(new StringReplacePatchItem.Builder().value(renamedGroup).build());
+
+        actual = updateGroup(groupPatch).getAny();
+        assertNotNull(actual);
+        assertEquals(renamedGroup, actual.getName());
     }
 
     @Test

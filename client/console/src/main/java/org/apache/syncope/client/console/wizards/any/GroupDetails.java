@@ -80,8 +80,8 @@ public class GroupDetails extends Details<GroupTO> {
         groupOwnerSelectWin.setCookieName("create-groupOwnerSelect-modal");
         this.add(groupOwnerSelectWin);
 
-        final AjaxTextFieldPanel name
-                = new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(groupTO, "name"), false);
+        final AjaxTextFieldPanel name =
+                new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(groupTO, "name"), false);
 
         final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
 
@@ -135,8 +135,8 @@ public class GroupDetails extends Details<GroupTO> {
 
         groupOwnerModel = new OwnerModel(groupTO, AnyTypeKind.GROUP);
         @SuppressWarnings("unchecked")
-        final AjaxTextFieldPanel groupOwner
-                = new AjaxTextFieldPanel("groupOwner", "groupOwner", groupOwnerModel, false);
+        final AjaxTextFieldPanel groupOwner =
+                new AjaxTextFieldPanel("groupOwner", "groupOwner", groupOwnerModel, false);
         groupOwner.setReadOnly(true);
         groupOwner.setOutputMarkupId(true);
         ownerContainer.add(groupOwner);
@@ -243,7 +243,7 @@ public class GroupDetails extends Details<GroupTO> {
                         if (group == null) {
                             groupTO.setGroupOwner(null);
                         } else {
-                            object = group.getDisplayName();
+                            object = group.getName();
                         }
                     }
                     break;

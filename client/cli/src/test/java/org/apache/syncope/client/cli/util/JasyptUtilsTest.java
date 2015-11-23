@@ -25,13 +25,6 @@ import org.junit.Test;
 public class JasyptUtilsTest {
 
     @Test
-    public void singleton() {
-        final JasyptUtils jasyptUtils = JasyptUtils.getJasyptUtils();
-        final JasyptUtils jasyptUtils2 = JasyptUtils.getJasyptUtils();
-        assertEquals(jasyptUtils, jasyptUtils2);
-    }
-
-    @Test
     public void encryption() {
         final String password = "password";
         final JasyptUtils jasyptUtils = JasyptUtils.getJasyptUtils();

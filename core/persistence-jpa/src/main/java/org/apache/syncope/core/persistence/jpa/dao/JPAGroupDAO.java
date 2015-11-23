@@ -44,12 +44,15 @@ import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -243,6 +246,16 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         }
 
         return result;
+    }
+
+    @Override
+    public List<TypeExtension> findTypeExtensionByAnyTypeClass(final AnyTypeClass anyTypeClass) {
+        TypedQuery<TypeExtension> query = entityManager().createQuery(
+                "SELECT e FROM " + JPATypeExtension.class.getSimpleName()
+                + " e WHERE :anyTypeClass MEMBER OF e.auxClasses", TypeExtension.class);
+        query.setParameter("anyTypeClass", anyTypeClass);
+
+        return query.getResultList();
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

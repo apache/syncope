@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -89,20 +88,7 @@ public abstract class AbstractEntity<KEY> implements Entity<KEY> {
 
     @Override
     public String toString() {
-        Method method = BeanUtils.findMethod(getClass(), "getKey");
-
-        StringBuilder result = new StringBuilder().append(getClass().getSimpleName()).append('[');
-        if (method != null) {
-            try {
-                result.append(method.invoke(this));
-            } catch (Exception e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.error("While serializing to string", e);
-                }
-            }
-        }
-        result.append(']');
-
-        return result.toString();
+        return new StringBuilder().append(getClass().getSimpleName()).
+                append('[').append(getKey()).append(']').toString();
     }
 }

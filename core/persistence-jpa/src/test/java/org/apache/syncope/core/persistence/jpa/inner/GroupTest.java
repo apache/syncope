@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNull;
 
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -41,16 +42,24 @@ public class GroupTest extends AbstractTest {
     @Autowired
     private RealmDAO realmDAO;
 
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
     @Test
     public void findAll() {
         List<Group> list = groupDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 100);
-        assertEquals("did not get expected number of groups ", 14, list.size());
+        assertEquals("did not get expected number of groups ", 15, list.size());
     }
 
     @Test
     public void find() {
         Group group = groupDAO.find("root");
         assertNotNull("did not find expected group", group);
+
+        group = groupDAO.find("additional");
+        assertNotNull(group);
+        assertEquals(1, group.getTypeExtensions().size());
+        assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).getAuxClasses().size());
     }
 
     @Test

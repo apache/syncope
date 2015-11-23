@@ -19,8 +19,13 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -34,18 +39,26 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional(rollbackFor = { Throwable.class })
 public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupDataBinder {
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     private void setDynMembership(final Group group, final AnyTypeKind anyTypeKind, final String dynMembershipFIQL) {
         SearchCond dynMembershipCond = SearchCondConverter.convert(dynMembershipFIQL);
@@ -112,6 +125,33 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
         if (groupTO.getUDynMembershipCond() != null) {
             setDynMembership(group, AnyTypeKind.USER, groupTO.getUDynMembershipCond());
+        }
+
+        // type extensions
+        for (Map.Entry<String, Set<String>> entry : groupTO.getTypeExtensions().entrySet()) {
+            AnyType anyType = anyTypeDAO.find(entry.getKey());
+            if (anyType == null) {
+                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), entry.getKey());
+            } else {
+                TypeExtension typeExt = entityFactory.newEntity(TypeExtension.class);
+                typeExt.setAnyType(anyType);
+                typeExt.setGroup(group);
+                group.add(typeExt);
+
+                for (String name : entry.getValue()) {
+                    AnyTypeClass anyTypeClass = anyTypeClassDAO.find(name);
+                    if (anyTypeClass == null) {
+                        LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), name);
+                    } else {
+                        typeExt.add(anyTypeClass);
+                    }
+                }
+
+                if (typeExt.getAuxClasses().isEmpty()) {
+                    group.remove(typeExt);
+                    typeExt.setGroup(null);
+                }
+            }
         }
 
         return group;
@@ -183,6 +223,52 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             }
         }
 
+        // type extensions
+        for (Map.Entry<String, Set<String>> entry : groupPatch.getTypeExtensions().entrySet()) {
+            AnyType anyType = anyTypeDAO.find(entry.getKey());
+            if (anyType == null) {
+                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), entry.getKey());
+            } else {
+                TypeExtension typeExt = group.getTypeExtension(anyType);
+                if (typeExt == null) {
+                    typeExt = entityFactory.newEntity(TypeExtension.class);
+                    typeExt.setAnyType(anyType);
+                    typeExt.setGroup(group);
+                    group.add(typeExt);
+                }
+
+                // add all classes contained in the TO
+                for (String name : entry.getValue()) {
+                    AnyTypeClass anyTypeClass = anyTypeClassDAO.find(name);
+                    if (anyTypeClass == null) {
+                        LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), name);
+                    } else {
+                        typeExt.add(anyTypeClass);
+                    }
+                }
+                // remove all classes not contained in the TO
+                for (Iterator<? extends AnyTypeClass> itor = typeExt.getAuxClasses().iterator(); itor.hasNext();) {
+                    AnyTypeClass anyTypeClass = itor.next();
+                    if (!entry.getValue().contains(anyTypeClass.getKey())) {
+                        itor.remove();
+                    }
+                }
+
+                // only consider non-empty type extensions
+                if (typeExt.getAuxClasses().isEmpty()) {
+                    group.remove(typeExt);
+                    typeExt.setGroup(null);
+                }
+            }
+        }
+        // remove all type extensions not contained in the TO
+        for (Iterator<? extends TypeExtension> itor = group.getTypeExtensions().iterator(); itor.hasNext();) {
+            TypeExtension typeExt = itor.next();
+            if (!groupPatch.getTypeExtensions().containsKey(typeExt.getAnyType().getKey())) {
+                itor.remove();
+            }
+        }
+
         return propByRes;
     }
 
@@ -219,6 +305,17 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
         if (group.getUDynMembership() != null) {
             groupTO.setUDynMembershipCond(group.getUDynMembership().getFIQLCond());
+        }
+
+        for (TypeExtension typeExt : group.getTypeExtensions()) {
+            groupTO.getTypeExtensions().put(typeExt.getAnyType().getKey(),
+                    CollectionUtils.collect(typeExt.getAuxClasses(), new Transformer<AnyTypeClass, String>() {
+
+                        @Override
+                        public String transform(final AnyTypeClass clazz) {
+                            return clazz.getKey();
+                        }
+                    }, new HashSet<String>()));
         }
 
         return groupTO;

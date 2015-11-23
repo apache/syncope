@@ -19,8 +19,14 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "group")
@@ -38,6 +44,10 @@ public class GroupTO extends AnyTO {
     private String adynMembershipCond;
 
     private String udynMembershipCond;
+
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    @JsonIgnore
+    private final Map<String, Set<String>> typeExtensions = new HashMap<>();
 
     @Override
     public String getType() {
@@ -89,9 +99,9 @@ public class GroupTO extends AnyTO {
         this.udynMembershipCond = uDynMembershipCond;
     }
 
-    @JsonIgnore
-    public String getDisplayName() {
-        return getKey() + " " + getName();
+    @JsonProperty
+    public Map<String, Set<String>> getTypeExtensions() {
+        return typeExtensions;
     }
 
     public static long fromDisplayName(final String displayName) {

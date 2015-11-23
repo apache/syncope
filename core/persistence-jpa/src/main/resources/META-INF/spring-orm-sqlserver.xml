@@ -119,6 +119,14 @@ under the License.
       </id>
     </attributes>
   </entity>
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_TypeExtension" strategy="TABLE"/>
+        <table-generator name="SEQ_TypeExtension" pk-column-value="SEQ_TypeExtension" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
 
   <entity class="org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership">
     <attributes>

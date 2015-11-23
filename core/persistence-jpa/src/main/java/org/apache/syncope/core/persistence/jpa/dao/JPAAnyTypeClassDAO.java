@@ -24,6 +24,7 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -31,6 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -49,6 +51,9 @@ public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implem
 
     @Autowired
     private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
+    private GroupDAO groupDAO;
 
     @Override
     public AnyTypeClass find(final String key) {
@@ -98,6 +103,15 @@ public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implem
 
         for (AnyType type : anyTypeDAO.findByTypeClass(anyTypeClass)) {
             type.remove(anyTypeClass);
+        }
+
+        for (TypeExtension typeExt : groupDAO.findTypeExtensionByAnyTypeClass(anyTypeClass)) {
+            typeExt.remove(anyTypeClass);
+
+            if (typeExt.getAuxClasses().isEmpty()) {
+                typeExt.getGroup().remove(typeExt);
+                typeExt.setGroup(null);
+            }
         }
 
         entityManager().remove(anyTypeClass);

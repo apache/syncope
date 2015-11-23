@@ -19,9 +19,10 @@
 package org.apache.syncope.common.lib.policy;
 
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlType
-public class PushPolicySpec {
+public class PushPolicySpec extends AbstractBaseBean {
 
     private static final long serialVersionUID = 3641030189482617497L;
 

@@ -21,9 +21,11 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
@@ -56,6 +58,8 @@ public interface GroupDAO extends AnyDAO<Group> {
      * typically).
      */
     Map<Long, PropagationByResource> findUsersWithTransitiveResources(Long groupKey);
+
+    List<TypeExtension> findTypeExtensionByAnyTypeClass(AnyTypeClass anyTypeClass);
 
     void refreshDynMemberships(AnyObject anyObject);
 

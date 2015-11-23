@@ -18,8 +18,15 @@
  */
 package org.apache.syncope.common.lib.patch;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlRootElement(name = "groupPatch")
 @XmlType
@@ -36,6 +43,10 @@ public class GroupPatch extends AnyPatch {
     private StringReplacePatchItem adynMembershipCond;
 
     private StringReplacePatchItem udynMembershipCond;
+
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    @JsonIgnore
+    private final Map<String, Set<String>> typeExtensions = new HashMap<>();
 
     public StringReplacePatchItem getName() {
         return name;
@@ -77,11 +88,16 @@ public class GroupPatch extends AnyPatch {
         this.udynMembershipCond = udynMembershipCond;
     }
 
+    @JsonProperty
+    public Map<String, Set<String>> getTypeExtensions() {
+        return typeExtensions;
+    }
+
     @Override
     public boolean isEmpty() {
         return super.isEmpty()
                 && name == null && userOwner == null && groupOwner == null
-                && adynMembershipCond == null && udynMembershipCond == null;
+                && adynMembershipCond == null && udynMembershipCond == null && typeExtensions.isEmpty();
     }
 
 }

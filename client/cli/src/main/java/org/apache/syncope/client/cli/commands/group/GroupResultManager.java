@@ -37,7 +37,6 @@ public class GroupResultManager extends CommonsResultManager {
     public void printGroup(final GroupTO groupTO) {
         System.out.println(" > GROUP ID: " + groupTO.getKey());
         System.out.println("    name: " + groupTO.getName());
-        System.out.println("    display name: " + groupTO.getDisplayName());
         System.out.println("    type: " + groupTO.getType());
         System.out.println("    realm: " + groupTO.getRealm());
         System.out.println("    status: " + groupTO.getStatus());
