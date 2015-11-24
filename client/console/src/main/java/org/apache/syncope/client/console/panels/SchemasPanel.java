@@ -100,8 +100,6 @@ public class SchemasPanel extends Panel {
 
     private final NotificationPanel feedbackPanel;
 
-    private final AbstractBasePage page;
-
     private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     private final PreferenceManager prefMan = new PreferenceManager();
@@ -114,8 +112,7 @@ public class SchemasPanel extends Panel {
         super(id);
 
         this.pageReference = pageReference;
-        this.page = (AbstractBasePage) pageReference.getPage();
-        this.feedbackPanel = page.getFeedbackPanel();
+        this.feedbackPanel = ((AbstractBasePage) pageReference.getPage()).getFeedbackPanel();
         this.modal = modal;
 
         final Collapsible collapsible = new Collapsible("collapsePanel", buildTabList());
@@ -352,9 +349,7 @@ public class SchemasPanel extends Panel {
 
         @Override
         public Iterator<AbstractSchemaTO> iterator(final long first, final long count) {
-            @SuppressWarnings("unchecked")
             final List<AbstractSchemaTO> list = schemaRestClient.getSchemas(this.schemaType);
-
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }

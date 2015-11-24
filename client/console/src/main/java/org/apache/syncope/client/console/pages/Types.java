@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,8 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AnyTypeClassModalPanel;
 import org.apache.syncope.client.console.panels.AnyTypeClassesPanel;
+import org.apache.syncope.client.console.panels.AnyTypeModalPanel;
+import org.apache.syncope.client.console.panels.AnyTypePanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.SchemasPanel;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
@@ -47,7 +50,6 @@ import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 
 public class Types extends BasePage {
 
@@ -66,6 +68,7 @@ public class Types extends BasePage {
         ANYTYPECLASS,
         ANYTYPE,
         RELATIONSHIPTYPE;
+
     }
 
     public Types(final PageParameters parameters) {
@@ -95,7 +98,16 @@ public class Types extends BasePage {
 
         if (SyncopeConsoleSession.get().owns(StandardEntitlement.ANYTYPECLASS_CREATE)) {
             MetaDataRoleAuthorizationStrategy.authorize(
-                    createSchemaLink, ENABLE, StandardEntitlement.ANYTYPECLASS_CREATE);
+                    createAnyTypeClassLink, ENABLE, StandardEntitlement.ANYTYPECLASS_CREATE);
+        }
+
+        final AjaxLink<Void> createAnyTypeLink =
+                buildCreateLink("createAnyType", anyTypeModal, Type.ANYTYPE);
+        content.add(createAnyTypeLink);
+
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.ANYTYPE_CREATE)) {
+            MetaDataRoleAuthorizationStrategy.authorize(
+                    createAnyTypeLink, ENABLE, StandardEntitlement.ANYTYPE_CREATE);
         }
 
         add(content);
@@ -117,8 +129,7 @@ public class Types extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                //return new AnyTypePanel(panelId, getPageReference(), anyTypeModal);
-                return new EmptyPanel(panelId);
+                return new AnyTypePanel(panelId, getPageReference(), anyTypeModal);
             }
         });
 
@@ -168,9 +179,14 @@ public class Types extends BasePage {
         switch (type) {
             case ANYTYPECLASS:
                 anyTypeClassModal.setFormModel(new AnyTypeClassTO());
+                anyTypeClassModal.size(Modal.Size.Large);
                 panel = new AnyTypeClassModalPanel(anyTypeClassModal, getPageReference(), true);
                 break;
             case ANYTYPE:
+                anyTypeModal.setFormModel(new AnyTypeTO());
+                anyTypeModal.size(Modal.Size.Large);
+                panel = new AnyTypeModalPanel(anyTypeModal, getPageReference(), true);
+                break;
             case RELATIONSHIPTYPE:
             case SCHEMA:
             default:
