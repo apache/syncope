@@ -45,7 +45,7 @@ public class AnyTypeDetailsPanel extends Panel {
 
     private final AnyTypeTO anyTypeTO;
 
-    public AnyTypeDetailsPanel(final String id, final BaseModal<AnyTypeTO> modal, final boolean createFlag) {
+    public AnyTypeDetailsPanel(final String id, final BaseModal<AnyTypeTO> modal) {
         super(id);
 
         this.anyTypeTO = modal.getFormModel();

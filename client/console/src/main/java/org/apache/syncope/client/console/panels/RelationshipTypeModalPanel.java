@@ -18,38 +18,42 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.apache.syncope.client.console.panels.AbstractModalPanel.LOG;
+
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.rest.api.service.AnyTypeService;
+import org.apache.syncope.common.lib.to.RelationshipTypeTO;
+import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
 
-public class AnyTypeModalPanel extends AbstractModalPanel {
+public class RelationshipTypeModalPanel extends AbstractModalPanel {
 
-    private static final long serialVersionUID = -4603032036433309900L;
+    private static final long serialVersionUID = 1602285111803121341L;
 
     private final boolean createFlag;
 
-    public AnyTypeModalPanel(final BaseModal<AnyTypeTO> modal, final PageReference pageRef, final boolean createFlag) {
+    public RelationshipTypeModalPanel(
+            final BaseModal<RelationshipTypeTO> modal,
+            final PageReference pageRef, final boolean createFlag) {
         super(modal, pageRef);
 
         this.createFlag = createFlag;
-        add(new AnyTypeDetailsPanel("anyTypeDetailsPanel", modal));
+        add(new RelationshipTypeDetailsPanel("relationshipTypeDetails", modal));
     }
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
-            final AnyTypeTO updateAnyTypeTO = AnyTypeTO.class.cast(form.getModelObject());
+            final RelationshipTypeTO updateRelationshipTypeTO = RelationshipTypeTO.class.cast(form.getModelObject());
 
             if (createFlag) {
-                SyncopeConsoleSession.get().getService(AnyTypeService.class).create(updateAnyTypeTO);
+                SyncopeConsoleSession.get().getService(RelationshipTypeService.class).create(updateRelationshipTypeTO);
             } else {
-                SyncopeConsoleSession.get().getService(AnyTypeService.class).update(updateAnyTypeTO);
+                SyncopeConsoleSession.get().getService(RelationshipTypeService.class).update(updateRelationshipTypeTO);
             }
 
             if (pageRef.getPage() instanceof AbstractBasePage) {
@@ -57,7 +61,7 @@ public class AnyTypeModalPanel extends AbstractModalPanel {
             }
             modal.close(target);
         } catch (Exception e) {
-            LOG.error("While creating or updating AnyTypeTO", e);
+            LOG.error("While creating or updating RelationshipTypeTO", e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());
             modal.getFeedbackPanel().refresh(target);
         }

@@ -56,6 +56,8 @@ public final class Constants {
 
     public static final String PREF_ANYTYPE_PAGINATOR_ROWS = "anytype.paginator.rows";
 
+    public static final String PREF_RELATIONSHIPTYPE_PAGINATOR_ROWS = "relationshiptype.painator.rows" ;
+    
     public static final String PREF_GROUP_DETAILS_VIEW = "group.details.view";
 
     public static final String PREF_GROUP_ATTRIBUTES_VIEW = "group.attributes.view";

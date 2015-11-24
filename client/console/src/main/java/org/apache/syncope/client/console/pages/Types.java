@@ -29,6 +29,8 @@ import org.apache.syncope.client.console.panels.AnyTypeClassesPanel;
 import org.apache.syncope.client.console.panels.AnyTypeModalPanel;
 import org.apache.syncope.client.console.panels.AnyTypePanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
+import org.apache.syncope.client.console.panels.RelationshipTypeModalPanel;
+import org.apache.syncope.client.console.panels.RelationshipTypePanel;
 import org.apache.syncope.client.console.panels.SchemasPanel;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -48,6 +50,7 @@ import org.apache.syncope.client.console.panels.SchemaModalPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
@@ -60,6 +63,8 @@ public class Types extends BasePage {
     private final BaseModal<AnyTypeClassTO> anyTypeClassModal;
 
     private final BaseModal<AnyTypeTO> anyTypeModal;
+
+    private final BaseModal<RelationshipTypeTO> relationshipTypeModal;
 
     private final AjaxBootstrapTabbedPanel<ITab> tabbedPanel;
 
@@ -77,6 +82,7 @@ public class Types extends BasePage {
         this.schemaModal = new BaseModal<>("schemaModal");
         this.anyTypeClassModal = new BaseModal<>("anyTypeClassModal");
         this.anyTypeModal = new BaseModal<>("anyTypeModal");
+        this.relationshipTypeModal = new BaseModal<>("relationshipTypeModal");
 
         final WebMarkupContainer content = new WebMarkupContainer("content");
         content.add(new Label("header", "Types"));
@@ -110,18 +116,39 @@ public class Types extends BasePage {
                     createAnyTypeLink, ENABLE, StandardEntitlement.ANYTYPE_CREATE);
         }
 
+        final AjaxLink<Void> createRelationshipTypeLink =
+                buildCreateLink("createRelationshipType", relationshipTypeModal, Type.RELATIONSHIPTYPE);
+        content.add(createRelationshipTypeLink);
+
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.RELATIONSHIPTYPE_CREATE)) {
+            MetaDataRoleAuthorizationStrategy.authorize(
+                    createRelationshipTypeLink, ENABLE, StandardEntitlement.RELATIONSHIPTYPE_CREATE);
+        }
+
         add(content);
         addWindowWindowClosedCallback(schemaModal);
         addWindowWindowClosedCallback(anyTypeClassModal);
         addWindowWindowClosedCallback(anyTypeModal);
+        addWindowWindowClosedCallback(relationshipTypeModal);
         add(schemaModal);
         add(anyTypeClassModal);
         add(anyTypeModal);
+        add(relationshipTypeModal);
     }
 
     private List<ITab> buildTabList() {
 
         final List<ITab> tabs = new ArrayList<>();
+
+        tabs.add(new AbstractTab(new Model<>("RelationshipType")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new RelationshipTypePanel(panelId, getPageReference(), relationshipTypeModal);
+            }
+        });
 
         tabs.add(new AbstractTab(new Model<>("AnyTypes")) {
 
@@ -188,6 +215,10 @@ public class Types extends BasePage {
                 panel = new AnyTypeModalPanel(anyTypeModal, getPageReference(), true);
                 break;
             case RELATIONSHIPTYPE:
+                relationshipTypeModal.setFormModel(new RelationshipTypeTO());
+                relationshipTypeModal.size(Modal.Size.Medium);
+                panel = new RelationshipTypeModalPanel(relationshipTypeModal, getPageReference(), true);
+                break;
             case SCHEMA:
             default:
                 schemaModal.setFormModel(new PlainSchemaTO());

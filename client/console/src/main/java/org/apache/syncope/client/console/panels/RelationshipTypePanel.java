@@ -32,9 +32,9 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.AnyTypeService;
+import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -52,18 +52,21 @@ import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
+public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO> {
 
-    private static final long serialVersionUID = 3905038169553185171L;
+    private static final long serialVersionUID = -3731778000138547357L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AnyTypePanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RelationshipTypePanel.class);
 
-    private static final String PAGINATOR_ROWS_KEYS = Constants.PREF_ANYTYPE_PAGINATOR_ROWS;
+    private static final String PAGINATOR_ROWS_KEYS = Constants.PREF_RELATIONSHIPTYPE_PAGINATOR_ROWS;
 
-    private final BaseModal<AnyTypeTO> modal;
+    private final BaseModal<RelationshipTypeTO> modal;
 
-    public AnyTypePanel(final String id, final PageReference pageReference, final BaseModal<AnyTypeTO> modal) {
-        super(id, pageReference);
+    public RelationshipTypePanel(
+            final String panelId,
+            final PageReference pageReference,
+            final BaseModal<RelationshipTypeTO> modal) {
+        super(panelId, pageReference);
 
         this.pageRows = prefMan.getPaginatorRows(getRequest(), PAGINATOR_ROWS_KEYS);
         this.modal = modal;
@@ -72,64 +75,43 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
         container.setOutputMarkupId(true);
         add(container);
 
-        buildDataTable(container,
-                getColumns(container, pageReference), new AnyTypePanel.AnyTypeProvider(), PAGINATOR_ROWS_KEYS);
-
+        buildDataTable(container, getColumns(container, pageReference),
+                new RelationshipTypePanel.RelationshipTypeProvider(), PAGINATOR_ROWS_KEYS);
     }
 
-    private <T extends AnyTypeModalPanel> List<IColumn<AnyTypeTO, String>> getColumns(
+    private List<IColumn<RelationshipTypeTO, String>> getColumns(
             final WebMarkupContainer webContainer, final PageReference pageReference) {
 
-        final List<IColumn<AnyTypeTO, String>> columns = new ArrayList<>();
+        final List<IColumn<RelationshipTypeTO, String>> columns = new ArrayList<>();
 
-        for (Field field : AnyTypeTO.class.getDeclaredFields()) {
+        for (Field field : RelationshipTypeTO.class.getDeclaredFields()) {
 
             if (field != null && !Modifier.isStatic(field.getModifiers())) {
                 final String fieldName = field.getName();
-                if (field.getType().isArray()) {
-                    final IColumn<AnyTypeTO, String> column =
-                            new PropertyColumn<AnyTypeTO, String>(
-                                    new ResourceModel(field.getName()), field.getName()) {
 
-                        private static final long serialVersionUID = 3282547854226892169L;
+                final IColumn<RelationshipTypeTO, String> column =
+                        new PropertyColumn<RelationshipTypeTO, String>(
+                                new ResourceModel(field.getName()), field.getName(), field.getName()) {
 
-                        @Override
-                        public String getCssClass() {
-                            String css = super.getCssClass();
-                            if ("key".equals(fieldName)) {
-                                css = StringUtils.isBlank(css)
-                                        ? "medium_fixedsize"
-                                        : css + " medium_fixedsize";
-                            }
-                            return css;
+                    private static final long serialVersionUID = 3282547854226892169L;
+
+                    @Override
+                    public String getCssClass() {
+                        String css = super.getCssClass();
+                        if ("key".equals(fieldName)) {
+                            css = StringUtils.isBlank(css)
+                                    ? "medium_fixedsize"
+                                    : css + " medium_fixedsize";
                         }
-                    };
-                    columns.add(column);
+                        return css;
+                    }
+                };
+                columns.add(column);
 
-                } else {
-                    final IColumn<AnyTypeTO, String> column =
-                            new PropertyColumn<AnyTypeTO, String>(
-                                    new ResourceModel(field.getName()), field.getName(), field.getName()) {
-
-                        private static final long serialVersionUID = 3282547854226892169L;
-
-                        @Override
-                        public String getCssClass() {
-                            String css = super.getCssClass();
-                            if ("key".equals(fieldName)) {
-                                css = StringUtils.isBlank(css)
-                                        ? "medium_fixedsize"
-                                        : css + " medium_fixedsize";
-                            }
-                            return css;
-                        }
-                    };
-                    columns.add(column);
-                }
             }
         }
 
-        columns.add(new AbstractColumn<AnyTypeTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<RelationshipTypeTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -139,10 +121,10 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
             }
 
             @Override
-            public void populateItem(final Item<ICellPopulator<AnyTypeTO>> item, final String componentId,
-                    final IModel<AnyTypeTO> model) {
+            public void populateItem(final Item<ICellPopulator<RelationshipTypeTO>> item, final String componentId,
+                    final IModel<RelationshipTypeTO> model) {
 
-                final AnyTypeTO anyTypeTO = model.getObject();
+                final RelationshipTypeTO relationshipTypeTO = model.getObject();
 
                 final ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(pageReference);
                 actionLinks.setDisableIndicator(true);
@@ -152,13 +134,13 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        modal.header(Model.of(anyTypeTO.getKey()));
-                        modal.setFormModel(anyTypeTO);
-                        target.add(modal.setContent(new AnyTypeModalPanel(modal, pageReference, false)));
+                        modal.header(Model.of(relationshipTypeTO.getKey()));
+                        modal.setFormModel(relationshipTypeTO);
+                        target.add(modal.setContent(new RelationshipTypeModalPanel(modal, pageReference, false)));
                         modal.addSumbitButton();
                         modal.show(true);
                     }
-                }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPE_UPDATE).addWithRoles(
+                }, ActionLink.ActionType.EDIT, StandardEntitlement.RELATIONSHIPTYPE_UPDATE).addWithRoles(
                         new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
@@ -166,19 +148,18 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         try {
-                            SyncopeConsoleSession.get().getService(AnyTypeService.class
-                            ).delete(anyTypeTO.getKey());
+                            SyncopeConsoleSession.get().getService(
+                                    RelationshipTypeService.class).delete(relationshipTypeTO.getKey());
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             feedbackPanel.refresh(target);
                             target.add(webContainer);
                         } catch (Exception e) {
-                            LOG.error("While deleting AnyTypeTO", e);
+                            LOG.error("While deleting RelationshipType", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                             feedbackPanel.refresh(target);
                         }
-
                     }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPE_DELETE);
+                }, ActionLink.ActionType.DELETE, StandardEntitlement.RELATIONSHIPTYPE_DELETE);
 
                 item.add(actionLinks.build(componentId));
             }
@@ -188,33 +169,35 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
 
     }
 
-    private final class AnyTypeProvider extends SortableDataProvider<AnyTypeTO, String> {
+    private final class RelationshipTypeProvider extends SortableDataProvider<RelationshipTypeTO, String> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
-        private final SortableDataProviderComparator<AnyTypeTO> comparator;
+        private final SortableDataProviderComparator<RelationshipTypeTO> comparator;
 
-        private AnyTypeProvider() {
+        private RelationshipTypeProvider() {
             super();
             setSort("key", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
-        public Iterator<AnyTypeTO> iterator(final long first, final long count) {
-            final List<AnyTypeTO> list = SyncopeConsoleSession.get().getService(AnyTypeService.class).list();
+        public Iterator<RelationshipTypeTO> iterator(final long first, final long count) {
+            final List<RelationshipTypeTO> list =
+                    SyncopeConsoleSession.get().getService(RelationshipTypeService.class).list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SyncopeConsoleSession.get().getService(AnyTypeService.class).list().size();
+            return SyncopeConsoleSession.get().getService(RelationshipTypeService.class).list().size();
         }
 
         @Override
-        public IModel<AnyTypeTO> model(final AnyTypeTO object) {
+        public IModel<RelationshipTypeTO> model(final RelationshipTypeTO object) {
             return new CompoundPropertyModel<>(object);
         }
     }
+
 }
