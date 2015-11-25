@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 import org.activiti.bpmn.converter.BpmnXMLConverter;
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.editor.constants.ModelDataJsonConstants;
@@ -82,6 +83,7 @@ import org.apache.syncope.core.workflow.user.AbstractUserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -160,6 +162,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Autowired
     protected UserDataBinder userDataBinder;
 
+    @Autowired
+    protected DataSource dataSource;
+
     @Override
     public Class<? extends WorkflowInstanceLoader> getLoaderClass() {
         return ActivitiWorkflowLoader.class;
@@ -211,13 +216,43 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected Set<String> getPerformedTasks(final SyncopeUser user) {
         final Set<String> result = new HashSet<String>();
 
-        for (HistoricActivityInstance task
-                : historyService.createHistoricActivityInstanceQuery().executionId(user.getWorkflowId()).list()) {
+        for (HistoricActivityInstance task : historyService.createHistoricActivityInstanceQuery().
+                processInstanceId(user.getWorkflowId()).list()) {
 
             result.add(task.getActivityId());
         }
 
         return result;
+    }
+
+    protected void cleanupHistory(final SyncopeUser user) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+        List<String> taskIds = jdbcTemplate.queryForList(
+                "SELECT TASK_ID_ FROM ACT_HI_VARINST WHERE NAME_='" + TASK_IS_FORM
+                + "' AND LONG_=1 AND PROC_INST_ID_='" + user.getWorkflowId() + "'", String.class);
+
+        StringBuilder update = new StringBuilder();
+
+        update.append("DELETE FROM ACT_HI_VARINST WHERE PROC_INST_ID_='").append(user.getWorkflowId()).append("' ");
+        for (String taskId : taskIds) {
+            update.append("AND TASK_ID_<>'").append(taskId).append("' ");
+        }
+        jdbcTemplate.execute(update.toString());
+
+        update.setLength(0);
+        update.append("DELETE FROM ACT_HI_TASKINST WHERE PROC_INST_ID_='").append(user.getWorkflowId()).append("' ");
+        for (String taskId : taskIds) {
+            update.append("AND ID_<>'").append(taskId).append("' ");
+        }
+        jdbcTemplate.execute(update.toString());
+
+        update.setLength(0);
+        update.append("DELETE FROM ACT_HI_ACTINST WHERE PROC_INST_ID_='").append(user.getWorkflowId()).append("' ");
+        for (String taskId : taskIds) {
+            update.append("AND TASK_ID_<>'").append(taskId).append("' ");
+        }
+        jdbcTemplate.execute(update.toString());
     }
 
     /**
@@ -293,8 +328,12 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         saveForFormSubmit(user, userTO.getPassword(), propByRes);
 
+        Set<String> tasks = getPerformedTasks(user);
+
+        cleanupHistory(user);
+
         return new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new SimpleEntry<Long, Boolean>(user.getId(), propagateEnable), propByRes, getPerformedTasks(user));
+                new SimpleEntry<Long, Boolean>(user.getId(), propagateEnable), propByRes, tasks);
     }
 
     protected Set<String> doExecuteTask(final SyncopeUser user, final String task,
@@ -333,6 +372,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Set<String> postTasks = getPerformedTasks(user);
         postTasks.removeAll(preTasks);
         postTasks.add(task);
+
+        cleanupHistory(user);
+
         return postTasks;
     }
 
@@ -733,11 +775,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     public List<WorkflowFormTO> getForms(final String workflowId, final String name) {
         List<WorkflowFormTO> forms = getForms(
-                taskService.createTaskQuery().processInstanceId(workflowId).taskName(name).
-                taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE));
+                taskService.createTaskQuery().processInstanceId(workflowId).
+                taskName(name).taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE));
 
-        forms.addAll(getForms(historyService.createHistoricTaskInstanceQuery().taskName(name).
-                taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
+        forms.addAll(getForms(historyService.createHistoricTaskInstanceQuery().processInstanceId(workflowId).
+                taskName(name).taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
 
         return forms;
     }
@@ -794,6 +836,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Task task;
         try {
             task = taskService.createTaskQuery().taskId(taskId).singleResult();
+            if (task == null) {
+                throw new ActivitiException("NULL result");
+            }
         } catch (ActivitiException e) {
             throw new NotFoundException("Activiti Task " + taskId, e);
         }
@@ -905,6 +950,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 }
             }
         }
+
+        cleanupHistory(user);
 
         return new WorkflowResult<UserMod>(userMod, propByRes, postTasks);
     }
