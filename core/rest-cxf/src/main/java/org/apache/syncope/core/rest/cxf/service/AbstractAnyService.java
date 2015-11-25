@@ -20,8 +20,6 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.Set;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -30,6 +28,7 @@ import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -110,48 +109,39 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     protected PagedResult<TO> list(final AnyListQuery listQuery) {
-        CollectionUtils.transform(listQuery.getRealms(), new Transformer<String, String>() {
-
-            @Override
-            public String transform(final String input) {
-                return StringUtils.prependIfMissing(input, SyncopeConstants.ROOT_REALM);
-            }
-        });
+        String realm = StringUtils.prependIfMissing(listQuery.getRealm(), SyncopeConstants.ROOT_REALM);
 
         return buildPagedResult(
                 getAnyLogic().list(
                         listQuery.getPage(),
                         listQuery.getSize(),
                         getOrderByClauses(listQuery.getOrderBy()),
-                        listQuery.getRealms(),
+                        realm,
                         listQuery.isDetails()),
                 listQuery.getPage(),
                 listQuery.getSize(),
-                getAnyLogic().count(listQuery.getRealms()));
+                getAnyLogic().count(realm));
     }
 
     @Override
     public PagedResult<TO> search(final AnySearchQuery searchQuery) {
-        CollectionUtils.transform(searchQuery.getRealms(), new Transformer<String, String>() {
+        String realm = StringUtils.prependIfMissing(searchQuery.getRealm(), SyncopeConstants.ROOT_REALM);
 
-            @Override
-            public String transform(final String input) {
-                return StringUtils.prependIfMissing(input, SyncopeConstants.ROOT_REALM);
-            }
-        });
+        // if an assignable query is provided in the FIQL string, start anyway from root realm
+        boolean isAssignableCond = -1 != searchQuery.getFiql().indexOf(SpecialAttr.ASSIGNABLE.toString());
 
-        SearchCond cond = getSearchCond(searchQuery.getFiql());
+        SearchCond cond = getSearchCond(searchQuery.getFiql(), realm);
         return buildPagedResult(
                 getAnyLogic().search(
                         cond,
                         searchQuery.getPage(),
                         searchQuery.getSize(),
                         getOrderByClauses(searchQuery.getOrderBy()),
-                        searchQuery.getRealms(),
+                        isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
                         searchQuery.isDetails()),
                 searchQuery.getPage(),
                 searchQuery.getSize(),
-                getAnyLogic().searchCount(cond, searchQuery.getRealms()));
+                getAnyLogic().searchCount(cond, isAssignableCond ? SyncopeConstants.ROOT_REALM : realm));
     }
 
     @Override

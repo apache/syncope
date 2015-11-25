@@ -155,14 +155,14 @@ public class SearchCondConverterTest {
 
     @Test
     public void assignable() {
-        String fiqlExpression = new GroupFiqlSearchConditionBuilder().isAssignable("/even/two").query();
-        assertEquals(SpecialAttr.ASSIGNABLE + "==/even/two", fiqlExpression);
+        String fiqlExpression = new GroupFiqlSearchConditionBuilder().isAssignable().query();
+        assertEquals(SpecialAttr.ASSIGNABLE + "==" + SpecialAttr.NULL, fiqlExpression);
 
         AssignableCond assignableCond = new AssignableCond();
         assignableCond.setRealmFullPath("/even/two");
         SearchCond simpleCond = SearchCond.getLeafCond(assignableCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression, "/even/two"));
     }
 
     @Test

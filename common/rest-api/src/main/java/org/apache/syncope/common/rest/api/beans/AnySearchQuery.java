@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
-import java.util.ArrayList;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
@@ -39,11 +38,7 @@ public class AnySearchQuery extends AnyListQuery {
         }
 
         public Builder realm(final String realm) {
-            if (getInstance().getRealms() == null) {
-                getInstance().setRealms(new ArrayList<String>());
-            }
-            getInstance().getRealms().add(realm);
-
+            getInstance().setRealm(realm);
             return this;
         }
 

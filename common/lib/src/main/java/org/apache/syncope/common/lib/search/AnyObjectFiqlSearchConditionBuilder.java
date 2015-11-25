@@ -89,10 +89,10 @@ public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchCondi
                 notInRelationshipTypes(type, moreTypes);
     }
 
-    public CompleteCondition isAssignable(final String realm, final String... moreRealms) {
+    public CompleteCondition isAssignable() {
         return newBuilderInstance().
                 is(SpecialAttr.ASSIGNABLE.toString()).
-                isAssignable(realm, moreRealms);
+                isAssignable();
     }
 
     protected class Builder extends AbstractFiqlSearchConditionBuilder.Builder
@@ -156,9 +156,9 @@ public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchCondi
         }
 
         @Override
-        public CompleteCondition isAssignable(final String realm, final String... moreRealms) {
+        public CompleteCondition isAssignable() {
             this.result = SpecialAttr.ASSIGNABLE.toString();
-            return condition(FiqlParser.EQ, realm, (Object[]) moreRealms);
+            return condition(FiqlParser.EQ, SpecialAttr.NULL);
         }
 
     }

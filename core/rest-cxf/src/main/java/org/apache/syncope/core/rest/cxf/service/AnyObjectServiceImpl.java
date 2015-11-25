@@ -67,7 +67,7 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
         searchQuery.setOrderBy(listQuery.getOrderBy());
         searchQuery.setPage(listQuery.getPage());
         searchQuery.setSize(listQuery.getSize());
-        searchQuery.setRealms(listQuery.getRealms());
+        searchQuery.setRealm(listQuery.getRealm());
 
         return search(searchQuery);
     }

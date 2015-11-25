@@ -22,6 +22,6 @@ import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 
 public interface GroupProperty extends SyncopeProperty {
 
-    CompleteCondition isAssignable(String realm, String... moreRealms);
+    CompleteCondition isAssignable();
 
 }

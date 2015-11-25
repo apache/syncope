@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
@@ -80,7 +79,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
     @Transactional(readOnly = true)
     @Override
-    public int count(final List<String> realms) {
+    public int count(final String realm) {
         throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
     }
 
@@ -88,14 +87,14 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
     @Override
     public List<AnyObjectTO> list(
             final int page, final int size, final List<OrderByClause> orderBy,
-            final List<String> realms, final boolean details) {
+            final String realm, final boolean details) {
 
         throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
     }
 
     @Transactional(readOnly = true)
     @Override
-    public int searchCount(final SearchCond searchCond, final List<String> realms) {
+    public int searchCount(final SearchCond searchCond, final String realm) {
         if (searchCond.hasAnyTypeCond() == null) {
             throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
         }
@@ -103,7 +102,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
                         getFor(searchCond.hasAnyTypeCond(), EntitlementsHolder.AnyEntitlement.SEARCH)),
-                realms);
+                realm);
 
         return searchDAO.count(effectiveRealms, searchCond, AnyTypeKind.ANY_OBJECT);
     }
@@ -111,7 +110,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
     @Transactional(readOnly = true)
     @Override
     public List<AnyObjectTO> search(final SearchCond searchCond, final int page, final int size,
-            final List<OrderByClause> orderBy, final List<String> realms, final boolean details) {
+            final List<OrderByClause> orderBy, final String realm, final boolean details) {
 
         if (searchCond.hasAnyTypeCond() == null) {
             throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
@@ -120,7 +119,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
                         getFor(searchCond.hasAnyTypeCond(), EntitlementsHolder.AnyEntitlement.SEARCH)),
-                realms);
+                realm);
 
         List<AnyObject> matchingAnyObjects = searchDAO.search(
                 effectiveRealms, searchCond, page, size, orderBy, AnyTypeKind.ANY_OBJECT);
@@ -147,7 +146,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
                         getFor(before.getLeft().getType(), EntitlementsHolder.AnyEntitlement.CREATE)),
-                Collections.singleton(before.getLeft().getRealm()));
+                before.getLeft().getRealm());
         securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
 
         Pair<Long, List<PropagationStatus>> created = provisioningManager.create(before.getLeft(), nullPriorityAsync);
@@ -169,7 +168,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
                         getFor(anyObjectTO.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
-                Collections.singleton(realm));
+                realm);
         securityChecks(effectiveRealms, realm, before.getLeft().getKey());
 
         Pair<Long, List<PropagationStatus>> updated = provisioningManager.update(anyObjectPatch, nullPriorityAsync);
@@ -185,7 +184,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
                         getFor(before.getLeft().getType(), EntitlementsHolder.AnyEntitlement.DELETE)),
-                Collections.singleton(before.getLeft().getRealm()));
+                before.getLeft().getRealm());
         securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
 
         List<PropagationStatus> statuses = provisioningManager.delete(before.getLeft().getKey(), nullPriorityAsync);
@@ -203,7 +202,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
                         getFor(anyObject.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
-                Collections.singleton(anyObject.getRealm()));
+                anyObject.getRealm());
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
         AnyObjectPatch patch = new AnyObjectPatch();
@@ -226,7 +225,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
                         getFor(anyObject.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
-                Collections.singleton(anyObject.getRealm()));
+                anyObject.getRealm());
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
         AnyObjectPatch patch = new AnyObjectPatch();
@@ -251,7 +250,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
                         getFor(anyObject.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
-                Collections.singleton(anyObject.getRealm()));
+                anyObject.getRealm());
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
         AnyObjectPatch patch = new AnyObjectPatch();
@@ -280,7 +279,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
                         getFor(anyObject.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
-                Collections.singleton(anyObject.getRealm()));
+                anyObject.getRealm());
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
         AnyObjectPatch patch = new AnyObjectPatch();
@@ -305,7 +304,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
                         getFor(anyObject.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
-                Collections.singleton(anyObject.getRealm()));
+                anyObject.getRealm());
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
@@ -329,7 +328,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
                         getFor(anyObject.getType(), EntitlementsHolder.AnyEntitlement.UPDATE)),
-                Collections.singleton(anyObject.getRealm()));
+                anyObject.getRealm());
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
         List<PropagationStatus> statuses = provisioningManager.provision(key, resources, nullPriorityAsync);

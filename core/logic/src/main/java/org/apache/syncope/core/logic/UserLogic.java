@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
@@ -102,9 +101,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_LIST + "')")
     @Transactional(readOnly = true)
     @Override
-    public int count(final List<String> realms) {
+    public int count(final String realm) {
         return userDAO.count(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_LIST), realms));
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_LIST), realm));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_LIST + "')")
@@ -112,10 +111,10 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @Override
     public List<UserTO> list(
             final int page, final int size, final List<OrderByClause> orderBy,
-            final List<String> realms, final boolean details) {
+            final String realm, final boolean details) {
 
         return CollectionUtils.collect(userDAO.findAll(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_LIST), realms),
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_LIST), realm),
                 page, size, orderBy),
                 new Transformer<User, UserTO>() {
 
@@ -144,9 +143,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
-    public int searchCount(final SearchCond searchCondition, final List<String> realms) {
+    public int searchCount(final SearchCond searchCondition, final String realm) {
         return searchDAO.count(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realms),
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm),
                 searchCondition, AnyTypeKind.USER);
     }
 
@@ -154,10 +153,10 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @Transactional(readOnly = true)
     @Override
     public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
-            final List<OrderByClause> orderBy, final List<String> realms, final boolean details) {
+            final List<OrderByClause> orderBy, final String realm, final boolean details) {
 
         List<User> matchingUsers = searchDAO.search(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realms),
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm),
                 searchCondition, page, size, orderBy, AnyTypeKind.USER);
         return CollectionUtils.collect(matchingUsers, new Transformer<User, UserTO>() {
 
@@ -203,7 +202,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         if (!self) {
             Set<String> effectiveRealms = getEffectiveRealms(
                     AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_CREATE),
-                    Collections.singleton(before.getLeft().getRealm()));
+                    before.getLeft().getRealm());
             securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
         }
 
@@ -236,11 +235,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 && before.getLeft().getRealm() != null
                 && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())) {
 
-            Set<String> requestedRealms = new HashSet<>();
-            requestedRealms.add(before.getLeft().getRealm().getValue());
             Set<String> effectiveRealms = getEffectiveRealms(
                     AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                    requestedRealms);
+                    before.getLeft().getRealm().getValue());
             securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
         }
 
@@ -279,7 +276,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         UserTO toUpdate = binder.getUserTO(statusPatch.getKey());
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                Collections.singleton(toUpdate.getRealm()));
+                toUpdate.getRealm());
         securityChecks(effectiveRealms, toUpdate.getRealm(), toUpdate.getKey());
 
         Pair<Long, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusPatch, nullPriorityAsync);
@@ -350,7 +347,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         if (!self) {
             Set<String> effectiveRealms = getEffectiveRealms(
                     AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_DELETE),
-                    Collections.singleton(before.getLeft().getRealm()));
+                    before.getLeft().getRealm());
             securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
         }
 
@@ -387,7 +384,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                Collections.singleton(user.getRealm()));
+                user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
         UserPatch patch = new UserPatch();
@@ -410,7 +407,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                Collections.singleton(user.getRealm()));
+                user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
         UserPatch patch = new UserPatch();
@@ -435,7 +432,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                Collections.singleton(user.getRealm()));
+                user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
         UserPatch patch = new UserPatch();
@@ -464,7 +461,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                Collections.singleton(user.getRealm()));
+                user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
         UserPatch patch = new UserPatch();
@@ -494,7 +491,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                Collections.singleton(user.getRealm()));
+                user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
@@ -518,7 +515,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                Collections.singleton(user.getRealm()));
+                user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
         List<PropagationStatus> statuses =

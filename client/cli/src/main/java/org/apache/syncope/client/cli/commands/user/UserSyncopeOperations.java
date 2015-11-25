@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.cli.commands.user;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.cli.SyncopeServices;
@@ -96,10 +95,7 @@ public class UserSyncopeOperations {
     }
 
     public Map<String, BulkActionResult.Status> deleteAll(final String realm) {
-        final AnyListQuery anyListQuery = new AnyListQuery();
-        anyListQuery.setDetails(false);
-        anyListQuery.setRealms(Arrays.asList(realm));
-        return deleteBulk(userService.list(anyListQuery).getResult());
+        return deleteBulk(userService.list(new AnyListQuery.Builder().realm(realm).details(false).build()).getResult());
     }
 
     private Map<String, BulkActionResult.Status> deleteBulk(final List<UserTO> users) {

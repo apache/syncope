@@ -34,6 +34,6 @@ public interface AnyObjectProperty extends SyncopeProperty {
 
     CompleteCondition notInRelationshipTypes(String type, String... moreTypes);
 
-    CompleteCondition isAssignable(String realm, String... moreRealms);
+    CompleteCondition isAssignable();
 
 }

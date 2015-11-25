@@ -20,7 +20,6 @@ package org.apache.syncope.core.misc.search;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
@@ -56,14 +55,16 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         ANY_FIELDS.addAll(SearchableFields.get(AnyObjectTO.class));
     }
 
+    private String realm;
+
     private SearchCond searchCond;
 
     public SearchCondVisitor() {
         super(null);
     }
 
-    public SearchCondVisitor(final Map<String, String> fieldMap) {
-        super(fieldMap);
+    public void setRealm(final String realm) {
+        this.realm = realm;
     }
 
     private AttributeCond createAttributeCond(final String schema) {
@@ -140,7 +141,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
                         case ASSIGNABLE:
                             AssignableCond assignableCond = new AssignableCond();
-                            assignableCond.setRealmFullPath(value);
+                            assignableCond.setRealmFullPath(realm);
                             leaf = SearchCond.getLeafCond(assignableCond);
                             break;
 

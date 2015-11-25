@@ -21,8 +21,6 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
@@ -119,8 +117,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     @Override
-    public int count(final List<String> realms) {
-        return groupDAO.count(getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realms));
+    public int count(final String realm) {
+        return groupDAO.count(getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realm));
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -128,10 +126,10 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     @Override
     public List<GroupTO> list(
             final int page, final int size, final List<OrderByClause> orderBy,
-            final List<String> realms, final boolean details) {
+            final String realm, final boolean details) {
 
         return CollectionUtils.collect(groupDAO.findAll(
-                getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realms),
+                getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realm),
                 page, size, orderBy),
                 new Transformer<Group, GroupTO>() {
 
@@ -145,9 +143,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
-    public int searchCount(final SearchCond searchCondition, final List<String> realms) {
+    public int searchCount(final SearchCond searchCondition, final String realm) {
         return searchDAO.count(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_SEARCH), realms),
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_SEARCH), realm),
                 searchCondition, AnyTypeKind.GROUP);
     }
 
@@ -155,10 +153,10 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     @Transactional(readOnly = true)
     @Override
     public List<GroupTO> search(final SearchCond searchCondition, final int page, final int size,
-            final List<OrderByClause> orderBy, final List<String> realms, final boolean details) {
+            final List<OrderByClause> orderBy, final String realm, final boolean details) {
 
         List<Group> matchingGroups = searchDAO.search(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_SEARCH), realms),
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_SEARCH), realm),
                 searchCondition, page, size, orderBy, AnyTypeKind.GROUP);
         return CollectionUtils.collect(matchingGroups, new Transformer<Group, GroupTO>() {
 
@@ -180,7 +178,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_CREATE),
-                Collections.singleton(before.getLeft().getRealm()));
+                before.getLeft().getRealm());
         securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
 
         Pair<Long, List<PropagationStatus>> created =
@@ -196,11 +194,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         Pair<GroupPatch, List<LogicActions>> before = beforeUpdate(groupPatch, groupTO.getRealm());
 
         if (before.getLeft().getRealm() != null && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())) {
-            Set<String> requestedRealms = new HashSet<>();
-            requestedRealms.add(before.getLeft().getRealm().getValue());
             Set<String> effectiveRealms = getEffectiveRealms(
                     AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                    requestedRealms);
+                    before.getLeft().getRealm().getValue());
             securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
         }
 
@@ -217,7 +213,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_DELETE),
-                Collections.singleton(before.getLeft().getRealm()));
+                before.getLeft().getRealm());
         securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
 
         List<Group> ownedGroups = groupDAO.findOwnedByGroup(before.getLeft().getKey());
@@ -248,7 +244,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         GroupTO group = binder.getGroupTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_UPDATE),
-                Collections.singleton(group.getRealm()));
+                group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
         GroupPatch patch = new GroupPatch();
@@ -271,7 +267,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         GroupTO group = binder.getGroupTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_UPDATE),
-                Collections.singleton(group.getRealm()));
+                group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
         GroupPatch patch = new GroupPatch();
@@ -296,7 +292,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         GroupTO group = binder.getGroupTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_UPDATE),
-                Collections.singleton(group.getRealm()));
+                group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
         GroupPatch patch = new GroupPatch();
@@ -325,7 +321,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         GroupTO group = binder.getGroupTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_UPDATE),
-                Collections.singleton(group.getRealm()));
+                group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
         GroupPatch patch = new GroupPatch();
@@ -350,7 +346,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         GroupTO group = binder.getGroupTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_UPDATE),
-                Collections.singleton(group.getRealm()));
+                group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
@@ -374,7 +370,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         GroupTO group = binder.getGroupTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_UPDATE),
-                Collections.singleton(group.getRealm()));
+                group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
         List<PropagationStatus> statuses = provisioningManager.provision(key, resources, nullPriorityAsync);

@@ -191,10 +191,11 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
     }
 
     protected Set<String> getEffectiveRealms(
-            final Set<String> allowedRealms, final Collection<String> requestedRealms) {
+            final Set<String> allowedRealms, final String requestedRealm) {
 
         Set<String> allowed = RealmUtils.normalize(allowedRealms);
-        Set<String> requested = RealmUtils.normalize(requestedRealms);
+        Set<String> requested = new HashSet<>();
+        requested.add(requestedRealm);
 
         Set<String> effective = new HashSet<>();
         CollectionUtils.select(requested, new StartsWithPredicate(allowed), effective);
@@ -224,7 +225,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
 
     public abstract TO read(Long key);
 
-    public abstract int count(List<String> realms);
+    public abstract int count(String realm);
 
     public abstract ProvisioningResult<TO> create(TO anyTO, boolean nullPriorityAsync);
 
@@ -234,14 +235,14 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
 
     public abstract List<TO> list(
             int page, int size, List<OrderByClause> orderBy,
-            List<String> realms,
+            String realm,
             boolean details);
 
     public abstract List<TO> search(
             SearchCond searchCondition,
             int page, int size, List<OrderByClause> orderBy,
-            List<String> realms,
+            String realm,
             boolean details);
 
-    public abstract int searchCount(SearchCond searchCondition, List<String> realms);
+    public abstract int searchCount(SearchCond searchCondition, String realm);
 }

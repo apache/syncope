@@ -345,9 +345,9 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void assignable() {
         PagedResult<GroupTO> groups = groupService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getGroupSearchConditionBuilder().
-                        isAssignable("/even/two").query()).
+                new AnySearchQuery.Builder().realm("/even/two").
+                fiql(SyncopeClient.getGroupSearchConditionBuilder().isAssignable().
+                        and("name").equalTo("*").query()).
                 build());
         assertNotNull(groups);
         assertTrue(CollectionUtils.exists(groups.getResult(), new Predicate<GroupTO>() {
@@ -366,9 +366,9 @@ public class SearchITCase extends AbstractITCase {
         }));
 
         PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
-                        isAssignable("/odd").query()).
+                new AnySearchQuery.Builder().realm("/odd").
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").isAssignable().
+                        and("name").equalTo("*").query()).
                 build());
         assertNotNull(anyObjects);
         assertFalse(CollectionUtils.exists(anyObjects.getResult(), new Predicate<AnyObjectTO>() {

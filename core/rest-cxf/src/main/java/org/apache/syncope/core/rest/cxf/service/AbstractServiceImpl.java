@@ -142,9 +142,10 @@ abstract class AbstractServiceImpl implements JAXRSService {
         }
     }
 
-    protected SearchCond getSearchCond(final String fiql) {
+    protected SearchCond getSearchCond(final String fiql, final String realm) {
         try {
             SearchCondVisitor visitor = new SearchCondVisitor();
+            visitor.setRealm(realm);
             SearchCondition<SearchBean> sc = searchContext.getCondition(fiql, SearchBean.class);
             sc.accept(visitor);
 

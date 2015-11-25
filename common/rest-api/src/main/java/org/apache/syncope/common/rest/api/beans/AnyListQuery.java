@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.MatrixParam;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -41,24 +39,20 @@ public class AnyListQuery extends AnyQuery {
         }
 
         public Builder realm(final String realm) {
-            if (getInstance().getRealms() == null) {
-                getInstance().setRealms(new ArrayList<String>());
-            }
-            getInstance().getRealms().add(realm);
-
+            getInstance().setRealm(realm);
             return this;
         }
     }
 
-    private List<String> realms;
+    private String realm;
 
-    public List<String> getRealms() {
-        return realms;
+    public String getRealm() {
+        return realm;
     }
 
     @DefaultValue(SyncopeConstants.ROOT_REALM)
     @MatrixParam("realm")
-    public void setRealms(final List<String> realms) {
-        this.realms = realms;
+    public void setRealm(final String realm) {
+        this.realm = realm;
     }
 }
