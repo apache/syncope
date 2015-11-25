@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.any;
+package org.apache.syncope.client.cli.commands.anyobject;
 
 import java.util.List;
 import java.util.Set;
@@ -27,12 +27,12 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 
-public class AnySyncopeOperations {
+public class AnyObjectSyncopeOperations {
 
     private final AnyObjectService anyObjectService = SyncopeServices.get(AnyObjectService.class);
 
-    public List<AnyObjectTO> list() {
-        return anyObjectService.list(new AnyListQuery()).getResult();
+    public List<AnyObjectTO> list(final String type) {
+        return anyObjectService.list(type, new AnyListQuery()).getResult();
     }
 
     public AnyObjectTO read(final String anyId) {

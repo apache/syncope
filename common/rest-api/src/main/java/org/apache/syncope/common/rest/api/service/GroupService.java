@@ -19,12 +19,15 @@
 package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 
 /**
  * REST operations for groups.
@@ -42,4 +45,14 @@ public interface GroupService extends AnyService<GroupTO, GroupPatch> {
     @Path("own")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<GroupTO> own();
+
+    /**
+     * Returns a paged list of existing groups matching the given query.
+     *
+     * @param listQuery query conditions
+     * @return paged list of existing groups matching the given query
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<GroupTO> list(@BeanParam AnyListQuery listQuery);
 }

@@ -22,9 +22,11 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.UserLogic;
@@ -61,6 +63,11 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> imple
         return Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW).
                 header(RESTHeaders.USER_KEY, logic.getKey(username)).
                 build();
+    }
+
+    @Override
+    public PagedResult<UserTO> list(final AnyListQuery listQuery) {
+        return super.list(listQuery);
     }
 
     @Override

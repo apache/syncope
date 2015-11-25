@@ -109,8 +109,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         return getAnyLogic().read(key);
     }
 
-    @Override
-    public PagedResult<TO> list(final AnyListQuery listQuery) {
+    protected PagedResult<TO> list(final AnyListQuery listQuery) {
         CollectionUtils.transform(listQuery.getRealms(), new Transformer<String, String>() {
 
             @Override
@@ -260,8 +259,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
             for (String resource : patch.getResources()) {
                 result.getResults().put(resource,
                         updated.getAny().getResources().contains(resource)
-                                ? BulkActionResult.Status.FAILURE
-                                : BulkActionResult.Status.SUCCESS);
+                        ? BulkActionResult.Status.FAILURE
+                        : BulkActionResult.Status.SUCCESS);
             }
         } else {
             for (PropagationStatus propagationStatusTO : updated.getPropagationStatuses()) {
@@ -317,8 +316,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
             for (String resource : patch.getResources()) {
                 result.getResults().put(resource,
                         updated.getAny().getResources().contains(resource)
-                                ? BulkActionResult.Status.FAILURE
-                                : BulkActionResult.Status.SUCCESS);
+                        ? BulkActionResult.Status.FAILURE
+                        : BulkActionResult.Status.SUCCESS);
             }
         } else {
             for (PropagationStatus propagationStatusTO : updated.getPropagationStatuses()) {

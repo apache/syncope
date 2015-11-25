@@ -16,44 +16,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.any;
+package org.apache.syncope.client.cli.commands.anyobject;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AnyDelete extends AbstractAnyCommand {
+public class AnyObjectRead extends AbstractAnyObjectCommand {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AnyDelete.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AnyObjectRead.class);
 
-    private static final String DELETE_HELP_MESSAGE = "any --delete {ANY-ID} {ANY-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "any --read {ANY-ID} {ANY-ID} [...]";
 
     private final Input input;
 
-    public AnyDelete(final Input input) {
+    public AnyObjectRead(final Input input) {
         this.input = input;
     }
 
-    public void delete() {
+    public void read() {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    anySyncopeOperations.delete(parameter);
-                    anyResultManager.deletedMessage("Any", parameter);
+                    anyResultManager.printGroup(anySyncopeOperations.read(parameter));
                 } catch (final SyncopeClientException ex) {
-                    LOG.error("Error deleting group", ex);
+                    LOG.error("Error reading group", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
-                        anyResultManager.notFoundError("any", parameter);
+                        anyResultManager.notFoundError("Any object", parameter);
                     } else {
                         anyResultManager.genericError(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
-                    anyResultManager.numberFormatException("any", parameter);
+                    anyResultManager.numberFormatException("any object", parameter);
                 }
             }
         } else {
-            anyResultManager.commandOptionError(DELETE_HELP_MESSAGE);
+            anyResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
 }

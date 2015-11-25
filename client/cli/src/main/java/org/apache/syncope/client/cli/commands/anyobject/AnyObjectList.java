@@ -16,29 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.any;
+package org.apache.syncope.client.cli.commands.anyobject;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AnyList extends AbstractAnyCommand {
+public class AnyObjectList extends AbstractAnyObjectCommand {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AnyList.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AnyObjectList.class);
 
-    private static final String LIST_HELP_MESSAGE = "any --list";
+    private static final String LIST_HELP_MESSAGE = "any --list {ANY-TYPE}";
 
     private final Input input;
 
-    public AnyList(final Input input) {
+    public AnyObjectList(final Input input) {
         this.input = input;
     }
 
     public void list() {
-        if (input.parameterNumber() == 0) {
+        if (input.parameterNumber() == 1) {
             try {
-                anyResultManager.printAnys(anySyncopeOperations.list());
+                anyResultManager.printAnys(anySyncopeOperations.list(input.firstParameter()));
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error listing any object", ex);
                 anyResultManager.genericError(ex.getMessage());

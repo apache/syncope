@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.any;
+package org.apache.syncope.client.cli.commands.anyobject;
 
-public abstract class AbstractAnyCommand {
+public abstract class AbstractAnyObjectCommand {
 
-    protected final AnySyncopeOperations anySyncopeOperations = new AnySyncopeOperations();
+    protected final AnyObjectSyncopeOperations anySyncopeOperations = new AnyObjectSyncopeOperations();
 
-    protected final AnyResultManager anyResultManager = new AnyResultManager();
+    protected final AnyObjectResultManager anyResultManager = new AnyObjectResultManager();
 
 }

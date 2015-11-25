@@ -19,8 +19,10 @@
 package org.apache.syncope.common.rest.api.service;
 
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -31,7 +33,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 
 /**
  * REST operations for users.
@@ -58,6 +62,16 @@ public interface UserService extends AnyService<UserTO, UserPatch> {
     @OPTIONS
     @Path("{username}/key")
     Response getUserKey(@NotNull @PathParam("username") String username);
+
+    /**
+     * Returns a paged list of existing users matching the given query.
+     *
+     * @param listQuery query conditions
+     * @return paged list of existing users matching the given query
+     */
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<UserTO> list(@BeanParam AnyListQuery listQuery);
 
     /**
      * Creates a new user.

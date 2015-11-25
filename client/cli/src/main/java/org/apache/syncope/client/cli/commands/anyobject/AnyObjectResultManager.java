@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.any;
+package org.apache.syncope.client.cli.commands.anyobject;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,7 @@ import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 
-public class AnyResultManager extends CommonsResultManager {
+public class AnyObjectResultManager extends CommonsResultManager {
 
     public void printAnys(final List<AnyObjectTO> anyObjectTOs) {
         System.out.println("");

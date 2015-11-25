@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.any;
+package org.apache.syncope.client.cli.commands.anyobject;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
@@ -25,33 +25,30 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AnyReadAttributesBySchemaType extends AbstractAnyCommand {
+public class AnyObjectReadAttributeBySchemaTypeAndSchemaName extends AbstractAnyObjectCommand {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AnyReadAttributesBySchemaType.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AnyObjectReadAttributeBySchemaTypeAndSchemaName.class);
 
-    private static final String READ_HELP_MESSAGE = "any --read-attr-by-schema-type {ANY-ID} {SCHEMA-TYPE}\n"
+    private static final String READ_HELP_MESSAGE
+            = "any --read-attr-by-schema {ANY-ID} {SCHEMA-TYPE} {SCHEMA-NAME}\n"
             + "   Schema type: PLAIN / DERIVED / VIRTUAL";
 
     private final Input input;
 
-    public AnyReadAttributesBySchemaType(final Input input) {
+    public AnyObjectReadAttributeBySchemaTypeAndSchemaName(final Input input) {
         this.input = input;
     }
 
     public void read() {
-        if (input.parameterNumber() == 2) {
+        if (input.parameterNumber() == 3) {
             try {
-                anyResultManager.printAttributes(anySyncopeOperations.readAttributes(
-                        input.firstParameter(), input.secondParameter()));
+                anyResultManager.printAttribute(anySyncopeOperations.readAttribute(
+                        input.firstParameter(), input.secondParameter(), input.thirdParameter()));
             } catch (final SyncopeClientException ex) {
-                LOG.error("Error reading any", ex);
-                if (ex.getMessage().startsWith("NotFound")) {
-                    anyResultManager.notFoundError("Any", input.firstParameter());
-                } else {
-                    anyResultManager.genericError(ex.getMessage());
-                }
+                LOG.error("Error reading any object", ex);
+                anyResultManager.genericError(ex.getMessage());
             } catch (final NumberFormatException ex) {
-                anyResultManager.numberFormatException("any", input.firstParameter());
+                anyResultManager.numberFormatException("any object", input.firstParameter());
             } catch (final IllegalArgumentException ex) {
                 LOG.error("Error reading schema", ex);
                 anyResultManager.typeNotValidError(

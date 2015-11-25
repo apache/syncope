@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.any;
+package org.apache.syncope.client.cli.commands.anyobject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,48 +25,48 @@ import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
 
-@Command(name = "any")
-public class AnyCommand extends AbstractCommand {
+@Command(name = "anyObject")
+public class AnyObjectCommand extends AbstractCommand {
 
-    private final AnyResultManager anyResultManager = new AnyResultManager();
+    private final AnyObjectResultManager anyObjectResultManager = new AnyObjectResultManager();
 
     @Override
     public void execute(final Input input) {
         if (StringUtils.isBlank(input.getOption())) {
-            input.setOption(AnyOptions.HELP.getOptionName());
+            input.setOption(AnyObjectOptions.HELP.getOptionName());
         }
-        switch (AnyOptions.fromName(input.getOption())) {
+        switch (AnyObjectOptions.fromName(input.getOption())) {
             case DETAILS:
                 break;
             case LIST:
-                new AnyList(input).list();
+                new AnyObjectList(input).list();
                 break;
             case READ:
-                new AnyRead(input).read();
+                new AnyObjectRead(input).read();
                 break;
             case READ_ATTRIBUTES_BY_SCHEMA:
-                new AnyReadAttributeBySchemaTypeAndSchemaName(input).read();
+                new AnyObjectReadAttributeBySchemaTypeAndSchemaName(input).read();
                 break;
             case READ_ATTRIBUTES_BY_SCHEMA_TYPE:
-                new AnyReadAttributesBySchemaType(input).read();
+                new AnyObjectReadAttributesBySchemaType(input).read();
                 break;
             case DELETE:
-                new AnyDelete(input).delete();
+                new AnyObjectDelete(input).delete();
                 break;
             case HELP:
                 System.out.println(getHelpMessage());
                 break;
             default:
-                anyResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
+                anyObjectResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return anyResultManager.commandHelpMessage(getClass());
+        return anyObjectResultManager.commandHelpMessage(getClass());
     }
 
-    private enum AnyOptions {
+    private enum AnyObjectOptions {
 
         HELP("--help"),
         DETAILS("--details"),
@@ -78,7 +78,7 @@ public class AnyCommand extends AbstractCommand {
 
         private final String optionName;
 
-        AnyOptions(final String optionName) {
+        AnyObjectOptions(final String optionName) {
             this.optionName = optionName;
         }
 
@@ -90,9 +90,9 @@ public class AnyCommand extends AbstractCommand {
             return (otherName == null) ? false : optionName.equals(otherName);
         }
 
-        public static AnyOptions fromName(final String name) {
-            AnyOptions optionToReturn = HELP;
-            for (final AnyOptions option : AnyOptions.values()) {
+        public static AnyObjectOptions fromName(final String name) {
+            AnyObjectOptions optionToReturn = HELP;
+            for (final AnyObjectOptions option : AnyObjectOptions.values()) {
                 if (option.equalsOptionName(name)) {
                     optionToReturn = option;
                 }
@@ -102,7 +102,7 @@ public class AnyCommand extends AbstractCommand {
 
         public static List<String> toList() {
             final List<String> options = new ArrayList<>();
-            for (final AnyOptions value : values()) {
+            for (final AnyObjectOptions value : values()) {
                 options.add(value.getOptionName());
             }
             return options;
