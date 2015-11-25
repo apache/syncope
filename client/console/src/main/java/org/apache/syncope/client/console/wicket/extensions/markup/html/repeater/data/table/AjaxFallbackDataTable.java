@@ -20,7 +20,10 @@ package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater
 
 import java.util.List;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.navigation.paging.AjaxDataNavigationToolbar;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.ajax.markup.html.repeater.data.sort.AjaxFallbackOrderByBorder;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackHeadersToolbar;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortStateLocator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
@@ -40,7 +43,25 @@ public class AjaxFallbackDataTable<T, S> extends DataTable<T, S> {
         setOutputMarkupId(true);
         setVersioned(false);
         addTopToolbar(new AjaxDataNavigationToolbar(this, container));
-        addTopToolbar(new AjaxFallbackHeadersToolbar<>(this, dataProvider));
+        addTopToolbar(new AjaxFallbackHeadersToolbar<S>(this, dataProvider) {
+
+            private static final long serialVersionUID = 7406306172424359609L;
+
+            @Override
+            protected WebMarkupContainer newSortableHeader(
+                    final String borderId, final S property, final ISortStateLocator<S> locator) {
+                return new AjaxFallbackOrderByBorder<S>(borderId, property, locator, getAjaxCallListener()) {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    protected void onAjaxClick(final AjaxRequestTarget target) {
+                        target.add(container);
+                    }
+                };
+            }
+
+        });
         addBottomToolbar(new NoRecordsToolbar(this));
     }
 

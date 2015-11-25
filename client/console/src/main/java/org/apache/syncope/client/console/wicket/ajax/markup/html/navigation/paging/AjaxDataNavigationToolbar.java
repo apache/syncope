@@ -44,7 +44,6 @@ public class AjaxDataNavigationToolbar extends AjaxNavigationToolbar {
 
             @Override
             protected void onAjaxEvent(final AjaxRequestTarget target) {
-                target.add(table);
                 target.add(container);
             }
         };
