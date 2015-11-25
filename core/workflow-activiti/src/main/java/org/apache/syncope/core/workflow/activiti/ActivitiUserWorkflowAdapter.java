@@ -38,7 +38,6 @@ import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.editor.constants.ModelDataJsonConstants;
 import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.ActivitiException;
-import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.FormType;
 import org.activiti.engine.form.TaskFormData;
@@ -71,10 +70,12 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValid
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.workflow.activiti.spring.DomainProcessEngine;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.core.workflow.java.AbstractUserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -128,7 +129,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected String adminUser;
 
     @Autowired
-    protected ProcessEngine engine;
+    protected DomainProcessEngine engine;
 
     @Autowired
     protected UserDataBinder userDataBinder;
@@ -193,8 +194,42 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
+    protected void cleanupHistory(final User user) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(engine.getDataSource());
+
+        List<String> taskIds = jdbcTemplate.queryForList(
+                "SELECT TASK_ID_ FROM ACT_HI_VARINST WHERE NAME_='" + TASK_IS_FORM
+                + "' AND LONG_=1 AND PROC_INST_ID_='" + user.getWorkflowId() + "'", String.class);
+
+        StringBuilder update = new StringBuilder();
+
+        update.append("DELETE FROM ACT_HI_VARINST WHERE PROC_INST_ID_='").append(user.getWorkflowId()).append("' ");
+        for (String taskId : taskIds) {
+            update.append("AND TASK_ID_<>'").append(taskId).append("' ");
+        }
+        jdbcTemplate.execute(update.toString());
+
+        update.setLength(0);
+        update.append("DELETE FROM ACT_HI_TASKINST WHERE PROC_INST_ID_='").append(user.getWorkflowId()).append("' ");
+        for (String taskId : taskIds) {
+            update.append("AND ID_<>'").append(taskId).append("' ");
+        }
+        jdbcTemplate.execute(update.toString());
+
+        update.setLength(0);
+        update.append("DELETE FROM ACT_HI_ACTINST WHERE PROC_INST_ID_='").append(user.getWorkflowId()).append("' ");
+        for (String taskId : taskIds) {
+            update.append("AND TASK_ID_<>'").append(taskId).append("' ");
+        }
+        jdbcTemplate.execute(update.toString());
+    }
+
     /**
      * Saves resources to be propagated and password for later - after form submission - propagation.
+     *
+     * @param user user
+     * @param password pasword
+     * @param propByRes current propagation actions against resources
      */
     protected void saveForFormSubmit(final User user, final String password, final PropagationByResource propByRes) {
         String formTaskId = getFormTask(user);
@@ -268,8 +303,12 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         saveForFormSubmit(user, userTO.getPassword(), propByRes);
 
+        Set<String> tasks = getPerformedTasks(user);
+
+        cleanupHistory(user);
+
         return new WorkflowResult<Pair<Long, Boolean>>(
-                new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, getPerformedTasks(user));
+                new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, tasks);
     }
 
     protected Set<String> doExecuteTask(final User user, final String task, final Map<String, Object> moreVariables) {
@@ -306,6 +345,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Set<String> postTasks = getPerformedTasks(user);
         postTasks.removeAll(preTasks);
         postTasks.add(task);
+
+        cleanupHistory(user);
+
         return postTasks;
     }
 
@@ -760,6 +802,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Task task;
         try {
             task = engine.getTaskService().createTaskQuery().taskId(taskId).singleResult();
+            if (task == null) {
+                throw new ActivitiException("NULL result");
+            }
         } catch (ActivitiException e) {
             throw new NotFoundException("Activiti Task " + taskId, e);
         }
@@ -860,6 +905,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 userPatch.getPassword().getResources().addAll(propByRes.get(ResourceOperation.CREATE));
             }
         }
+
+        cleanupHistory(user);
 
         return new WorkflowResult<>(userPatch, propByRes, postTasks);
     }
