@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -65,6 +66,27 @@ public class AnyObjectITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getPlainAttrMap().get("location"));
         assertEquals(anyObjectTO.getPlainAttrMap().get("location"), connObjectTO.getPlainAttrMap().get("location"));
+    }
+
+    @Test
+    public void createInvalidMembership() {
+        // 1. create anyObject in realm /odd and attempt to assign group 15, from realm /even => exception
+        AnyObjectTO anyObjectTO = getSampleTO("createInvalidMembership");
+        anyObjectTO.setRealm("/odd");
+        anyObjectTO.getMemberships().add(new MembershipTO.Builder().group(15L).build());
+
+        try {
+            createAnyObject(anyObjectTO);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidMembership, e.getType());
+        }
+
+        // 2. change anyObject's realm to /even/two, now it works
+        anyObjectTO.setRealm("/even/two");
+
+        anyObjectTO = createAnyObject(anyObjectTO).getAny();
+        assertTrue(anyObjectTO.getMembershipMap().containsKey(15L));
     }
 
     @Test

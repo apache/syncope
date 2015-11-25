@@ -21,6 +21,7 @@ package org.apache.syncope.core.misc.search;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
@@ -30,6 +31,9 @@ import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
+import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.junit.Test;
 
 public class SearchCondConverterTest {
@@ -85,6 +89,35 @@ public class SearchCondConverterTest {
     }
 
     @Test
+    public void relationships() {
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().inRelationships(1L).query();
+        assertEquals(SpecialAttr.RELATIONSHIPS + "==1", fiqlExpression);
+
+        RelationshipCond relationshipCond = new RelationshipCond();
+        relationshipCond.setAnyObjectKey(1L);
+        SearchCond simpleCond = SearchCond.getLeafCond(relationshipCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
+    public void relationshipTypes() {
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().inRelationshipTypes("type1").query();
+        assertEquals(SpecialAttr.RELATIONSHIP_TYPES + "==type1", fiqlExpression);
+
+        RelationshipTypeCond relationshipCond = new RelationshipTypeCond();
+        relationshipCond.setRelationshipTypeKey("type1");
+        SearchCond simpleCond = SearchCond.getLeafCond(relationshipCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+
+        fiqlExpression = new AnyObjectFiqlSearchConditionBuilder("PRINTER").inRelationshipTypes("neighborhood").query();
+        assertEquals(
+                SpecialAttr.RELATIONSHIP_TYPES + "==neighborhood;" + SpecialAttr.TYPE + "==PRINTER",
+                fiqlExpression);
+    }
+
+    @Test
     public void groups() {
         String fiqlExpression = new UserFiqlSearchConditionBuilder().inGroups(1L).query();
         assertEquals(SpecialAttr.GROUPS + "==1", fiqlExpression);
@@ -121,8 +154,20 @@ public class SearchCondConverterTest {
     }
 
     @Test
+    public void assignable() {
+        String fiqlExpression = new GroupFiqlSearchConditionBuilder().isAssignable("/even/two").query();
+        assertEquals(SpecialAttr.ASSIGNABLE + "==/even/two", fiqlExpression);
+
+        AssignableCond assignableCond = new AssignableCond();
+        assignableCond.setRealmFullPath("/even/two");
+        SearchCond simpleCond = SearchCond.getLeafCond(assignableCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
     public void type() {
-        String fiqlExpression = new AnyObjectFiqlSearchConditionBuilder().type("PRINTER").query();
+        String fiqlExpression = new AnyObjectFiqlSearchConditionBuilder("PRINTER").query();
         assertEquals(SpecialAttr.TYPE + "==PRINTER", fiqlExpression);
 
         AnyTypeCond acond = new AnyTypeCond();
@@ -155,6 +200,9 @@ public class SearchCondConverterTest {
     public void or() {
         String fiqlExpression = new UserFiqlSearchConditionBuilder().
                 is("fullname").equalTo("*o*", "*i*", "*ini").query();
+        assertEquals("fullname==*o*,fullname==*i*,fullname==*ini", fiqlExpression);
+        fiqlExpression = new UserFiqlSearchConditionBuilder().
+                is("fullname").equalTo("*o*").or("fullname").equalTo("*i*").or("fullname").equalTo("*ini").query();
         assertEquals("fullname==*o*,fullname==*i*,fullname==*ini", fiqlExpression);
 
         AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);

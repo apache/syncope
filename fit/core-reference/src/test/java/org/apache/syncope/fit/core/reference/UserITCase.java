@@ -445,7 +445,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void createWithRequiredValueMissing() {
-        UserTO userTO = getSampleTO("a.b@c.it");
+        UserTO userTO = getUniqueSampleTO("a.b@c.it");
 
         AttrTO type = userTO.getPlainAttrMap().get("type");
         userTO.getPlainAttrs().remove(type);

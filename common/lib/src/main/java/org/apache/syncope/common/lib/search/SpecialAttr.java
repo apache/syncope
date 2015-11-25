@@ -24,11 +24,40 @@ import org.apache.commons.collections4.Predicate;
 
 public enum SpecialAttr {
 
+    /**
+     * Applies to users, groups and any objects.
+     *//**
+     * Applies to users, groups and any objects.
+     */
     NULL("$null"),
+    /**
+     * Applies to any objects.
+     */
     TYPE("$type"),
+    /**
+     * Applies to users, groups and any objects.
+     */
     RESOURCES("$resources"),
+    /**
+     * Applies to users and any objects.
+     */
     GROUPS("$groups"),
-    ROLES("$roles");
+    /**
+     * Applies to users and any objects.
+     */
+    RELATIONSHIPS("$relationships"),
+    /**
+     * Applies to users and any objects.
+     */
+    RELATIONSHIP_TYPES("$relationshipTypes"),
+    /**
+     * Applies to users.
+     */
+    ROLES("$roles"),
+    /**
+     * Applies to groups and any objects.
+     */
+    ASSIGNABLE("$assignable");
 
     private final String literal;
 

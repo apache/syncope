@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
@@ -85,7 +86,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     }
 
     @Override
-    public Group create(final Group group, final GroupTO groupTO) {
+    public void create(final Group group, final GroupTO groupTO) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // name
@@ -98,7 +99,16 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             group.setName(groupTO.getName());
         }
 
-        // realm, attributes, derived attributes, virtual attributes and resources
+        // realm
+        Realm realm = realmDAO.find(groupTO.getRealm());
+        if (realm == null) {
+            SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+            noRealm.getElements().add("Invalid or null realm specified: " + groupTO.getRealm());
+            scce.addException(noRealm);
+        }
+        group.setRealm(realm);
+
+        // attributes, derived attributes, virtual attributes and resources
         fill(group, groupTO, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
 
         // owner
@@ -153,7 +163,10 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             }
         }
 
-        return group;
+        // Throw composite exception if there is at least one element set in the composing exceptions
+        if (scce.hasExceptions()) {
+            throw scce;
+        }
     }
 
     @Override
@@ -266,6 +279,11 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             if (groupPatch.getTypeExtension(typeExt.getAnyType().getKey()) == null) {
                 itor.remove();
             }
+        }
+
+        // Throw composite exception if there is at least one element set in the composing exceptions
+        if (scce.hasExceptions()) {
+            throw scce;
         }
 
         return propByRes;

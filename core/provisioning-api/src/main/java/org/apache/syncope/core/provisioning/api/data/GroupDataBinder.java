@@ -29,7 +29,7 @@ public interface GroupDataBinder {
 
     GroupTO getGroupTO(Group group, boolean details);
 
-    Group create(Group group, GroupTO groupTO);
+    void create(Group group, GroupTO groupTO);
 
     PropagationByResource update(Group group, GroupPatch groupPatch);
 

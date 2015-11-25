@@ -93,10 +93,11 @@ public class SyncopeClient {
     /**
      * Returns a new instance of {@link AnyObjectFiqlSearchConditionBuilder}, for assisted building of FIQL queries.
      *
+     * @param type any type
      * @return default instance of {@link AnyObjectFiqlSearchConditionBuilder}
      */
-    public static AnyObjectFiqlSearchConditionBuilder getAnyObjectSearchConditionBuilder() {
-        return new AnyObjectFiqlSearchConditionBuilder();
+    public static AnyObjectFiqlSearchConditionBuilder getAnyObjectSearchConditionBuilder(final String type) {
+        return new AnyObjectFiqlSearchConditionBuilder(type);
     }
 
     /**

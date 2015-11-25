@@ -38,6 +38,9 @@ import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
+import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 
 /**
  * Converts CXF's <tt>SearchCondition</tt> into internal <tt>SearchCond</tt>.
@@ -105,10 +108,28 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             leaf = SearchCond.getLeafCond(typeCond);
                             break;
 
+                        case RESOURCES:
+                            ResourceCond resourceCond = new ResourceCond();
+                            resourceCond.setResourceName(value);
+                            leaf = SearchCond.getLeafCond(resourceCond);
+                            break;
+
                         case GROUPS:
                             MembershipCond groupCond = new MembershipCond();
                             groupCond.setGroupKey(Long.valueOf(value));
                             leaf = SearchCond.getLeafCond(groupCond);
+                            break;
+
+                        case RELATIONSHIPS:
+                            RelationshipCond relationshipCond = new RelationshipCond();
+                            relationshipCond.setAnyObjectKey(Long.valueOf(value));
+                            leaf = SearchCond.getLeafCond(relationshipCond);
+                            break;
+
+                        case RELATIONSHIP_TYPES:
+                            RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
+                            relationshipTypeCond.setRelationshipTypeKey(value);
+                            leaf = SearchCond.getLeafCond(relationshipTypeCond);
                             break;
 
                         case ROLES:
@@ -117,10 +138,10 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             leaf = SearchCond.getLeafCond(roleCond);
                             break;
 
-                        case RESOURCES:
-                            ResourceCond resourceCond = new ResourceCond();
-                            resourceCond.setResourceName(value);
-                            leaf = SearchCond.getLeafCond(resourceCond);
+                        case ASSIGNABLE:
+                            AssignableCond assignableCond = new AssignableCond();
+                            assignableCond.setRealmFullPath(value);
+                            leaf = SearchCond.getLeafCond(assignableCond);
                             break;
 
                         default:

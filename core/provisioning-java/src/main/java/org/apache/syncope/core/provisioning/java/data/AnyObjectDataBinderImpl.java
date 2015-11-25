@@ -41,8 +41,11 @@ import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -131,52 +134,77 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        // relationships
-        for (RelationshipTO relationshipTO : anyObjectTO.getRelationships()) {
-            AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getRightKey());
+        // realm
+        Realm realm = realmDAO.find(anyObjectTO.getRealm());
+        if (realm == null) {
+            SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+            noRealm.getElements().add("Invalid or null realm specified: " + anyObjectTO.getRealm());
+            scce.addException(noRealm);
+        }
+        anyObject.setRealm(realm);
 
-            if (otherEnd == null) {
-                LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
-            } else {
-                RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
-                ARelationship relationship = null;
-                if (anyObject.getKey() != null) {
-                    relationship = anyObject.getRelationship(relationshipType, anyObject.getKey());
-                }
-                if (relationship == null) {
-                    relationship = entityFactory.newEntity(ARelationship.class);
+        if (anyObject.getRealm() != null) {
+            AssignableCond assignableCond = new AssignableCond();
+            assignableCond.setRealmFullPath(anyObject.getRealm().getFullPath());
+
+            // relationships
+            List<AnyObject> assignableAnyObjects =
+                    searchDAO.search(SearchCond.getLeafCond(assignableCond), AnyTypeKind.ANY_OBJECT);
+
+            for (RelationshipTO relationshipTO : anyObjectTO.getRelationships()) {
+                AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getRightKey());
+                if (otherEnd == null) {
+                    LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
+                } else if (assignableAnyObjects.contains(otherEnd)) {
+                    RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
+                    ARelationship relationship = entityFactory.newEntity(ARelationship.class);
                     relationship.setType(relationshipType);
                     relationship.setRightEnd(anyObject);
                     relationship.setLeftEnd(anyObject);
 
                     anyObject.add(relationship);
+                } else {
+                    LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
+
+                    SyncopeClientException unassignabled =
+                            SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                    unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
+                    scce.addException(unassignabled);
                 }
             }
-        }
 
-        // memberships
-        for (MembershipTO membershipTO : anyObjectTO.getMemberships()) {
-            Group group = groupDAO.find(membershipTO.getRightKey());
+            // memberships
+            List<Group> assignableGroups =
+                    searchDAO.search(SearchCond.getLeafCond(assignableCond), AnyTypeKind.GROUP);
 
-            if (group == null) {
-                LOG.debug("Ignoring invalid group " + membershipTO.getGroupName());
-            } else {
-                AMembership membership = null;
-                if (anyObject.getKey() != null) {
-                    membership = anyObject.getMembership(group.getKey());
-                }
-                if (membership == null) {
-                    membership = entityFactory.newEntity(AMembership.class);
+            for (MembershipTO membershipTO : anyObjectTO.getMemberships()) {
+                Group group = groupDAO.find(membershipTO.getRightKey());
+                if (group == null) {
+                    LOG.debug("Ignoring invalid group " + membershipTO.getGroupName());
+                } else if (assignableGroups.contains(group)) {
+                    AMembership membership = entityFactory.newEntity(AMembership.class);
                     membership.setRightEnd(group);
                     membership.setLeftEnd(anyObject);
 
                     anyObject.add(membership);
+                } else {
+                    LOG.error("{} cannot be assigned to {}", group, anyObject);
+
+                    SyncopeClientException unassignabled =
+                            SyncopeClientException.build(ClientExceptionType.InvalidMembership);
+                    unassignabled.getElements().add("Cannot be assigned: " + group);
+                    scce.addException(unassignabled);
                 }
             }
         }
 
-        // realm, attributes, derived attributes, virtual attributes and resources
+        // attributes, derived attributes, virtual attributes and resources
         fill(anyObject, anyObjectTO, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
+
+        // Throw composite exception if there is at least one element set in the composing exceptions
+        if (scce.hasExceptions()) {
+            throw scce;
+        }
     }
 
     @Override
@@ -200,6 +228,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         Set<String> toBeProvisioned = new HashSet<>();
 
         // relationships
+        List<AnyObject> assignableAnyObjects =
+                searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT);
+
         for (RelationshipPatch patch : anyObjectPatch.getRelationships()) {
             if (patch.getRelationshipTO() != null) {
                 RelationshipType relationshipType = relationshipTypeDAO.find(patch.getRelationshipTO().getType());
@@ -214,8 +245,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getRightKey());
                     if (otherEnd == null) {
                         LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getRightKey());
-                    } else {
-
+                    } else if (assignableAnyObjects.contains(otherEnd)) {
                         relationship = entityFactory.newEntity(ARelationship.class);
                         relationship.setType(relationshipType);
                         relationship.setRightEnd(otherEnd);
@@ -224,12 +254,22 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         anyObject.add(relationship);
 
                         toBeProvisioned.addAll(otherEnd.getResourceNames());
+                    } else {
+                        LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
+
+                        SyncopeClientException unassignabled =
+                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                        unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
+                        scce.addException(unassignabled);
                     }
                 }
             }
         }
 
         // memberships
+        List<Group> assignableGroups =
+                searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.GROUP);
+
         for (MembershipPatch patch : anyObjectPatch.getMemberships()) {
             if (patch.getMembershipTO() != null) {
                 AMembership membership = anyObject.getMembership(patch.getMembershipTO().getRightKey());
@@ -242,7 +282,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     Group group = groupDAO.find(patch.getMembershipTO().getRightKey());
                     if (group == null) {
                         LOG.debug("Ignoring invalid group {}", patch.getMembershipTO().getRightKey());
-                    } else {
+                    } else if (assignableGroups.contains(group)) {
                         membership = entityFactory.newEntity(AMembership.class);
                         membership.setRightEnd(group);
                         membership.setLeftEnd(anyObject);
@@ -250,6 +290,13 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         anyObject.add(membership);
 
                         toBeProvisioned.addAll(group.getResourceNames());
+                    } else {
+                        LOG.error("{} cannot be assigned to {}", group, anyObject);
+
+                        SyncopeClientException unassignabled =
+                                SyncopeClientException.build(ClientExceptionType.InvalidMembership);
+                        unassignabled.getElements().add("Cannot be assigned: " + group);
+                        scce.addException(unassignabled);
                     }
                 }
             }
@@ -276,6 +323,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
                 propByRes.add(ResourceOperation.UPDATE, entry.getKey());
             }
+        }
+
+        // Throw composite exception if there is at least one element set in the composing exceptions
+        if (scce.hasExceptions()) {
+            throw scce;
         }
 
         return propByRes;

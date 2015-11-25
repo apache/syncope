@@ -20,20 +20,13 @@ package org.apache.syncope.common.lib.search;
 
 import java.util.Map;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
+import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 
 /**
  * Extends {@link AbstractFiqlSearchConditionBuilder} by providing some additional facilities for searching
  * groups in Syncope.
  */
 public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {
-
-    public GroupFiqlSearchConditionBuilder() {
-        super();
-    }
-
-    public GroupFiqlSearchConditionBuilder(final Map<String, String> properties) {
-        super(properties);
-    }
 
     @Override
     protected Builder newBuilderInstance() {
@@ -43,6 +36,12 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
     @Override
     public GroupProperty is(final String property) {
         return newBuilderInstance().is(property);
+    }
+
+    public CompleteCondition isAssignable(final String realm, final String... moreRealms) {
+        return newBuilderInstance().
+                is(SpecialAttr.ASSIGNABLE.toString()).
+                isAssignable(realm, moreRealms);
     }
 
     protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder
@@ -61,6 +60,12 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
             Builder b = new Builder(this);
             b.result = property;
             return b;
+        }
+
+        @Override
+        public CompleteCondition isAssignable(final String realm, final String... moreRealms) {
+            this.result = SpecialAttr.ASSIGNABLE.toString();
+            return condition(FiqlParser.EQ, realm, (Object[]) moreRealms);
         }
 
     }

@@ -22,10 +22,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +42,19 @@ public class RealmTest extends AbstractTest {
     @Autowired
     private RoleDAO roleDAO;
 
+    @Autowired
+    private GroupDAO groupDAO;
+
     @Test
     public void test() {
         Realm realm = realmDAO.find("/odd");
         assertNotNull(realm);
+
+        // need to remove this group in order to remove the realm, which is otherwise empty
+        Group group = groupDAO.find(16L);
+        assertNotNull(group);
+        assertEquals(realm, group.getRealm());
+        groupDAO.delete(group);
 
         Role role = roleDAO.find("User reviewer");
         assertTrue(role.getRealms().contains(realm));

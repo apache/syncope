@@ -48,7 +48,7 @@ public class GroupTest extends AbstractTest {
     @Test
     public void findAll() {
         List<Group> list = groupDAO.findAll();
-        assertEquals("did not get expected number of groups ", 15, list.size());
+        assertEquals("did not get expected number of groups ", 16, list.size());
     }
 
     @Test

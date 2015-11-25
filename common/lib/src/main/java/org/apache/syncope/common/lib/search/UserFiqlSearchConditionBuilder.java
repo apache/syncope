@@ -28,14 +28,6 @@ import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
  */
 public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {
 
-    public UserFiqlSearchConditionBuilder() {
-        super();
-    }
-
-    public UserFiqlSearchConditionBuilder(final Map<String, String> properties) {
-        super(properties);
-    }
-
     @Override
     protected Builder newBuilderInstance() {
         return new Builder(properties);
@@ -47,20 +39,58 @@ public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionB
     }
 
     public CompleteCondition inGroups(final Long group, final Long... moreGroups) {
-        return newBuilderInstance().is(SpecialAttr.GROUPS.toString()).inGroups(group, moreGroups);
-    }
-
-    public CompleteCondition inRoles(final String role, final String... moreRoles) {
-        return newBuilderInstance().is(SpecialAttr.ROLES.toString()).inRoles(role, moreRoles);
+        return newBuilderInstance().
+                is(SpecialAttr.GROUPS.toString()).
+                inGroups(group, moreGroups);
     }
 
     public CompleteCondition notInGroups(final Long group, final Long... moreGroups) {
-        return newBuilderInstance().is(SpecialAttr.GROUPS.toString()).notInGroups(group, moreGroups);
+        return newBuilderInstance().
+                is(SpecialAttr.GROUPS.toString()).
+                notInGroups(group, moreGroups);
+    }
+
+    public CompleteCondition inRelationships(final Long anyType, final Long... moreAnyTypes) {
+        return newBuilderInstance().
+                is(SpecialAttr.RELATIONSHIPS.toString()).
+                inRelationships(anyType, moreAnyTypes);
+    }
+
+    public CompleteCondition notInRelationships(final Long anyType, final Long... moreAnyTypes) {
+        return newBuilderInstance().
+                is(SpecialAttr.RELATIONSHIPS.toString()).
+                notInRelationships(anyType, moreAnyTypes);
+    }
+
+    public CompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {
+        return newBuilderInstance().
+                is(SpecialAttr.RELATIONSHIP_TYPES.toString()).
+                inRelationshipTypes(type, moreTypes);
+    }
+
+    public CompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
+        return newBuilderInstance().
+                is(SpecialAttr.RELATIONSHIP_TYPES.toString()).
+                notInRelationshipTypes(type, moreTypes);
+    }
+
+    public CompleteCondition inRoles(final String role, final String... moreRoles) {
+        return newBuilderInstance().
+                is(SpecialAttr.ROLES.toString()).
+                inRoles(role, moreRoles);
+    }
+
+    public CompleteCondition notInRoles(final String role, final String... moreRoles) {
+        return newBuilderInstance().
+                is(SpecialAttr.ROLES.toString()).
+                notInRoles(role, moreRoles);
     }
 
     @Override
     public CompleteCondition hasResources(final String resource, final String... moreResources) {
-        return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasResources(resource, moreResources);
+        return newBuilderInstance().
+                is(SpecialAttr.RESOURCES.toString()).
+                hasResources(resource, moreResources);
     }
 
     @Override
@@ -96,6 +126,30 @@ public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionB
         public CompleteCondition notInGroups(final Long group, final Long... moreGroups) {
             this.result = SpecialAttr.GROUPS.toString();
             return condition(FiqlParser.NEQ, group, (Object[]) moreGroups);
+        }
+
+        @Override
+        public CompleteCondition inRelationships(final Long anyObject, final Long... moreAnyObjects) {
+            this.result = SpecialAttr.RELATIONSHIPS.toString();
+            return condition(FiqlParser.EQ, anyObject, (Object[]) moreAnyObjects);
+        }
+
+        @Override
+        public CompleteCondition notInRelationships(final Long anyObject, final Long... moreAnyObjects) {
+            this.result = SpecialAttr.RELATIONSHIPS.toString();
+            return condition(FiqlParser.NEQ, anyObject, (Object[]) moreAnyObjects);
+        }
+
+        @Override
+        public CompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {
+            this.result = SpecialAttr.RELATIONSHIP_TYPES.toString();
+            return condition(FiqlParser.EQ, type, (Object[]) moreTypes);
+        }
+
+        @Override
+        public CompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
+            this.result = SpecialAttr.RELATIONSHIP_TYPES.toString();
+            return condition(FiqlParser.NEQ, type, (Object[]) moreTypes);
         }
 
         @Override

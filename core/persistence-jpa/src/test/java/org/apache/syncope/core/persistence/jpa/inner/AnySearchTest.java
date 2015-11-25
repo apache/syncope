@@ -44,7 +44,10 @@ import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
+import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -73,9 +76,13 @@ public class AnySearchTest extends AbstractTest {
         AnyObject anyObject = anyObjectDAO.find(1L);
         assertNotNull(anyObject);
 
-        RelationshipCond cond = new RelationshipCond();
-        cond.setAnyObjectKey(2L);
-        assertTrue(searchDAO.matches(anyObject, SearchCond.getLeafCond(cond), AnyTypeKind.ANY_OBJECT));
+        RelationshipCond relationshipCond = new RelationshipCond();
+        relationshipCond.setAnyObjectKey(2L);
+        assertTrue(searchDAO.matches(anyObject, SearchCond.getLeafCond(relationshipCond), AnyTypeKind.ANY_OBJECT));
+
+        RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
+        relationshipTypeCond.setRelationshipTypeKey("neighborhood");
+        assertTrue(searchDAO.matches(anyObject, SearchCond.getLeafCond(relationshipTypeCond), AnyTypeKind.ANY_OBJECT));
     }
 
     @Test
@@ -93,6 +100,17 @@ public class AnySearchTest extends AbstractTest {
         RoleCond roleCond = new RoleCond();
         roleCond.setRoleKey("Other");
         assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(roleCond), AnyTypeKind.USER));
+
+        user = userDAO.find(4L);
+        assertNotNull(user);
+
+        RelationshipCond relationshipCond = new RelationshipCond();
+        relationshipCond.setAnyObjectKey(1L);
+        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(relationshipCond), AnyTypeKind.USER));
+
+        RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
+        relationshipTypeCond.setRelationshipTypeKey("neighborhood");
+        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(relationshipTypeCond), AnyTypeKind.USER));
     }
 
     @Test
@@ -384,12 +402,57 @@ public class AnySearchTest extends AbstractTest {
 
         List<AnyObject> printers = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
         assertNotNull(printers);
-        assertEquals(2, printers.size());
+        assertEquals(3, printers.size());
 
         tcond.setAnyTypeName("UNEXISTING");
         printers = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
         assertNotNull(printers);
         assertTrue(printers.isEmpty());
+    }
+
+    @Test
+    public void searchByRelationshipType() {
+        // 1. first search for printers involved in "neighborhood" relationship
+        RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
+        relationshipTypeCond.setRelationshipTypeKey("neighborhood");
+
+        AnyTypeCond tcond = new AnyTypeCond();
+        tcond.setAnyTypeName("PRINTER");
+
+        SearchCond searchCondition = SearchCond.getAndCond(
+                SearchCond.getLeafCond(relationshipTypeCond), SearchCond.getLeafCond(tcond));
+        assertTrue(searchCondition.isValid());
+
+        List<Any<?>> matching = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
+        assertNotNull(matching);
+        assertEquals(2, matching.size());
+        assertTrue(CollectionUtils.exists(matching, new Predicate<Any<?>>() {
+
+            @Override
+            public boolean evaluate(final Any<?> any) {
+                return any.getKey() == 1L;
+            }
+        }));
+        assertTrue(CollectionUtils.exists(matching, new Predicate<Any<?>>() {
+
+            @Override
+            public boolean evaluate(final Any<?> any) {
+                return any.getKey() == 2L;
+            }
+        }));
+
+        // 2. search for users involved in "neighborhood" relationship
+        searchCondition = SearchCond.getLeafCond(relationshipTypeCond);
+        matching = searchDAO.search(searchCondition, AnyTypeKind.USER);
+        assertNotNull(matching);
+        assertEquals(2, matching.size());
+        assertTrue(CollectionUtils.exists(matching, new Predicate<Any<?>>() {
+
+            @Override
+            public boolean evaluate(final Any<?> any) {
+                return any.getKey() == 4L;
+            }
+        }));
     }
 
     @Test
@@ -414,7 +477,8 @@ public class AnySearchTest extends AbstractTest {
         orderByClauses.add(orderByClause);
 
         List<User> users = searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);
-        assertEquals(searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER),
+        assertEquals(
+                searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER),
                 users.size());
     }
 
@@ -431,9 +495,47 @@ public class AnySearchTest extends AbstractTest {
 
         List<Group> groups = searchDAO.search(
                 searchCondition, Collections.singletonList(orderByClause), AnyTypeKind.GROUP);
-        assertEquals(searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                searchCondition, AnyTypeKind.GROUP),
+        assertEquals(
+                searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.GROUP),
                 groups.size());
+    }
+
+    @Test
+    public void assignable() {
+        AssignableCond assignableCond = new AssignableCond();
+        assignableCond.setRealmFullPath("/even/two");
+        SearchCond searchCondition = SearchCond.getLeafCond(assignableCond);
+        assertTrue(searchCondition.isValid());
+
+        List<Group> groups = searchDAO.search(searchCondition, AnyTypeKind.GROUP);
+        assertTrue(CollectionUtils.exists(groups, new Predicate<Group>() {
+
+            @Override
+            public boolean evaluate(final Group group) {
+                return group.getKey().equals(15L);
+            }
+        }));
+        assertFalse(CollectionUtils.exists(groups, new Predicate<Group>() {
+
+            @Override
+            public boolean evaluate(final Group group) {
+                return group.getKey().equals(16L);
+            }
+        }));
+
+        assignableCond = new AssignableCond();
+        assignableCond.setRealmFullPath("/odd");
+        searchCondition = SearchCond.getLeafCond(assignableCond);
+        assertTrue(searchCondition.isValid());
+
+        List<AnyObject> anyObjects = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
+        assertFalse(CollectionUtils.exists(anyObjects, new Predicate<AnyObject>() {
+
+            @Override
+            public boolean evaluate(final AnyObject anyObject) {
+                return anyObject.getKey().equals(3L);
+            }
+        }));
     }
 
     @Test

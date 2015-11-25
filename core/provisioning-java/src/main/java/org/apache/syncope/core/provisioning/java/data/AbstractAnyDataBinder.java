@@ -63,6 +63,7 @@ import org.apache.syncope.core.misc.utils.ConnObjectUtils;
 import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -133,6 +134,9 @@ abstract class AbstractAnyDataBinder {
 
     @Autowired
     protected RelationshipTypeDAO relationshipTypeDAO;
+
+    @Autowired
+    protected AnySearchDAO searchDAO;
 
     @Autowired
     protected EntityFactory entityFactory;
@@ -431,11 +435,6 @@ abstract class AbstractAnyDataBinder {
             scce.addException(requiredValuesMissing);
         }
 
-        // Throw composite exception if there is at least one element set in the composing exceptions
-        if (scce.hasExceptions()) {
-            throw scce;
-        }
-
         return propByRes;
     }
 
@@ -488,15 +487,7 @@ abstract class AbstractAnyDataBinder {
             scce.addException(requiredValuesMissing);
         }
 
-        // 2. realm & resources
-        Realm realm = realmDAO.find(anyTO.getRealm());
-        if (realm == null) {
-            SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-            noRealm.getElements().add("Invalid or null realm specified: " + anyTO.getRealm());
-            scce.addException(noRealm);
-        }
-        any.setRealm(realm);
-
+        // 2. resources
         for (String resourceName : anyTO.getResources()) {
             ExternalResource resource = resourceDAO.find(resourceName);
             if (resource == null) {
@@ -509,11 +500,6 @@ abstract class AbstractAnyDataBinder {
         requiredValuesMissing = checkMandatoryOnResources(any, anyUtils.getAllResources(any));
         if (!requiredValuesMissing.isEmpty()) {
             scce.addException(requiredValuesMissing);
-        }
-
-        // Throw composite exception if there is at least one element set in the composing exceptions
-        if (scce.hasExceptions()) {
-            throw scce;
         }
     }
 

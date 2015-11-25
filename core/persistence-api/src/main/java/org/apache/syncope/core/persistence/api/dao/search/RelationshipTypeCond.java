@@ -16,24 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.search;
+package org.apache.syncope.core.persistence.api.dao.search;
 
-import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
+public class RelationshipTypeCond extends AbstractSearchCond {
 
-public interface AnyObjectProperty extends SyncopeProperty {
+    private static final long serialVersionUID = 906241367466433419L;
 
-    CompleteCondition inGroups(Long group, Long... moreGroups);
+    private String relationshipTypeKey;
 
-    CompleteCondition notInGroups(Long group, Long... moreGroups);
+    public String getRelationshipTypeKey() {
+        return relationshipTypeKey;
+    }
 
-    CompleteCondition inRelationships(Long anyObject, Long... moreAnyObjects);
+    public void setRelationshipTypeKey(final String relationshipTypeKey) {
+        this.relationshipTypeKey = relationshipTypeKey;
+    }
 
-    CompleteCondition notInRelationships(Long anyObject, Long... moreAnyObjects);
-
-    CompleteCondition inRelationshipTypes(String type, String... moreTypes);
-
-    CompleteCondition notInRelationshipTypes(String type, String... moreTypes);
-
-    CompleteCondition isAssignable(String realm, String... moreRealms);
-
+    @Override
+    public final boolean isValid() {
+        return relationshipTypeKey != null;
+    }
 }

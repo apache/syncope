@@ -19,10 +19,13 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface RealmDAO extends DAO<Realm, Long> {
+
+    Pattern PATH_PATTERN = Pattern.compile("^(/[A-Za-z0-9]+)+");
 
     Realm getRoot();
 

@@ -88,14 +88,14 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchByGroupNameAndKey() {
-        PagedResult<GroupTO> matchingGroups = groupService.search(
+        PagedResult<GroupTO> groups = groupService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().
+                fiql(SyncopeClient.getGroupSearchConditionBuilder().
                         is("name").equalTo("root").and("key").lessThan(2).query()).build());
-        assertNotNull(matchingGroups);
-        assertEquals(1, matchingGroups.getResult().size());
-        assertEquals("root", matchingGroups.getResult().iterator().next().getName());
-        assertEquals(1L, matchingGroups.getResult().iterator().next().getKey());
+        assertNotNull(groups);
+        assertEquals(1, groups.getResult().size());
+        assertEquals("root", groups.getResult().iterator().next().getName());
+        assertEquals(1L, groups.getResult().iterator().next().getKey());
     }
 
     @Test
@@ -225,21 +225,21 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchByBooleanAnyCond() {
-        PagedResult<GroupTO> matchingGroups = groupService.search(
+        PagedResult<GroupTO> groups = groupService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("show").equalTo("true").query()).build());
-        assertNotNull(matchingGroups);
-        assertFalse(matchingGroups.getResult().isEmpty());
+        assertNotNull(groups);
+        assertFalse(groups.getResult().isEmpty());
     }
 
     @Test
     public void searchByRelationshipAnyCond() {
-        PagedResult<GroupTO> matchingGroups = groupService.search(
+        PagedResult<GroupTO> groups = groupService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("userOwner").equalTo(5).query()).build());
-        assertNotNull(matchingGroups);
-        assertEquals(1, matchingGroups.getResult().size());
-        assertEquals(6L, matchingGroups.getResult().iterator().next().getKey());
+        assertNotNull(groups);
+        assertEquals(1, groups.getResult().size());
+        assertEquals(6L, groups.getResult().iterator().next().getKey());
     }
 
     @Test
@@ -259,7 +259,7 @@ public class SearchITCase extends AbstractITCase {
     public void searchByType() {
         PagedResult<AnyObjectTO> matching = anyObjectService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder().type("PRINTER").query()).build());
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").query()).build());
         assertNotNull(matching);
 
         assertFalse(matching.getResult().isEmpty());
@@ -269,10 +269,115 @@ public class SearchITCase extends AbstractITCase {
 
         matching = anyObjectService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder().type("UNEXISTING").query()).build());
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("UNEXISTING").query()).build());
         assertNotNull(matching);
 
         assertTrue(matching.getResult().isEmpty());
+    }
+
+    @Test
+    public void searchByRelationship() {
+        PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
+                        inRelationships(2L).query()).
+                build());
+        assertNotNull(anyObjects);
+        assertTrue(CollectionUtils.exists(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
+
+            @Override
+            public boolean evaluate(final AnyObjectTO anyObject) {
+                return anyObject.getKey() == 1L;
+            }
+        }));
+
+        PagedResult<UserTO> users = userService.search(
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().inRelationships(1L).query()).
+                build());
+        assertNotNull(users);
+        assertTrue(CollectionUtils.exists(users.getResult(), new Predicate<UserTO>() {
+
+            @Override
+            public boolean evaluate(final UserTO user) {
+                return user.getKey() == 4L;
+            }
+        }));
+    }
+
+    @Test
+    public void searchByRelationshipType() {
+        PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
+                        inRelationshipTypes("neighborhood").query()).
+                build());
+        assertNotNull(anyObjects);
+        assertTrue(CollectionUtils.exists(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
+
+            @Override
+            public boolean evaluate(final AnyObjectTO anyObject) {
+                return anyObject.getKey() == 1L;
+            }
+        }));
+        assertTrue(CollectionUtils.exists(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
+
+            @Override
+            public boolean evaluate(final AnyObjectTO anyObject) {
+                return anyObject.getKey() == 2L;
+            }
+        }));
+
+        PagedResult<UserTO> users = userService.search(
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().inRelationshipTypes("neighborhood").query()).
+                build());
+        assertNotNull(users);
+        assertTrue(CollectionUtils.exists(users.getResult(), new Predicate<UserTO>() {
+
+            @Override
+            public boolean evaluate(final UserTO user) {
+                return user.getKey() == 4L;
+            }
+        }));
+    }
+
+    @Test
+    public void assignable() {
+        PagedResult<GroupTO> groups = groupService.search(
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getGroupSearchConditionBuilder().
+                        isAssignable("/even/two").query()).
+                build());
+        assertNotNull(groups);
+        assertTrue(CollectionUtils.exists(groups.getResult(), new Predicate<GroupTO>() {
+
+            @Override
+            public boolean evaluate(final GroupTO group) {
+                return group.getKey() == 15L;
+            }
+        }));
+        assertFalse(CollectionUtils.exists(groups.getResult(), new Predicate<GroupTO>() {
+
+            @Override
+            public boolean evaluate(final GroupTO group) {
+                return group.getKey() == 16L;
+            }
+        }));
+
+        PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
+                        isAssignable("/odd").query()).
+                build());
+        assertNotNull(anyObjects);
+        assertFalse(CollectionUtils.exists(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
+
+            @Override
+            public boolean evaluate(final AnyObjectTO anyObject) {
+                return anyObject.getKey() == 3L;
+            }
+        }));
     }
 
     @Test

@@ -26,6 +26,14 @@ public interface UserProperty extends SyncopeProperty {
 
     CompleteCondition notInGroups(Long group, Long... moreGroups);
 
+    CompleteCondition inRelationships(Long anyObject, Long... moreAnyObjects);
+
+    CompleteCondition notInRelationships(Long anyObject, Long... moreAnyObjects);
+
+    CompleteCondition inRelationshipTypes(String type, String... moreTypes);
+
+    CompleteCondition notInRelationshipTypes(String type, String... moreTypes);
+
     CompleteCondition inRoles(String role, String... moreRoles);
 
     CompleteCondition notInRoles(String role, String... moreRoles);

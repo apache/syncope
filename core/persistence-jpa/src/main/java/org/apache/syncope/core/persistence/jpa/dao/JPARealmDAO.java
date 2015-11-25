@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
@@ -43,8 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
-
-    private static final Pattern PATH_PATTERN = Pattern.compile("^(/[A-Za-z0-9]+)+");
 
     @Autowired
     private RoleDAO roleDAO;
@@ -124,11 +121,9 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
             return Collections.<Realm>emptyList();
         }
 
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(JPARealm.class.getSimpleName()).append(" e WHERE e.").
-                append(policy instanceof AccountPolicy ? "accountPolicy" : "passwordPolicy").append("=:policy");
-
-        TypedQuery<Realm> query = entityManager().createQuery(queryString.toString(), Realm.class);
+        TypedQuery<Realm> query = entityManager().createQuery(
+                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e."
+                + (policy instanceof AccountPolicy ? "accountPolicy" : "passwordPolicy") + "=:policy", Realm.class);
         query.setParameter("policy", policy);
 
         List<Realm> result = new ArrayList<>();

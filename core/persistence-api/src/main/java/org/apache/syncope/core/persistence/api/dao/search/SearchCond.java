@@ -43,11 +43,15 @@ public class SearchCond extends AbstractSearchCond {
 
     private RelationshipCond relationshipCond;
 
+    private RelationshipTypeCond relationshipTypeCond;
+
     private MembershipCond membershipCond;
 
     private RoleCond roleCond;
 
     private ResourceCond resourceCond;
+
+    private AssignableCond assignableCond;
 
     private SearchCond leftNodeCond;
 
@@ -84,6 +88,15 @@ public class SearchCond extends AbstractSearchCond {
         return nodeCond;
     }
 
+    public static SearchCond getLeafCond(final RelationshipTypeCond relationshipTypeCond) {
+        SearchCond nodeCond = new SearchCond();
+
+        nodeCond.type = Type.LEAF;
+        nodeCond.relationshipTypeCond = relationshipTypeCond;
+
+        return nodeCond;
+    }
+
     public static SearchCond getLeafCond(final MembershipCond membershipCond) {
         SearchCond nodeCond = new SearchCond();
 
@@ -107,6 +120,15 @@ public class SearchCond extends AbstractSearchCond {
 
         nodeCond.type = Type.LEAF;
         nodeCond.resourceCond = resourceCond;
+
+        return nodeCond;
+    }
+
+    public static SearchCond getLeafCond(final AssignableCond assignableCond) {
+        SearchCond nodeCond = new SearchCond();
+
+        nodeCond.type = Type.LEAF;
+        nodeCond.assignableCond = assignableCond;
 
         return nodeCond;
     }
@@ -216,6 +238,14 @@ public class SearchCond extends AbstractSearchCond {
         this.relationshipCond = relationshipCond;
     }
 
+    public RelationshipTypeCond getRelationshipTypeCond() {
+        return relationshipTypeCond;
+    }
+
+    public void setRelationshipTypeCond(final RelationshipTypeCond relationshipTypeCond) {
+        this.relationshipTypeCond = relationshipTypeCond;
+    }
+
     public MembershipCond getMembershipCond() {
         return membershipCond;
     }
@@ -238,6 +268,14 @@ public class SearchCond extends AbstractSearchCond {
 
     public void setResourceCond(final ResourceCond resourceCond) {
         this.resourceCond = resourceCond;
+    }
+
+    public AssignableCond getAssignableCond() {
+        return assignableCond;
+    }
+
+    public void setAssignableCond(final AssignableCond assignableCond) {
+        this.assignableCond = assignableCond;
     }
 
     public SearchCond getLeftNodeCond() {
@@ -307,8 +345,8 @@ public class SearchCond extends AbstractSearchCond {
             case LEAF:
             case NOT_LEAF:
                 isValid = (anyTypeCond != null || anyCond != null || attributeCond != null
-                        || relationshipCond != null || membershipCond != null
-                        || roleCond != null || resourceCond != null)
+                        || relationshipCond != null || relationshipTypeCond != null || membershipCond != null
+                        || roleCond != null || resourceCond != null || assignableCond != null)
                         && (anyTypeCond == null || anyTypeCond.isValid())
                         && (anyCond == null || anyCond.isValid())
                         && (attributeCond == null || attributeCond.isValid())

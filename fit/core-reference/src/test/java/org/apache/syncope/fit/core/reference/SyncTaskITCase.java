@@ -416,7 +416,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
             PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(
                     new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    fiql(SyncopeClient.getAnyObjectSearchConditionBuilder().type("PRINTER").and().
+                    fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
                             is("location").equalTo("sync*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
             for (AnyObjectTO printer : matchingPrinters.getResult()) {
@@ -435,7 +435,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             // hence PrefixMappingItemTransformer was applied during sync)
             matchingPrinters = anyObjectService.search(
                     new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    fiql(SyncopeClient.getAnyObjectSearchConditionBuilder().type("PRINTER").and().
+                    fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
                             is("location").equalTo("sync*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
 

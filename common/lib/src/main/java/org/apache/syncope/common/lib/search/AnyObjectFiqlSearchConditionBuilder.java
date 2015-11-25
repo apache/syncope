@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.common.lib.search;
 
+import java.util.Collections;
 import java.util.Map;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
+import org.apache.cxf.jaxrs.ext.search.client.FiqlSearchConditionBuilder;
+import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 
 /**
  * Extends {@link AbstractFiqlSearchConditionBuilder} by providing some additional facilities for searching
@@ -27,12 +30,11 @@ import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
  */
 public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {
 
-    public AnyObjectFiqlSearchConditionBuilder() {
-        super();
-    }
+    private final String type;
 
-    public AnyObjectFiqlSearchConditionBuilder(final Map<String, String> properties) {
-        super(properties);
+    public AnyObjectFiqlSearchConditionBuilder(final String type) {
+        super();
+        this.type = type;
     }
 
     @Override
@@ -41,15 +43,59 @@ public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchCondi
     }
 
     @Override
+    public String query() {
+        return new FiqlSearchConditionBuilder.Builder(Collections.<String, String>emptyMap()).
+                is(SpecialAttr.TYPE.toString()).equalTo(type).query();
+    }
+
+    @Override
     public AnyObjectProperty is(final String property) {
         return newBuilderInstance().is(property);
     }
 
-    public CompleteCondition type(final String type) {
-        return newBuilderInstance().is(SpecialAttr.TYPE.toString()).equalTo(type);
+    public CompleteCondition inGroups(final Long group, final Long... moreGroups) {
+        return newBuilderInstance().
+                is(SpecialAttr.GROUPS.toString()).
+                inGroups(group, moreGroups);
     }
 
-    protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder
+    public CompleteCondition notInGroups(final Long group, final Long... moreGroups) {
+        return newBuilderInstance().
+                is(SpecialAttr.GROUPS.toString()).
+                notInGroups(group, moreGroups);
+    }
+
+    public CompleteCondition inRelationships(final Long anyType, final Long... moreAnyTypes) {
+        return newBuilderInstance().
+                is(SpecialAttr.RELATIONSHIPS.toString()).
+                inRelationships(anyType, moreAnyTypes);
+    }
+
+    public CompleteCondition notInRelationships(final Long anyType, final Long... moreAnyTypes) {
+        return newBuilderInstance().
+                is(SpecialAttr.RELATIONSHIPS.toString()).
+                notInRelationships(anyType, moreAnyTypes);
+    }
+
+    public CompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {
+        return newBuilderInstance().
+                is(SpecialAttr.RELATIONSHIP_TYPES.toString()).
+                inRelationshipTypes(type, moreTypes);
+    }
+
+    public CompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
+        return newBuilderInstance().
+                is(SpecialAttr.RELATIONSHIP_TYPES.toString()).
+                notInRelationshipTypes(type, moreTypes);
+    }
+
+    public CompleteCondition isAssignable(final String realm, final String... moreRealms) {
+        return newBuilderInstance().
+                is(SpecialAttr.ASSIGNABLE.toString()).
+                isAssignable(realm, moreRealms);
+    }
+
+    protected class Builder extends AbstractFiqlSearchConditionBuilder.Builder
             implements AnyObjectProperty, CompleteCondition {
 
         public Builder(final Map<String, String> properties) {
@@ -61,10 +107,58 @@ public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchCondi
         }
 
         @Override
+        public String query() {
+            FiqlSearchConditionBuilder.Builder b = new FiqlSearchConditionBuilder.Builder(this);
+            return b.and(SpecialAttr.TYPE.toString()).equalTo(type).query();
+        }
+
+        @Override
         public AnyObjectProperty is(final String property) {
             Builder b = new Builder(this);
             b.result = property;
             return b;
+        }
+
+        @Override
+        public CompleteCondition inGroups(final Long group, final Long... moreGroups) {
+            this.result = SpecialAttr.GROUPS.toString();
+            return condition(FiqlParser.EQ, group, (Object[]) moreGroups);
+        }
+
+        @Override
+        public CompleteCondition notInGroups(final Long group, final Long... moreGroups) {
+            this.result = SpecialAttr.GROUPS.toString();
+            return condition(FiqlParser.NEQ, group, (Object[]) moreGroups);
+        }
+
+        @Override
+        public CompleteCondition inRelationships(final Long anyObject, final Long... moreAnyObjects) {
+            this.result = SpecialAttr.RELATIONSHIPS.toString();
+            return condition(FiqlParser.EQ, anyObject, (Object[]) moreAnyObjects);
+        }
+
+        @Override
+        public CompleteCondition notInRelationships(final Long group, final Long... moreRelationships) {
+            this.result = SpecialAttr.RELATIONSHIPS.toString();
+            return condition(FiqlParser.NEQ, group, (Object[]) moreRelationships);
+        }
+
+        @Override
+        public CompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {
+            this.result = SpecialAttr.RELATIONSHIP_TYPES.toString();
+            return condition(FiqlParser.EQ, type, (Object[]) moreTypes);
+        }
+
+        @Override
+        public CompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
+            this.result = SpecialAttr.RELATIONSHIP_TYPES.toString();
+            return condition(FiqlParser.NEQ, type, (Object[]) moreTypes);
+        }
+
+        @Override
+        public CompleteCondition isAssignable(final String realm, final String... moreRealms) {
+            this.result = SpecialAttr.ASSIGNABLE.toString();
+            return condition(FiqlParser.EQ, realm, (Object[]) moreRealms);
         }
 
     }
