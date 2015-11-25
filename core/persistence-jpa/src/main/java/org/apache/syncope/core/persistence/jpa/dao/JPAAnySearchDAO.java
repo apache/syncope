@@ -644,11 +644,11 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
         }
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE ");
+                append(svs.field().name).append(" WHERE (");
         for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
             query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
         }
-        query.append("realm_id=?").append(setParameter(parameters, realmDAO.getRoot().getKey()));
+        query.append("realm_id=?").append(setParameter(parameters, realmDAO.getRoot().getKey())).append(')');
 
         return query.toString();
     }

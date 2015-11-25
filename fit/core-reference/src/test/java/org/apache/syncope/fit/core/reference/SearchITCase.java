@@ -345,7 +345,7 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void assignable() {
         PagedResult<GroupTO> groups = groupService.search(
-                new AnySearchQuery.Builder().realm("/even/two").
+                new AnySearchQuery.Builder().realm("/even/two").page(1).size(1000).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().isAssignable().
                         and("name").equalTo("*").query()).
                 build());
