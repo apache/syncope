@@ -648,7 +648,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
         for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
             query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
         }
-        query.setLength(query.length() - 4);
+        query.append("realm_id=?").append(setParameter(parameters, realmDAO.getRoot().getKey()));
 
         return query.toString();
     }
