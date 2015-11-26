@@ -120,6 +120,8 @@ provisioning, and compliance.
 
 === Using the Admin Console
 
+include::cli.adoc[]
+
 === RESTful services
 
 ==== Client library

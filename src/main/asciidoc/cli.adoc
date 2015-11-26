@@ -1,0 +1,13 @@
+=== CLI
+
+include::cli-introduction.adoc[]
+
+include::cli-installation.adoc[]
+
+include::cli-connector.adoc[]
+
+include::cli-question.adoc[]
+
+include::cli-role.adoc[]
+
+include::cli-configuration.adoc[]
