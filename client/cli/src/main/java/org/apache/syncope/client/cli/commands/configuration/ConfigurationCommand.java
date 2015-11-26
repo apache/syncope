@@ -50,6 +50,7 @@ public class ConfigurationCommand extends AbstractCommand {
                 new ConfigurationDelete(input).delete();
                 break;
             case EXPORT:
+                new ConfigurationExport(input).export();
                 break;
             case HELP:
                 System.out.println(getHelpMessage());
