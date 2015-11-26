@@ -31,11 +31,11 @@ public class ConfigurationResultManager extends CommonsResultManager {
     }
 
     public void fromRead(final LinkedList<AttrTO> attrTOs) {
-        fromCommandToView("selected configuration attributes", attrTOs);
+        fromCommandToView("selected conf attributes", attrTOs);
     }
 
     public void fromUpdate(final LinkedList<AttrTO> attrTOs) {
-        fromCommandToView("updated configuration attributes", attrTOs);
+        fromCommandToView("updated conf attributes", attrTOs);
     }
 
     private void fromCommandToView(final String title, final LinkedList<AttrTO> attrTOs) {
