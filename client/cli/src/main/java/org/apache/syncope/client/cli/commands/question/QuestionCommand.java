@@ -44,6 +44,7 @@ public class QuestionCommand extends AbstractCommand {
                 new QuestionRead(input).read();
                 break;
             case DELETE:
+                new QuestionDelete(input).delete();
                 break;
             case HELP:
                 System.out.println(getHelpMessage());
