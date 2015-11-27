@@ -18,27 +18,34 @@
  */
 package org.apache.syncope.client.cli.commands.task;
 
+import java.util.List;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TaskListRunningJobs extends AbstractTaskCommand {
-
+    
     private static final Logger LOG = LoggerFactory.getLogger(TaskListRunningJobs.class);
-
+    
     private static final String READ_HELP_MESSAGE = "task --list-running-jobs";
-
+    
     private final Input input;
-
+    
     public TaskListRunningJobs(final Input input) {
         this.input = input;
     }
-
+    
     public void list() {
         if (input.parameterNumber() == 0) {
             try {
-                taskResultManager.printTaskExecTO(taskSyncopeOperations.listRunningJobs());
+                final List<TaskExecTO> taskExecTOs = taskSyncopeOperations.listRunningJobs();
+                if (taskExecTOs.isEmpty()) {
+                    taskResultManager.genericMessage("There is NOT running jobs available");
+                } else {
+                    taskResultManager.printTaskExecTO(taskExecTOs);
+                }
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error listing jobs", ex);
                 taskResultManager.genericError(ex.getMessage());
@@ -46,6 +53,6 @@ public class TaskListRunningJobs extends AbstractTaskCommand {
         } else {
             taskResultManager.unnecessaryParameters(input.listParameters(), READ_HELP_MESSAGE);
         }
-
+        
     }
 }
