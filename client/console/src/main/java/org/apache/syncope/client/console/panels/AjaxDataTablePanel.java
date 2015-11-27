@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.panels.AbstractSearchResultPanel.EventDataWrapper;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.console.pages.BulkActionModalPage;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
@@ -33,7 +34,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -96,13 +96,12 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
         fragment.add(bulkActionForm);
 
         group = new CheckGroup<>("checkgroup", model);
-        group.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+        group.add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -151291731388673682L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // triggers AJAX form submit
             }
         });
         bulkActionForm.add(group);

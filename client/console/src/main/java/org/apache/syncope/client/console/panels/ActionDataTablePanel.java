@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.client.console.commons.ActionTableCheckGroup;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
@@ -32,7 +33,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPane
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
@@ -75,7 +75,7 @@ public class ActionDataTablePanel<T, S> extends DataTablePanel<T, S> {
                 return isElementEnabled(element);
             }
         };
-        group.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+        group.add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -151291731388673682L;
 
