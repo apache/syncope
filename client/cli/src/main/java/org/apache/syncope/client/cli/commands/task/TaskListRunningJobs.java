@@ -26,17 +26,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TaskListRunningJobs extends AbstractTaskCommand {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(TaskListRunningJobs.class);
-    
+
     private static final String READ_HELP_MESSAGE = "task --list-running-jobs";
-    
+
     private final Input input;
-    
+
     public TaskListRunningJobs(final Input input) {
         this.input = input;
     }
-    
+
     public void list() {
         if (input.parameterNumber() == 0) {
             try {
@@ -53,6 +53,6 @@ public class TaskListRunningJobs extends AbstractTaskCommand {
         } else {
             taskResultManager.unnecessaryParameters(input.listParameters(), READ_HELP_MESSAGE);
         }
-        
+
     }
 }
