@@ -233,7 +233,7 @@ You are runnig: logger --create net.tirasa=ERROR
 --
 
 ===== Delete option
-The option to delete the specified logger.
+The option to delete a specified logger.
 
 [source]
 --

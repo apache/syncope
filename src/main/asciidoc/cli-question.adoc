@@ -62,14 +62,14 @@ $ ./syncopeadm.sh question --read {QUESTION-ID} {QUESTION-ID} [...]
 Unlike the list option, the read one shows only the questions passed as input.
 
 ===== Delete option
-The option to delete the specified questions.
+The option to delete a specified questions.
 
 [source]
 --
 $ ./syncopeadm.sh question --delete {QUESTION-ID} {QUESTION-ID} [...]
 --
 
-The delete option, as can be imagined, tries to remove the specified questions. 
+The delete option, as can be imagined, tries to remove a specified questions. 
 The output will be something like:
 [source]
 --

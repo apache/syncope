@@ -149,7 +149,7 @@ You are runnig: connector --list
 
 --
 
-The last snippet code shows a part of screen output. Basically you can read the configuration about every connectors
+The last snippet code shows a part of the screen output. Basically you can read the configuration about every connectors
 configured in Syncope.
 
 ===== List bundles option
@@ -237,14 +237,14 @@ $ ./syncopeadm.sh connector --read {CONNECTOR-ID} {CONNECTOR-ID} [...]
 Unlike the list option, the read one shows only the connectors passed as input.
 
 ===== Delete option
-The option to delete the specified connectors.
+The option to delete a specified connectors.
 
 [source]
 --
 $ ./syncopeadm.sh connector --delete {CONNECTOR-ID} {CONNECTOR-ID} [...]
 --
 
-The delete option, as can be imagined, tries to remove the specified connectors. This operation works only if the 
+The delete option, as can be imagined, tries to remove a specified connectors. This operation works only if the 
 connector isn't associated to a resource.
 If the connector isn't associated to anything the output will be
 [source]
@@ -252,7 +252,7 @@ If the connector isn't associated to anything the output will be
  - Connector {CONNECTOR-ID} successfully deleted
 --
 
-other wise the output will be something like:
+otherwise the output will be something like:
 [source]
 --
  - Error: AssociatedResources [ws-target-resource-nopropagation, ws-target-resource-nopropagation2]

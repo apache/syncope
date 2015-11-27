@@ -79,7 +79,7 @@ You are runnig: configuration --get
 --
 
 ===== Read option
-The option to read the value of the specified configuration attributes.
+The option to read the value of a specified configuration attributes.
 
 [source]
 --
@@ -137,14 +137,14 @@ You are runnig: configuration --update passwordReset.allowed=false
 --
 
 ===== Delete option
-The option to delete the specified configuration attributes.
+The option to delete a specified configuration attributes.
 
 [source]
 --
 $ ./syncopeadm.sh configuration --delete {CONF-NAME} {CONF-NAME} [...]
 --
 
-The delete option, as can be imagined, tries to remove the specified roles. 
+The delete option, as can be imagined, tries to remove a specified roles. 
 The output will be something like:
 [source]
 --

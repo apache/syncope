@@ -134,14 +134,14 @@ $ ./syncopeadm.sh role --read {ROLE-NAME} {ROLE-NAME} [...]
 Unlike the list option, the read one shows only the roles passed as input.
 
 ===== Delete option
-The option to delete the specified roles.
+The option to delete a specified roles.
 
 [source]
 --
 $ ./syncopeadm.sh role --delete {ROLE-NAME} {ROLE-NAME} [...]
 --
 
-The delete option, as can be imagined, tries to remove the specified roles. 
+The delete option, as can be imagined, tries to remove a specified roles. 
 The output will be something like:
 [source]
 --
