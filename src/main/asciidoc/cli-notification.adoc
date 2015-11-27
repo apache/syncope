@@ -1,0 +1,116 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+==== Notification command
+The notification command serves to retrieve the information about the configured notification.
+
+===== Help message
+[source,bash]
+----
+Usage: notification [options]
+  Options:
+    --help 
+    --list 
+    --read 
+       Syntax: --read {NOTIFICATION-ID} 
+    --delete 
+       Syntax: --delete {NOTIFICATION-ID}
+----
+
+===== List option
+Running the command with this option you will see the list of notificaitons with their configuration.
+
+[source]
+--
+$ ./syncopeadm.sh notification --list
+--
+
+[source]
+--
+
+You are runnig: notification --list 
+
+ > NOTIFICATION ID: 1
+    events: [[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]]
+    sender: admin@syncope.apache.org
+    subject: Password Reset request
+    recipients: null
+    recipient attribute name: email
+    template: requestPasswordReset
+    abouts: {USER=token!=$null}
+    recipient attribute types: UserPlainSchema
+    static recipient: []
+    trace level: FAILURES
+    active: true
+    self as recipient: true
+
+ > NOTIFICATION ID: 2
+    events: [[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]]
+    sender: admin@syncope.apache.org
+    subject: Password Reset successful
+    recipients: null
+    recipient attribute name: email
+    template: confirmPasswordReset
+    abouts: {}
+    recipient attribute types: UserPlainSchema
+    static recipient: []
+    trace level: FAILURES
+    active: true
+    self as recipient: true
+
+ > NOTIFICATION ID: 10
+    events: [[CUSTOM]:[]:[]:[unexisting1]:[FAILURE], [CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]]
+    sender: test@syncope.apache.org
+    subject: Test subject
+    recipients: $groups==7
+    recipient attribute name: email
+    template: test
+    abouts: {USER=fullname==*o*;fullname==*i*}
+    recipient attribute types: UserPlainSchema
+    static recipient: []
+    trace level: FAILURES
+    active: true
+    self as recipient: false
+
+--
+
+===== Read option
+The option to read all the information of specified notification.
+
+[source]
+--
+$ ./syncopeadm.sh notification --read {NOTIFICATION-ID} {NOTIFICATION-ID} [...]
+--
+
+Unlike the list option, the read one shows only the notifications passed as input.
+
+===== Delete option
+The option to delete a specified notification.
+
+[source]
+--
+$ ./syncopeadm.sh notification --delete {NOTIFICATION-ID} {NOTIFICATION-ID} [...]
+--
+
+The delete option, as can be imagined, tries to remove a specified notification. 
+The output will be something like:
+[source]
+--
+ - security notification {NOTIFICATION-ID} successfully deleted
+--
