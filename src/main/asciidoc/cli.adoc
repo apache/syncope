@@ -31,3 +31,5 @@ include::cli-role.adoc[]
 include::cli-configuration.adoc[]
 
 include::cli-logger.adoc[]
+
+include::cli-task.adoc[]

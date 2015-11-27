@@ -1,0 +1,315 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+==== Task command
+The connector command serves to retrieve the information around the connector configuration in Apache Syncope.
+
+===== Help message
+[source,bash]
+----
+Usage: task [options]
+  Options:
+    --help 
+    --details
+    --list
+       Syntax: --list {TASK-TYPE} 
+          Task type: NOTIFICATION / PROPAGATION / PUSH / SCHEDULED / SYNCHRONIZATION
+    --list-running-jobs 
+    --list-scheduled-jobs 
+    --read 
+       Syntax: --read {TASK-ID} {TASK-ID} [...]
+    --read-execution 
+       Syntax: --read-execution {TASK-EXEC-ID} {TASK-EXEC-ID} [...]
+    --delete 
+       Syntax: --delete {TASK-ID} {TASK-ID} [...]
+    --delete-execution 
+       Syntax: --delete-execution {TASK-EXEC-ID} {TASK-EXEC-ID} [...]
+    --execute 
+       Syntax: --execute {TASK-ID} {DRY-RUN}
+          Dry run: true / false
+----
+
+===== Details option
+This option shows a table with some details about tasks and jobs.
+
+[source]
+--
+$ ./syncopeadm.sh task --details
+--
+
+[source]
+--
+
+You are runnig: task --details 
+
+##############################################################
+#                                                            #
+#                       TASKS DETAILS                        #
+#                                                            #
+##############################################################
+#                                                  #         #
+#                      DETAIL                      #  VALUE  #
+#                                                  #         #
+##############################################################
+#                                                  #         #
+#                   total number                   #   28    #
+#                notification tasks                #    1    #
+#         notification tasks not executed          #    1    #
+#                propagation tasks                 #    5    #
+#          propagation tasks not executed          #    3    #
+#                    push tasks                    #   11    #
+#             push tasks not executed              #   11    #
+#                 scheduled tasks                  #    1    #
+#           scheduled tasks not executed           #    1    #
+#              synchronization tasks               #   10    #
+#        synchronization tasks not executed        #   10    #
+#  synchronization tasks with full reconciliation  #    5    #
+#                   running jobs                   #    0    #
+#                  scheduled jobs                  #    1    #
+#                                                  #         #
+##############################################################
+
+--
+
+===== List option
+Running the command with this option you will see the list of selected tasks type with their information.
+
+[source]
+--
+$ ./syncopeadm.sh - task --list {TASK-TYPE}
+   Task type: NOTIFICATION / PROPAGATION / PUSH / SCHEDULED / SYNCHRONIZATION
+--
+
+[source]
+--
+
+You are runnig: task --list SCHEDULED 
+
+ - Scheduled task key: 5
+     name: SampleJob Task
+     cron expression: 0 0 0 1 * ?
+     description: null
+     start date: null
+     end date: null
+     last execution: null
+     next execution: Tue Dec 01 00:00:00 CET 2015
+     latest execution status: 
+     job delegate class: org.apache.syncope.fit.core.reference.TestSampleJobDelegate
+
+--
+
+The last snippet code shows the information of the scheduled tasks.
+
+===== List running jobs
+Running the command with this option you will see the list of the actual running jobs.
+
+[source]
+--
+$ ./syncopeadm.sh task --list-running-jobs
+--
+
+[source]
+--
+ - There is NOT running jobs available
+--
+
+===== List scheduled jobs
+Running the command with this option you will see the list of the actual scheduled jobs.
+
+[source]
+--
+$ ./syncopeadm.sh task --list-scheduled-jobs
+--
+
+[source]
+--
+ EXECUTIONS: 
+     - task execution key: 0
+       task: 5
+       message: 
+       ###############     <BEGIN MESSAGE>     ###############
+       message: null
+       ###############     <END   MESSAGE>     ###############
+       status: NORMAL
+       start date: Fri Nov 27 15:11:23 CET 2015
+       end date: null
+--
+
+===== Read option
+The option to read all the information of specified tasks.
+
+[source]
+--
+$ ./syncopeadm.sh task --read {TASK-ID} {TASK-ID} [...]
+--
+
+Unlike the list option, the read one shows only the tasks passed as input. Below the commad to read the task with 
+id 13
+[source]
+--
+You are runnig: task --read 13 
+
+ - Push task key: 13
+     name: Export on resource-testdb2
+     resource: resource-testdb2
+     cron expression: null
+     description: null
+     is perform create: true
+     is perform delete: true
+     is perform update: true
+     is sync status: true
+     start date: null
+     end date: null
+     last execution: null
+     next execution: null
+     latest execution status: 
+     filters: {GROUP=name==_NO_ONE_, USER=surname==Vivaldi}
+     delegate class: null
+     action class: []
+     matching rule: IGNORE
+     not matching rule: ASSIGN
+--
+
+===== Read execution option
+The option to read all the information of executions task.
+
+[source]
+--
+$ ./syncopeadm.sh task --read-execution {TASK-EXEC-ID} {TASK-EXEC-ID} [...]
+--
+
+===== Delete option
+The option to delete a specified tasks.
+
+[source]
+--
+$ ./syncopeadm.sh task --delete {TASK-ID} TASK-ID} [...]
+--
+
+The delete option, as can be imagined, tries to remove a specified tasks.
+[source]
+--
+ - task {TASK-ID} successfully deleted
+--
+
+===== Delete execution option
+The option to delete a specified execution tasks.
+[source]
+--
+$ ./syncopeadm.sh task --delete {TASK-EXEC-ID} {TASK-EXEC-ID} [...]
+--
+
+The delete option, as can be imagined, tries to remove a specified execution tasks.
+[source]
+--
+ - task {TASK-EXEC-ID} successfully deleted
+--
+
+===== Execute option
+The option to execute a specified execution tasks.
+[source]
+--
+$ ./syncopeadm.sh task --execute {TASK-ID} {DRY-RUN}
+          Dry run: true / false
+--
+
+For instance, executing the PUSH task with id 13 in dry run mode the result is
+[source]
+--
+ You are runnig: task --execute 13 false 
+     EXECUTIONS: 
+     - task execution key: 0
+       task: 13
+       message: 
+       ###############     <BEGIN MESSAGE>     ###############
+       message: Job fired; waiting for results...
+       ###############     <END   MESSAGE>     ###############
+       status: JOB_FIRED
+       start date: Fri Nov 27 16:02:24 CET 2015
+       end date: null
+--
+then reading again the task id you will find the execution results among the other task information
+[source]
+--
+- Push task key: 13
+     name: Export on resource-testdb2
+     resource: resource-testdb2
+     cron expression: null
+     description: null
+     is perform create: true
+     is perform delete: true
+     is perform update: true
+     is sync status: true
+     start date: Fri Nov 27 16:02:24 CET 2015
+     end date: Fri Nov 27 16:02:26 CET 2015
+     last execution: null
+     next execution: null
+     latest execution status: SUCCESS
+     filters: {GROUP=name==_NO_ONE_, USER=surname==Vivaldi}
+     delegate class: null
+     action class: []
+     matching rule: IGNORE
+     not matching rule: ASSIGN
+     EXECUTIONS: 
+     - task execution key: 15
+       task: 13
+       message: 
+       ###############     <BEGIN MESSAGE>     ###############
+       message: Users [created/failures]: 1/0 [updated/failures]: 0/0 [deleted/failures]: 0/0 [no operation/ignored]: 0/0
+Groups [created/failures]: 0/0 [updated/failures]: 0/0 [deleted/failures]: 0/0 [no operation/ignored]: 0/0
+Any objects [created/failures]: 0/0 [updated/failures]: 0/0 [deleted/failures]: 0/0 [no operation/ignored]: 0/0
+
+Users created:
+CREATE SUCCESS (id/name): 3/vivaldi 
+
+Users updated:
+
+Users deleted:
+
+Users no operation:
+
+Users ignored:
+
+
+Groups created:
+
+Groups updated:
+
+Groups deleted:
+
+Groups no operation:
+
+Groups ignored:
+
+
+Any objects created:
+
+Any objects updated:
+
+Any objects deleted:
+
+Any objects no operation:
+
+Any objects ignored:
+
+       ###############     <END   MESSAGE>     ###############
+       status: SUCCESS
+       start date: Fri Nov 27 16:02:24 CET 2015
+       end date: Fri Nov 27 16:02:26 CET 2015
+--
