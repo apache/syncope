@@ -1,0 +1,250 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+==== Logger command
+The logger command serves to retrieve the information about the logger configuration in Apache Syncope.
+
+===== Help message
+[source,bash]
+----
+Usage: logger [options]
+  Options:
+    --help 
+    --details 
+    --list 
+    --read 
+       Syntax: --read {LOG-NAME} {LOG-NAME} [...]
+    --update 
+       Syntax: --update {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]
+    --update-all 
+       Syntax: --update-all {LOG-LEVEL} 
+    --create 
+       Syntax: --create {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]
+    --delete 
+       Syntax: --delete {LOG-NAME} {LOG-NAME} [...]
+----
+
+===== Details option
+This option shows a table with some details about logger configuration.
+
+[source]
+--
+$ ./syncopeadm.sh logger --details
+--
+
+[source]
+--
+
+You are runnig: logger --details 
+
+############################
+#                          #
+#     LOGGERS DETAILS      #
+#                          #
+############################
+#                #         #
+#     DETAIL     #  VALUE  #
+#                #         #
+############################
+#                #         #
+#  Total number  #   16    #
+#  Set to DEBUG  #    2    #
+#  Set to ERROR  #    3    #
+#  Set to FATAL  #    0    #
+#  Set to INFO   #   11    #
+#   Set to OFF   #    0    #
+#  Set to TRACE  #    0    #
+#  Set to WARN   #    0    #
+#                #         #
+############################
+
+--
+
+===== List option
+Running the command with this option you will see the table of the loggers configuration.
+
+[source]
+--
+$ ./syncopeadm.sh logger --list
+--
+
+[source]
+--
+
+You are runnig: logger --list 
+
+############################################################################
+#                                                                          #
+#                               LIST LOGGERS                               #
+#                                                                          #
+############################################################################
+#                                                                #         #
+#                             LOGGER                             #  LEVEL  #
+#                                                                #         #
+############################################################################
+#                                                                #         #
+#                    org.springframework.web                     #  INFO   #
+#                 org.apache.syncope.core.logic                  #  INFO   #
+#                       net.tirasa.connid                        #  DEBUG  #
+#                           org.quartz                           #  INFO   #
+#              org.apache.syncope.core.persistence               #  INFO   #
+#                          org.activiti                          #  ERROR  #
+#                        org.apache.http                         #  INFO   #
+#                    org.springframework.orm                     #  INFO   #
+#                        org.apache.camel                        #  ERROR  #
+#                         org.apache.cxf                         #  ERROR  #
+#                       org.apache.syncope                       #  INFO   #
+#                     org.identityconnectors                     #  DEBUG  #
+#                      org.springframework                       #  INFO   #
+#              org.apache.syncope.core.provisioning              #  INFO   #
+#                  org.apache.syncope.core.rest                  #  INFO   #
+#  org.apache.syncope.core.provisioning.api.ConnIdBundleManager  #  INFO   #
+#                                                                #         #
+############################################################################
+
+--
+
+===== Read option
+The option to read all the information of specified loggers.
+
+[source]
+--
+$ ./syncopeadm.sh logger --read {LOG-NAME} {LOG-NAME} [...]
+--
+
+Unlike the list option, the read one shows a table with only the loggers passed as input.
+
+===== Update option
+The option to change the value of the logger passed as input.
+
+[source]
+--
+$ ./syncopeadm.sh logger --update {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]
+--
+
+[source]
+--
+
+You are runnig: logger --update org.apache.camel=DEBUG 
+
+####################################
+#                                  #
+#         UPDATED LOGGERS          #
+#                                  #
+####################################
+#                    #             #
+#       LOGGER       #  NEW LEVEL  #
+#                    #             #
+####################################
+#                    #             #
+#  org.apache.camel  #    DEBUG    #
+#                    #             #
+####################################
+
+--
+
+===== Update all option
+This option is especially helpful in production environment when every log is disable and you need to change them for a 
+while in DEBUG mode.
+
+[source]
+--
+$ ./syncopeadm.sh logger --update-all DEBUG
+--
+
+[source]
+--
+
+You are runnig: logger --update-all DEBUG 
+
+################################################################################
+#                                                                              #
+#                               UPDATED LOGGERS                                #
+#                                                                              #
+################################################################################
+#                                                                #             #
+#                             LOGGER                             #  NEW LEVEL  #
+#                                                                #             #
+################################################################################
+#                                                                #             #
+#                    org.springframework.web                     #    DEBUG    #
+#                 org.apache.syncope.core.logic                  #    DEBUG    #
+#                       net.tirasa.connid                        #    DEBUG    #
+#                           org.quartz                           #    DEBUG    #
+#              org.apache.syncope.core.persistence               #    DEBUG    #
+#                          org.activiti                          #    DEBUG    #
+#                        org.apache.http                         #    DEBUG    #
+#                    org.springframework.orm                     #    DEBUG    #
+#                         org.apache.cxf                         #    DEBUG    #
+#                       org.apache.syncope                       #    DEBUG    #
+#                     org.identityconnectors                     #    DEBUG    #
+#                      org.springframework                       #    DEBUG    #
+#              org.apache.syncope.core.provisioning              #    DEBUG    #
+#                  org.apache.syncope.core.rest                  #    DEBUG    #
+#  org.apache.syncope.core.provisioning.api.ConnIdBundleManager  #    DEBUG    #
+#                                                                #             #
+################################################################################
+
+--
+
+===== Create option
+For the moment the logger command is one of the few command with a create option to add a new logger configuration.
+
+[source]
+--
+$ ./syncopeadm.sh logger --create net.tirasa=ERROR
+--
+
+[source]
+--
+
+You are runnig: logger --create net.tirasa=ERROR 
+
+##############################
+#                            #
+#      UPDATED LOGGERS       #
+#                            #
+##############################
+#              #             #
+#    LOGGER    #  NEW LEVEL  #
+#              #             #
+##############################
+#              #             #
+#  net.tirasa  #    ERROR    #
+#              #             #
+##############################
+
+--
+
+===== Delete option
+The option to delete the specified logger.
+
+[source]
+--
+$ ./syncopeadm.sh logger --delete {LOG-NAME} {LOG-NAME} [...]
+--
+
+[source]
+--
+
+You are runnig: logger --delete org.apache.camel 
+
+ - Logger org.apache.camel successfully deleted
+
+--

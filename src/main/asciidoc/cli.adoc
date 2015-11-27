@@ -29,3 +29,5 @@ include::cli-question.adoc[]
 include::cli-role.adoc[]
 
 include::cli-configuration.adoc[]
+
+include::cli-logger.adoc[]
