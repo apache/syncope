@@ -59,7 +59,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
         if (modelObject.getKey() == 0) {
             actual = userRestClient.create(modelObject, StringUtils.isNotBlank(modelObject.getPassword()));
         } else {
-            final UserPatch patch = AnyOperations.diff(modelObject, getOriginalItem(), true);
+            final UserPatch patch = AnyOperations.diff(modelObject, getOriginalItem(), false);
             if (!statusModel.getObject().isEmpty()) {
                 patch.setPassword(StatusUtils.buildPasswordPatch(modelObject.getPassword(), statusModel.getObject()));
             }
