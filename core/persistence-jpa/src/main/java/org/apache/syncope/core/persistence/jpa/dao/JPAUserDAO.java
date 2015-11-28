@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -104,7 +105,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 && !AuthContextUtils.getUsername().equals(user.getUsername())) {
 
             Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_READ);
-            boolean authorized = CollectionUtils.exists(authRealms, new Predicate<String>() {
+            boolean authorized = IterableUtils.matchesAny(authRealms, new Predicate<String>() {
 
                 @Override
                 public boolean evaluate(final String realm) {

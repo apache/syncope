@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +28,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.AnyCheck;
 
 @AnyCheck
@@ -99,7 +100,7 @@ public abstract class AbstractAny<P extends PlainAttr<?>>
 
     @Override
     public P getPlainAttr(final String plainSchemaName) {
-        return CollectionUtils.find(getPlainAttrs(), new Predicate<P>() {
+        return IterableUtils.find(getPlainAttrs(), new Predicate<P>() {
 
             @Override
             public boolean evaluate(final P plainAttr) {

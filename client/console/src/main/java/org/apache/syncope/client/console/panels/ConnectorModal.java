@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
@@ -61,11 +62,11 @@ public class ConnectorModal extends AbstractResourceModal {
         this.bundles = CollectionUtils.select(connectorRestClient.getAllBundles(),
                 new Predicate<ConnBundleTO>() {
 
-                    @Override
-                    public boolean evaluate(final ConnBundleTO object) {
-                        return object.getLocation().equals(model.getObject().getLocation());
-                    }
-                }, new ArrayList<ConnBundleTO>());
+            @Override
+            public boolean evaluate(final ConnBundleTO object) {
+                return object.getLocation().equals(model.getObject().getLocation());
+            }
+        }, new ArrayList<ConnBundleTO>());
 
         //--------------------------------
         // Connector details panel
@@ -175,7 +176,7 @@ public class ConnectorModal extends AbstractResourceModal {
     }
 
     protected static ConnBundleTO getBundle(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
-        return CollectionUtils.find(bundles, new Predicate<ConnBundleTO>() {
+        return IterableUtils.find(bundles, new Predicate<ConnBundleTO>() {
 
             @Override
             public boolean evaluate(final ConnBundleTO bundle) {

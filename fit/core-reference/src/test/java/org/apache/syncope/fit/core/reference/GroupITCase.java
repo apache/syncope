@@ -36,7 +36,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -198,7 +198,7 @@ public class GroupITCase extends AbstractITCase {
 
         List<GroupTO> groups = groupService2.own();
         assertNotNull(groups);
-        assertTrue(CollectionUtils.exists(groups, new Predicate<GroupTO>() {
+        assertTrue(IterableUtils.matchesAny(groups, new Predicate<GroupTO>() {
 
             @Override
             public boolean evaluate(final GroupTO group) {

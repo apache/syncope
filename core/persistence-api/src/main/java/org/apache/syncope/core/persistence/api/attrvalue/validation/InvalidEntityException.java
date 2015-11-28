@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 
@@ -99,7 +99,7 @@ public class InvalidEntityException extends ValidationException {
     }
 
     public final boolean hasViolation(final EntityViolationType type) {
-        return CollectionUtils.exists(violations.keySet(), new Predicate<Class<?>>() {
+        return IterableUtils.matchesAny(violations.keySet(), new Predicate<Class<?>>() {
 
             @Override
             public boolean evaluate(final Class<?> entity) {

@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -81,7 +82,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
     @Override
     protected void securityChecks(final Set<String> effectiveRealms, final String realm, final Long key) {
-        if (!CollectionUtils.exists(effectiveRealms, new Predicate<String>() {
+        if (!IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
 
             @Override
             public boolean evaluate(final String ownedRealm) {

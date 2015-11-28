@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -265,7 +266,7 @@ public class AuthDataAccessor {
                 // Give entitlements as assigned by roles (with realms, where applicable) - assigned either
                 // statically and dynamically
                 for (final Role role : userDAO.findAllRoles(user)) {
-                    CollectionUtils.forAllDo(role.getEntitlements(), new Closure<String>() {
+                    IterableUtils.forEach(role.getEntitlements(), new Closure<String>() {
 
                         @Override
                         public void execute(final String entitlement) {

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -64,7 +65,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     protected void securityChecks(final AnyObject anyObject) {
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
                 getFor(anyObject.getType().getKey(), EntitlementsHolder.AnyEntitlement.READ));
-        boolean authorized = CollectionUtils.exists(authRealms, new Predicate<String>() {
+        boolean authorized = IterableUtils.matchesAny(authRealms, new Predicate<String>() {
 
             @Override
             public boolean evaluate(final String realm) {

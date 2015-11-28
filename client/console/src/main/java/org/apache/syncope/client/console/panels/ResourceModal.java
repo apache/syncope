@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
@@ -220,7 +220,7 @@ public class ResourceModal extends AbstractResourceModal {
                 if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
                     resourceTO.getProvisions().remove(provision);
                 } else {
-                    int uConnObjectKeyCount = CollectionUtils.countMatches(
+                    long uConnObjectKeyCount = IterableUtils.countMatches(
                             provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
 
                         @Override

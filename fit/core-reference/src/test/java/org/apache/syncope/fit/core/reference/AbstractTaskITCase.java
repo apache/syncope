@@ -33,7 +33,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
@@ -170,7 +170,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
-        return CollectionUtils.find(tasks.getResult(), new Predicate<NotificationTaskTO>() {
+        return IterableUtils.find(tasks.getResult(), new Predicate<NotificationTaskTO>() {
 
             @Override
             public boolean evaluate(final NotificationTaskTO task) {

@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -383,7 +383,7 @@ public class AnySearchTest extends AbstractTest {
         users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(2, users.size());
-        assertTrue(CollectionUtils.exists(users, new Predicate<User>() {
+        assertTrue(IterableUtils.matchesAny(users, new Predicate<User>() {
 
             @Override
             public boolean evaluate(User user) {
@@ -426,14 +426,14 @@ public class AnySearchTest extends AbstractTest {
         List<Any<?>> matching = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
         assertNotNull(matching);
         assertEquals(2, matching.size());
-        assertTrue(CollectionUtils.exists(matching, new Predicate<Any<?>>() {
+        assertTrue(IterableUtils.matchesAny(matching, new Predicate<Any<?>>() {
 
             @Override
             public boolean evaluate(final Any<?> any) {
                 return any.getKey() == 1L;
             }
         }));
-        assertTrue(CollectionUtils.exists(matching, new Predicate<Any<?>>() {
+        assertTrue(IterableUtils.matchesAny(matching, new Predicate<Any<?>>() {
 
             @Override
             public boolean evaluate(final Any<?> any) {
@@ -446,7 +446,7 @@ public class AnySearchTest extends AbstractTest {
         matching = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(matching);
         assertEquals(2, matching.size());
-        assertTrue(CollectionUtils.exists(matching, new Predicate<Any<?>>() {
+        assertTrue(IterableUtils.matchesAny(matching, new Predicate<Any<?>>() {
 
             @Override
             public boolean evaluate(final Any<?> any) {
@@ -508,14 +508,14 @@ public class AnySearchTest extends AbstractTest {
         assertTrue(searchCondition.isValid());
 
         List<Group> groups = searchDAO.search(searchCondition, AnyTypeKind.GROUP);
-        assertTrue(CollectionUtils.exists(groups, new Predicate<Group>() {
+        assertTrue(IterableUtils.matchesAny(groups, new Predicate<Group>() {
 
             @Override
             public boolean evaluate(final Group group) {
                 return group.getKey().equals(15L);
             }
         }));
-        assertFalse(CollectionUtils.exists(groups, new Predicate<Group>() {
+        assertFalse(IterableUtils.matchesAny(groups, new Predicate<Group>() {
 
             @Override
             public boolean evaluate(final Group group) {
@@ -529,7 +529,7 @@ public class AnySearchTest extends AbstractTest {
         assertTrue(searchCondition.isValid());
 
         List<AnyObject> anyObjects = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
-        assertFalse(CollectionUtils.exists(anyObjects, new Predicate<AnyObject>() {
+        assertFalse(IterableUtils.matchesAny(anyObjects, new Predicate<AnyObject>() {
 
             @Override
             public boolean evaluate(final AnyObject anyObject) {
@@ -553,7 +553,7 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(2, users.size());
-        assertTrue(CollectionUtils.exists(users, new Predicate<User>() {
+        assertTrue(IterableUtils.matchesAny(users, new Predicate<User>() {
 
             @Override
             public boolean evaluate(User user) {

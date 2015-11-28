@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 import java.util.HashSet;
 import java.util.Set;
 import javax.validation.ConstraintValidatorContext;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.EntityViolationType;
@@ -122,7 +122,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             return true;
         }
 
-        int connObjectKeys = CollectionUtils.countMatches(mapping.getItems(), new Predicate<MappingItem>() {
+        long connObjectKeys = IterableUtils.countMatches(mapping.getItems(), new Predicate<MappingItem>() {
 
             @Override
             public boolean evaluate(final MappingItem item) {
@@ -218,7 +218,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
 
         final Set<AnyType> anyTypes = new HashSet<>();
         final Set<String> objectClasses = new HashSet<>();
-        boolean validMappings = CollectionUtils.matchesAll(resource.getProvisions(), new Predicate<Provision>() {
+        boolean validMappings = IterableUtils.matchesAll(resource.getProvisions(), new Predicate<Provision>() {
 
             @Override
             public boolean evaluate(final Provision provision) {

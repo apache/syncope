@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.workflow.activiti;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -28,7 +28,7 @@ public class ActivitiUtils {
 
     @Transactional(readOnly = true)
     public boolean isUserIngroup(final User user, final Long groupKey) {
-        return CollectionUtils.exists(user.getMemberships(), new Predicate<UMembership>() {
+        return IterableUtils.matchesAny(user.getMemberships(), new Predicate<UMembership>() {
 
             @Override
             public boolean evaluate(final UMembership membership) {

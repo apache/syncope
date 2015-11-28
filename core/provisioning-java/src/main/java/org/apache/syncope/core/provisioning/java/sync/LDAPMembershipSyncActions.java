@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyPatch;
@@ -110,7 +110,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * @return the name of the attribute used to keep track of group memberships
      */
     protected String getGroupMembershipAttrName(final Connector connector) {
-        ConnConfProperty groupMembership = CollectionUtils.find(connector.getConnInstance().getConf(),
+        ConnConfProperty groupMembership = IterableUtils.find(connector.getConnInstance().getConf(),
                 new Predicate<ConnConfProperty>() {
 
                     @Override

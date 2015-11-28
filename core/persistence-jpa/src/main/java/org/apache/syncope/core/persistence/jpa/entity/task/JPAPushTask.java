@@ -31,7 +31,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -80,7 +80,7 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
 
     @Override
     public AnyFilter getFilter(final AnyType anyType) {
-        return CollectionUtils.find(filters, new Predicate<AnyFilter>() {
+        return IterableUtils.find(filters, new Predicate<AnyFilter>() {
 
             @Override
             public boolean evaluate(final AnyFilter filter) {

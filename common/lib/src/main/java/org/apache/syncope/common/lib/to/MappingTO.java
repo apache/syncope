@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -51,7 +51,7 @@ public class MappingTO extends AbstractBaseBean {
     }
 
     public MappingItemTO getConnObjectKeyItem() {
-        return CollectionUtils.find(getItems(), new Predicate<MappingItemTO>() {
+        return IterableUtils.find(getItems(), new Predicate<MappingItemTO>() {
 
             @Override
             public boolean evaluate(final MappingItemTO item) {

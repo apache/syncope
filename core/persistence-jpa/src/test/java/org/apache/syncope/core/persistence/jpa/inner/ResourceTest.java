@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
@@ -69,7 +69,7 @@ public class ResourceTest extends AbstractTest {
         Mapping mapping = resource.getProvision(anyTypeDAO.findUser()).getMapping();
         assertFalse("no mapping specified", mapping.getItems().isEmpty());
 
-        assertTrue(CollectionUtils.exists(mapping.getItems(), new Predicate<MappingItem>() {
+        assertTrue(IterableUtils.matchesAny(mapping.getItems(), new Predicate<MappingItem>() {
 
             @Override
             public boolean evaluate(final MappingItem item) {

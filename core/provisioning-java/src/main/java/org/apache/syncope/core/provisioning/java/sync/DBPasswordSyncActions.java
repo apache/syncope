@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
@@ -108,7 +108,7 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
     private String getCipherAlgorithm(final ConnInstance connInstance) {
         ConnConfProperty cipherAlgorithm =
-                CollectionUtils.find(connInstance.getConf(), new Predicate<ConnConfProperty>() {
+                IterableUtils.find(connInstance.getConf(), new Predicate<ConnConfProperty>() {
 
                     @Override
                     public boolean evaluate(final ConnConfProperty property) {

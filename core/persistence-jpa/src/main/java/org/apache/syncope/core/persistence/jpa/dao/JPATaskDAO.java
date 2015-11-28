@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
 import org.apache.commons.collections4.Closure;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -168,8 +168,8 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
 
         StringBuilder queryString = buildFindAllQuery(type, resource, anyTypeKind, anyTypeKey).
                 append(orderByClauses.isEmpty()
-                                ? "ORDER BY t.id DESC"
-                                : toOrderByStatement(getEntityReference(type), orderByClauses));
+                        ? "ORDER BY t.id DESC"
+                        : toOrderByStatement(getEntityReference(type), orderByClauses));
 
         Query query = entityManager().createQuery(queryString.toString());
         query.setParameter("type", type);
@@ -239,14 +239,14 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
 
     @Override
     public void deleteAll(final ExternalResource resource, final TaskType type) {
-        CollectionUtils.forAllDo(
+        IterableUtils.forEach(
                 findAll(type, resource, null, null, -1, -1, Collections.<OrderByClause>emptyList()),
                 new Closure<Task>() {
 
-                    @Override
-                    public void execute(final Task input) {
-                        delete(input.getKey());
-                    }
-                });
+            @Override
+            public void execute(final Task input) {
+                delete(input.getKey());
+            }
+        });
     }
 }

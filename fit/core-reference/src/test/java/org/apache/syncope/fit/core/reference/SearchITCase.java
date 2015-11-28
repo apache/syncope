@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -107,7 +108,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
-        assertTrue(CollectionUtils.exists(matchingUsers.getResult(), new Predicate<UserTO>() {
+        assertTrue(IterableUtils.matchesAny(matchingUsers.getResult(), new Predicate<UserTO>() {
 
             @Override
             public boolean evaluate(final UserTO user) {
@@ -130,7 +131,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
-        assertTrue(CollectionUtils.exists(matchingUsers.getResult(), new Predicate<UserTO>() {
+        assertTrue(IterableUtils.matchesAny(matchingUsers.getResult(), new Predicate<UserTO>() {
 
             @Override
             public boolean evaluate(final UserTO user) {
@@ -148,7 +149,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
-        assertTrue(CollectionUtils.exists(matchingUsers.getResult(), new Predicate<UserTO>() {
+        assertTrue(IterableUtils.matchesAny(matchingUsers.getResult(), new Predicate<UserTO>() {
 
             @Override
             public boolean evaluate(final UserTO user) {
@@ -172,7 +173,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
-        assertTrue(CollectionUtils.exists(matchingUsers.getResult(), new Predicate<UserTO>() {
+        assertTrue(IterableUtils.matchesAny(matchingUsers.getResult(), new Predicate<UserTO>() {
 
             @Override
             public boolean evaluate(final UserTO user) {
@@ -190,7 +191,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
-        assertTrue(CollectionUtils.exists(matchingUsers.getResult(), new Predicate<UserTO>() {
+        assertTrue(IterableUtils.matchesAny(matchingUsers.getResult(), new Predicate<UserTO>() {
 
             @Override
             public boolean evaluate(final UserTO user) {
@@ -283,7 +284,7 @@ public class SearchITCase extends AbstractITCase {
                         inRelationships(2L).query()).
                 build());
         assertNotNull(anyObjects);
-        assertTrue(CollectionUtils.exists(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
+        assertTrue(IterableUtils.matchesAny(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
 
             @Override
             public boolean evaluate(final AnyObjectTO anyObject) {
@@ -296,7 +297,7 @@ public class SearchITCase extends AbstractITCase {
                 fiql(SyncopeClient.getUserSearchConditionBuilder().inRelationships(1L).query()).
                 build());
         assertNotNull(users);
-        assertTrue(CollectionUtils.exists(users.getResult(), new Predicate<UserTO>() {
+        assertTrue(IterableUtils.matchesAny(users.getResult(), new Predicate<UserTO>() {
 
             @Override
             public boolean evaluate(final UserTO user) {
@@ -313,14 +314,14 @@ public class SearchITCase extends AbstractITCase {
                         inRelationshipTypes("neighborhood").query()).
                 build());
         assertNotNull(anyObjects);
-        assertTrue(CollectionUtils.exists(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
+        assertTrue(IterableUtils.matchesAny(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
 
             @Override
             public boolean evaluate(final AnyObjectTO anyObject) {
                 return anyObject.getKey() == 1L;
             }
         }));
-        assertTrue(CollectionUtils.exists(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
+        assertTrue(IterableUtils.matchesAny(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
 
             @Override
             public boolean evaluate(final AnyObjectTO anyObject) {
@@ -333,7 +334,7 @@ public class SearchITCase extends AbstractITCase {
                 fiql(SyncopeClient.getUserSearchConditionBuilder().inRelationshipTypes("neighborhood").query()).
                 build());
         assertNotNull(users);
-        assertTrue(CollectionUtils.exists(users.getResult(), new Predicate<UserTO>() {
+        assertTrue(IterableUtils.matchesAny(users.getResult(), new Predicate<UserTO>() {
 
             @Override
             public boolean evaluate(final UserTO user) {
@@ -350,14 +351,14 @@ public class SearchITCase extends AbstractITCase {
                         and("name").equalTo("*").query()).
                 build());
         assertNotNull(groups);
-        assertTrue(CollectionUtils.exists(groups.getResult(), new Predicate<GroupTO>() {
+        assertTrue(IterableUtils.matchesAny(groups.getResult(), new Predicate<GroupTO>() {
 
             @Override
             public boolean evaluate(final GroupTO group) {
                 return group.getKey() == 15L;
             }
         }));
-        assertFalse(CollectionUtils.exists(groups.getResult(), new Predicate<GroupTO>() {
+        assertFalse(IterableUtils.matchesAny(groups.getResult(), new Predicate<GroupTO>() {
 
             @Override
             public boolean evaluate(final GroupTO group) {
@@ -371,7 +372,7 @@ public class SearchITCase extends AbstractITCase {
                         and("name").equalTo("*").query()).
                 build());
         assertNotNull(anyObjects);
-        assertFalse(CollectionUtils.exists(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
+        assertFalse(IterableUtils.matchesAny(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
 
             @Override
             public boolean evaluate(final AnyObjectTO anyObject) {

@@ -28,7 +28,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.Valid;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -78,7 +78,7 @@ public class JPAConf extends AbstractAnnotatedEntity<Long> implements Conf {
 
     @Override
     public CPlainAttr getPlainAttr(final String plainSchemaName) {
-        return CollectionUtils.find(plainAttrs, new Predicate<CPlainAttr>() {
+        return IterableUtils.find(plainAttrs, new Predicate<CPlainAttr>() {
 
             @Override
             public boolean evaluate(final CPlainAttr plainAttr) {

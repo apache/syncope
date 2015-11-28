@@ -28,7 +28,7 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -172,7 +172,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         List<PlainSchemaTO> userSchemas = schemaService.list(
                 new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClass(clazz).build());
 
-        assertTrue(CollectionUtils.exists(userSchemas, new Predicate<PlainSchemaTO>() {
+        assertTrue(IterableUtils.matchesAny(userSchemas, new Predicate<PlainSchemaTO>() {
 
             @Override
             public boolean evaluate(final PlainSchemaTO object) {
@@ -180,7 +180,7 @@ public class PlainSchemaITCase extends AbstractITCase {
             }
         }));
 
-        assertFalse(CollectionUtils.exists(userSchemas, new Predicate<PlainSchemaTO>() {
+        assertFalse(IterableUtils.matchesAny(userSchemas, new Predicate<PlainSchemaTO>() {
 
             @Override
             public boolean evaluate(final PlainSchemaTO object) {

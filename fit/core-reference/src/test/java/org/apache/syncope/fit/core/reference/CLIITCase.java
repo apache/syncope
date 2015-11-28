@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -108,14 +109,14 @@ public class CLIITCase extends AbstractITCase {
             PROCESS_BUILDER.command(getCommand("entitlement", "--list"));
             Process process = PROCESS_BUILDER.start();
 
-            int entitlements = CollectionUtils.countMatches(IOUtils.readLines(process.getInputStream()),
+            long entitlements = IterableUtils.countMatches(IOUtils.readLines(process.getInputStream()),
                     new Predicate<String>() {
 
-                        @Override
-                        public boolean evaluate(final String line) {
-                            return line.startsWith("-");
-                        }
-                    });
+                @Override
+                public boolean evaluate(final String line) {
+                    return line.startsWith("-");
+                }
+            });
             assertEquals(syncopeService.info().getEntitlements().size(), entitlements);
 
             process.destroy();
@@ -130,14 +131,14 @@ public class CLIITCase extends AbstractITCase {
             PROCESS_BUILDER.command(getCommand("connector", "--list-bundles"));
             Process process = PROCESS_BUILDER.start();
 
-            int bundles = CollectionUtils.countMatches(IOUtils.readLines(process.getInputStream()),
+            long bundles = IterableUtils.countMatches(IOUtils.readLines(process.getInputStream()),
                     new Predicate<String>() {
 
-                        @Override
-                        public boolean evaluate(final String line) {
-                            return line.startsWith(" > BUNDLE NAME:");
-                        }
-                    });
+                @Override
+                public boolean evaluate(final String line) {
+                    return line.startsWith(" > BUNDLE NAME:");
+                }
+            });
             assertEquals(connectorService.getBundles(null).size(), bundles);
 
             process.destroy();
@@ -155,30 +156,30 @@ public class CLIITCase extends AbstractITCase {
         final long userId5 = 5;
         try {
             PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf(userId1)));
-            final Process process = PROCESS_BUILDER.start();
-            final String result = IOUtils.toString(process.getInputStream());
+            Process process = PROCESS_BUILDER.start();
+            String result = IOUtils.toString(process.getInputStream());
             assertTrue(result.contains("username: " + userService.read(userId1).getUsername()));
             process.destroy();
 
             PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf(userId1), String.valueOf(userId2),
                     String.valueOf(userId3), String.valueOf(userId4), String.valueOf(userId5)));
-            final Process process2 = PROCESS_BUILDER.start();
-            int users = CollectionUtils.countMatches(IOUtils.readLines(process2.getInputStream()),
+            Process process2 = PROCESS_BUILDER.start();
+            long users = IterableUtils.countMatches(IOUtils.readLines(process2.getInputStream()),
                     new Predicate<String>() {
 
-                        @Override
-                        public boolean evaluate(final String line) {
-                            return line.startsWith(" > USER ID:");
-                        }
-                    });
+                @Override
+                public boolean evaluate(final String line) {
+                    return line.startsWith(" > USER ID:");
+                }
+            });
             assertEquals(5, users);
 
             process2.destroy();
 
             PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf(userId1), String.valueOf(userId2),
                     String.valueOf(userId3), String.valueOf(userId4), String.valueOf(userId5)));
-            final Process process3 = PROCESS_BUILDER.start();
-            final String result3 = IOUtils.toString(process3.getInputStream());
+            Process process3 = PROCESS_BUILDER.start();
+            String result3 = IOUtils.toString(process3.getInputStream());
             assertTrue(
                     result3.contains("username: " + userService.read(userId1).getUsername())
                     && result3.contains("username: " + userService.read(userId2).getUsername())

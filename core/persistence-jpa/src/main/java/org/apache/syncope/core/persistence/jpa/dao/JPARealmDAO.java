@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -84,7 +84,7 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
 
         Realm current = root;
         for (final String pathElement : fullPath.substring(1).split("/")) {
-            current = CollectionUtils.find(findChildren(current), new Predicate<Realm>() {
+            current = IterableUtils.find(findChildren(current), new Predicate<Realm>() {
 
                 @Override
                 public boolean evaluate(final Realm realm) {

@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
@@ -275,7 +276,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         Provision provision = resource.getProvision(anyTypeDAO.findUser());
         if (provision != null && provision.getMapping() != null) {
-            result = CollectionUtils.exists(provision.getMapping().getItems(), new Predicate<MappingItem>() {
+            result = IterableUtils.matchesAny(provision.getMapping().getItems(), new Predicate<MappingItem>() {
 
                 @Override
                 public boolean evaluate(final MappingItem item) {

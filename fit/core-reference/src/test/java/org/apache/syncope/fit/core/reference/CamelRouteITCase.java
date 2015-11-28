@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
@@ -166,7 +166,7 @@ public class CamelRouteITCase extends AbstractITCase {
 
             userTO = createUser(userTO).getAny();
             assertNotNull(userTO);
-            assertEquals("true", CollectionUtils.get(userTO.getPlainAttrs(), 3).getValues().get(0));
+            assertEquals("true", IterableUtils.get(userTO.getPlainAttrs(), 3).getValues().get(0));
         } finally {
             doUpdate(oldRoute.getKey(), oldRoute.getContent());
         }

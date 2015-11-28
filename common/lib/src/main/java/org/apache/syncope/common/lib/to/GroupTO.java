@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
@@ -100,7 +100,7 @@ public class GroupTO extends AnyTO {
 
     @JsonIgnore
     public TypeExtensionTO getTypeExtension(final String anyType) {
-        return CollectionUtils.find(typeExtensions, new Predicate<TypeExtensionTO>() {
+        return IterableUtils.find(typeExtensions, new Predicate<TypeExtensionTO>() {
 
             @Override
             public boolean evaluate(final TypeExtensionTO typeExtension) {

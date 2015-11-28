@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 
@@ -68,7 +68,7 @@ public class SyncopeClientCompositeException extends SyncopeClientException {
                     + ClientExceptionType.class.getName() + " set");
         }
 
-        SyncopeClientException alreadyAdded = CollectionUtils.find(exceptions, new Predicate<SyncopeClientException>() {
+        SyncopeClientException alreadyAdded = IterableUtils.find(exceptions, new Predicate<SyncopeClientException>() {
 
             @Override
             public boolean evaluate(final SyncopeClientException ex) {

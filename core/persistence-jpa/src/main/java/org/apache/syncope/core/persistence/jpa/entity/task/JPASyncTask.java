@@ -35,7 +35,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.SyncMode;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -128,7 +128,7 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
 
     @Override
     public AnyTemplateSyncTask getTemplate(final AnyType anyType) {
-        return CollectionUtils.find(templates, new Predicate<AnyTemplate>() {
+        return IterableUtils.find(templates, new Predicate<AnyTemplate>() {
 
             @Override
             public boolean evaluate(final AnyTemplate template) {

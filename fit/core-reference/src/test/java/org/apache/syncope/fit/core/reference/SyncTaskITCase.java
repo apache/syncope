@@ -30,7 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -199,7 +199,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
             // Unmatching --> Assign (link) - SYNCOPE-658
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_CSV));
-            assertEquals(1, CollectionUtils.countMatches(userTO.getDerAttrs(), new Predicate<AttrTO>() {
+            assertEquals(1, IterableUtils.countMatches(userTO.getDerAttrs(), new Predicate<AttrTO>() {
 
                 @Override
                 public boolean evaluate(final AttrTO attributeTO) {
@@ -382,7 +382,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         try {
             provision.setSyncToken(null);
 
-            MappingItemTO mappingItem = CollectionUtils.find(
+            MappingItemTO mappingItem = IterableUtils.find(
                     provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
 
                 @Override

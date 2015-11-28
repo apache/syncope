@@ -19,14 +19,15 @@
 package org.apache.syncope.common.lib.search;
 
 import java.util.Arrays;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 
 public enum SpecialAttr {
 
     /**
      * Applies to users, groups and any objects.
-     *//**
+     */
+    /**
      * Applies to users, groups and any objects.
      */
     NULL("$null"),
@@ -71,7 +72,7 @@ public enum SpecialAttr {
     }
 
     public static SpecialAttr fromString(final String value) {
-        return CollectionUtils.find(Arrays.asList(values()), new Predicate<SpecialAttr>() {
+        return IterableUtils.find(Arrays.asList(values()), new Predicate<SpecialAttr>() {
 
             @Override
             public boolean evaluate(final SpecialAttr specialAttr) {

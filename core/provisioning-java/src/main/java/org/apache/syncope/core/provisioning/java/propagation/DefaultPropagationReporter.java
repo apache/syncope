@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
@@ -44,7 +44,7 @@ public class DefaultPropagationReporter implements PropagationReporter {
     protected final List<PropagationStatus> statuses = new ArrayList<>();
 
     protected boolean add(final PropagationStatus status) {
-        return CollectionUtils.exists(statuses, new Predicate<PropagationStatus>() {
+        return IterableUtils.matchesAny(statuses, new Predicate<PropagationStatus>() {
 
             @Override
             public boolean evaluate(final PropagationStatus item) {
@@ -83,7 +83,7 @@ public class DefaultPropagationReporter implements PropagationReporter {
     public void onPriorityResourceFailure(final String failingResource, final Collection<PropagationTask> tasks) {
         LOG.debug("Propagation error: {} priority resource failed to propagate", failingResource);
 
-        final PropagationTask propagationTask = CollectionUtils.find(tasks, new Predicate<PropagationTask>() {
+        final PropagationTask propagationTask = IterableUtils.find(tasks, new Predicate<PropagationTask>() {
 
             @Override
             public boolean evaluate(final PropagationTask task) {

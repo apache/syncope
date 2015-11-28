@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -179,7 +180,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
 
         @Override
         public boolean evaluate(final String realm) {
-            return CollectionUtils.exists(targets, new Predicate<String>() {
+            return IterableUtils.matchesAny(targets, new Predicate<String>() {
 
                 @Override
                 public boolean evaluate(final String target) {
@@ -205,7 +206,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
     }
 
     protected void securityChecks(final Set<String> effectiveRealms, final String realm, final Long key) {
-        if (!CollectionUtils.exists(effectiveRealms, new Predicate<String>() {
+        if (!IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
 
             @Override
             public boolean evaluate(final String ownedRealm) {

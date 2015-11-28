@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -38,7 +36,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -48,6 +46,8 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.validation.entity.RealmCheck;
 
 @Entity
@@ -160,7 +160,7 @@ public class JPARealm extends AbstractEntity<Long> implements Realm {
 
     @Override
     public AnyTemplateRealm getTemplate(final AnyType anyType) {
-        return CollectionUtils.find(templates, new Predicate<AnyTemplate>() {
+        return IterableUtils.find(templates, new Predicate<AnyTemplate>() {
 
             @Override
             public boolean evaluate(final AnyTemplate template) {

@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.collections4.Closure;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -54,7 +54,7 @@ public class SyncopeGrantedAuthority implements GrantedAuthority {
     }
 
     public void addRealms(final Collection<String> newRealms) {
-        CollectionUtils.forAllDo(newRealms, new Closure<String>() {
+        IterableUtils.forEach(newRealms, new Closure<String>() {
 
             @Override
             public void execute(final String newRealm) {

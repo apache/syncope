@@ -49,6 +49,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
@@ -504,7 +505,7 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
 
     @Override
     public URelationship getRelationship(final RelationshipType relationshipType, final Long anyObjectKey) {
-        return CollectionUtils.find(getRelationships(), new Predicate<URelationship>() {
+        return IterableUtils.find(getRelationships(), new Predicate<URelationship>() {
 
             @Override
             public boolean evaluate(final URelationship relationship) {
@@ -556,7 +557,7 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
 
     @Override
     public UMembership getMembership(final Long groupKey) {
-        return CollectionUtils.find(getMemberships(), new Predicate<UMembership>() {
+        return IterableUtils.find(getMemberships(), new Predicate<UMembership>() {
 
             @Override
             public boolean evaluate(final UMembership membership) {

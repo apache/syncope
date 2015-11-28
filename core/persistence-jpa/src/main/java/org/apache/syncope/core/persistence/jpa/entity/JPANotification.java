@@ -37,7 +37,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -173,7 +173,7 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
 
     @Override
     public AnyAbout getAbout(final AnyType anyType) {
-        return CollectionUtils.find(abouts, new Predicate<AnyAbout>() {
+        return IterableUtils.find(abouts, new Predicate<AnyAbout>() {
 
             @Override
             public boolean evaluate(final AnyAbout about) {

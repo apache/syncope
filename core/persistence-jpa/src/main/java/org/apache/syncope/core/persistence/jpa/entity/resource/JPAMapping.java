@@ -29,7 +29,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
@@ -96,7 +96,7 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
 
     @Override
     public MappingItem getConnObjectKeyItem() {
-        return CollectionUtils.find(getItems(), new Predicate<MappingItem>() {
+        return IterableUtils.find(getItems(), new Predicate<MappingItem>() {
 
             @Override
             public boolean evaluate(final MappingItem item) {

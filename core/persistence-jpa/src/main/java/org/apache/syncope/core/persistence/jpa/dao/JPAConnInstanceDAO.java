@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.Closure;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -76,15 +76,14 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance, Long> implemen
             return;
         }
 
-        CollectionUtils.forAllDo(new CopyOnWriteArrayList<>(connInstance.getResources()),
-                new Closure<ExternalResource>() {
+        IterableUtils.forEach(new CopyOnWriteArrayList<>(connInstance.getResources()), new Closure<ExternalResource>() {
 
-                    @Override
-                    public void execute(final ExternalResource input) {
-                        resourceDAO.delete(input.getKey());
-                    }
+            @Override
+            public void execute(final ExternalResource input) {
+                resourceDAO.delete(input.getKey());
+            }
 
-                });
+        });
 
         entityManager().remove(connInstance);
 

@@ -25,7 +25,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -55,7 +55,7 @@ public class MustChangePasswordFilter implements Filter {
             throws IOException, ServletException {
 
         if (request instanceof SecurityContextHolderAwareRequestWrapper) {
-            boolean isMustChangePassword = CollectionUtils.exists(
+            boolean isMustChangePassword = IterableUtils.matchesAny(
                     SecurityContextHolder.getContext().getAuthentication().getAuthorities(),
                     new Predicate<GrantedAuthority>() {
 

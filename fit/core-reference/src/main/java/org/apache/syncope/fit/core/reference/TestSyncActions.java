@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -45,7 +45,7 @@ public class TestSyncActions extends DefaultSyncActions {
 
         AttrTO attrTO = null;
         for (int i = 0; i < any.getPlainAttrs().size(); i++) {
-            AttrTO plainAttr = CollectionUtils.get(any.getPlainAttrs(), i);
+            AttrTO plainAttr = IterableUtils.get(any.getPlainAttrs(), i);
             if ("fullname".equals(plainAttr.getSchema())) {
                 attrTO = plainAttr;
             }

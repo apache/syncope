@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -44,7 +44,7 @@ import org.junit.runners.MethodSorters;
 public class RealmITCase extends AbstractITCase {
 
     private RealmTO getRealm(final String fullPath) {
-        return CollectionUtils.find(realmService.list(fullPath), new Predicate<RealmTO>() {
+        return IterableUtils.find(realmService.list(fullPath), new Predicate<RealmTO>() {
 
             @Override
             public boolean evaluate(final RealmTO object) {
@@ -105,7 +105,7 @@ public class RealmITCase extends AbstractITCase {
         assertNotNull(actual);
         assertEquals("/odd/last", actual.getFullPath());
 
-        assertEquals(1, CollectionUtils.countMatches(realmService.list(), new Predicate<RealmTO>() {
+        assertEquals(1, IterableUtils.countMatches(realmService.list(), new Predicate<RealmTO>() {
 
             @Override
             public boolean evaluate(final RealmTO object) {

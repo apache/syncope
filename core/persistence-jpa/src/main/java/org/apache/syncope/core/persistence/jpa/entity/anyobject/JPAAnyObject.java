@@ -35,6 +35,7 @@ import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -159,7 +160,7 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
 
     @Override
     public ARelationship getRelationship(final RelationshipType relationshipType, final Long anyObjectKey) {
-        return CollectionUtils.find(getRelationships(), new Predicate<ARelationship>() {
+        return IterableUtils.find(getRelationships(), new Predicate<ARelationship>() {
 
             @Override
             public boolean evaluate(final ARelationship relationship) {
@@ -211,7 +212,7 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
 
     @Override
     public AMembership getMembership(final Long groupKey) {
-        return CollectionUtils.find(getMemberships(), new Predicate<AMembership>() {
+        return IterableUtils.find(getMemberships(), new Predicate<AMembership>() {
 
             @Override
             public boolean evaluate(final AMembership membership) {

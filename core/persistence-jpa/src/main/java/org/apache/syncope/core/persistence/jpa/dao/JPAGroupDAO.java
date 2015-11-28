@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -75,7 +75,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     protected void securityChecks(final Group group) {
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_READ);
-        boolean authorized = CollectionUtils.exists(authRealms, new Predicate<String>() {
+        boolean authorized = IterableUtils.matchesAny(authRealms, new Predicate<String>() {
 
             @Override
             public boolean evaluate(final String realm) {

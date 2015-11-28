@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
@@ -106,7 +107,7 @@ public final class AnyOperations {
         result.getPlainAttrs().clear();
 
         if (!incremental) {
-            CollectionUtils.forAllDo(CollectionUtils.subtract(originalAttrs.keySet(), updatedAttrs.keySet()),
+            IterableUtils.forEach(CollectionUtils.subtract(originalAttrs.keySet(), updatedAttrs.keySet()),
                     new Closure<String>() {
 
                 @Override

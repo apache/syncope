@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
@@ -226,7 +227,7 @@ public class AuthenticationITCase extends AbstractITCase {
                 new AnySearchQuery.Builder().realm("/even/two").
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
         assertNotNull(matchedUsers);
-        assertTrue(CollectionUtils.matchesAll(matchedUsers.getResult(), new Predicate<UserTO>() {
+        assertTrue(IterableUtils.matchesAll(matchedUsers.getResult(), new Predicate<UserTO>() {
 
             @Override
             public boolean evaluate(final UserTO matched) {
@@ -398,7 +399,7 @@ public class AuthenticationITCase extends AbstractITCase {
         final String anyTypeKey = "FOLDER " + getUUIDString();
 
         // 1. no entitlement exists (yet) for the any type to be created
-        assertFalse(CollectionUtils.exists(syncopeService.info().getEntitlements(), new Predicate<String>() {
+        assertFalse(IterableUtils.matchesAny(syncopeService.info().getEntitlements(), new Predicate<String>() {
 
             @Override
             public boolean evaluate(final String entitlement) {
@@ -424,7 +425,7 @@ public class AuthenticationITCase extends AbstractITCase {
         anyTypeService.create(anyTypeTO);
 
         // 2. now entitlement exists for the any type just created
-        assertTrue(CollectionUtils.exists(syncopeService.info().getEntitlements(), new Predicate<String>() {
+        assertTrue(IterableUtils.matchesAny(syncopeService.info().getEntitlements(), new Predicate<String>() {
 
             @Override
             public boolean evaluate(final String entitlement) {

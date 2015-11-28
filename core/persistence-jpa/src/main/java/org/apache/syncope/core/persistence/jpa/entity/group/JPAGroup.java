@@ -35,7 +35,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -230,7 +230,7 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
 
     @Override
     public TypeExtension getTypeExtension(final AnyType anyType) {
-        return CollectionUtils.find(typeExtensions, new Predicate<TypeExtension>() {
+        return IterableUtils.find(typeExtensions, new Predicate<TypeExtension>() {
 
             @Override
             public boolean evaluate(final TypeExtension typeExtension) {

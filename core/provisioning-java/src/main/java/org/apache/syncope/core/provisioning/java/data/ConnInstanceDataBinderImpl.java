@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java.data;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import java.util.Arrays;
 import java.util.Collection;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -190,7 +190,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         for (final String propName : properties.getPropertyNames()) {
             ConnConfPropSchema schema = build(properties.getProperty(propName));
 
-            ConnConfProperty property = CollectionUtils.find(connInstanceTO.getConf(),
+            ConnConfProperty property = IterableUtils.find(connInstanceTO.getConf(),
                     new Predicate<ConnConfProperty>() {
 
                         @Override
