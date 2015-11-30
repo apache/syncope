@@ -38,7 +38,8 @@ public class UserGetKey extends AbstractUserCommand {
     public void get() {
         if (input.getParameters().length == 1) {
             try {
-                userResultManager.genericMessage(userSyncopeOperations.getIdFromUsername(input.firstParameter()));
+                final String userId = userSyncopeOperations.getIdFromUsername(input.firstParameter());
+                userResultManager.genericMessage(input.firstParameter() + " user ID is : " + userId);
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error getting user", ex);
                 userResultManager.genericError(ex.getMessage());
