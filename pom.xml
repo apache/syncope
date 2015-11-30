@@ -375,7 +375,7 @@ under the License.
     <jquery.version>2.1.4</jquery.version>
     <jquery-ui.version>1.11.4</jquery-ui.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
-    <bootstrap.version>3.3.5</bootstrap.version>
+    <bootstrap.version>3.3.6</bootstrap.version>
     <bootstrap-select.version>1.7.3</bootstrap-select.version>
 
     <wicket-bootstrap.version>0.10.4</wicket-bootstrap.version>
