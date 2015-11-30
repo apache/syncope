@@ -36,6 +36,6 @@ public interface SyncopeService extends JAXRSService {
      * @return information summary about this Apache Syncope deployment's configuration
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     SyncopeTO info();
 }

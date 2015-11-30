@@ -44,7 +44,7 @@ public interface AnyTypeService extends JAXRSService {
      * @return list of all anyTypes.
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<AnyTypeTO> list();
 
     /**
@@ -55,7 +55,7 @@ public interface AnyTypeService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     AnyTypeTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -65,7 +65,7 @@ public interface AnyTypeService extends JAXRSService {
      * @return Response object featuring Location header of created anyType
      */
     @POST
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response create(@NotNull AnyTypeTO anyTypeTO);
 
     /**
@@ -75,7 +75,7 @@ public interface AnyTypeService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     void update(@NotNull AnyTypeTO anyTypeTO);
 
     /**

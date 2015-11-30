@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.AccessControlException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -38,17 +37,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.naming.NamingException;
-import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
@@ -89,8 +85,6 @@ import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.rest.api.Preference;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -1139,36 +1133,6 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void noContent() throws IOException {
-        SyncopeClient noContentclient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        UserService noContentService = noContentclient.prefer(UserService.class, Preference.RETURN_NO_CONTENT);
-
-        UserTO user = getUniqueSampleTO("nocontent@syncope.apache.org");
-
-        Response response = noContentService.create(user, true);
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
-
-        user = getObject(response.getLocation(), UserService.class, UserTO.class);
-        assertNotNull(user);
-
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(user.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value("password321").build());
-
-        response = noContentService.update(userPatch);
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
-
-        response = noContentService.delete(user.getKey());
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
-    }
-
-    @Test
     public void customPolicyRules() {
         // Using custom policy rules with application/xml requires to overwrite
         // org.apache.syncope.common.lib.policy.AbstractAccountRuleConf's and / or
@@ -2130,40 +2094,6 @@ public class UserITCase extends AbstractITCase {
         assertNotEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertTrue(result.getPropagationStatuses().get(0).getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
-    }
-
-    @Test
-    public void ifMatch() {
-        UserTO userTO = userService.create(getUniqueSampleTO("ifmatch@syncope.apache.org"), true).
-                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
-                }).getAny();
-        assertNotNull(userTO);
-        assertNotNull(userTO.getKey());
-
-        EntityTag etag = adminClient.getLatestEntityTag(userService);
-        assertNotNull(etag);
-        assertTrue(StringUtils.isNotBlank(etag.getValue()));
-
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(userTO.getKey());
-        userPatch.setUsername(new StringReplacePatchItem.Builder().value(userTO.getUsername() + "XX").build());
-        userTO = userService.update(userPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
-        }).getAny();
-        assertTrue(userTO.getUsername().endsWith("XX"));
-        EntityTag etag1 = adminClient.getLatestEntityTag(userService);
-        assertFalse(etag.getValue().equals(etag1.getValue()));
-
-        UserService ifMatchService = adminClient.ifMatch(UserService.class, etag);
-        userPatch.setUsername(new StringReplacePatchItem.Builder().value(userTO.getUsername() + "YY").build());
-        try {
-            ifMatchService.update(userPatch);
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.ConcurrentModification, e.getType());
-        }
-
-        userTO = userService.read(userTO.getKey());
-        assertTrue(userTO.getUsername().endsWith("XX"));
     }
 
     @Test

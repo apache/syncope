@@ -44,7 +44,7 @@ public interface RealmService extends JAXRSService {
      * @return list of all realms.
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<RealmTO> list();
 
     /**
@@ -55,7 +55,7 @@ public interface RealmService extends JAXRSService {
      */
     @GET
     @Path("{fullPath:.*}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<RealmTO> list(@NotNull @PathParam("fullPath") String fullPath);
 
     /**
@@ -67,7 +67,7 @@ public interface RealmService extends JAXRSService {
      */
     @POST
     @Path("{parentPath:.*}")
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response create(@NotNull @PathParam("parentPath") String parentPath, @NotNull RealmTO realmTO);
 
     /**
@@ -77,7 +77,7 @@ public interface RealmService extends JAXRSService {
      */
     @PUT
     @Path("{fullPath:.*}")
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     void update(@NotNull RealmTO realmTO);
 
     /**

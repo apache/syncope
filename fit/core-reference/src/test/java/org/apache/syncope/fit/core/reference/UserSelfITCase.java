@@ -26,16 +26,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
@@ -52,8 +48,6 @@ import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.rest.api.Preference;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -235,7 +229,7 @@ public class UserSelfITCase extends AbstractITCase {
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
         UserTO deleted = authClient.getService(UserSelfService.class).delete().readEntity(
                 new GenericType<ProvisioningResult<UserTO>>() {
-                }).getAny();
+        }).getAny();
         assertNotNull(deleted);
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
                 ? "deleteApproval" : null, deleted.getStatus());
@@ -245,21 +239,6 @@ public class UserSelfITCase extends AbstractITCase {
     public void issueSYNCOPE373() {
         UserTO userTO = adminClient.self().getValue();
         assertEquals(ADMIN_UNAME, userTO.getUsername());
-    }
-
-    @Test
-    public void noContent() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
-
-        SyncopeClient anonClient = clientFactory.create();
-        UserSelfService noContentService = anonClient.prefer(UserSelfService.class, Preference.RETURN_NO_CONTENT);
-
-        UserTO user = UserITCase.getUniqueSampleTO("nocontent-anonymous@syncope.apache.org");
-
-        Response response = noContentService.create(user, true);
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
     }
 
     @Test

@@ -43,7 +43,7 @@ public interface GroupService extends AnyService<GroupTO, GroupPatch> {
      */
     @GET
     @Path("own")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<GroupTO> own();
 
     /**
@@ -53,6 +53,6 @@ public interface GroupService extends AnyService<GroupTO, GroupPatch> {
      * @return paged list of existing groups matching the given query
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<GroupTO> list(@BeanParam AnyListQuery listQuery);
 }

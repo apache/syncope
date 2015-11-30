@@ -52,7 +52,7 @@ public interface ConfigurationService extends JAXRSService {
      * @return all configuration parameters
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<AttrTO> list();
 
     /**
@@ -63,7 +63,7 @@ public interface ConfigurationService extends JAXRSService {
      */
     @GET
     @Path("{schema}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     AttrTO get(@NotNull @PathParam("schema") String schema);
 
     /**
@@ -73,7 +73,7 @@ public interface ConfigurationService extends JAXRSService {
      */
     @PUT
     @Path("{schema}")
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     void set(@NotNull AttrTO value);
 
     /**
@@ -83,6 +83,6 @@ public interface ConfigurationService extends JAXRSService {
      */
     @DELETE
     @Path("{schema}")
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     void delete(@NotNull @PathParam("schema") String schema);
 }

@@ -44,7 +44,7 @@ public interface RoleService extends JAXRSService {
      * @return list of all roles.
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<RoleTO> list();
 
     /**
@@ -55,7 +55,7 @@ public interface RoleService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     RoleTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -65,7 +65,7 @@ public interface RoleService extends JAXRSService {
      * @return Response object featuring Location header of created role
      */
     @POST
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response create(@NotNull RoleTO roleTO);
 
     /**
@@ -75,7 +75,7 @@ public interface RoleService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     void update(@NotNull RoleTO roleTO);
 
     /**

@@ -25,8 +25,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.List;
 import javax.naming.NamingEnumeration;
@@ -38,9 +36,6 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
@@ -75,8 +70,6 @@ import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.rest.api.Preference;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
@@ -548,36 +541,6 @@ public class GroupITCase extends AbstractITCase {
         GroupService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(GroupService.class);
         assertFalse(anonymous.list(new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).
                 getResult().isEmpty());
-    }
-
-    @Test
-    public void noContent() throws IOException {
-        SyncopeClient noContentclient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        GroupService noContentService = noContentclient.prefer(GroupService.class, Preference.RETURN_NO_CONTENT);
-
-        GroupTO group = getSampleTO("noContent");
-
-        Response response = noContentService.create(group);
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
-
-        group = getObject(response.getLocation(), GroupService.class, GroupTO.class);
-        assertNotNull(group);
-
-        GroupPatch groupPatch = new GroupPatch();
-        groupPatch.setKey(group.getKey());
-        groupPatch.getPlainAttrs().add(attrAddReplacePatch("badge", "xxxxxxxxxx"));
-
-        response = noContentService.update(groupPatch);
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
-
-        response = noContentService.delete(group.getKey());
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
     }
 
     @Test

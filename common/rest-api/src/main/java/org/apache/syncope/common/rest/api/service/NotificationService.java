@@ -46,7 +46,7 @@ public interface NotificationService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     NotificationTO read(@NotNull @PathParam("key") Long key);
 
     /**
@@ -55,7 +55,7 @@ public interface NotificationService extends JAXRSService {
      * @return list of all notifications.
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<NotificationTO> list();
 
     /**
@@ -65,7 +65,7 @@ public interface NotificationService extends JAXRSService {
      * @return Response object featuring Location header of created notification
      */
     @POST
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response create(@NotNull NotificationTO notificationTO);
 
     /**
@@ -75,7 +75,7 @@ public interface NotificationService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     void update(@NotNull NotificationTO notificationTO);
 
     /**

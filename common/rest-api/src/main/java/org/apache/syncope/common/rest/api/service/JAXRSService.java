@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import javax.ws.rs.core.MediaType;
+
 public interface JAXRSService {
+
+    String APPLICATION_XML = MediaType.APPLICATION_XML + ";qs=0.9";
 
     String PARAM_FIQL = "fiql";
 

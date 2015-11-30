@@ -44,7 +44,7 @@ public interface AnyObjectService extends AnyService<AnyObjectTO, AnyObjectPatch
      * @return paged list of existing any objects matching the given query, for the given type
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<AnyObjectTO> list(@NotNull @MatrixParam("type") String type, @BeanParam AnyListQuery listQuery);
 
 }

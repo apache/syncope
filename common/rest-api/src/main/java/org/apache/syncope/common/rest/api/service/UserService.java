@@ -70,7 +70,7 @@ public interface UserService extends AnyService<UserTO, UserPatch> {
      * @return paged list of existing users matching the given query
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<UserTO> list(@BeanParam AnyListQuery listQuery);
 
     /**
@@ -82,8 +82,8 @@ public interface UserService extends AnyService<UserTO, UserPatch> {
      * enriched with propagation status information - ProvisioningResult as Entity
      */
     @POST
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response create(
             @NotNull UserTO userTO,
             @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
@@ -97,7 +97,7 @@ public interface UserService extends AnyService<UserTO, UserPatch> {
      */
     @POST
     @Path("{key}/status")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response status(@NotNull StatusPatch statusPatch);
 }

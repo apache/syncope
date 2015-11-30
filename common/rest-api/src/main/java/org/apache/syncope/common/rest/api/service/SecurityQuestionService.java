@@ -44,7 +44,7 @@ public interface SecurityQuestionService extends JAXRSService {
      * @return list of all security questions
      */
     @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<SecurityQuestionTO> list();
 
     /**
@@ -55,7 +55,7 @@ public interface SecurityQuestionService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     SecurityQuestionTO read(@NotNull @PathParam("key") Long key);
 
     /**
@@ -65,7 +65,7 @@ public interface SecurityQuestionService extends JAXRSService {
      * @return Response object featuring Location header of created security question
      */
     @POST
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response create(@NotNull SecurityQuestionTO securityQuestionTO);
 
     /**
@@ -75,7 +75,7 @@ public interface SecurityQuestionService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     void update(@NotNull SecurityQuestionTO securityQuestionTO);
 
     /**
@@ -95,7 +95,7 @@ public interface SecurityQuestionService extends JAXRSService {
      */
     @GET
     @Path("byUser/{username}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     SecurityQuestionTO readByUser(@NotNull @PathParam("username") String username);
 }

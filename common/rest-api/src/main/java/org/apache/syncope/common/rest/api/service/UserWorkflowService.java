@@ -43,7 +43,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @GET
     @Path("forms")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<WorkflowFormTO> getForms();
 
     /**
@@ -55,7 +55,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @GET
     @Path("forms/{userKey}/{name}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<WorkflowFormTO> getFormsByName(
             @NotNull @PathParam("userKey") final Long userKey, @NotNull @PathParam("name") final String name);
 
@@ -67,7 +67,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @GET
     @Path("forms/{userKey}")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     WorkflowFormTO getFormForUser(@NotNull @PathParam("userKey") Long userKey);
 
     /**
@@ -78,7 +78,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @POST
     @Path("forms/{taskId}/claim")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     WorkflowFormTO claimForm(@NotNull @PathParam("taskId") String taskId);
 
     /**
@@ -89,8 +89,8 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @POST
     @Path("forms")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     UserTO submitForm(@NotNull WorkflowFormTO form);
 
     /**
@@ -102,7 +102,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @POST
     @Path("tasks/{taskId}/execute")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     UserTO executeTask(@NotNull @PathParam("taskId") String taskId, @NotNull UserTO userTO);
 }
