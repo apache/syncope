@@ -31,7 +31,7 @@ public class UserReadByUserId extends AbstractUserCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserReadByUserId.class);
 
-    private static final String READ_HELP_MESSAGE = "user --read {USER-ID} {USER-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "user --read-by-userid {USER-ID} {USER-ID} [...]";
 
     private final Input input;
 

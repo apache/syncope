@@ -155,13 +155,14 @@ public class CLIITCase extends AbstractITCase {
         final long userId4 = 4;
         final long userId5 = 5;
         try {
-            PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf(userId1)));
+            PROCESS_BUILDER.command(getCommand("user", "--read-by-userid", String.valueOf(userId1)));
             Process process = PROCESS_BUILDER.start();
             String result = IOUtils.toString(process.getInputStream());
             assertTrue(result.contains("username: " + userService.read(userId1).getUsername()));
             process.destroy();
 
-            PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf(userId1), String.valueOf(userId2),
+            PROCESS_BUILDER.command(getCommand(
+                    "user", "--read-by-userid", String.valueOf(userId1), String.valueOf(userId2),
                     String.valueOf(userId3), String.valueOf(userId4), String.valueOf(userId5)));
             Process process2 = PROCESS_BUILDER.start();
             long users = IterableUtils.countMatches(IOUtils.readLines(process2.getInputStream()),
@@ -176,7 +177,8 @@ public class CLIITCase extends AbstractITCase {
 
             process2.destroy();
 
-            PROCESS_BUILDER.command(getCommand("user", "--read", String.valueOf(userId1), String.valueOf(userId2),
+            PROCESS_BUILDER.command(getCommand(
+                    "user", "--read-by-userid", String.valueOf(userId1), String.valueOf(userId2),
                     String.valueOf(userId3), String.valueOf(userId4), String.valueOf(userId5)));
             Process process3 = PROCESS_BUILDER.start();
             String result3 = IOUtils.toString(process3.getInputStream());

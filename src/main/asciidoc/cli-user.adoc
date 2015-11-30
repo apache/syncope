@@ -486,7 +486,8 @@ $ ./syncopeadm.sh user --delete-all {REALM}
 --
 
 The delete option, as can be imagined, tries to remove every users under the passed realm.
-[Note]
+
+[NOTE]
 To run this operation the system asks you again the admin credential.
 
 [source]
