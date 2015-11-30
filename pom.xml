@@ -391,15 +391,15 @@ under the License.
     <wicket.version>7.1.0</wicket.version>
     <wicket-jqueryui.version>7.1.0</wicket-jqueryui.version>
     
-    <angular.version>1.4.7</angular.version>
-    <angular-route.version>1.4.7</angular-route.version>
-    <angular-resource.version>1.4.7</angular-resource.version>
-    <angular-cookies.version>1.4.7</angular-cookies.version>
-    <angular-animate.version>1.4.7</angular-animate.version>
+    <angular.version>1.4.8</angular.version>
+    <angular-route.version>1.4.8</angular-route.version>
+    <angular-resource.version>1.4.8</angular-resource.version>
+    <angular-cookies.version>1.4.8</angular-cookies.version>
+    <angular-animate.version>1.4.8</angular-animate.version>
     <angular-ui-router.version>0.2.15</angular-ui-router.version>
     <angular-ui-bootstrap.version>0.14.0</angular-ui-bootstrap.version>
     <angular-ui-select.version>0.13.1</angular-ui-select.version>
-    <angular-sanitize.version>1.4.7</angular-sanitize.version>
+    <angular-sanitize.version>1.4.8</angular-sanitize.version>
     <angular-growl-2.version>0.7.3</angular-growl-2.version>
     <select2.version>3.4.8</select2.version>
     <FileSaver.version>0.0.2</FileSaver.version>
