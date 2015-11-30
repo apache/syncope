@@ -83,6 +83,7 @@ under the License.
                   <directory>${project.build.directory}/swagger-ui/META-INF/resources/webjars/swagger-ui/${swagger-ui.version}</directory>
                   <excludes>
                     <exclude>index.html</exclude>
+                    <exclude>swagger-ui.min.js</exclude>
                   </excludes>
                 </resource>
               </resources>
@@ -91,6 +92,42 @@ under the License.
         </executions>
       </plugin>
     
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>addMatrixParamSupport</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <replace file="${project.build.directory}/swagger-ui/META-INF/resources/webjars/swagger-ui/${swagger-ui.version}/swagger-ui.js"
+                         token="return url + requestUrl + querystring;"
+                         value="&#10;var matrixstring = '';&#10;
+  for (var i = 0; i &lt; this.parameters.length; i++) {&#10;
+    var param = this.parameters[i];&#10;
+&#10;
+    if (param.in === 'matrix') {&#10;
+      matrixstring += ';' + this.encodeQueryParam(param.name) + '=' + this.encodeQueryParam(args[param.name]);&#10;
+    }&#10;
+  }&#10;
+&#10;
+  var url = this.scheme + '://' + this.host;&#10;
+&#10;
+  if (this.basePath !== '/') {&#10;
+    url += this.basePath;&#10;
+  }&#10;
+  return url + requestUrl + matrixstring + querystring;"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+          
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>

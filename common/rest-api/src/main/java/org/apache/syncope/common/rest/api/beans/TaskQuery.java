@@ -19,6 +19,7 @@
 package org.apache.syncope.common.rest.api.beans;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.MatrixParam;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -78,6 +79,7 @@ public class TaskQuery extends AbstractQuery {
         return type;
     }
 
+    @NotNull
     @MatrixParam("type")
     public void setType(final TaskType type) {
         this.type = type;

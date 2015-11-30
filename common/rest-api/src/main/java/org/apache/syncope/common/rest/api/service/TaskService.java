@@ -156,7 +156,7 @@ public interface TaskService extends JAXRSService {
     @GET
     @Path("jobs")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<TaskExecTO> listJobs(@MatrixParam("type") JobStatusType type);
+    List<TaskExecTO> listJobs(@NotNull @MatrixParam("type") JobStatusType type);
 
     /**
      * Executes an action on an existing task's job.
