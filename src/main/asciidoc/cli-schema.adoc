@@ -288,7 +288,7 @@ You are runnig: schema --read VIRTUAL virtualReadOnly
 --
 
 ===== Delete option
-The option to delete a specified schemas.
+The option to delete a specified schema.
 
 [source]
 --
@@ -297,7 +297,6 @@ $ ./syncopeadm.sh schema --delete {SCHEMA-TYPE} {SCHEMA-KEY}
 --
 
 The delete option, as can be imagined, tries to remove a specified schema.
-If the connector isn't associated to anything the output will be
 [source]
 --
  - Schema {SCHEMA-KEY} successfully deleted

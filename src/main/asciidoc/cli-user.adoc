@@ -1,0 +1,534 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+==== User command
+The user command serves to retrieve the information about the users.
+
+===== Help message
+[source,bash]
+----
+Usage: user [options]
+  Options:
+    --help 
+    --list 
+    --details 
+    --get-user-key
+       Syntax: --get-user-key {USERNAME} {USERNAME} [...]
+    --get-username
+       Syntax: --get-username {USER-ID} {USER-ID} [...]
+    --read 
+       Syntax: --read {USER-ID} {USER-ID} [...]
+    --search-by-attribute 
+       Syntax: --search-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}
+    --search-by-role 
+       Syntax: --search-by-role {REALM} {ROLE-ID}
+    --search-by-resource 
+       Syntax: --search-by-resource {REALM} {RESOURCE-NAME}
+    --delete 
+       Syntax: --delete {USER-ID} {USER-ID} [...]
+    --delete-all 
+       Syntax: --delete-all {REALM}
+    --delete-by-attribute 
+       Syntax: --delete-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}
+----
+
+===== Details option
+This option shows a table with some details about the users.
+
+[source]
+--
+$ ./syncopeadm.sh user --details
+--
+
+[source]
+--
+
+You are runnig: user --details 
+
+#################################
+#                               #
+#         USERS DETAILS         #
+#                               #
+#################################
+#                     #         #
+#       DETAIL        #  VALUE  #
+#                     #         #
+#################################
+#                     #         #
+#    Total number     #    5    #
+#       Active        #    5    #
+#      Suspended      #    0    #
+#  Without resources  #    0    #
+#    Without roles    #    2    #
+#                     #         #
+#################################
+
+--
+
+===== List option
+Running the command with this option you will see the list of all user in the environment but, before the execution, 
+the system will ask you a confirmation because as you can imagine this operation might produce very heavy output.
+
+[source]
+--
+$ ./syncopeadm.sh user --list
+--
+[source]
+--
+You are runnig: user --list 
+
+This operation might produce very heavy output. Do you want to continue? [yes/no]
+yes
+
+ > USER ID: 2
+    username: verdi
+    realm: /
+    status: active
+    RESOURCES: 
+       - ws-target-resource-list-mappings-1
+       - ws-target-resource-list-mappings-2
+    ROLES: 
+    creation date: Wed Oct 20 11:00:00 CEST 2010
+    change password date: null
+    PLAIN ATTRIBUTES: 
+       fullname: [Giuseppe Verdi]
+       firstname: [Giuseppe]
+       surname: [Verdi]
+       userId: [verdi@apache.org]
+       email: [verdi@syncope.org]
+    DERIVED ATTRIBUTES: 
+       info: [verdi - 2010-10-20T11:00:00+0200[0]] - is readonly.
+       noschema: [Verdi, ] - is readonly.
+       cn: [Verdi, Giuseppe] - is readonly.
+    VIRTUAL ATTRIBUTES: 
+    creator: admin
+    last modifier: admin
+    token: null
+    token expiration time: null
+    last change: Wed Oct 20 11:00:00 CEST 2010
+    last login: null
+    failed logins: 0
+RELATIONSHIPS:
+    security question id: null
+    security question answer id: null
+
+--
+
+===== Get user key option
+The option to get the user key starting from an username.
+
+[source]
+--
+$ ./syncopeadm.sh user --get-user-key {USERNAME}
+--
+
+[source]
+--
+You are runnig: user --get-user-key rossini 
+
+ - rossini user ID is 1
+--
+
+===== Get username option
+The option to get the username starting from an user id.
+
+[source]
+--
+$ ./syncopeadm.sh user --get-user-key {USER-ID}
+--
+
+[source]
+--
+You are runnig: user --get-username 1 
+
+ - 1 username is rossini
+--
+
+===== Read by user id option
+The option to read user information by his user id.
+
+[source]
+--
+$ ./syncopeadm.sh user --read {USER-ID} {USER-ID} [...]
+--
+
+[source]
+--
+
+You are runnig: user --read 1 
+
+ > USER ID: 1
+    username: rossini
+    realm: /even
+    status: active
+    RESOURCES: 
+       - resource-testdb2
+       - ws-target-resource-2
+    ROLES: 
+       - Other
+    creation date: Wed Oct 20 11:00:00 CEST 2010
+    change password date: null
+    PLAIN ATTRIBUTES: 
+       type: [G]
+       fullname: [Gioacchino Rossini]
+       firstname: [Gioacchino]
+       surname: [Rossini]
+       userId: [rossini@apache.org]
+       loginDate: [2009-05-26, 2010-05-26]
+    DERIVED ATTRIBUTES: 
+       info: [rossini - 2010-10-20[0]] - is readonly.
+       noschema: [Rossini, ] - is readonly.
+       cn: [Rossini, Gioacchino] - is readonly.
+    VIRTUAL ATTRIBUTES: 
+    creator: admin
+    last modifier: admin
+    token: null
+    token expiration time: null
+    last change: Wed Oct 20 11:00:00 CEST 2010
+    last login: null
+    failed logins: 0
+RELATIONSHIPS:
+    security question id: null
+    security question answer id: null
+
+--
+
+===== Read by username option
+The option to read user information by his username.
+
+[source]
+--
+$ ./syncopeadm.sh user --read {USERNAME} {USERNAME} [...]
+--
+
+[source]
+--
+
+You are runnig: user --read rossini
+
+ > USER ID: 1
+    username: rossini
+    realm: /even
+    status: active
+    RESOURCES: 
+       - resource-testdb2
+       - ws-target-resource-2
+    ROLES: 
+       - Other
+    creation date: Wed Oct 20 11:00:00 CEST 2010
+    change password date: null
+    PLAIN ATTRIBUTES: 
+       type: [G]
+       fullname: [Gioacchino Rossini]
+       firstname: [Gioacchino]
+       surname: [Rossini]
+       userId: [rossini@apache.org]
+       loginDate: [2009-05-26, 2010-05-26]
+    DERIVED ATTRIBUTES: 
+       info: [rossini - 2010-10-20[0]] - is readonly.
+       noschema: [Rossini, ] - is readonly.
+       cn: [Rossini, Gioacchino] - is readonly.
+    VIRTUAL ATTRIBUTES: 
+    creator: admin
+    last modifier: admin
+    token: null
+    token expiration time: null
+    last change: Wed Oct 20 11:00:00 CEST 2010
+    last login: null
+    failed logins: 0
+RELATIONSHIPS:
+    security question id: null
+    security question answer id: null
+
+--
+
+===== Search by attribute option
+The option to searcn a list of users with a common attribute.
+
+[source]
+--
+$ ./syncopeadm.sh user --search-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}
+--
+
+For instance if you want to search the active users under the root realm:
+
+[source]
+--
+
+You are runnig: user --search-by-attribute / status=active 
+
+ > USER ID: 2
+    username: verdi
+    realm: /
+    status: active
+    RESOURCES: 
+       - ws-target-resource-list-mappings-1
+       - ws-target-resource-list-mappings-2
+    ROLES: 
+    creation date: Wed Oct 20 11:00:00 CEST 2010
+    change password date: null
+    PLAIN ATTRIBUTES: 
+       fullname: [Giuseppe Verdi]
+       firstname: [Giuseppe]
+       surname: [Verdi]
+       userId: [verdi@apache.org]
+       email: [verdi@syncope.org]
+    DERIVED ATTRIBUTES: 
+       info: [verdi - 2010-10-20T11:00:00+0200[0]] - is readonly.
+       noschema: [Verdi, ] - is readonly.
+       cn: [Verdi, Giuseppe] - is readonly.
+    VIRTUAL ATTRIBUTES: 
+    creator: admin
+    last modifier: admin
+    token: null
+    token expiration time: null
+    last change: Wed Oct 20 11:00:00 CEST 2010
+    last login: null
+    failed logins: 0
+RELATIONSHIPS:
+    security question id: null
+    security question answer id: null
+
+ > USER ID: 3
+    username: vivaldi
+    realm: /
+    status: active
+    RESOURCES: 
+       - ws-target-resource-delete
+       - ws-target-resource-1
+       - ws-target-resource-2
+[...]
+--
+
+===== Search by role option
+The option to searcn a list of users with a specified role.
+
+[source]
+--
+$ ./syncopeadm.sh user --search-by-role {REALM} {ROLE-NAME}
+--
+
+[source]
+--
+
+You are runnig: user --search-by-role / Other 
+
+ > USER ID: 1
+    username: rossini
+    realm: /even
+    status: active
+    RESOURCES: 
+       - resource-testdb2
+       - ws-target-resource-2
+    ROLES: 
+       - Other
+    creation date: Wed Oct 20 11:00:00 CEST 2010
+    change password date: null
+    PLAIN ATTRIBUTES: 
+       type: [G]
+       fullname: [Gioacchino Rossini]
+       firstname: [Gioacchino]
+       surname: [Rossini]
+       userId: [rossini@apache.org]
+       loginDate: [2009-05-26, 2010-05-26]
+    DERIVED ATTRIBUTES: 
+       info: [rossini - 2010-10-20[0]] - is readonly.
+       noschema: [Rossini, ] - is readonly.
+       cn: [Rossini, Gioacchino] - is readonly.
+    VIRTUAL ATTRIBUTES: 
+    creator: admin
+    last modifier: admin
+    token: null
+    token expiration time: null
+    last change: Wed Oct 20 11:00:00 CEST 2010
+    last login: null
+    failed logins: 0
+RELATIONSHIPS:
+    security question id: null
+    security question answer id: null
+
+--
+
+===== Search by resource option
+The option to searcn a list of users with a specified resource.
+
+[source]
+--
+$ ./syncopeadm.sh user --search-by-resource {REALM} {RESOURCE-NAME}
+--
+
+[source]
+--
+
+You are runnig: user --search-by-resource / ws-target-resource-2 
+
+ > USER ID: 3
+    username: vivaldi
+    realm: /
+    status: active
+    RESOURCES: 
+       - ws-target-resource-delete
+       - ws-target-resource-1
+       - ws-target-resource-2
+    ROLES: 
+    creation date: Wed Oct 20 11:00:00 CEST 2010
+    change password date: null
+    PLAIN ATTRIBUTES: 
+       firstname: [Antonio]
+       surname: [Vivaldi]
+       fullname: [Antonio Vivaldi]
+       userId: [vivaldi@apache.org]
+       email: [vivaldi@syncope.org]
+       type: [F]
+    DERIVED ATTRIBUTES: 
+       cn: [Vivaldi, Antonio] - is readonly.
+       noschema: [Vivaldi, ] - is readonly.
+       info: [vivaldi - 2010-10-20T11:00:00+0200[0]] - is readonly.
+    VIRTUAL ATTRIBUTES: 
+    creator: admin
+    last modifier: admin
+    token: null
+    token expiration time: null
+    last change: Wed Oct 20 11:00:00 CEST 2010
+    last login: null
+    failed logins: 0
+RELATIONSHIPS:
+    security question id: null
+    security question answer id: null
+
+ > USER ID: 1
+    username: rossini
+    realm: /even
+    status: active
+    RESOURCES: 
+       - resource-testdb2
+       - ws-target-resource-2
+    ROLES: 
+       - Other
+    creation date: Wed Oct 20 11:00:00 CEST 2010
+    change password date: null
+    PLAIN ATTRIBUTES: 
+       type: [G]
+       fullname: [Gioacchino Rossini]
+       firstname: [Gioacchino]
+       surname: [Rossini]
+       userId: [rossini@apache.org]
+       loginDate: [2009-05-26, 2010-05-26]
+    DERIVED ATTRIBUTES: 
+       info: [rossini - 2010-10-20[0]] - is readonly.
+       noschema: [Rossini, ] - is readonly.
+       cn: [Rossini, Gioacchino] - is readonly.
+    VIRTUAL ATTRIBUTES: 
+    creator: admin
+    last modifier: admin
+    token: null
+    token expiration time: null
+    last change: Wed Oct 20 11:00:00 CEST 2010
+    last login: null
+    failed logins: 0
+RELATIONSHIPS:
+    security question id: null
+    security question answer id: null
+
+--
+
+===== Delete option
+The option to delete a specified user.
+
+[source]
+--
+$ ./syncopeadm.sh user --delete {{USER-ID} {USER-ID} [...]
+--
+
+The delete option, as can be imagined, tries to remove a specified user.
+[source]
+--
+ - User {USER-ID} successfully deleted
+--
+
+===== Delete by attribute option
+The option to delete the users with a common attribute.
+
+[source]
+--
+$ ./syncopeadm.sh user --delete-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}
+--
+
+[source]
+--
+ You are runnig: user --delete-by-attribute / surname=Rossini 
+
+ - Deleted users: 1
+--
+
+===== Delete all option
+The option to delete all users of the realm passe as input.
+
+[source]
+--
+$ ./syncopeadm.sh user --delete-all {REALM}
+--
+
+The delete option, as can be imagined, tries to remove every users under the passed realm.
+[Note]
+To run this operation the system asks you again the admin credential.
+
+[source]
+--
+You are runnig: user --delete-all / 
+
+Running this operation you will delete all the realm users managed by Syncope, are you sure? [yes/no]
+yes
+
+Username:
+admin
+
+Password:
+password
+Deleting process started
+
+ - Deleted users: 2
+
+#########################
+#                       #
+#   USERS NOT DELETED   #
+#                       #
+#########################
+#           #           #
+#  USER ID  #   CAUSE   #
+#           #           #
+#########################
+#           #           #
+#     5     #  FAILURE  #
+#           #           #
+#########################
+
+--
+
+As you can read the output is composed of two parts.
+The first one is the number of deleted users; the second one is a table with the users (user id) don't removed.
+
+To know the reason why the deletion failed you need to run the command with the standard delete option.
+
+[source]
+--
+You are runnig: user --delete 5 
+
+ - Error: GroupOwnership [6 director]
+--
