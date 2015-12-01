@@ -16,36 +16,37 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== CLI
 
-include::cli-introduction.adoc[]
+==== Info command
+The info command serves to show some information about the Syncope installation.
 
-include::cli-installation.adoc[]
-
-include::cli-connector.adoc[]
-
-include::cli-question.adoc[]
-
-include::cli-role.adoc[]
-
-include::cli-configuration.adoc[]
-
-include::cli-logger.adoc[]
-
-include::cli-task.adoc[]
-
-include::cli-notification.adoc[]
-
-include::cli-schema.adoc[]
-
-include::cli-user.adoc[]
-
-include::cli-report.adoc[]
-
-include::cli-resource.adoc[]
-
-include::cli-policy.adoc[]
-
-include::cli-info.adoc[]
-
-include::cli-entitlement.adoc[]
+===== Help message
+[source,bash]
+----
+Usage: info [options]
+  Options:
+    --version
+    --pwd-reset-allowed
+    --pwd-reset-with-question
+    --self-reg-allowed
+    --provisioning-manager-classes
+    --workflow-adapter-classes
+    --account-rules-classes
+    --connid-locations
+    --reconciliation-filter-builders
+    --logic-actions
+    --mail-templates
+    --mapping-item-transformers
+    --password-rules
+    --propagation-actions
+    --push-actions
+    --push-correlation-actions
+    --reportlets
+    --sync-actions
+    --sync-correlation-rules
+    --task-jobs
+    --validators
+    --password-generator
+    --vir-attr-cache
+    --help
+----
