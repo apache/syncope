@@ -52,7 +52,7 @@ public class ReportExportExecution extends AbstractReportCommand {
                 try {
                     final String result = reportSyncopeOperations.exportExecutionResult(
                             parameter, input.lastParameter());
-                    reportResultManager.genericMessage(result);
+                    reportResultManager.genericMessage(result + "created.");
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     LOG.error("Error exporting execution", ex);
                     if (ex.getMessage().startsWith("NotFound")) {

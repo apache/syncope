@@ -1,0 +1,251 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+==== Report command
+The report command serves to retrieve the information about the configured reports.
+
+===== Help message
+[source,bash]
+----
+Usage: report [options]
+  Options:
+    --help 
+    --details
+    --list 
+    --list-jobs 
+    --read 
+       Syntax: --read {REPORT-ID} {REPORT-ID} [...] 
+    --delete 
+       Syntax: --delete {REPORT-ID} {REPORT-ID} [...]
+    --execute 
+       Syntax: --execute {REPORT-ID} 
+    --read-execution 
+       Syntax: --read-execution {EXECUTION-ID} {EXECUTION-ID} [...]
+    --delete-execution 
+       Syntax: --delete-execution {EXECUTION-ID} {EXECUTION-ID} [...]
+    --export-execution-result 
+       Syntax: --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}
+          Format: CSV / HTML / PDF / XML / RTF
+----
+
+===== Details option
+This option shows a table with some details about the reports and their executions.
+
+[source]
+--
+$ ./syncopeadm.sh report --details
+--
+
+[source]
+--
+
+You are runnig: report --details 
+
+##############################
+#                            #
+#      REPORTS DETAILS       #
+#                            #
+##############################
+#                  #         #
+#      DETAIL      #  VALUE  #
+#                  #         #
+##############################
+#                  #         #
+#  Total numbers   #    1    #
+#  Never executed  #    0    #
+#                  #         #
+##############################
+
+--
+
+===== List all option
+Running the command with this option you will see the list of report configured.
+
+[source]
+--
+$ ./syncopeadm.sh report --list
+--
+[source]
+--
+You are runnig: report --list 
+
+ > REPORT ID: 1
+    name: test
+    cron expression: null
+    latest execution status: SUCCESS
+    start date: Sun Feb 26 15:40:04 CET 2012
+    end date: Sun Feb 26 15:41:04 CET 2012
+    CONF:
+       name: testUserReportlet
+       features: [key, username, workflowId, status, creationDate, lastLoginDate, changePwdDate, passwordHistorySize, failedLoginCount, memberships, resources]
+       plain attributes: [fullname, gender]
+       derived attributes: [cn]
+       virtual attributes: [virtualdata]
+       matching condition: null
+    EXECUTION:
+       REPORT EXEC ID: 1
+       status: SUCCESS
+       message: null
+       start date: Sun Feb 26 15:40:04 CET 2012
+       end date: Sun Feb 26 15:41:04 CET 2012
+       report id: 1
+--
+
+===== List reports execution option
+Running the command with this option you will see the list of the report execution executed.
+
+[source]
+--
+$ ./syncopeadm.sh report --list-jobs
+--
+
+[source]
+--
+
+You are runnig: report --list-jobs 
+       
+       REPORT EXEC ID: 0
+       status: Not Scheduled
+       message: null
+       start date: null
+       end date: null
+       report id: 1
+
+--
+
+===== Read option
+The option to read all the information of specified report.
+
+[source]
+--
+$ ./syncopeadm.sh report --read {REPORT-ID} {REPORT-ID} [...]
+--
+
+[source]
+--
+You are runnig: report --read 1 
+
+ > REPORT ID: 1
+    name: test
+    cron expression: null
+    latest execution status: SUCCESS
+    start date: Sun Feb 26 15:40:04 CET 2012
+    end date: Sun Feb 26 15:41:04 CET 2012
+    CONF:
+       name: testUserReportlet
+       features: [key, username, workflowId, status, creationDate, lastLoginDate, changePwdDate, passwordHistorySize, failedLoginCount, memberships, resources]
+       plain attributes: [fullname, gender]
+       derived attributes: [cn]
+       virtual attributes: [virtualdata]
+       matching condition: null
+    EXECUTION:
+       REPORT EXEC ID: 1
+       status: SUCCESS
+       message: null
+       start date: Sun Feb 26 15:40:04 CET 2012
+       end date: Sun Feb 26 15:41:04 CET 2012
+       report id: 1
+--
+
+===== Read report executions option
+The option to read all the information of specified report execution.
+
+[source]
+--
+$ ./syncopeadm.sh rreport --read-execution {EXECUTION-ID} {EXECUTION-ID} [...]
+--
+
+[source]
+--
+You are runnig: report --read-execution 1 
+       
+       REPORT EXEC ID: 1
+       status: SUCCESS
+       message: null
+       start date: Sun Feb 26 15:40:04 CET 2012
+       end date: Sun Feb 26 15:41:04 CET 2012
+       report id: 1
+--
+
+===== Delete option
+The option to delete a specified report.
+
+[source]
+--
+$ ./syncopeadm.sh report --delete {REPORT-ID} {REPORT-ID} [...]
+--
+
+The delete option, as can be imagined, tries to remove a specified report.
+[source]
+--
+ - Report {REPORT-ID} successfully deleted
+--
+
+===== Delete report executions option
+The option to delete a specified report execution.
+
+[source]
+--
+$ ./syncopeadm.sh report --delete-execution {EXECUTION-ID} {EXECUTION-ID} [...]
+--
+
+The delete option, as can be imagined, tries to remove a specified report execution.
+[source]
+--
+ - Report execution {EXECUTION-ID} successfully deleted
+
+===== Execute option
+The option to run a report.
+
+[source]
+--
+$ ./syncopeadm.sh report --execute {REPORT-ID}
+--
+
+[source]
+--
+You are runnig: report --execute 1 
+
+ - Report 1executed.
+
+
+ - Run --read 1 to see the results.
+--
+
+As you can read, after the execution, if the result is positive, you have to read the report to know the execution 
+results.
+
+===== Export execution option
+The option to export an execution in a certain format to see the results.
+
+[NOTE]
+At the moment only the XML format is supported.
+
+[source]
+--
+$ ./syncopeadm.sh eport --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}
+          Format: CSV / HTML / PDF / XML / RTF
+--
+
+[source]
+--
+You are runnig: report --export-execution-result 101 XML 
+
+ - export_101.xml created.
+--
