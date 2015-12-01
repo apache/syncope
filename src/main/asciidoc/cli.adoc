@@ -41,3 +41,5 @@ include::cli-schema.adoc[]
 include::cli-user.adoc[]
 
 include::cli-report.adoc[]
+
+include::cli-resource.adoc[]

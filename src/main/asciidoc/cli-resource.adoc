@@ -1,0 +1,208 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+==== Resource command
+The resource command serves to retrieve the information about the resources.
+
+===== Help message
+[source,bash]
+----
+Usage: resource [options]
+  Options:
+    --help 
+    --details 
+    --list 
+    --read 
+       Syntax: --read {RESOURCE-NAME} {RESOURCE-NAME} [...]
+    --delete 
+       Syntax: --delete {RESOURCE-NAME} {RESOURCE-NAME} [...]
+----
+
+===== Details option
+This option shows a table with resource amount.
+
+[source]
+--
+$ ./syncopeadm.sh resource --details
+--
+
+[source]
+--
+
+You are runnig: resource --details 
+
+#############################
+#                           #
+#     RESOURCES DETAILS     #
+#                           #
+#############################
+#                 #         #
+#     DETAIL      #  VALUE  #
+#                 #         #
+#############################
+#                 #         #
+#  Total numbers  #   19    #
+#                 #         #
+#############################
+
+--
+
+Total number::
+    number of resources;
+
+===== List option
+Running the command with this option you will see the list of the resources.
+
+[source]
+--
+$ ./syncopeadm.sh resource --list
+--
+
+[source]
+--
+
+You are runnig: resource --list 
+
+ > RESOURCE ID: ws-target-resource-1
+    connector dispaly name: ConnInstance100
+    etag value: 1287565200000
+    connector id: 100
+    account policy id: null
+    password policy id: null
+    sync policy id: null
+    creator: admin
+    creation date: Wed Oct 20 11:00:00 CEST 2010
+    last modifier: admin
+    last change date: Wed Oct 20 11:00:00 CEST 2010
+    propagation actions class: []
+    propagation priority: 1
+    PROVISIONS:
+       provision id: 15
+       any type: USER
+       object class: __ACCOUNT__
+       sync token: null
+       virtual schema: []
+       MAPPING: 
+          ConnObjectLink: null
+          MAPPING ITEM: 
+             mapping key: 99
+             mapping item type: UserKey
+             internal attribute name: id
+             external attribute name: userId
+             mandatory condition: true
+             transformers class: []
+             purpose: PROPAGATION
+             connector object key: true
+             password: false
+
+             mapping key: 100
+             mapping item type: UserPlainSchema
+             internal attribute name: email
+             external attribute name: email
+             mandatory condition: true
+             transformers class: []
+             purpose: PROPAGATION
+             connector object key: false
+             password: false
+
+             mapping key: 101
+             mapping item type: UserPlainSchema
+             internal attribute name: surname
+             external attribute name: surname
+             mandatory condition: true
+             transformers class: []
+             purpose: PROPAGATION
+             connector object key: false
+             password: false
+
+             mapping key: 102
+             mapping item type: Password
+             internal attribute name: password
+             external attribute name: __PASSWORD__
+             mandatory condition: true
+             transformers class: []
+             purpose: PROPAGATION
+             connector object key: false
+             password: true
+
+             mapping key: 335
+             mapping item type: UserPlainSchema
+             internal attribute name: surname
+             external attribute name: fullname
+             mandatory condition: true
+             transformers class: []
+             purpose: PROPAGATION
+             connector object key: false
+             password: false
+
+             mapping key: 336
+             mapping item type: UserPlainSchema
+             internal attribute name: type
+             external attribute name: type
+             mandatory condition: true
+             transformers class: []
+             purpose: PROPAGATION
+             connector object key: false
+             password: false
+
+             mapping key: 337
+             mapping item type: UserPlainSchema
+             internal attribute name: firstname
+             external attribute name: name
+             mandatory condition: false
+             transformers class: []
+             purpose: NONE
+             connector object key: false
+             password: false
+
+    create trace level: ALL
+    delete trace level: ALL
+    update trace level: ALL
+    sync trace level: ALL
+    enforce mandatory condition: false
+    override capabilities: false
+    random password if not provided: false
+[...]
+
+--
+
+===== Read option
+The option to read all the information of specified resource.
+
+[source]
+--
+$ ./syncopeadm.sh resource --read {RESOURCE-NAME} {RESOURCE-NAME} [...]
+--
+
+Unlike the list option, the read one shows only the resources passed as input.
+
+===== Delete option
+The option to delete a specified resource.
+
+[source]
+--
+$ ./syncopeadm.sh resource --delete {RESOURCE-NAME} {RESOURCE-NAME} [...]
+--
+
+The delete option, as can be imagined, tries to remove a specified resources. 
+The output will be something like:
+[source]
+--
+ - Resource {RESOURCE-NAME} successfully deleted
+--
