@@ -111,7 +111,8 @@ You are runnig: group --list
      - rderToBePropagated: [sx-dx] - is readonly
 
     VIRTUAL ATTRIBUTES: 
-[...]
+    [...]
+
 --
 
 ===== Read option

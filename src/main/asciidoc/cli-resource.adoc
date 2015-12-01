@@ -178,8 +178,8 @@ You are runnig: resource --list
     enforce mandatory condition: false
     override capabilities: false
     random password if not provided: false
-[...]
-
+    [...]
+    
 --
 
 ===== Read option
