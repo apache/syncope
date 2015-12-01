@@ -1,0 +1,111 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+==== Realm command
+The realm command serves to retrieve the information about the configured realm.
+
+===== Help message
+[source,bash]
+----
+Usage: realm [options]
+  Options:
+    --help 
+    --details 
+    --list
+----
+
+===== Details option
+This option shows a table with realm amount.
+
+[source]
+--
+$ ./syncopeadm.sh realm --details
+--
+
+[source]
+--
+
+You are runnig: realm --details 
+
+############################
+#                          #
+#      REALMS DETAILS      #
+#                          #
+############################
+#                #         #
+#     DETAIL     #  VALUE  #
+#                #         #
+############################
+#                #         #
+#  Total number  #    4    #
+#                #         #
+############################
+
+--
+
+===== List option
+Running the command with this option you will see the list of the realms.
+
+[source]
+--
+$ ./syncopeadm.sh realm --list 
+--
+
+[source]
+--
+
+You are runnig: realm --list 
+
+ > REALM ID: 1
+    name: /
+    full path: /
+    actions: []
+    templates: {}
+    parent id: 0
+    account policy id: null
+    password policy id: 4
+
+ > REALM ID: 2
+    name: odd
+    full path: /odd
+    actions: []
+    templates: {}
+    parent id: 1
+    account policy id: 6
+    password policy id: 4
+
+ > REALM ID: 3
+    name: even
+    full path: /even
+    actions: []
+    templates: {}
+    parent id: 1
+    account policy id: null
+    password policy id: 4
+
+ > REALM ID: 4
+    name: two
+    full path: /even/two
+    actions: []
+    templates: {}
+    parent id: 3
+    account policy id: 5
+    password policy id: 2
+
+--

@@ -51,3 +51,7 @@ include::cli-info.adoc[]
 include::cli-entitlement.adoc[]
 
 include::cli-domain.adoc[]
+
+include::cli-realm.adoc[]
+
+include::cli-group.adoc[]

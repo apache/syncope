@@ -1,0 +1,205 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+==== Group command
+The group command serves to retrieve the information about the configured groups.
+
+===== Help message
+[source,bash]
+----
+Usage: group [options]
+  Options:
+    --help 
+    --details 
+    --list 
+    --read 
+       Syntax: --read {GROUP-ID} {GROUP-ID} [...]
+    --read-attr-by-schema-type {GROUP-ID} {SCHEMA-TYPE}
+       Schema type: PLAIN / DERIVED / VIRTUAL
+    --read-attr-by-schema {GROUP-ID} {SCHEMA-TYPE} {SCHEMA-NAME}
+       Schema type: PLAIN / DERIVED / VIRTUAL
+    --delete 
+       Syntax: --delete {GROUP-ID} {GROUP-ID} [...]
+----
+
+===== Details option
+This option shows a table with group amount and some information.
+
+[source]
+--
+$ ./syncopeadm.sh group --details
+--
+
+[source]
+--
+
+You are runnig: group --details 
+
+##################################
+#                                #
+#         GROUPS DETAILS         #
+#                                #
+##################################
+#                      #         #
+#        DETAIL        #  VALUE  #
+#                      #         #
+##################################
+#                      #         #
+#     Total number     #   16    #
+#  Without resources   #   10    #
+#  Without attributes  #    0    #
+#    On root realm     #   14    #
+#  On the other realm  #    2    #
+#                      #         #
+##################################
+
+--
+
+===== List option
+Running the command with this option you will see the list of the groups.
+
+[source]
+--
+$ ./syncopeadm.sh group --list 
+--
+
+[source]
+--
+
+You are runnig: group --list 
+
+ > GROUP ID: 1
+    name: root
+    type: GROUP
+    realm: /
+    status: null
+    user owner: null
+    group owner: null
+    RESOURCES: 
+    PLAIN ATTRIBUTES: 
+     - icon: [niceIcon]
+
+     - show: [true]
+
+     - rderived_sx: [sx]
+
+     - rderived_dx: [dx]
+
+    DERIVED ATTRIBUTES: 
+     - displayProperty: [niceIcon: true] - is readonly
+
+     - rderiveddata: [sx-dx] - is readonly
+
+     - rderivedschema: [sx-dx] - is readonly
+
+     - rderToBePropagated: [sx-dx] - is readonly
+
+    VIRTUAL ATTRIBUTES: 
+[...]
+--
+
+===== Read option
+The option to read the group passed as input.
+
+[source]
+--
+$ ./syncopeadm.sh group --read {GROUP-ID} {GROUP-ID} [...] 
+--
+
+[source]
+--
+
+You are runnig: group --read 15 
+
+ > GROUP ID: 15
+    name: additional
+    type: GROUP
+    realm: /even
+    status: null
+    user owner: null
+    group owner: null
+    RESOURCES: 
+    PLAIN ATTRIBUTES: 
+    DERIVED ATTRIBUTES: 
+     - displayProperty: [: ] - is readonly
+
+     - rderToBePropagated: [-] - is readonly
+
+     - rderiveddata: [-] - is readonly
+
+     - rderivedschema: [-] - is readonly
+
+    VIRTUAL ATTRIBUTES: 
+
+--
+
+===== Read attribute of type option
+The option to read the specified attribute type of the group passed as input.
+
+[source]
+--
+$ ./syncopeadm.sh  group --read-attr-by-schema-type {GROUP-ID} {SCHEMA-TYPE}
+   Schema type: PLAIN / DERIVED / VIRTUAL
+--
+
+[source]
+--
+
+You are runnig: group --read-attr-by-schema-type 15 DERIVED 
+     - displayProperty: [: ] - is readonly
+
+     - rderToBePropagated: [-] - is readonly
+
+     - rderiveddata: [-] - is readonly
+
+     - rderivedschema: [-] - is readonly
+
+--
+
+===== Read an attribute of type option
+The option to read the specified attribute name of the group passed as input.
+
+[source]
+--
+$ ./syncopeadm.sh  group --read-attr-by-schema {GROUP-ID} {SCHEMA-TYPE} {SCHEMA-NAME}
+   Schema type: PLAIN / DERIVED / VIRTUAL
+--
+
+[source]
+--
+
+You are runnig: group --read-attr-by-schema 12 PLAIN title 
+     - title: [r12]
+
+--
+
+===== Delete option
+The option to delete a specified group.
+
+[source]
+--
+$ ./syncopeadm.sh group --delete {GROUP-ID} {GROUP-ID} [...]
+--
+
+The delete option, as can be imagined, tries to remove a specified group. 
+The output will be something like:
+[source]
+--
+ - Group {GROUP-ID} successfully deleted
+--
