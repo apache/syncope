@@ -137,7 +137,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
 
         // 1. get the query string from the search condition
         SearchSupport svs = new SearchSupport(typeKind);
-        StringBuilder queryString = getQuery(searchCondition, parameters, typeKind, svs);
+        StringBuilder queryString = getQuery(searchCondition, parameters, svs);
 
         // 2. take into account administrative realms
         queryString.insert(0, "SELECT u.any_id FROM (");
@@ -206,7 +206,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
 
         // 1. get the query string from the search condition
         SearchSupport svs = new SearchSupport(typeKind);
-        StringBuilder queryString = getQuery(searchCondition, parameters, typeKind, svs);
+        StringBuilder queryString = getQuery(searchCondition, parameters, svs);
 
         boolean matches;
         if (queryString.length() == 0) {
@@ -365,7 +365,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
 
         // 1. get the query string from the search condition
         SearchSupport svs = new SearchSupport(typeKind);
-        StringBuilder queryString = getQuery(nodeCond, parameters, typeKind, svs);
+        StringBuilder queryString = getQuery(nodeCond, parameters, svs);
 
         // 2. take into account administrative groups and ordering
         OrderBySupport orderBySupport = parseOrderBy(typeKind, svs, orderBy);
@@ -417,64 +417,59 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
         return result;
     }
 
-    private StringBuilder getQuery(final SearchCond nodeCond, final List<Object> parameters,
-            final AnyTypeKind anyTypeKind, final SearchSupport svs) {
-
+    private StringBuilder getQuery(final SearchCond nodeCond, final List<Object> parameters, final SearchSupport svs) {
         StringBuilder query = new StringBuilder();
 
         switch (nodeCond.getType()) {
 
             case LEAF:
             case NOT_LEAF:
-                if (nodeCond.getAnyTypeCond() != null && AnyTypeKind.ANY_OBJECT == anyTypeKind) {
+                if (nodeCond.getAnyTypeCond() != null && AnyTypeKind.ANY_OBJECT == svs.anyTypeKind()) {
                     query.append(getQuery(nodeCond.getAnyTypeCond(),
                             nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 } else if (nodeCond.getRelationshipTypeCond() != null
-                        && (AnyTypeKind.USER == anyTypeKind || AnyTypeKind.ANY_OBJECT == anyTypeKind)) {
+                        && (AnyTypeKind.USER == svs.anyTypeKind() || AnyTypeKind.ANY_OBJECT == svs.anyTypeKind())) {
 
                     query.append(getQuery(nodeCond.getRelationshipTypeCond(),
                             nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 } else if (nodeCond.getRelationshipCond() != null
-                        && (AnyTypeKind.USER == anyTypeKind || AnyTypeKind.ANY_OBJECT == anyTypeKind)) {
+                        && (AnyTypeKind.USER == svs.anyTypeKind() || AnyTypeKind.ANY_OBJECT == svs.anyTypeKind())) {
 
                     query.append(getQuery(nodeCond.getRelationshipCond(),
                             nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 } else if (nodeCond.getMembershipCond() != null
-                        && (AnyTypeKind.USER == anyTypeKind || AnyTypeKind.ANY_OBJECT == anyTypeKind)) {
+                        && (AnyTypeKind.USER == svs.anyTypeKind() || AnyTypeKind.ANY_OBJECT == svs.anyTypeKind())) {
 
                     query.append(getQuery(nodeCond.getMembershipCond(),
                             nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
-                } else if (nodeCond.getAssignableCond() != null
-                        && (AnyTypeKind.GROUP == anyTypeKind || AnyTypeKind.ANY_OBJECT == anyTypeKind)) {
-
-                    query.append(getQuery(nodeCond.getAssignableCond(), parameters, anyTypeKind, svs));
-                } else if (nodeCond.getRoleCond() != null && AnyTypeKind.USER == anyTypeKind) {
+                } else if (nodeCond.getAssignableCond() != null) {
+                    query.append(getQuery(nodeCond.getAssignableCond(), parameters, svs));
+                } else if (nodeCond.getRoleCond() != null && AnyTypeKind.USER == svs.anyTypeKind()) {
                     query.append(getQuery(nodeCond.getRoleCond(),
                             nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 } else if (nodeCond.getResourceCond() != null) {
                     query.append(getQuery(nodeCond.getResourceCond(),
-                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, anyTypeKind, svs));
+                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 } else if (nodeCond.getAttributeCond() != null) {
                     query.append(getQuery(nodeCond.getAttributeCond(),
-                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, anyTypeKind, svs));
+                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 } else if (nodeCond.getAnyCond() != null) {
                     query.append(getQuery(nodeCond.getAnyCond(),
-                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, anyTypeKind,
-                            svs));
+                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 }
                 break;
 
             case AND:
-                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, anyTypeKind, svs)).
+                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, svs)).
                         append(" AND any_id IN ( ").
-                        append(getQuery(nodeCond.getRightNodeCond(), parameters, anyTypeKind, svs)).
+                        append(getQuery(nodeCond.getRightNodeCond(), parameters, svs)).
                         append(")");
                 break;
 
             case OR:
-                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, anyTypeKind, svs)).
+                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, svs)).
                         append(" OR any_id IN ( ").
-                        append(getQuery(nodeCond.getRightNodeCond(), parameters, anyTypeKind, svs)).
+                        append(getQuery(nodeCond.getRightNodeCond(), parameters, svs)).
                         append(")");
                 break;
 
@@ -607,7 +602,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
     }
 
     private String getQuery(final ResourceCond cond, final boolean not, final List<Object> parameters,
-            final AnyTypeKind typeKind, final SearchSupport svs) {
+            final SearchSupport svs) {
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
@@ -623,7 +618,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
                 append(" WHERE resource_name=?").
                 append(setParameter(parameters, cond.getResourceName()));
 
-        if (typeKind == AnyTypeKind.USER) {
+        if (svs.anyTypeKind() == AnyTypeKind.USER) {
             query.append(" UNION SELECT DISTINCT any_id FROM ").
                     append(svs.groupResource().name).
                     append(" WHERE resource_name=?").
@@ -635,9 +630,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
         return query.toString();
     }
 
-    private String getQuery(final AssignableCond cond, final List<Object> parameters, final AnyTypeKind typeKind,
-            final SearchSupport svs) {
-
+    private String getQuery(final AssignableCond cond, final List<Object> parameters, final SearchSupport svs) {
         Realm realm = realmDAO.find(cond.getRealmFullPath());
         if (realm == null) {
             return EMPTY_QUERY;
@@ -645,10 +638,18 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE (");
-        for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
-            query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
+        if (cond.isFromGroup()) {
+            for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
+                query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
+            }
+            query.append("realm_id=?").append(setParameter(parameters, realmDAO.getRoot().getKey()));
+        } else {
+            for (Realm current : realmDAO.findDescendants(realm)) {
+                query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
+            }
+            query.setLength(query.length() - 4);
         }
-        query.append("realm_id=?").append(setParameter(parameters, realmDAO.getRoot().getKey())).append(')');
+        query.append(')');
 
         return query.toString();
     }
@@ -746,9 +747,9 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
     }
 
     private String getQuery(final AttributeCond cond, final boolean not, final List<Object> parameters,
-            final AnyTypeKind typeKind, final SearchSupport svs) {
+            final SearchSupport svs) {
 
-        AnyUtils attrUtils = anyUtilsFactory.getInstance(typeKind);
+        AnyUtils attrUtils = anyUtilsFactory.getInstance(svs.anyTypeKind());
 
         PlainSchema schema = schemaDAO.find(cond.getSchema());
         if (schema == null) {
@@ -797,9 +798,9 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
 
     @SuppressWarnings("rawtypes")
     private String getQuery(final AnyCond cond, final boolean not, final List<Object> parameters,
-            final AnyTypeKind typeKind, final SearchSupport svs) {
+            final SearchSupport svs) {
 
-        AnyUtils attrUtils = anyUtilsFactory.getInstance(typeKind);
+        AnyUtils attrUtils = anyUtilsFactory.getInstance(svs.anyTypeKind());
 
         // Keeps track of difference between entity's getKey() and JPA @Id fields
         if ("key".equals(cond.getSchema())) {
@@ -840,7 +841,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
         if (anyField.getType().getAnnotation(Entity.class) != null) {
             Method relMethod = null;
             try {
-                relMethod = ClassUtils.getPublicMethod(anyField.getType(), "getKey", new Class[0]);
+                relMethod = ClassUtils.getPublicMethod(anyField.getType(), "getKey", new Class<?>[0]);
             } catch (Exception e) {
                 LOG.error("Could not find {}#getKey", anyField.getType(), e);
             }

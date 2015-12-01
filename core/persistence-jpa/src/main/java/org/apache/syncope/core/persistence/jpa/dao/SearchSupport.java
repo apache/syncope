@@ -53,6 +53,10 @@ class SearchSupport {
         this.anyTypeKind = anyTypeKind;
     }
 
+    public AnyTypeKind anyTypeKind() {
+        return anyTypeKind;
+    }
+
     public String fieldName(final AttrSchemaType attrSchemaType) {
         String result;
 

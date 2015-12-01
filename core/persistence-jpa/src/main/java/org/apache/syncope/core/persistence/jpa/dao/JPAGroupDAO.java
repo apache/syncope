@@ -42,9 +42,12 @@ import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
@@ -159,12 +162,21 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return query.getResultList();
     }
 
+    private SearchCond buildDynMembershipCond(final String baseCondFIQL, final Realm groupRealm) {
+        AssignableCond cond = new AssignableCond();
+        cond.setRealmFullPath(groupRealm.getFullPath());
+        cond.setFromGroup(false);
+
+        return SearchCond.getAndCond(SearchCond.getLeafCond(cond), SearchCondConverter.convert(baseCondFIQL));
+    }
+
     @Override
     public Group save(final Group group) {
         // refresh dynaminc memberships
         if (group.getADynMembership() != null) {
             List<AnyObject> matching = searchDAO.search(
-                    SearchCondConverter.convert(group.getADynMembership().getFIQLCond()), AnyTypeKind.ANY_OBJECT);
+                    buildDynMembershipCond(group.getADynMembership().getFIQLCond(), group.getRealm()),
+                    AnyTypeKind.ANY_OBJECT);
 
             group.getADynMembership().getMembers().clear();
             for (AnyObject anyObject : matching) {
@@ -173,7 +185,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         }
         if (group.getUDynMembership() != null) {
             List<User> matching = searchDAO.search(
-                    SearchCondConverter.convert(group.getUDynMembership().getFIQLCond()), AnyTypeKind.USER);
+                    buildDynMembershipCond(group.getUDynMembership().getFIQLCond(), group.getRealm()),
+                    AnyTypeKind.USER);
 
             group.getUDynMembership().getMembers().clear();
             for (User user : matching) {
@@ -258,11 +271,13 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public void refreshDynMemberships(final AnyObject anyObject) {
-        for (Group role : findAll()) {
-            if (role.getADynMembership() != null && !searchDAO.matches(anyObject,
-                    SearchCondConverter.convert(role.getADynMembership().getFIQLCond()), AnyTypeKind.ANY_OBJECT)) {
+        for (Group group : findAll()) {
+            if (group.getADynMembership() != null && !searchDAO.matches(
+                    anyObject,
+                    buildDynMembershipCond(group.getADynMembership().getFIQLCond(), group.getRealm()),
+                    AnyTypeKind.ANY_OBJECT)) {
 
-                role.getADynMembership().remove(anyObject);
+                group.getADynMembership().remove(anyObject);
             }
         }
     }
@@ -270,11 +285,13 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public void refreshDynMemberships(final User user) {
-        for (Group role : findAll()) {
-            if (role.getUDynMembership() != null && !searchDAO.matches(user,
-                    SearchCondConverter.convert(role.getUDynMembership().getFIQLCond()), AnyTypeKind.USER)) {
+        for (Group group : findAll()) {
+            if (group.getUDynMembership() != null && !searchDAO.matches(
+                    user,
+                    buildDynMembershipCond(group.getUDynMembership().getFIQLCond(), group.getRealm()),
+                    AnyTypeKind.USER)) {
 
-                role.getUDynMembership().remove(user);
+                group.getUDynMembership().remove(user);
             }
         }
     }
