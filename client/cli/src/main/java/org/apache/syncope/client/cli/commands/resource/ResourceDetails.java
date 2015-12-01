@@ -44,7 +44,7 @@ public class ResourceDetails extends AbstractResourceCommand {
             try {
                 final Map<String, String> details = new LinkedMap<>();
                 final List<ResourceTO> resourceTOs = resourceSyncopeOperations.list();
-                details.put("Total numbers", String.valueOf(resourceTOs.size()));
+                details.put("Total number", String.valueOf(resourceTOs.size()));
                 resourceResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error reading details about resource", ex);
