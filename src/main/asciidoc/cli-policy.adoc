@@ -81,8 +81,6 @@ $ ./syncopeadm.sh Usage: policy --list {POLICY-TYPE}
 [source]
 --
 
-./syncopeadm.sh policy --list SYNC
-
 You are runnig: policy --list SYNC 
 
  > KEY: 1
