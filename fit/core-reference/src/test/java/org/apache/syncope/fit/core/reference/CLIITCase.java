@@ -33,6 +33,15 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.syncope.client.cli.Command;
+import org.apache.syncope.client.cli.commands.connector.ConnectorCommand;
+import org.apache.syncope.client.cli.commands.entitlement.EntitlementCommand;
+import org.apache.syncope.client.cli.commands.group.GroupCommand;
+import org.apache.syncope.client.cli.commands.install.InstallCommand;
+import org.apache.syncope.client.cli.commands.policy.PolicyCommand;
+import org.apache.syncope.client.cli.commands.report.ReportCommand;
+import org.apache.syncope.client.cli.commands.role.RoleCommand;
+import org.apache.syncope.client.cli.commands.user.UserCommand;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -57,7 +66,9 @@ public class CLIITCase extends AbstractITCase {
             PROCESS_BUILDER = new ProcessBuilder();
             PROCESS_BUILDER.directory(workDir);
 
-            PROCESS_BUILDER.command(getCommand("install", "--setup-debug"));
+            PROCESS_BUILDER.command(getCommand(
+                    new InstallCommand().getClass().getAnnotation(Command.class).name(),
+                    InstallCommand.Options.SETUP_DEBUG.getOptionName()));
             Process process = PROCESS_BUILDER.start();
             process.waitFor();
 
@@ -94,9 +105,14 @@ public class CLIITCase extends AbstractITCase {
 
             String result = IOUtils.toString(process.getInputStream());
             assertTrue(result.startsWith("\nUsage: Main [options]"));
-            assertTrue(result.contains("entitlement --help"));
-            assertTrue(result.contains("group --help"));
-
+            assertTrue(result.contains(
+                    new EntitlementCommand().getClass().getAnnotation(Command.class).name()
+                    + " "
+                    + EntitlementCommand.EntitlementOptions.HELP.getOptionName()));
+            assertTrue(result.contains(
+                    new GroupCommand().getClass().getAnnotation(Command.class).name()
+                    + " "
+                    + GroupCommand.GroupOptions.HELP.getOptionName()));
             process.destroy();
         } catch (IOException e) {
             fail(e.getMessage());
@@ -106,17 +122,19 @@ public class CLIITCase extends AbstractITCase {
     @Test
     public void entitlementCount() {
         try {
-            PROCESS_BUILDER.command(getCommand("entitlement", "--list"));
+            PROCESS_BUILDER.command(getCommand(
+                    new EntitlementCommand().getClass().getAnnotation(Command.class).name(),
+                    EntitlementCommand.EntitlementOptions.LIST.getOptionName()));
             Process process = PROCESS_BUILDER.start();
 
             long entitlements = IterableUtils.countMatches(IOUtils.readLines(process.getInputStream()),
                     new Predicate<String>() {
 
-                @Override
-                public boolean evaluate(final String line) {
-                    return line.startsWith("-");
-                }
-            });
+                        @Override
+                        public boolean evaluate(final String line) {
+                            return line.startsWith("-");
+                        }
+                    });
             assertEquals(syncopeService.info().getEntitlements().size(), entitlements);
 
             process.destroy();
@@ -128,17 +146,19 @@ public class CLIITCase extends AbstractITCase {
     @Test
     public void connectorCount() {
         try {
-            PROCESS_BUILDER.command(getCommand("connector", "--list-bundles"));
+            PROCESS_BUILDER.command(getCommand(
+                    new ConnectorCommand().getClass().getAnnotation(Command.class).name(),
+                    ConnectorCommand.ConnectorOptions.LIST_BUNDLES.getOptionName()));
             Process process = PROCESS_BUILDER.start();
 
             long bundles = IterableUtils.countMatches(IOUtils.readLines(process.getInputStream()),
                     new Predicate<String>() {
 
-                @Override
-                public boolean evaluate(final String line) {
-                    return line.startsWith(" > BUNDLE NAME:");
-                }
-            });
+                        @Override
+                        public boolean evaluate(final String line) {
+                            return line.startsWith(" > BUNDLE NAME:");
+                        }
+                    });
             assertEquals(connectorService.getBundles(null).size(), bundles);
 
             process.destroy();
@@ -155,30 +175,37 @@ public class CLIITCase extends AbstractITCase {
         final long userId4 = 4;
         final long userId5 = 5;
         try {
-            PROCESS_BUILDER.command(getCommand("user", "--read-by-userid", String.valueOf(userId1)));
+            PROCESS_BUILDER.command(getCommand(
+                    new UserCommand().getClass().getAnnotation(Command.class).name(),
+                    UserCommand.UserOptions.READ_BY_ID.getOptionName(),
+                    String.valueOf(userId1)));
             Process process = PROCESS_BUILDER.start();
             String result = IOUtils.toString(process.getInputStream());
             assertTrue(result.contains("username: " + userService.read(userId1).getUsername()));
             process.destroy();
 
             PROCESS_BUILDER.command(getCommand(
-                    "user", "--read-by-userid", String.valueOf(userId1), String.valueOf(userId2),
+                    new UserCommand().getClass().getAnnotation(Command.class).name(),
+                    UserCommand.UserOptions.READ_BY_ID.getOptionName(),
+                    String.valueOf(userId1), String.valueOf(userId2),
                     String.valueOf(userId3), String.valueOf(userId4), String.valueOf(userId5)));
             Process process2 = PROCESS_BUILDER.start();
             long users = IterableUtils.countMatches(IOUtils.readLines(process2.getInputStream()),
                     new Predicate<String>() {
 
-                @Override
-                public boolean evaluate(final String line) {
-                    return line.startsWith(" > USER ID:");
-                }
-            });
+                        @Override
+                        public boolean evaluate(final String line) {
+                            return line.startsWith(" > USER ID:");
+                        }
+                    });
             assertEquals(5, users);
 
             process2.destroy();
 
             PROCESS_BUILDER.command(getCommand(
-                    "user", "--read-by-userid", String.valueOf(userId1), String.valueOf(userId2),
+                    new UserCommand().getClass().getAnnotation(Command.class).name(),
+                    UserCommand.UserOptions.READ_BY_ID.getOptionName(),
+                    String.valueOf(userId1), String.valueOf(userId2),
                     String.valueOf(userId3), String.valueOf(userId4), String.valueOf(userId5)));
             Process process3 = PROCESS_BUILDER.start();
             String result3 = IOUtils.toString(process3.getInputStream());
@@ -198,7 +225,10 @@ public class CLIITCase extends AbstractITCase {
     public void roleRead() {
         final String roleId = "Search for realm evenTwo";
         try {
-            PROCESS_BUILDER.command(getCommand("role", "--read", roleId));
+            PROCESS_BUILDER.command(getCommand(
+                    new RoleCommand().getClass().getAnnotation(Command.class).name(),
+                    RoleCommand.RoleOptions.READ.getOptionName(),
+                    roleId));
             final Process process = PROCESS_BUILDER.start();
             final String result = IOUtils.toString(process.getInputStream());
             assertTrue(result.contains(roleService.read(roleId).getEntitlements().iterator().next()));
@@ -212,7 +242,10 @@ public class CLIITCase extends AbstractITCase {
     @Test
     public void reportNotExists() {
         try {
-            PROCESS_BUILDER.command(getCommand("report", "--read", "2"));
+            PROCESS_BUILDER.command(getCommand(
+                    new ReportCommand().getClass().getAnnotation(Command.class).name(),
+                    ReportCommand.ReportOptions.READ.getOptionName(),
+                    "2"));
             final Process process = PROCESS_BUILDER.start();
             final String result = IOUtils.toString(process.getInputStream());
             assertTrue(result.contains("- Report 2 doesn't exist"));
@@ -226,7 +259,10 @@ public class CLIITCase extends AbstractITCase {
     @Test
     public void policyError() {
         try {
-            PROCESS_BUILDER.command(getCommand("policy", "--read", "wrong"));
+            PROCESS_BUILDER.command(getCommand(
+                    new PolicyCommand().getClass().getAnnotation(Command.class).name(),
+                    PolicyCommand.PolicyOptions.READ.getOptionName(),
+                    "wrong"));
             final Process process = PROCESS_BUILDER.start();
             final String result = IOUtils.toString(process.getInputStream());
             assertTrue(result.contains(

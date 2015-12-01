@@ -62,7 +62,7 @@ public class RoleCommand extends AbstractCommand {
         return roleResultManager.commandHelpMessage(getClass());
     }
 
-    private enum RoleOptions {
+    public enum RoleOptions {
 
         HELP("--help"),
         DETAILS("--details"),

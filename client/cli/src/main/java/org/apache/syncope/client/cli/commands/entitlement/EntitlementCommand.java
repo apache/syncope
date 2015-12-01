@@ -65,7 +65,7 @@ public class EntitlementCommand extends AbstractCommand {
         return entitlementResultManager.commandHelpMessage(getClass());
     }
 
-    private enum EntitlementOptions {
+    public enum EntitlementOptions {
 
         HELP("--help"),
         LIST("--list"),

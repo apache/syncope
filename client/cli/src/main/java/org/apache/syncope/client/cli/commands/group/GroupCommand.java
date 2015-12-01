@@ -67,7 +67,7 @@ public class GroupCommand extends AbstractCommand {
         return groupResultManager.commandHelpMessage(getClass());
     }
 
-    private enum GroupOptions {
+    public enum GroupOptions {
 
         HELP("--help"),
         DETAILS("--details"),

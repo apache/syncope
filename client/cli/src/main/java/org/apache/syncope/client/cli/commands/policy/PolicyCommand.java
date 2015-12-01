@@ -33,10 +33,10 @@ public class PolicyCommand extends AbstractCommand {
     @Override
     public void execute(final Input input) {
         if (StringUtils.isBlank(input.getOption())) {
-            input.setOption(Options.HELP.getOptionName());
+            input.setOption(PolicyOptions.HELP.getOptionName());
         }
 
-        switch (Options.fromName(input.getOption())) {
+        switch (PolicyOptions.fromName(input.getOption())) {
             case DETAILS:
                 new PolicyDetails(input).details();
                 break;
@@ -62,7 +62,7 @@ public class PolicyCommand extends AbstractCommand {
         return policyResultManager.commandHelpMessage(getClass());
     }
 
-    private enum Options {
+    public enum PolicyOptions {
 
         HELP("--help"),
         DETAILS("--details"),
@@ -72,7 +72,7 @@ public class PolicyCommand extends AbstractCommand {
 
         private final String optionName;
 
-        Options(final String optionName) {
+        PolicyOptions(final String optionName) {
             this.optionName = optionName;
         }
 
@@ -84,9 +84,9 @@ public class PolicyCommand extends AbstractCommand {
             return (otherName == null) ? false : optionName.equals(otherName);
         }
 
-        public static Options fromName(final String name) {
-            Options optionToReturn = HELP;
-            for (final Options option : Options.values()) {
+        public static PolicyOptions fromName(final String name) {
+            PolicyOptions optionToReturn = HELP;
+            for (final PolicyOptions option : PolicyOptions.values()) {
                 if (option.equalsOptionName(name)) {
                     optionToReturn = option;
                 }
@@ -96,7 +96,7 @@ public class PolicyCommand extends AbstractCommand {
 
         public static List<String> toList() {
             final List<String> options = new ArrayList<>();
-            for (final Options value : values()) {
+            for (final PolicyOptions value : values()) {
                 options.add(value.getOptionName());
             }
             return options;

@@ -86,7 +86,7 @@ public class UserCommand extends AbstractCommand {
         return userResultManager.commandHelpMessage(getClass());
     }
 
-    private enum UserOptions {
+    public enum UserOptions {
 
         HELP("--help"),
         DETAILS("--details"),

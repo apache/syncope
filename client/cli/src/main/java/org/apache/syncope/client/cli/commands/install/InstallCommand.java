@@ -77,7 +77,7 @@ public class InstallCommand extends AbstractCommand {
         return HELP_MESSAGE;
     }
 
-    private enum Options {
+    public enum Options {
 
         HELP("--help"),
         SETUP("--setup"),

@@ -71,7 +71,7 @@ public class ConnectorCommand extends AbstractCommand {
         return connectorResultManager.commandHelpMessage(getClass());
     }
 
-    private enum ConnectorOptions {
+    public enum ConnectorOptions {
 
         HELP("--help"),
         LIST("--list"),

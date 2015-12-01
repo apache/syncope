@@ -30,8 +30,8 @@ under the License.
 
   <name>Apache Syncope Client CLI</name>
   <description>Apache Syncope Client CLI</description>
-
-  <groupId>org.apache.syncope</groupId>
+  
+  <groupId>org.apache.syncope.client</groupId>
   <artifactId>syncope-client-cli</artifactId>
   <packaging>jar</packaging>
 
