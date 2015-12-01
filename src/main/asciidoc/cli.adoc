@@ -49,3 +49,5 @@ include::cli-policy.adoc[]
 include::cli-info.adoc[]
 
 include::cli-entitlement.adoc[]
+
+include::cli-domain.adoc[]
