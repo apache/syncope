@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.report;
 
-import java.util.Arrays;
-import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,10 +40,13 @@ public class ReportExecute extends AbstractReportCommand {
         if (input.parameterNumber() == 1) {
             try {
                 reportSyncopeOperations.execute(input.firstParameter());
-                final List<ReportExecTO> executionList
-                        = reportSyncopeOperations.read(input.firstParameter()).getExecutions();
-                final ReportExecTO lastExecution = executionList.get(executionList.size() - 1);
-                reportResultManager.printReportExecution(Arrays.asList(lastExecution));
+                reportResultManager.genericMessage("Report " + input.firstParameter() + "executed.");
+                reportResultManager.genericMessage(
+                        "Run "
+                        + ReportCommand.ReportOptions.READ.getOptionName()
+                        + " "
+                        + input.firstParameter()
+                        + " to see the results.");
             } catch (final WebServiceException | SyncopeClientException ex) {
                 LOG.error("Error executin report", ex);
                 if (ex.getMessage().startsWith("NotFound")) {

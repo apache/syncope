@@ -46,7 +46,7 @@ public class ReportResultManager extends CommonsResultManager {
         for (final AbstractReportletConf reportletConf : reportTO.getReportletConfs()) {
             printReportletConf(reportletConf);
         }
-        System.out.println("    EXECUTION:");
+        System.out.println("    EXECUTIONS:");
         printReportExecution(reportTO.getExecutions());
         System.out.println("");
     }
