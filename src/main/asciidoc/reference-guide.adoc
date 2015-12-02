@@ -120,7 +120,7 @@ provisioning, and compliance.
 
 === Using the Admin Console
 
-include::cli.adoc[]
+include::cli/cli.adoc[]
 
 === RESTful services
 
