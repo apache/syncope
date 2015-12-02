@@ -21,6 +21,15 @@ package org.apache.syncope.core.logic.init;
 import java.io.StringWriter;
 import java.util.Map;
 import javax.sql.DataSource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CamelEntitlement;
 import org.apache.syncope.core.misc.EntitlementsHolder;
@@ -34,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -48,6 +58,21 @@ import org.w3c.dom.ls.LSSerializer;
 public class CamelRouteLoader implements SyncopeLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(CamelRouteLoader.class);
+
+    private static final boolean IS_JBOSS;
+
+    static {
+        IS_JBOSS = isJBoss();
+    }
+
+    private static boolean isJBoss() {
+        try {
+            Class.forName("org.jboss.vfs.VirtualFile");
+            return true;
+        } catch (Throwable ex) {
+            return false;
+        }
+    }
 
     @javax.annotation.Resource(name = "userRoutes")
     private ResourceWithFallbackLoader userRoutesLoader;
@@ -94,6 +119,22 @@ public class CamelRouteLoader implements SyncopeLoader {
         return writer.toString();
     }
 
+    private String nodeToString(final Node content, final TransformerFactory tf) {
+        String output = StringUtils.EMPTY;
+
+        try {
+            Transformer transformer = tf.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            StringWriter writer = new StringWriter();
+            transformer.transform(new DOMSource(content), new StreamResult(writer));
+            output = writer.getBuffer().toString();
+        } catch (TransformerException e) {
+            LOG.debug("While serializing route node", e);
+        }
+
+        return output;
+    }
+
     private void loadRoutes(
             final String domain, final DataSource dataSource, final Resource resource, final AnyTypeKind anyTypeKind) {
 
@@ -105,17 +146,33 @@ public class CamelRouteLoader implements SyncopeLoader {
 
         if (shouldLoadRoutes) {
             try {
-                DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
-                DOMImplementationLS domImpl = (DOMImplementationLS) reg.getDOMImplementation("LS");
-                LSInput lsinput = domImpl.createLSInput();
-                lsinput.setByteStream(resource.getInputStream());
+                TransformerFactory tf = null;
+                DOMImplementationLS domImpl = null;
+                NodeList routeNodes;
+                // When https://issues.jboss.org/browse/WFLY-4416 is resolved, this is not needed any more
+                if (IS_JBOSS) {
+                    tf = TransformerFactory.newInstance();
+                    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                    Document doc = dBuilder.parse(resource.getInputStream());
 
-                LSParser parser = domImpl.createLSParser(DOMImplementationLS.MODE_SYNCHRONOUS, null);
+                    routeNodes = doc.getDocumentElement().getElementsByTagName("route");
+                } else {
+                    DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+                    domImpl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+                    LSInput lsinput = domImpl.createLSInput();
+                    lsinput.setByteStream(resource.getInputStream());
 
-                NodeList routeNodes = parser.parse(lsinput).getDocumentElement().getElementsByTagName("route");
+                    LSParser parser = domImpl.createLSParser(DOMImplementationLS.MODE_SYNCHRONOUS, null);
+
+                    routeNodes = parser.parse(lsinput).getDocumentElement().getElementsByTagName("route");
+                }
+
                 for (int s = 0; s < routeNodes.getLength(); s++) {
                     Node routeElement = routeNodes.item(s);
-                    String routeContent = nodeToString(routeNodes.item(s), domImpl);
+                    String routeContent = IS_JBOSS
+                            ? nodeToString(routeNodes.item(s), tf)
+                            : nodeToString(routeNodes.item(s), domImpl);
                     String routeId = ((Element) routeElement).getAttribute("id");
 
                     jdbcTemplate.update(
