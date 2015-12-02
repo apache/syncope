@@ -154,7 +154,7 @@ under the License.
         <inherited>false</inherited>
         <extensions>true</extensions>
         <configuration>
-          <failOnMissingWebXml>false</failOnMissingWebXml>
+          <webXml>${basedir}/../../fit/console-reference/src/main/webapp/WEB-INF/web.xml</webXml>
           <webResources>
             <resource>
               <directory>${basedir}</directory>

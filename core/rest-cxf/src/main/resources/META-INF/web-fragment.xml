@@ -23,16 +23,6 @@ under the License.
                                   http://xmlns.jcp.org/xml/ns/javaee/web-fragment_3_1.xsd"
               id="${pom.artifactId}" version="3.1">
   
-  <display-name>Apache Syncope ${syncope.version} Core</display-name>
-
-  <context-param>
-    <param-name>contextConfigLocation</param-name>
-    <param-value>classpath*:/*Context.xml</param-value>
-  </context-param>
-
-  <listener>
-    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-  </listener>
   <listener>
     <listener-class>org.apache.syncope.core.rest.cxf.ThreadLocalCleanupListener</listener-class>
   </listener>
@@ -84,9 +74,5 @@ under the License.
     <filter-name>springSecurityFilterChain</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
-
-  <login-config>
-    <auth-method>CLIENT-CERT</auth-method>
-  </login-config>
 
 </web-fragment>

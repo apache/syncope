@@ -23,14 +23,6 @@ under the License.
                                   http://xmlns.jcp.org/xml/ns/javaee/web-fragment_3_1.xsd"
               id="${pom.artifactId}" version="3.1">
   
-  <!--causes problem if deployed with other fragments-->
-  <display-name>Apache Syncope ${syncope.version} Enduser</display-name>
-  
-  <context-param>
-    <param-name>configuration</param-name>
-    <param-value>deployment</param-value>
-  </context-param>
-  
   <filter>
     <filter-name>SyncopeEnduser</filter-name>
     <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
@@ -51,9 +43,4 @@ under the License.
     <dispatcher>INCLUDE</dispatcher>
   </filter-mapping>
   
-  <!--SESSION TIMEOUT (MINUTES)-->
-  <session-config>
-    <session-timeout>30</session-timeout>
-  </session-config>
-
 </web-fragment>

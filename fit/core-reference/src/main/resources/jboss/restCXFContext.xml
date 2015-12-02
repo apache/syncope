@@ -95,13 +95,19 @@ under the License.
     <property name="addResourceAndMethodIds" value="true"/>
     <property name="ignoreMessageWriters" value="true"/>
     <property name="usePathParamsToCompareOperations" value="false"/>
+    <property name="javaDocPaths">
+      <list>
+        <value>/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar</value>
+        <value>/WEB-INF/lib/syncope-ext-camel-rest-api-${syncope.version}-javadoc.jar</value>
+      </list>
+    </property>
   </bean>
   
   <bean id="swagger2Feature" class="org.apache.syncope.core.rest.cxf.Swagger2Feature">
     <property name="title" value="Apache Syncope"/>
     <property name="version" value="${syncope.version}"/>
     <property name="description" value="Apache Syncope ${syncope.version}"/>    
-    <property name="contact" value="dev@syncope.apache.org"/>    
+    <property name="contact" value="dev@syncope.apache.org"/>
     
     <property name="resourcePackage" value="org.apache.syncope.common.rest.api.service"/>
     <property name="scanAllResources" value="true"/>
@@ -109,6 +115,12 @@ under the License.
     
     <property name="dynamicBasePath" value="true"/>
     <property name="replaceTags" value="true"/>
+    <property name="javaDocPaths">
+      <list>
+        <value>/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar</value>
+        <value>/WEB-INF/lib/syncope-ext-camel-rest-api-${syncope.version}-javadoc.jar</value>
+      </list>
+    </property>
   </bean>
 
   <jaxrs:server id="restContainer" address="/"

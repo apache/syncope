@@ -159,15 +159,6 @@ under the License.
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <inherited>true</inherited>
-        <configuration>
-          <failOnMissingWebXml>false</failOnMissingWebXml>
-        </configuration>
-      </plugin>
-                
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <inherited>true</inherited>
         <executions>
@@ -605,6 +596,7 @@ under the License.
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-war-plugin</artifactId>
             <configuration>
+              <webXml>${basedir}/src/main/resources/jboss/web.xml</webXml>
               <packagingExcludes>WEB-INF/lib/syncope-*-persistence-jpa-${project.version}.jar</packagingExcludes>
             </configuration>
           </plugin>
@@ -672,7 +664,7 @@ under the License.
               <container>
                 <containerId>wildfly9x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.jboss.org/wildfly/9.0.1.Final/wildfly-9.0.1.Final.zip</url>
+                  <url>http://download.jboss.org/wildfly/9.0.2.Final/wildfly-9.0.2.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
@@ -684,7 +676,7 @@ under the License.
                   <cargo.jvmargs>-XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:PermSize=512m -XX:MaxPermSize=1024m -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
-            </configuration>            
+            </configuration>
           </plugin>
         </plugins>
 
@@ -692,6 +684,9 @@ under the License.
           <resource>
             <directory>src/main/resources</directory>
             <filtering>true</filtering>
+            <excludes>
+              <exclude>restCXFContext.xml</exclude>
+            </excludes>
           </resource>
           <resource>
             <directory>src/main/resources/jboss</directory>

@@ -37,6 +37,13 @@ under the License.
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
 
+  <dependencies>
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-jaxrs</artifactId>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>

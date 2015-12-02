@@ -517,6 +517,9 @@ under the License.
         <artifactId>cxf-rt-rs-client</artifactId>
         <version>${cxf.version}</version>
       </dependency>
+      <!-- /CXF -->
+
+      <!-- Swagger -->      
       <dependency>
         <groupId>io.swagger</groupId>
         <artifactId>swagger-jaxrs</artifactId>
@@ -529,12 +532,12 @@ under the License.
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-hibernate-validations</artifactId>
-        <version>${swagger-core.version}</version>
+        <groupId>org.webjars</groupId>
+        <artifactId>swagger-ui</artifactId>
+        <version>${swagger-ui.version}</version>
       </dependency>
-      <!-- /CXF -->
-      
+      <!-- /Swagger -->      
+
       <!-- Camel -->
       <dependency>
         <groupId>org.apache.camel</groupId>
@@ -948,11 +951,6 @@ under the License.
         <version>${slf4j.version}</version>
       </dependency>
       
-      <dependency>
-        <groupId>org.webjars</groupId>
-        <artifactId>swagger-ui</artifactId>
-        <version>${swagger-ui.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
         <artifactId>jquery</artifactId>
