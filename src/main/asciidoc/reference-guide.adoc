@@ -122,9 +122,7 @@ provisioning, and compliance.
 
 include::cli/cli.adoc[]
 
-=== RESTful services
-
-==== Client library
+include::restfulservices/restful-services.adoc[]
 
 === Customization
 

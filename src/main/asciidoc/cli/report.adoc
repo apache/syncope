@@ -209,6 +209,7 @@ The delete option, as can be imagined, tries to remove a specified report execut
 [source]
 --
  - Report execution {EXECUTION-ID} successfully deleted
+--
 
 ===== Execute option
 The option to run a report.
