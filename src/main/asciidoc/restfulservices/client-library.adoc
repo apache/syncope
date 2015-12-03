@@ -44,3 +44,17 @@ SyncopeClient client = new SyncopeClientFactoryBean().
 and you get enabled for any kind of REST service interaction with Apache Syncope.
 You can read the http://syncope.apache.org/apidocs/1.2/org/apache/syncope/common/services/package-summary.html[javadoc] 
 page for a documented list of available REST services in Apache Syncope.
+
+===== Usage example
+Below a snippet that shows how to use the SyncopeClient to update the logger configuration.
+[source,java]
+----
+SyncopeClient client = new SyncopeClientFactoryBean().
+                setAddress("http://localhost:9080/syncope/rest/").
+                create("admin", "password");
+LoggerService loggerService = client.getService(LoggerService.class);
+
+LoggerTO loggerTO = loggerService.read(LoggerType.LOG, "org.apache.syncope.core.connid");
+loggerTO.setLevel(LoggerLevel.DEBUG);
+loggerService.update(LoggerType.LOG, loggerTO);
+----
