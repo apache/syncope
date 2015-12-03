@@ -60,7 +60,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     @Autowired
     private AnyTypeDAO anyTypeDAO;
 
-    private void setDynMembership(final Group group, final AnyTypeKind anyTypeKind, final String dynMembershipFIQL) {
+    private void setDynMembership(final Group group, final AnyType anyType, final String dynMembershipFIQL) {
         SearchCond dynMembershipCond = SearchCondConverter.convert(dynMembershipFIQL);
         if (!dynMembershipCond.isValid()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
@@ -69,17 +69,17 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         DynGroupMembership<?> dynMembership;
-        if (anyTypeKind == AnyTypeKind.ANY_OBJECT && group.getADynMembership() == null) {
+        if (anyType.getKind() == AnyTypeKind.ANY_OBJECT && group.getADynMembership(anyType) == null) {
             dynMembership = entityFactory.newEntity(ADynGroupMembership.class);
             dynMembership.setGroup(group);
-            group.setADynMembership((ADynGroupMembership) dynMembership);
-        } else if (anyTypeKind == AnyTypeKind.USER && group.getUDynMembership() == null) {
+            group.add((ADynGroupMembership) dynMembership);
+        } else if (anyType.getKind() == AnyTypeKind.USER && group.getUDynMembership() == null) {
             dynMembership = entityFactory.newEntity(UDynGroupMembership.class);
             dynMembership.setGroup(group);
             group.setUDynMembership((UDynGroupMembership) dynMembership);
         } else {
-            dynMembership = anyTypeKind == AnyTypeKind.ANY_OBJECT
-                    ? group.getADynMembership()
+            dynMembership = anyType.getKind() == AnyTypeKind.ANY_OBJECT
+                    ? group.getADynMembership(anyType)
                     : group.getUDynMembership();
         }
         dynMembership.setFIQLCond(dynMembershipFIQL);
@@ -129,11 +129,17 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             }
         }
 
-        if (groupTO.getADynMembershipCond() != null) {
-            setDynMembership(group, AnyTypeKind.ANY_OBJECT, groupTO.getADynMembershipCond());
-        }
+        // dynamic membership
         if (groupTO.getUDynMembershipCond() != null) {
-            setDynMembership(group, AnyTypeKind.USER, groupTO.getUDynMembershipCond());
+            setDynMembership(group, anyTypeDAO.findUser(), groupTO.getUDynMembershipCond());
+        }
+        for (Map.Entry<String, String> entry : groupTO.getADynMembershipConds().entrySet()) {
+            AnyType anyType = anyTypeDAO.find(entry.getKey());
+            if (anyType == null) {
+                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), entry.getKey());
+            } else {
+                setDynMembership(group, anyType, entry.getValue());
+            }
         }
 
         // type extensions
@@ -218,20 +224,25 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         // dynamic membership
-        if (groupPatch.getADynMembershipCond() != null) {
-            if (groupPatch.getADynMembershipCond().getValue() == null) {
-                group.setADynMembership(null);
-            } else {
-                group.getADynMembership().getMembers().clear();
-                setDynMembership(group, AnyTypeKind.ANY_OBJECT, groupPatch.getADynMembershipCond().getValue());
-            }
-        }
-        if (groupPatch.getUDynMembershipCond() != null) {
-            if (groupPatch.getUDynMembershipCond().getValue() == null) {
+        if (groupPatch.getUDynMembershipCond() == null) {
+            if (group.getUDynMembership() != null) {
+                group.getUDynMembership().setGroup(null);
                 group.setUDynMembership(null);
+            }
+        } else {
+            setDynMembership(group, anyTypeDAO.findUser(), groupPatch.getUDynMembershipCond());
+        }
+        for (Iterator<? extends ADynGroupMembership> itor = group.getADynMemberships().iterator(); itor.hasNext();) {
+            ADynGroupMembership memb = itor.next();
+            memb.setGroup(null);
+            itor.remove();
+        }
+        for (Map.Entry<String, String> entry : groupPatch.getADynMembershipConds().entrySet()) {
+            AnyType anyType = anyTypeDAO.find(entry.getKey());
+            if (anyType == null) {
+                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), entry.getKey());
             } else {
-                group.getUDynMembership().getMembers().clear();
-                setDynMembership(group, AnyTypeKind.USER, groupPatch.getUDynMembershipCond().getValue());
+                setDynMembership(group, anyType, entry.getValue());
             }
         }
 
@@ -317,11 +328,11 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         fillTO(groupTO, group.getRealm().getFullPath(), group.getAuxClasses(),
                 group.getPlainAttrs(), derAttrValues, virAttrValues, group.getResources());
 
-        if (group.getADynMembership() != null) {
-            groupTO.setADynMembershipCond(group.getADynMembership().getFIQLCond());
-        }
         if (group.getUDynMembership() != null) {
             groupTO.setUDynMembershipCond(group.getUDynMembership().getFIQLCond());
+        }
+        for (ADynGroupMembership memb : group.getADynMemberships()) {
+            groupTO.getADynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond());
         }
 
         for (TypeExtension typeExt : group.getTypeExtensions()) {

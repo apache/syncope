@@ -109,7 +109,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public void delete(final AnyObject any) {
         for (Group group : findDynGroupMemberships(any)) {
-            group.getADynMembership().remove(any);
+            group.getADynMembership(any.getType()).remove(any);
         }
 
         entityManager().remove(any);

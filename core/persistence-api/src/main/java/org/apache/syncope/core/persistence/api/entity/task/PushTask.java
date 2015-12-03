@@ -23,11 +23,11 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 
 public interface PushTask extends ProvisioningTask {
 
-    boolean add(AnyFilter filter);
+    boolean add(PushTaskAnyFilter filter);
 
-    boolean remove(AnyFilter filter);
+    boolean remove(PushTaskAnyFilter filter);
 
-    AnyFilter getFilter(AnyType anyType);
+    PushTaskAnyFilter getFilter(AnyType anyType);
 
-    List<? extends AnyFilter> getFilters();
+    List<? extends PushTaskAnyFilter> getFilters();
 }

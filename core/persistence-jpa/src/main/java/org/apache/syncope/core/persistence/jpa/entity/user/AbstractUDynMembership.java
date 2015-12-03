@@ -20,12 +20,11 @@ package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import java.util.List;
 import javax.persistence.MappedSuperclass;
-import org.apache.syncope.core.persistence.api.entity.user.UDynMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractDynMembership;
 
 @MappedSuperclass
-public abstract class AbstractUDynMembership extends AbstractDynMembership<User> implements UDynMembership {
+public abstract class AbstractUDynMembership extends AbstractDynMembership<User> {
 
     private static final long serialVersionUID = 6296230283800203205L;
 

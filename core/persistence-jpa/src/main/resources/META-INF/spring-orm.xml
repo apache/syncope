@@ -377,11 +377,11 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyFilter">
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTaskAnyFilter">
     <attributes>
       <id name="id">
-        <generated-value generator="SEQ_AnyFilter" strategy="TABLE"/>
-        <table-generator name="SEQ_AnyFilter" pk-column-value="SEQ_AnyFilter" initial-value="1000"/>
+        <generated-value generator="SEQ_PushTaskAnyFilter" strategy="TABLE"/>
+        <table-generator name="SEQ_PushTaskAnyFilter" pk-column-value="SEQ_PushTaskAnyFilter" initial-value="1000"/>
       </id>
     </attributes>
   </entity>

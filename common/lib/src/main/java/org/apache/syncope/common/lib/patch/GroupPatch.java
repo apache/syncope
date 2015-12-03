@@ -21,13 +21,17 @@ package org.apache.syncope.common.lib.patch;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 
 @XmlRootElement(name = "groupPatch")
@@ -42,9 +46,11 @@ public class GroupPatch extends AnyPatch {
 
     private LongReplacePatchItem groupOwner;
 
-    private StringReplacePatchItem adynMembershipCond;
+    private String udynMembershipCond;
 
-    private StringReplacePatchItem udynMembershipCond;
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    @JsonIgnore
+    private final Map<String, String> adynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
@@ -72,20 +78,17 @@ public class GroupPatch extends AnyPatch {
         this.groupOwner = groupOwner;
     }
 
-    public StringReplacePatchItem getADynMembershipCond() {
-        return adynMembershipCond;
-    }
-
-    public void setADynMembershipCond(final StringReplacePatchItem adynMembershipCond) {
-        this.adynMembershipCond = adynMembershipCond;
-    }
-
-    public StringReplacePatchItem getUDynMembershipCond() {
+    public String getUDynMembershipCond() {
         return udynMembershipCond;
     }
 
-    public void setUDynMembershipCond(final StringReplacePatchItem udynMembershipCond) {
+    public void setUDynMembershipCond(final String udynMembershipCond) {
         this.udynMembershipCond = udynMembershipCond;
+    }
+
+    @JsonIgnore
+    public Map<String, String> getADynMembershipConds() {
+        return adynMembershipConds;
     }
 
     @JsonIgnore
@@ -110,7 +113,7 @@ public class GroupPatch extends AnyPatch {
     public boolean isEmpty() {
         return super.isEmpty()
                 && name == null && userOwner == null && groupOwner == null
-                && adynMembershipCond == null && udynMembershipCond == null && typeExtensions.isEmpty();
+                && udynMembershipCond == null && adynMembershipConds.isEmpty() && typeExtensions.isEmpty();
     }
 
 }

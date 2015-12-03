@@ -18,25 +18,56 @@
  */
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.validation.ConstraintValidatorContext;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public class GroupValidator extends AbstractValidator<GroupCheck, Group> {
 
     @Override
-    public boolean isValid(final Group object, final ConstraintValidatorContext context) {
+    public boolean isValid(final Group group, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
         boolean isValid = true;
 
-        if (object.getUserOwner() != null && object.getGroupOwner() != null) {
+        if (group.getUserOwner() != null && group.getGroupOwner() != null) {
             isValid = false;
 
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidGroupOwner,
                             "A group must either be owned by an user or a group, not both")).
                     addPropertyNode("owner").addConstraintViolation();
+        }
+
+        if (isValid) {
+            Set<AnyType> anyTypes = new HashSet<>();
+            for (ADynGroupMembership memb : group.getADynMemberships()) {
+                anyTypes.add(memb.getAnyType());
+
+                if (memb.getAnyType().getKind() != AnyTypeKind.ANY_OBJECT) {
+                    isValid = false;
+
+                    context.buildConstraintViolationWithTemplate(
+                            getTemplate(EntityViolationType.InvalidADynMemberships,
+                                    "No user or group dynamic membership condition are allowed here")).
+                            addPropertyNode("aDynMemberships").addConstraintViolation();
+                }
+            }
+
+            if (isValid && anyTypes.size() < group.getADynMemberships().size()) {
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidADynMemberships,
+                                "Each dynamic membership condition requires a different "
+                                + AnyType.class.getSimpleName())).
+                        addPropertyNode("aDynMemberships").addConstraintViolation();
+                return false;
+            }
+
         }
 
         return isValid;

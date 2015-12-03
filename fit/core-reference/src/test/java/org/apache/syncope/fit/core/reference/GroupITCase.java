@@ -556,7 +556,7 @@ public class GroupITCase extends AbstractITCase {
 
         GroupPatch mod = new GroupPatch();
         mod.setKey(group.getKey());
-        mod.setUDynMembershipCond(new StringReplacePatchItem.Builder().value("cool==false").build());
+        mod.setUDynMembershipCond("cool==false");
         groupService.update(mod);
 
         assertTrue(userService.read(4L).getDynGroups().isEmpty());

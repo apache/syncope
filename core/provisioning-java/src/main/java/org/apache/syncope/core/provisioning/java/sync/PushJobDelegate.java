@@ -174,7 +174,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
 
                 String filter = pushTask.getFilter(provision.getAnyType()) == null
                         ? null
-                        : pushTask.getFilter(provision.getAnyType()).get();
+                        : pushTask.getFilter(provision.getAnyType()).getFIQLCond();
                 if (StringUtils.isBlank(filter)) {
                     handle(anyDAO.findAll(), handler, pushTask.getResource());
                 } else {

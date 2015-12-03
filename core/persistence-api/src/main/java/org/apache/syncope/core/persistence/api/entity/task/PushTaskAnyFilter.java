@@ -16,10 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.user;
+package org.apache.syncope.core.persistence.api.entity.task;
 
-import org.apache.syncope.core.persistence.api.entity.DynMembership;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface UDynMembership extends DynMembership<User> {
+public interface PushTaskAnyFilter extends Entity<Long> {
 
+    PushTask getPushTask();
+
+    void setPushTask(PushTask pushTask);
+
+    AnyType getAnyType();
+
+    void setAnyType(AnyType anyType);
+
+    String getFIQLCond();
+
+    void setFIQLCond(String fiql);
 }

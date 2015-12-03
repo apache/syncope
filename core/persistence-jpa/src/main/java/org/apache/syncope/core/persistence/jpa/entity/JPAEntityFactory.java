@@ -68,11 +68,11 @@ import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.task.AnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplateSyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -103,7 +103,7 @@ import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyFilter;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTaskAnyFilter;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplateSyncTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
@@ -228,8 +228,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPASchedTask();
         } else if (reference.equals(TaskExec.class)) {
             result = (T) new JPATaskExec();
-        } else if (reference.equals(AnyFilter.class)) {
-            result = (T) new JPAAnyFilter();
+        } else if (reference.equals(PushTaskAnyFilter.class)) {
+            result = (T) new JPAPushTaskAnyFilter();
         } else if (reference.equals(AnyTemplateSyncTask.class)) {
             result = (T) new JPAAnyTemplateSyncTask();
         } else if (reference.equals(SecurityQuestion.class)) {

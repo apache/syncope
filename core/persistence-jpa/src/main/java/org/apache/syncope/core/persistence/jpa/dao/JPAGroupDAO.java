@@ -48,6 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
@@ -173,16 +174,6 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public Group save(final Group group) {
         // refresh dynaminc memberships
-        if (group.getADynMembership() != null) {
-            List<AnyObject> matching = searchDAO.search(
-                    buildDynMembershipCond(group.getADynMembership().getFIQLCond(), group.getRealm()),
-                    AnyTypeKind.ANY_OBJECT);
-
-            group.getADynMembership().getMembers().clear();
-            for (AnyObject anyObject : matching) {
-                group.getADynMembership().add(anyObject);
-            }
-        }
         if (group.getUDynMembership() != null) {
             List<User> matching = searchDAO.search(
                     buildDynMembershipCond(group.getUDynMembership().getFIQLCond(), group.getRealm()),
@@ -191,6 +182,16 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             group.getUDynMembership().getMembers().clear();
             for (User user : matching) {
                 group.getUDynMembership().add(user);
+            }
+        }
+        for (ADynGroupMembership memb : group.getADynMemberships()) {
+            List<AnyObject> matching = searchDAO.search(
+                    buildDynMembershipCond(memb.getFIQLCond(), group.getRealm()),
+                    AnyTypeKind.ANY_OBJECT);
+
+            memb.getMembers().clear();
+            for (AnyObject anyObject : matching) {
+                memb.add(anyObject);
             }
         }
 
@@ -272,12 +273,14 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public void refreshDynMemberships(final AnyObject anyObject) {
         for (Group group : findAll()) {
-            if (group.getADynMembership() != null && !searchDAO.matches(
-                    anyObject,
-                    buildDynMembershipCond(group.getADynMembership().getFIQLCond(), group.getRealm()),
-                    AnyTypeKind.ANY_OBJECT)) {
+            for (ADynGroupMembership memb : group.getADynMemberships()) {
+                if (!searchDAO.matches(
+                        anyObject,
+                        buildDynMembershipCond(memb.getFIQLCond(), group.getRealm()),
+                        AnyTypeKind.ANY_OBJECT)) {
 
-                group.getADynMembership().remove(anyObject);
+                    memb.remove(anyObject);
+                }
             }
         }
     }

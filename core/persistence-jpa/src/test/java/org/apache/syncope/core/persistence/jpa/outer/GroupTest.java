@@ -290,10 +290,11 @@ public class GroupTest extends AbstractTest {
         group.setName("new");
 
         ADynGroupMembership dynMembership = entityFactory.newEntity(ADynGroupMembership.class);
+        dynMembership.setAnyType(anyTypeDAO.find("PRINTER"));
         dynMembership.setFIQLCond("model==Canon MFC8030");
         dynMembership.setGroup(group);
 
-        group.setADynMembership(dynMembership);
+        group.add(dynMembership);
 
         Group actual = groupDAO.save(group);
         assertNotNull(actual);
@@ -303,14 +304,15 @@ public class GroupTest extends AbstractTest {
         // 2. verify that dynamic membership is there
         actual = groupDAO.find(actual.getKey());
         assertNotNull(actual);
-        assertNotNull(actual.getADynMembership());
-        assertNotNull(actual.getADynMembership().getKey());
-        assertEquals(actual, actual.getADynMembership().getGroup());
+        assertNotNull(actual.getADynMembership(anyTypeDAO.find("PRINTER")));
+        assertNotNull(actual.getADynMembership(anyTypeDAO.find("PRINTER")).getKey());
+        assertEquals(actual, actual.getADynMembership(anyTypeDAO.find("PRINTER")).getGroup());
 
         // 3. verify that expected any objects have the created group dynamically assigned
-        assertEquals(2, actual.getADynMembership().getMembers().size());
+        assertEquals(2, actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers().size());
         assertEquals(new HashSet<>(Arrays.asList(1L, newAnyObjectKey)),
-                CollectionUtils.collect(actual.getADynMembership().getMembers(), new Transformer<AnyObject, Long>() {
+                CollectionUtils.collect(actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers(),
+                        new Transformer<AnyObject, Long>() {
 
                     @Override
                     public Long transform(final AnyObject input) {
@@ -322,7 +324,7 @@ public class GroupTest extends AbstractTest {
         assertNotNull(anyObject);
         Collection<Group> dynGroupMemberships = findDynGroupMemberships(anyObject);
         assertEquals(1, dynGroupMemberships.size());
-        assertTrue(dynGroupMemberships.contains(actual.getADynMembership().getGroup()));
+        assertTrue(dynGroupMemberships.contains(actual.getADynMembership(anyTypeDAO.find("PRINTER")).getGroup()));
 
         // 4. delete the new any object and verify that dynamic membership was updated
         anyObjectDAO.delete(newAnyObjectKey);
@@ -330,11 +332,11 @@ public class GroupTest extends AbstractTest {
         anyObjectDAO.flush();
 
         actual = groupDAO.find(actual.getKey());
-        assertEquals(1, actual.getADynMembership().getMembers().size());
-        assertEquals(1L, actual.getADynMembership().getMembers().get(0).getKey(), 0);
+        assertEquals(1, actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers().size());
+        assertEquals(1L, actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers().get(0).getKey(), 0);
 
         // 5. delete group and verify that dynamic membership was also removed
-        Long dynMembershipKey = actual.getADynMembership().getKey();
+        Long dynMembershipKey = actual.getADynMembership(anyTypeDAO.find("PRINTER")).getKey();
 
         groupDAO.delete(actual);
 

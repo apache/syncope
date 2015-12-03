@@ -25,12 +25,15 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractDynMembership;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 
 @Entity
@@ -46,6 +49,9 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
 
     @OneToOne
     private JPAGroup group;
+
+    @ManyToOne
+    private JPAAnyType anyType;
 
     @ManyToMany
     @JoinTable(joinColumns =
@@ -68,6 +74,17 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
     public void setGroup(final Group role) {
         checkType(role, JPAGroup.class);
         this.group = (JPAGroup) role;
+    }
+
+    @Override
+    public AnyType getAnyType() {
+        return anyType;
+    }
+
+    @Override
+    public void setAnyType(final AnyType anyType) {
+        checkType(anyType, JPAAnyType.class);
+        this.anyType = (JPAAnyType) anyType;
     }
 
     @Override

@@ -51,13 +51,17 @@ public interface Group extends Any<GPlainAttr> {
     @Override
     List<? extends GPlainAttr> getPlainAttrs();
 
-    ADynGroupMembership getADynMembership();
-
-    void setADynMembership(ADynGroupMembership aDynMembership);
-
     UDynGroupMembership getUDynMembership();
 
     void setUDynMembership(UDynGroupMembership uDynMembership);
+
+    boolean add(ADynGroupMembership dynGroupMembership);
+
+    boolean remove(ADynGroupMembership dynGroupMembership);
+
+    ADynGroupMembership getADynMembership(AnyType anyType);
+
+    List<? extends ADynGroupMembership> getADynMemberships();
 
     boolean add(TypeExtension typeExtension);
 

@@ -55,7 +55,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.task.AnyFilter;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplateSyncTask;
 import org.apache.syncope.core.provisioning.java.sync.PushJobDelegate;
@@ -69,6 +68,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
+import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 
 @Component
 public class TaskDataBinderImpl implements TaskDataBinder {
@@ -118,21 +118,21 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 if (type == null) {
                     LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
                 } else {
-                    AnyFilter filter = pushTask.getFilter(type);
+                    PushTaskAnyFilter filter = pushTask.getFilter(type);
                     if (filter == null) {
-                        filter = entityFactory.newEntity(AnyFilter.class);
+                        filter = entityFactory.newEntity(PushTaskAnyFilter.class);
                         filter.setAnyType(anyTypeDAO.find(entry.getKey()));
                         filter.setPushTask(pushTask);
                         pushTask.add(filter);
                     }
-                    filter.set(entry.getValue());
+                    filter.setFIQLCond(entry.getValue());
                 }
             }
             // remove all filters not contained in the TO
-            CollectionUtils.filter(pushTask.getFilters(), new Predicate<AnyFilter>() {
+            CollectionUtils.filter(pushTask.getFilters(), new Predicate<PushTaskAnyFilter>() {
 
                 @Override
-                public boolean evaluate(final AnyFilter anyFilter) {
+                public boolean evaluate(final PushTaskAnyFilter anyFilter) {
                     return pushTaskTO.getFilters().containsKey(anyFilter.getAnyType().getKey());
                 }
             });
@@ -349,8 +349,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 ((PushTaskTO) taskTO).setUnmatchingRule(((PushTask) task).getUnmatchingRule() == null
                         ? UnmatchingRule.ASSIGN : ((PushTask) task).getUnmatchingRule());
 
-                for (AnyFilter filter : ((PushTask) task).getFilters()) {
-                    ((PushTaskTO) taskTO).getFilters().put(filter.getAnyType().getKey(), filter.get());
+                for (PushTaskAnyFilter filter : ((PushTask) task).getFilters()) {
+                    ((PushTaskTO) taskTO).getFilters().put(filter.getAnyType().getKey(), filter.getFIQLCond());
                 }
                 break;
 

@@ -328,11 +328,9 @@ public final class AnyOperations {
         result.setGroupOwner(replacePatchItem(
                 original.getGroupOwner(), updated.getGroupOwner(), new LongReplacePatchItem()));
 
-        // 3. dynMembershipCond
-        result.setADynMembershipCond(replacePatchItem(
-                updated.getADynMembershipCond(), original.getADynMembershipCond(), new StringReplacePatchItem()));
-        result.setUDynMembershipCond(replacePatchItem(
-                updated.getUDynMembershipCond(), original.getUDynMembershipCond(), new StringReplacePatchItem()));
+        // 3. dynamic membership
+        result.setUDynMembershipCond(updated.getUDynMembershipCond());
+        result.getADynMembershipConds().putAll(updated.getADynMembershipConds());
 
         return result;
     }
@@ -442,12 +440,9 @@ public final class AnyOperations {
             result.setGroupOwner(groupPatch.getGroupOwner().getValue());
         }
 
-        if (groupPatch.getADynMembershipCond() != null) {
-            result.setADynMembershipCond(groupPatch.getADynMembershipCond().getValue());
-        }
-        if (groupPatch.getUDynMembershipCond() != null) {
-            result.setADynMembershipCond(groupPatch.getUDynMembershipCond().getValue());
-        }
+        result.setUDynMembershipCond(groupPatch.getUDynMembershipCond());
+        result.getADynMembershipConds().clear();
+        result.getADynMembershipConds().putAll(groupPatch.getADynMembershipConds());
 
         return result;
     }

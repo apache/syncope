@@ -35,8 +35,8 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.task.AnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 
 @Entity
 @DiscriminatorValue("PushTask")
@@ -52,7 +52,7 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     private Set<String> actionsClassNames = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pushTask")
-    private List<JPAAnyFilter> filters = new ArrayList<>();
+    private List<JPAPushTaskAnyFilter> filters = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -67,30 +67,30 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     }
 
     @Override
-    public boolean add(final AnyFilter filter) {
-        checkType(filter, JPAAnyFilter.class);
-        return this.filters.add((JPAAnyFilter) filter);
+    public boolean add(final PushTaskAnyFilter filter) {
+        checkType(filter, JPAPushTaskAnyFilter.class);
+        return this.filters.add((JPAPushTaskAnyFilter) filter);
     }
 
     @Override
-    public boolean remove(final AnyFilter filter) {
-        checkType(filter, JPAAnyFilter.class);
-        return this.filters.remove((JPAAnyFilter) filter);
+    public boolean remove(final PushTaskAnyFilter filter) {
+        checkType(filter, JPAPushTaskAnyFilter.class);
+        return this.filters.remove((JPAPushTaskAnyFilter) filter);
     }
 
     @Override
-    public AnyFilter getFilter(final AnyType anyType) {
-        return IterableUtils.find(filters, new Predicate<AnyFilter>() {
+    public PushTaskAnyFilter getFilter(final AnyType anyType) {
+        return IterableUtils.find(filters, new Predicate<PushTaskAnyFilter>() {
 
             @Override
-            public boolean evaluate(final AnyFilter filter) {
+            public boolean evaluate(final PushTaskAnyFilter filter) {
                 return anyType != null && anyType.equals(filter.getAnyType());
             }
         });
     }
 
     @Override
-    public List<? extends AnyFilter> getFilters() {
+    public List<? extends PushTaskAnyFilter> getFilters() {
         return filters;
     }
 }

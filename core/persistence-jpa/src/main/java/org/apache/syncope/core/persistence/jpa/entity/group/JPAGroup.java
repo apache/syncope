@@ -99,11 +99,10 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "group")
     @Valid
-    private JPAADynGroupMembership aDynMembership;
-
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "group")
-    @Valid
     private JPAUDynGroupMembership uDynMembership;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "group")
+    private List<JPAADynGroupMembership> aDynMemberships = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "group")
     private List<JPATypeExtension> typeExtensions = new ArrayList<>();
@@ -178,24 +177,13 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     }
 
     @Override
-    public ADynGroupMembership getADynMembership() {
-        return aDynMembership;
-    }
-
-    @Override
-    public void setADynMembership(final ADynGroupMembership aDynMembership) {
-        checkType(aDynMembership, JPAADynGroupMembership.class);
-        this.aDynMembership = (JPAADynGroupMembership) aDynMembership;
-    }
-
-    @Override
     public UDynGroupMembership getUDynMembership() {
         return uDynMembership;
     }
 
     @Override
     public void setUDynMembership(final UDynGroupMembership uDynMembership) {
-        checkType(aDynMembership, JPAADynGroupMembership.class);
+        checkType(uDynMembership, JPAUDynGroupMembership.class);
         this.uDynMembership = (JPAUDynGroupMembership) uDynMembership;
     }
 
@@ -214,6 +202,34 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     @Override
     public List<? extends AnyTypeClass> getAuxClasses() {
         return auxClasses;
+    }
+
+    @Override
+    public boolean add(final ADynGroupMembership dynGroupMembership) {
+        checkType(dynGroupMembership, JPAADynGroupMembership.class);
+        return this.aDynMemberships.add((JPAADynGroupMembership) dynGroupMembership);
+    }
+
+    @Override
+    public boolean remove(final ADynGroupMembership dynGroupMembership) {
+        checkType(dynGroupMembership, JPAADynGroupMembership.class);
+        return this.aDynMemberships.remove((JPAADynGroupMembership) dynGroupMembership);
+    }
+
+    @Override
+    public ADynGroupMembership getADynMembership(final AnyType anyType) {
+        return IterableUtils.find(aDynMemberships, new Predicate<ADynGroupMembership>() {
+
+            @Override
+            public boolean evaluate(final ADynGroupMembership dynGroupMembership) {
+                return anyType != null && anyType.equals(dynGroupMembership.getAnyType());
+            }
+        });
+    }
+
+    @Override
+    public List<? extends ADynGroupMembership> getADynMemberships() {
+        return aDynMemberships;
     }
 
     @Override

@@ -18,8 +18,12 @@
  */
 package org.apache.syncope.core.persistence.api.entity.anyobject;
 
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 
 public interface ADynGroupMembership extends DynGroupMembership<AnyObject> {
 
+    AnyType getAnyType();
+
+    void setAnyType(AnyType anyType);
 }

@@ -986,7 +986,7 @@ under the License.
   <AnyTemplateSyncTask id="41" syncTask_id="4" anyType_name="USER"
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["csv"],"derAttrs":[{"schema":"cn","readonly":false,"values":[""]}],"virAttrs":[],"resources":["resource-testdb"],"relationships":[],"memberships":[{"leftType":null,"leftKey":0,"rightType":"GROUP","rightKey":8,"groupName":null}],"dynGroups":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}]}'/>
   <AnyTemplateSyncTask id="42" syncTask_id="4" anyType_name="GROUP"
-                       template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"adynMembershipCond":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
+                       template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
   <Task DTYPE="SchedTask" type="SCHEDULED" id="5" name="SampleJob Task" 
         jobDelegateClassName="org.apache.syncope.fit.core.reference.TestSampleJobDelegate" cronExpression="0 0 0 1 * ?"/>
   <Task DTYPE="PropagationTask" type="PROPAGATION" id="6" operation="UPDATE"
@@ -999,7 +999,7 @@ under the License.
   <AnyTemplateSyncTask id="71" syncTask_id="7" anyType_name="USER"
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"relationships":[],"memberships":[],"dynGroups":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"type","readonly":false,"values":["&apos;type a&apos;"]},{"schema":"userId","readonly":false,"values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;surname&apos;"]}]}'/>
   <AnyTemplateSyncTask id="72" syncTask_id="7" anyType_name="GROUP"
-                       template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"adynMembershipCond":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
+                       template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
   <Task DTYPE="NotificationTask" type="NOTIFICATION" id="8" sender="admin@prova.org" subject="Notification for SYNCOPE-81" 
         textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="9" name="TestDB2 Task" resource_name="resource-testdb2"
@@ -1014,7 +1014,7 @@ under the License.
   <AnyTemplateSyncTask id="1" syncTask_id="11" anyType_name="USER"
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","readonly":true,"values":[""]}],"resources":["resource-ldap"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynGroups":[],"plainAttrs":[]}'/>
   <AnyTemplateSyncTask id="2" syncTask_id="11" anyType_name="GROUP"
-                       template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"adynMembershipCond":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[{"schema":"show","readonly":false,"values":["true"]}]}'/>
+                       template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[{"schema":"show","readonly":false,"values":["true"]}]}'/>
   <SyncTask_actionsClassNames SyncTask_id="11" actionClassName="org.apache.syncope.core.provisioning.java.sync.LDAPMembershipSyncActions"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="12" name="VirAttrCache test" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="0" performUpdate="1" performDelete="0" syncStatus="0" syncMode="FULL_RECONCILIATION"
@@ -1022,66 +1022,66 @@ under the License.
   <Task DTYPE="PushTask" type="PUSH" id="13" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
         unmatchingRule="ASSIGN" matchingRule="IGNORE"/>  
-  <AnyFilter id="131" anyType_name="USER" pushTask_id="13" filter="surname==Vivaldi"/>
-  <AnyFilter id="132" anyType_name="GROUP" pushTask_id="13" filter="name==_NO_ONE_"/>
+  <PushTaskAnyFilter id="131" anyType_name="USER" pushTask_id="13" fiql="surname==Vivaldi"/>
+  <PushTaskAnyFilter id="132" anyType_name="GROUP" pushTask_id="13" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="14" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
         unmatchingRule="PROVISION" matchingRule="IGNORE"/>
-  <AnyFilter id="141" anyType_name="USER" pushTask_id="14" filter="surname==Bellini"/>
-  <AnyFilter id="142" anyType_name="GROUP" pushTask_id="14" filter="name==_NO_ONE_"/>
+  <PushTaskAnyFilter id="141" anyType_name="USER" pushTask_id="14" fiql="surname==Bellini"/>
+  <PushTaskAnyFilter id="142" anyType_name="GROUP" pushTask_id="14" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="15" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="UNLINK" matchingRule="IGNORE"/>
-  <AnyFilter id="151" anyType_name="USER" pushTask_id="15" filter="surname==Puccini"/>
-  <AnyFilter id="152" anyType_name="GROUP" pushTask_id="15" filter="name==_NO_ONE_"/>
+  <PushTaskAnyFilter id="151" anyType_name="USER" pushTask_id="15" fiql="surname==Puccini"/>
+  <PushTaskAnyFilter id="152" anyType_name="GROUP" pushTask_id="15" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="16" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
         unmatchingRule="IGNORE" matchingRule="IGNORE"/>
-  <AnyFilter id="161" anyType_name="USER" pushTask_id="16" filter="surname==Verdi"/>
-  <AnyFilter id="162" anyType_name="GROUP" pushTask_id="16" filter="name==_NO_ONE_"/>
+  <PushTaskAnyFilter id="161" anyType_name="USER" pushTask_id="16" fiql="surname==Verdi"/>
+  <PushTaskAnyFilter id="162" anyType_name="GROUP" pushTask_id="16" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="17" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="ASSIGN" matchingRule="UPDATE"/>
-  <AnyFilter id="171" anyType_name="USER" pushTask_id="17" filter="username==_NO_ONE_"/>
-  <AnyFilter id="172" anyType_name="GROUP" pushTask_id="17" filter="name==_NO_ONE_"/>
+  <PushTaskAnyFilter id="171" anyType_name="USER" pushTask_id="17" fiql="username==_NO_ONE_"/>
+  <PushTaskAnyFilter id="172" anyType_name="GROUP" pushTask_id="17" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="18" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="IGNORE" matchingRule="DEPROVISION"/>
-  <AnyFilter id="181" anyType_name="USER" pushTask_id="18" filter="surname==Verdi"/>
-  <AnyFilter id="182" anyType_name="GROUP" pushTask_id="18" filter="name==_NO_ONE_"/>
+  <PushTaskAnyFilter id="181" anyType_name="USER" pushTask_id="18" fiql="surname==Verdi"/>
+  <PushTaskAnyFilter id="182" anyType_name="GROUP" pushTask_id="18" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="19" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="IGNORE" matchingRule="UNASSIGN"/>
-  <AnyFilter id="191" anyType_name="USER" pushTask_id="19" filter="surname==Rossini"/>
-  <AnyFilter id="192" anyType_name="GROUP" pushTask_id="19" filter="name==_NO_ONE_"/>
+  <PushTaskAnyFilter id="191" anyType_name="USER" pushTask_id="19" fiql="surname==Rossini"/>
+  <PushTaskAnyFilter id="192" anyType_name="GROUP" pushTask_id="19" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="20" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="IGNORE" matchingRule="LINK"/>
-  <AnyFilter id="201" anyType_name="USER" pushTask_id="20" filter="surname==Verdi"/>
-  <AnyFilter id="202" anyType_name="GROUP" pushTask_id="20" filter="name==_NO_ONE_"/>
+  <PushTaskAnyFilter id="201" anyType_name="USER" pushTask_id="20" fiql="surname==Verdi"/>
+  <PushTaskAnyFilter id="202" anyType_name="GROUP" pushTask_id="20" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="21" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="IGNORE" matchingRule="UNLINK"/>
-  <AnyFilter id="211" anyType_name="USER" pushTask_id="21" filter="surname==Verdi"/>
-  <AnyFilter id="212" anyType_name="GROUP" pushTask_id="21" filter="name==_NO_ONE_"/>
+  <PushTaskAnyFilter id="211" anyType_name="USER" pushTask_id="21" fiql="surname==Verdi"/>
+  <PushTaskAnyFilter id="212" anyType_name="GROUP" pushTask_id="21" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="22" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         
         unmatchingRule="IGNORE" matchingRule="UPDATE"/>
-  <AnyFilter id="221" anyType_name="USER" pushTask_id="22" filter="surname==Verdi"/>
-  <AnyFilter id="222" anyType_name="GROUP" pushTask_id="22" filter="name==_NO_ONE_"/>
+  <PushTaskAnyFilter id="221" anyType_name="USER" pushTask_id="22" fiql="surname==Verdi"/>
+  <PushTaskAnyFilter id="222" anyType_name="GROUP" pushTask_id="22" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="23" name="Export on resource-ldap" resource_name="resource-ldap"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="ASSIGN" matchingRule="UNLINK"/>
-  <AnyFilter id="231" anyType_name="USER" pushTask_id="23" filter="username==_NO_ONE_"/>
-  <AnyFilter id="232" anyType_name="GROUP" pushTask_id="23" filter="name==citizen"/>
+  <PushTaskAnyFilter id="231" anyType_name="USER" pushTask_id="23" fiql="username==_NO_ONE_"/>
+  <PushTaskAnyFilter id="232" anyType_name="GROUP" pushTask_id="23" fiql="name==citizen"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="24" name="CSV Task (update matching; provision unmatching)" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" syncMode="INCREMENTAL"
         unmatchingRule="PROVISION" matchingRule="UPDATE"/>
   <AnyTemplateSyncTask id="3" syncTask_id="24" anyType_name="USER"
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":["resource-testdb"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynGroups":[],"plainAttrs":[{"schema":"firstname","readonly":false,"values":[""]},{"schema":"userId","readonly":false,"values":["&apos;test&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;test&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;test&apos;"]}]}'/>
   <AnyTemplateSyncTask id="4" syncTask_id="24" anyType_name="GROUP"
-                       template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"adynMembershipCond":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
+                       template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="25" name="CSV (unlink matching; ignore unmatching)" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" syncMode="INCREMENTAL"
         unmatchingRule="IGNORE" matchingRule="UNLINK"/>

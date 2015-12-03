@@ -20,24 +20,24 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.task.AnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
+import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 
 @Entity
-@Table(name = JPAAnyFilter.TABLE, uniqueConstraints =
+@Table(name = JPAPushTaskAnyFilter.TABLE, uniqueConstraints =
         @UniqueConstraint(columnNames = { "pushTask_id", "anyType_name" }))
-public class JPAAnyFilter extends AbstractEntity<Long> implements AnyFilter {
+public class JPAPushTaskAnyFilter extends AbstractEntity<Long> implements PushTaskAnyFilter {
 
     private static final long serialVersionUID = 3517381731849788407L;
 
-    public static final String TABLE = "AnyFilter";
+    public static final String TABLE = "PushTaskAnyFilter";
 
     @Id
     private Long id;
@@ -48,8 +48,8 @@ public class JPAAnyFilter extends AbstractEntity<Long> implements AnyFilter {
     @ManyToOne
     private JPAAnyType anyType;
 
-    @Lob
-    private String filter;
+    @NotNull
+    private String fiql;
 
     @Override
     public Long getKey() {
@@ -79,13 +79,13 @@ public class JPAAnyFilter extends AbstractEntity<Long> implements AnyFilter {
     }
 
     @Override
-    public String get() {
-        return filter;
+    public String getFIQLCond() {
+        return fiql;
     }
 
     @Override
-    public void set(final String filter) {
-        this.filter = filter;
+    public void setFIQLCond(final String fiql) {
+        this.fiql = fiql;
     }
 
 }
