@@ -18,7 +18,7 @@
 //
 
 ==== Connector command
-The connector command serves to retrieve the information around the connector configuration in Apache Syncope.
+The connector command serves to retrieve information about the connector configuration in Apache Syncope.
 
 ===== Help message
 [source,bash]
@@ -48,7 +48,7 @@ $ ./syncopeadm.sh connector --details
 [source]
 --
 
-You are runnig: connector --details 
+You are running: connector --details 
 
 ######################################
 #                                    #
@@ -98,7 +98,7 @@ $ ./syncopeadm.sh connector --list
 [source]
 --
 
-You are runnig: connector --list 
+You are running: connector --list 
 
  > CONNECTOR ID: 108
     bundle name: net.tirasa.connid.bundles.db.scriptedsql
@@ -149,7 +149,7 @@ You are runnig: connector --list
 
 --
 
-The last snippet code shows a part of the screen output. Basically you can read the configuration about every connectors
+The last code snippet shows a part of the screen output. Basically you can read the configuration about every connector
 configured in Syncope.
 
 ===== List bundles option
@@ -163,7 +163,7 @@ $ ./syncopeadm.sh connector --list-bundles
 [source]
 --
 
-You are runnig: connector --list-bundles 
+You are running: connector --list-bundles 
 
  > BUNDLE NAME: net.tirasa.connid.bundles.soap
     connector name: net.tirasa.connid.bundles.soap.WebServiceConnector
@@ -208,23 +208,23 @@ You are runnig: connector --list-bundles
 
 --
 
-The most useful information are:
+The most useful information is:
 
 location::
     where the bundle is, it could be on the same server where Syncope is deployed or on a remote one linked by 
 connid protocol;
-version:
+version::
     the bundle version;
 
 ===== List configuration properties option
-The option to read only the configuration of specified connectors.
+This option lists the configuration of specified connectors.
 
 [source]
 --
 $ ./syncopeadm.sh connector --list-configuration-properties {CONNECTOR-ID} {CONNECTOR-ID} [...]
 --
 
-The output is only the configuration of the connectors passed as input.
+The output is the configuration of the connectors passed as input.
 
 ===== Read option
 The option to read all the information of specified connectors.
@@ -237,15 +237,15 @@ $ ./syncopeadm.sh connector --read {CONNECTOR-ID} {CONNECTOR-ID} [...]
 Unlike the list option, the read one shows only the connectors passed as input.
 
 ===== Delete option
-The option to delete a specified connectors.
+The option to delete a specified connector.
 
 [source]
 --
 $ ./syncopeadm.sh connector --delete {CONNECTOR-ID} {CONNECTOR-ID} [...]
 --
 
-The delete option, as can be imagined, tries to remove a specified connectors. This operation works only if the 
-connector isn't associated to a resource.
+The delete option, as can be imagined, tries to remove a specified connector. This operation works only if the 
+connector isn't associated with a resource.
 If the connector isn't associated to anything the output will be
 [source]
 --

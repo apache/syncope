@@ -18,7 +18,7 @@
 //
 
 ==== Logger command
-The logger command serves to retrieve the information about the logger configuration in Apache Syncope.
+The logger command retrieves information about the logger configuration in Apache Syncope.
 
 ===== Help message
 [source,bash]
@@ -51,7 +51,7 @@ $ ./syncopeadm.sh logger --details
 [source]
 --
 
-You are runnig: logger --details 
+You are running: logger --details 
 
 ############################
 #                          #
@@ -87,7 +87,7 @@ $ ./syncopeadm.sh logger --list
 [source]
 --
 
-You are runnig: logger --list 
+You are running: logger --list 
 
 ############################################################################
 #                                                                          #
@@ -128,7 +128,7 @@ The option to read all the information of specified loggers.
 $ ./syncopeadm.sh logger --read {LOG-NAME} {LOG-NAME} [...]
 --
 
-Unlike the list option, the read one shows a table with only the loggers passed as input.
+Unlike the list option, the read option shows a table with only the loggers passed as input.
 
 ===== Update option
 The option to change the value of the logger passed as input.
@@ -141,7 +141,7 @@ $ ./syncopeadm.sh logger --update {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} 
 [source]
 --
 
-You are runnig: logger --update org.apache.camel=DEBUG 
+You are running: logger --update org.apache.camel=DEBUG 
 
 ####################################
 #                                  #
@@ -160,7 +160,7 @@ You are runnig: logger --update org.apache.camel=DEBUG
 --
 
 ===== Update all option
-This option is especially helpful in production environment when every log is disable and you need to change them for a 
+This option is especially helpful in production environment when every log is disabled and you need to change them for a 
 while in DEBUG mode.
 
 [source]
@@ -171,7 +171,7 @@ $ ./syncopeadm.sh logger --update-all DEBUG
 [source]
 --
 
-You are runnig: logger --update-all DEBUG 
+You are running: logger --update-all DEBUG 
 
 ################################################################################
 #                                                                              #
@@ -214,7 +214,7 @@ $ ./syncopeadm.sh logger --create net.tirasa=ERROR
 [source]
 --
 
-You are runnig: logger --create net.tirasa=ERROR 
+You are running: logger --create net.tirasa=ERROR 
 
 ##############################
 #                            #
@@ -243,7 +243,7 @@ $ ./syncopeadm.sh logger --delete {LOG-NAME} {LOG-NAME} [...]
 [source]
 --
 
-You are runnig: logger --delete org.apache.camel 
+You are running: logger --delete org.apache.camel 
 
  - Logger org.apache.camel successfully deleted
 

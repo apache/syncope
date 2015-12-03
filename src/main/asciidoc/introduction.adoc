@@ -82,8 +82,8 @@ http://docs.spring.io/spring/docs/4.1.x/spring-framework-reference/html/transact
 provided by the Spring Framework. +
 Globally, this offers the ability to easily scale up to a million entities and at the same time allows great portability with no code 
 changes: MySQL, MariaDB, PostgreSQL, Oracle and MS SQL Server are fully supported deployment options.
- * *_Security_* defines a fine-grained set of entitlements which can be granted to administrators, thus allowing to
-implement real delegated administration scenarios.
+ * *_Security_* defines a fine-grained set of entitlements which can be granted to administrators, thus enabling the 
+implementation of delegated administration scenarios.
 
 [.text-center]
 image::architecture.png[title="Architecture",alt="Architecture"]
@@ -97,11 +97,11 @@ for delegated administration.
 system administrators.
 
 Third-party applications are provided full access to IdM services by leveraging the REST interface, either via the 
-Java _SyncopeClient_ library (at the basis of Admin UI, End-user UI and CLI) or plain HTTP calls.
+Java _SyncopeClient_ library (the basis of Admin UI, End-user UI and CLI) or plain HTTP calls.
 
 .ConnId
 ****
-The *_Provisioning_* layer relays on http://connid.tirasa.net[ConnId^]; ConnId is designed to separate the 
+The *_Provisioning_* layer relies on http://connid.tirasa.net[ConnId^]; ConnId is designed to separate the 
 implementation of an application from the dependencies of the system that the application is attempting to connect to.
 
 ConnId is the continuation of The Identity Connectors Framework (Sun ICF), a project that used to be part of market 

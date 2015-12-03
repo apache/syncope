@@ -18,7 +18,7 @@
 //
 
 ==== Policy command
-The policy command serves to retrieve the information about the policies for each type.
+The policy command retrieves information about the policies for each type.
 
 ===== Help message
 [source,bash]
@@ -37,7 +37,7 @@ Usage: policy [options]
 ----
 
 ===== Details option
-This option shows a table with policies amount for each type.
+This option shows a table with the amount of policies for each type.
 
 [source]
 --
@@ -47,7 +47,7 @@ $ ./syncopeadm.sh policy --details
 [source]
 --
 
-You are runnig: policy --details 
+You are running: policy --details 
 
 #################################
 #                               #
@@ -81,7 +81,7 @@ $ ./syncopeadm.sh Usage: policy --list {POLICY-TYPE}
 [source]
 --
 
-You are runnig: policy --list SYNC 
+You are running: policy --list SYNC 
 
  > KEY: 1
     type: SYNC
@@ -116,17 +116,17 @@ You are runnig: policy --list SYNC
 --
 
 ===== Read option
-The option to read all the information of specified policy.
+The option to read all the information of a specified policy.
 
 [source]
 --
 $ ./syncopeadm.sh policy --read {POLICY-ID} {POLICY-ID} [...]
 --
 
-Unlike the list option, the read one shows only the policy passed as input.
+Unlike the list option, the read option shows only the policy passed as input.
 [source]
 --
-You are runnig: policy --read 6 
+You are running: policy --read 6 
 
  > KEY: 6
     type: ACCOUNT

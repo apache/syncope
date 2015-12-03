@@ -18,10 +18,10 @@
 //
 
 ==== Installation command
-The installation process serves to create a file, called _cli.properties_, uses by the script to call the Apache Syncope
+The installation process creates a file, called _cli.properties_, used by the script to call the Apache Syncope
 REST API services with the right credentials.
 
-The obtained file will be something like
+The properties file will contain content similar to:
  
 * *syncope.rest.services*=http://localhost:9080/syncope/rest
 * *syncope.admin.user*=admin
@@ -30,13 +30,13 @@ The obtained file will be something like
 where the properties are:
 
 syncope.rest.services::
-    is the URL where the Apache Syncope REST API services listening;
+    the URL where the Apache Syncope REST API services are listening;
 syncope.admin.user::
-    is the user with the right permissions to call the Syncope APIs;
+    the user with the permission to call the Syncope APIs;
 syncope.admin.password::
-    is the user password;
+    the user password;
 
-as you can read, the user password is encrypted. This only to add a security level to avoid that another user could 
+as can be seen, the user password is encrypted. This is only to avoid that another user could 
 read an admin password.
 
 ===== Help message
@@ -51,10 +51,10 @@ Usage: install [options]
 
 ===== Run the installation
 After the zip file is unzipped you can start with CLI client using the syncopeadm file.
-If you tried to run a CLI command before installation process the script returns
+If you tried to run a CLI command before the installation process, the script returns
 [source]
 --
- - Error: It seems you need to setup the CLI client before. Run install --setup.
+ - Error: It seems you need to first setup the CLI client. Run install --setup.
 --
 
 So, as suggested, you have to run the install command to use the CLI:
@@ -67,7 +67,7 @@ A successful result will be:
 [source,bash]
 ----
 
-You are runnig: install --setup 
+You are running: install --setup 
 
 ###############################################
 #                                             #
@@ -104,14 +104,14 @@ Syncope server hostname::
 Syncope server port::
     the port where the services are listening;
 Syncope server rest context::
-    the context wherewith the rest services are deployed (/syncope/rest is the default one);
+    the context where the rest services are deployed (/syncope/rest is the default);
 Syncope admin user::
-    the user with the right permissions to call the Syncope APIs;
+    the user with the permission to call the Syncope APIs;
 Syncope admin password::
     the user password.
 
 ===== Installation error
-The causes to get an error may be different, below some result samples.
+Various error messages are possible on installation. Here are some sample error messages:
 
 * Syncope unreachable (or wrong address):
 
@@ -124,7 +124,7 @@ Provided address :http://localhost:9080/syncope/rest
 #                                             #
 #       Provided address is unreachable!      #
 #         Check it and if it is wrong         #
-#        START AGAIN the installation!        #
+#        START the installation AGAIN!        #
 #                                             #
 ###############################################
 
@@ -138,13 +138,13 @@ Provided address :http://localhost:9080/syncope/rest
 ###############################################
 #                                             #
 #   Username or password provided are wrong   #
-#        START AGAIN the installation!        #
+#        START the installation AGAIN!        #
 #                                             #
 ###############################################
 
 --
 
-As the message suggested you have to start again the installation when error occurred.
+As the message suggests you have to start the installation again when this error occurrs.
 
 
 ===== Debug installation
@@ -152,12 +152,12 @@ To work with the debug environment provided by Syncope we added a particular ins
 It enough to run the script with the --setup-debug option
 [source]
 --
-$ ./syncopeadm.sh install --setup
+$ ./syncopeadm.sh install --setup-debug
 --
 [source,bash]
 ----
 
-You are runnig: install --setup-debug 
+You are running: install --setup-debug 
 
 ###############################################
 #                                             #

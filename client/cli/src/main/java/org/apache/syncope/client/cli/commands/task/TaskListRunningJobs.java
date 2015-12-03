@@ -42,7 +42,7 @@ public class TaskListRunningJobs extends AbstractTaskCommand {
             try {
                 final List<TaskExecTO> taskExecTOs = taskSyncopeOperations.listRunningJobs();
                 if (taskExecTOs.isEmpty()) {
-                    taskResultManager.genericMessage("There is NOT running jobs available");
+                    taskResultManager.genericMessage("There are NO running jobs available");
                 } else {
                     taskResultManager.printTaskExecTO(taskExecTOs);
                 }

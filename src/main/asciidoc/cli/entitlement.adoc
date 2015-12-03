@@ -18,7 +18,7 @@
 //
 
 ==== Entitlement command
-The entitlement command serves to retrieve the information about the entitlments.
+The entitlement command retrieves information about the entitlments.
 
 ===== Help message
 [source,bash]
@@ -48,7 +48,7 @@ $ ./syncopeadm.sh entitlement --list
 [source]
 --
 
-You are runnig: entitlement --list 
+You are running: entitlement --list 
 
 - CONNECTOR_READ
 - NOTIFICATION_DELETE
@@ -70,7 +70,7 @@ $ ./syncopeadm.sh entitlement --list
 [source]
 --
 
-You are runnig: entitlement --list-role PRINTER_DELETE 
+You are running: entitlement --list-role PRINTER_DELETE 
 
  > ROLE ID: Search for realm evenTwo
     REALMS: 
@@ -100,7 +100,7 @@ $ ./syncopeadm.sh entitlement --read-by-username {USERNAME}
 --
 [source]
 --
-You are runnig: entitlement --read-by-username rossini 
+You are running: entitlement --read-by-username rossini 
 
 - GROUP_READ
 - SCHEMA_READ
@@ -116,7 +116,7 @@ $ ./syncopeadm.sh entitlement --read-by-userid {USER-ID}
 --
 [source]
 --
-You are runnig: entitlement --read-by-userid 5 
+You are running: entitlement --read-by-userid 5 
 
 - USER_READ
 - USER_SEARCH
@@ -132,7 +132,7 @@ $ ./syncopeadm.sh entitlement --search-by-role {ROLE-ID}
 
 [source]
 --
-You are runnig: entitlement --search-by-role Other 
+You are running: entitlement --search-by-role Other 
 
 - SCHEMA_READ
 - GROUP_READ

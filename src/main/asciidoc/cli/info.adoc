@@ -18,7 +18,7 @@
 //
 
 ==== Info command
-The info command serves to show some information about the Syncope installation.
+The info command shows some information about the Syncope installation.
 
 ===== Help message
 [source,bash]

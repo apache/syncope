@@ -18,7 +18,7 @@
 //
 
 ==== Report command
-The report command serves to retrieve the information about the configured reports.
+The report command retrieves information about the configured reports.
 
 ===== Help message
 [source,bash]
@@ -55,7 +55,7 @@ $ ./syncopeadm.sh report --details
 [source]
 --
 
-You are runnig: report --details 
+You are running: report --details 
 
 ##############################
 #                            #
@@ -75,7 +75,7 @@ You are runnig: report --details
 --
 
 ===== List all option
-Running the command with this option you will see the list of report configured.
+Running the command with this option you will see the list of configured reports.
 
 [source]
 --
@@ -83,7 +83,7 @@ $ ./syncopeadm.sh report --list
 --
 [source]
 --
-You are runnig: report --list 
+You are running: report --list 
 
  > REPORT ID: 1
     name: test
@@ -108,7 +108,7 @@ You are runnig: report --list
 --
 
 ===== List reports execution option
-Running the command with this option you will see the list of the report execution executed.
+Running the command with this option you will see the list of the report executions.
 
 [source]
 --
@@ -118,7 +118,7 @@ $ ./syncopeadm.sh report --list-jobs
 [source]
 --
 
-You are runnig: report --list-jobs 
+You are running: report --list-jobs 
        
        REPORT EXEC ID: 0
        status: Not Scheduled
@@ -130,7 +130,7 @@ You are runnig: report --list-jobs
 --
 
 ===== Read option
-The option to read all the information of specified report.
+The option to read all the information of a specified report.
 
 [source]
 --
@@ -139,7 +139,7 @@ $ ./syncopeadm.sh report --read {REPORT-ID} {REPORT-ID} [...]
 
 [source]
 --
-You are runnig: report --read 1 
+You are running: report --read 1 
 
  > REPORT ID: 1
     name: test
@@ -164,7 +164,7 @@ You are runnig: report --read 1
 --
 
 ===== Read report executions option
-The option to read all the information of specified report execution.
+The option to read all the information of a specified report execution.
 
 [source]
 --
@@ -173,7 +173,7 @@ $ ./syncopeadm.sh rreport --read-execution {EXECUTION-ID} {EXECUTION-ID} [...]
 
 [source]
 --
-You are runnig: report --read-execution 1 
+You are running: report --read-execution 1 
        
        REPORT EXEC ID: 1
        status: SUCCESS
@@ -221,7 +221,7 @@ $ ./syncopeadm.sh report --execute {REPORT-ID}
 
 [source]
 --
-You are runnig: report --execute 1 
+You are running: report --execute 1 
 
  - Report 1executed.
 
@@ -229,7 +229,7 @@ You are runnig: report --execute 1
  - Run --read 1 to see the results.
 --
 
-As you can read, after the execution, if the result is positive, you have to read the report to know the execution 
+After the execution, if the result is positive, you have to read the report to know the execution 
 results.
 
 ===== Export execution option
@@ -240,13 +240,13 @@ At the moment only the XML format is supported.
 
 [source]
 --
-$ ./syncopeadm.sh eport --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}
+$ ./syncopeadm.sh report --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}
           Format: CSV / HTML / PDF / XML / RTF
 --
 
 [source]
 --
-You are runnig: report --export-execution-result 101 XML 
+You are running: report --export-execution-result 101 XML 
 
  - export_101.xml created.
 --

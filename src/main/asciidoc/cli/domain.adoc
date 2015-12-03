@@ -18,7 +18,7 @@
 //
 
 ==== Domain command
-The domain command serves to retrieve the information about the configured domains.
+The domain command retrieves information about the configured domains.
 
 ===== Help message
 [source,bash]
@@ -43,7 +43,7 @@ $ ./syncopeadm.sh domain --details
 [source]
 --
 
-You are runnig: domain --details 
+You are running: domain --details 
 
 ############################
 #                          #
@@ -72,7 +72,7 @@ $ ./syncopeadm.sh domain --list
 [source]
 --
 
-You are runnig: domain --list 
+You are running: domain --list 
 
  > DOIMAIN NAME: Two
     chiper algorithm: SHA

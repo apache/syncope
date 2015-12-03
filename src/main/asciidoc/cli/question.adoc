@@ -18,7 +18,7 @@
 //
 
 ==== Question command
-The question command serves to retrieve the information about the user question to retrieve his password.
+The question command gets information about the user question to retrieve their password.
 
 ===== Help message
 [source,bash]
@@ -44,7 +44,7 @@ $ ./syncopeadm.sh question --list
 [source]
 --
 
-You are runnig: question --list 
+You are running: question --list 
 
   > SECURITY QUESTION ID: 1
     content: What's your mother's maiden name?
@@ -59,17 +59,17 @@ The option to read all the information of specified questions.
 $ ./syncopeadm.sh question --read {QUESTION-ID} {QUESTION-ID} [...]
 --
 
-Unlike the list option, the read one shows only the questions passed as input.
+Unlike the list option, the read option shows only the questions passed as input.
 
 ===== Delete option
-The option to delete a specified questions.
+The option to delete a specified question.
 
 [source]
 --
 $ ./syncopeadm.sh question --delete {QUESTION-ID} {QUESTION-ID} [...]
 --
 
-The delete option, as can be imagined, tries to remove a specified questions. 
+The delete option, as can be imagined, tries to remove a specified question. 
 The output will be something like:
 [source]
 --

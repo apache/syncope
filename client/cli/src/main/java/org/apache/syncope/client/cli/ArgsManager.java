@@ -30,7 +30,7 @@ public final class ArgsManager {
             final File configFile = new File(InstallConfigFileTemplate.configurationFilePath());
             if (!configFile.exists()) {
                 throw new IllegalArgumentException(
-                        "It seems you need to setup the CLI client before. Run install --setup.");
+                        "It seems you need to first setup the CLI client. Run install --setup.");
             }
         }
     }

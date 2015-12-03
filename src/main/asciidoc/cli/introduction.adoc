@@ -20,15 +20,14 @@
 ==== Introduction
 A brief introduction about this document and the examples you will find reading it.
 
-Once you downloaded and uzipped the zip file containing the scripts, you will find a lib directory and the 
-two script files, a .bat and a .sh one, called _syncopeadm_. According with your operating system you will use 
-one of them.
+Once you have downloaded and unzipped the zip file containing the scripts, you will find a lib directory and 
+two script files, a .bat and a .sh one, called _syncopeadm_. You will use one of these files, depending on your operating system.
 
 [NOTE]
-Every examples of this document is executed on a linux machine with _debug environment_ up.
+Every example described in this document is executed on a linux machine with a _debug environment_.
 
 [NOTE]
-As the Wikipedia page suggests a https://en.wikipedia.org/wiki/Command-line_interface[command line interface] (CLI) 
-is a means of interacting with a computer program where the user (or client) issues commands to the program 
+Wikipedia suggests that a https://en.wikipedia.org/wiki/Command-line_interface[command line interface] (CLI) 
+is a means of interacting with a computer program, where the user (or client) issues commands to the program 
 in the form of successive lines of text (command lines). In our case the CLI tool is the way to call, more or less, 
-every Syncope core commands through a shell.
+every Syncope core command through a shell.

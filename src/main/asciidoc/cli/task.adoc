@@ -18,7 +18,7 @@
 //
 
 ==== Task command
-The connector command serves to retrieve the information around the connector configuration in Apache Syncope.
+The Task command retrieves information about the Task configuration in Apache Syncope.
 
 ===== Help message
 [source,bash]
@@ -56,7 +56,7 @@ $ ./syncopeadm.sh task --details
 [source]
 --
 
-You are runnig: task --details 
+You are running: task --details 
 
 ##############################################################
 #                                                            #
@@ -99,7 +99,7 @@ $ ./syncopeadm.sh - task --list {TASK-TYPE}
 [source]
 --
 
-You are runnig: task --list SCHEDULED 
+You are running: task --list SCHEDULED 
 
  - Scheduled task key: 5
      name: SampleJob Task
@@ -126,7 +126,7 @@ $ ./syncopeadm.sh task --list-running-jobs
 
 [source]
 --
- - There is NOT running jobs available
+ - There are NO running jobs available
 --
 
 ===== List scheduled jobs
@@ -159,11 +159,11 @@ The option to read all the information of specified tasks.
 $ ./syncopeadm.sh task --read {TASK-ID} {TASK-ID} [...]
 --
 
-Unlike the list option, the read one shows only the tasks passed as input. Below the commad to read the task with 
+Unlike the list option, the read option shows only the tasks passed as input. Below the commad to read the task with 
 id 13
 [source]
 --
-You are runnig: task --read 13 
+You are running: task --read 13 
 
  - Push task key: 13
      name: Export on resource-testdb2
@@ -195,34 +195,34 @@ $ ./syncopeadm.sh task --read-execution {TASK-EXEC-ID} {TASK-EXEC-ID} [...]
 --
 
 ===== Delete option
-The option to delete a specified tasks.
+The option to delete specified tasks.
 
 [source]
 --
 $ ./syncopeadm.sh task --delete {TASK-ID} TASK-ID} [...]
 --
 
-The delete option, as can be imagined, tries to remove a specified tasks.
+The delete option, as can be imagined, tries to remove specified tasks.
 [source]
 --
  - task {TASK-ID} successfully deleted
 --
 
 ===== Delete execution option
-The option to delete a specified execution tasks.
+The option to delete specified execution tasks.
 [source]
 --
 $ ./syncopeadm.sh task --delete {TASK-EXEC-ID} {TASK-EXEC-ID} [...]
 --
 
-The delete option, as can be imagined, tries to remove a specified execution tasks.
+The delete option, as can be imagined, tries to remove specified execution tasks.
 [source]
 --
  - task {TASK-EXEC-ID} successfully deleted
 --
 
 ===== Execute option
-The option to execute a specified execution tasks.
+The option to execute specified execution tasks.
 [source]
 --
 $ ./syncopeadm.sh task --execute {TASK-ID} {DRY-RUN}
@@ -232,7 +232,7 @@ $ ./syncopeadm.sh task --execute {TASK-ID} {DRY-RUN}
 For instance, executing the PUSH task with id 13 in dry run mode the result is
 [source]
 --
- You are runnig: task --execute 13 false 
+ You are running: task --execute 13 false 
      EXECUTIONS: 
      - task execution key: 0
        task: 13

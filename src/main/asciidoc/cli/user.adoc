@@ -18,7 +18,7 @@
 //
 
 ==== User command
-The user command serves to retrieve the information about the users.
+The user command retrieves information about the users.
 
 ===== Help message
 [source,bash]
@@ -59,7 +59,7 @@ $ ./syncopeadm.sh user --details
 [source]
 --
 
-You are runnig: user --details 
+You are running: user --details 
 
 #################################
 #                               #
@@ -82,8 +82,7 @@ You are runnig: user --details
 --
 
 ===== List option
-Running the command with this option you will see the list of all user in the environment but, before the execution, 
-the system will ask you a confirmation because as you can imagine this operation might produce very heavy output.
+Running the command with this option you will see the list of all users in the environment. However, the system will ask you a confirmation before execution, because as you can imagine this operation might produce very large output.
 
 [source]
 --
@@ -91,9 +90,9 @@ $ ./syncopeadm.sh user --list
 --
 [source]
 --
-You are runnig: user --list 
+You are running: user --list 
 
-This operation might produce very heavy output. Do you want to continue? [yes/no]
+This operation might produce very large output. Do you want to continue? [yes/no]
 yes
 
  > USER ID: 2
@@ -131,7 +130,7 @@ RELATIONSHIPS:
 --
 
 ===== Get user key option
-The option to get the user key starting from an username.
+The option to get the user key starting from a username.
 
 [source]
 --
@@ -140,13 +139,13 @@ $ ./syncopeadm.sh user --get-user-key {USERNAME}
 
 [source]
 --
-You are runnig: user --get-user-key rossini 
+You are running: user --get-user-key rossini 
 
  - rossini user ID is 1
 --
 
 ===== Get username option
-The option to get the username starting from an user id.
+The option to get the username starting from a user id.
 
 [source]
 --
@@ -155,13 +154,13 @@ $ ./syncopeadm.sh user --get-user-key {USER-ID}
 
 [source]
 --
-You are runnig: user --get-username 1 
+You are running: user --get-username 1 
 
  - 1 username is rossini
 --
 
 ===== Read by user id option
-The option to read user information by his user id.
+The option to read user information by their user id.
 
 [source]
 --
@@ -171,7 +170,7 @@ $ ./syncopeadm.sh user --read {USER-ID} {USER-ID} [...]
 [source]
 --
 
-You are runnig: user --read 1 
+You are running: user --read 1 
 
  > USER ID: 1
     username: rossini
@@ -210,7 +209,7 @@ RELATIONSHIPS:
 --
 
 ===== Read by username option
-The option to read user information by his username.
+The option to read user information by their username.
 
 [source]
 --
@@ -220,7 +219,7 @@ $ ./syncopeadm.sh user --read {USERNAME} {USERNAME} [...]
 [source]
 --
 
-You are runnig: user --read rossini
+You are running: user --read rossini
 
  > USER ID: 1
     username: rossini
@@ -259,7 +258,7 @@ RELATIONSHIPS:
 --
 
 ===== Search by attribute option
-The option to searcn a list of users with a common attribute.
+The option to search a list of users with a common attribute.
 
 [source]
 --
@@ -271,7 +270,7 @@ For instance if you want to search the active users under the root realm:
 [source]
 --
 
-You are runnig: user --search-by-attribute / status=active 
+You are running: user --search-by-attribute / status=active 
 
  > USER ID: 2
     username: verdi
@@ -317,7 +316,7 @@ RELATIONSHIPS:
 --
 
 ===== Search by role option
-The option to searcn a list of users with a specified role.
+The option to search a list of users with a specified role.
 
 [source]
 --
@@ -327,7 +326,7 @@ $ ./syncopeadm.sh user --search-by-role {REALM} {ROLE-NAME}
 [source]
 --
 
-You are runnig: user --search-by-role / Other 
+You are running: user --search-by-role / Other 
 
  > USER ID: 1
     username: rossini
@@ -366,7 +365,7 @@ RELATIONSHIPS:
 --
 
 ===== Search by resource option
-The option to searcn a list of users with a specified resource.
+The option to search a list of users with a specified resource.
 
 [source]
 --
@@ -376,7 +375,7 @@ $ ./syncopeadm.sh user --search-by-resource {REALM} {RESOURCE-NAME}
 [source]
 --
 
-You are runnig: user --search-by-resource / ws-target-resource-2 
+You are running: user --search-by-resource / ws-target-resource-2 
 
  > USER ID: 3
     username: vivaldi
@@ -472,27 +471,27 @@ $ ./syncopeadm.sh user --delete-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}
 
 [source]
 --
- You are runnig: user --delete-by-attribute / surname=Rossini 
+ You are running: user --delete-by-attribute / surname=Rossini 
 
  - Deleted users: 1
 --
 
 ===== Delete all option
-The option to delete all users of the realm passe as input.
+The option to delete all users of the realm passed as input.
 
 [source]
 --
 $ ./syncopeadm.sh user --delete-all {REALM}
 --
 
-The delete option, as can be imagined, tries to remove every users under the passed realm.
+The delete option, as can be imagined, tries to remove every user under the specified realm.
 
 [NOTE]
-To run this operation the system asks you again the admin credential.
+To run this operation the system asks you again for the admin credential.
 
 [source]
 --
-You are runnig: user --delete-all / 
+You are running: user --delete-all / 
 
 Running this operation you will delete all the realm users managed by Syncope, are you sure? [yes/no]
 yes
@@ -522,14 +521,13 @@ Deleting process started
 
 --
 
-As you can read the output is composed of two parts.
-The first one is the number of deleted users; the second one is a table with the users (user id) don't removed.
+The output is composed of two parts. The first one is the number of deleted users; the second one is a table with the users (user id) who aren't removed.
 
 To know the reason why the deletion failed you need to run the command with the standard delete option.
 
 [source]
 --
-You are runnig: user --delete 5 
+You are running: user --delete 5 
 
  - Error: GroupOwnership [6 director]
 --

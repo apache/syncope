@@ -18,7 +18,7 @@
 //
 
 ==== Resource command
-The resource command serves to retrieve the information about the resources.
+The resource command retrieves information about the resources.
 
 ===== Help message
 [source,bash]
@@ -35,7 +35,7 @@ Usage: resource [options]
 ----
 
 ===== Details option
-This option shows a table with resource amount.
+This option shows a table with amount of available resources.
 
 [source]
 --
@@ -45,7 +45,7 @@ $ ./syncopeadm.sh resource --details
 [source]
 --
 
-You are runnig: resource --details 
+You are running: resource --details 
 
 #############################
 #                           #
@@ -67,7 +67,7 @@ Total number::
     number of resources;
 
 ===== List option
-Running the command with this option you will see the list of the resources.
+Running the command with this option you will see the list of resources.
 
 [source]
 --
@@ -77,7 +77,7 @@ $ ./syncopeadm.sh resource --list
 [source]
 --
 
-You are runnig: resource --list 
+You are running: resource --list 
 
  > RESOURCE ID: ws-target-resource-1
     connector dispaly name: ConnInstance100
@@ -183,14 +183,14 @@ You are runnig: resource --list
 --
 
 ===== Read option
-The option to read all the information of specified resource.
+The option to read all the information of a specified resource.
 
 [source]
 --
 $ ./syncopeadm.sh resource --read {RESOURCE-NAME} {RESOURCE-NAME} [...]
 --
 
-Unlike the list option, the read one shows only the resources passed as input.
+Unlike the list option, the read option shows only the resources passed as input.
 
 ===== Delete option
 The option to delete a specified resource.
@@ -200,7 +200,7 @@ The option to delete a specified resource.
 $ ./syncopeadm.sh resource --delete {RESOURCE-NAME} {RESOURCE-NAME} [...]
 --
 
-The delete option, as can be imagined, tries to remove a specified resources. 
+The delete option, as can be imagined, tries to remove the specified resources. 
 The output will be something like:
 [source]
 --

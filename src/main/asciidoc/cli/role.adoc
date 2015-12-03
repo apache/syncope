@@ -18,7 +18,7 @@
 //
 
 ==== Role command
-The role command serves to retrieve the information about the roles.
+The role command retrieves information about the roles.
 
 ===== Help message
 [source,bash]
@@ -45,7 +45,7 @@ $ ./syncopeadm.sh role --details
 [source]
 --
 
-You are runnig: role --details 
+You are running: role --details 
 
 ####################################
 #                                  #
@@ -67,11 +67,10 @@ You are runnig: role --details
 Total number::
     number of created roles;
 Without entitlements::
-    number of roles without linked entitlments.
+    number of roles without linked entitlements.
 
 ===== List option
-Running the command with this option you will see the list of roles with the realm where are configured 
-and their entitlments.
+Running the command with this option you will see the list of roles with the realm where they are configured and their entitlments.
 
 [source]
 --
@@ -81,7 +80,7 @@ $ ./syncopeadm.sh role --list
 [source]
 --
 
-You are runnig: role --list 
+You are running: role --list 
 
  > ROLE ID: User reviewer
     REALMS: 
@@ -131,17 +130,17 @@ The option to read all the information of specified roles.
 $ ./syncopeadm.sh role --read {ROLE-NAME} {ROLE-NAME} [...]
 --
 
-Unlike the list option, the read one shows only the roles passed as input.
+Unlike the list option, the read option shows only the roles passed as input.
 
 ===== Delete option
-The option to delete a specified roles.
+The option to delete specified roles.
 
 [source]
 --
 $ ./syncopeadm.sh role --delete {ROLE-NAME} {ROLE-NAME} [...]
 --
 
-The delete option, as can be imagined, tries to remove a specified roles. 
+The delete option, as can be imagined, tries to remove specified roles. 
 The output will be something like:
 [source]
 --

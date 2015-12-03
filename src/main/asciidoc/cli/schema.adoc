@@ -18,7 +18,7 @@
 //
 
 ==== Schema command
-The schema command serves to retrieve the information about every schema categories.
+The schema command serves retrieves information about the schema categories.
 
 ===== Help message
 [source,bash]
@@ -48,7 +48,7 @@ $ ./syncopeadm.sh schema --details
 [source]
 --
 
-You are runnig: schema --details 
+You are running: schema --details 
 
 ##############################
 #                            #
@@ -88,7 +88,7 @@ $ ./syncopeadm.sh schema --list-plain
 [source]
 --
 
-You are runnig: schema --list-plain 
+You are running: schema --list-plain 
 
 ################################################################
 #                                                              #
@@ -151,7 +151,7 @@ You are runnig: schema --list-plain
 
 ===== List derived option
 Running the command with this option you will see the list of the derived schemas available in Syncope with 
-their expression.
+their expressions.
 
 [source]
 --
@@ -161,7 +161,7 @@ $ ./syncopeadm.sh schema --list-derived
 [source]
 --
 
-You are runnig: schema --list-derived 
+You are running: schema --list-derived 
 
 #######################################################################################
 #                                                                                     #
@@ -199,7 +199,7 @@ $ ./syncopeadm.sh schema --list-virtual
 [source]
 --
 
-You are runnig: schema --list-virtual 
+You are running: schema --list-virtual 
 
 ##################################
 #                                #
@@ -220,7 +220,7 @@ You are runnig: schema --list-virtual
 --
 
 ===== Read option
-The option to read all the information of specified schema.
+The option to read all the information of a specified schema.
 
 [source]
 --
@@ -228,13 +228,13 @@ $ ./syncopeadm.sh schema --read {SCHEMA-TYPE} {SCHEMA-KEY}
    Schema type: PLAIN / DERIVED / VIRTUAL
 --
 
-Unlike the list option, the read one shows the schema passed as input and, in case of PLAIN category, the full 
-attributes of it.
+Unlike the list option, the read option shows the schema passed as input and, in case of PLAIN category, the full 
+attributes of the schema.
 
 [source]
 --
 
-You are runnig: schema --read PLAIN email 
+You are running: schema --read PLAIN email 
 
  > SCHEMA ID: email
     type: String
@@ -243,13 +243,13 @@ You are runnig: schema --read PLAIN email
     mandatory condition: false
     mime type: null
     validator class: org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator
-    chiper algorithm: 
+    cipher algorithm: 
 
 --
 [source]
 --
 
-You are runnig: schema --read DERIVED info 
+You are running: schema --read DERIVED info 
 
 ###############################################################################
 #                                                                             #
@@ -269,7 +269,7 @@ You are runnig: schema --read DERIVED info
 [source]
 --
 
-You are runnig: schema --read VIRTUAL virtualReadOnly 
+You are running: schema --read VIRTUAL virtualReadOnly 
 
 ##################################
 #                                #

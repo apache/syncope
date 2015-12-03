@@ -34,7 +34,7 @@ public class DomainResultManager extends CommonsResultManager {
 
     public void printDomain(final DomainTO domainTO) {
         System.out.println(" > DOIMAIN NAME: " + domainTO.getKey());
-        System.out.println("    chiper algorithm: " + domainTO.getAdminCipherAlgorithm());
+        System.out.println("    cipher algorithm: " + domainTO.getAdminCipherAlgorithm());
         System.out.println("");
     }
 

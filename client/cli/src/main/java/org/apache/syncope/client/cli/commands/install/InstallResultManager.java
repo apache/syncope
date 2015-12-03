@@ -57,7 +57,7 @@ public class InstallResultManager extends CommonsResultManager {
             System.out.println("###############################################");
             System.out.println("#                                             #");
             System.out.println("#            Provided unknown host!           #");
-            System.out.println("#        START AGAIN the installation!        #");
+            System.out.println("#        START the installation AGAIN!        #");
             System.out.println("#                                             #");
             System.out.println("###############################################");
             System.out.println("");
@@ -69,7 +69,7 @@ public class InstallResultManager extends CommonsResultManager {
             System.out.println("#                                             #");
             System.out.println("#       Provided address is unreachable!      #");
             System.out.println("#         Check it and if it is wrong         #");
-            System.out.println("#        START AGAIN the installation!        #");
+            System.out.println("#        START the installation AGAIN!        #");
             System.out.println("#                                             #");
             System.out.println("###############################################");
             System.out.println("");
@@ -82,7 +82,7 @@ public class InstallResultManager extends CommonsResultManager {
             System.out.println("###############################################");
             System.out.println("#                                             #");
             System.out.println("#   Username or password provided are wrong   #");
-            System.out.println("#        START AGAIN the installation!        #");
+            System.out.println("#        START the installation AGAIN!        #");
             System.out.println("#                                             #");
             System.out.println("###############################################");
             System.out.println("");
@@ -91,7 +91,7 @@ public class InstallResultManager extends CommonsResultManager {
             System.out.println("###############################################");
             System.out.println("#                                             #");
             System.out.println("#                Something wrong              #");
-            System.out.println("#        START AGAIN the installation!        #");
+            System.out.println("#        START the installation AGAIN!        #");
             System.out.println("#                                             #");
             System.out.println("###############################################");
             System.out.println("");

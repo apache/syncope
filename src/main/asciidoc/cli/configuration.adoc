@@ -18,7 +18,7 @@
 //
 
 ==== Configuration command
-The configuration command serves to retrieve the information about the Syncope configuration.
+The configuration command retrieves information about the Syncope configuration.
 
 ===== Help message
 [source,bash]
@@ -49,7 +49,7 @@ $ ./syncopeadm.sh configuration --get
 [source]
 --
 
-You are runnig: configuration --get 
+You are running: configuration --get 
 
 ########################################################
 #                                                      #
@@ -79,7 +79,7 @@ You are runnig: configuration --get
 --
 
 ===== Read option
-The option to read the value of a specified configuration attributes.
+The option to read the value of specified configuration attributes.
 
 [source]
 --
@@ -89,7 +89,7 @@ $ ./syncopeadm.sh configuration --read {CONF-NAME} {CONF-NAME} [...]
 [source]
 --
 
-You are runnig: configuration --read passwordReset.allowed 
+You are running: configuration --read passwordReset.allowed 
 
 #####################################
 #                                   #
@@ -108,7 +108,7 @@ You are runnig: configuration --read passwordReset.allowed
 --
 
 ===== Update option
-The option to update a value of a specified configuration attributes.
+The option to update a value of specified configuration attributes.
 
 [source]
 --
@@ -118,7 +118,7 @@ $ ./syncopeadm.sh configuration --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={C
 [source]
 --
 
-You are runnig: configuration --update passwordReset.allowed=false 
+You are running: configuration --update passwordReset.allowed=false 
 
 #####################################
 #                                   #
@@ -137,22 +137,21 @@ You are runnig: configuration --update passwordReset.allowed=false
 --
 
 ===== Delete option
-The option to delete a specified configuration attributes.
+The option to delete specified configuration attributes.
 
 [source]
 --
 $ ./syncopeadm.sh configuration --delete {CONF-NAME} {CONF-NAME} [...]
 --
 
-The delete option, as can be imagined, tries to remove a specified roles. 
-The output will be something like:
+The delete option, as can be imagined, tries to remove the specified configurations. The output will be something like:
 [source]
 --
  - Configuration {CONF-NAME} successfully deleted
 --
 
 ===== Export option
-The option to export the Syncope configuration under specified directory.
+The option to export the Syncope configuration to a specified directory.
 
 [source]
 --

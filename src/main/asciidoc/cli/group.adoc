@@ -18,7 +18,7 @@
 //
 
 ==== Group command
-The group command serves to retrieve the information about the configured groups.
+The group command retrieves information about the configured groups.
 
 ===== Help message
 [source,bash]
@@ -39,7 +39,7 @@ Usage: group [options]
 ----
 
 ===== Details option
-This option shows a table with group amount and some information.
+This option shows a table with the amount of available groups and some additional information.
 
 [source]
 --
@@ -49,7 +49,7 @@ $ ./syncopeadm.sh group --details
 [source]
 --
 
-You are runnig: group --details 
+You are running: group --details 
 
 ##################################
 #                                #
@@ -82,7 +82,7 @@ $ ./syncopeadm.sh group --list
 [source]
 --
 
-You are runnig: group --list 
+You are running: group --list 
 
  > GROUP ID: 1
     name: root
@@ -126,7 +126,7 @@ $ ./syncopeadm.sh group --read {GROUP-ID} {GROUP-ID} [...]
 [source]
 --
 
-You are runnig: group --read 15 
+You are running: group --read 15 
 
  > GROUP ID: 15
     name: additional
@@ -162,7 +162,7 @@ $ ./syncopeadm.sh  group --read-attr-by-schema-type {GROUP-ID} {SCHEMA-TYPE}
 [source]
 --
 
-You are runnig: group --read-attr-by-schema-type 15 DERIVED 
+You are running: group --read-attr-by-schema-type 15 DERIVED 
      - displayProperty: [: ] - is readonly
 
      - rderToBePropagated: [-] - is readonly
@@ -185,7 +185,7 @@ $ ./syncopeadm.sh  group --read-attr-by-schema {GROUP-ID} {SCHEMA-TYPE} {SCHEMA-
 [source]
 --
 
-You are runnig: group --read-attr-by-schema 12 PLAIN title 
+You are running: group --read-attr-by-schema 12 PLAIN title 
      - title: [r12]
 
 --

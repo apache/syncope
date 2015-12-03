@@ -18,7 +18,7 @@
 //
 
 ==== Notification command
-The notification command serves to retrieve the information about the configured notification.
+The notification command retrieves information about the configured notifications.
 
 ===== Help message
 [source,bash]
@@ -44,7 +44,7 @@ $ ./syncopeadm.sh notification --list
 [source]
 --
 
-You are runnig: notification --list 
+You are running: notification --list 
 
  > NOTIFICATION ID: 1
     events: [[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]]
@@ -91,7 +91,7 @@ You are runnig: notification --list
 --
 
 ===== Read option
-The option to read all the information of specified notification.
+The option to read all the information of the specified notifications.
 
 [source]
 --

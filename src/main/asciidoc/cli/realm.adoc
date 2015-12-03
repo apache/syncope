@@ -18,7 +18,7 @@
 //
 
 ==== Realm command
-The realm command serves to retrieve the information about the configured realm.
+The realm command retrieves information about the configured realm.
 
 ===== Help message
 [source,bash]
@@ -31,7 +31,7 @@ Usage: realm [options]
 ----
 
 ===== Details option
-This option shows a table with realm amount.
+This option shows a table with the amount of the available realms.
 
 [source]
 --
@@ -41,7 +41,7 @@ $ ./syncopeadm.sh realm --details
 [source]
 --
 
-You are runnig: realm --details 
+You are running: realm --details 
 
 ############################
 #                          #
@@ -70,7 +70,7 @@ $ ./syncopeadm.sh realm --list
 [source]
 --
 
-You are runnig: realm --list 
+You are running: realm --list 
 
  > REALM ID: 1
     name: /

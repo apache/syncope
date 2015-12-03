@@ -326,7 +326,7 @@ artifactId::
     something like 'myproject'
 version number::
     You can use the default; it is good practice to have 'SNAPSHOT' in the version number during development and the 
-maven release plugin makes use of that string. But ensure to comply to the desired numbering scheme for your project.
+maven release plugin makes use of that string. But ensure to comply with the desired numbering scheme for your project.
 package name::
     The java package name. A folder structure according to this name will be generated automatically; by default, equal 
 to the groupId.
@@ -351,7 +351,7 @@ After downloading all of the needed dependencies, two WAR files will be produced
 If no failures are encountered, your basic Apache Syncope project is now ready to go.
 
 [NOTE]
-You should consider reading the _Apache Syncope Reference Guide_ for understanding how to configure, extend, customize 
+You should consider reading the _Apache Syncope Reference Guide_ to understand how to configure, extend, customize 
 and deploy your new Apache Syncope project.
 
 ==== Embedded Mode
