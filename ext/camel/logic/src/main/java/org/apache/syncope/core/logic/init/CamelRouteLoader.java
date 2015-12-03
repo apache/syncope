@@ -68,8 +68,10 @@ public class CamelRouteLoader implements SyncopeLoader {
     private static boolean isJBoss() {
         try {
             Class.forName("org.jboss.vfs.VirtualFile");
+            LOG.debug("Running in JBoss AS / Wildfly, disabling {}", DOMImplementationRegistry.class.getName());
             return true;
         } catch (Throwable ex) {
+            LOG.debug("Not running in JBoss AS / Wildfly, enabling {}", DOMImplementationRegistry.class.getName());
             return false;
         }
     }
