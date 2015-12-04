@@ -377,7 +377,7 @@ mvn -P embedded
 
 ===== Paths and Components
 
-[cols="1,2a"]
+[cols="1,2"]
 |===
 
 | Log files

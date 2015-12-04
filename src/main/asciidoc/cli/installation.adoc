@@ -64,7 +64,7 @@ $ ./syncopeadm.sh install --setup
 --
 
 A successful result will be:
-[source,bash]
+[source,bash,subs="verbatim,attributes"]
 ----
 
 You are running: install --setup 
@@ -84,7 +84,7 @@ Syncope server port [e.g. 8080]: 9080
 Syncope server rest context [e.g. /syncope/rest/]: /syncope/rest
 Syncope admin user: admin
 Syncope admin password: password
-Installation parameters checked on Syncope core version: 2.0.0-SNAPSHOT
+Installation parameters checked on Syncope core version: {docVersion}
 
 ###############################################
 #                                             #
@@ -154,7 +154,7 @@ It enough to run the script with the --setup-debug option
 --
 $ ./syncopeadm.sh install --setup-debug
 --
-[source,bash]
+[source,bash,subs="verbatim,attributes"]
 ----
 
 You are running: install --setup-debug 
@@ -168,7 +168,7 @@ You are running: install --setup-debug
 Path to config files of Syncope CLI client will be: ./
 - File system permission checked
 
-Installation parameters checked on Syncope core version: 2.0.0-SNAPSHOT
+Installation parameters checked on Syncope core version: {docVersion}
 
 ###############################################
 #                                             #

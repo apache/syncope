@@ -120,8 +120,10 @@ provisioning, and compliance.
 
 === Using the Admin Console
 
+=== CLI
 include::cli/cli.adoc[]
 
+=== RESTful services
 include::restfulservices/restful-services.adoc[]
 
 === Customization

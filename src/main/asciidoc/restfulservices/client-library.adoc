@@ -21,12 +21,12 @@
 The Apache Syncope client library, as suggested, is a Java client to work with the Apache Syncope core.
 
 ===== Maven dependency
-[source,xml]
+[source,xml,subs="verbatim,attributes"]
 ----
 <dependency>
   <groupId>org.apache.syncope.client</groupId>
   <artifactId>syncope-client-lib</artifactId>
-  <version>${project.version}</version>
+  <version>{docVersion}</version>
 </dependency>
 ----
 

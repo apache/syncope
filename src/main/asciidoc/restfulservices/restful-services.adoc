@@ -16,7 +16,6 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== RESTful services
 The RESTful services is the way how the Syncope core web application receives the input from the clients. 
 This layer, developed in http://cxf.apache.org/docs/jax-rs.html[Apache CXF 2.0], is usually reachable under the 
 root context of the deployment.
