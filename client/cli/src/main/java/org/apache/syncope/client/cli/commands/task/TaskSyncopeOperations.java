@@ -44,11 +44,15 @@ public class TaskSyncopeOperations {
     }
 
     public void delete(final String taskId) {
-        taskService.read(Long.valueOf(taskId));
+        taskService.delete(Long.valueOf(taskId));
     }
 
     public List<AbstractTaskTO> list(final String type) {
         return taskService.list(new TaskQuery.Builder().type(TaskType.valueOf(type)).build()).getResult();
+    }
+    
+    public List<AbstractTaskTO> listPropagationTask() {
+        return taskService.list(new TaskQuery.Builder().type(TaskType.PROPAGATION).build()).getResult();
     }
 
     public TaskExecTO readExecution(final String executionId) {

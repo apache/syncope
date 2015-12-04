@@ -58,6 +58,9 @@ public class TaskCommand extends AbstractCommand {
             case DELETE:
                 new TaskDelete(input).delete();
                 break;
+            case DELETE_PROP_TASK:
+                new TaskDeleteAllProp(input).delete();
+                break;
             case DELETE_EXECUTION:
                 new TaskExecutionDelete(input).delete();
                 break;
@@ -87,6 +90,7 @@ public class TaskCommand extends AbstractCommand {
         READ("--read"),
         READ_EXECUTION("--read-execution"),
         DELETE("--delete"),
+        DELETE_PROP_TASK("--delete-all-prop"),
         DELETE_EXECUTION("--delete-execution"),
         EXECUTE("--execute");
 
