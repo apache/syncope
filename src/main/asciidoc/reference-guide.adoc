@@ -52,9 +52,7 @@ New contributors are always welcome!
 This reference guide covers Apache Syncope services for identity management,
 provisioning, and compliance.
 
-== Introduction
-
-=== A bit of history
+include::introduction/introduction.adoc[]
 
 == Identity and Access Management
 
