@@ -49,7 +49,11 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void findAll() {
+<<<<<<< da596533f9b9726802d360d51045a24a1cf23677:core/persistence-jpa/src/test/java/org/apache/syncope/core/persistence/jpa/inner/VirSchemaTest.java
         List<VirSchema> list = virSchemaDAO.findAll();
+=======
+        List<UVirSchema> list = virSchemaDAO.findAll(UVirSchema.class);
+>>>>>>> [SYNCOPE-739] Virtual attributes are not updated after a sync task:core/src/test/java/org/apache/syncope/core/persistence/dao/VirSchemaTest.java
         assertEquals(3, list.size());
     }
 
