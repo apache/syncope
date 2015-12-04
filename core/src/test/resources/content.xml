@@ -79,7 +79,7 @@ under the License.
   <CAttrValue id="11" attribute_id="11" booleanValue="1"/>
   
   <CSchema name="tasks.interruptMaxRetries" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CAttr id="12" owner_id="1" schema_name="tasks.interruptMaxRetries"/>
   <CAttrValue id="12" attribute_id="12" longValue="20"/>
 
@@ -260,6 +260,7 @@ under the License.
   <UDerSchema name="noschema" expression="surname + ', ' + notfound"/>
 
   <UVirSchema name="virtualdata"/>
+  <UVirSchema name="virtualPropagation"/>
 
   <RSchema name="icon" type="String"
            mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>                
@@ -844,6 +845,9 @@ under the License.
   <UMappingItem id="321" accountid="0" password="0" mapping_id="11"
                 extAttrName="jpegPhoto" intAttrName="photo" intMappingType="UserSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
+  <UMappingItem id="339" accountid="0" password="0" mapping_id="11"
+                  extAttrName="givenname" intAttrName="virtualPropagation" intMappingType="UserVirtualSchema"
+                  mandatoryCondition="false" purpose="BOTH"/>
   
   <RMapping id="1" resource_name="resource-ldap"
             accountlink="&apos;cn=&apos; + name + &apos;,ou=groups,o=isp&apos;"/>
@@ -887,7 +891,10 @@ under the License.
   <UMappingItem id="332" mapping_id="17" accountid="0" password="0" 
                 extAttrName="USERNAME" intAttrName="virtualdata" intMappingType="UserVirtualSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
-                
+  <UMappingItem id="338" mapping_id="17" accountid="0" password="0" 
+                extAttrName="SURNAME" intAttrName="virtualPropagation" intMappingType="UserVirtualSchema"
+                mandatoryCondition="false" purpose="BOTH"/>
+  
   <UMapping id="18" resource_name="ws-target-resource-timeout"/>
   <UMappingItem id="333" mapping_id="18" accountid="1" password="0"
                 extAttrName="fullname" intAttrName="fullname" intMappingType="UserSchema"

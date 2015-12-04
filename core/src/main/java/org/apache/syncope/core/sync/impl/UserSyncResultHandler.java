@@ -52,7 +52,7 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
     @Override
     protected AbstractSubjectTO getSubjectTO(final long id) {
         try {
-            return userDataBinder.getUserTO(id);
+            return userDataBinder.getUserTO(id, false);
         } catch (Exception e) {
             LOG.warn("Error retrieving user {}", id, e);
             return null;

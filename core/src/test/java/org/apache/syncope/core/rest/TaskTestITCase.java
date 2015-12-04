@@ -36,9 +36,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.services.NotificationService;
@@ -1500,5 +1508,79 @@ public class TaskTestITCase extends AbstractTest {
         } while (list.size() >= 1 && i < maxit);
 
         assertTrue(list.isEmpty());
+    }
+
+    @Test
+    public void issueSYNCOPE739() {
+        // First of all, clear any potential conflict with existing user / role
+        ldapCleanup();
+
+        SyncTaskTO task = taskService.read(11L);
+        assertNotNull(task);
+        assertEquals(11L, task.getId());
+
+        task.setUnmatchingRule(UnmatchingRule.ASSIGN);
+
+        UserTO userTemplate = new UserTO();
+        userTemplate.getResources().add(RESOURCE_NAME_DBVIRATTR);
+
+        task.setUserTemplate(userTemplate);
+
+        Response response = taskService.create(task);
+        SyncTaskTO actual = getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
+        assertNotNull(actual);
+
+        task = taskService.read(actual.getId());
+        assertNotNull(task);
+        assertEquals(actual.getId(), task.getId());
+        assertEquals(actual.getJobClassName(), task.getJobClassName());
+
+        // Create sync task
+        TaskExecTO execution = execSyncTask(task.getId(), 50, false);
+
+        // verify execution status
+        final String status = execution.getStatus();
+        assertNotNull(status);
+        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+
+        UserTO userTO = readUser("syncFromLDAP");
+        assertNotNull(userTO);
+        assertEquals("syncFromLDAP",
+                userTO.getVirAttrMap().get("virtualPropagation").getValues().get(0));
+
+        ConnObjectTO connObj =
+                resourceService.getConnectorObject(RESOURCE_NAME_DBVIRATTR, SubjectType.USER, userTO.getId());
+        assertNotNull(connObj);
+        assertEquals("syncFromLDAP", connObj.getAttrMap().get("SURNAME").getValues().get(0));
+
+        // update virtual attribute directly
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+        String value = jdbcTemplate.queryForObject(
+                "SELECT SURNAME FROM testsync WHERE ID=?", String.class, userTO.getId());
+        assertEquals("syncFromLDAP", value);
+
+        jdbcTemplate.update("UPDATE testsync set SURNAME=null WHERE ID=?", userTO.getId());
+
+        value = jdbcTemplate.queryForObject(
+                "SELECT SURNAME FROM testsync WHERE ID=?", String.class, userTO.getId());
+        assertNull(value);
+
+        // Update sync task
+        execution = execSyncTask(task.getId(), 50, false);
+        assertNotNull(execution.getStatus());
+        assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
+
+        userTO = readUser("syncFromLDAP");
+        assertNotNull(userTO);
+        assertEquals("syncFromLDAP", userTO.getVirAttrMap().get("virtualPropagation").getValues().get(0));
+
+        connObj = resourceService.getConnectorObject(RESOURCE_NAME_DBVIRATTR, SubjectType.USER, userTO.getId());
+        assertNotNull(connObj);
+        assertEquals("syncFromLDAP", connObj.getAttrMap().get("SURNAME").getValues().get(0));
+
+        // delete the created sync task
+        taskService.delete(task.getId());
+
     }
 }
