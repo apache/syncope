@@ -72,6 +72,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         if (anyType.getKind() == AnyTypeKind.ANY_OBJECT && group.getADynMembership(anyType) == null) {
             dynMembership = entityFactory.newEntity(ADynGroupMembership.class);
             dynMembership.setGroup(group);
+            ADynGroupMembership.class.cast(dynMembership).setAnyType(anyType);
             group.add((ADynGroupMembership) dynMembership);
         } else if (anyType.getKind() == AnyTypeKind.USER && group.getUDynMembership() == null) {
             dynMembership = entityFactory.newEntity(UDynGroupMembership.class);

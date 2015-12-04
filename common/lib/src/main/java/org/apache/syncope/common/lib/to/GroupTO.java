@@ -96,7 +96,7 @@ public class GroupTO extends AnyTO {
         this.udynMembershipCond = uDynMembershipCond;
     }
 
-    @JsonIgnore
+    @JsonProperty
     public Map<String, String> getADynMembershipConds() {
         return adynMembershipConds;
     }
