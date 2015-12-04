@@ -456,4 +456,9 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     public RoleTO getRoleTO(final Long roleId) {
         return getRoleTO(getRoleFromId(roleId), true);
     }
+
+    @Transactional(readOnly = true)
+    public RoleTO getRoleTO(final Long roleId, final boolean details) {
+        return getRoleTO(getRoleFromId(roleId), details);
+    }
 }

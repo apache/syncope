@@ -59,7 +59,7 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
     @Override
     protected AbstractSubjectTO getSubjectTO(final long id) {
         try {
-            return roleDataBinder.getRoleTO(id);
+            return roleDataBinder.getRoleTO(id, false);
         } catch (Exception e) {
             LOG.warn("Error retrieving role {}", id, e);
             return null;
