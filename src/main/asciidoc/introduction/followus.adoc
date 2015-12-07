@@ -1,0 +1,58 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Follow us
+Syncope offers several ways to be updated with the last release and so on:
+
+User Mailing List::
+
+** To subscribe: user-subscribe@syncope.apache.org;
+** To unsubscribe: user-unsubscribe@syncope.apache.org;
+** To post: user@syncope.apache.org.
+
+Developer Mailing List::
+
+** To subscribe: dev-subscribe@syncope.apache.org;
+** To unsubscribe: dev-unsubscribe@syncope.apache.org;
+** To post: dev@syncope.apache.org.
+
+Commits Mailing List::
+
+** To subscribe: commits-subscribe@syncope.apache.org;
+** To unsubscribe: commits-unsubscribe@syncope.apache.org;
+** To post: commits@syncope.apache.org.
+
+IRC channel::
+Joining the #apache-syncope channel on FreeNode.
+
+Twitter::
+Following this https://twitter.com/syncopeidm[account]
+
+LinkedIn::
+Following this https://www.linkedin.com/groups/4425008[group]
+
+Facebook::
+Following this https://www.facebook.com/Apache-Syncope-206598276137418[page]
+
+Google plus::
+Following this https://plus.google.com/communities/112603045853109142588[community]
+
+Youtube::
+Following this https://www.youtube.com/channel/UCkrSQVb5Qzb13crS1kCOiQQ[channel]
+
+Moreover there is an online demo going to http://syncopedemo.tirasa.net/[this URL].
