@@ -69,9 +69,9 @@ public class LdifInputStreamLoader {
     /**
      * Creates a new instance of LdifFileLoader.
      *
-     * @param coreSession
-     * @param ldif
-     * @param filters
+     * @param coreSession core session
+     * @param ldif LDIF content
+     * @param filters filters
      */
     public LdifInputStreamLoader(
             final CoreSession coreSession, final InputStream ldif, final List<? extends LdifLoadFilter> filters) {

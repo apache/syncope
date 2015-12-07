@@ -36,7 +36,7 @@ import org.apache.wicket.model.util.ListModel;
 
 public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<T> implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -2480279868319546243L;
 
     protected final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
@@ -47,7 +47,7 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<T> impl
      *
      * @param id The component id
      * @param anyTO any
-     * @param anyTypeClasses
+     * @param anyTypeClasses any type classes
      * @param pageRef Caller page reference.
      */
     public AnyWizardBuilder(

@@ -185,7 +185,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * @param delta representing the synchronizing group
      * @param connector associated to the current resource
      * @return value of attribute returned by
-     * {@link #getGroupMembershipAttrName(org.apache.syncope.core.propagation.Connector) }
+     * {@link #getGroupMembershipAttrName}
      */
     protected List<Object> getMembAttrValues(final SyncDelta delta, final Connector connector) {
         List<Object> result = Collections.<Object>emptyList();

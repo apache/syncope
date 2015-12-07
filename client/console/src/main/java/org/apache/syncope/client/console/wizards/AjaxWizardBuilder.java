@@ -22,8 +22,6 @@ import org.apache.wicket.extensions.wizard.WizardModel;
 
 public abstract class AjaxWizardBuilder<T extends Serializable> {
 
-    private static final long serialVersionUID = 1L;
-
     private final String id;
 
     protected final PageReference pageRef;
@@ -57,7 +55,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> {
         // ge the specified item if available
         final T modelObject = newModelObject();
 
-        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), pageRef, edit) {
+        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), edit) {
 
             private static final long serialVersionUID = 1L;
 

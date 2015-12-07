@@ -79,7 +79,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Activiti {@link http://www.activiti.org/} based implementation.
+ * <a href="http://www.activiti.org/">Activiti</a> based implementation.
  */
 public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 

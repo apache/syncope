@@ -39,8 +39,8 @@ import org.apache.wicket.model.IModel;
 /**
  * Show user or group status after performing a successful operation.
  *
- * @param <T>
- * @param <S>
+ * @param <T> type of the object that will be rendered in columns
+ * @param <S> type of the sorting parameter
  */
 public class BulkActionResultModalPage<T, S> extends AbstractModalPanel {
 

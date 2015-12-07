@@ -34,8 +34,10 @@ under the License.
   </skin>
   <custom>
     <fluidoSkin>
-      <topBarEnabled>true</topBarEnabled>
-      <sideBarEnabled>false</sideBarEnabled>
+      <topBarEnabled>false</topBarEnabled>
+      <sideBarEnabled>true</sideBarEnabled>
+      <leftColumnClass>span2</leftColumnClass>
+      <bodyColumnClass>span10</bodyColumnClass>
       <sourceLineNumbersEnabled>true</sourceLineNumbersEnabled>
       <skipGenerationDate>true</skipGenerationDate>
       <twitter>
@@ -43,12 +45,12 @@ under the License.
         <showUser>true</showUser>
         <showFollowers>false</showFollowers>
       </twitter>
+      <facebookLike/>
+      <googlePlusOne/>
       <ohloh>
         <projectId>syncope</projectId>
         <widget>thin-badge</widget>
       </ohloh>
-      <facebookLike/>
-      <googlePlusOne/>
     </fluidoSkin>
   </custom>
   
@@ -63,24 +65,21 @@ under the License.
       <item name="Architecture" href="architecture.html"/>
       <item name="Downloads" href="downloads.html"/>
       <item name="Security Advisories" href="security.html"/>
-      <item name="References" href="apidocs/1.2/index.html">
+      <item name="Documentation" href="docs/index.html"/>
+      <item name="References">
+        <item name="REST 2.0" href="rest/2.0/index.html"/>
         <item name="REST 1.2" href="rest/1.2/index.html"/>
+        <item name="Javadocs 2.0" href="apidocs/2.0/index.html"/>
         <item name="Javadocs 1.2" href="apidocs/1.2/index.html"/>
-        <item name="Javadocs 1.1" href="apidocs/1.1/index.html"/>
-        <item name="Javadocs 1.0" href="apidocs/1.0/index.html"/>
       </item>
+      <item name="Mailing Lists" href="mailing-lists.html"/>
+      <item name="Project Team" href="team-list.html"/>
       <item name="License" href="license.html"/>
       <item name="Professional Services" href="professional-services.html"/>
     </menu>
-  
-    <menu name="Community">
-      <item name="Mailing Lists" href="mailing-lists.html"/>
-      <item name="Project Team" href="team-list.html"/>
-      <item name="Roadmap" href="http://cwiki.apache.org/confluence/display/SYNCOPE/Roadmap"/>
-      <item name="Documentation" href="http://cwiki.apache.org/confluence/display/SYNCOPE/Index"/>
-    </menu>
-      
+        
     <menu name="Development">
+      <item name="Roadmap" href="http://cwiki.apache.org/confluence/display/SYNCOPE/Roadmap"/>
       <item name="How to contribute?" href="contributing.html"/>
       <item name="Source Repository" href="source-repository.html"/>
       <item name="Continuous Integration" href="integration.html"/>
@@ -97,7 +96,7 @@ under the License.
     </menu>
 
     <footer>
-      <div class="row">
+      <div class="row-fluid">
         Apache, Syncope, Apache Syncope, the Apache feather logo and the Apache Syncope project logo are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.
       </div>
     </footer>

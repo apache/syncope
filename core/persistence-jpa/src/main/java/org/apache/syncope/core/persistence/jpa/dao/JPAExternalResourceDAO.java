@@ -138,14 +138,6 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
         return query.getResultList();
     }
 
-    /**
-     * This method has an explicit Transactional annotation because it is called by SyncJob.
-     *
-     * @see org.apache.syncope.core.sync.impl.SyncJob
-     *
-     * @param resource entity to be merged
-     * @return the same entity, updated
-     */
     @Override
     @Transactional(rollbackFor = { Throwable.class })
     public ExternalResource save(final ExternalResource resource) {

@@ -32,7 +32,7 @@ import org.apache.wicket.model.util.ListModel;
 
 public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 6716803168859873877L;
 
     private final UserRestClient userRestClient = new UserRestClient();
 
@@ -43,7 +43,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
      *
      * @param id The component id
      * @param userTO any
-     * @param anyTypeClasses
+     * @param anyTypeClasses any type classes
      * @param pageRef Caller page reference.
      */
     public UserWizardBuilder(

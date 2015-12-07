@@ -46,7 +46,7 @@ import org.apache.wicket.model.ResourceModel;
 /**
  * Modal window with Display attributes form.
  *
- * @param <T>
+ * @param <T> anyTO
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public abstract class DisplayAttributesModalPage<T extends AnyTO> extends AbstractModalPanel {

@@ -60,6 +60,92 @@ under the License.
     </section>
 
     <section name="Current Releases">
+      <subsection name="2.0.0-M1 Jazz">
+        <p>Release date: December ??, 2015</p>
+        <p>
+          <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Jazz">Release notes</a>
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Artifact</th>
+              <th>Signatures</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M1/syncope-2.0.0-M1-source-release.zip">syncope-2.0.0-M1-source-release.zip</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/syncope-2.0.0-M1-source-release.zip.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/syncope-2.0.0-M1-source-release.zip.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/syncope-2.0.0-M1-source-release.zip.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M1/syncope-standalone-2.0.0-M1-distribution.zip">syncope-standalone-2.0.0-M1-distribution.zip</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/syncope-standalone-2.0.0-M1-distribution.zip.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/syncope-standalone-2.0.0-M1-distribution.zip.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/syncope-standalone-2.0.0-M1-distribution.zip.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M1/syncope-installer-2.0.0-M1-uber.jar">syncope-installer-2.0.0-M1.jar</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/syncope-installer-2.0.0-M1-uber.jar.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/syncope-installer-2.0.0-M1-uber.jar.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/syncope-installer-2.0.0-M1-uber.jar.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M1/syncope-client-cli-2.0.0-M1.zip">syncope-client-cli-2.0.0-M1.zip</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/syncope-client-cli-2.0.0-M1.zip.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/syncope-client-cli-2.0.0-M1.zip.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/syncope-client-cli-2.0.0-M1.zip.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M1/apache-syncope-2.0.0-M1.deb">apache-syncope-2.0.0-M1.deb</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/apache-syncope-2.0.0-M1.deb.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/apache-syncope-2.0.0-M1.deb.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/apache-syncope-2.0.0-M1.deb.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M1/apache-syncope-console-2.0.0-M1.deb">apache-syncope-console-2.0.0-M1.deb</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/apache-syncope-console-2.0.0-M1.deb.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/apache-syncope-console-2.0.0-M1.deb.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/apache-syncope-console-2.0.0-M1.deb.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M1/apache-syncope-enduser-2.0.0-M1.deb">apache-syncope-enduser-2.0.0-M1.deb</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/apache-syncope-enduser-2.0.0-M1.deb.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/apache-syncope-enduser-2.0.0-M1.deb.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/2.0.0-M1/apache-syncope-enduser-2.0.0-M1.deb.sha1">sha1</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </subsection>
       <subsection name="1.2.6 Intermezzo">
         <p>Release date: November 5th, 2015</p>
         <p>
@@ -126,68 +212,6 @@ under the License.
           </tbody>
         </table>
       </subsection>
-      <subsection name="1.1.8 Ad libitum">
-        <p>Release date: Jul 3rd, 2014</p>
-        <p>
-          <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Ad+libitum">Release notes</a>
-        </p>
-        <table>
-          <thead>
-            <tr>
-              <th>Artifact</th>
-              <th>Signatures</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.1.8/syncope-1.1.8-source-release.zip">syncope-1.1.8-source-release.zip</a>
-              </td>
-              <td>
-                <a href="http://www.apache.org/dist/syncope/1.1.8/syncope-1.1.8-source-release.zip.asc">asc</a> 
-                <a href="http://www.apache.org/dist/syncope/1.1.8/syncope-1.1.8-source-release.zip.md5">md5</a> 
-                <a href="http://www.apache.org/dist/syncope/1.1.8/syncope-1.1.8-source-release.zip.sha1">sha1</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.1.8/syncope-standalone-1.1.8-distribution.zip">syncope-standalone-1.1.8-distribution.zip</a>
-              </td>
-              <td>
-                <a href="http://www.apache.org/dist/syncope/1.1.8/syncope-standalone-1.1.8-distribution.zip.asc">asc</a> 
-                <a href="http://www.apache.org/dist/syncope/1.1.8/syncope-standalone-1.1.8-distribution.zip.md5">md5</a> 
-                <a href="http://www.apache.org/dist/syncope/1.1.8/syncope-standalone-1.1.8-distribution.zip.sha1">sha1</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </subsection>
-      <subsection name="1.0.9 Espressivo">
-        <p>Release date: Apr 11th, 2014</p>
-        <p>
-          <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a>
-        </p>
-        <table>
-          <thead>
-            <tr>
-              <th>Artifact</th>
-              <th>Signatures</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.0.9/syncope-root-1.0.9-source-release.zip">syncope-root-1.0.9-source-release.zip</a>
-              </td>
-              <td>
-                <a href="http://www.apache.org/dist/syncope/1.0.9/syncope-root-1.0.9-source-release.zip.asc">asc</a> 
-                <a href="http://www.apache.org/dist/syncope/1.0.9/syncope-root-1.0.9-source-release.zip.md5">md5</a> 
-                <a href="http://www.apache.org/dist/syncope/1.0.9/syncope-root-1.0.9-source-release.zip.sha1">sha1</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </subsection>   
     </section>
 
     <section name="Older Releases">
@@ -257,70 +281,12 @@ under the License.
           </tbody>
         </table>
       </subsection>
-      <subsection name="1.1.7 Ad libitum">
-        <p>Release date: Apr 11th, 2014</p>
-        <p>
-          <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Ad+libitum">Release notes</a>
-        </p>
-        <table>
-          <thead>
-            <tr>
-              <th>Artifact</th>
-              <th>Signatures</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <a href="http://archive.apache.org/dist/syncope/1.1.7/syncope-1.1.7-source-release.zip">syncope-1.1.7-source-release.zip</a>
-              </td>
-              <td>
-                <a href="http://archive.apache.org/dist/syncope/1.1.7/syncope-1.1.7-source-release.zip.asc">asc</a> 
-                <a href="http://archive.apache.org/dist/syncope/1.1.7/syncope-1.1.7-source-release.zip.md5">md5</a> 
-                <a href="http://archive.apache.org/dist/syncope/1.1.7/syncope-1.1.7-source-release.zip.sha1">sha1</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://archive.apache.org/dist/syncope/1.1.7/syncope-standalone-1.1.7-distribution.zip">syncope-standalone-1.1.7-distribution.zip</a>
-              </td>
-              <td>
-                <a href="http://archive.apache.org/dist/syncope/1.1.7/syncope-standalone-1.1.7-distribution.zip.asc">asc</a> 
-                <a href="http://archive.apache.org/dist/syncope/1.1.7/syncope-standalone-1.1.7-distribution.zip.md5">md5</a> 
-                <a href="http://archive.apache.org/dist/syncope/1.1.7/syncope-standalone-1.1.7-distribution.zip.sha1">sha1</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </subsection>
-      <subsection name="1.0.8 Espressivo">
-        <p>Release date: Apr 18th, 2013</p>
-        <p>
-          <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Espressivo">Release notes</a>
-        </p>
-        <table>
-          <thead>
-            <tr>
-              <th>Artifact</th>
-              <th>Signatures</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <a href="http://archive.apache.org/dist/syncope/1.0.8/syncope-root-1.0.8-source-release.zip">syncope-root-1.0.8-source-release.zip</a>
-              </td>
-              <td>
-                <a href="http://archive.apache.org/dist/syncope/1.0.8/syncope-root-1.0.8-source-release.zip.asc">asc</a> 
-                <a href="http://archive.apache.org/dist/syncope/1.0.8/syncope-root-1.0.8-source-release.zip.md5">md5</a> 
-                <a href="http://archive.apache.org/dist/syncope/1.0.8/syncope-root-1.0.8-source-release.zip.sha1">sha1</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </subsection>
     </section>
 
+    <section name="Archives">
+      <p>All past releases can be fetched from ASF <a href="http://archive.apache.org/dist/syncope/">archives</a>.</p>
+    </section>
+    
     <section name="Verifying Releases">
       <p>We strongly recommend you verify the integrity of the downloaded files with both PGP and MD5.</p>
       

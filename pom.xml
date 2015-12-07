@@ -1440,8 +1440,10 @@ under the License.
                 import java.text.MessageFormat
                 def year = MessageFormat.format("{0,date,yyyy}", new Date()) 
                 project.properties['year'] = year
-                project.properties['snapshotOrRelease'] = project.version.endsWith("SNAPSHOT") ? "snapshot": "release"
+                project.properties['snapshotOrRelease'] = project.version.endsWith("SNAPSHOT") ? "snapshot" : "release"
                 project.properties['licenseUrl'] = project.parent.licenses[0].url
+                project.properties['site.deploymentBaseDir'] = 
+                project.properties['site.deploymentBaseUrl'] == null || !project.properties['site.deploymentBaseUrl'].startsWith('file:') ? project.properties['project.build.directory'] + "/generated-docs" : project.properties['site.deploymentBaseUrl'].substring(7)
               </source>
             </configuration>
           </execution>
@@ -1612,11 +1614,11 @@ under the License.
     </profile>
 
     <profile>
-      <id>doc</id>
+      <id>site</id>
       <build>
-        <defaultGoal>clean generate-resources</defaultGoal>
-        
-        <plugins>          
+        <defaultGoal>clean generate-resources site-deploy</defaultGoal>
+
+        <plugins>
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
@@ -1704,16 +1706,7 @@ under the License.
               </execution>
             </executions>
           </plugin>
-        </plugins>
-      </build>
-    </profile>
 
-    <profile>
-      <id>site</id>
-      <build>
-        <defaultGoal>clean site-deploy</defaultGoal>
-
-        <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
@@ -1763,6 +1756,31 @@ under the License.
                 </plugin>
               </reportPlugins>
             </configuration>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-docs-to-site</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>site-deploy</phase>
+                <configuration>
+                  <target>
+                    <copy todir="${site.deploymentBaseDir}/docs">
+                      <fileset dir="${project.build.directory}/generated-docs/" includes="getting-started.*"/>
+                      <fileset dir="${project.build.directory}/generated-docs/" includes="reference-guide.*"/>
+                    </copy>
+                    <copy todir="${site.deploymentBaseDir}/docs/images">
+                      <fileset dir="${project.build.directory}/generated-docs/images"/>
+                    </copy>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

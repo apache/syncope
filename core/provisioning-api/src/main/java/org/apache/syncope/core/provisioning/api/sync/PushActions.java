@@ -23,13 +23,12 @@ import org.quartz.JobExecutionException;
 
 /**
  * Interface for actions to be performed during push.
- * <br/>
  * All methods can throw {@link IgnoreProvisionException} to make the current any ignored by the push process.
  */
 public interface PushActions extends ProvisioningActions {
 
     /**
-     * Action to be executed before to assign (link & provision) a synchronized any object to the resource.
+     * Action to be executed before to assign (link &amp; provision) a synchronized any object to the resource.
      *
      * @param <A> concrete any object
      * @param profile profile of the push being executed.

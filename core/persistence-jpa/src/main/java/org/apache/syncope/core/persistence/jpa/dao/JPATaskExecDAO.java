@@ -83,13 +83,6 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
         return entityManager().merge(execution);
     }
 
-    /**
-     * This method has an explicit Transactional annotation because it is called by
-     * {@link org.apache.syncope.core.provisioning.java.job.AbstractTaskJob#execute(org.quartz.JobExecutionContext)}.
-     *
-     * @param taskId task id
-     * @param execution task execution
-     */
     @Override
     @Transactional(rollbackFor = { Throwable.class })
     public void saveAndAdd(final Long taskId, final TaskExec execution) {

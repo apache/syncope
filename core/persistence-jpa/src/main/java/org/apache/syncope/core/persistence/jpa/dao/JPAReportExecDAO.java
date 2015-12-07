@@ -65,13 +65,6 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
         return query.getResultList();
     }
 
-    /**
-     * This method is annotated as transactional because called from ReportJob.
-     *
-     * @see org.apache.syncope.core.report.ReportJob
-     * @param execution to be merged
-     * @return merged execution
-     */
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public ReportExec save(final ReportExec execution) {

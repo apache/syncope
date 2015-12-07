@@ -35,7 +35,6 @@ abstract class AbstractLogic<T extends AbstractBaseBean> {
 
     /**
      * Resolves stored bean (if existing) referred by the given CUD method.
-     * <br />
      * Read-only methods will be unresolved for performance reasons.
      *
      * @param method method.

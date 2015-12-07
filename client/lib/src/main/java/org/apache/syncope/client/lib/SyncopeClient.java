@@ -101,7 +101,7 @@ public class SyncopeClient {
     }
 
     /**
-     * Returns a new instance of {@link OrderByClauseBuilder}, for assisted building of {@link orderby} clauses.
+     * Returns a new instance of {@link OrderByClauseBuilder}, for assisted building of {@code orderby} clauses.
      *
      * @return default instance of {@link OrderByClauseBuilder}
      */

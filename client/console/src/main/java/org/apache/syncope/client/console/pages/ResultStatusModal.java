@@ -62,7 +62,7 @@ import org.apache.wicket.request.resource.ContextRelativeResource;
 /**
  * Show user or group status after performing a successful operation.
  *
- * @param <T>
+ * @param <T> anyTO
  */
 public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel {
 

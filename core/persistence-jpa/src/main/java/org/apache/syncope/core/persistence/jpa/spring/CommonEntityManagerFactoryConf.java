@@ -32,7 +32,6 @@ import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
 
 /**
  * Container for common configuration options among all EntityManagerFactory entities (one for each domain).
- * <br/>
  * Acts as a commodity place for fetching each domain's {@link DataSource}..
  */
 public class CommonEntityManagerFactoryConf implements DomainsHolder, InitializingBean, ApplicationContextAware {

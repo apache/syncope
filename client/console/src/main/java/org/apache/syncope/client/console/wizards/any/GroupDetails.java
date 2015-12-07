@@ -44,10 +44,7 @@ public class GroupDetails extends Details<GroupTO> {
 
     private static final long serialVersionUID = 855618618337931784L;
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(GroupDetails.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GroupDetails.class);
 
     private final UserRestClient userRestClient = new UserRestClient();
 
@@ -178,9 +175,7 @@ public class GroupDetails extends Details<GroupTO> {
      * This is waiting for events from opened modal windows: first to get the selected user / group, then to update the
      * respective text panel.
      *
-     * {@inheritDoc }
-     *
-     * @param event
+     * @param event event
      */
     @Override
     public void onEvent(final IEvent<?> event) {

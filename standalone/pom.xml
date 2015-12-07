@@ -305,7 +305,7 @@ under the License.
     </profile>
 
     <profile>
-      <id>doc</id>
+      <id>site</id>
 
       <build>
         <plugins>
@@ -316,6 +316,26 @@ under the License.
             <configuration>
               <skip>true</skip>
             </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-site-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <skip>true</skip>
+              <skipDeploy>true</skipDeploy>
+              <generateReports>false</generateReports>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-docs-to-site</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

@@ -153,40 +153,11 @@ under the License.
   
   <profiles>
     <profile>
-      <id>offline-wadl</id>
+      <id>site</id>
       
-      <build>
-        <defaultGoal>clean verify</defaultGoal>
-        
+      <build>        
         <plugins>
-          <!-- 1. Fetch offline WADL -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <inherited>false</inherited>
-            <configuration>
-              <outputDirectory>${project.build.directory}</outputDirectory>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.apache.syncope.common</groupId>
-                  <artifactId>syncope-common-rest-api</artifactId>
-                  <version>${project.version}</version>
-                  <type>wadl</type>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-            <executions>
-              <execution>
-                <id>fetch-offline-wadl</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>copy</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-              
-          <!-- 2. Transform WADL into 2 HTML pages -->
+          <!-- 1. Transform WADL into 2 HTML pages -->
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>xml-maven-plugin</artifactId>
@@ -194,7 +165,7 @@ under the License.
             <executions>
               <execution>
                 <id>wadl2html</id>
-                <phase>process-resources</phase>
+                <phase>pre-site</phase>
                 <goals>
                   <goal>transform</goal>
                 </goals>
@@ -203,12 +174,12 @@ under the License.
             <configuration>
               <transformationSets>
                 <transformationSet>
-                  <dir>${project.build.directory}</dir>
+                  <dir>${basedir}/../../common/rest-api/target/generated/wadl</dir>
                   <includes>
-                    <include>syncope-common-rest-api-${project.version}.wadl</include>
+                    <include>application.wadl</include>
                   </includes>
                   <outputDir>${project.build.directory}/generated/wadl</outputDir>
-                  <stylesheet>${project.build.directory}/classes/wadl2html/identity.xsl</stylesheet>
+                  <stylesheet>${basedir}/src/main/resources/wadl2html/identity.xsl</stylesheet>
                   <outputProperties>
                     <outputProperty>
                       <name>indent</name>
@@ -223,12 +194,12 @@ under the License.
                   </fileMappers>
                 </transformationSet>
                 <transformationSet>
-                  <dir>${project.build.directory}</dir>
+                  <dir>${project.build.directory}/generated/wadl</dir>
                   <includes>
-                    <include>syncope-common-rest-api-${project.version}.wadl</include>
+                    <include>syncope.wadl</include>
                   </includes>
                   <outputDir>${project.build.directory}/generated/wadl</outputDir>
-                  <stylesheet>${project.build.directory}/classes/wadl2html/index.xsl</stylesheet>
+                  <stylesheet>${basedir}/src/main/resources/wadl2html/index.xsl</stylesheet>
                   <parameters>
                     <parameter>
                       <name>contextPath</name>
@@ -249,12 +220,12 @@ under the License.
                   </fileMappers>
                 </transformationSet>
                 <transformationSet>
-                  <dir>${project.build.directory}</dir>
+                  <dir>${project.build.directory}/generated/wadl</dir>
                   <includes>
-                    <include>syncope-common-rest-api-${project.version}.wadl</include>
+                    <include>syncope.wadl</include>
                   </includes>
                   <outputDir>${project.build.directory}/generated/wadl</outputDir>
-                  <stylesheet>${project.build.directory}/classes/wadl2html/schema.xsl</stylesheet>
+                  <stylesheet>${basedir}/src/main/resources/wadl2html/schema.xsl</stylesheet>
                   <parameters>
                     <parameter>
                       <name>contextPath</name>
@@ -286,33 +257,37 @@ under the License.
             </configuration>
           </plugin>
           
-          <!-- 3. Fix external references -->
+          <!-- 2. Fix external references -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
             <inherited>true</inherited>
             <executions>
               <execution>
-                <id>fix-html-ext-refs</id>
-                <phase>process-resources</phase>
+                <id>copy-rest-reference-to-site</id>
+                <phase>pre-site</phase>
                 <configuration>
                   <target>
                     <replace file="${project.build.directory}/generated/wadl/index.html"
-                             token="../webjars/jquery/${jquery.version}/jquery.min.js"
+                             token="../webjars/jquery/$/jquery.min.js"
                              value="https://code.jquery.com/jquery-${jquery.version}.min.js"/>
                     <replace file="${project.build.directory}/generated/wadl/index.html"
-                             token="../webjars/jquery-ui/${jquery-ui.version}/jquery-ui.min.js"
+                             token="../webjars/jquery-ui/$/jquery-ui.min.js"
                              value="http://code.jquery.com/ui/${jquery-ui.version}/jquery-ui.min.js"/>
                     <replace file="${project.build.directory}/generated/wadl/index.html"
-                             token="../webjars/jquery-ui-themes/${jquery-ui.version}/smoothness/jquery-ui.min.css"
+                             token="../webjars/jquery-ui-themes/$/smoothness/jquery-ui.min.css"
                              value="https://code.jquery.com/ui/${jquery-ui.version}/themes/smoothness/jquery-ui.css"/>      
 
                     <replace file="${project.build.directory}/generated/wadl/schema_1_syncope1.html"
-                             token="../webjars/highlightjs/${highlightjs.version}/highlight.min.js"
+                             token="../webjars/highlightjs/$/highlight.min.js"
                              value="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/${highlightjs.version}/highlight.min.js"/>
                     <replace file="${project.build.directory}/generated/wadl/schema_1_syncope1.html"
-                             token="../webjars/highlightjs/${highlightjs.version}/styles/default.min.css"
+                             token="../webjars/highlightjs/$/styles/default.min.css"
                              value="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/${highlightjs.version}/styles/default.min.css"/>      
+
+                    <copy todir="${site.deploymentBaseDir}/rest/2.0">
+                      <fileset dir="${project.build.directory}/generated/wadl"/>
+                    </copy>
                   </target>
                 </configuration>
                 <goals>

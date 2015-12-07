@@ -28,7 +28,7 @@ import org.apache.wicket.PageReference;
 /**
  * Modal window with Display user attributes form.
  *
- * @param <T>
+ * @param <T> anyTO
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AnyDisplayAttributesModalPage<T extends AnyTO> extends DisplayAttributesModalPage {

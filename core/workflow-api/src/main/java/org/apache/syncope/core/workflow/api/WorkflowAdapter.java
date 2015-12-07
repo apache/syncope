@@ -27,7 +27,7 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 public interface WorkflowAdapter {
 
     /**
-     * @return any string that might be interpreted as &quot;prefix&quote; (say table prefix in SQL environments)
+     * @return any string that might be interpreted as 'prefix' (say table prefix in SQL environments)
      */
     String getPrefix();
 

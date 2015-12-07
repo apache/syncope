@@ -22,29 +22,42 @@ under the License.
           xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
 
   <properties>
-    <title>Apache Syncope</title>
+    <title>Documentation</title>
     <author email="dev@syncope.apache.org">Apache Syncope Documentation Team</author>
   </properties>
 
   <body>
-    <div class="hero-unit" style="padding-top: 0px; padding-bottom: 0px;">
-      <img src="images/apache-syncope-logo-medium.png" align="right"/>
-
-      <p>
-        <span style="font-weight: bold">Apache Syncope</span>
-        is an Open Source system for managing digital identities in enterprise environments, 
-        implemented in Java EE technology and released under Apache 2.0 license.
-      </p>
-
-      <p>
-        <span style="font-weight: bold">Identity management</span> (or IdM) represents the joint result of business process and IT to manage user data on systems
-        and applications. IdM involves considering user attributes, groups, resources and entitlements in trying to give a 
-        decent answer to the question bumping up every time in an IT administrator's mind:
-      </p>
-
-      <p style="text-align:center;">
-        <i>Who has access to What, When, How, and Why?</i>
-      </p>
-    </div>
+    <section>
+      <subsection name="Guides">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Formats</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Getting Started</td>
+              <td>
+                <a href="getting-started.html">HTML</a> 
+                <a href="getting-started.pdf">PDF</a> 
+              </td>
+            </tr>
+            <tr>
+              <td>Reference Guide</td>
+              <td>
+                <a href="reference-guide.html">HTML</a> 
+                <a href="reference-guide.pdf">PDF</a> 
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </subsection>
+            
+      <subsection name="Wiki">
+        <a href="https://cwiki.apache.org/confluence/display/SYNCOPE">Wiki</a>
+      </subsection>
+    </section>
   </body>
 </document>

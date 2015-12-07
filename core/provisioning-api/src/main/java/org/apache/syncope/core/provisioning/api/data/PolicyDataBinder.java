@@ -25,12 +25,6 @@ public interface PolicyDataBinder {
 
     <T extends Policy> T getPolicy(T policy, AbstractPolicyTO policyTO);
 
-    /**
-     * Get policy TO from policy bean.
-     *
-     * @param policy bean.
-     * @return policy TO.
-     */
     <T extends AbstractPolicyTO> T getPolicyTO(Policy policy);
 
 }

@@ -29,7 +29,7 @@ import org.apache.wicket.model.util.ListModel;
 
 public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 5945391813567245081L;
 
     private final GroupRestClient groupRestClient = new GroupRestClient();
 
@@ -38,7 +38,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
      *
      * @param id The component id
      * @param groupTO any
-     * @param anyTypeClasses
+     * @param anyTypeClasses any type classes
      * @param pageRef Caller page reference.
      */
     public GroupWizardBuilder(

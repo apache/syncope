@@ -33,8 +33,8 @@ import org.apache.wicket.util.string.Strings;
 
 /**
  * A variant of Recorder, supporting single element selection (for editing purpose, for example). <b>Note</b>: this
- * class extends Recorder<T> but in fact it is a bare copy of most source code; this was done because the original class
- * is keeping everything private.
+ * class extends Recorder&lt;T&gt; but in fact it is a bare copy of most source code; this was done because the original
+ * class is keeping everything private.
  *
  * @param <T> Type of the palette
  */
@@ -183,15 +183,13 @@ public class SelectableRecorder<T> extends Recorder<T> {
     private void updateIds(final String value) {
         if (Strings.isEmpty(value)) {
             ids = EMPTY_IDS;
+        } else if (value.indexOf('|') == -1) {
+            ids = value.split(",");
+            selectedId = null;
         } else {
-            if (value.indexOf('|') == -1) {
-                ids = value.split(",");
-                selectedId = null;
-            } else {
-                String[] splitted = value.split("\\|");
-                selectedId = splitted[0];
-                ids = splitted[1].split(",");
-            }
+            String[] splitted = value.split("\\|");
+            selectedId = splitted[0];
+            ids = splitted[1].split(",");
         }
     }
 }

@@ -41,9 +41,26 @@ public interface NotificationManager {
 
     /**
      * Create notification tasks for each notification matching the given user id and (some of) tasks performed.
+     *
+     * @param type event category type
+     * @param category event category
+     * @param subcategory event subcategory
+     * @param event event
+     * @param result event result
+     * @param before object(s) availabile before the event
+     * @param output object(s) produced by the event
+     * @param input object(s) provided to the event
+     * @return created notification tasks
      */
-    List<NotificationTask> createTasks(AuditElements.EventCategoryType type, String category, String subcategory,
-            String event, AuditElements.Result condition, Object before, Object output, Object... input);
+    List<NotificationTask> createTasks(
+            AuditElements.EventCategoryType type,
+            String category,
+            String subcategory,
+            String event,
+            AuditElements.Result result,
+            Object before,
+            Object output,
+            Object... input);
 
     long getMaxRetries();
 

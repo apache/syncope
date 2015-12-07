@@ -28,6 +28,8 @@ import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
 
 /**
  * Abstract wrapper for common system information.
+ *
+ * @param <KEY> the type of the key of this entity
  */
 @MappedSuperclass
 @EntityListeners(value = AnnotatedEntityListener.class)
@@ -37,7 +39,6 @@ public abstract class AbstractAnnotatedEntity<KEY> extends AbstractEntity<KEY> i
 
     /**
      * Username of the user that has created this profile.
-     * <br/>
      * Reference to existing user cannot be used: the creator can either be <tt>admin</tt> or was deleted.
      */
     @Column(nullable = false)
@@ -52,11 +53,8 @@ public abstract class AbstractAnnotatedEntity<KEY> extends AbstractEntity<KEY> i
 
     /**
      * Username of the user that has performed the last modification to this profile.
-     * <br/>
      * This field cannot be null: at creation time it needs to be initialized with the creator username.
-     * <br/>
      * The modifier can be the user itself if the last performed change was a self-modification.
-     * <br/>
      * Reference to existing user cannot be used: the creator can either be <tt>admin</tt> or was deleted.
      */
     @Column(nullable = false)
@@ -64,7 +62,6 @@ public abstract class AbstractAnnotatedEntity<KEY> extends AbstractEntity<KEY> i
 
     /**
      * Last change date.
-     * <br/>
      * This field cannot be null: at creation time it needs to be initialized with <tt>creationDate</tt> field value.
      */
     @Column(nullable = false)

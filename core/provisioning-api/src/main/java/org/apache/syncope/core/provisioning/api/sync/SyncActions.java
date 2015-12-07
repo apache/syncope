@@ -25,7 +25,6 @@ import org.quartz.JobExecutionException;
 
 /**
  * Interface for actions to be performed during synchronization.
- * <br/>
  * All methods can throw {@link IgnoreProvisionException} to make the current any object ignored by the synchronization
  * process.
  */
@@ -34,7 +33,7 @@ public interface SyncActions extends ProvisioningActions {
     /**
      * Action to be executed before to create a synchronized user / group locally.
      * User/group is created locally upon synchronization in case of the un-matching rule
-     * {@link org.apache.syncope.common.types.UnmatchingRule#PROVISION} (default un-matching rule) is applied.
+     * {@link org.apache.syncope.common.lib.types.UnmatchingRule#PROVISION} (default un-matching rule) is applied.
      *
      * @param <A> concrete any object
      * @param profile profile of the synchronization being executed.
@@ -51,7 +50,7 @@ public interface SyncActions extends ProvisioningActions {
     /**
      * Action to be executed before creating (and linking to the resource) a synchronized user / group locally.
      * User/group is created locally and linked to the synchronized resource upon synchronization in case of the
-     * un-matching rule {@link org.apache.syncope.common.types.UnmatchingRule#ASSIGN} is applied.
+     * un-matching rule {@link org.apache.syncope.common.lib.types.UnmatchingRule#ASSIGN} is applied.
      *
      * @param <A> concrete any object
      * @param profile profile of the synchronization being executed.
@@ -68,7 +67,7 @@ public interface SyncActions extends ProvisioningActions {
     /**
      * Action to be executed before unlinking resource from the synchronized user / group and de-provisioning.
      * User/group is unlinked and de-provisioned from the synchronized resource upon synchronization in case of the
-     * matching rule {@link org.apache.syncope.common.types.MatchingRule#UNASSIGN} is applied.
+     * matching rule {@link org.apache.syncope.common.lib.types.MatchingRule#UNASSIGN} is applied.
      *
      * @param <A> concrete any object
      * @param profile profile of the synchronization being executed.
@@ -85,7 +84,7 @@ public interface SyncActions extends ProvisioningActions {
     /**
      * Action to be executed before de-provisioning action only.
      * User/group is de-provisioned (without unlinking) from the synchronized resource upon synchronization in case of
-     * the matching rule {@link org.apache.syncope.common.types.MatchingRule#DEPROVISION} is applied.
+     * the matching rule {@link org.apache.syncope.common.lib.types.MatchingRule#DEPROVISION} is applied.
      *
      * @param <A> concrete any object
      * @param profile profile of the synchronization being executed.
@@ -102,7 +101,7 @@ public interface SyncActions extends ProvisioningActions {
     /**
      * Action to be executed before unlinking resource from the synchronized user / group.
      * User/group is unlinked (without de-provisioning) from the synchronized resource upon synchronization in case of
-     * the matching rule {@link org.apache.syncope.common.types.MatchingRule#UNLINK} is applied.
+     * the matching rule {@link org.apache.syncope.common.lib.types.MatchingRule#UNLINK} is applied.
      *
      * @param <A> concrete any object
      * @param profile profile of the synchronization being executed.
@@ -119,7 +118,7 @@ public interface SyncActions extends ProvisioningActions {
     /**
      * Action to be executed before linking resource to the synchronized user / group.
      * User/group is linked (without updating) to the synchronized resource upon synchronization in case of
-     * the matching rule {@link org.apache.syncope.common.types.MatchingRule#LINK} is applied.
+     * the matching rule {@link org.apache.syncope.common.lib.types.MatchingRule#LINK} is applied.
      *
      * @param <A> concrete any object
      * @param profile profile of the synchronization being executed.
@@ -136,7 +135,7 @@ public interface SyncActions extends ProvisioningActions {
     /**
      * Action to be executed before to update a synchronized user / group locally.
      * User/group is updated upon synchronization in case of the matching rule
-     * {@link org.apache.syncope.common.types.MatchingRule#UPDATE} (default matching rule) is applied.
+     * {@link org.apache.syncope.common.lib.types.MatchingRule#UPDATE} (default matching rule) is applied.
      *
      * @param <M> concrete any object
      * @param <P> any object modifications

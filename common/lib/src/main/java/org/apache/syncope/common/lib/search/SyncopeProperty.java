@@ -22,7 +22,8 @@ import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.cxf.jaxrs.ext.search.client.Property;
 
 /**
- * Extension of fluent interface, for {@link SyncopeFiqlSearchConditionBuilder}.
+ * Extension of fluent interface, for {@link org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder}
+ * and subclasses.
  */
 public interface SyncopeProperty extends Property {
 

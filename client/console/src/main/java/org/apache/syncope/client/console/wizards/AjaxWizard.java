@@ -19,7 +19,6 @@ import java.io.Serializable;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.wizard.Wizard;
@@ -32,11 +31,9 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AjaxWizard<T extends Serializable> extends Wizard implements ModalPanel {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1272120742876833520L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(AjaxWizard.class);
-
-    private final PageReference pageRef;
 
     private T item;
 
@@ -49,20 +46,17 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
      *
      * @param id The component id.
      * @param item model object.
-     * @param model
-     * @param pageRef Caller page reference.
+     * @param model wizard model
      * @param edit <tt>true</tt> if edit mode.
      */
-    public AjaxWizard(
-            final String id, final T item, final WizardModel model, final PageReference pageRef, final boolean edit) {
+    public AjaxWizard(final String id, final T item, final WizardModel model, final boolean edit) {
         super(id);
         this.item = item;
-        this.pageRef = pageRef;
         this.edit = edit;
 
         setOutputMarkupId(true);
 
-        setDefaultModel(new CompoundPropertyModel<AjaxWizard<T>>(this));
+        setDefaultModel(new CompoundPropertyModel<>(this));
 
         init(model);
     }
@@ -96,7 +90,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         try {
             onCancelInternal();
-            send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemCancelEvent<T>(item, target));
+            send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemCancelEvent<>(item, target));
         } catch (Exception e) {
             LOG.warn("Wizard error on cancel", e);
             error(getString("wizard.cancel.error"));
@@ -112,7 +106,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         try {
             onApplyInternal();
-            send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<T>(item, target));
+            send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target));
         } catch (Exception e) {
             LOG.warn("Wizard error on finish", e);
             error(getString("wizard.apply.error"));

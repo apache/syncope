@@ -219,8 +219,8 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
         /**
          * Show plus button icon to ad more elements.
          *
-         * @param plusAlwaysAvailable
-         * @return
+         * @param plusAlwaysAvailable whether plus button must always available
+         * @return this instance, for fluent building
          */
         public Builder<E> setPlusAlwaysAvailable(final boolean plusAlwaysAvailable) {
             this.plusAlwaysAvailable = plusAlwaysAvailable;
@@ -230,8 +230,8 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
         /**
          * Show minus button icon to remove elements included the latest one in order to empty the list explicitly.
          *
-         * @param minusAwaysAvailable
-         * @return
+         * @param minusAwaysAvailable whether minus button must always available
+         * @return this instance, for fluent building
          */
         public Builder<E> setMinusAwaysAvailable(final boolean minusAwaysAvailable) {
             this.minusAwaysAvailable = minusAwaysAvailable;
@@ -241,8 +241,8 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
         /**
          * Set multivalue field.
          *
-         * @param multivalue
-         * @return
+         * @param multivalue whether this field is multivalue
+         * @return this instance, for fluent building
          */
         public Builder<E> setMultivalue(final boolean multivalue) {
             this.multivalue = multivalue;
@@ -252,9 +252,9 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
         /**
          * Set on_change event in order to send MultiValueSelectorEvent to page.
          *
-         * @param eventTemplate
-         * @return
          * @see MultiValueSelectorEvent
+         * @param eventTemplate whether this is an event template
+         * @return this instance, for fluent building
          */
         public Builder<E> setEventTemplate(final boolean eventTemplate) {
             this.eventTemplate = eventTemplate;
