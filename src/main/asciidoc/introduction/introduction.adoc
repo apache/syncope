@@ -23,6 +23,8 @@ Java EE technology and released under the Apache 2.0 license.
 
 include::opensource.adoc[]
 
+include::digitalidentity.adoc[]
+
 include::history.adoc[]
 
 include::followus.adoc[]
