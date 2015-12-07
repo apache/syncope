@@ -240,6 +240,14 @@ div.realms div.summarize {
   height: 55px
 }
 
+.navbar .footer a {
+  height: 40px
+}
+
+.navbar .user-footer a {
+  height: 40px
+}
+
 span.overridable div.checkbox {
   float: right; 
   margin: 0px; 
