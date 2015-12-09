@@ -37,6 +37,8 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
 
     protected String title = null;
 
+    private final Model<Integer> index = Model.of(0);
+
     public FieldPanel(final String id, final IModel<T> model) {
         this(id, id, model);
     }
@@ -162,6 +164,25 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
                 }
             }
         });
+    }
+
+    public FieldPanel<T> setIndex(final int index) {
+        this.index.setObject(index);
+        return this;
+    }
+
+    public int getIndex() {
+        return index.getObject();
+    }
+
+    /**
+     * To be overridded to add settings depending components.
+     * It has to be used by default to add components depending by index model.
+     *
+     * @return the current field panel.
+     */
+    public FieldPanel<T> settingsDependingComponents() {
+        return this;
     }
 
     @Override

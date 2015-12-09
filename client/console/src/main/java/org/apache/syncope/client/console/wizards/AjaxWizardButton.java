@@ -24,7 +24,7 @@ import org.apache.wicket.model.ResourceModel;
 
 public abstract class AjaxWizardButton extends AjaxButton {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -9147736051493629209L;
 
     private final IWizard wizard;
 

@@ -36,21 +36,26 @@ under the License.
       </div>
 
       <div wicket:id="ownerContainer">
-        <div class="form-group">
+        <div class="form-group input-group">
           <span wicket:id="userOwner"/>
-          <a href="#" wicket:id="userOwnerSelect"><img src="img/actions/search.png" alt="select user owner" title="Search"/></a>
-          <a href="#" wicket:id="userOwnerReset"><img src="img/actions/delete.png" alt="reset user owner" title="Delete"/></a>
+          <a href="#" wicket:id="userOwnerSelect" class="input-group-addon"><i class="glyphicon glyphicon-search" alt="select group owner" title="Search"></i></a>
+          <a href="#" wicket:id="userOwnerReset" class="input-group-addon"><i class="glyphicon glyphicon-remove-circle" alt="reset user owner" title="Delete"></i></a>
         </div>
 
-        <div class="form-group">
+        <div class="form-group input-group">
           <span wicket:id="groupOwner"/>
-          <a href="#" wicket:id="groupOwnerSelect"><img src="img/actions/search.png" alt="select group owner" title="Search"/></a>
-          <a href="#" wicket:id="groupOwnerReset"><img src="img/actions/delete.png" alt="reset group owner" title="Delete"/></a>
+          <a href="#" wicket:id="groupOwnerSelect" class="input-group-addon"><i class="glyphicon glyphicon-search" alt="select group owner" title="Search"></i></a>
+          <a href="#" wicket:id="groupOwnerReset" class="input-group-addon"><i class="glyphicon glyphicon-remove-circle" alt="reset group owner" title="Delete"></i></a>
         </div>
       </div>
 
       <span wicket:id="userOwnerSelectWin"/>
       <span wicket:id="groupOwnerSelectWin"/>
+
+      <div wicket:id="uDynMembershipCond" />
+      <span wicket:id="aDynMembershipCond">
+        <div wicket:id="aDynMembershipCond"/>
+      </span>
     </wicket:extend>
   </body>
 </html>

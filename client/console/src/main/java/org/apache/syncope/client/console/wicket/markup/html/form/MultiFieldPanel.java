@@ -34,7 +34,7 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public final class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<List<E>> {
+public abstract class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<List<E>> {
 
     private static final long serialVersionUID = -6322397761456513324L;
 
@@ -71,7 +71,8 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
         container.add(form);
         // -----------------------
 
-        if (model.getObject() != null && model.getObject().isEmpty()) {
+        final List<E> obj = model.getObject();
+        if (obj == null || obj.isEmpty()) {
             form.addOrReplace(getNoDataFragment(model, name));
         } else {
             form.addOrReplace(getDataFragment(model, name));
@@ -94,8 +95,10 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
 
             @Override
             protected void populateItem(final ListItem<E> item) {
-
                 final FieldPanel<? extends Serializable> fieldPanel = panelTemplate.clone();
+                fieldPanel.setIndex(item.getIndex());
+                fieldPanel.setNewModel(item);
+                fieldPanel.settingsDependingComponents();
 
                 if (eventTemplate) {
                     fieldPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -109,7 +112,6 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
                     });
                 }
 
-                fieldPanel.setNewModel(item);
                 item.add(fieldPanel.hideLabel().setRenderBodyOnly(true));
 
                 final AjaxSubmitLink minus = new AjaxSubmitLink("drop") {
@@ -132,6 +134,12 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
                             send(getPage(), Broadcast.BREADTH, new MultiValueSelectorEvent(target));
                         }
                     }
+
+                    @Override
+                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                        error(getString(Constants.OPERATION_ERROR));
+                        super.onError(target, form);
+                    }
                 };
 
                 item.add(minus);
@@ -143,7 +151,7 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
                     fragment = new Fragment("panelPlus", "emptyFragment", MultiFieldPanel.this);
                 }
 
-                item.add(fragment);
+                item.add(fragment.setRenderBodyOnly(true));
             }
         };
 
@@ -160,13 +168,19 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 //Add current component
-                model.getObject().add(null);
+                model.getObject().add(newModelObject());
 
                 if (model.getObject().size() == 1) {
                     form.addOrReplace(getDataFragment(model, label));
                 }
 
                 target.add(container);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                error(getString(Constants.OPERATION_ERROR));
+                super.onError(target, form);
             }
         };
 
@@ -200,7 +214,11 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
         }
     }
 
-    public static class Builder<E extends Serializable> {
+    protected abstract E newModelObject();
+
+    public static class Builder<E extends Serializable> implements Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         private final IModel<List<E>> model;
 
@@ -261,8 +279,26 @@ public final class MultiFieldPanel<E extends Serializable> extends AbstractField
             return this;
         }
 
+        /**
+         * Default model object instance.
+         *
+         * @return default model object instance.
+         */
+        protected E newModelObject() {
+            return null;
+        }
+
         public MultiFieldPanel<E> build(final String id, final String name, final FieldPanel<E> panelTemplate) {
-            return new MultiFieldPanel<>(id, name, model, panelTemplate, eventTemplate);
+            return new MultiFieldPanel<E>(id, name, model, panelTemplate, eventTemplate) {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                protected E newModelObject() {
+                    return Builder.this.newModelObject();
+                }
+
+            };
         }
     }
 }

@@ -16,47 +16,60 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-.drop_button{
-  vertical-align: middle !important;
+.searchBox .col-xs-12{
+  padding-left: 0px !important;
+  padding-right: 0px !important;
 }
 
-.add_button{
-  vertical-align: middle !important;
-  margin-left: 6px !important;
+.clause{
+  display: block;
+  line-height: 34px;
+  width: 100%;
 }
 
-.date_size{
-  width: 90px !important;
+.clause .operator{
+  width: 65px !important;
 }
 
-.long_dynamicsize{
-  width: 80% !important;
+.clause .operator .checkbox{
+  margin: 0px !important;
 }
 
-.medium_dynamicsize{
-  width: 45% !important;
+.clause .field {
+  line-height: 34px;
+  float: left;
+  padding: 0 3px 0px 0px;
+  display: inline-block !important;
+}
+.clause .type{
+  width: 120px !important;
 }
 
-.short_dynamicsize{
-  width: 35% !important;
+.clause .property{
+  width: 190px;
 }
 
-.long_fixedsize{
-  width: 500px !important;
+.clause .comparator{
+  width: 100px;
 }
 
-.medium_fixedsize{
-  width: 300px !important;
+.clause .comparator button{
+  width: 100px !important;
 }
 
-.short_fixedsize{
-  width: 150px !important;
+.clause .value{
+  width: 220px;
 }
 
-.veryshort_fixedsize{
-  width: 70px !important;
+.clause .action{
+  float: left;
+  padding: 0px 7px 0px;
 }
 
-.all_dynamicsize{
-  width: 100% !important;
+.searchBox .input-group-addon:last-child{
+  border: 1px solid #ccc !important;
+}
+
+.searchBox .input-group{
+  margin-top: 1px;
 }

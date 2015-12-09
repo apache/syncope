@@ -24,14 +24,14 @@ import org.apache.wicket.markup.html.form.Form;
 
 public class AjaxWizardButtonBar extends WizardButtonBar {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 5641095671558703391L;
 
     public AjaxWizardButtonBar(final String id, final AjaxWizard<?> wizard, final boolean edit) {
         super(id, wizard);
 
         addOrReplace(new AjaxWizardButton("next", wizard, "next") {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1773811852118436784L;
 
             @Override
             protected void onClick(final AjaxRequestTarget target, final Form<?> form) {
@@ -66,7 +66,7 @@ public class AjaxWizardButtonBar extends WizardButtonBar {
 
         addOrReplace(new AjaxWizardButton("previous", wizard, "prev", false) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 5704878742768853867L;
 
             @Override
             protected void onClick(final AjaxRequestTarget target, final Form<?> form) {
@@ -83,7 +83,7 @@ public class AjaxWizardButtonBar extends WizardButtonBar {
 
         addOrReplace(new AjaxWizardButton("cancel", wizard, "cancel", false) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 5704878742768853867L;
 
             @Override
             protected void onClick(final AjaxRequestTarget target, final Form<?> form) {
@@ -99,7 +99,7 @@ public class AjaxWizardButtonBar extends WizardButtonBar {
 
         addOrReplace(new AjaxWizardButton("finish", wizard, "finish") {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1773811852118436784L;
 
             @Override
             protected void onClick(final AjaxRequestTarget target, final Form<?> form) {

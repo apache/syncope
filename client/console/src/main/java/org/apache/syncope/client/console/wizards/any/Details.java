@@ -27,7 +27,7 @@ import org.apache.wicket.model.IModel;
 
 public class Details<T extends AnyTO> extends WizardStep {
 
-    private static final long serialVersionUID = 6592027822510220463L;
+    private static final long serialVersionUID = -8995647450549098844L;
 
     protected final PageReference pageRef;
 

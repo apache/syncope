@@ -18,12 +18,24 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.Collapsible;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
+import org.apache.syncope.client.console.panels.search.MapOfListModel;
+import org.apache.syncope.client.console.panels.search.SearchClause;
+import org.apache.syncope.client.console.panels.search.UserSearchPanel;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -34,9 +46,18 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +71,13 @@ public class GroupDetails extends Details<GroupTO> {
 
     private final GroupRestClient groupRestClient = new GroupRestClient();
 
+    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
+
     private final WebMarkupContainer ownerContainer;
 
-    private final OwnerModel userOwnerModel;
+    private final OwnerModel uOwnerModel;
 
-    private final OwnerModel groupOwnerModel;
+    private final OwnerModel gOwnerModel;
 
     public GroupDetails(
             final GroupTO groupTO,
@@ -63,6 +86,22 @@ public class GroupDetails extends Details<GroupTO> {
             final PageReference pageRef,
             final boolean includeStatusPanel) {
         super(groupTO, statusModel, pageRef, includeStatusPanel);
+
+        final LoadableDetachableModel<List<AnyTypeTO>> types = new LoadableDetachableModel<List<AnyTypeTO>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<AnyTypeTO> load() {
+                return CollectionUtils.select(anyTypeRestClient.getAll(), new Predicate<AnyTypeTO>() {
+
+                    @Override
+                    public boolean evaluate(final AnyTypeTO t) {
+                        return AnyTypeKind.USER != t.getKind() && AnyTypeKind.GROUP != t.getKind();
+                    }
+                }, new ArrayList<AnyTypeTO>());
+            }
+        };
 
         ownerContainer = new WebMarkupContainer("ownerContainer");
         ownerContainer.setOutputMarkupId(true);
@@ -77,8 +116,8 @@ public class GroupDetails extends Details<GroupTO> {
         groupOwnerSelectWin.setCookieName("create-groupOwnerSelect-modal");
         this.add(groupOwnerSelectWin);
 
-        final AjaxTextFieldPanel name =
-                new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(groupTO, "name"), false);
+        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name",
+                new PropertyModel<String>(groupTO, "name"), false);
 
         final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
 
@@ -92,11 +131,12 @@ public class GroupDetails extends Details<GroupTO> {
         }
         this.add(name);
 
-        userOwnerModel = new OwnerModel(groupTO, AnyTypeKind.USER);
+        uOwnerModel = new OwnerModel(groupTO, AnyTypeKind.USER);
         @SuppressWarnings("unchecked")
-        final AjaxTextFieldPanel userOwner = new AjaxTextFieldPanel("userOwner", "userOwner", userOwnerModel, false);
-        userOwner.setReadOnly(true);
-        userOwner.setOutputMarkupId(true);
+        final AjaxTextFieldPanel userOwner = new AjaxTextFieldPanel("userOwner", "userOwner", uOwnerModel, false);
+        userOwner.setPlaceholder("userOwner");
+        userOwner.hideLabel();
+        userOwner.setReadOnly(true).setOutputMarkupId(true);
         ownerContainer.add(userOwner);
         final AjaxLink<Void> userOwnerSelect = new IndicatingAjaxLink<Void>("userOwnerSelect") {
 
@@ -124,18 +164,18 @@ public class GroupDetails extends Details<GroupTO> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                userOwnerModel.setObject(null);
+                uOwnerModel.setObject(null);
                 target.add(userOwner);
             }
         };
         ownerContainer.add(userOwnerReset.setEnabled(false));
 
-        groupOwnerModel = new OwnerModel(groupTO, AnyTypeKind.GROUP);
+        gOwnerModel = new OwnerModel(groupTO, AnyTypeKind.GROUP);
         @SuppressWarnings("unchecked")
-        final AjaxTextFieldPanel groupOwner =
-                new AjaxTextFieldPanel("groupOwner", "groupOwner", groupOwnerModel, false);
-        groupOwner.setReadOnly(true);
-        groupOwner.setOutputMarkupId(true);
+        final AjaxTextFieldPanel groupOwner = new AjaxTextFieldPanel("groupOwner", "groupOwner", gOwnerModel, false);
+        groupOwner.setPlaceholder("groupOwner");
+        groupOwner.hideLabel();
+        groupOwner.setReadOnly(true).setOutputMarkupId(true);
         ownerContainer.add(groupOwner);
         final AjaxLink<Void> groupOwnerSelect = new IndicatingAjaxLink<Void>("groupOwnerSelect") {
 
@@ -164,11 +204,56 @@ public class GroupDetails extends Details<GroupTO> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                groupOwnerModel.setObject(null);
+                gOwnerModel.setObject(null);
                 target.add(groupOwner);
             }
         };
         ownerContainer.add(groupOwnerReset.setEnabled(false));
+
+        // ------------------------
+        // uDynMembershipCond
+        // ------------------------
+        add(new Collapsible("uDynMembershipCond", Collections.<ITab>singletonList(
+                new AbstractTab(new ResourceModel("uDynMembershipCond", "Dynamic USER Membership Conditions")) {
+
+            private static final long serialVersionUID = 1037272333056449378L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new UserSearchPanel.Builder(new PropertyModel<List<SearchClause>>(groupTO, "uDynClauses")).
+                        required(false).build(panelId);
+            }
+        }), Model.of(StringUtils.isBlank(groupTO.getUDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
+        // ------------------------ 
+
+        // ------------------------
+        // aDynMembershipConds
+        // ------------------------
+        add(new ListView<AnyTypeTO>("aDynMembershipCond", types) {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void populateItem(final ListItem<AnyTypeTO> item) {
+                final String key = item.getModelObject().getKey();
+                item.add(new Collapsible("aDynMembershipCond", Collections.<ITab>singletonList(
+                        new AbstractTab(new StringResourceModel(
+                                "aDynMembershipCond", this, new Model<AnyTypeTO>(item.getModelObject()))) {
+
+                    private static final long serialVersionUID = 1037272333056449378L;
+
+                    @Override
+                    public Panel getPanel(final String panelId) {
+                        return new AnyObjectSearchPanel.Builder(
+                                new MapOfListModel<SearchClause>(groupTO, "aDynClauses",
+                                        item.getModelObject().getKey())).
+                                required(false).build(panelId);
+                    }
+                }), Model.of(StringUtils.isBlank(groupTO.getADynMembershipConds().get(key)) ? -1 : 0))
+                        .setOutputMarkupId(true));
+            }
+        });
+        // ------------------------
     }
 
     /**
@@ -182,10 +267,10 @@ public class GroupDetails extends Details<GroupTO> {
         super.onEvent(event);
 
         if (event.getPayload() instanceof UserOwnerSelectPayload) {
-            userOwnerModel.setObject(((UserOwnerSelectPayload) event.getPayload()).getUserId());
+            uOwnerModel.setObject(((UserOwnerSelectPayload) event.getPayload()).getUserId());
         }
         if (event.getPayload() instanceof GroupOwnerSelectPayload) {
-            groupOwnerModel.setObject(((GroupOwnerSelectPayload) event.getPayload()).getGroupId());
+            gOwnerModel.setObject(((GroupOwnerSelectPayload) event.getPayload()).getGroupId());
         }
 
         if (event.getPayload() instanceof AjaxRequestTarget) {

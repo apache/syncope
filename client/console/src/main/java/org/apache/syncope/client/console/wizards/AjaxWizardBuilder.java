@@ -20,7 +20,9 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 
-public abstract class AjaxWizardBuilder<T extends Serializable> {
+public abstract class AjaxWizardBuilder<T extends Serializable> implements Serializable {
+
+    private static final long serialVersionUID = 5241745929825564456L;
 
     private final String id;
 
@@ -79,6 +81,10 @@ public abstract class AjaxWizardBuilder<T extends Serializable> {
 
     protected T getOriginalItem() {
         return item;
+    }
+
+    public T getDefaultItem() {
+        return defaultItem;
     }
 
     private T newModelObject() {

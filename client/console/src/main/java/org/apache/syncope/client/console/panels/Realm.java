@@ -122,7 +122,7 @@ public class Realm extends Panel {
                         realmTO.getFullPath(),
                         anyTypeTO.getKey()).
                         addNewItemPanelBuilder(new UserWizardBuilder(
-                                        BaseModal.CONTENT_ID, userTO, anyTypeTO.getClasses(), pageRef)).
+                                BaseModal.CONTENT_ID, userTO, anyTypeTO.getClasses(), pageRef)).
                         addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
                         build(id);
                 break;
@@ -135,7 +135,7 @@ public class Realm extends Panel {
                         realmTO.getFullPath(),
                         anyTypeTO.getKey()).
                         addNewItemPanelBuilder(new GroupWizardBuilder(
-                                        BaseModal.CONTENT_ID, groupTO, anyTypeTO.getClasses(), pageRef)).
+                                BaseModal.CONTENT_ID, groupTO, anyTypeTO.getClasses(), pageRef)).
                         addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
                         build(id);
                 break;
@@ -149,7 +149,7 @@ public class Realm extends Panel {
                         realmTO.getFullPath(),
                         anyTypeTO.getKey()).
                         addNewItemPanelBuilder(new AnyWizardBuilder<AnyObjectTO>(
-                                        BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).
+                                BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).
                         addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
                         build(id);
                 break;
