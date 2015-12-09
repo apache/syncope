@@ -330,7 +330,7 @@ under the License.
 
     <camel.version>2.16.1</camel.version>	
 
-    <jackson.version>2.6.3</jackson.version>
+    <jackson.version>2.6.4</jackson.version>
 
     <spring.version>4.2.3.RELEASE</spring.version>
     <spring-security.version>4.0.3.RELEASE</spring-security.version>
@@ -347,7 +347,7 @@ under the License.
 
     <groovy.version>2.4.5</groovy.version>
 
-    <activiti.version>5.19.0</activiti.version>
+    <activiti.version>5.19.0.1</activiti.version>
 
     <slf4j.version>1.7.13</slf4j.version>
     <log4j.version>2.4.1</log4j.version>
