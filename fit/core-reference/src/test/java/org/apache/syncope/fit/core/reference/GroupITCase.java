@@ -36,16 +36,20 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.patch.LongReplacePatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -544,22 +548,71 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    public void dynMembership() {
+    public void uDynMembership() {
         assertTrue(userService.read(4L).getDynGroups().isEmpty());
 
-        GroupTO group = getBasicSampleTO("dynMembership");
+        GroupTO group = getBasicSampleTO("uDynMembership");
         group.setUDynMembershipCond("cool==true");
         group = createGroup(group).getAny();
         assertNotNull(group);
 
         assertTrue(userService.read(4L).getDynGroups().contains(group.getKey()));
 
-        GroupPatch mod = new GroupPatch();
-        mod.setKey(group.getKey());
-        mod.setUDynMembershipCond("cool==false");
-        groupService.update(mod);
+        GroupPatch patch = new GroupPatch();
+        patch.setKey(group.getKey());
+        patch.setUDynMembershipCond("cool==false");
+        groupService.update(patch);
 
         assertTrue(userService.read(4L).getDynGroups().isEmpty());
+    }
+
+    @Test
+    public void aDynMembership() {
+        String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").is("location").notNullValue().query();
+
+        // 1. create group with a given aDynMembership condition
+        GroupTO group = getBasicSampleTO("aDynMembership");
+        group.getADynMembershipConds().put("PRINTER", fiql);
+        group = createGroup(group).getAny();
+        assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
+
+        group = groupService.read(group.getKey());
+        assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
+
+        // verify that the condition is dynamically applied
+        AnyObjectTO newAny = AnyObjectITCase.getSampleTO("aDynMembership");
+        newAny.getResources().clear();
+        newAny = createAnyObject(newAny).getAny();
+        assertNotNull(newAny.getPlainAttrMap().get("location"));
+        assertTrue(anyObjectService.read(1L).getDynGroups().contains(group.getKey()));
+        assertTrue(anyObjectService.read(2L).getDynGroups().contains(group.getKey()));
+        assertTrue(anyObjectService.read(newAny.getKey()).getDynGroups().contains(group.getKey()));
+
+        // 2. update group and change aDynMembership condition
+        fiql = SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").is("location").nullValue().query();
+
+        GroupPatch patch = new GroupPatch();
+        patch.setKey(group.getKey());
+        patch.getADynMembershipConds().put("PRINTER", fiql);
+
+        group = updateGroup(patch).getAny();
+        assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
+
+        group = groupService.read(group.getKey());
+        assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
+
+        // verify that the condition is dynamically applied
+        AnyObjectPatch anyPatch = new AnyObjectPatch();
+        anyPatch.setKey(newAny.getKey());
+        anyPatch.getPlainAttrs().add(new AttrPatch.Builder().
+                operation(PatchOperation.DELETE).
+                attrTO(new AttrTO.Builder().schema("location").build()).
+                build());
+        newAny = updateAnyObject(anyPatch).getAny();
+        assertNull(newAny.getPlainAttrMap().get("location"));
+        assertFalse(anyObjectService.read(1L).getDynGroups().contains(group.getKey()));
+        assertFalse(anyObjectService.read(2L).getDynGroups().contains(group.getKey()));
+        assertTrue(anyObjectService.read(newAny.getKey()).getDynGroups().contains(group.getKey()));
     }
 
     @Test

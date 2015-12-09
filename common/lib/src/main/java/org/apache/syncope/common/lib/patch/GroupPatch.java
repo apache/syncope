@@ -86,7 +86,7 @@ public class GroupPatch extends AnyPatch {
         this.udynMembershipCond = udynMembershipCond;
     }
 
-    @JsonIgnore
+    @JsonProperty
     public Map<String, String> getADynMembershipConds() {
         return adynMembershipConds;
     }

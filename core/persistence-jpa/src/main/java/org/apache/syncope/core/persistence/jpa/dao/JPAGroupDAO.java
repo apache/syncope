@@ -59,7 +59,6 @@ import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
@@ -269,32 +268,38 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return query.getResultList();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional
     @Override
     public void refreshDynMemberships(final AnyObject anyObject) {
         for (Group group : findAll()) {
             for (ADynGroupMembership memb : group.getADynMemberships()) {
-                if (!searchDAO.matches(
+                if (searchDAO.matches(
                         anyObject,
                         buildDynMembershipCond(memb.getFIQLCond(), group.getRealm()),
                         AnyTypeKind.ANY_OBJECT)) {
 
+                    memb.add(anyObject);
+                } else {
                     memb.remove(anyObject);
                 }
             }
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional
     @Override
     public void refreshDynMemberships(final User user) {
         for (Group group : findAll()) {
-            if (group.getUDynMembership() != null && !searchDAO.matches(
-                    user,
-                    buildDynMembershipCond(group.getUDynMembership().getFIQLCond(), group.getRealm()),
-                    AnyTypeKind.USER)) {
+            if (group.getUDynMembership() != null) {
+                if (searchDAO.matches(
+                        user,
+                        buildDynMembershipCond(group.getUDynMembership().getFIQLCond(), group.getRealm()),
+                        AnyTypeKind.USER)) {
 
-                group.getUDynMembership().remove(user);
+                    group.getUDynMembership().add(user);
+                } else {
+                    group.getUDynMembership().remove(user);
+                }
             }
         }
     }

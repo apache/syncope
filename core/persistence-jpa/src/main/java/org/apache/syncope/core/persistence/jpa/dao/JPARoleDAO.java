@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
@@ -99,14 +98,18 @@ public class JPARoleDAO extends AbstractDAO<Role, String> implements RoleDAO {
         delete(role);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional
     @Override
     public void refreshDynMemberships(final User user) {
         for (Role role : findAll()) {
-            if (role.getDynMembership() != null && !searchDAO.matches(user,
-                    SearchCondConverter.convert(role.getDynMembership().getFIQLCond()), AnyTypeKind.USER)) {
+            if (role.getDynMembership() != null) {
+                if (searchDAO.matches(user,
+                        SearchCondConverter.convert(role.getDynMembership().getFIQLCond()), AnyTypeKind.USER)) {
 
-                role.getDynMembership().remove(user);
+                    role.getDynMembership().add(user);
+                } else {
+                    role.getDynMembership().remove(user);
+                }
             }
         }
     }
