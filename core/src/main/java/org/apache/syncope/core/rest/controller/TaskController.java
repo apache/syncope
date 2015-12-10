@@ -195,7 +195,7 @@ public class TaskController extends AbstractJobController<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
-    public List<TaskExecTO> listEexecutions(final Long taskId, final int page, final int size) {
+    public List<TaskExecTO> listExecutions(final Long taskId, final int page, final int size) {
         final List<TaskExecTO> execsExecTOs = new ArrayList<TaskExecTO>();
         for (TaskExec exec : taskExecDAO.findAll(taskId, page, size)) {
             execsExecTOs.add(binder.getTaskExecTO(exec));
