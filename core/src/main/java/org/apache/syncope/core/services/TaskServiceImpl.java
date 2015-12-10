@@ -135,9 +135,9 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public PagedResult<TaskExecTO> listEexecutions(final Integer page, final Integer size, final Long taskId) {
-        final List<TaskExecTO> execTOs = controller.listExecution(taskId);
-        return buildPagedResult(execTOs, page, size, execTOs.size());
+    public PagedResult<TaskExecTO> listExecutions(final Long taskId, final Integer page, final Integer size) {
+        return buildPagedResult(
+                controller.listEexecutions(taskId, page, size), page, size, controller.countExecutions(taskId));
     }
 
     @Override

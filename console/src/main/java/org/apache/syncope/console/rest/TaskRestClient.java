@@ -96,9 +96,9 @@ public class TaskRestClient extends JobRestClient implements ExecutionRestClient
     public int count(final String kind) {
         return getService(TaskService.class).list(TaskType.fromString(kind), 1, 1).getTotalCount();
     }
-    
+
     public int countExecutions(final Long taskId) {
-        return getService(TaskService.class).listEexecutions(1, 1, taskId).getTotalCount();
+        return getService(TaskService.class).listExecutions(taskId, 1, 1).getTotalCount();
     }
 
     @SuppressWarnings("unchecked")
@@ -125,8 +125,8 @@ public class TaskRestClient extends JobRestClient implements ExecutionRestClient
         return result;
     }
 
-    public List<TaskExecTO> listExecutions(final int page, final int size, final Long taskId) {
-        return getService(TaskService.class).listEexecutions(page, size, taskId).getResult();
+    public List<TaskExecTO> listExecutions(final Long taskId, final int page, final int size) {
+        return getService(TaskService.class).listExecutions(taskId, page, size).getResult();
     }
 
     public PropagationTaskTO readPropagationTask(final Long taskId) {

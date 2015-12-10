@@ -303,8 +303,6 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    // Currently test is not re-runnable.
-    // To successfully run test second time it is necessary to restart cargo.
     public void deal() {
         try {
             taskService.delete(0L);
@@ -321,13 +319,6 @@ public class TaskTestITCase extends AbstractTest {
         exec = taskService.readExecution(exec.getId());
         assertEquals(PropagationTaskExecStatus.SUCCESS.name(), exec.getStatus());
         assertEquals("OK", exec.getMessage());
-
-        taskService.delete(1L);
-        try {
-            taskService.readExecution(exec.getId());
-        } catch (SyncopeClientException e) {
-            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
-        }
     }
 
     @Test
@@ -1577,17 +1568,40 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE741() {
-        ldapCleanup();
+        for (int i = 0; i < 3; i++) {
+            taskService.execute(1L, false);
+            taskService.execute(2L, false);
+        }
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // ignore
+        }
 
-        SyncTaskTO task = taskService.read(11L, false);
+        // check list
+        PagedResult<AbstractTaskTO> tasks = taskService.list(TaskType.PROPAGATION, 1, 2, "id", false);
+        for (AbstractTaskTO item : tasks.getResult()) {
+            assertTrue(item.getExecutions().isEmpty());
+        }
+
+        tasks = taskService.list(TaskType.PROPAGATION, 1, 2, "id", true);
+        for (AbstractTaskTO item : tasks.getResult()) {
+            assertFalse(item.getExecutions().isEmpty());
+        }
+
+        // check read
+        PropagationTaskTO task = taskService.read(1L, false);
         assertNotNull(task);
-        assertEquals(11L, task.getId());
+        assertEquals(1L, task.getId());
         assertTrue(task.getExecutions().isEmpty());
 
-        task = taskService.read(11L, true);
+        task = taskService.read(1L, true);
         assertNotNull(task);
-        assertEquals(11L, task.getId());
+        assertEquals(1L, task.getId());
         assertFalse(task.getExecutions().isEmpty());
-        assertEquals(1, task.getExecutions().size());
+
+        // check list executions
+        PagedResult<TaskExecTO> execs = taskService.listExecutions(1L, 1, 2);
+        assertTrue(execs.getTotalCount() >= execs.getResult().size());
     }
 }

@@ -181,10 +181,10 @@ public interface TaskService extends JAXRSService {
     @GET
     @Path("{taskId}/executions")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<TaskExecTO> listEexecutions(
+    PagedResult<TaskExecTO> listExecutions(
+            @NotNull @PathParam("taskId") Long taskId,
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
-            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
-            @NotNull @PathParam("taskId") Long taskId);
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
 
     /**
      * Creates a new task.

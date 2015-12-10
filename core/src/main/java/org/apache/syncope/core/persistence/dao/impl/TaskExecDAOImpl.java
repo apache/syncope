@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
@@ -76,6 +77,32 @@ public class TaskExecDAOImpl extends AbstractDAOImpl implements TaskExecDAO {
         queryString.append(')');
 
         TypedQuery<TaskExec> query = entityManager.createQuery(queryString.toString(), TaskExec.class);
+        return query.getResultList();
+    }
+
+    @Override
+    public int count(final Long taskId) {
+        Query countQuery = entityManager.createNativeQuery(
+                "SELECT COUNT(e.id) FROM " + TaskExec.class.getSimpleName() + " e WHERE e.task_id=?1");
+        countQuery.setParameter(1, taskId);
+
+        return ((Number) countQuery.getSingleResult()).intValue();
+    }
+
+    @Override
+    public List<TaskExec> findAll(final Long taskId, final int page, final int itemsPerPage) {
+        TypedQuery<TaskExec> query = entityManager.createQuery(
+                "SELECT e FROM " + TaskExec.class.getSimpleName() + " e WHERE e.task.id=:taskId ORDER BY e.id DESC",
+                TaskExec.class);
+        query.setParameter("taskId", taskId);
+
+        // page starts from 1, while setFirtResult() starts from 0
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+
+        if (itemsPerPage >= 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
         return query.getResultList();
     }
 

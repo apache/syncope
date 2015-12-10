@@ -34,6 +34,10 @@ public interface TaskExecDAO extends DAO {
 
     <T extends Task> List<TaskExec> findAll(Class<T> reference);
 
+    int count(Long taskId);
+
+    List<TaskExec> findAll(Long taskId, int page, int itemsPerPage);
+
     TaskExec save(TaskExec execution) throws InvalidEntityException;
 
     void saveAndAdd(Long taskId, TaskExec execution) throws InvalidEntityException;

@@ -58,7 +58,6 @@ import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -191,9 +190,14 @@ public class TaskController extends AbstractJobController<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
-    public List<TaskExecTO> listExecution(final Long taskId) {
+    public int countExecutions(final Long taskId) {
+        return taskExecDAO.count(taskId);
+    }
+
+    @PreAuthorize("hasRole('TASK_READ')")
+    public List<TaskExecTO> listEexecutions(final Long taskId, final int page, final int size) {
         final List<TaskExecTO> execsExecTOs = new ArrayList<TaskExecTO>();
-        for (final TaskExec exec : taskDAO.find(taskId).getExecs()) {
+        for (TaskExec exec : taskExecDAO.findAll(taskId, page, size)) {
             execsExecTOs.add(binder.getTaskExecTO(exec));
         }
         return execsExecTOs;

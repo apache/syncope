@@ -22,10 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.common.to.NotificationTaskTO;
-import org.apache.syncope.common.to.PropagationTaskTO;
-import org.apache.syncope.common.to.SchedTaskTO;
-import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.SyncopeClientException;
@@ -173,8 +169,8 @@ public abstract class TaskModalPage extends BaseModalPage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         if (target != null) {
-                            final AjaxFallbackDefaultDataTable<TaskExecTO, String> currentTable
-                                    = new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
+                            final AjaxFallbackDefaultDataTable<TaskExecTO, String> currentTable =
+                                    new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
                                             new TaskExecutionsProvider(taskTO.getId(), paginatorRows),
                                             paginatorRows);
                             currentTable.setOutputMarkupId(true);
@@ -188,8 +184,8 @@ public abstract class TaskModalPage extends BaseModalPage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<TaskExecTO, String> table
-                = new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
+        final AjaxFallbackDefaultDataTable<TaskExecTO, String> table =
+                new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
                         new TaskExecutionsProvider(taskTO.getId(), paginatorRows), paginatorRows);
 
         executions.add(table);
@@ -217,8 +213,7 @@ public abstract class TaskModalPage extends BaseModalPage {
         public Iterator<TaskExecTO> iterator(final long first, final long count) {
             final int page = ((int) first / paginatorRows);
 
-            final List<TaskExecTO> list = taskRestClient.listExecutions(
-                    (page < 0 ? 0 : page) + 1, paginatorRows, taskId);
+            List<TaskExecTO> list = taskRestClient.listExecutions(taskId, (page < 0 ? 0 : page) + 1, paginatorRows);
 
             Collections.sort(list, comparator);
 
@@ -243,21 +238,5 @@ public abstract class TaskModalPage extends BaseModalPage {
                 }
             };
         }
-    }
-
-    private AbstractTaskTO getCurrentTaskExecution(final AbstractTaskTO taskTO) {
-        final AbstractTaskTO currentTask = taskTO.getId() == 0
-                ? taskTO
-                : taskTO instanceof PropagationTaskTO
-                        ? taskRestClient.readPropagationTask(taskTO.getId())
-                        : taskTO instanceof NotificationTaskTO
-                                ? taskRestClient.readNotificationTask(taskTO.getId())
-                                : taskTO instanceof SyncTaskTO
-                                        ? taskRestClient.readSchedTask(SyncTaskTO.class, taskTO.getId())
-                                        : taskRestClient.readSchedTask(SchedTaskTO.class, taskTO.getId());
-
-        taskTO.getExecutions().clear();
-        taskTO.getExecutions().addAll(currentTask.getExecutions());
-        return taskTO;
     }
 }
