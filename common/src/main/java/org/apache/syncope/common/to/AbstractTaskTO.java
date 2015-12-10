@@ -45,7 +45,7 @@ public abstract class AbstractTaskTO extends AbstractBaseBean {
 
     private String latestExecStatus;
 
-    private List<TaskExecTO> executions = new ArrayList<TaskExecTO>();
+    private final List<TaskExecTO> executions = new ArrayList<TaskExecTO>();
 
     private Date startDate;
 

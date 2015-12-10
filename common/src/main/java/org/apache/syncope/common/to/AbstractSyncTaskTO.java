@@ -50,7 +50,7 @@ public class AbstractSyncTaskTO extends SchedTaskTO {
 
     private MatchingRule matchingRule;
 
-    private List<String> actionsClassNames = new ArrayList<String>();
+    private final List<String> actionsClassNames = new ArrayList<String>();
 
     public String getResource() {
         return resource;

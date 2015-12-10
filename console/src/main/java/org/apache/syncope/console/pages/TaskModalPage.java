@@ -90,8 +90,8 @@ public abstract class TaskModalPage extends BaseModalPage {
         final Label idLabel = new Label("idLabel", new ResourceModel("id"));
         profile.add(idLabel);
 
-        final AjaxTextFieldPanel id =
-                new AjaxTextFieldPanel("id", getString("id"), new PropertyModel<String>(taskTO, "id"));
+        final AjaxTextFieldPanel id = new AjaxTextFieldPanel("id", getString("id"), new PropertyModel<String>(taskTO,
+                "id"));
 
         id.setEnabled(false);
         profile.add(id);
@@ -173,9 +173,10 @@ public abstract class TaskModalPage extends BaseModalPage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         if (target != null) {
-                            final AjaxFallbackDefaultDataTable<TaskExecTO, String> currentTable =
-                                    new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
-                                            new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
+                            final AjaxFallbackDefaultDataTable<TaskExecTO, String> currentTable
+                                    = new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
+                                            new TaskExecutionsProvider(taskTO.getId(), paginatorRows),
+                                            paginatorRows);
                             currentTable.setOutputMarkupId(true);
                             target.add(currentTable);
                             executions.addOrReplace(currentTable);
@@ -187,41 +188,46 @@ public abstract class TaskModalPage extends BaseModalPage {
             }
         });
 
-        final AjaxFallbackDefaultDataTable<TaskExecTO, String> table =
-                new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
-                        new TaskExecutionsProvider(getCurrentTaskExecution(taskTO)), paginatorRows);
+        final AjaxFallbackDefaultDataTable<TaskExecTO, String> table
+                = new AjaxFallbackDefaultDataTable<TaskExecTO, String>("executionsTable", columns,
+                        new TaskExecutionsProvider(taskTO.getId(), paginatorRows), paginatorRows);
 
         executions.add(table);
     }
 
-    protected static class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO, String> {
+    protected class TaskExecutionsProvider extends SortableDataProvider<TaskExecTO, String> {
 
         private static final long serialVersionUID = 8943636537120648961L;
 
-        private SortableDataProviderComparator<TaskExecTO> comparator;
+        private final SortableDataProviderComparator<TaskExecTO> comparator;
 
-        private AbstractTaskTO taskTO;
+        private final Long taskId;
 
-        public TaskExecutionsProvider(final AbstractTaskTO taskTO) {
+        private final int paginatorRows;
+
+        public TaskExecutionsProvider(final Long taskId, final int paginatorRows) {
             //Default sorting
-            this.taskTO = taskTO;
+            this.taskId = taskId;
+            this.paginatorRows = paginatorRows;
             setSort("startDate", SortOrder.DESCENDING);
             comparator = new SortableDataProviderComparator<TaskExecTO>(this);
         }
 
         @Override
         public Iterator<TaskExecTO> iterator(final long first, final long count) {
+            final int page = ((int) first / paginatorRows);
 
-            List<TaskExecTO> list = taskTO.getExecutions();
+            final List<TaskExecTO> list = taskRestClient.listExecutions(
+                    (page < 0 ? 0 : page) + 1, paginatorRows, taskId);
 
             Collections.sort(list, comparator);
 
-            return list.subList((int) first, (int) first + (int) count).iterator();
+            return list.iterator();
         }
 
         @Override
         public long size() {
-            return taskTO.getExecutions().size();
+            return taskRestClient.countExecutions(taskId);
         }
 
         @Override
@@ -243,12 +249,12 @@ public abstract class TaskModalPage extends BaseModalPage {
         final AbstractTaskTO currentTask = taskTO.getId() == 0
                 ? taskTO
                 : taskTO instanceof PropagationTaskTO
-                ? taskRestClient.readPropagationTask(taskTO.getId())
-                : taskTO instanceof NotificationTaskTO
-                ? taskRestClient.readNotificationTask(taskTO.getId())
-                : taskTO instanceof SyncTaskTO
-                ? taskRestClient.readSchedTask(SyncTaskTO.class, taskTO.getId())
-                : taskRestClient.readSchedTask(SchedTaskTO.class, taskTO.getId());
+                        ? taskRestClient.readPropagationTask(taskTO.getId())
+                        : taskTO instanceof NotificationTaskTO
+                                ? taskRestClient.readNotificationTask(taskTO.getId())
+                                : taskTO instanceof SyncTaskTO
+                                        ? taskRestClient.readSchedTask(SyncTaskTO.class, taskTO.getId())
+                                        : taskRestClient.readSchedTask(SchedTaskTO.class, taskTO.getId());
 
         taskTO.getExecutions().clear();
         taskTO.getExecutions().addAll(currentTask.getExecutions());

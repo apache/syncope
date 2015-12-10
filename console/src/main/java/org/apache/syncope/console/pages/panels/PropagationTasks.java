@@ -63,7 +63,7 @@ public class PropagationTasks extends AbstractTasks {
 
     private boolean operationResult = false;
 
-    private ModalWindow window;
+    private final ModalWindow window;
 
     private AjaxDataTablePanel<AbstractTaskTO, String> table;
 

@@ -71,9 +71,9 @@ public class TaskDataBinder {
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
     private static final String[] IGNORE_TASK_PROPERTIES = {
-        "executions", "resource", "matchingRule", "unmatchingRule" };
+        "executions", "resource", "matchingRule", "unmatchingRule"};
 
-    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "id", "task" };
+    private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = {"id", "task"};
 
     @Autowired
     private ResourceDAO resourceDAO;
@@ -262,7 +262,7 @@ public class TaskDataBinder {
         }
     }
 
-    public <T extends AbstractTaskTO> T getTaskTO(final Task task, final TaskUtil taskUtil) {
+    public <T extends AbstractTaskTO> T getTaskTO(final Task task, final TaskUtil taskUtil, final boolean details) {
         T taskTO = taskUtil.newTaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
 
@@ -270,9 +270,11 @@ public class TaskDataBinder {
         taskTO.setLatestExecStatus(latestExec == null ? "" : latestExec.getStatus());
         taskTO.setStartDate(latestExec == null ? null : latestExec.getStartDate());
         taskTO.setEndDate(latestExec == null ? null : latestExec.getEndDate());
-
-        for (TaskExec execution : task.getExecs()) {
-            taskTO.getExecutions().add(getTaskExecTO(execution));
+        
+        if (details) {
+            for (TaskExec execution : task.getExecs()) {
+                taskTO.getExecutions().add(getTaskExecTO(execution));
+            }
         }
 
         switch (taskUtil.getType()) {

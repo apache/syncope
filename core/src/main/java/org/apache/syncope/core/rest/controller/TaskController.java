@@ -84,9 +84,6 @@ public class TaskController extends AbstractJobController<AbstractTaskTO> {
     private JobInstanceLoader jobInstanceLoader;
 
     @Autowired
-    private SchedulerFactoryBean scheduler;
-
-    @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
 
     @PreAuthorize("hasRole('TASK_CREATE')")
@@ -106,7 +103,7 @@ public class TaskController extends AbstractJobController<AbstractTaskTO> {
             throw sce;
         }
 
-        return binder.getTaskTO(task, taskUtil);
+        return binder.getTaskTO(task, taskUtil, true);
     }
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
@@ -136,7 +133,7 @@ public class TaskController extends AbstractJobController<AbstractTaskTO> {
             throw sce;
         }
 
-        return binder.getTaskTO(task, taskUtil);
+        return binder.getTaskTO(task, taskUtil, true);
     }
 
     @PreAuthorize("hasRole('TASK_LIST')")
@@ -147,14 +144,14 @@ public class TaskController extends AbstractJobController<AbstractTaskTO> {
     @PreAuthorize("hasRole('TASK_LIST')")
     @SuppressWarnings("unchecked")
     public <T extends AbstractTaskTO> List<T> list(final TaskType taskType,
-            final int page, final int size, final List<OrderByClause> orderByClauses) {
+            final int page, final int size, final List<OrderByClause> orderByClauses, final boolean details) {
 
         TaskUtil taskUtil = TaskUtil.getInstance(taskType);
 
         List<Task> tasks = taskDAO.findAll(page, size, orderByClauses, taskUtil.taskClass());
         List<T> taskTOs = new ArrayList<T>(tasks.size());
         for (Task task : tasks) {
-            taskTOs.add((T) binder.getTaskTO(task, taskUtil));
+            taskTOs.add((T) binder.getTaskTO(task, taskUtil, details));
         }
 
         return taskTOs;
@@ -176,12 +173,12 @@ public class TaskController extends AbstractJobController<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
-    public <T extends AbstractTaskTO> T read(final Long taskId) {
+    public <T extends AbstractTaskTO> T read(final Long taskId, final boolean details) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
-        return binder.getTaskTO(task, TaskUtil.getInstance(task));
+        return binder.getTaskTO(task, TaskUtil.getInstance(task), details);
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
@@ -191,6 +188,15 @@ public class TaskController extends AbstractJobController<AbstractTaskTO> {
             throw new NotFoundException("Task execution " + executionId);
         }
         return binder.getTaskExecTO(taskExec);
+    }
+
+    @PreAuthorize("hasRole('TASK_READ')")
+    public List<TaskExecTO> listExecution(final Long taskId) {
+        final List<TaskExecTO> execsExecTOs = new ArrayList<TaskExecTO>();
+        for (final TaskExec exec : taskDAO.find(taskId).getExecs()) {
+            execsExecTOs.add(binder.getTaskExecTO(exec));
+        }
+        return execsExecTOs;
     }
 
     @PreAuthorize("hasRole('TASK_EXECUTE')")
@@ -298,7 +304,7 @@ public class TaskController extends AbstractJobController<AbstractTaskTO> {
         }
         TaskUtil taskUtil = TaskUtil.getInstance(task);
 
-        T taskToDelete = binder.getTaskTO(task, taskUtil);
+        T taskToDelete = binder.getTaskTO(task, taskUtil, true);
 
         if (TaskType.SCHEDULED == taskUtil.getType()
                 || TaskType.SYNCHRONIZATION == taskUtil.getType()
@@ -395,7 +401,7 @@ public class TaskController extends AbstractJobController<AbstractTaskTO> {
         if ((id != null) && !id.equals(0l)) {
             try {
                 final Task task = taskDAO.find(id);
-                return binder.getTaskTO(task, TaskUtil.getInstance(task));
+                return binder.getTaskTO(task, TaskUtil.getInstance(task), true);
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

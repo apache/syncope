@@ -48,7 +48,7 @@ public abstract class AbstractSyncTasksPanel<T extends AbstractSyncTaskTO> exten
 
     private static final long serialVersionUID = -8674781241465369244L;
 
-    private int paginatorRows;
+    private final int paginatorRows;
 
     protected WebMarkupContainer container;
 

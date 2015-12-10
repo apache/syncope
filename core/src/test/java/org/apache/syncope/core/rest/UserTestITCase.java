@@ -168,7 +168,7 @@ public class UserTestITCase extends AbstractTest {
         assertTrue(newMaxId > maxId);
 
         // get last task
-        PropagationTaskTO taskTO = taskService.read(newMaxId);
+        PropagationTaskTO taskTO = taskService.read(newMaxId, true);
 
         assertNotNull(taskTO);
         assertTrue(taskTO.getExecutions().isEmpty());
@@ -370,7 +370,7 @@ public class UserTestITCase extends AbstractTest {
         assertFalse(tasks.getResult().isEmpty());
 
         long maxId = getMaxTaskId(tasks.getResult());
-        PropagationTaskTO taskTO = taskService.read(maxId);
+        PropagationTaskTO taskTO = taskService.read(maxId, true);
 
         assertNotNull(taskTO);
         int maxTaskExecutions = taskTO.getExecutions().size();
@@ -432,7 +432,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(newMaxId, maxId);
 
         // get last task
-        taskTO = taskService.read(newMaxId);
+        taskTO = taskService.read(newMaxId, true);
 
         assertNotNull(taskTO);
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
@@ -807,7 +807,7 @@ public class UserTestITCase extends AbstractTest {
         // all update executions have to be registered
         assertTrue(newMaxId > maxId);
 
-        final PropagationTaskTO taskTO = taskService.read(newMaxId);
+        final PropagationTaskTO taskTO = taskService.read(newMaxId, true);
 
         assertNotNull(taskTO);
         assertEquals(1, taskTO.getExecutions().size());
@@ -1149,8 +1149,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertNotNull(actual.getDerAttrMap().get("csvuserid"));
 
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getId());
+        ConnObjectTO connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.
+                getId());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttrMap().get("ROLE").getValues().get(0));
     }
@@ -1177,8 +1177,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertNotNull(actual.getDerAttrMap().get("csvuserid"));
 
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getId());
+        ConnObjectTO connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.
+                getId());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttrMap().get("MEMBERSHIP").getValues().get(0));
     }
@@ -1238,8 +1238,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(2, actual.getMemberships().size());
         assertEquals(1, actual.getResources().size());
 
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getId());
+        ConnObjectTO connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.
+                getId());
         assertNotNull(connObjectTO);
 
         // -----------------------------------
@@ -1320,8 +1320,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertEquals(2, actual.getMemberships().size());
 
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.getId());
+        ConnObjectTO connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.
+                getId());
         assertNotNull(connObjectTO);
 
         AttributeTO postalAddress = connObjectTO.getAttrMap().get("postalAddress");
@@ -1432,8 +1432,8 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(RESOURCE_NAME_DBVIRATTR, userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_DBVIRATTR, SubjectType.USER, userTO.getId());
+        ConnObjectTO connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_DBVIRATTR, SubjectType.USER,
+                userTO.getId());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue", connObjectTO.getAttrMap().get("USERNAME").getValues().get(0));
         // ----------------------------------
@@ -1633,8 +1633,8 @@ public class UserTestITCase extends AbstractTest {
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
 
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getId());
+        ConnObjectTO connObjectTO = resourceService.getConnectorObject(
+                RESOURCE_NAME_CSV, SubjectType.USER, actual.getId());
         assertNull(connObjectTO.getAttrMap().get("email"));
     }
 
@@ -1675,14 +1675,14 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
         assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
         assertEquals("suspended", userService.read(
-                Long.parseLong(res.getResultByStatus(Status.SUCCESS).get(3).toString())).getStatus());
+                Long.parseLong(res.getResultByStatus(Status.SUCCESS).get(3))).getStatus());
 
         bulkAction.setOperation(BulkAction.Type.REACTIVATE);
         res = userService.bulk(bulkAction);
         assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
         assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
         assertEquals("active", userService.read(
-                Long.parseLong(res.getResultByStatus(Status.SUCCESS).get(3).toString())).getStatus());
+                Long.parseLong(res.getResultByStatus(Status.SUCCESS).get(3))).getStatus());
 
         bulkAction.setOperation(BulkAction.Type.DELETE);
         res = userService.bulk(bulkAction);
@@ -2205,8 +2205,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(userTO);
 
         // 2. read resource configuration for LDAP binding
-        ConnObjectTO connObject =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, userTO.getId());
+        ConnObjectTO connObject = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, userTO.
+                getId());
 
         // 3. try (and succeed) to perform simple LDAP binding with provided password ('password123')
         assertNotNull(getLdapRemoteObject(
@@ -2374,8 +2374,7 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, user.getResources().size());
 
         // 4. Check that the LDAP resource has the correct password
-        ConnObjectTO connObject =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getId());
+        ConnObjectTO connObject = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getId());
 
         assertNotNull(getLdapRemoteObject(
                 connObject.getAttrMap().get(Name.NAME).getValues().get(0),
@@ -2416,8 +2415,8 @@ public class UserTestITCase extends AbstractTest {
         userTO = createUser(userTO, false);
         assertNotNull(userTO);
 
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, userTO.getId());
+        ConnObjectTO connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, userTO.
+                getId());
         assertNotNull(connObjectTO);
 
         // check if password has not changed
@@ -2437,8 +2436,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = createUser(userTO, false);
         assertNotNull(userTO);
 
-        connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, userTO.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, userTO.getId());
         assertNotNull(connObjectTO);
 
         // check if password has been propagated and that saved userTO's password is null
@@ -2458,8 +2456,7 @@ public class UserTestITCase extends AbstractTest {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, userTO.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, userTO.getId());
         assertNotNull(connObjectTO);
 
         // check if password has been correctly propagated on Syncope and resource-csv as usual
@@ -2514,8 +2511,8 @@ public class UserTestITCase extends AbstractTest {
         assertNotNull(actual);
         assertNotNull(actual.getDerAttrMap().get("csvuserid"));
 
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.getId());
+        ConnObjectTO connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.
+                getId());
         assertNotNull(connObjectTO);
         assertEquals("postalAddress", connObjectTO.getAttrMap().get("postalAddress").getValues().get(0));
 
@@ -2530,8 +2527,7 @@ public class UserTestITCase extends AbstractTest {
 
         actual = updateUser(userMod);
 
-        connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.getId());
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.getId());
         assertNotNull(connObjectTO);
         assertEquals("newPostalAddress", connObjectTO.getAttrMap().get("postalAddress").getValues().get(0));
     }

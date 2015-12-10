@@ -315,7 +315,7 @@ public class NotificationTest {
         assertNotNull(taskId);
 
         // 5. verify that last exec status was updated
-        NotificationTaskTO task = (NotificationTaskTO) taskController.read(taskId);
+        NotificationTaskTO task = (NotificationTaskTO) taskController.read(taskId, true);
         assertNotNull(task);
         assertTrue(task.getExecutions().isEmpty());
         assertTrue(task.isExecuted());

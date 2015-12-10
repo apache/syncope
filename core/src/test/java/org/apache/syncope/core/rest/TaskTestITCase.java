@@ -112,7 +112,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @BeforeClass
     public static void testSyncActionsSetup() {
-        SyncTaskTO syncTask = taskService.read(SYNC_TASK_ID);
+        SyncTaskTO syncTask = taskService.read(SYNC_TASK_ID, true);
         syncTask.getActionsClassNames().add(TestSyncActions.class.getName());
         taskService.update(SYNC_TASK_ID, syncTask);
     }
@@ -174,7 +174,7 @@ public class TaskTestITCase extends AbstractTest {
         SyncTaskTO actual = getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
         assertNotNull(actual);
 
-        task = taskService.read(actual.getId());
+        task = taskService.read(actual.getId(), true);
         assertNotNull(task);
         assertEquals(actual.getId(), task.getId());
         assertEquals(actual.getJobClassName(), task.getJobClassName());
@@ -197,7 +197,7 @@ public class TaskTestITCase extends AbstractTest {
         final PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
         assertNotNull(actual);
 
-        task = taskService.read(actual.getId());
+        task = taskService.read(actual.getId(), true);
         assertNotNull(task);
         assertEquals(task.getId(), actual.getId());
         assertEquals(task.getJobClassName(), actual.getJobClassName());
@@ -209,7 +209,7 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void update() {
-        SchedTaskTO task = taskService.read(SCHED_TASK_ID);
+        SchedTaskTO task = taskService.read(SCHED_TASK_ID, true);
         assertNotNull(task);
 
         final SchedTaskTO taskMod = new SchedTaskTO();
@@ -217,7 +217,7 @@ public class TaskTestITCase extends AbstractTest {
         taskMod.setCronExpression(null);
 
         taskService.update(taskMod.getId(), taskMod);
-        SchedTaskTO actual = taskService.read(taskMod.getId());
+        SchedTaskTO actual = taskService.read(taskMod.getId(), true);
         assertNotNull(actual);
         assertEquals(task.getId(), actual.getId());
         assertNull(actual.getCronExpression());
@@ -285,13 +285,13 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void read() {
-        final PropagationTaskTO taskTO = taskService.read(3L);
+        final PropagationTaskTO taskTO = taskService.read(3L, true);
 
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
         assertTrue(taskTO.getExecutions().isEmpty());
 
-        final PushTaskTO pushTaskTO = taskService.<PushTaskTO>read(17L);
+        final PushTaskTO pushTaskTO = taskService.<PushTaskTO>read(17L, true);
         assertEquals(UnmatchingRule.ASSIGN, pushTaskTO.getUnmatchingRule());
         assertEquals(MatchingRule.UPDATE, pushTaskTO.getMatchingRule());
     }
@@ -577,7 +577,7 @@ public class TaskTestITCase extends AbstractTest {
             } catch (InterruptedException e) {
             }
 
-            taskTO = taskService.read(taskTO.getId());
+            taskTO = taskService.read(taskTO.getId(), true);
 
             assertNotNull(taskTO);
             assertNotNull(taskTO.getExecutions());
@@ -607,7 +607,7 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(execution);
 
             // 4. verify
-            taskTO = taskService.read(taskTO.getId());
+            taskTO = taskService.read(taskTO.getId(), true);
             assertNotNull(taskTO);
             assertEquals(1, taskTO.getExecutions().size());
         } finally {
@@ -709,13 +709,13 @@ public class TaskTestITCase extends AbstractTest {
             //-----------------------------
 
             // Update sync task
-            SyncTaskTO task = taskService.read(9L);
+            SyncTaskTO task = taskService.read(9L, true);
             assertNotNull(task);
 
             task.setUserTemplate(template);
 
             taskService.update(task.getId(), task);
-            SyncTaskTO actual = taskService.read(task.getId());
+            SyncTaskTO actual = taskService.read(task.getId(), true);
             assertNotNull(actual);
             assertEquals(task.getId(), actual.getId());
             assertFalse(actual.getUserTemplate().getResources().isEmpty());
@@ -750,7 +750,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("issueSYNCOPE144", actual.getName());
         assertEquals("issueSYNCOPE144 Description", actual.getDescription());
 
-        task = taskService.read(actual.getId());
+        task = taskService.read(actual.getId(), true);
         assertNotNull(task);
         assertEquals("issueSYNCOPE144", task.getName());
         assertEquals("issueSYNCOPE144 Description", task.getDescription());
@@ -792,7 +792,7 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     private TaskExecTO execSyncTask(final Long taskId, final int maxWaitSeconds, final boolean dryRun) {
-        AbstractTaskTO taskTO = taskService.read(taskId);
+        AbstractTaskTO taskTO = taskService.read(taskId, true);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
 
@@ -810,7 +810,7 @@ public class TaskTestITCase extends AbstractTest {
             } catch (InterruptedException e) {
             }
 
-            taskTO = taskService.read(taskTO.getId());
+            taskTO = taskService.read(taskTO.getId(), true);
 
             assertNotNull(taskTO);
             assertNotNull(taskTO.getExecutions());
@@ -917,7 +917,7 @@ public class TaskTestITCase extends AbstractTest {
 
         execSyncTask(actual.getId(), 50, false);
 
-        SyncTaskTO executed = taskService.read(actual.getId());
+        SyncTaskTO executed = taskService.read(actual.getId(), true);
         assertEquals(1, executed.getExecutions().size());
 
         // asser for just one match
@@ -944,7 +944,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("virtualvalue", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
 
         // Update sync task
-        SyncTaskTO task = taskService.read(12L);
+        SyncTaskTO task = taskService.read(12L, true);
         assertNotNull(task);
 
         //  add user template
@@ -1195,7 +1195,7 @@ public class TaskTestITCase extends AbstractTest {
         SyncTaskTO actual = getObject(taskResponse.getLocation(), TaskService.class, SyncTaskTO.class);
         assertNotNull(actual);
 
-        syncTask = taskService.read(actual.getId());
+        syncTask = taskService.read(actual.getId(), true);
         assertNotNull(syncTask);
         assertEquals(actual.getId(), syncTask.getId());
         assertEquals(actual.getJobClassName(), syncTask.getJobClassName());
@@ -1243,8 +1243,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(encodedNewPassword, updatedUser.getPassword());
 
         // 4. Check that the LDAP resource has the old password
-        ConnObjectTO connObject =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getId());
+        ConnObjectTO connObject = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getId());
         assertNotNull(getLdapRemoteObject(
                 connObject.getAttrMap().get(Name.NAME).getValues().get(0),
                 "security",
@@ -1271,7 +1270,7 @@ public class TaskTestITCase extends AbstractTest {
         SyncTaskTO actual = getObject(taskResponse.getLocation(), TaskService.class, SyncTaskTO.class);
         assertNotNull(actual);
 
-        syncTask = taskService.read(actual.getId());
+        syncTask = taskService.read(actual.getId(), true);
         assertNotNull(syncTask);
         assertEquals(actual.getId(), syncTask.getId());
         assertEquals(actual.getJobClassName(), syncTask.getJobClassName());
@@ -1507,7 +1506,7 @@ public class TaskTestITCase extends AbstractTest {
         // First of all, clear any potential conflict with existing user / role
         ldapCleanup();
 
-        SyncTaskTO task = taskService.read(11L);
+        SyncTaskTO task = taskService.read(11L, true);
         assertNotNull(task);
         assertEquals(11L, task.getId());
 
@@ -1522,7 +1521,7 @@ public class TaskTestITCase extends AbstractTest {
         SyncTaskTO actual = getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
         assertNotNull(actual);
 
-        task = taskService.read(actual.getId());
+        task = taskService.read(actual.getId(), true);
         assertNotNull(task);
         assertEquals(actual.getId(), task.getId());
         assertEquals(actual.getJobClassName(), task.getJobClassName());
@@ -1540,8 +1539,8 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals("syncFromLDAP",
                 userTO.getVirAttrMap().get("virtualPropagation").getValues().get(0));
 
-        ConnObjectTO connObj =
-                resourceService.getConnectorObject(RESOURCE_NAME_DBVIRATTR, SubjectType.USER, userTO.getId());
+        ConnObjectTO connObj = resourceService.getConnectorObject(RESOURCE_NAME_DBVIRATTR, SubjectType.USER, userTO.
+                getId());
         assertNotNull(connObj);
         assertEquals("syncFromLDAP", connObj.getAttrMap().get("SURNAME").getValues().get(0));
 
@@ -1574,5 +1573,21 @@ public class TaskTestITCase extends AbstractTest {
         // delete the created sync task
         taskService.delete(task.getId());
 
+    }
+
+    @Test
+    public void issueSYNCOPE741() {
+        ldapCleanup();
+
+        SyncTaskTO task = taskService.read(11L, false);
+        assertNotNull(task);
+        assertEquals(11L, task.getId());
+        assertTrue(task.getExecutions().isEmpty());
+
+        task = taskService.read(11L, true);
+        assertNotNull(task);
+        assertEquals(11L, task.getId());
+        assertFalse(task.getExecutions().isEmpty());
+        assertEquals(1, task.getExecutions().size());
     }
 }

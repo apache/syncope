@@ -74,9 +74,9 @@ public class Tasks extends BasePage {
 
         private static final long serialVersionUID = -5401263348984206145L;
 
-        private SortableDataProviderComparator<TaskExecTO> comparator;
+        private final SortableDataProviderComparator<TaskExecTO> comparator;
 
-        private AbstractTaskTO taskTO;
+        private final AbstractTaskTO taskTO;
 
         public TaskExecutionsProvider(final AbstractTaskTO taskTO) {
             super();
@@ -125,15 +125,15 @@ public class Tasks extends BasePage {
 
         private static final long serialVersionUID = -20112718133295756L;
 
-        private SortableDataProviderComparator<T> comparator;
+        private final SortableDataProviderComparator<T> comparator;
 
-        private TaskRestClient restClient;
+        private final TaskRestClient restClient;
 
-        private int paginatorRows;
+        private final int paginatorRows;
 
-        private String id;
+        private final String id;
 
-        private Class<T> reference;
+        private final Class<T> reference;
 
         public TasksProvider(
                 final TaskRestClient restClient, final int paginatorRows, final String id, final Class<T> reference) {
@@ -213,8 +213,8 @@ public class Tasks extends BasePage {
                 columns,
                 (ISortableDataProvider<AbstractTaskTO, String>) dataProvider,
                 dataProvider.paginatorRows,
-                Arrays.asList(new ActionLink.ActionType[] {
-                    ActionLink.ActionType.DELETE, ActionLink.ActionType.DRYRUN, ActionLink.ActionType.EXECUTE }),
+                Arrays.asList(new ActionLink.ActionType[]{
+            ActionLink.ActionType.DELETE, ActionLink.ActionType.DRYRUN, ActionLink.ActionType.EXECUTE}),
                 restClient,
                 "id",
                 TASKS,
@@ -230,6 +230,8 @@ public class Tasks extends BasePage {
 
     /**
      * IndicatorMarkupId behaviour is embedded in Tasks.html
+     *
+     * @return
      */
     @Override
     public String getAjaxIndicatorMarkupId() {

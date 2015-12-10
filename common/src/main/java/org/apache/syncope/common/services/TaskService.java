@@ -91,13 +91,15 @@ public interface TaskService extends JAXRSService {
      * Returns the task matching the given id.
      *
      * @param taskId id of task to be read
+     * @param details whether include executions or not, defaults to true
      * @param <T> type of taskTO
      * @return task with matching id
      */
     @GET
     @Path("{taskId}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> T read(@NotNull @PathParam("taskId") Long taskId);
+    <T extends AbstractTaskTO> T read(@NotNull @PathParam("taskId") Long taskId,
+            @QueryParam(PARAM_DETAILS) @DefaultValue("true") boolean details);
 
     /**
      * Returns the task execution with the given id.
@@ -141,6 +143,7 @@ public interface TaskService extends JAXRSService {
      * @param page page number of tasks in relation to page size
      * @param size number of tasks listed per page
      * @param orderBy list of ordering clauses, separated by comma
+     * @param details whether include executions or not, defaults to true
      * @param <T> type of taskTO
      * @return paged list of existing tasks matching type and page/size conditions
      */
@@ -149,7 +152,8 @@ public interface TaskService extends JAXRSService {
     <T extends AbstractTaskTO> PagedResult<T> list(@NotNull @MatrixParam("type") TaskType taskType,
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
-            @QueryParam(PARAM_ORDERBY) String orderBy);
+            @QueryParam(PARAM_ORDERBY) String orderBy,
+            @QueryParam(PARAM_DETAILS) @DefaultValue("true") boolean details);
 
     /**
      * Returns a paged list of existing tasks matching type and page/size conditions.
@@ -165,6 +169,22 @@ public interface TaskService extends JAXRSService {
     <T extends AbstractTaskTO> PagedResult<T> list(@MatrixParam("type") TaskType taskType,
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
+
+    /**
+     * Returns the task matching the given id.
+     *
+     * @param taskId id of task where to list the executions
+     * @param page page number of executions in relation to page size
+     * @param size number of executions listed per page
+     * @return list of executions with matching id
+     */
+    @GET
+    @Path("{taskId}/executions")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<TaskExecTO> listEexecutions(
+            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
+            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
+            @NotNull @PathParam("taskId") Long taskId);
 
     /**
      * Creates a new task.
