@@ -36,6 +36,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.console.wizards.any.AnyHandler;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -144,23 +145,24 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
+                    public void onClick(final AjaxRequestTarget target, final T ignore) {
                         send(AnyObjectSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                                new AjaxWizard.EditItemActionEvent<AnyHandler<T>>(
+                                        new AnyHandler<T>(model.getObject()), target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<T>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final T anyTO) {
+                    public void onClick(final AjaxRequestTarget target, final T ignore) {
                         try {
                             restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         } catch (SyncopeClientException e) {
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            LOG.error("While deleting object {}", anyTO.getKey(), e);
+                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
                         }
                         ((BasePage) getPage()).getFeedbackPanel().refresh(target);
                     }
@@ -241,7 +243,7 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
         }
 
         @Override
-        protected WizardMgtPanel<AnyObjectTO> newInstance(final String parentId) {
+        protected WizardMgtPanel<AnyHandler<AnyObjectTO>> newInstance(final String parentId) {
             return new AnyObjectSearchResultPanel<>(
                     type, parentId, filtered, fiql, pageRef, restClient, anyTypeClassTOs, realm, type + "_LIST");
         }

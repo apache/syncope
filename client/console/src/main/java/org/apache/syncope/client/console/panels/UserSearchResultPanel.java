@@ -38,6 +38,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.console.wizards.any.AnyHandler;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -126,14 +127,16 @@ public final class UserSearchResultPanel extends AnyObjectSearchResultPanel<User
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO anyTO) {
-                        final IModel<UserTO> model = new CompoundPropertyModel<>(anyTO);
-                        modal.setFormModel(model);
+                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                        final IModel<AnyHandler<UserTO>> formModel
+                                = new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
+                        modal.setFormModel(formModel);
 
-                        target.add(modal.
-                                setContent(new StatusModal<>(modal, page.getPageReference(), model.getObject())));
+                        target.add(modal.setContent(new StatusModal<>(
+                                modal, page.getPageReference(), formModel.getObject().getInnerObject())));
 
-                        modal.header(new Model<>(MessageFormat.format(getString("any.edit"), anyTO.getKey())));
+                        modal.header(new Model<>(MessageFormat.format(
+                                getString("any.edit"), model.getObject().getKey())));
                         modal.show(true);
                     }
                 }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_LIST).add(new ActionLink<UserTO>() {
@@ -141,14 +144,16 @@ public final class UserSearchResultPanel extends AnyObjectSearchResultPanel<User
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO anyTO) {
-                        final IModel<UserTO> model = new CompoundPropertyModel<>(anyTO);
-                        modal.setFormModel(model);
+                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                        final IModel<AnyHandler<UserTO>> formModel
+                                = new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
+                        modal.setFormModel(formModel);
 
-                        target.add(modal.setContent(new StatusModal<>(modal, page.getPageReference(), model.getObject(),
-                                true)));
+                        target.add(modal.setContent(new StatusModal<>(
+                                modal, page.getPageReference(), formModel.getObject().getInnerObject(), true)));
 
-                        modal.header(new Model<>(MessageFormat.format(getString("any.edit"), anyTO.getKey())));
+                        modal.header(new Model<>(MessageFormat.format(
+                                getString("any.edit"), model.getObject().getKey())));
                         modal.show(true);
                     }
                 }, ActionLink.ActionType.ENABLE, entitlement).add(new ActionLink<UserTO>() {
@@ -156,23 +161,24 @@ public final class UserSearchResultPanel extends AnyObjectSearchResultPanel<User
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO modelObject) {
+                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                         send(UserSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<AnyTO>(model.getObject(), target));
+                                new AjaxWizard.EditItemActionEvent<AnyHandler<UserTO>>(
+                                        new AnyHandler<UserTO>(model.getObject()), target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<UserTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO anyTO) {
+                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                         try {
                             restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         } catch (SyncopeClientException e) {
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            LOG.error("While deleting object {}", anyTO.getKey(), e);
+                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
                         }
                         ((BasePage) getPage()).getFeedbackPanel().refresh(target);
                     }
@@ -252,7 +258,7 @@ public final class UserSearchResultPanel extends AnyObjectSearchResultPanel<User
         }
 
         @Override
-        protected WizardMgtPanel<UserTO> newInstance(final String parentId) {
+        protected WizardMgtPanel<AnyHandler<UserTO>> newInstance(final String parentId) {
             return new UserSearchResultPanel(
                     type, parentId, filtered, fiql, pageRef, restClient, anyTypeClassTOs, realm,
                     StandardEntitlement.USER_LIST);

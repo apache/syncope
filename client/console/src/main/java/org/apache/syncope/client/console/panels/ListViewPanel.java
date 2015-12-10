@@ -232,8 +232,11 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         private boolean reuseItem = true;
 
+        private final Class<T> reference;
+
         public Builder(final Class<T> reference, final PageReference pageRef) {
-            super(reference, pageRef);
+            super(pageRef);
+            this.reference = reference;
             this.items = null;
             this.actions = ActionLinksPanel.<T>builder(pageRef);
         }
@@ -358,7 +361,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
             final T item = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getItem();
             final AjaxRequestTarget target = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getTarget();
-            
+
             if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 if (item != null && !this.listOfItems.contains(item)) {
                     this.listOfItems.add(item);

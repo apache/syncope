@@ -48,13 +48,15 @@ public class UserDetails extends Details<UserTO> {
     private static final String PASSWORD_CONTENT_PATH = "body:content";
 
     public UserDetails(
-            final UserTO userTO,
+            final AnyHandler<UserTO> handler,
             final IModel<List<StatusBean>> statusModel,
             final boolean resetPassword,
             final boolean templateMode,
             final PageReference pageRef,
             final boolean includeStatusPanel) {
-        super(userTO, statusModel, pageRef, includeStatusPanel);
+        super(handler, statusModel, pageRef, includeStatusPanel);
+
+        final UserTO userTO = handler.getInnerObject();
         // ------------------------
         // Username
         // ------------------------
@@ -82,15 +84,15 @@ public class UserDetails extends Details<UserTO> {
         final Collapsible collapsible = new Collapsible("collapsePanel", Collections.<ITab>singletonList(
                 new AbstractTab(new ResourceModel("password.change", "Change password")) {
 
-                    private static final long serialVersionUID = 1037272333056449378L;
+            private static final long serialVersionUID = 1037272333056449378L;
 
-                    @Override
-                    public Panel getPanel(final String panelId) {
-                        final PasswordPanel panel = new PasswordPanel(panelId, userTO, resetPassword, templateMode);
-                        panel.setEnabled(model.getObject() >= 0);
-                        return panel;
-                    }
-                }
+            @Override
+            public Panel getPanel(final String panelId) {
+                final PasswordPanel panel = new PasswordPanel(panelId, userTO, resetPassword, templateMode);
+                panel.setEnabled(model.getObject() >= 0);
+                return panel;
+            }
+        }
         ), model) {
 
             private static final long serialVersionUID = 1L;

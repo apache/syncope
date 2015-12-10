@@ -35,7 +35,7 @@ public class UserDisplayAttributesModalPage extends DisplayAttributesModalPage {
     public static final String[] USER_DEFAULT_SELECTION = { "key", "username", "status" };
 
     public UserDisplayAttributesModalPage(
-            final BaseModal<UserTO> modal,
+            final BaseModal<?> modal,
             final PageReference pageRef,
             final List<String> schemaNames,
             final List<String> dSchemaNames) {

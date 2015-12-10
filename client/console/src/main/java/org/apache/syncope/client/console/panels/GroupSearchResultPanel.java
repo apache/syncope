@@ -36,6 +36,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.client.console.wizards.any.GroupHandler;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -122,7 +124,8 @@ public final class GroupSearchResultPanel extends AnyObjectSearchResultPanel<Gro
                     @Override
                     public void onClick(final AjaxRequestTarget target, final GroupTO anyTO) {
                         send(GroupSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<AnyTO>(model.getObject(), target));
+                                new AjaxWizard.EditItemActionEvent<GroupHandler>(
+                                        new GroupHandler(model.getObject()), target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<GroupTO>() {
 
@@ -136,7 +139,7 @@ public final class GroupSearchResultPanel extends AnyObjectSearchResultPanel<Gro
                             target.add(container);
                         } catch (SyncopeClientException e) {
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            LOG.error("While deleting object {}", anyTO.getKey(), e);
+                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
                         }
                         ((BasePage) getPage()).getFeedbackPanel().refresh(target);
 
@@ -243,7 +246,7 @@ public final class GroupSearchResultPanel extends AnyObjectSearchResultPanel<Gro
         }
 
         @Override
-        protected WizardMgtPanel<GroupTO> newInstance(final String parentId) {
+        protected WizardMgtPanel<AnyHandler<GroupTO>> newInstance(final String parentId) {
             return new GroupSearchResultPanel(
                     type, parentId, filtered, fiql, pageRef, restClient, anyTypeClassTOs, realm,
                     StandardEntitlement.GROUP_SEARCH);

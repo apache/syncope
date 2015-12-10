@@ -38,7 +38,7 @@ public class AnyDisplayAttributesModalPage<T extends AnyTO> extends DisplayAttri
     public static final String[] ANY_DEFAULT_SELECTION = { "key" };
 
     public AnyDisplayAttributesModalPage(
-            final BaseModal<T> modal,
+            final BaseModal<?> modal,
             final PageReference pageRef,
             final List<String> schemaNames,
             final List<String> dSchemaNames) {

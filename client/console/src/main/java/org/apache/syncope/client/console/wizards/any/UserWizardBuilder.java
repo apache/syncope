@@ -47,33 +47,40 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
      * @param pageRef Caller page reference.
      */
     public UserWizardBuilder(
-            final String id, final UserTO userTO, final List<String> anyTypeClasses, final PageReference pageRef) {
+            final String id,
+            final UserTO userTO,
+            final List<String> anyTypeClasses,
+            final PageReference pageRef) {
         super(id, userTO, anyTypeClasses, pageRef);
         statusModel = new ListModel<>(new ArrayList<StatusBean>());
     }
 
     @Override
-    protected void onApplyInternal(final UserTO modelObject) {
+    protected void onApplyInternal(final AnyHandler<UserTO> modelObject) {
         final ProvisioningResult<UserTO> actual;
 
-        if (modelObject.getKey() == 0) {
-            actual = userRestClient.create(modelObject, StringUtils.isNotBlank(modelObject.getPassword()));
+        final UserTO inner = modelObject.getInnerObject();
+
+        if (inner.getKey() == 0) {
+            actual = userRestClient.create(inner, StringUtils.isNotBlank(inner.getPassword()));
         } else {
-            final UserPatch patch = AnyOperations.diff(modelObject, getOriginalItem(), false);
+            final UserPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
             if (!statusModel.getObject().isEmpty()) {
-                patch.setPassword(StatusUtils.buildPasswordPatch(modelObject.getPassword(), statusModel.getObject()));
+                patch.setPassword(StatusUtils.buildPasswordPatch(inner.getPassword(), statusModel.getObject()));
             }
 
             // update user just if it is changed
             if (!patch.isEmpty()) {
-                actual = userRestClient.update(getOriginalItem().getETagValue(), patch);
+                actual = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }
         }
     }
 
     @Override
-    protected UserWizardBuilder addOptionalDetailsPanel(final UserTO modelObject, final WizardModel wizardModel) {
-        wizardModel.add(new UserDetails(modelObject, statusModel, false, false, pageRef, modelObject.getKey() > 0));
+    protected UserWizardBuilder addOptionalDetailsPanel(
+            final AnyHandler<UserTO> modelObject, final WizardModel wizardModel) {
+        wizardModel.add(new UserDetails(
+                modelObject, statusModel, false, false, pageRef, modelObject.getInnerObject().getKey() > 0));
         return this;
     }
 
@@ -84,7 +91,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
      * @return the current wizard.
      */
     @Override
-    public UserWizardBuilder setItem(final UserTO item) {
+    public UserWizardBuilder setItem(final AnyHandler<UserTO> item) {
         super.setItem(item);
         statusModel.getObject().clear();
         return this;

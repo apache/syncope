@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.console.wizards.any.AnyHandler;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -43,7 +44,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardMgtPanel<T> {
+public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardMgtPanel<AnyHandler<T>> {
 
     private static final long serialVersionUID = -9170191461250434024L;
 
@@ -294,7 +295,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
 
     protected abstract String getPageId();
 
-    public abstract static class Builder<T extends AnyTO> extends WizardMgtPanel.Builder<T> {
+    public abstract static class Builder<T extends AnyTO> extends WizardMgtPanel.Builder<AnyHandler<T>> {
 
         private static final long serialVersionUID = 5088962796986706805L;
 
@@ -330,7 +331,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
                 final String realm,
                 final String type) {
 
-            super(reference, pageRef);
+            super(pageRef);
             this.filtered = filtered;
             this.fiql = fiql;
             this.restClient = restClient;

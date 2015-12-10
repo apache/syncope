@@ -89,56 +89,56 @@ public class AuxClasses extends WizardStep {
                         @Override
                         public MembershipTO getObject(
                                 final String id, final IModel<? extends List<? extends MembershipTO>> choices) {
-                                    for (MembershipTO membershipTO : choices.getObject()) {
-                                        if (id.equalsIgnoreCase(membershipTO.getGroupName())) {
-                                            return membershipTO;
-                                        }
-                                    }
-                                    return null;
+                            for (MembershipTO membershipTO : choices.getObject()) {
+                                if (id.equalsIgnoreCase(membershipTO.getGroupName())) {
+                                    return membershipTO;
                                 }
+                            }
+                            return null;
+                        }
                     });
 
             fragment.add(builder.setAllowOrder(true).withFilter().build(
                     "groups", new ListModel<MembershipTO>(memberships),
                     new AjaxPalettePanel.Builder.Query<MembershipTO>() {
 
-                        private static final long serialVersionUID = 1L;
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public List<MembershipTO> execute(final String filter) {
+                    return CollectionUtils.collect(
+                            groupRestClient.search(
+                                    entityTO.getRealm(),
+                                    SyncopeClient.getGroupSearchConditionBuilder().
+                                    isAssignable().and().is("name").equalTo(filter).query(),
+                                    -1, -1,
+                                    new SortParam<>("name", true),
+                                    null),
+                            new Transformer<GroupTO, MembershipTO>() {
 
                         @Override
-                        public List<MembershipTO> execute(final String filter) {
-                            return CollectionUtils.collect(
-                                    groupRestClient.search(
-                                            entityTO.getRealm(),
-                                            SyncopeClient.getGroupSearchConditionBuilder().
-                                            isAssignable().and().is("name").equalTo(filter).query(),
-                                            -1, -1,
-                                            new SortParam<>("name", true),
-                                            null),
-                                    new Transformer<GroupTO, MembershipTO>() {
-
-                                        @Override
-                                        public MembershipTO transform(final GroupTO input) {
-                                            final MembershipTO membershipTO = new MembershipTO();
-                                            membershipTO.setGroupName(input.getName());
-                                            membershipTO.setRightKey(input.getKey());
-                                            membershipTO.setRightType(input.getType());
-                                            membershipTO.setLeftKey(entityTO.getKey());
-                                            membershipTO.setLeftType(entityTO.getType());
-                                            return membershipTO;
-                                        }
-                                    }, new ArrayList<MembershipTO>());
+                        public MembershipTO transform(final GroupTO input) {
+                            final MembershipTO membershipTO = new MembershipTO();
+                            membershipTO.setGroupName(input.getName());
+                            membershipTO.setRightKey(input.getKey());
+                            membershipTO.setRightType(input.getType());
+                            membershipTO.setLeftKey(entityTO.getKey());
+                            membershipTO.setLeftType(entityTO.getType());
+                            return membershipTO;
                         }
-                    }).setOutputMarkupId(true));
+                    }, new ArrayList<MembershipTO>());
+                }
+            }).setOutputMarkupId(true));
 
             final ArrayList<String> dynamics = CollectionUtils.collect(dyngroups,
                     new Transformer<Long, String>() {
 
-                        @Override
-                        public String transform(final Long input) {
-                            final GroupTO groupTO = groupRestClient.read(input);
-                            return String.format("[%d] %s", groupTO.getKey(), groupTO.getName());
-                        }
-                    }, new ArrayList<String>());
+                @Override
+                public String transform(final Long input) {
+                    final GroupTO groupTO = groupRestClient.read(input);
+                    return String.format("[%d] %s", groupTO.getKey(), groupTO.getName());
+                }
+            }, new ArrayList<String>());
 
             fragment.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build(
                     "dyngroups",

@@ -80,12 +80,14 @@ public class GroupDetails extends Details<GroupTO> {
     private final OwnerModel gOwnerModel;
 
     public GroupDetails(
-            final GroupTO groupTO,
+            final GroupHandler groupHandler,
             final IModel<List<StatusBean>> statusModel,
             final boolean templateMode,
             final PageReference pageRef,
             final boolean includeStatusPanel) {
-        super(groupTO, statusModel, pageRef, includeStatusPanel);
+        super(groupHandler, statusModel, pageRef, includeStatusPanel);
+
+        final GroupTO groupTO = GroupHandler.class.cast(groupHandler).getInnerObject();
 
         final LoadableDetachableModel<List<AnyTypeTO>> types = new LoadableDetachableModel<List<AnyTypeTO>>() {
 
@@ -220,10 +222,10 @@ public class GroupDetails extends Details<GroupTO> {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new UserSearchPanel.Builder(new PropertyModel<List<SearchClause>>(groupTO, "uDynClauses")).
+                return new UserSearchPanel.Builder(new PropertyModel<List<SearchClause>>(groupHandler, "uDynClauses")).
                         required(false).build(panelId);
             }
-        }), Model.of(StringUtils.isBlank(groupTO.getUDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
+        }), Model.of(StringUtils.isBlank(groupHandler.getUDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
         // ------------------------ 
 
         // ------------------------
@@ -245,11 +247,10 @@ public class GroupDetails extends Details<GroupTO> {
                     @Override
                     public Panel getPanel(final String panelId) {
                         return new AnyObjectSearchPanel.Builder(
-                                new MapOfListModel<SearchClause>(groupTO, "aDynClauses",
-                                        item.getModelObject().getKey())).
+                                new MapOfListModel<SearchClause>(groupHandler, "aDynClauses", key)).
                                 required(false).build(panelId);
                     }
-                }), Model.of(StringUtils.isBlank(groupTO.getADynMembershipConds().get(key)) ? -1 : 0))
+                }), Model.of(StringUtils.isBlank(groupHandler.getADynMembershipConds().get(key)) ? -1 : 0))
                         .setOutputMarkupId(true));
             }
         });

@@ -34,7 +34,8 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<T> implements Serializable {
+public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<AnyHandler<T>>
+        implements Serializable {
 
     private static final long serialVersionUID = -2480279868319546243L;
 
@@ -52,62 +53,85 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<T> impl
      */
     public AnyWizardBuilder(
             final String id, final T anyTO, final List<String> anyTypeClasses, final PageReference pageRef) {
-        super(id, anyTO, pageRef);
+        super(id, new AnyHandler<T>(anyTO), pageRef);
+        this.anyTypeClasses = anyTypeClasses;
+    }
+
+    /**
+     * Construct.
+     *
+     * @param id The component id
+     * @param handler any handler
+     * @param anyTypeClasses any type classes
+     * @param pageRef Caller page reference.
+     */
+    public AnyWizardBuilder(
+            final String id,
+            final AnyHandler<T> handler,
+            final List<String> anyTypeClasses,
+            final PageReference pageRef) {
+        super(id, handler, pageRef);
         this.anyTypeClasses = anyTypeClasses;
     }
 
     @Override
-    protected WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel) {
+    protected WizardModel buildModelSteps(final AnyHandler<T> modelObject, final WizardModel wizardModel) {
         final String[] clazzes = anyTypeClasses.toArray(new String[] {});
         // optional details panel step
         addOptionalDetailsPanel(modelObject, wizardModel);
 
-        wizardModel.add(new AuxClasses(modelObject, clazzes));
+        wizardModel.add(new AuxClasses(modelObject.getInnerObject(), clazzes));
 
         // attributes panel steps
-        wizardModel.add(new PlainAttrs(modelObject, null, Mode.ADMIN, clazzes));
-        wizardModel.add(new DerAttrs(modelObject, clazzes));
-        wizardModel.add(new VirAttrs(modelObject, clazzes));
+        wizardModel.add(new PlainAttrs(modelObject.getInnerObject(), null, Mode.ADMIN, clazzes));
+        wizardModel.add(new DerAttrs(modelObject.getInnerObject(), clazzes));
+        wizardModel.add(new VirAttrs(modelObject.getInnerObject(), clazzes));
 
         // role panel step (jst available for users)
-        if ((this instanceof UserWizardBuilder) && (modelObject instanceof UserTO)) {
-            wizardModel.add(new Roles(UserTO.class.cast(modelObject)));
+        if ((this instanceof UserWizardBuilder) && (modelObject.getInnerObject() instanceof UserTO)) {
+            wizardModel.add(new Roles(UserTO.class.cast(modelObject.getInnerObject())));
         }
 
         // resource panel step
-        wizardModel.add(new Resources(modelObject));
+        wizardModel.add(new Resources(modelObject.getInnerObject()));
         return wizardModel;
     }
 
     @Override
-    protected void onCancelInternal(final T modelObject) {
+    protected void onCancelInternal(final AnyHandler<T> modelObject) {
         // do nothing
     }
 
     @Override
-    protected void onApplyInternal(final T modelObject) {
-        if (!(modelObject instanceof AnyObjectTO)) {
+    protected void onApplyInternal(final AnyHandler<T> modelObject) {
+        final T obj = modelObject.getInnerObject();
+
+        if (!(obj instanceof AnyObjectTO)) {
             throw new IllegalArgumentException();
         }
 
         final ProvisioningResult<AnyObjectTO> actual;
 
-        if (modelObject.getKey() == 0) {
-            actual = anyTypeRestClient.create(AnyObjectTO.class.cast(modelObject));
+        if (obj.getKey() == 0) {
+            actual = anyTypeRestClient.create(AnyObjectTO.class.cast(obj));
         } else {
-            final AnyObjectPatch patch = AnyOperations.diff(modelObject, getOriginalItem(), true);
+            final AnyObjectPatch patch = AnyOperations.diff(obj, getOriginalItem().getInnerObject(), true);
 
             // update user just if it is changed
             if (!patch.isEmpty()) {
-                actual = anyTypeRestClient.update(getOriginalItem().getETagValue(), patch);
+                actual = anyTypeRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }
         }
     }
 
-    protected AnyWizardBuilder<T> addOptionalDetailsPanel(final T modelObject, final WizardModel wizardModel) {
-        if (modelObject.getKey() > 0) {
-            wizardModel.add(
-                    new Details<T>(modelObject, new ListModel<>(Collections.<StatusBean>emptyList()), pageRef, true));
+    protected AnyWizardBuilder<T> addOptionalDetailsPanel(
+            final AnyHandler<T> modelObject, final WizardModel wizardModel) {
+        if (modelObject.getInnerObject().getKey() > 0) {
+            wizardModel.add(new Details<T>(
+                    modelObject,
+                    new ListModel<>(Collections.<StatusBean>emptyList()),
+                    pageRef,
+                    true));
         }
         return this;
     }

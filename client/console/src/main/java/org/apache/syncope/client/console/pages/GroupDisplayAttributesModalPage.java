@@ -35,7 +35,7 @@ public class GroupDisplayAttributesModalPage extends DisplayAttributesModalPage 
     public static final String[] GROUP_DEFAULT_SELECTION = { "key", "name" };
 
     public GroupDisplayAttributesModalPage(
-            final BaseModal<GroupTO> modal,
+            final BaseModal<?> modal,
             final PageReference pageRef,
             final List<String> schemaNames,
             final List<String> dSchemaNames) {

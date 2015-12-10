@@ -183,15 +183,12 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
         protected final PageReference pageRef;
 
-        protected final Class<T> reference;
-
         private AjaxWizardBuilder<T> newItemPanelBuilder;
 
         private NotificationPanel notificationPanel;
 
-        protected Builder(final Class<T> reference, final PageReference pageRef) {
+        protected Builder(final PageReference pageRef) {
             this.pageRef = pageRef;
-            this.reference = reference;
         }
 
         protected abstract WizardMgtPanel<T> newInstance(final String id);
