@@ -54,87 +54,23 @@ provisioning, and compliance.
 
 include::introduction/introduction.adoc[]
 
+// miss one paraghraph
 include::iam/iam.adoc[]
 
-== Architecture
+// TO DO
+include::architecture/architecture.adoc[]
 
-=== Design Principles
+// TO DO
+include::concepts/concepts.adoc[]
 
-=== Implementation Guidelines
+// TO DO (CLI and restful: done)
+include::workingwithapachesyncope/workingwithapachesyncope.adoc[]
 
-== Concepts
+// TO DO
+include::extensions/extensions.adoc[]
 
-=== Data model
-
-==== Schema
-
-==== Attributes
-
-==== Users, Groups and Any objects
-
-==== Realms
-
-==== Domains
-
-=== Tasks
-
-=== Provisioning
-
-==== Connectors
-
-==== Resources
-
-==== Propagation, Push & Synchronization
-
-=== Policies
-
-==== Account
-
-==== Password
-
-==== Push
-
-==== Synchronization
-
-=== Workflow and Approval
-
-=== Notifications
-
-=== Reports
-
-=== Audit
-
-=== Delegated Administration
-
-== Working with Apache Syncope
-
-=== Using the Admin Console
-
-=== CLI
-include::cli/cli.adoc[]
-
-=== RESTful services
-include::restfulservices/restful-services.adoc[]
-
-=== Customization
-
-==== Core
-
-==== Console
-
-==== New extensions
-
-=== Deploying in production
-
-=== Options
-
-=== High-Availability
-
-== Extensions
-
-=== Apache Camel
-
-== Use Cases
+// TO DO
+include::usecases/usecases.adoc[]
 
 // Chapters will be placed in separate .adoc files in the same directory
 //include::XXX.adoc[]

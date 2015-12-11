@@ -27,44 +27,10 @@ environment providing some kind of credentials; on the countray the identity man
 profile and its life cicle. 
 Apache Syncope is an identity manager.
 
-=== Identity Stores
-An identity store is the place where the digital identity are stored. Of course there are various store types, the most 
-famous are:
+include::identitystores.adoc[]
 
-* Microsoft Active Directory;
-* LDAP
-** OpenLDAP;
-** FreeIPA;
-** ForgeRock OpenDJ;
-** 389 Directory Server;
-* DBMS
-** MySQL
-** PostgreSQL
-** Oracle
-* ...
+include::provisioningengines.adoc[]
 
-From Apache Syncope point of view, an identity stores is viewed as an integrated resource with a communication based
-on the identity connectors.
+include::accessmanager.adoc[]
 
-=== Provisioning Engines
-A provisioning engine is a software able to execute some operation on the profile of a digital identity. 
-Precisely this operation could be run to manage a user life cicle, the _CRUD_ operation to persiste the user on an 
-identity store:
-
-* Create
-* Read
-* Update
-* Delete
-
-or could be the operations albe to modify the user profile in order to activate or deactivate its digital identity, or
-could be the operations to add or remove a role from an user profile to achieve the RBAC (Role-based access control)
-in an enviroment and so on. Definitely a provisioning angine manages the digital identity user profile in a centralized
-way.
-
-=== Access Managers
-As briefly mentioned before, an access manager is not an identity manager. An access management software manages above all
-the authentication on a given environment. It provides the methods, generally called authentication module, to manage 
-the user authentication, the latter based on various identification system as the password, the fingerprint or based on 
-various protocols as SAML and OAuth 2.0.
-
-=== The Complete Picture
+include::thecompletepicture.adoc[]

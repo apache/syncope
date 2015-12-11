@@ -16,41 +16,4 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
-include::introduction.adoc[]
-
-include::installation.adoc[]
-
-include::connector.adoc[]
-
-include::question.adoc[]
-
-include::role.adoc[]
-
-include::configuration.adoc[]
-
-include::logger.adoc[]
-
-include::task.adoc[]
-
-include::notification.adoc[]
-
-include::schema.adoc[]
-
-include::user.adoc[]
-
-include::report.adoc[]
-
-include::resource.adoc[]
-
-include::policy.adoc[]
-
-include::info.adoc[]
-
-include::entitlement.adoc[]
-
-include::domain.adoc[]
-
-include::realm.adoc[]
-
-include::group.adoc[]
+=== Design Principles
