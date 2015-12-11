@@ -16,40 +16,22 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-== Concepts
+=== Provisioning
+The main purpose of identity management systems is to manage user and role provisioning.
+User and role provisioning refers to the creation, maintenance, activation and deactivation of user and role objects 
+and their attributes. Provisioning operations can act on Apache Syncope only or be propagated towards external 
+resources as well.
+The provisioning operation can be initiated by an authorized user (for instance, working on Apache Syncope 
+administration console) or by an internal task like a synchronization task.
+A synchronization task can be used to perform a bulk provisioning operation involving either Syncope and one 
+or more external resources.
 
-=== Data model
+include::connectors.adoc[]
 
-==== Schema
+include::resources.adoc[]
 
-==== Attributes
+include::propagation.adoc[]
 
-==== Users, Groups and Any objects
+include::push.adoc[]
 
-==== Realms
-
-==== Domains
-
-=== Tasks
-
-include::provisioning/provisioning.adoc[]
-
-=== Policies
-
-==== Account
-
-==== Password
-
-==== Push
-
-==== Synchronization
-
-=== Workflow and Approval
-
-=== Notifications
-
-=== Reports
-
-=== Audit
-
-=== Delegated Administration
+include::sync.adoc[]
