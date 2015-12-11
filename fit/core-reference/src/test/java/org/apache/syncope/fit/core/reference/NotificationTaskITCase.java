@@ -144,7 +144,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         assertTrue(verifyMail(sender, subject, recipient));
 
         // verify message body
-        taskTO = taskService.read(taskTO.getKey());
+        taskTO = taskService.read(taskTO.getKey(), true);
         assertNotNull(taskTO);
         assertTrue(taskTO.isExecuted());
         assertNotNull(taskTO.getTextBody());
@@ -191,7 +191,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
             // 4. verify notification could not be delivered
             execTask(taskService, taskTO.getKey(), NotificationJob.Status.NOT_SENT.name(), 5, false);
 
-            taskTO = taskService.read(taskTO.getKey());
+            taskTO = taskService.read(taskTO.getKey(), true);
             assertNotNull(taskTO);
             assertFalse(taskTO.isExecuted());
             assertFalse(taskTO.getExecutions().isEmpty());
@@ -217,7 +217,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // generate an execution in order to verify the deletion of a notification task with one or more executions
         execNotificationTask(taskService, taskTO.getKey(), 50);
 
-        taskTO = taskService.read(taskTO.getKey());
+        taskTO = taskService.read(taskTO.getKey(), true);
         assertTrue(taskTO.isExecuted());
         assertFalse(taskTO.getExecutions().isEmpty());
 
@@ -240,7 +240,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
             execNotificationTask(taskService, taskTO.getKey(), 50);
 
             // 4. verify
-            taskTO = taskService.read(taskTO.getKey());
+            taskTO = taskService.read(taskTO.getKey(), true);
             assertNotNull(taskTO);
             assertTrue(taskTO.isExecuted());
             assertEquals(1, taskTO.getExecutions().size());
@@ -269,7 +269,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         assertTrue(verifyMail(sender, subject, recipient));
 
         // verify that last exec status was updated
-        taskTO = taskService.read(taskTO.getKey());
+        taskTO = taskService.read(taskTO.getKey(), true);
         assertNotNull(taskTO);
         assertTrue(taskTO.isExecuted());
         assertTrue(taskTO.getExecutions().isEmpty());
@@ -291,7 +291,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         assertTrue(verifyMail(sender, subject, recipient));
 
         // verify task
-        taskTO = taskService.read(taskTO.getKey());
+        taskTO = taskService.read(taskTO.getKey(), true);
         assertTrue(taskTO.isExecuted());
         assertNotNull(taskTO);
         assertTrue(taskTO.getRecipients().contains("syncope445@syncope.apache.org"));

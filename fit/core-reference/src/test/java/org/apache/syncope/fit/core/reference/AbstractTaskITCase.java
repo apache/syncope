@@ -94,7 +94,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
     protected static TaskExecTO execTask(final TaskService taskService, final Long taskKey, final String initialStatus,
             final int maxWaitSeconds, final boolean dryRun) {
 
-        AbstractTaskTO taskTO = taskService.read(taskKey);
+        AbstractTaskTO taskTO = taskService.read(taskKey, true);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
 
@@ -112,7 +112,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             } catch (InterruptedException e) {
             }
 
-            taskTO = taskService.read(taskTO.getKey());
+            taskTO = taskService.read(taskTO.getKey(), true);
 
             assertNotNull(taskTO);
             assertNotNull(taskTO.getExecutions());

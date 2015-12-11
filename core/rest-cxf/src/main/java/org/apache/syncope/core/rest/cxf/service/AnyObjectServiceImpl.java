@@ -63,7 +63,7 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
 
         AnySearchQuery searchQuery = new AnySearchQuery();
         searchQuery.setFiql(new AnyObjectFiqlSearchConditionBuilder(type).query());
-        searchQuery.setDetails(listQuery.isDetails());
+        searchQuery.setDetails(listQuery.getDetails());
         searchQuery.setOrderBy(listQuery.getOrderBy());
         searchQuery.setPage(listQuery.getPage());
         searchQuery.setSize(listQuery.getSize());

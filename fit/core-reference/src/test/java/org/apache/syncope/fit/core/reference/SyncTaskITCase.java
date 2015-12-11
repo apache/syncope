@@ -83,7 +83,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
     @BeforeClass
     public static void testSyncActionsSetup() {
-        SyncTaskTO syncTask = taskService.read(SYNC_TASK_ID);
+        SyncTaskTO syncTask = taskService.read(SYNC_TASK_ID, true);
         syncTask.getActionsClassNames().add(TestSyncActions.class.getName());
         taskService.update(syncTask);
     }
@@ -129,7 +129,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         SyncTaskTO actual = getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
         assertNotNull(actual);
 
-        task = taskService.read(actual.getKey());
+        task = taskService.read(actual.getKey(), true);
         assertNotNull(task);
         assertEquals(actual.getKey(), task.getKey());
         assertEquals(actual.getJobDelegateClassName(), task.getJobDelegateClassName());
@@ -458,7 +458,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             jdbcTemplate.execute("INSERT INTO testsync VALUES (1002, 'user2', 'Rossi', 'mail2@apache.org')");
 
             // 2. create new sync task for test-db, with reconciliation filter (surname 'Rossi') 
-            task = taskService.read(10L);
+            task = taskService.read(10L, true);
             task.setSyncMode(SyncMode.FILTERED_RECONCILIATION);
             task.setReconciliationFilterBuilderClassName(TestReconciliationFilterBuilder.class.getName());
             Response response = taskService.create(task);
@@ -536,13 +536,13 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             //-----------------------------
 
             // Update sync task
-            SyncTaskTO task = taskService.read(9L);
+            SyncTaskTO task = taskService.read(9L, true);
             assertNotNull(task);
 
             task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
             taskService.update(task);
-            SyncTaskTO actual = taskService.read(task.getKey());
+            SyncTaskTO actual = taskService.read(task.getKey(), true);
             assertNotNull(actual);
             assertEquals(task.getKey(), actual.getKey());
             assertFalse(actual.getTemplates().get(AnyTypeKind.USER.name()).getResources().isEmpty());
@@ -631,7 +631,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         execProvisioningTask(taskService, task.getKey(), 50, false);
 
-        SyncTaskTO executed = taskService.read(task.getKey());
+        SyncTaskTO executed = taskService.read(task.getKey(), true);
         assertEquals(1, executed.getExecutions().size());
 
         // asser for just one match
@@ -689,7 +689,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertTrue(userTO.getVirAttrMap().isEmpty());
 
         // Update sync task
-        SyncTaskTO task = taskService.read(12L);
+        SyncTaskTO task = taskService.read(12L, true);
         assertNotNull(task);
 
         UserTO template = new UserTO();
@@ -755,7 +755,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         SyncTaskTO actual = getObject(taskResponse.getLocation(), TaskService.class, SyncTaskTO.class);
         assertNotNull(actual);
 
-        syncTask = taskService.read(actual.getKey());
+        syncTask = taskService.read(actual.getKey(), true);
         assertNotNull(syncTask);
         assertEquals(actual.getKey(), syncTask.getKey());
         assertEquals(actual.getJobDelegateClassName(), syncTask.getJobDelegateClassName());

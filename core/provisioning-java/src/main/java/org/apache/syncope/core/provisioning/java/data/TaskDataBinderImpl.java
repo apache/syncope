@@ -280,7 +280,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     }
 
     @Override
-    public <T extends AbstractTaskTO> T getTaskTO(final Task task, final TaskUtils taskUtils) {
+    public <T extends AbstractTaskTO> T getTaskTO(final Task task, final TaskUtils taskUtils, final boolean details) {
         T taskTO = taskUtils.newTaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
 
@@ -289,9 +289,11 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         taskTO.setStartDate(latestExec == null ? null : latestExec.getStartDate());
         taskTO.setEndDate(latestExec == null ? null : latestExec.getEndDate());
 
-        for (TaskExec execution : task.getExecs()) {
-            if (execution != null) {
-                taskTO.getExecutions().add(getTaskExecTO(execution));
+        if (details) {
+            for (TaskExec execution : task.getExecs()) {
+                if (execution != null) {
+                    taskTO.getExecutions().add(getTaskExecTO(execution));
+                }
             }
         }
 

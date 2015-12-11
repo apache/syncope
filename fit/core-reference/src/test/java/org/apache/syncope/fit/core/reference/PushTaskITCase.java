@@ -73,7 +73,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void read() {
-        PushTaskTO pushTaskTO = taskService.<PushTaskTO>read(17L);
+        PushTaskTO pushTaskTO = taskService.<PushTaskTO>read(17L, true);
         assertEquals(UnmatchingRule.ASSIGN, pushTaskTO.getUnmatchingRule());
         assertEquals(MatchingRule.UPDATE, pushTaskTO.getMatchingRule());
     }
@@ -104,7 +104,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         final PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
         assertNotNull(actual);
 
-        task = taskService.read(actual.getKey());
+        task = taskService.read(actual.getKey(), true);
         assertNotNull(task);
         assertEquals(task.getKey(), actual.getKey());
         assertEquals(task.getJobDelegateClassName(), actual.getJobDelegateClassName());

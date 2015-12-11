@@ -67,7 +67,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void update() {
-        SchedTaskTO task = taskService.read(SCHED_TASK_ID);
+        SchedTaskTO task = taskService.read(SCHED_TASK_ID, true);
         assertNotNull(task);
 
         SchedTaskTO taskMod = new SchedTaskTO();
@@ -75,7 +75,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         taskMod.setCronExpression(null);
 
         taskService.update(taskMod);
-        SchedTaskTO actual = taskService.read(taskMod.getKey());
+        SchedTaskTO actual = taskService.read(taskMod.getKey(), true);
         assertNotNull(actual);
         assertEquals(task.getKey(), actual.getKey());
         assertNull(actual.getCronExpression());
@@ -94,7 +94,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         assertEquals("issueSYNCOPE144", actual.getName());
         assertEquals("issueSYNCOPE144 Description", actual.getDescription());
 
-        task = taskService.read(actual.getKey());
+        task = taskService.read(actual.getKey(), true);
         assertNotNull(task);
         assertEquals("issueSYNCOPE144", task.getName());
         assertEquals("issueSYNCOPE144 Description", task.getDescription());

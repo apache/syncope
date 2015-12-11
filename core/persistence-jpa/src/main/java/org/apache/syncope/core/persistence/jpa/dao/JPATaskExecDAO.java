@@ -19,16 +19,19 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskExec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ReflectionUtils;
 
 @Repository
 public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskExecDAO {
@@ -67,14 +70,59 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
 
     @Override
     public List<TaskExec> findAll(final TaskType type) {
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(JPATaskExec.class.getSimpleName()).
-                append(" e WHERE e.task IN (").
-                append("SELECT t FROM ").
-                append(taskDAO.getEntityReference(type).getSimpleName()).
-                append(" t)");
+        String queryString = "SELECT e FROM " + JPATaskExec.class.getSimpleName()
+                + " e WHERE e.task IN ("
+                + "SELECT t FROM " + taskDAO.getEntityReference(type).getSimpleName() + " t)";
 
-        TypedQuery<TaskExec> query = entityManager().createQuery(queryString.toString(), TaskExec.class);
+        TypedQuery<TaskExec> query = entityManager().createQuery(queryString, TaskExec.class);
+        return query.getResultList();
+    }
+
+    @Override
+    public int count(final Long taskKey) {
+        Query countQuery = entityManager().createNativeQuery(
+                "SELECT COUNT(e.id) FROM " + JPATaskExec.TABLE + " e WHERE e.task_id=?1");
+        countQuery.setParameter(1, taskKey);
+
+        return ((Number) countQuery.getSingleResult()).intValue();
+    }
+
+    private String toOrderByStatement(final List<OrderByClause> orderByClauses) {
+        StringBuilder statement = new StringBuilder();
+
+        for (OrderByClause clause : orderByClauses) {
+            String field = clause.getField().trim();
+            if (ReflectionUtils.findField(JPATaskExec.class, field) != null) {
+                statement.append("e.").append(field).append(' ').append(clause.getDirection().name());
+            }
+        }
+
+        if (statement.length() == 0) {
+            statement.append("ORDER BY e.id DESC");
+        } else {
+            statement.insert(0, "ORDER BY ");
+        }
+        return statement.toString();
+    }
+
+    @Override
+    public List<TaskExec> findAll(
+            final Long taskKey, final int page, final int itemsPerPage, final List<OrderByClause> orderByClauses) {
+
+        String queryString =
+                "SELECT e FROM " + JPATaskExec.class.getSimpleName() + " e WHERE e.task.id=:taskKey "
+                + toOrderByStatement(orderByClauses);
+
+        TypedQuery<TaskExec> query = entityManager().createQuery(queryString, TaskExec.class);
+        query.setParameter("taskKey", taskKey);
+
+        // page starts from 1, while setFirtResult() starts from 0
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+
+        if (itemsPerPage >= 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
         return query.getResultList();
     }
 

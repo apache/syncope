@@ -149,7 +149,9 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
             }
         }
 
-        if (statement.length() > 0) {
+        if (statement.length() == 0) {
+            statement.append("ORDER BY t.id DESC");
+        } else {
             statement.insert(0, "ORDER BY ");
         }
         return statement.toString();
@@ -167,9 +169,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
             final List<OrderByClause> orderByClauses) {
 
         StringBuilder queryString = buildFindAllQuery(type, resource, anyTypeKind, anyTypeKey).
-                append(orderByClauses.isEmpty()
-                        ? "ORDER BY t.id DESC"
-                        : toOrderByStatement(getEntityReference(type), orderByClauses));
+                append(toOrderByStatement(getEntityReference(type), orderByClauses));
 
         Query query = entityManager().createQuery(queryString.toString());
         query.setParameter("type", type);

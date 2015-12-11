@@ -32,7 +32,7 @@ public interface TaskDataBinder {
 
     TaskExecTO getTaskExecTO(TaskExec execution);
 
-    <T extends AbstractTaskTO> T getTaskTO(Task task, TaskUtils taskUtil);
+    <T extends AbstractTaskTO> T getTaskTO(Task task, TaskUtils taskUtil, boolean details);
 
     void updateSchedTask(SchedTask task, SchedTaskTO taskTO, TaskUtils taskUtil);
 

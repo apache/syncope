@@ -18,37 +18,36 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.QueryParam;
-import org.apache.syncope.common.rest.api.service.JAXRSService;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.PathParam;
 
-public class AnyQuery extends AbstractQuery {
+public class TaskExecQuery extends AbstractQuery {
 
-    private static final long serialVersionUID = -371488230250055359L;
+    private static final long serialVersionUID = -8792519310029596796L;
 
-    public static class Builder extends AbstractQuery.Builder<AnyQuery, Builder> {
+    public static class Builder extends AbstractQuery.Builder<TaskExecQuery, Builder> {
 
         @Override
-        protected AnyQuery newInstance() {
-            return new AnyQuery();
+        protected TaskExecQuery newInstance() {
+            return new TaskExecQuery();
         }
 
-        public Builder details(final boolean details) {
-            getInstance().setDetails(details);
+        public Builder key(final Long key) {
+            getInstance().setKey(key);
             return this;
         }
-
     }
 
-    private Boolean details;
+    private Long key;
 
-    public Boolean getDetails() {
-        return details == null ? true : details;
+    public Long getKey() {
+        return key;
     }
 
-    @QueryParam(JAXRSService.PARAM_DETAILS)
-    @DefaultValue("true")
-    public void setDetails(final Boolean details) {
-        this.details = details;
+    @NotNull
+    @PathParam("key")
+    public void setKey(final Long key) {
+        this.key = key;
     }
+
 }

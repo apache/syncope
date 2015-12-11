@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -69,7 +70,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void read() {
-        final PropagationTaskTO taskTO = taskService.read(3L);
+        final PropagationTaskTO taskTO = taskService.read(3L, true);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
         assertTrue(taskTO.getExecutions().isEmpty());
@@ -108,5 +109,47 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
         assertFalse(taskService.list(new TaskQuery.Builder().type(TaskType.PROPAGATION).build()).getResult().
                 containsAll(after));
+    }
+
+    @Test
+    public void issueSYNCOPE741() {
+        for (int i = 0; i < 3; i++) {
+            taskService.execute(1L, false);
+            taskService.execute(2L, false);
+        }
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // ignore
+        }
+
+        // check list
+        PagedResult<AbstractTaskTO> tasks = taskService.list(
+                new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(2).details(false).build());
+        for (AbstractTaskTO item : tasks.getResult()) {
+            assertTrue(item.getExecutions().isEmpty());
+        }
+
+        tasks = taskService.list(
+                new TaskQuery.Builder().type(TaskType.PROPAGATION).page(1).size(2).details(true).build());
+        for (AbstractTaskTO item : tasks.getResult()) {
+            assertFalse(item.getExecutions().isEmpty());
+        }
+
+        // check read
+        PropagationTaskTO task = taskService.read(1L, false);
+        assertNotNull(task);
+        assertEquals(1L, task.getKey());
+        assertTrue(task.getExecutions().isEmpty());
+
+        task = taskService.read(1L, true);
+        assertNotNull(task);
+        assertEquals(1L, task.getKey());
+        assertFalse(task.getExecutions().isEmpty());
+
+        // check list executions
+        PagedResult<TaskExecTO> execs = taskService.listExecutions(
+                new TaskExecQuery.Builder().key(1L).page(1).size(2).build());
+        assertTrue(execs.getTotalCount() >= execs.getResult().size());
     }
 }

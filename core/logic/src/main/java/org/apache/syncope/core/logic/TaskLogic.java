@@ -113,7 +113,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
             throw sce;
         }
 
-        return binder.getTaskTO(task, taskUtils);
+        return binder.getTaskTO(task, taskUtils, false);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_UPDATE + "')")
@@ -145,7 +145,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
             throw sce;
         }
 
-        return binder.getTaskTO(task, taskUtils);
+        return binder.getTaskTO(task, taskUtils, false);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
@@ -159,7 +159,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     @SuppressWarnings("unchecked")
     public <T extends AbstractTaskTO> List<T> list(
             final TaskType type, final String resource, final AnyTypeKind anyTypeKind, final Long anyTypeKey,
-            final int page, final int size, final List<OrderByClause> orderByClauses) {
+            final int page, final int size, final List<OrderByClause> orderByClauses, final boolean details) {
 
         final TaskUtils taskUtils = taskUtilsFactory.getInstance(type);
 
@@ -167,29 +167,20 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
                 type, resourceDAO.find(resource), anyTypeKind, anyTypeKey, page, size, orderByClauses),
                 new Transformer<Task, T>() {
 
-                    @Override
-                    public T transform(final Task task) {
-                        return (T) binder.getTaskTO(task, taskUtils);
-                    }
-                }, new ArrayList<T>());
+            @Override
+            public T transform(final Task task) {
+                return (T) binder.getTaskTO(task, taskUtils, details);
+            }
+        }, new ArrayList<T>());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
-    public <T extends AbstractTaskTO> T read(final Long taskKey) {
+    public <T extends AbstractTaskTO> T read(final Long taskKey, final boolean details) {
         Task task = taskDAO.find(taskKey);
         if (task == null) {
             throw new NotFoundException("Task " + taskKey);
         }
-        return binder.getTaskTO(task, taskUtilsFactory.getInstance(task));
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
-    public TaskExecTO readExecution(final Long execKey) {
-        TaskExec taskExec = taskExecDAO.find(execKey);
-        if (taskExec == null) {
-            throw new NotFoundException("Task execution " + execKey);
-        }
-        return binder.getTaskExecTO(taskExec);
+        return binder.getTaskTO(task, taskUtilsFactory.getInstance(task), details);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
@@ -253,7 +244,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         }
         TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
 
-        T taskToDelete = binder.getTaskTO(task, taskUtils);
+        T taskToDelete = binder.getTaskTO(task, taskUtils, true);
 
         if (TaskType.SCHEDULED == taskUtils.getType()
                 || TaskType.SYNCHRONIZATION == taskUtils.getType()
@@ -264,6 +255,34 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
 
         taskDAO.delete(task);
         return taskToDelete;
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
+    public TaskExecTO readExecution(final Long execKey) {
+        TaskExec taskExec = taskExecDAO.find(execKey);
+        if (taskExec == null) {
+            throw new NotFoundException("Task execution " + execKey);
+        }
+        return binder.getTaskExecTO(taskExec);
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
+    public int countExecutions(final Long taskId) {
+        return taskExecDAO.count(taskId);
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
+    public List<TaskExecTO> listExecutions(
+            final Long taskKey, final int page, final int size, final List<OrderByClause> orderByClauses) {
+
+        return CollectionUtils.collect(taskExecDAO.findAll(taskKey, page, size, orderByClauses),
+                new Transformer<TaskExec, TaskExecTO>() {
+
+            @Override
+            public TaskExecTO transform(final TaskExec taskExec) {
+                return binder.getTaskExecTO(taskExec);
+            }
+        }, new ArrayList<TaskExecTO>());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
@@ -299,7 +318,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         if ((key != null) && !key.equals(0L)) {
             try {
                 final Task task = taskDAO.find(key);
-                return binder.getTaskTO(task, taskUtilsFactory.getInstance(task));
+                return binder.getTaskTO(task, taskUtilsFactory.getInstance(task), false);
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

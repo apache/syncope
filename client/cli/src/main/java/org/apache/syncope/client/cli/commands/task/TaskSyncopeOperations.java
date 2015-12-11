@@ -39,18 +39,18 @@ public class TaskSyncopeOperations {
         return taskService.listJobs(JobStatusType.RUNNING);
     }
 
-    public <T extends AbstractTaskTO> T read(final String taskId) {
-        return taskService.read(Long.valueOf(taskId));
+    public <T extends AbstractTaskTO> T read(final String taskKey) {
+        return taskService.read(Long.valueOf(taskKey), true);
     }
 
-    public void delete(final String taskId) {
-        taskService.delete(Long.valueOf(taskId));
+    public void delete(final String taskKey) {
+        taskService.delete(Long.valueOf(taskKey));
     }
 
     public List<AbstractTaskTO> list(final String type) {
         return taskService.list(new TaskQuery.Builder().type(TaskType.valueOf(type)).build()).getResult();
     }
-    
+
     public List<AbstractTaskTO> listPropagationTask() {
         return taskService.list(new TaskQuery.Builder().type(TaskType.PROPAGATION).build()).getResult();
     }

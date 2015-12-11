@@ -168,7 +168,7 @@ public class UserITCase extends AbstractITCase {
         assertTrue(newMaxKey > maxKey);
 
         // get last task
-        PropagationTaskTO taskTO = taskService.read(newMaxKey);
+        PropagationTaskTO taskTO = taskService.read(newMaxKey, true);
         assertNotNull(taskTO);
         assertFalse(taskTO.getExecutions().isEmpty());
         assertEquals(PropagationTaskExecStatus.NOT_ATTEMPTED.name(), taskTO.getExecutions().get(0).getStatus());
@@ -353,7 +353,7 @@ public class UserITCase extends AbstractITCase {
         assertFalse(tasks.getResult().isEmpty());
 
         long maxKey = tasks.getResult().iterator().next().getKey();
-        PropagationTaskTO taskTO = taskService.read(maxKey);
+        PropagationTaskTO taskTO = taskService.read(maxKey, true);
 
         assertNotNull(taskTO);
         int maxTaskExecutions = taskTO.getExecutions().size();
@@ -400,7 +400,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(newMaxKey, maxKey);
 
         // get last task
-        taskTO = taskService.read(newMaxKey);
+        taskTO = taskService.read(newMaxKey, true);
 
         assertNotNull(taskTO);
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
@@ -764,7 +764,7 @@ public class UserITCase extends AbstractITCase {
         // all update executions have to be registered
         assertTrue(newMaxKey > maxKey);
 
-        PropagationTaskTO taskTO = taskService.read(newMaxKey);
+        PropagationTaskTO taskTO = taskService.read(newMaxKey, true);
 
         assertNotNull(taskTO);
         assertEquals(1, taskTO.getExecutions().size());

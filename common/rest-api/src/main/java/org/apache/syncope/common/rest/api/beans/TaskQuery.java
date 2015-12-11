@@ -20,6 +20,7 @@ package org.apache.syncope.common.rest.api.beans;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.MatrixParam;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -57,6 +58,11 @@ public class TaskQuery extends AbstractQuery {
             return this;
         }
 
+        public Builder details(final boolean details) {
+            getInstance().setDetails(details);
+            return this;
+        }
+
         @Override
         public TaskQuery build() {
             if (getInstance().type == null) {
@@ -74,6 +80,8 @@ public class TaskQuery extends AbstractQuery {
     private AnyTypeKind anyTypeKind;
 
     private Long anyTypeKey;
+
+    private Boolean details;
 
     public TaskType getType() {
         return type;
@@ -111,6 +119,16 @@ public class TaskQuery extends AbstractQuery {
     @QueryParam(JAXRSService.PARAM_ANYTYPE_KEY)
     public void setAnyTypeKey(final Long anyTypeKey) {
         this.anyTypeKey = anyTypeKey;
+    }
+
+    public Boolean getDetails() {
+        return details == null ? true : details;
+    }
+
+    @QueryParam(JAXRSService.PARAM_DETAILS)
+    @DefaultValue("true")
+    public void setDetails(final Boolean details) {
+        this.details = details;
     }
 
 }

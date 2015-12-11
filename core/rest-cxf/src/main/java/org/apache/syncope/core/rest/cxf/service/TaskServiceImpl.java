@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.logic.TaskLogic;
@@ -66,11 +67,6 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public void deleteExecution(final Long executionKey) {
-        logic.deleteExecution(executionKey);
-    }
-
-    @Override
     public TaskExecTO execute(final Long key, final boolean dryRun) {
         return logic.execute(key, dryRun);
     }
@@ -86,7 +82,8 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
                         query.getAnyTypeKey(),
                         query.getPage(),
                         query.getSize(),
-                        getOrderByClauses(query.getOrderBy())),
+                        getOrderByClauses(query.getOrderBy()),
+                        query.getDetails()),
                 query.getPage(),
                 query.getSize(),
                 logic.count(
@@ -97,13 +94,8 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public <T extends AbstractTaskTO> T read(final Long key) {
-        return logic.read(key);
-    }
-
-    @Override
-    public TaskExecTO readExecution(final Long executionKey) {
-        return logic.readExecution(executionKey);
+    public <T extends AbstractTaskTO> T read(final Long key, final boolean details) {
+        return logic.read(key, details);
     }
 
     @Override
@@ -115,6 +107,29 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
         } else {
             throw new BadRequestException();
         }
+    }
+
+    @Override
+    public TaskExecTO readExecution(final Long executionKey) {
+        return logic.readExecution(executionKey);
+    }
+
+    @Override
+    public PagedResult<TaskExecTO> listExecutions(final TaskExecQuery query) {
+        return buildPagedResult(
+                logic.listExecutions(
+                        query.getKey(),
+                        query.getPage(),
+                        query.getSize(),
+                        getOrderByClauses(query.getOrderBy())),
+                query.getPage(),
+                query.getSize(),
+                logic.countExecutions(query.getKey()));
+    }
+
+    @Override
+    public void deleteExecution(final Long executionKey) {
+        logic.deleteExecution(executionKey);
     }
 
     @Override

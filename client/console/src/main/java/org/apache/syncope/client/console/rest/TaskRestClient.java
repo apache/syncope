@@ -93,29 +93,29 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return result;
     }
 
-    public PropagationTaskTO readPropagationTask(final Long taskId) {
-        return getService(TaskService.class).read(taskId);
+    public PropagationTaskTO readPropagationTask(final Long taskKey) {
+        return getService(TaskService.class).read(taskKey, false);
     }
 
-    public NotificationTaskTO readNotificationTask(final Long taskId) {
-        return getService(TaskService.class).read(taskId);
+    public NotificationTaskTO readNotificationTask(final Long taskKey) {
+        return getService(TaskService.class).read(taskKey, false);
     }
 
-    public <T extends SchedTaskTO> T readSchedTask(final Class<T> reference, final Long taskId) {
-        return getService(TaskService.class).read(taskId);
+    public <T extends SchedTaskTO> T readSchedTask(final Class<T> reference, final Long taskKey) {
+        return getService(TaskService.class).read(taskKey, false);
     }
 
-    public void delete(final Long taskId, final Class<? extends AbstractTaskTO> taskToClass) {
-        getService(TaskService.class).delete(taskId);
+    public void delete(final Long taskKey, final Class<? extends AbstractTaskTO> taskToClass) {
+        getService(TaskService.class).delete(taskKey);
     }
 
     @Override
-    public void startExecution(final long taskId) {
-        startExecution(taskId, false);
+    public void startExecution(final long taskKey) {
+        startExecution(taskKey, false);
     }
 
-    public void startExecution(final long taskId, final boolean dryRun) {
-        getService(TaskService.class).execute(taskId, dryRun);
+    public void startExecution(final long taskKey, final boolean dryRun) {
+        getService(TaskService.class).execute(taskKey, dryRun);
     }
 
     @Override

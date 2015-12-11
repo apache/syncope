@@ -198,7 +198,7 @@ public class MultitenancyITCase extends AbstractITCase {
         response = adminClient.getService(TaskService.class).create(task);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
         task = adminClient.getService(TaskService.class).read(
-                Long.valueOf(StringUtils.substringAfterLast(response.getLocation().toASCIIString(), "/")));
+                Long.valueOf(StringUtils.substringAfterLast(response.getLocation().toASCIIString(), "/")), true);
         assertNotNull(resource);
 
         // synchronize

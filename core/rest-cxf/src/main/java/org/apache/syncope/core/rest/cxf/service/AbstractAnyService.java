@@ -117,7 +117,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                         listQuery.getSize(),
                         getOrderByClauses(listQuery.getOrderBy()),
                         realm,
-                        listQuery.isDetails()),
+                        listQuery.getDetails()),
                 listQuery.getPage(),
                 listQuery.getSize(),
                 getAnyLogic().count(realm));
@@ -138,7 +138,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                         searchQuery.getSize(),
                         getOrderByClauses(searchQuery.getOrderBy()),
                         isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
-                        searchQuery.isDetails()),
+                        searchQuery.getDetails()),
                 searchQuery.getPage(),
                 searchQuery.getSize(),
                 getAnyLogic().searchCount(cond, isAssignableCond ? SyncopeConstants.ROOT_REALM : realm));

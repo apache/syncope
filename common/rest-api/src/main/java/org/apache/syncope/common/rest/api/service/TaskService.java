@@ -42,6 +42,7 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
+import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 
 /**
@@ -54,31 +55,23 @@ public interface TaskService extends JAXRSService {
      * Returns the task matching the given key.
      *
      * @param key key of task to be read
+     * @param details whether include executions or not, defaults to true
      * @param <T> type of taskTO
      * @return task with matching id
      */
     @GET
     @Path("{key}")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> T read(@NotNull @PathParam("key") Long key);
-
-    /**
-     * Returns the task execution with the given id.
-     *
-     * @param executionKey key of task execution to be read
-     * @return task execution with matching Id
-     */
-    @GET
-    @Path("executions/{executionKey}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    TaskExecTO readExecution(@NotNull @PathParam("executionKey") Long executionKey);
+    <T extends AbstractTaskTO> T read(
+            @NotNull @PathParam("key") Long key,
+            @QueryParam(JAXRSService.PARAM_DETAILS) @DefaultValue("true") boolean details);
 
     /**
      * Returns a paged list of existing tasks matching the given query.
      *
      * @param query query conditions
      * @param <T> type of taskTO
-     * @return paged list of existing tasks matching type and the given query
+     * @return paged list of existing tasks matching the given query
      */
     @GET
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -112,6 +105,28 @@ public interface TaskService extends JAXRSService {
     @DELETE
     @Path("{key}")
     void delete(@NotNull @PathParam("key") Long key);
+
+    /*
+     * Returns the task execution with the given id.
+     *
+     * @param executionKey key of task execution to be read
+     * @return task execution with matching Id
+     */
+    @GET
+    @Path("executions/{executionKey}")
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    TaskExecTO readExecution(@NotNull @PathParam("executionKey") Long executionKey);
+
+    /**
+     * Returns a paged list of task executions matching the given query.
+     *
+     * @param query query conditions
+     * @return paged list of task executions the given query
+     */
+    @GET
+    @Path("{key}/executions")
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedResult<TaskExecTO> listExecutions(@BeanParam TaskExecQuery query);
 
     /**
      * Deletes the task execution matching the provided key.
