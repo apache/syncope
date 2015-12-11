@@ -13,13 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+sudo: false
+cache:
+  directories:
+  - $HOME/.m2
 language: java
 jdk:
   - openjdk6
 # default install is mvn install --quiet -DskipTests=true
 install: mvn --show-version --quiet -P skipTests
-#invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
-script: mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
+script:
+  #invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
+  - mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
 notifications:
   email:
     - dev@syncope.apache.org
