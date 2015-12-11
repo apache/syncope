@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels.search;
 
-import static org.apache.syncope.client.console.panels.search.SearchClause.Type.ATTRIBUTE;
-
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggle;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.util.ArrayList;
