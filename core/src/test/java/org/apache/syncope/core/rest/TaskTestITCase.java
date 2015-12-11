@@ -303,25 +303,6 @@ public class TaskTestITCase extends AbstractTest {
     }
 
     @Test
-    public void deal() {
-        try {
-            taskService.delete(0L);
-        } catch (SyncopeClientException e) {
-            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
-        }
-        TaskExecTO exec = taskService.execute(1L, false);
-        assertEquals(PropagationTaskExecStatus.SUBMITTED.name(), exec.getStatus());
-
-        ReportExecTO report = new ReportExecTO();
-        report.setStatus(PropagationTaskExecStatus.SUCCESS.name());
-        report.setMessage("OK");
-        taskService.report(exec.getId(), report);
-        exec = taskService.readExecution(exec.getId());
-        assertEquals(PropagationTaskExecStatus.SUCCESS.name(), exec.getStatus());
-        assertEquals("OK", exec.getMessage());
-    }
-
-    @Test
     public void sync() throws Exception {
         removeTestUsers();
 
