@@ -54,15 +54,7 @@ provisioning, and compliance.
 
 include::introduction/introduction.adoc[]
 
-== Identity and Access Management
-
-=== Identity Stores
-
-=== Provisioning Engines
-
-=== Access Managers
-
-=== The Complete Picture
+include::iam/iam.adoc[]
 
 == Architecture
 
