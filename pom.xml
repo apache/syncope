@@ -379,7 +379,7 @@ under the License.
     <bootstrap.version>3.3.6</bootstrap.version>
     <bootstrap-select.version>1.7.3</bootstrap-select.version>
 
-    <wicket-bootstrap.version>0.10.4</wicket-bootstrap.version>
+    <wicket-bootstrap.version>0.10.5</wicket-bootstrap.version>
     <bootbox.version>4.4.0</bootbox.version>
 
     <font-awesome.version>4.5.0</font-awesome.version>
@@ -1296,7 +1296,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.4.16</version>
+          <version>1.4.17</version>
           <configuration>
             <container>
               <containerId>tomcat8x</containerId>
