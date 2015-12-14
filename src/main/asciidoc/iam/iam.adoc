@@ -31,6 +31,6 @@ include::identitystores.adoc[]
 
 include::provisioningengines.adoc[]
 
-include::accessmanager.adoc[]
+include::accessmanager/accessmanager.adoc[]
 
 include::thecompletepicture.adoc[]

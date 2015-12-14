@@ -1,0 +1,69 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+==== Authentication and authorization
+Talking about security aspects mostly involves examining how RESTful controllers implements communication with external 
+world. Hence, security is mostly implemented and enforced by the core, as the console is basically an external REST 
+client (check High-level Architecture for more details).
+
+===== Entitlements
+Authentication and authorization in Syncope is fundamentally based on Entitlements. 
+Entitlements are basically strings describing the right to perform an operation.
+Defaults entitlements are included at the end of content.xml and always loaded into internal storage.
+Entitlements can only be assigned to roles: this is the basis of a role-based authorization mechanism.
+
+* Normal entitlements::
+related to the general operations that can be performed (like as TASK_DELETE or CONNECTOR_UPDATE);
+* Role operational entitlements::
+specifically bound to each and every role defined (like as ROLE_10 or ROLE_23).
+
+Why such distinction is needed? Because Syncope implements a delegated role-based authorization model so that an user 
+can manage other users and this can be specified with a very fine-grained mechanism.
+
+===== Role ownership
+Starting with Syncope 1.1.0, the role owner concept is introduced: an user or a role can be defined as owner of a given 
+role.
+Users owning a role (or user assigned to a role owning a role) are granted to perform any operation on owned role and 
+also assigned any role operational entitlement of owned role.
+This means that if such owners are also granted some user-related entitlements (like as USER_CREATE or USER_UPDATE), 
+then they will be entitled to administer users of owned role as well.
+
+===== Example
+Let's suppose that we want to implement the following scenario:
+_Administrator A can create users under role 5 but not under role 7, administrator B can update users under role 6 and 8, 
+administrator C can update role 8._
+In this scenario, Syncope will have defined at least the following entitlements:
+
+* USER_CREATE, USER_UPDATE, ROLE_UPDATE
+* ROLE_5, ROLE_6, ROLE_7, ROLE_8
+
+Here it follows how entitlements should be assigned to administrators in order to implement the scenario above:
+
+* A: USER_CREATE + ROLE_5
+* B: USER_UPDATE + ROLE_6 + ROLE_8
+* C: ROLE_UPDATE + ROLE_8
+
+With role ownership, if administrator D is set as owner of role 8, the following entitlements will be automatically 
+granted:
+
+* D: ROLE_READ + ROLE_CREATE + ROLE_UPDATE + ROLE_DELETE + ROLE_8
+
+===== Root administrator
+There is of course a special admin user, granted by all the entitlements defined in the system, thus capable of 
+performing any available operation.
