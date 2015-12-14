@@ -21,7 +21,6 @@ package org.apache.syncope.installer.processes;
 import org.apache.syncope.installer.utilities.FileSystemUtils;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
-import java.nio.channels.FileChannel;
 import org.apache.syncope.installer.enums.DBs;
 import org.apache.syncope.installer.files.MasterProperties;
 import org.apache.syncope.installer.files.ProvisioningProperties;
