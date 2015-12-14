@@ -119,17 +119,6 @@ public class ArchetypeProcess extends BaseProcess {
                 + File.separator + PROPERTIES.getProperty("saveModel"),
                 modelerDirectory + File.separator + PROPERTIES.getProperty("saveModel"));
 
-        fileSystemUtils.copyFile(
-                syncopeInstallDir
-                + PROPERTIES.getProperty("enduserResDirectory")
-                + File.separator + PROPERTIES.getProperty("urlConfig"),
-                modelerDirectory + File.separator + PROPERTIES.getProperty("urlConfig"));
-        fileSystemUtils.copyFile(
-                syncopeInstallDir
-                + PROPERTIES.getProperty("enduserResDirectory")
-                + File.separator + PROPERTIES.getProperty("saveModel"),
-                modelerDirectory + File.separator + PROPERTIES.getProperty("saveModel"));
-
         final Properties modelerProperties = new Properties();
         modelerProperties.setProperty("modeler.directory", modelerDirectory);
         mavenUtils.mvnCleanPackageWithProperties(modelerDirectory, modelerProperties, customMavenProxySettings);

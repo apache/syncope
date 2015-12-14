@@ -61,7 +61,7 @@ public class FileSystemUtils {
             FileUtils.copyFile(new File(sourceFilePath), new File(targetFilePath));
         } catch (final IOException ex) {
             final String errorMessage =
-                    "Error copy file " + sourceFilePath + " to " + targetFilePath;
+                    "Error copying file " + sourceFilePath + " to " + targetFilePath;
             handler.emitError(errorMessage, errorMessage);
             InstallLog.getInstance().error(errorMessage);
         }

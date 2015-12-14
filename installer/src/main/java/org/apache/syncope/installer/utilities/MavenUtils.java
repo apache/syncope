@@ -92,6 +92,7 @@ public class MavenUtils {
         properties.setProperty("artifactId", artifactId);
         properties.setProperty("secretKey", secretKey);
         properties.setProperty("anonymousKey", anonymousKey);
+        properties.setProperty("version", "1.0-SNAPSHOT");
         return properties;
     }
 
