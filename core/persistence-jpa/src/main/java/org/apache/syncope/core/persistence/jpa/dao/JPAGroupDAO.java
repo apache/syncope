@@ -172,20 +172,22 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Override
     public Group save(final Group group) {
+        Group merged = super.save(group);
+
         // refresh dynaminc memberships
-        if (group.getUDynMembership() != null) {
+        if (merged.getUDynMembership() != null) {
             List<User> matching = searchDAO.search(
-                    buildDynMembershipCond(group.getUDynMembership().getFIQLCond(), group.getRealm()),
+                    buildDynMembershipCond(merged.getUDynMembership().getFIQLCond(), merged.getRealm()),
                     AnyTypeKind.USER);
 
-            group.getUDynMembership().getMembers().clear();
+            merged.getUDynMembership().getMembers().clear();
             for (User user : matching) {
-                group.getUDynMembership().add(user);
+                merged.getUDynMembership().add(user);
             }
         }
-        for (ADynGroupMembership memb : group.getADynMemberships()) {
+        for (ADynGroupMembership memb : merged.getADynMemberships()) {
             List<AnyObject> matching = searchDAO.search(
-                    buildDynMembershipCond(memb.getFIQLCond(), group.getRealm()),
+                    buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm()),
                     AnyTypeKind.ANY_OBJECT);
 
             memb.getMembers().clear();
@@ -194,7 +196,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             }
         }
 
-        return super.save(group);
+        return merged;
     }
 
     @Override

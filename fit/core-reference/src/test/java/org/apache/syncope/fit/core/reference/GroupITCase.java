@@ -26,7 +26,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
@@ -37,6 +39,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
@@ -228,6 +231,35 @@ public class GroupITCase extends AbstractITCase {
         }).getAny();
 
         assertFalse(groupTO.getPlainAttrMap().containsKey("show"));
+    }
+
+    @Test
+    public void patch() {
+        GroupTO original = getBasicSampleTO("patch");
+        original.setUDynMembershipCond("(($groups==3;$resources!=ws-target-resource-1);aLong==1)");
+        original.getADynMembershipConds().put(
+                "PRINTER",
+                "(($groups==7;cool==ss);$resources==ws-target-resource-2);$type==PRINTER");
+
+        GroupTO updated = createGroup(original).getAny();
+
+        updated.getPlainAttrs().add(new AttrTO.Builder().schema("icon").build());
+        updated.getPlainAttrs().add(new AttrTO.Builder().schema("show").build());
+        updated.getPlainAttrs().add(new AttrTO.Builder().schema("rderived_sx").value("sx").build());
+        updated.getPlainAttrs().add(new AttrTO.Builder().schema("rderived_dx").value("dx").build());
+        updated.getPlainAttrs().add(new AttrTO.Builder().schema("title").value("mr").build());
+
+        original = groupService.read(updated.getKey());
+
+        GroupPatch patch = AnyOperations.diff(updated, original, true);
+        GroupTO group = updateGroup(patch).getAny();
+
+        Map<String, AttrTO> attrs = group.getPlainAttrMap();
+        assertFalse(attrs.containsKey("icon"));
+        assertFalse(attrs.containsKey("show"));
+        assertEquals(Collections.singletonList("sx"), attrs.get("rderived_sx").getValues());
+        assertEquals(Collections.singletonList("dx"), attrs.get("rderived_dx").getValues());
+        assertEquals(Collections.singletonList("mr"), attrs.get("title").getValues());
     }
 
     @Test
