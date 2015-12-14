@@ -21,6 +21,7 @@ package org.apache.syncope.installer.processes;
 import org.apache.syncope.installer.utilities.FileSystemUtils;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
+import java.nio.channels.FileChannel;
 import org.apache.syncope.installer.enums.DBs;
 import org.apache.syncope.installer.files.MasterProperties;
 import org.apache.syncope.installer.files.ProvisioningProperties;
@@ -55,11 +56,15 @@ public class PersistenceProcess extends BaseProcess {
         mysqlInnoDB = Boolean.valueOf(args[6]);
         schema = args[7];
 
-        FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
-        StringBuilder provisioningProperties = new StringBuilder(ProvisioningProperties.HEADER);
         StringBuilder masterProperties = new StringBuilder(MasterProperties.HEADER);
         setSyncopeInstallDir(installPath, artifactId);
 
+        FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
+        final File provisioningFile = new File(
+                syncopeInstallDir + PROPERTIES.getProperty("provisioningPropertiesFile"));
+
+        final StringBuilder provisioningProperties
+                = new StringBuilder(removeLastTwoLine(fileSystemUtils.readFile(provisioningFile)));
         handler.logOutput("Configure persistence for " + dbSelected, false);
         InstallLog.getInstance().info("Configure persistence for " + dbSelected);
 
@@ -106,5 +111,14 @@ public class PersistenceProcess extends BaseProcess {
         fileSystemUtils.writeToFile(new File(
                 syncopeInstallDir + PROPERTIES.getProperty("masterPropertiesFile")),
                 masterProperties.toString());
+    }
+
+    private String removeLastTwoLine(final String string) {
+        int truncateIndex = string.length();
+
+        for (int i = 0; i < 3; i++) {
+            truncateIndex = string.lastIndexOf('\n', truncateIndex - 1);
+        }
+        return string.substring(0, truncateIndex);
     }
 }

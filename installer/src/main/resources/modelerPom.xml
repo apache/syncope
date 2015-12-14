@@ -28,8 +28,9 @@ under the License.
   <packaging>jar</packaging>
    
   <properties>
-    <activiti.version>5.19.0.1</activiti.version>
-    <activiti-modeler.directory>${modeler.directory}</activiti-modeler.directory>
+    <activiti-modeler.version>${activiti.version}</activiti-modeler.version>
+    <!--<h2-modeler.version>${h2.version}</h2-modeler.version>-->
+    <activiti-modeler.directory>%s</activiti-modeler.directory>
      
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -38,10 +39,15 @@ under the License.
     <dependency>
       <groupId>org.activiti</groupId>
       <artifactId>activiti-webapp-explorer2</artifactId>
-      <version>${activiti.version}</version>
+      <version>${activiti-modeler.version}</version>
       <type>war</type>
       <scope>test</scope>
-    </dependency>   
+    </dependency>
+<!--    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>${h2-modeler.version}</version>
+    </dependency>-->
   </dependencies>
    
   <build>   
@@ -92,10 +98,10 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
                          token="window.location.href = &quot;./&quot;;"
                          value="window.close();"/>
                                                
-                <copy file="${basedir}/src/main/resources/url-config.js" 
+                <copy file="url-config.js" 
                       todir="${activiti-modeler.directory}/editor-app/configuration"
                       overwrite="true" />
-                <copy file="${basedir}/src/main/resources/save-model.html" 
+                <copy file="save-model.html" 
                       todir="${activiti-modeler.directory}/editor-app/popups"
                       overwrite="true" />
               </target>

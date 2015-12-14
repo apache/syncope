@@ -93,8 +93,7 @@ public class ArchetypeProcess extends BaseProcess {
                 syncopeVersion, groupId, artifactId, secretKey, anonymousKey, installPath, customMavenProxySettings);
 
         if (syncopeVersion.contains("SNAPSHOT")) {
-            final File pomFile =
-                    new File(syncopeInstallDir + PROPERTIES.getProperty("pomFile"));
+            final File pomFile = new File(syncopeInstallDir + PROPERTIES.getProperty("pomFile"));
             String contentPomFile = fileSystemUtils.readFile(pomFile);
             fileSystemUtils.
                     writeToFile(pomFile, contentPomFile.replace(ParentPom.PLACEHOLDER, ParentPom.REPOSITORY));
@@ -107,6 +106,12 @@ public class ArchetypeProcess extends BaseProcess {
 
         fileSystemUtils.copyFileFromResources(File.separator + PROPERTIES.getProperty("modelerPomFile"),
                 modelerDirectory + File.separator + PROPERTIES.getProperty("pomFile"), handler);
+
+        final File modelerPomFile = new File(modelerDirectory + File.separator + PROPERTIES.getProperty("pomFile"));
+
+        final String contentModelerPomFile = fileSystemUtils.readFile(modelerPomFile);
+        fileSystemUtils.
+                writeToFile(modelerPomFile, String.format(contentModelerPomFile, modelerDirectory));
 
         fileSystemUtils.copyFile(
                 syncopeInstallDir
@@ -129,5 +134,7 @@ public class ArchetypeProcess extends BaseProcess {
         syncopeProperties.setProperty("bundles.directory", bundlesDirectory);
         mavenUtils.mvnCleanPackageWithProperties(
                 installPath + File.separator + artifactId, syncopeProperties, customMavenProxySettings);
+        FileSystemUtils.delete(new File(modelerDirectory + File.separator + PROPERTIES.getProperty("saveModel")));
+        FileSystemUtils.delete(new File(modelerDirectory + File.separator + PROPERTIES.getProperty("urlConfig")));
     }
 }
