@@ -25,8 +25,8 @@ import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.PropertyModel;
 
 public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
@@ -38,7 +38,7 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
         private static final long serialVersionUID = 6308997285778809578L;
 
-        public Builder(final PropertyModel<List<SearchClause>> model) {
+        public Builder(final IModel<List<SearchClause>> model) {
             super(model);
         }
 
@@ -49,7 +49,7 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
     }
 
     protected AnyObjectSearchPanel(final String id, final AnyTypeKind kind, final Builder builder) {
-        super(id, builder.model, kind, builder.required);
+        super(id, kind, builder);
     }
 
     @Override

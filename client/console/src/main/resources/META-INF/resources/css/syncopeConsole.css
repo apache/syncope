@@ -232,7 +232,7 @@ div.basepage-content{
 
 .wizard-view > div {
   display: block;
-  height: 100%;
+  height: 98%;
   position: relative;
 }
 
@@ -333,4 +333,8 @@ div.wrap{
 /**
 END - Style for Information panel
 */
+
+#ownership div.toggle {
+  width: 110px !important;
+}
 

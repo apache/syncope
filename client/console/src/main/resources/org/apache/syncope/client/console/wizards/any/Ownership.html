@@ -20,22 +20,29 @@ under the License.
   <head><title></title></head>
   <body>
     <wicket:panel>
-      <div wicket:id="ownerContainer">
-        <div class="form-group input-group">
-          <span wicket:id="userOwner"/>
-          <a href="#" wicket:id="userOwnerSelect" class="input-group-addon"><i class="glyphicon glyphicon-search" alt="select group owner" title="Search"></i></a>
-          <a href="#" wicket:id="userOwnerReset" class="input-group-addon"><i class="glyphicon glyphicon-remove-circle" alt="reset user owner" title="Delete"></i></a>
-        </div>
-
-        <div class="form-group input-group">
-          <span wicket:id="groupOwner"/>
-          <a href="#" wicket:id="groupOwnerSelect" class="input-group-addon"><i class="glyphicon glyphicon-search" alt="select group owner" title="Search"></i></a>
-          <a href="#" wicket:id="groupOwnerReset" class="input-group-addon"><i class="glyphicon glyphicon-remove-circle" alt="reset group owner" title="Delete"></i></a>
-        </div>
+      <div id="ownership">
+        <span wicket:id="ownership">[OWNERSHIP]</span>
       </div>
 
-      <span wicket:id="userOwnerSelectWin"/>
-      <span wicket:id="groupOwnerSelectWin"/>
+      <div wicket:id="ownerContainer">
+        <span wicket:id="search">[SEARCH]</span>
+      </div>
+
+      <wicket:fragment wicket:id="userSearchFragment">
+        <div class="form-group input-group">
+          <span wicket:id="userOwner"/>
+          <a href="#" wicket:id="userOwnerReset" class="input-group-addon"><i class="glyphicon glyphicon-remove-circle" alt="reset user owner" title="Delete"></i></a>
+        </div>
+        <span wicket:id="usersearch">[USER SEARCH]</span>
+      </wicket:fragment>
+
+      <wicket:fragment wicket:id="groupSearchFragment">
+        <div class="form-group input-group">
+          <span wicket:id="groupOwner"/>
+          <a href="#" wicket:id="groupOwnerReset" class="input-group-addon"><i class="glyphicon glyphicon-remove-circle" alt="reset group owner" title="Delete"></i></a>
+        </div>
+        <span wicket:id="groupsearch">[GROUP SEARCH]</span>
+      </wicket:fragment>
     </wicket:panel>
   </body>
 </html>

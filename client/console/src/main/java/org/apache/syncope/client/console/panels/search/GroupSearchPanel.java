@@ -23,8 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.PropertyModel;
 
 public final class GroupSearchPanel extends AbstractSearchPanel {
 
@@ -34,7 +34,7 @@ public final class GroupSearchPanel extends AbstractSearchPanel {
 
         private static final long serialVersionUID = 6308997285778809578L;
 
-        public Builder(final PropertyModel<List<SearchClause>> model) {
+        public Builder(final IModel<List<SearchClause>> model) {
             super(model);
         }
 
@@ -45,7 +45,7 @@ public final class GroupSearchPanel extends AbstractSearchPanel {
     }
 
     private GroupSearchPanel(final String id, final GroupSearchPanel.Builder builder) {
-        super(id, builder.model, AnyTypeKind.USER, builder.required);
+        super(id, AnyTypeKind.USER, builder);
     }
 
     @Override

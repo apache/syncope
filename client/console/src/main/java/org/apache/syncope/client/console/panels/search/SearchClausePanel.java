@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels.search;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggle;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,12 +42,15 @@ import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -74,6 +78,12 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final LoadableDetachableModel<List<Pair<Long, String>>> properties;
 
+    private final Fragment operatorFragment;
+
+    private final Fragment searchButtonFragment;
+
+    private final AjaxSubmitLink searchButton;
+
     public SearchClausePanel(
             final String id,
             final String name,
@@ -96,6 +106,22 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         this.dnames = dnames;
         this.groupNames = groupNames;
         this.resourceNames = resourceNames;
+
+        searchButton = new AjaxSubmitLink("search") {
+
+            private static final long serialVersionUID = 5538299138211283825L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                send(this, Broadcast.BUBBLE, new SearchEvent(target));
+            }
+
+        };
+
+        searchButtonFragment = new Fragment("operator", "searchButtonFragment", this);
+        searchButtonFragment.add(searchButton.setEnabled(false));
+
+        operatorFragment = new Fragment("operator", "operatorFragment", this);
 
         field = new FormComponent<SearchClause>("container", this.clause) {
 
@@ -172,6 +198,10 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         };
     }
 
+    public void enableSearch() {
+        this.searchButton.setEnabled(true);
+    }
+
     @Override
     public SearchClause getModelObject() {
         return this.clause.getObject();
@@ -205,22 +235,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     public FieldPanel<SearchClause> settingsDependingComponents() {
         final SearchClause searchClause = this.clause.getObject();
 
-        final WebMarkupContainer operatorContainer = new WebMarkupContainer("operatorContainer") {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected void onComponentTag(final ComponentTag tag) {
-                super.onComponentTag(tag);
-                if (getIndex() == 0) {
-                    tag.append("class", "glyphicon glyphicon-search", " ");
-                }
-            }
-
-        };
-
+        final WebMarkupContainer operatorContainer = new WebMarkupContainer("operatorContainer");
         operatorContainer.setOutputMarkupId(true);
-
         field.add(operatorContainer);
 
         final BootstrapToggleConfig config = new BootstrapToggleConfig();
@@ -230,7 +246,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 .withOnLabel("AND")
                 .withOffLabel("OR");
 
-        operatorContainer.add(new BootstrapToggle("operator", new Model<Boolean>() {
+        operatorFragment.add(new BootstrapToggle("operator", new Model<Boolean>() {
 
             private static final long serialVersionUID = 1L;
 
@@ -249,12 +265,12 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
             @Override
             protected IModel<String> getOffLabel() {
-                return Model.of(getString("Off", null, "Off"));
+                return Model.of(getString("Off", null, "OR"));
             }
 
             @Override
             protected IModel<String> getOnLabel() {
-                return Model.of(getString("On", null, "On"));
+                return Model.of(getString("On", null, "AND"));
             }
 
             @Override
@@ -270,7 +286,13 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 });
                 return checkBox;
             }
-        }.setVisible(getIndex() > 0).setOutputMarkupPlaceholderTag(true));
+        }.setOutputMarkupPlaceholderTag(true));
+
+        if (getIndex() > 0) {
+            operatorContainer.add(operatorFragment);
+        } else {
+            operatorContainer.add(searchButtonFragment);
+        }
 
         final AjaxDropDownChoicePanel<Pair<Long, String>> property = new AjaxDropDownChoicePanel<Pair<Long, String>>(
                 "property", "property", new PropertyModel<Pair<Long, String>>(searchClause, "property") {
@@ -531,6 +553,9 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 getId(), name, null, required, types, anames, dnames, groupNames, resourceNames);
         panel.setReadOnly(this.isReadOnly());
         panel.setRequired(this.isRequired());
+        if (searchButton.isEnabled()) {
+            panel.enableSearch();
+        }
         return panel;
     }
 
@@ -580,6 +605,21 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     return id.equals(String.valueOf(object.getLeft()));
                 }
             });
+        }
+    }
+
+    protected static class SearchEvent implements Serializable {
+
+        private static final long serialVersionUID = 2693338614198749301L;
+
+        private final AjaxRequestTarget target;
+
+        public SearchEvent(final AjaxRequestTarget target) {
+            this.target = target;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
         }
     }
 }

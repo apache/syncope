@@ -38,7 +38,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,38 +54,45 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected ResourceRestClient resourceRestClient = new ResourceRestClient();
 
-//    protected AuthRestClient authRestClient;
     protected IModel<List<String>> dnames;
 
     protected IModel<List<String>> anames;
 
     protected IModel<List<String>> resourceNames;
 
-//    protected IModel<List<String>> entitlements;
     protected IModel<List<SearchClause.Type>> types;
 
     protected IModel<List<Pair<Long, String>>> groupNames;
 
     protected NotificationPanel searchFeedback;
 
-    protected PropertyModel<List<SearchClause>> model;
+    protected IModel<List<SearchClause>> model;
 
     protected WebMarkupContainer searchFormContainer;
 
-    protected AnyTypeKind typeKind;
+    protected final AnyTypeKind typeKind;
 
-    protected boolean required;
+    protected final boolean required;
+
+    protected final boolean enableSearch;
 
     public abstract static class Builder<T extends AbstractSearchPanel> implements Serializable {
 
         private static final long serialVersionUID = 6308997285778809578L;
 
-        protected final PropertyModel<List<SearchClause>> model;
+        protected final IModel<List<SearchClause>> model;
 
         protected boolean required = true;
 
-        public Builder(final PropertyModel<List<SearchClause>> model) {
+        protected boolean enableSearch = false;
+
+        public Builder(final IModel<List<SearchClause>> model) {
             this.model = model;
+        }
+
+        public Builder<T> enableSearch() {
+            this.enableSearch = true;
+            return this;
         }
 
         public Builder<T> required(final boolean required) {
@@ -97,24 +103,15 @@ public abstract class AbstractSearchPanel extends Panel {
         public abstract T build(final String id);
     }
 
-    protected AbstractSearchPanel(
-            final String id,
-            final PropertyModel<List<SearchClause>> model,
-            final AnyTypeKind typeKind) {
-        this(id, model, typeKind, true);
-    }
-
-    protected AbstractSearchPanel(
-            final String id,
-            final PropertyModel<List<SearchClause>> model,
-            final AnyTypeKind typeKind,
-            final boolean required) {
+    protected AbstractSearchPanel(final String id, final AnyTypeKind typeKind, final Builder<?> builder) {
 
         super(id);
         populate();
 
+        this.model = builder.model;
         this.typeKind = typeKind;
-        this.required = required;
+        this.required = builder.required;
+        this.enableSearch = builder.enableSearch;
 
         setOutputMarkupId(true);
 
@@ -148,6 +145,10 @@ public abstract class AbstractSearchPanel extends Panel {
                 Model.of(new SearchClause()),
                 required,
                 types, anames, dnames, groupNames, resourceNames);
+
+        if (enableSearch) {
+            searchClausePanel.enableSearch();
+        }
 
         final MultiFieldPanel.Builder<SearchClause> searchView = new MultiFieldPanel.Builder<SearchClause>(model) {
 
@@ -202,5 +203,9 @@ public abstract class AbstractSearchPanel extends Panel {
 
     public NotificationPanel getSearchFeedback() {
         return searchFeedback;
+    }
+
+    public IModel<List<SearchClause>> getModel() {
+        return this.model;
     }
 }

@@ -18,257 +18,155 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import static org.apache.syncope.client.console.wizards.any.Details.LOG;
-
-import org.apache.syncope.client.console.rest.GroupRestClient;
-import org.apache.syncope.client.console.rest.UserRestClient;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggle;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
+import java.util.ArrayList;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
+import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
+import org.apache.syncope.client.console.panels.search.SearchClause;
+import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.event.IEvent;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.util.ListModel;
 
 public class Ownership extends WizardStep {
 
     private static final long serialVersionUID = 855618618337931784L;
 
-    private final UserRestClient userRestClient = new UserRestClient();
-
-    private final GroupRestClient groupRestClient = new GroupRestClient();
-
     private final WebMarkupContainer ownerContainer;
 
-    private final OwnerModel uOwnerModel;
+    private final Fragment groupSearchFragment;
 
-    private final OwnerModel gOwnerModel;
+    private final Fragment userSearchFragment;
 
     public Ownership(final GroupHandler groupHandler) {
         super();
-        final GroupTO groupTO = GroupHandler.class.cast(groupHandler).getInnerObject();
+
+        final Model<Boolean> isGroupOwnership = Model.of(groupHandler.getInnerObject().getGroupOwner() != null);
+
+        final BootstrapToggleConfig config = new BootstrapToggleConfig();
+        config
+                .withOnStyle(BootstrapToggleConfig.Style.info).withOffStyle(BootstrapToggleConfig.Style.warning)
+                .withSize(BootstrapToggleConfig.Size.mini)
+                .withOnLabel(AnyTypeKind.GROUP.name())
+                .withOffLabel(AnyTypeKind.USER.name());
+
+        add(new BootstrapToggle("ownership", new Model<Boolean>() {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Boolean getObject() {
+                return isGroupOwnership.getObject();
+            }
+
+            @Override
+            public void setObject(final Boolean object) {
+
+            }
+        }, config) {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected IModel<String> getOffLabel() {
+                return Model.of(getString("Off", null, "USER Owner"));
+            }
+
+            @Override
+            protected IModel<String> getOnLabel() {
+                return Model.of(getString("On", null, "GROUP Owner"));
+            }
+
+            @Override
+            protected CheckBox newCheckBox(final String id, final IModel<Boolean> model) {
+                final CheckBox checkBox = super.newCheckBox(id, model);
+                checkBox.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        isGroupOwnership.setObject(!isGroupOwnership.getObject());
+                        if (isGroupOwnership.getObject()) {
+                            ownerContainer.addOrReplace(groupSearchFragment);
+                        } else {
+                            ownerContainer.addOrReplace(userSearchFragment);
+                        }
+                        target.add(ownerContainer);
+                    }
+                });
+                return checkBox;
+            }
+        });
 
         ownerContainer = new WebMarkupContainer("ownerContainer");
         ownerContainer.setOutputMarkupId(true);
         this.add(ownerContainer);
 
-        final ModalWindow userOwnerSelectWin = new ModalWindow("userOwnerSelectWin");
-        userOwnerSelectWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        userOwnerSelectWin.setCookieName("create-userOwnerSelect-modal");
-        this.add(userOwnerSelectWin);
-        final ModalWindow groupOwnerSelectWin = new ModalWindow("groupOwnerSelectWin");
-        groupOwnerSelectWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        groupOwnerSelectWin.setCookieName("create-groupOwnerSelect-modal");
-        this.add(groupOwnerSelectWin);
+        groupSearchFragment = new Fragment("search", "groupSearchFragment", this);
+        final GroupSearchPanel groupSearchPanel = new GroupSearchPanel.Builder(
+                new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build("groupsearch");
+        groupSearchFragment.add(groupSearchPanel.setRenderBodyOnly(true));
 
-        uOwnerModel = new OwnerModel(groupTO, AnyTypeKind.USER);
-        @SuppressWarnings("unchecked")
-        final AjaxTextFieldPanel userOwner = new AjaxTextFieldPanel("userOwner", "userOwner", uOwnerModel, false);
+        userSearchFragment = new Fragment("search", "userSearchFragment", this);
+        final AnyObjectSearchPanel userSearchPanel = new UserSearchPanel.Builder(
+                new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build("usersearch");
+        userSearchFragment.add(userSearchPanel.setRenderBodyOnly(true));
+
+        if (isGroupOwnership.getObject()) {
+            ownerContainer.add(groupSearchFragment);
+        } else {
+            ownerContainer.add(userSearchFragment);
+        }
+
+        final GroupTO groupTO = GroupHandler.class.cast(groupHandler).getInnerObject();
+
+        final AjaxTextFieldPanel userOwner
+                = new AjaxTextFieldPanel("userOwner", "userOwner", new Model<String>(), false);
         userOwner.setPlaceholder("userOwner");
         userOwner.hideLabel();
         userOwner.setReadOnly(true).setOutputMarkupId(true);
-        ownerContainer.add(userOwner);
-        final AjaxLink<Void> userOwnerSelect = new IndicatingAjaxLink<Void>("userOwnerSelect") {
+        userSearchFragment.add(userOwner);
 
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                userOwnerSelectWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                    private static final long serialVersionUID = -7834632442532690940L;
-
-                    @Override
-                    public Page createPage() {
-//                        return new UserOwnerSelectModalPage(getPage().getPageReference(), userOwnerSelectWin);
-                        return null;
-                    }
-                });
-                userOwnerSelectWin.show(target);
-            }
-        };
-        ownerContainer.add(userOwnerSelect.setEnabled(false));
         final IndicatingAjaxLink<Void> userOwnerReset = new IndicatingAjaxLink<Void>("userOwnerReset") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                uOwnerModel.setObject(null);
                 target.add(userOwner);
             }
         };
-        ownerContainer.add(userOwnerReset.setEnabled(false));
+        userSearchFragment.add(userOwnerReset.setEnabled(false));
 
-        gOwnerModel = new OwnerModel(groupTO, AnyTypeKind.GROUP);
-        @SuppressWarnings("unchecked")
-        final AjaxTextFieldPanel groupOwner = new AjaxTextFieldPanel("groupOwner", "groupOwner", gOwnerModel, false);
+        final AjaxTextFieldPanel groupOwner
+                = new AjaxTextFieldPanel("groupOwner", "groupOwner", new Model<String>(), false);
         groupOwner.setPlaceholder("groupOwner");
         groupOwner.hideLabel();
         groupOwner.setReadOnly(true).setOutputMarkupId(true);
-        ownerContainer.add(groupOwner);
-        final AjaxLink<Void> groupOwnerSelect = new IndicatingAjaxLink<Void>("groupOwnerSelect") {
+        groupSearchFragment.add(groupOwner);
 
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                userOwnerSelectWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                    private static final long serialVersionUID = -7834632442532690940L;
-
-                    @Override
-                    public Page createPage() {
-//                        return new GroupSelectModalPage(getPage().getPageReference(), userOwnerSelectWin,
-//                                GroupOwnerSelectPayload.class);
-                        return null;
-                    }
-                });
-                userOwnerSelectWin.show(target);
-            }
-        };
-        ownerContainer.add(groupOwnerSelect.setEnabled(false));
         final IndicatingAjaxLink<Void> groupOwnerReset = new IndicatingAjaxLink<Void>("groupOwnerReset") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                gOwnerModel.setObject(null);
                 target.add(groupOwner);
             }
         };
-        ownerContainer.add(groupOwnerReset.setEnabled(false));
-    }
-
-    /**
-     * This is waiting for events from opened modal windows: first to get the selected user / group, then to update the
-     * respective text panel.
-     *
-     * @param event event
-     */
-    @Override
-    public void onEvent(final IEvent<?> event) {
-        super.onEvent(event);
-
-        if (event.getPayload() instanceof UserOwnerSelectPayload) {
-            uOwnerModel.setObject(((UserOwnerSelectPayload) event.getPayload()).getUserId());
-        }
-        if (event.getPayload() instanceof GroupOwnerSelectPayload) {
-            gOwnerModel.setObject(((GroupOwnerSelectPayload) event.getPayload()).getGroupId());
-        }
-
-        if (event.getPayload() instanceof AjaxRequestTarget) {
-            ((AjaxRequestTarget) event.getPayload()).add(ownerContainer);
-        }
-    }
-
-    private class OwnerModel implements IModel {
-
-        private static final long serialVersionUID = -3865621970810102714L;
-
-        private final GroupTO groupTO;
-
-        private final AnyTypeKind type;
-
-        OwnerModel(final GroupTO groupTO, final AnyTypeKind type) {
-            this.groupTO = groupTO;
-            this.type = type;
-        }
-
-        @Override
-        public Object getObject() {
-            String object = null;
-
-            switch (type) {
-                case USER:
-                    if (groupTO.getUserOwner() != null) {
-                        UserTO user = null;
-                        try {
-                            user = userRestClient.read(groupTO.getUserOwner());
-                        } catch (Exception e) {
-                            LOG.warn("Could not find user with id {}, ignoring", groupTO.getUserOwner(), e);
-                        }
-                        if (user == null) {
-                            groupTO.setUserOwner(null);
-                        } else {
-                            object = user.getKey() + " " + user.getUsername();
-                        }
-                    }
-                    break;
-
-                case GROUP:
-                    GroupTO group = null;
-                    if (groupTO.getGroupOwner() != null) {
-                        try {
-                            group = groupRestClient.read(groupTO.getGroupOwner());
-                        } catch (Exception e) {
-                            LOG.warn("Could not find group with id {}, ignoring", groupTO.getGroupOwner(), e);
-                        }
-                        if (group == null) {
-                            groupTO.setGroupOwner(null);
-                        } else {
-                            object = group.getName();
-                        }
-                    }
-                    break;
-
-                default:
-            }
-
-            return object;
-        }
-
-        @Override
-        public void setObject(final Object object) {
-            switch (type) {
-                case USER:
-                    groupTO.setUserOwner((Long) object);
-                    break;
-
-                case GROUP:
-                    groupTO.setGroupOwner((Long) object);
-                    break;
-
-                default:
-            }
-        }
-
-        @Override
-        public void detach() {
-            // ignore
-        }
-    }
-
-    public static class UserOwnerSelectPayload {
-
-        private final Long userId;
-
-        public UserOwnerSelectPayload(final Long userId) {
-            this.userId = userId;
-        }
-
-        public Long getUserId() {
-            return userId;
-        }
-    }
-
-    public static class GroupOwnerSelectPayload {
-
-        private final Long groupId;
-
-        public GroupOwnerSelectPayload(final Long groupId) {
-            this.groupId = groupId;
-        }
-
-        public Long getGroupId() {
-            return groupId;
-        }
+        groupSearchFragment.add(groupOwnerReset.setEnabled(false));
     }
 }
