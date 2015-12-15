@@ -149,6 +149,8 @@ under the License.
     <panel classname="UserInputPanel" id="archetype">
       <validator classname="org.apache.syncope.installer.validators.ArchetypeValidator"/>
     </panel>
+    <panel classname="UserInputPanel" id="syncope_options"/>
+    
     <panel classname="UserInputPanel" id="persistence"/>
     <panel classname="UserInputPanel" id="persistence_advanced">
       <validator classname="org.apache.syncope.installer.validators.PersistenceValidator"/>

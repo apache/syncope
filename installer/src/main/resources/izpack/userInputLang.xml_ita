@@ -37,6 +37,10 @@ under the License.
   <str id="mvn.proxy.user.id" txt="Proxy User (se richiesto):"/>
   <str id="mvn.proxy.pwd.id" txt="Proxy Password (se richiesta):"/>
   
+  <str id="options.swagger.id" txt="Swagger"/>
+  <str id="options.activiti.workflow.adapter.id" txt="Activiti workflow adapter"/>
+  <str id="options.camel.id" txt="Camel"/>
+  
   <str id="persistence.jdbc.url" txt="Database JDBC url:"/>
   <str id="persistence.db.user" txt="Username:"/>
   <str id="persistence.db.password" txt="Password:"/>

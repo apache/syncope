@@ -52,6 +52,9 @@ public class ArchetypeProcess extends BaseProcess {
         final String proxyUser = args[15];
         final String proxyPwd = args[16];
         final boolean mavenProxyAutoconf = Boolean.valueOf(args[17]);
+        final boolean swagger = Boolean.valueOf(args[18]);
+        final boolean activiti = Boolean.valueOf(args[19]);
+        final boolean camel = Boolean.valueOf(args[20]);
 
         setSyncopeInstallDir(installPath, artifactId);
 
@@ -92,11 +95,19 @@ public class ArchetypeProcess extends BaseProcess {
         mavenUtils.archetypeGenerate(
                 syncopeVersion, groupId, artifactId, secretKey, anonymousKey, installPath, customMavenProxySettings);
 
-        if (syncopeVersion.contains("SNAPSHOT")) {
-            final File pomFile = new File(syncopeInstallDir + PROPERTIES.getProperty("pomFile"));
+        if (swagger) {
+            final File pomFile = new File(
+                    syncopeInstallDir
+                    + File.separator
+                    + "core"
+                    + File.separator
+                    + PROPERTIES.getProperty("pomFile"));
             String contentPomFile = fileSystemUtils.readFile(pomFile);
-            fileSystemUtils.
-                    writeToFile(pomFile, contentPomFile.replace(ParentPom.PLACEHOLDER, ParentPom.REPOSITORY));
+            contentPomFile = contentPomFile.replace(
+                    ParentPom.REPOSITORY_PLACEHOLDER, ParentPom.REPOSITORY_CONTENT_TO_ADD);
+            contentPomFile = contentPomFile.replace(ParentPom.SWAGGER_PLACEHOLDER, ParentPom.SWAGGER_CONTENT_TO_ADD);
+
+            fileSystemUtils.writeToFile(pomFile, contentPomFile);
         }
 
         fileSystemUtils.createDirectory(confDirectory);

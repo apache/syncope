@@ -99,8 +99,26 @@ under the License.
     </field>
   </panel>
   
-  <panel id="persistence" order="2" border="false">
-    <field type="title" txt="Database options" bold="true" size="2" />
+  <panel id="syncope_options" order="2" border="false">
+    <field type="title" txt="Syncope options" bold="true" size="2" />
+    
+    <field type="divider"/>
+    <field type="space"/>
+    
+    <field type="staticText" align="left" txt="Options" />
+    <field type="check" variable="options.swagger">
+      <spec id="options.swagger.id" true="true" false="false" set="false"/>
+    </field>
+    <field type="check" variable="options.activiti.workflow.adapter">
+      <spec id="options.activiti.workflow.adapter.id" true="true" false="false" set="false"/>
+    </field>
+    <field type="check" variable="options.camel">
+      <spec id="options.camel.id" true="true" false="false" set="false"/>
+    </field>
+  </panel>
+  
+  <panel id="persistence" order="3" border="false">
+    <field type="title" txt="Database" bold="true" size="2" />
     
     <field type="divider"/>
     <field type="space"/>
@@ -116,8 +134,8 @@ under the License.
     </field>
   </panel>
   
-  <panel id="persistence_advanced" order="2" border="false">
-    <field type="title" txt="Database advanced options" bold="true" size="2" />
+  <panel id="persistence_advanced" order="3" border="false">
+    <field type="title" txt="Database settings" bold="true" size="2" />
     
     <field type="divider"/>
     <field type="space"/>
@@ -152,7 +170,7 @@ under the License.
     </field>
   </panel>
   
-  <panel id="container" order="3" border="false">
+  <panel id="container" order="4" border="false">
     <field type="title" txt="Application Server" bold="true" size="2" />
     
     <field type="divider"/>
@@ -174,8 +192,8 @@ under the License.
     </field>
   </panel>
   
-  <panel id="container_advanced" order="3" border="false">
-    <field type="title" txt="Application Server" bold="true" size="2" />
+  <panel id="container_advanced" order="4" border="false">
+    <field type="title" txt="Application Server Settings" bold="true" size="2" />
     
     <field type="divider"/>
     <field type="space"/>
