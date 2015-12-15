@@ -57,9 +57,52 @@ defined so that any objects data can be managed through Syncope: workstations, p
 and so on. This positions Apache Syncope at the forefront for bringing Identity Management in the IoT world.
 ****
 
+=== Identity and Access Management - Reference Scenario
+
+[.text-center]
+image::iam-scenario.png[title="IAM Scenario",alt="IAM Scenario"]
+
+The picture above shows the tecnologies involved in a complete IAM solution:
+
+* *_Identity Store_* (as RDBMS, LDAP, Active Directory, meta- and virtual-directories) - the repository for account data
+* *_Provisioning Engine_* - synchronizes account data across identity stores and a broad range of data formats, models, 
+meanings and purposes
+* *_Access Manager_* - access mediator to all applications, focused on application front-end, taking care of
+authentication (https://en.wikipedia.org/wiki/Single_sign-on[Single Sign-On^]), authorization
+(http://oauth.net/[OAuth^], https://en.wikipedia.org/wiki/XACML[XACML^]) and federation
+(https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language[SAML^], http://openid.net/connect/[OpenID Connect^]).
+
+[NOTE]
+====
+As you can notice, *Apache Syncope is primarily a provisioning engine*.
+====
+
+==== Aren't Identity Stores enough?
+
+One might suppose that a single identity store can solve all the identity needs inside an organization, but few
+drawbacks are just around the corner:
+
+. Heterogeneity of systems
+. Lack of a single source of information (HR for corporate id, Groupware for mail address, ...)
+. Often applications require a local user database
+. Inconsistent policies across the infrastructure
+. Lack of workflow management
+. Hidden infrastructure management cost, growing with organization
+
 === A bird's eye view on the Architecture of Apache Syncope
 
- * *_Core_* is the central component, providing all services offered by Apache Syncope. +
+[.text-center]
+image::architecture.png[title="Architecture",alt="Architecture"]
+
+*_Admin UI_* is the web-based console for configuring and administering running deployments, with full support
+for delegated administration.
+
+*_End-user UI_* is the web-based application for self-registration, self-service and password reset.
+
+*_CLI_* is the command-line application for interacting with Apache Syncope from scripts, particularly useful for 
+system administrators.
+
+*_Core_* is the central component, providing all services offered by Apache Syncope. +
 It exposes a fully-compliant https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.0^] 
 https://en.wikipedia.org/wiki/Representational_state_transfer[RESTful^] interface which enables third-party applications,
 written in any programming language, to consume IdM services.
@@ -78,23 +121,12 @@ http://www.bpmn.org/[BPMN 2.0^] implementation - or define new, custom ones.
  * *_Persistence_* manages all data (users, groups, attributes, resources, ...) at a high level 
 using a standard https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.0^] approach. The data is persisted to an underlying 
 database, referred to as *_Internal Storage_*. Consistency is ensured via the comprehensive
-http://docs.spring.io/spring/docs/4.1.x/spring-framework-reference/html/transaction.html[transaction management^] 
+http://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/transaction.html[transaction management^] 
 provided by the Spring Framework. +
 Globally, this offers the ability to easily scale up to a million entities and at the same time allows great portability with no code 
 changes: MySQL, MariaDB, PostgreSQL, Oracle and MS SQL Server are fully supported deployment options.
  * *_Security_* defines a fine-grained set of entitlements which can be granted to administrators, thus enabling the 
 implementation of delegated administration scenarios.
-
-[.text-center]
-image::architecture.png[title="Architecture",alt="Architecture"]
-
-*_Admin UI_* is the web-based console for configuring and administering running deployments, with full support
-for delegated administration.
-
-*_End-user UI_* is the web-based application for self-registration, self-service and password reset.
-
-*_CLI_* is the command-line application for interacting with Apache Syncope from scripts, particularly useful for 
-system administrators.
 
 Third-party applications are provided full access to IdM services by leveraging the REST interface, either via the 
 Java _SyncopeClient_ library (the basis of Admin UI, End-user UI and CLI) or plain HTTP calls.

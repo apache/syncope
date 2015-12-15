@@ -18,10 +18,10 @@ specific language governing permissions and limitations
 under the License.
 
 -->
-<project xmlns="http://maven.apache.org/DECORATION/1.1.0" 
+<project xmlns="http://maven.apache.org/DECORATION/1.6.0" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.1.0 
-                             http://maven.apache.org/xsd/decoration-1.1.0.xsd" 
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.6.0 
+                             http://maven.apache.org/xsd/decoration-1.6.0.xsd" 
          name="Apache Syncope">
 
   <publishDate position="none"/>
@@ -38,7 +38,7 @@ under the License.
       <sideBarEnabled>true</sideBarEnabled>
       <leftColumnClass>span2</leftColumnClass>
       <bodyColumnClass>span10</bodyColumnClass>
-      <sourceLineNumbersEnabled>true</sourceLineNumbersEnabled>
+      <sourceLineNumbersEnabled>false</sourceLineNumbersEnabled>
       <skipGenerationDate>true</skipGenerationDate>
       <twitter>
         <user>syncopeidm</user>
@@ -60,18 +60,12 @@ under the License.
       <item name="Apache Syncope" href="http://syncope.apache.org/"/>
     </breadcrumbs>
         
-    <menu name="Overview">
-      <item name="Features" href="features.html"/>
+    <menu name="Apache Syncope™" inherit="top">
+      <item name="IAM Scenario" href="iam-scenario.html"/>
       <item name="Architecture" href="architecture.html"/>
       <item name="Downloads" href="downloads.html"/>
       <item name="Security Advisories" href="security.html"/>
       <item name="Documentation" href="docs/index.html"/>
-      <item name="References">
-        <item name="REST 2.0" href="rest/2.0/index.html"/>
-        <item name="REST 1.2" href="rest/1.2/index.html"/>
-        <item name="Javadocs 2.0" href="apidocs/2.0/index.html"/>
-        <item name="Javadocs 1.2" href="apidocs/1.2/index.html"/>
-      </item>
       <item name="Mailing Lists" href="mailing-lists.html"/>
       <item name="Project Team" href="team-list.html"/>
       <item name="License" href="license.html"/>

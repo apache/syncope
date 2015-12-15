@@ -1731,6 +1731,7 @@ under the License.
                   <version>2.10.3</version>
                   <configuration>
                     <destDir>apidocs/2.0</destDir>
+                    <isOffline>false</isOffline>
                     <detectLinks>true</detectLinks>
                     <detectJavaApiLink>true</detectJavaApiLink>
                     <links>
@@ -1739,7 +1740,7 @@ under the License.
                       <link>http://connid.tirasa.net/apidocs/1.4/</link>
                       <link>http://camel.apache.org/maven/current/camel-core/apidocs/</link>
                       <link>http://camel.apache.org/maven/current/camel-spring/apidocs/</link>
-                      <link>http://ci.apache.org/projects/wicket/apidocs/7.x/</link>
+                      <link>https://ci.apache.org/projects/wicket/apidocs/7.x/</link>
                       <link>http://docs.spring.io/spring/docs/4.2.x/javadoc-api/</link>
                       <link>http://docs.spring.io/spring-security/site/docs/4.0.x/apidocs/</link>
                       <link>http://activiti.org/javadocs/</link>
@@ -1757,6 +1758,20 @@ under the License.
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
+              <execution>
+                <id>fix-FacebookLike-width</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>post-site</phase>
+                <configuration>
+                  <target>
+                    <replace dir="${rootpom.basedir}/target/site" token="48px" value="70px">
+                      <include name="**/*.html"/>
+                    </replace>
+                  </target>
+                </configuration>
+              </execution>
               <execution>
                 <id>copy-docs-to-site</id>
                 <goals>

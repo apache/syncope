@@ -44,20 +44,27 @@ under the License.
             whether someone had already encountered the same issue.
           </li>
           <li>If this issue was never encountered before, create a new 
-            <a href="http://issues.apache.org/jira/browse/SYNCOPE">JIRA</a> issue.
+            <a href="https://issues.apache.org/jira/browse/SYNCOPE">JIRA</a> issue.
           </li>
           <li>Develop / describe a test case to demonstrate the issue.</li>
           <li>Attach the new test to the JIRA issue.</li>
-          <li>If you have also developed a fix for the raised issue, attach a patch to it. Here are some useful 
-            <a href="https://commons.apache.org/patches.html">guidelines</a> about how to correctly generate a patch.
+          <li>If you have also developed a fix for the raised issue, either
+            <ul>
+              <li>attach a patch to it; here are some useful 
+                <a href="https://commons.apache.org/patches.html">guidelines</a> about how to correctly generate a patch.
+              </li>
+              <li>open a <a href="https://github.com/apache/syncope/pulls">pull request</a> - don't forget to
+                mention the JIRA issue id (e.g. SYNCOPE-XXX) opened above in the commit log message</li>
+            </ul>
           </li>
         </ul>
       </subsection>
 
       <subsection name="Documentation">
         <p>The website is managed via the 
-          <a href="http://maven.apache.org/plugins/maven-site-plugin/">maven-site-plugin</a>, hence contributing site 
-          content is similar to contributing source code: Create a new issue on JIRA and attach a GIT patch to it.
+          <a href="http://maven.apache.org/plugins/maven-site-plugin/">maven-site-plugin</a> and the guides are being
+          maintained with <a href="http://asciidoctor.org/">Asciidoctor</a>, hence contributing site content or
+          guides is similar to contributing source code: create a new issue on JIRA and attach a GIT patch to it.
         </p>
         <p>The project 
           <a href="http://cwiki.apache.org/confluence/display/SYNCOPE">Wiki</a> is also available to gather any other 
@@ -98,7 +105,7 @@ under the License.
         <a href="http://www.apache.org/licenses/#clas">Corporate Contributors License Agreement (CCLA)</a>).
       </p>
       <p>If you're interested in committing to the project, you need to establish a history over time of successful 
-         contributions to the project. After that, you may be invited to become a committer.
+        contributions to the project. After that, you may be invited to become a committer.
       </p>
       <ul>
         <li>

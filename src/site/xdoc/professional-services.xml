@@ -28,10 +28,13 @@ under the License.
 
   <body>    
     <section name="Professional Services">
-      The following companies provide professional services around Apache Syncope (in alphabetical order):
-      <ul>
-        <li><a href="http://syncope.tirasa.net">Tirasa</a></li>
-      </ul>
+      
+      <p>The companies below provide enterprise support and professional services around Apache Syncope.</p>
+      
+      <a href="http://www.tirasa.net/businessproposition/apache-syncope.html" target="_blank">
+        <img src="http://www.tirasa.net/images/logo.png" width="300"/>
+      </a>
+      
     </section>
   </body>
 </document>

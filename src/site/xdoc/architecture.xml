@@ -27,119 +27,124 @@ under the License.
   </properties>
 
   <body>
-
-    <div class="toc_container">
-      <macro name="toc">
-        <param name="class" value="toc"/>
-      </macro>
-    </div>
+    <section name="Architecture">      
       
-    <section name="Introduction">
-      <p>
-        From a high-level point of view, the component architecture of Apache Syncope can be summarized by the following
-        figure:
-        <div style="width:100%; text-align:center; margin:20px;">
-          <img src="images/apache-syncope-architecture.png" alt="Apache Syncope Architecture" width="600px"/>
-        </div>
-        Apache Syncope is composed by two main subsystems: 
-        <a href="#The_core">core</a> and 
-        <a href="#The_console">console</a>.
-      </p>
-    </section>
-
-    <section name="The core">
-      <p>
-        The web application that implements IdM features. It offers a RESTful interface for caller applications, 
-        implements the provisioning core by mean of its workflow engine and its propagation layer, and manages data 
-        persistence.
+      <p style="text-align:center;">
+        <img src="docs/images/architecture.png" alt="Syncope architecture" width="600"/>
       </p>
       
-      <subsection name="Apache Syncope core logic">
-        <p>
-          This central component orchestrates the whole data flow throughout the system.
-          Handles RESTful calls, processes data alongside the defined workflow and propagates to and synchronizes from 
-          configured external resources (if needed).
-        </p>
-      </subsection>
-
-      <subsection name="RESTful controllers">
-        <p>
-          RESTful controllers take care of communication with outside world.
-          Implemented by leveraging Spring's REST and MVC features, these controllers exchange data in both XML and JSON
-          formats.
-        </p>
-      </subsection>
-
-      <subsection name="Workflow engine">
-        <p>
-          The Workflow engine is a pluggable aspect of Apache Syncope: this lets every deployment choose among one of 
-          provided engine implementations or define new, custom ones.
-        </p>
-
-        <p>
-          The default implementation is based on 
-          <a href="http://www.activiti.org" target="_blank">Activiti BPM</a>, the reference Open Source implementation 
-          that supports the definition of an XML descriptor in which the user lifecycle is defined.
-          This aspect makes the whole system very flexible to adapt to different situations.
-          <br/>
-          The default implementation also provides notification, approval, and end-user request management.
-        </p>
-      </subsection>
-
-      <subsection name="JPA persistence layer">
-        <p>
-          All data in Apache Syncope (users, groups, attributes, resources, ...) is managed at a high level using a 
-          standard JPA 2.0 approach and persisted to an underlying database.
-        </p>
-        <p>
-          <a href="http://openjpa.apache.org">Apache OpenJPA</a>, the chosen JPA implementation, allows Apache Syncope 
-          to be successfully deployable to most DBMSs without any modification of the source code; for more information,
-          see these 
-          <a href="http://openjpa.apache.org/builds/2.3.0/apache-openjpa/docs/ref_guide_dbsetup_dbsupport.html">available options</a>.
-          <br/>
-          Currently, Apache Syncope officially supports MySQL, PostgreSQL, Oracle DB and MS SQL Server.
-        </p>
-      </subsection>
-
-      <subsection name="Connectors layer">
-        <p>
-          The Connector layer is implemented with 
-          <a href="http://connid.tirasa.net" target="_blank">ConnId</a>; ConnId is designed to separate the 
-          implementation of an application from the dependencies of the system that the application is attempting to 
-          connect to.
-        </p>
-        <p>
-          Connid is the continuation of Identity connectors, a project that used to be part of market leader Sun IdM 
-          and has since been released by Sun as an Open Source project.
-          This makes the connectors layer particularly reliable since most connectors have already been implemented in 
-          the framework and widely tested. 
-          The new ConnId project provides all that is required nowadays for a modern Open Source project, including an 
-          Apache Maven driven build, artifacts and mailing lists.
-          Additional connectors – such as for SOAP, CSV and Active Directory – are also provided.
-        </p>
-        <p>
-          Apache Syncope supports either
-          <ul>
-            <li>
-              <em>propagation</em> towards external resources (when user data is copied from Syncope to external 
-              resources)
-            </li>
-            <li>
-              <em>synchronization</em> from external resources (when user data is pulled from external resources into 
-              Syncope)
-            </li>
-          </ul>
-        
-          Propagation and synchronization operations – a.k.a tasks – are saved for reporting and later re-execution.
-        </p>
-      </subsection>
-    </section>
-
-    <section name="The console">
-      <p>The web management interface for configuring and administering Syncope core, implemented with 
-        <a href="http://wicket.apache,org">Apache Wicket</a>
+      <p>
+        <strong>
+          <em>Admin UI</em>
+        </strong> is the web-based console for configuring and administering running deployments, with full support
+        for delegated administration.
       </p>
-      <p>As with other external applications, the console communicates with the core using REST calls.</p>
+
+      <p>
+        <strong>
+          <em>End-user UI</em>
+        </strong> is the web-based application for self-registration, self-service and password reset
+      </p>
+
+      <p>
+        <strong>
+          <em>CLI</em>
+        </strong> is the command-line application for interacting with Apache Syncope from scripts, particularly 
+        useful for system administrators.
+      </p>
+
+      <p>
+        <strong>
+          <em>Core</em>
+        </strong> is the central component, providing all services offered by Apache Syncope.<br/>
+        It exposes a fully-compliant 
+        <a target="_blank" href="https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services">JAX-RS 2.0</a>
+        <a target="_blank" href="https://en.wikipedia.org/wiki/Representational_state_transfer">RESTful</a> 
+        interface which enables third-party applications, written in any programming language, to consume IdM 
+        services.
+      </p>
+
+      <ul>
+        <li>
+          <p>
+            <strong>
+              <em>Logic</em>
+            </strong> implements the overall business logic that can be triggered via REST services, and controls some 
+            additional features (notifications, reports and audit over all)
+          </p>
+        </li>
+        <li>
+          <p>
+            <strong>
+              <em>Provisioning</em>
+            </strong> is involved with managing the internal (via workflow) and external (via specific connectors)
+            representation of users, groups and any objects.<br/>
+            This component often needs to be tailored to meet the requirements of a specific deployment, as it is the 
+            crucial decision point for defining and enforcing the consistency and transformations between internal and 
+            external data. The default all-Java implementation can be extended for this purpose.
+            In addition, an <a target="_blank" href="http://camel.apache.org/">Apache Camel</a>-based
+            implementation is also available as an extension, which brings all the power of runtime changes and 
+            adaptation.
+          </p>
+        </li>
+        <li>
+          <p>
+            <strong>
+              <em>Workflow</em>
+            </strong> is one of the pluggable aspects of Apache Syncope: this lets every deployment choose the preferred 
+            engine from a provided list - including the one based on 
+            <a target="_blank" href="http://www.activiti.org/">Activiti BPM</a>, the reference open source
+            <a target="_blank" href="http://www.bpmn.org/">BPMN 2.0</a> implementation - or define new, custom ones.
+          </p>
+        </li>
+        <li>
+          <p>
+            <strong>
+              <em>Persistence</em>
+            </strong> manages all data (users, groups, attributes, resources, …&#8203;) at a high level
+            using a standard <a target="_blank" href="https://en.wikipedia.org/wiki/Java_Persistence_API">JPA 2.0</a> 
+            approach. The data is persisted to an underlying database, referred to as <strong>
+              <em>Internal Storage</em>
+            </strong>. Consistency is ensured via the comprehensive
+            <a target="_blank" href="http://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/transaction.html">transaction management</a>
+            provided by the Spring Framework.<br/>
+            Globally, this offers the ability to easily scale up to a million entities and at the same time allows great 
+            portability with no code changes: MySQL, MariaDB, PostgreSQL, Oracle and MS SQL Server are fully supported 
+            deployment options.
+          </p>
+        </li>
+        <li>
+          <p>
+            <strong>
+              <em>Security</em>
+            </strong> defines a fine-grained set of entitlements which can be granted to administrators, thus enabling 
+            the implementation of delegated administration scenarios
+          </p>
+        </li>
+      </ul>
+      
+      <p>
+        Third-party applications are provided full access to IdM services by leveraging the REST interface, either 
+        via the Java <em>SyncopeClient</em> library (the basis of Admin UI, End-user UI and CLI) or plain HTTP calls.
+      </p>
+      
+      <subsection name="ConnId">
+        <p>The <strong>
+            <em>Provisioning</em>
+          </strong> layer relies on <a href="http://connid.tirasa.net" target="_blank">ConnId</a>; ConnId is designed 
+          to separate the implementation of an application from the dependencies of the system that the application is 
+          attempting to connect to.
+        </p>
+
+        <p>ConnId is the continuation of The Identity Connectors Framework (Sun ICF), a project that used to be part of
+          market leader Sun IdM and has since been released by Sun Microsystems as an Open Source project.
+          This makes the connectors layer particularly reliable because most connectors have already been implemented 
+          in the framework and widely tested.</p>
+
+        <p>The new ConnId project, featuring contributors from several companies, provides all that is required 
+          nowadays for a modern Open Source project, including an Apache Maven driven build, artifacts and mailing 
+          lists. Additional connectors – such as for SOAP, CSV, PowerShell and Active Directory – are also provided.</p>
+      </subsection>
     </section>
   </body>
 </document>

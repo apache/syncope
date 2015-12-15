@@ -37,14 +37,44 @@ under the License.
       </p>
 
       <p>
-        <span style="font-weight: bold">Identity management</span> (or IdM) represents the joint result of business process and IT to manage user data on systems
-        and applications. IdM involves considering user attributes, groups, resources and entitlements in trying to give a 
-        decent answer to the question bumping up every time in an IT administrator's mind:
+        <span style="font-weight: bold">Identity management</span> (or IdM) means to manage user data on systems and 
+        applications, using the combination of business processes and IT. IdM involves considering user attributes, 
+        roles, resources and entitlements in trying to answer the following thorny question:
       </p>
 
       <p style="text-align:center;">
         <i>Who has access to What, When, How, and Why?</i>
       </p>
     </div>
+
+    <h4>What is Identity Management, anyway?</h4>
+    <dl>
+      <dt>Account</dt>
+      <dd>
+        <p>Computers work with records of data about people. Such records contain technical information needed by 
+          the system for which the account is created and managed.</p>
+      </dd>
+      <dt>(Digital) Identity</dt>
+      <dd>
+        <p>A representation of a set of claims made by one digital subject about itself.
+          <strong>It’s you!</strong>
+        </p>
+      </dd>
+    </dl>
+      
+    <p>Have you ever been hired by a company, entered an organization or just created a new Google account?
+      Companies, organizations and cloud entities work with applications that need your data to function properly:
+      username, password, e-mail, first name, surname, and more.</p>
+        
+    <p>Where is this information going to come from? And what happens when you need to be enabled for more 
+      applications? And what if you get promoted and acquire more rights on the applications you already had access 
+      to? Most important, what happens when you quit or they gently let you go?</p>
+        
+    <p>In brief, Identity Management takes care of managing identity data throughout what is called the 
+      <strong>Identity Lifecycle</strong>.</p>
+        
+    <p style="text-align:center;">
+      <img src="docs/images/identityLifecycle.png" alt="Identity lifecycle" width="500"/>
+    </p>
   </body>
 </document>
