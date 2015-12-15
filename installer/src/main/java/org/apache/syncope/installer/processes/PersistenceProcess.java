@@ -55,15 +55,16 @@ public class PersistenceProcess extends BaseProcess {
         mysqlInnoDB = Boolean.valueOf(args[6]);
         schema = args[7];
 
-        StringBuilder masterProperties = new StringBuilder(MasterProperties.HEADER);
+        final StringBuilder masterProperties = new StringBuilder(MasterProperties.HEADER);
         setSyncopeInstallDir(installPath, artifactId);
 
-        FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
+        final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
         final File provisioningFile = new File(
                 syncopeInstallDir + PROPERTIES.getProperty("provisioningPropertiesFile"));
 
-        final StringBuilder provisioningProperties
-                = new StringBuilder(removeLastTwoLine(fileSystemUtils.readFile(provisioningFile)));
+        final String provisioningFileString = fileSystemUtils.readFile(provisioningFile);
+        final StringBuilder provisioningProperties = new StringBuilder(
+                provisioningFileString.substring(0, provisioningFileString.indexOf("quartz.jobstore")));
         handler.logOutput("Configure persistence for " + dbSelected, false);
         InstallLog.getInstance().info("Configure persistence for " + dbSelected);
 
@@ -110,14 +111,5 @@ public class PersistenceProcess extends BaseProcess {
         fileSystemUtils.writeToFile(new File(
                 syncopeInstallDir + PROPERTIES.getProperty("masterPropertiesFile")),
                 masterProperties.toString());
-    }
-
-    private String removeLastTwoLine(final String string) {
-        int truncateIndex = string.length();
-
-        for (int i = 0; i < 3; i++) {
-            truncateIndex = string.lastIndexOf('\n', truncateIndex - 1);
-        }
-        return string.substring(0, truncateIndex);
     }
 }

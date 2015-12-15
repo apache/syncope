@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Properties;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import org.apache.syncope.installer.files.CorePom;
 import org.apache.syncope.installer.files.ParentPom;
 import org.apache.syncope.installer.utilities.InstallLog;
 import org.apache.syncope.installer.utilities.MavenUtils;
@@ -95,6 +96,13 @@ public class ArchetypeProcess extends BaseProcess {
         mavenUtils.archetypeGenerate(
                 syncopeVersion, groupId, artifactId, secretKey, anonymousKey, installPath, customMavenProxySettings);
 
+        if (syncopeVersion.contains("SNAPSHOT")) {
+            final File pomFile = new File(syncopeInstallDir + PROPERTIES.getProperty("pomFile"));
+            String contentPomFile = fileSystemUtils.readFile(pomFile);       
+            fileSystemUtils.
+                    writeToFile(pomFile, contentPomFile.replace(ParentPom.REPOSITORY_PLACEHOLDER, ParentPom.REPOSITORY_CONTENT_TO_ADD));
+        }
+        
         if (swagger) {
             final File pomFile = new File(
                     syncopeInstallDir
@@ -103,11 +111,24 @@ public class ArchetypeProcess extends BaseProcess {
                     + File.separator
                     + PROPERTIES.getProperty("pomFile"));
             String contentPomFile = fileSystemUtils.readFile(pomFile);
-            contentPomFile = contentPomFile.replace(
-                    ParentPom.REPOSITORY_PLACEHOLDER, ParentPom.REPOSITORY_CONTENT_TO_ADD);
-            contentPomFile = contentPomFile.replace(ParentPom.SWAGGER_PLACEHOLDER, ParentPom.SWAGGER_CONTENT_TO_ADD);
+            contentPomFile = contentPomFile.replace(CorePom.SWAGGER_PLACEHOLDER, CorePom.SWAGGER_CONTENT_TO_ADD);
 
             fileSystemUtils.writeToFile(pomFile, contentPomFile);
+        }
+        
+        if (camel) {
+            final File pomFile = new File(
+                    syncopeInstallDir
+                    + File.separator
+                    + "core"
+                    + File.separator
+                    + PROPERTIES.getProperty("pomFile"));
+            String contentPomFile = fileSystemUtils.readFile(pomFile);
+            contentPomFile = contentPomFile.replace(CorePom.CAMEL_PLACEHOLDER, CorePom.CAMEL_CONTENT_TO_ADD);
+
+            fileSystemUtils.writeToFile(pomFile, contentPomFile);
+            fileSystemUtils.copyFileFromResources("/provisioning.properties",
+                syncopeInstallDir + PROPERTIES.getProperty("provisioningPropertiesFile"), handler);
         }
 
         fileSystemUtils.createDirectory(confDirectory);

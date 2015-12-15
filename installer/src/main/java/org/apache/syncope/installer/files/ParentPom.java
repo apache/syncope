@@ -20,26 +20,17 @@ package org.apache.syncope.installer.files;
 
 public final class ParentPom {
 
-    public static final String SWAGGER_PLACEHOLDER = "<dependencies>";
-
-    public static final String SWAGGER_CONTENT_TO_ADD = "<dependencies>\n"
-            + "    <dependency>\n"
-            + "      <groupId>org.apache.syncope.ext</groupId>\n"
-            + "      <artifactId>syncope-ext-swagger-ui</artifactId>\n"
-            + "      <version>${syncope.version}</version>\n"
-            + "    </dependency>\n";
-
     public static final String REPOSITORY_PLACEHOLDER = "</project>";
 
     public static final String REPOSITORY_CONTENT_TO_ADD = "  <repositories>\n"
-            + "  <repository>\n"
-            + "    <id>ASF</id>\n"
-            + "    <url>https://repository.apache.org/content/repositories/snapshots/</url>\n"
-            + "    <snapshots>\n"
-            + "      <enabled>true</enabled>\n"
-            + "    </snapshots>\n"
-            + "  </repository>\n"
-            + "</repositories>\n"
+            + "    <repository>\n"
+            + "      <id>ASF</id>\n"
+            + "      <url>https://repository.apache.org/content/repositories/snapshots/</url>\n"
+            + "      <snapshots>\n"
+            + "        <enabled>true</enabled>\n"
+            + "      </snapshots>\n"
+            + "    </repository>\n"
+            + "  </repositories>\n"
             + "</project>\n";
 
     private ParentPom() {
