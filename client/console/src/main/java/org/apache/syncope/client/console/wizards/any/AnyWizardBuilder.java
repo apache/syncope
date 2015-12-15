@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
@@ -79,6 +80,11 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<AnyHand
         final String[] clazzes = anyTypeClasses.toArray(new String[] {});
         // optional details panel step
         addOptionalDetailsPanel(modelObject, wizardModel);
+
+        if ((this instanceof GroupWizardBuilder) && (modelObject.getInnerObject() instanceof GroupTO)) {
+            wizardModel.add(new Ownership(GroupHandler.class.cast(modelObject)));
+            wizardModel.add(new DynamicMemberships(GroupHandler.class.cast(modelObject)));
+        }
 
         wizardModel.add(new AuxClasses(modelObject.getInnerObject(), clazzes));
 

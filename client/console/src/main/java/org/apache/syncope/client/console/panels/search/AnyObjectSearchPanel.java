@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -69,20 +70,20 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.groupNames = new LoadableDetachableModel<List<String>>() {
+        this.groupNames = new LoadableDetachableModel<List<Pair<Long, String>>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected List<String> load() {
+            protected List<Pair<Long, String>> load() {
                 List<GroupTO> groupTOs = groupRestClient.list("/",
                         -1, -1,
                         new SortParam<>("name", true),
                         null);
 
-                List<String> result = new ArrayList<>(groupTOs.size());
+                List<Pair<Long, String>> result = new ArrayList<>(groupTOs.size());
                 for (GroupTO group : groupTOs) {
-                    result.add(group.getName());
+                    result.add(Pair.of(group.getKey(), group.getName()));
                 }
 
                 return result;

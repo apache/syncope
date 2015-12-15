@@ -24,10 +24,14 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.IModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Details<T extends AnyTO> extends WizardStep {
 
     private static final long serialVersionUID = -8995647450549098844L;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(Details.class);
 
     protected final PageReference pageRef;
 

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
@@ -64,7 +65,7 @@ public abstract class AbstractSearchPanel extends Panel {
 //    protected IModel<List<String>> entitlements;
     protected IModel<List<SearchClause.Type>> types;
 
-    protected IModel<List<String>> groupNames;
+    protected IModel<List<Pair<Long, String>>> groupNames;
 
     protected NotificationPanel searchFeedback;
 

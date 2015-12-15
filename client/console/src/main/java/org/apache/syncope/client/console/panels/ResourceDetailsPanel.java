@@ -125,6 +125,6 @@ public class ResourceDetailsPanel extends Panel {
                 new Model<String>(model.getObject().getConnectorDisplayName()),
                 false).addRequiredLabel().setEnabled(false));
 
-        add(new AnnotatedBeanPanel("systeminformation", model.getObject()));
+        add(new AnnotatedBeanPanel("systeminformation", model.getObject()).setRenderBodyOnly(true));
     }
 }

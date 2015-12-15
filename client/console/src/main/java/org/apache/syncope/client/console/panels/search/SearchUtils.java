@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
@@ -46,11 +47,16 @@ public final class SearchUtils implements Serializable {
 
     }
 
+    private static Pattern getTypeConditionPattern(final String type) {
+        return Pattern.compile(String.format(";\\$type==%s|\\$type==%s;", type, type));
+    }
+
     public static Map<String, List<SearchClause>> getSearchClauses(final Map<String, String> fiql) {
         final Map<String, List<SearchClause>> res = new HashMap<>();
         if (fiql != null && !fiql.isEmpty()) {
             for (Map.Entry<String, String> entry : fiql.entrySet()) {
-                res.put(entry.getKey(), getSearchClauses(entry.getValue()));
+                res.put(entry.getKey(), getSearchClauses(
+                        entry.getValue().replaceAll(getTypeConditionPattern(entry.getKey()).pattern(), "")));
             }
         }
         return res;
@@ -115,13 +121,7 @@ public final class SearchUtils implements Serializable {
 
         if (SpecialAttr.GROUPS.toString().equals(property)) {
             res.setType(SearchClause.Type.MEMBERSHIP);
-            // check if the following is really required
-
-//            for (String label : groupNames.getObject()) {
-//                if (value.equals(label.substring(0, label.indexOf(' ')))) {
-//                    searchClause.setProperty(label);
-//                }
-//            }
+            res.setProperty(value);
         } else if (SpecialAttr.RESOURCES.toString().equals(property)) {
             res.setType(SearchClause.Type.RESOURCE);
             res.setProperty(value);

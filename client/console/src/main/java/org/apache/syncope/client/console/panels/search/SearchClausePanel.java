@@ -24,7 +24,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.SearchClause.Comparator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Operator;
@@ -59,7 +64,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final IModel<List<String>> dnames;
 
-    private final IModel<List<String>> groupNames;
+    private final IModel<List<Pair<Long, String>>> groupNames;
 
     private final IModel<List<String>> resourceNames;
 
@@ -67,7 +72,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final LoadableDetachableModel<List<Comparator>> comparators;
 
-    private final LoadableDetachableModel<List<String>> properties;
+    private final LoadableDetachableModel<List<Pair<Long, String>>> properties;
 
     public SearchClausePanel(
             final String id,
@@ -77,7 +82,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final IModel<List<SearchClause.Type>> types,
             final IModel<List<String>> anames,
             final IModel<List<String>> dnames,
-            final IModel<List<String>> groupNames,
+            final IModel<List<Pair<Long, String>>> groupNames,
             final IModel<List<String>> resourceNames
     ) {
 
@@ -123,14 +128,14 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             }
         };
 
-        properties = new LoadableDetachableModel<List<String>>() {
+        properties = new LoadableDetachableModel<List<Pair<Long, String>>>() {
 
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected List<String> load() {
+            protected List<Pair<Long, String>> load() {
                 if (field.getModel().getObject() == null || field.getModel().getObject().getType() == null) {
-                    return Collections.<String>emptyList();
+                    return Collections.<Pair<Long, String>>emptyList();
                 }
 
                 switch (field.getModel().getObject().getType()) {
@@ -140,15 +145,28 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                             names.addAll(anames.getObject());
                         }
                         Collections.sort(names);
-                        return names;
+                        return CollectionUtils.collect(names, new Transformer<String, Pair<Long, String>>() {
+
+                            @Override
+                            public Pair<Long, String> transform(final String input) {
+                                return Pair.of(-1L, input);
+                            }
+                        }, new ArrayList<Pair<Long, String>>());
 
                     case MEMBERSHIP:
                         return groupNames.getObject();
 
                     case RESOURCE:
-                        return resourceNames.getObject();
+                        return CollectionUtils.collect(resourceNames.getObject(),
+                                new Transformer<String, Pair<Long, String>>() {
+
+                            @Override
+                            public Pair<Long, String> transform(final String input) {
+                                return Pair.of(-1L, input);
+                            }
+                        }, new ArrayList<Pair<Long, String>>());
                     default:
-                        return Collections.<String>emptyList();
+                        return Collections.<Pair<Long, String>>emptyList();
                 }
             }
         };
@@ -254,8 +272,27 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             }
         }.setVisible(getIndex() > 0).setOutputMarkupPlaceholderTag(true));
 
-        final AjaxDropDownChoicePanel<String> property = new AjaxDropDownChoicePanel<>(
-                "property", "property", new PropertyModel<String>(searchClause, "property"));
+        final AjaxDropDownChoicePanel<Pair<Long, String>> property = new AjaxDropDownChoicePanel<Pair<Long, String>>(
+                "property", "property", new PropertyModel<Pair<Long, String>>(searchClause, "property") {
+
+            private static final long serialVersionUID = -8430020195995502040L;
+
+            @Override
+            public Pair<Long, String> getObject() {
+                return Pair.of(
+                        searchClause.getType() == Type.MEMBERSHIP && searchClause.getProperty() != null
+                                ? Long.parseLong(searchClause.getProperty()) : -1L,
+                        searchClause.getProperty());
+            }
+
+            @Override
+            public void setObject(final Pair<Long, String> object) {
+                if (object != null) {
+                    searchClause.setProperty(
+                            object.getLeft() >= 0 ? String.valueOf(object.getLeft()) : object.getRight());
+                }
+            }
+        });
         property.hideLabel().setRequired(required).setOutputMarkupId(true);
         property.setChoices(properties);
         field.add(property);
@@ -282,7 +319,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                setFieldAccess(searchClause.getType(), comparator, value);
+                setFieldAccess(searchClause.getType(), property, comparator, value);
                 target.add(property);
                 target.add(comparator);
                 target.add(value);
@@ -310,13 +347,17 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             }
         });
 
-        setFieldAccess(searchClause.getType(), comparator, value);
+        setFieldAccess(searchClause.getType(), property, comparator, value);
 
         return this;
     }
 
     private void setFieldAccess(
-            final Type type, final FieldPanel<Comparator> comparator, final FieldPanel<String> value) {
+            final Type type,
+            final AjaxDropDownChoicePanel<Pair<Long, String>> property,
+            final FieldPanel<Comparator> comparator,
+            final FieldPanel<String> value) {
+
         if (type != null) {
             switch (type) {
                 case ATTRIBUTE:
@@ -327,10 +368,19 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     value.setEnabled(comparator.getModelObject() != SearchClause.Comparator.IS_NULL
                             && comparator.getModelObject() != SearchClause.Comparator.IS_NOT_NULL);
+                    property.setChoiceRenderer(new DefaultChoiceRender());
                     break;
-                default:
+                case MEMBERSHIP:
+                    property.setChoiceRenderer(new GroupChoiceRender());
                     value.setEnabled(false);
                     value.setModelObject("");
+                    break;
+                case RESOURCE:
+                    property.setChoiceRenderer(new DefaultChoiceRender());
+                    value.setEnabled(false);
+                    value.setModelObject("");
+                    break;
+                default:
             }
         }
     }
@@ -482,5 +532,54 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         panel.setReadOnly(this.isReadOnly());
         panel.setRequired(this.isRequired());
         return panel;
+    }
+
+    private class DefaultChoiceRender implements IChoiceRenderer<Pair<Long, String>> {
+
+        private static final long serialVersionUID = -8034248752951761058L;
+
+        @Override
+        public Object getDisplayValue(final Pair<Long, String> object) {
+            return object.getRight();
+        }
+
+        @Override
+        public String getIdValue(final Pair<Long, String> object, final int index) {
+            return object.getRight();
+        }
+
+        @Override
+        public Pair<Long, String> getObject(
+                final String id, final IModel<? extends List<? extends Pair<Long, String>>> choices) {
+            return IterableUtils.find(choices.getObject(), new Predicate<Pair<Long, String>>() {
+
+                @Override
+                public boolean evaluate(final Pair<Long, String> object) {
+                    return id.equals(object.getRight());
+                }
+            });
+        }
+    }
+
+    private class GroupChoiceRender extends DefaultChoiceRender {
+
+        private static final long serialVersionUID = -8034248752951761058L;
+
+        @Override
+        public String getIdValue(final Pair<Long, String> object, final int index) {
+            return String.valueOf(object.getLeft());
+        }
+
+        @Override
+        public Pair<Long, String> getObject(
+                final String id, final IModel<? extends List<? extends Pair<Long, String>>> choices) {
+            return IterableUtils.find(choices.getObject(), new Predicate<Pair<Long, String>>() {
+
+                @Override
+                public boolean evaluate(final Pair<Long, String> object) {
+                    return id.equals(String.valueOf(object.getLeft()));
+                }
+            });
+        }
     }
 }
