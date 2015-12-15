@@ -195,6 +195,12 @@ under the License.
         </includes>
       </resource>
       <resource>
+        <directory>${basedir}/../fit/core-reference/src/main/resources</directory>
+        <includes>
+          <include>workflow.properties</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>${basedir}</directory>
         <targetPath>META-INF</targetPath>
         <includes>

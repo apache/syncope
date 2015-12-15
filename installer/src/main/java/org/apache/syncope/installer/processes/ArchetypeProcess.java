@@ -98,11 +98,12 @@ public class ArchetypeProcess extends BaseProcess {
 
         if (syncopeVersion.contains("SNAPSHOT")) {
             final File pomFile = new File(syncopeInstallDir + PROPERTIES.getProperty("pomFile"));
-            String contentPomFile = fileSystemUtils.readFile(pomFile);       
+            String contentPomFile = fileSystemUtils.readFile(pomFile);
             fileSystemUtils.
-                    writeToFile(pomFile, contentPomFile.replace(ParentPom.REPOSITORY_PLACEHOLDER, ParentPom.REPOSITORY_CONTENT_TO_ADD));
+                    writeToFile(pomFile, contentPomFile.replace(ParentPom.REPOSITORY_PLACEHOLDER,
+                            ParentPom.REPOSITORY_CONTENT_TO_ADD));
         }
-        
+
         if (swagger) {
             final File pomFile = new File(
                     syncopeInstallDir
@@ -115,7 +116,7 @@ public class ArchetypeProcess extends BaseProcess {
 
             fileSystemUtils.writeToFile(pomFile, contentPomFile);
         }
-        
+
         if (camel) {
             final File pomFile = new File(
                     syncopeInstallDir
@@ -128,7 +129,7 @@ public class ArchetypeProcess extends BaseProcess {
 
             fileSystemUtils.writeToFile(pomFile, contentPomFile);
             fileSystemUtils.copyFileFromResources("/provisioning.properties",
-                syncopeInstallDir + PROPERTIES.getProperty("provisioningPropertiesFile"), handler);
+                    syncopeInstallDir + PROPERTIES.getProperty("provisioningPropertiesFile"), handler);
         }
 
         fileSystemUtils.createDirectory(confDirectory);
@@ -136,29 +137,45 @@ public class ArchetypeProcess extends BaseProcess {
         fileSystemUtils.createDirectory(bundlesDirectory);
         fileSystemUtils.createDirectory(modelerDirectory);
 
-        fileSystemUtils.copyFileFromResources(File.separator + PROPERTIES.getProperty("modelerPomFile"),
-                modelerDirectory + File.separator + PROPERTIES.getProperty("pomFile"), handler);
+        if (activiti) {
+            fileSystemUtils.copyFileFromResources(File.separator + PROPERTIES.getProperty("modelerPomFile"),
+                    modelerDirectory + File.separator + PROPERTIES.getProperty("pomFile"), handler);
 
-        final File modelerPomFile = new File(modelerDirectory + File.separator + PROPERTIES.getProperty("pomFile"));
+            final File modelerPomFile = new File(modelerDirectory + File.separator + PROPERTIES.getProperty("pomFile"));
 
-        final String contentModelerPomFile = fileSystemUtils.readFile(modelerPomFile);
-        fileSystemUtils.
-                writeToFile(modelerPomFile, String.format(contentModelerPomFile, modelerDirectory));
+            final String contentModelerPomFile = fileSystemUtils.readFile(modelerPomFile);
+            fileSystemUtils.
+                    writeToFile(modelerPomFile, String.format(contentModelerPomFile, modelerDirectory));
+            fileSystemUtils.copyFile(
+                    syncopeInstallDir
+                    + PROPERTIES.getProperty("consoleResDirectory")
+                    + File.separator + PROPERTIES.getProperty("urlConfig"),
+                    modelerDirectory + File.separator + PROPERTIES.getProperty("urlConfig"));
+            fileSystemUtils.copyFile(
+                    syncopeInstallDir
+                    + PROPERTIES.getProperty("consoleResDirectory")
+                    + File.separator + PROPERTIES.getProperty("saveModel"),
+                    modelerDirectory + File.separator + PROPERTIES.getProperty("saveModel"));
 
-        fileSystemUtils.copyFile(
-                syncopeInstallDir
-                + PROPERTIES.getProperty("consoleResDirectory")
-                + File.separator + PROPERTIES.getProperty("urlConfig"),
-                modelerDirectory + File.separator + PROPERTIES.getProperty("urlConfig"));
-        fileSystemUtils.copyFile(
-                syncopeInstallDir
-                + PROPERTIES.getProperty("consoleResDirectory")
-                + File.separator + PROPERTIES.getProperty("saveModel"),
-                modelerDirectory + File.separator + PROPERTIES.getProperty("saveModel"));
+            final Properties modelerProperties = new Properties();
+            modelerProperties.setProperty("modeler.directory", modelerDirectory);
+            mavenUtils.mvnCleanPackageWithProperties(modelerDirectory, modelerProperties, customMavenProxySettings);
+            FileSystemUtils.delete(new File(modelerDirectory + File.separator + PROPERTIES.getProperty("saveModel")));
+            FileSystemUtils.delete(new File(modelerDirectory + File.separator + PROPERTIES.getProperty("urlConfig")));
+        } else {
+            final File pomFile = new File(
+                    syncopeInstallDir
+                    + File.separator
+                    + "core"
+                    + File.separator
+                    + PROPERTIES.getProperty("pomFile"));
+            String contentPomFile = fileSystemUtils.readFile(pomFile);
+            contentPomFile = contentPomFile.replace(CorePom.ACTIVITI_PLACEHOLDER, "");
+            fileSystemUtils.writeToFile(pomFile, contentPomFile);
 
-        final Properties modelerProperties = new Properties();
-        modelerProperties.setProperty("modeler.directory", modelerDirectory);
-        mavenUtils.mvnCleanPackageWithProperties(modelerDirectory, modelerProperties, customMavenProxySettings);
+            fileSystemUtils.copyFileFromResources("/workflow.properties",
+                    syncopeInstallDir + PROPERTIES.getProperty("workflowPropertiesFile"), handler);
+        }
 
         final Properties syncopeProperties = new Properties();
         syncopeProperties.setProperty("conf.directory", confDirectory);
@@ -166,7 +183,5 @@ public class ArchetypeProcess extends BaseProcess {
         syncopeProperties.setProperty("bundles.directory", bundlesDirectory);
         mavenUtils.mvnCleanPackageWithProperties(
                 installPath + File.separator + artifactId, syncopeProperties, customMavenProxySettings);
-        FileSystemUtils.delete(new File(modelerDirectory + File.separator + PROPERTIES.getProperty("saveModel")));
-        FileSystemUtils.delete(new File(modelerDirectory + File.separator + PROPERTIES.getProperty("urlConfig")));
     }
 }

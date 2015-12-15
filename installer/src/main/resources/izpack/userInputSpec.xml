@@ -52,10 +52,6 @@ under the License.
       <spec id="archetype.mvn.log.directory" size="20" set="/var/tmp/syncope/log" mustExist="false" create="true"/>
     </field>
     <field type="space"/>
-    <field type="dir" variable="mvn.modeler.directory">
-      <spec id="archetype.mvn.modeler.directory" size="20" set="/var/tmp/syncope/modeler" mustExist="false" create="true"/>
-    </field>
-    <field type="space"/>
     <field type="dir" variable="mvn.bundle.directory">
       <spec id="archetype.mvn.bundle.directory" size="20" set="/var/tmp/syncope/bundles" mustExist="false" create="true"/>
     </field>
@@ -113,7 +109,11 @@ under the License.
       <spec id="options.camel.id" true="true" false="false" set="false"/>
     </field>
     <field type="check" variable="options.activiti.workflow.adapter">
-      <spec id="options.activiti.workflow.adapter.id" true="true" false="false" set="false"/>
+      <spec id="options.activiti.workflow.adapter.id" true="true" false="false" set="true"/>
+    </field>
+    <field type="space"/>
+    <field type="dir" variable="mvn.modeler.directory" conditionid="options.choice.activiti">
+      <spec id="archetype.mvn.modeler.directory" size="20" set="/var/tmp/syncope/modeler" mustExist="false" create="true"/>
     </field>
   </panel>
   
