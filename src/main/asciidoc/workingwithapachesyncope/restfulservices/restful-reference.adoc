@@ -35,6 +35,18 @@ image::restSchemaReferenceLogger.png[restSchemaReferenceLogger]
 
 ===== Swagger UI
 From the 2.0 version, Syncope offers also the Swagger UI to work with its services.
+
+The Swagger installation is really simple because you just add the Maven dependency to your core pom.xml file generated
+from the archetype operation; the dependency is:
+[source, xml]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext</groupId>
+  <artifactId>syncope-ext-swagger-ui</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
 The swagger interface is available going to the URL
 [source]
 --
