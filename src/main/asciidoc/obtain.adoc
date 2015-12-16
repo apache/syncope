@@ -83,77 +83,7 @@ This will create H2 database files in the home directory of the user running Apa
 Please refer to the http://www.h2database.com/[H2 documentation^] for more options.
 ====
 
-=== Debian packages
-
-Debian packages are available for use with http://www.debian.org/[Debian GNU / Linux^], 
-http://www.ubuntu.com/[Ubuntu^] and their derivatives. 
-
-[CAUTION]
-.Target Audience
-Getting up and running quickly on Debian / Ubuntu. +
-*Difficult to extend beyond pre-sets.*
-
-Download::
-http://syncope.apache.org/downloads.html[Download^] the latest .deb packages
-Prepare::
-. Install Apache Tomcat 8 and PostgreSQL
-+
-[source,bash]
-sudo apt-get install tomcat8 libpostgresql-jdbc-java postgresql postgresql-client
-+
-. Use the PostgreSQL JDBC driver with Tomcat
-+
-[source,bash]
-sudo ln -s /usr/share/java/postgresql-jdbc4.jar /usr/share/tomcat8/lib/
-+
-. Replace `JAVA_OPTS` in `/etc/default/tomcat8` with the following:
-+
-[source,bash]
-----
-JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
-  -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m 
-  -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+DisableExplicitGC"
-----
-+
-Install::
-. Stop Tomcat
-+
-[source,bash]
-sudo service tomcat8 stop
-+
-. Install Apache Syncope core and console via the downloaded packages
-+
-[source,bash]
-sudo dpkg -i apache-syncope-*.deb
-+
-. Create a database for use with Apache Syncope
-+
-[source,bash]
-sudo SYNCOPE_USER="syncope" SYNCOPE_PASS="syncope" sh /usr/share/apache-syncope/dbinit-postgresql.sh
-+
-. Start Tomcat
-+
-[source,bash]
-sudo service tomcat8 start
-
-==== Components
-
-CAUTION: The following assumes that Apache Tomcat is reachable on host `host.domain` and port `port`. 
-
-[cols="1,2"]
-|===
-
-| Complete REST API reference
-| http://host.domain:port/syncope/index.html
-
-| http://swagger.io/[Swagger^] UI
-| http://host.domain:port/syncope/swagger/
-
-| Administration console
-| http://localhost:9080/syncope-console/ +
-Credentials: `admin` / `password`
-
-|===
+include::commondocs/debpackages.adoc[]
 
 include::commondocs/guiinstaller.adoc[]
 
