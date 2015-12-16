@@ -88,9 +88,14 @@ under the License.
         in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>
         but console) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug,all</source>
+or, without Activiti and Camel support
+        <source>$ mvn -Pdebug</source>
 
         <h4>JRebel</h4>
         As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
+        <source>$ export REBEL_HOME=/opt/jrebel
+$ mvn -Pjrebel,all</source>
+or, without Activiti and Camel support
         <source>$ export REBEL_HOME=/opt/jrebel
 $ mvn -Pjrebel</source>
 

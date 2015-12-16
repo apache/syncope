@@ -38,10 +38,11 @@ ul.toc li ul {
 
 ul.toc, ul.toc ul {
   list-style: decimal outside none;
-  padding:0;
-  float:left;
-  display:block;
-  clear:left;
+  padding: 0;
+  padding-right: 15px;
+  float: left;
+  display: block;
+  clear: left;
 }
 
 ul.toc li {

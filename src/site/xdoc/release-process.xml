@@ -35,8 +35,10 @@ under the License.
     <section name="Introduction">
       <p>The Syncope team uses the 
         <a href="http://repository.apache.org">Apache Nexus repository</a> for releasing SNAPSHOT and release artifacts.
-        More details on releasing artifacts and using Nexus can be found on the Maven website at
-        <a href="http://maven.apache.org/developers/release/apache-release.html">http://maven.apache.org/developers/release/apache-release.html</a>.
+        <br/>
+        More details on
+        <a href="http://www.apache.org/dev/publishing-maven-artifacts.html#maven">releasing Maven artifacts</a>
+        at The Apache Software Foundation.
       </p>
     </section>
     
@@ -56,7 +58,7 @@ under the License.
 
       <subsection name="Apache Maven">
         <p>Install Apache Maven 3.0.3 or higher; we strongly encourage our committers to install 
-          <a href="http://maven.apache.org/download.html">Apache Maven 3.1.1</a>.
+          the latest <a href="http://maven.apache.org/download.html">Apache Maven</a> version available.
         </p>
       
         <p>Maven allows you to encrypt your servers' passwords. We highly recommend that you follow this
@@ -66,9 +68,9 @@ under the License.
       </subsection>
 
       <subsection name="ASF settings">
-        <p>Using the instructions from the previous step encrypt your Sonatype password and add the following servers to
-          your 
-          <code>~/.m2/settings.xml</code> file. You may already have other servers in this file. If not just create
+        <p>Using the instructions from the previous step encrypt your Apache Nexus repository password and add the 
+          following servers to your 
+          <code>~/.m2/settings.xml</code> file. You may already have other servers in this file, if not just create
           the file.
         </p>
 
@@ -109,13 +111,45 @@ under the License.
     
     <section name="Release steps">
       
+      <p>
+        In the following, read
+        <dl>
+          <dt>
+            <tt>$VERSION</tt>
+          </dt>
+          <dd>
+            <p>the version being released</p>
+          </dd>
+          <dt>
+            <tt>$SYNCOPE_RELEASE_DIR</tt>
+          </dt>
+          <dd>
+            <p>
+              the working directory containing the GIT clone repository for the branch under release
+              (<tt>1_2_X</tt> or <tt>2_0_X</tt>)
+            </p>
+          </dd>
+          <dt>
+            <tt>$SYNCOPE_SITE_DIR</tt>
+          </dt>
+          <dd>
+            <p>
+              the working directory containing the GIT clone repository for the branch for site management
+              (<tt>2_0_X</tt>)
+            </p>
+          </dd>
+        </dl>
+      </p>
+      
       <subsection name="Verify DBMSes and Java EE containers">
         <p>
           This is an optional step.<br/>
-          These verifications take some time and have quite strong environment requirements. However, it is of fundamental
-          importance to go through these at least once for every major release.
+          These verifications take some time and have quite strong environment requirements. However, it is of 
+          fundamental importance to go through these at least once for every major release.
         </p>
-        <p>For more information please take a look at <a href="building.html#core">build instructions</a>.</p>
+        <p>
+          For more information please take a look at <a href="building.html#fitcore-reference">build instructions</a>.
+        </p>
       </subsection>
       
       <subsection name="Prepare the source for release">
@@ -125,26 +159,14 @@ under the License.
             <b>Resolved</b> issues to the <b>Closed</b> state.
           </li>
           <li>
-            Update the <code>CHANGES</code> file, in a GIT local clone, based on the text release reports from JIRA.
-          </li>
-          <li>
-            Commit and push any changes back to GIT:
+            From <tt>$SYNCOPE_RELEASE_DIR</tt>, update the <tt>CHANGES</tt> file, 
+            based on the text release reports from JIRA, then commit and push:
             <source><![CDATA[git commit -m "Updating CHANGES for release" CHANGES
 git push]]></source>
           </li>
           <li>
-            Update the <source>downloads.xml</source> site page from a GIT local clone:
-            <ul>
-              <li>add new release artifacts with base URL
-                <source>http://www.apache.org/dyn/closer.lua/syncope/&lt;version&gt;/</source>
-              </li>
-              <li>move current release artifacts to 'Older Releases' section and change base URL to 
-                <source>http://archive.apache.org/dist/syncope/</source>
-              </li>
-            </ul>
-          </li>
-          <li>
-            Commit and push any changes back to GIT:
+            From <tt>$SYNCOPE_SITE_DIR</tt>, update the <tt>src/site/xdoc/downloads.xml</tt> 
+            site page by changing the relevant URLs, then commit and push:
             <source><![CDATA[git commit -m "Updating downloads site page for release" src/site/xdoc/downloads.xml
 git push]]></source>
           </li>
@@ -152,6 +174,7 @@ git push]]></source>
       </subsection>
       
       <subsection name="Prepare the release">
+        <p>Perform the steps below from <tt>$SYNCOPE_RELEASE_DIR</tt>.</p>
         <ol>
           <li>
             Do a dry run of the <code>release:prepare</code> step.
@@ -215,8 +238,8 @@ gpg: Signature made ...]]></source>
             the next step is performed.
             <source><![CDATA[
 cd ..
-tar -czf <version>.tar.gz <version>/
-cd <version>]]></source>
+tar -czf $VERSION.tar.gz $VERSION/
+cd $VERSION]]></source>
           </li>
         </ol>
       </subsection>
@@ -226,24 +249,26 @@ cd <version>]]></source>
           <li>
             <b>Staging artifacts</b>
             <source><![CDATA[
-# let $SYNCOPE_RELEASE_DIR be the directory from which you have launched release:prepare above
-                  
 svn co https://dist.apache.org/repos/dist/dev/syncope syncope-dist-dev
 cd syncope-dist-dev              
-mkdir <version>                  
-cd <version>
+mkdir $VERSION                  
+cd $VERSION
                                     
 cp $SYNCOPE_RELEASE_DIR/target/syncope-*-source-release.zip .
 cp $SYNCOPE_RELEASE_DIR/target/syncope-*-source-release.zip.asc .
 cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip .
 cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip.asc .
-# only for 1_2_X
 cp $SYNCOPE_RELEASE_DIR/installer/target/syncope-installer-*-uber.jar .
 cp $SYNCOPE_RELEASE_DIR/installer/target/syncope-installer-*-uber.jar.asc .
 cp $SYNCOPE_RELEASE_DIR/deb/core/target/apache-syncope-*.deb .           
 cp $SYNCOPE_RELEASE_DIR/deb/core/target/apache-syncope-*.deb.asc .
 cp $SYNCOPE_RELEASE_DIR/deb/console/target/apache-syncope-console-*.deb .
 cp $SYNCOPE_RELEASE_DIR/deb/console/target/apache-syncope-console-*.deb.asc .
+# only for 2_0_X
+cp $SYNCOPE_RELEASE_DIR/deb/enduser/target/apache-syncope-enduser-*.deb .
+cp $SYNCOPE_RELEASE_DIR/deb/enduser/target/apache-syncope-enduser-*.deb.asc .
+cp $SYNCOPE_RELEASE_DIR/client/cli/target/syncope-client-cli-*.zip .
+cp $SYNCOPE_RELEASE_DIR/client/cli/target/syncope-client-cli-*.zip.asc .
 
 for file in `find . -type f -iname '*.asc'`
 do
@@ -256,36 +281,44 @@ for file in `find . -name '*.deb' -or -name '*.jar' -or -name '*.zip'`; do
 done
               
 cd ..
-svn add <version>
-svn commit -m "Staging artifacts for <version> vote"]]></source>
+svn add $VERSION
+svn commit -m "Staging artifacts for $VERSION vote"]]></source>
           </li>
           <li>
             <b>Staging site</b>
             <source><![CDATA[
+unzip $SYNCOPE_RELEASE_DIR/target/syncope-$VERSION-source-release.zip
+cd syncope-$VERSION        
+mvn -PskipTests
+
+# if releasing from 1_2_X              
+mvn javadoc:aggregate
+cd common
+mvn -P offline-doc
+
 svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
 
-(from a GIT local clone) git pull && git checkout syncope-<version>
-mvn -P skipTests
-mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to ../site/<version>
-cd common
-mvn -P offline-doc                            
+cd $SYNCOPE_SITE_DIR
+mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to/site>/$VERSION
 
-cd ../../../site/<version>
-rm -rf syncope-* project-reports.html apidocs/1.html
+cd <absolute path to/site>/$VERSION
+rm -f apidocs/2.html
 
 # if releasing from 1_2_X              
-mkdir rest
-cp -r ../../syncope-<version>/common/target/generated/wadl/ rest/1.2
-              
+cp -r <absolute path to syncope-$VERSION above>/target/site/apidocs apidocs/1.2              
+cp -r <absolute path to syncope-$VERSION above>/common/target/generated/wadl/ rest/1.2
+rm -rf apidocs/2.0
+rm -rf rest/2.0
 cd ..
-svn add <version>
+svn add $VERSION
+svn copy apidocs/2.0 $VERSION/apidocs/
+svn copy rest/2.0 $VERSION/rest/
 
-svn copy apidocs/1.0 <version>/apidocs/
-# if releasing from 1_2_X              
-svn copy apidocs/1.1 <version>/apidocs/
-# if releasing from 1_1_X              
-svn copy apidocs/1.2 <version>/apidocs/
-svn copy rest <version>/rest
+# else if releasing from 2_0_X
+cd ..
+svn add $VERSION
+svn copy apidocs/1.2 $VERSION/apidocs/
+svn copy rest/1.2 $VERSION/rest/
               
 svn commit -m "Staging site for release"]]></source>
           </li>
@@ -316,19 +349,17 @@ svn commit -m "Staging site for release"]]></source>
                     <code>javadoc</code>,
                     <code>sources</code>, and 
                     <code>tests</code> jars, as well as 
-                    <code>pom</code>s, ... have 
+                    <code>poms</code>s, ... have 
                     <code>.asc</code> (GPG signature) and 
                     <code>.md5</code>
-                    files (see 
-                    <a href="http://people.apache.org/~henkp/repo/faq.html">Repository FAQ</a> and 
-                    <a href="http://www.apache.org/dev/release-signing.html#openpgp-ascii-detach-sig">Detached Signatures</a>).
+                    files
                     <br/>
-                    The <code>syncope-&lt;version&gt;-source-release.zip</code>
+                    The <code>syncope-$VERSION-source-release.zip</code> 
                     should likewise have signature and checksum files.
                   </li>
                 </ol>
               </li>
-              <li>Close the nexus staging repo:
+              <li>Close the Nexus staging repo:
                 <ol>
                   <li>
                     <a href="https://repository.apache.org/index.html">https://repository.apache.org/index.html</a>
@@ -359,9 +390,9 @@ svn commit -m "Staging site for release"]]></source>
             <a href="mailto:dev@syncope.apache.org">syncope-dev</a> to record votes as replies, e.g.:
             <pre><![CDATA[
 To: dev@syncope.apache.org
-Subject: [VOTE] Apache Syncope <version>
+Subject: [VOTE] Apache Syncope $VERSION
 
-I've created a <version> release, with the following artifacts up for a vote:
+I've created a $VERSION release, with the following artifacts up for a vote:
 
 GIT source tag (XXXXXXXXXXXXXXXX):
 https://git-wip-us.apache.org/repos/asf?p=syncope.git;a=tag;h=XXXXXXXXXXXXXXXX
@@ -370,13 +401,13 @@ List of changes:
 https://git-wip-us.apache.org/repos/asf?p=syncope.git;a=blob_plain;f=CHANGES;h=0a7fb550234f89f4ad315272cf934f2e050250f7;hb=acbc816bdd6a75b27d8fb12b46905fe07e2cd977              
 
 Staging artifacts:
-https://dist.apache.org/repos/dist/dev/syncope/<version>
+https://dist.apache.org/repos/dist/dev/syncope/$VERSION
 
 Maven staging repo:
 https://repository.apache.org/content/repositories/orgapachesyncope-YYY/
 
 Staging site:
-http://syncope.apache.org/<version>/
+http://syncope.apache.org/$VERSION/
 
 PGP release keys (signed using ABCDEFG):
 http://www.apache.org/dist/syncope/KEYS
@@ -391,9 +422,9 @@ Vote will be open for 72 hours.
             Create a <code>DISCUSS</code> email thread on <a href="mailto:dev@syncope.apache.org">syncope-dev</a> for any vote questions, e.g.:
             <pre><![CDATA[
 To: dev@syncope.apache.org
-Subject: [DISCUSS] Apache Syncope <version>
+Subject: [DISCUSS] Apache Syncope $VERSION
 
-Discussion thread for vote on <version> release, with GIT source tag (XXXXXXXXXXXXXXXX).
+Discussion thread for vote on $VERSION release, with GIT source tag (XXXXXXXXXXXXXXXX).
 
 For more information on the release process, check out http://www.apache.org/dev/release.html
 
@@ -406,8 +437,8 @@ Some of the things to check before voting are:
             </pre>
           </li>
           <li>
-            Perform a review of the release and cast your vote. For more details on Apache releases see
-            <a href="http://www.apache.org/dev/release.html">http://www.apache.org/dev/release.html</a>.
+            Perform a review of the release and cast your vote; more details on
+            <a href="http://www.apache.org/dev/release.html">Apache releases</a>.
           </li>
           <li>A -1 vote does not necessarily mean that the vote must be redone,
             however it is usually a good idea to rollback the release if a -1 vote is
@@ -417,10 +448,10 @@ Some of the things to check before voting are:
             +1 PMC votes and no -1 votes, then post the results to the vote thread:
             <pre><![CDATA[
 To: dev@syncope.apache.org
-Subject: [RESULT] [VOTE] Apache Syncope <version>
+Subject: [RESULT] [VOTE] Apache Syncope $VERSION
 
 Hi all,
-after 72 hours, the vote for Syncope <version> [1] *passes*
+after 72 hours, the vote for Syncope $VERSION [1] *passes*
 with ... PMC + ... non-PMC votes.
 
 +1 (PMC / binding)
@@ -448,7 +479,7 @@ Best regards.
       
       <subsection name="Finalize the release">
         <ol>
-          <li>Promote the staged nexus artifacts:
+          <li>Promote the staged Nexus artifacts:
             <ol>
               <li>
                 <a href="https://repository.apache.org/index.html">https://repository.apache.org/index.html</a>
@@ -470,7 +501,7 @@ Best regards.
             <code>people.apache.org</code>)
             <source><![CDATA[
 svn mv -m "Moving the voted release artifacts to dist/release" \
-https://dist.apache.org/repos/dist/dev/syncope/<version>
+https://dist.apache.org/repos/dist/dev/syncope/$VERSION
 https://dist.apache.org/repos/dist/release/syncope/
 
 svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
@@ -498,8 +529,8 @@ svn commit -m "Cleaning up older releases"]]></source>
 svn co https://svn.apache.org/repos/asf/syncope/site/
 cd site
 svn rm *.html apidocs rest css images img js fonts
-svn mv <version>/* .
-svn rm <version>
+svn mv $VERSION/* .
+svn rm $VERSION
 svn commit -m "Promoting the staging site"]]></source>
           </li>
         </ol>
@@ -527,7 +558,7 @@ svn commit -m "Promoting the staging site"]]></source>
           </p>
           <ol>
             <li>
-              restore the &lt;version&gt;.tar.gz and run
+              restore the $VERSION.tar.gz and run
               <source>mvn -P apache-release release:rollback</source> 
             </li>
             <li>             
@@ -540,15 +571,15 @@ svn commit -m "Promoting the staging site"]]></source>
           <p>Delete the GIT tag created by the 
             <code>release:perform</code> step:
           </p>
-          <source>git tag -d &lt;version&gt; &amp;&amp; git push origin</source>
+          <source>git tag -d $VERSION &amp;&amp; git push origin</source>
         </li>
         <li>
           <p>Delete the staging site:
           </p>
-          <source>svn remove https://svn.apache.org/repos/asf/syncope/site/&lt;version&gt; -m "Deleting staging site from rolled back release"</source>
+          <source>svn remove https://svn.apache.org/repos/asf/syncope/site/$VERSION -m "Deleting staging site from rolled back release"</source>
         </li>
         <li>
-          <p>Drop the nexus staging repo:</p>
+          <p>Drop the Nexus staging repo:</p>
           <ol>
             <li>
               <a href="https://repository.apache.org/index.html">https://repository.apache.org/index.html</a>
