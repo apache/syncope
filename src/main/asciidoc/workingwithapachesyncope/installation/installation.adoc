@@ -16,26 +16,15 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-== Working with Apache Syncope
+=== Installation
+There are many ways to install the Apache Syncope components
 
-include::installation/installation.adoc[]
+* from Maven command line;
+* from the Installer;
+* from the .deb packages.
 
-=== Using the Admin Console
+include::maven.adoc[]
 
-include::cli/cli.adoc[]
+include::installer.adoc[]
 
-include::restfulservices/restful-services.adoc[]
-
-=== Customization
-
-==== Core
-
-==== Console
-
-==== New extensions
-
-=== Deploying in production
-
-=== Options
-
-=== High-Availability
+include::deb.adoc[]

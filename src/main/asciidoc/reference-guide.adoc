@@ -71,6 +71,3 @@ include::extensions/extensions.adoc[]
 
 // TO DO
 include::usecases/usecases.adoc[]
-
-// Chapters will be placed in separate .adoc files in the same directory
-//include::XXX.adoc[]
