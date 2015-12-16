@@ -16,15 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== Installation
-There are many ways to install the Apache Syncope components
-
-* from Maven command line;
-* from the Installer;
-* from the .deb packages.
+include::../../commondocs/guiinstaller.adoc[]
 
 include::maven.adoc[]
-
-include::installer.adoc[]
 
 include::deb.adoc[]

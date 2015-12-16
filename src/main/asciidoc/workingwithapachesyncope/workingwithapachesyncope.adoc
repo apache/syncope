@@ -16,9 +16,16 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-== Working with Apache Syncope
+== Installation
+There are many ways to install the Apache Syncope components
+
+* from Maven command line;
+* from the Installer;
+* from the .deb packages.
 
 include::installation/installation.adoc[]
+
+== Working with Apache Syncope
 
 === Using the Admin Console
 
