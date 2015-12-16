@@ -34,115 +34,13 @@ Usage: role [options]
        Syntax: --delete {ROLE-NAME} {ROLE-NAME} [...]
 ----
 
-===== Details option
+===== Options
+
+--details::
 This option shows a table with some details about the roles.
-
-[source]
---
-$ ./syncopeadm.sh role --details
---
-
-[source]
---
-
-You are running: role --details 
-
-####################################
-#                                  #
-#          ROLES DETAILS           #
-#                                  #
-####################################
-#                        #         #
-#         DETAIL         #  VALUE  #
-#                        #         #
-####################################
-#                        #         #
-#      Total number      #    4    #
-#  Without entitlements  #    0    #
-#                        #         #
-####################################
-
---
-
-Total number::
-    number of created roles;
-Without entitlements::
-    number of roles without linked entitlements.
-
-===== List option
+--list::
 Running the command with this option you will see the list of roles with the realm where they are configured and their entitlments.
-
-[source]
---
-$ ./syncopeadm.sh role --list
---
-
-[source]
---
-
-You are running: role --list 
-
- > ROLE ID: User reviewer
-    REALMS: 
-       - /odd
-       - /even
-    ENTITLEMENTS:
-       - USER_READ
-       - USER_LIST
-       - USER_SEARCH
-    dynamic membership condition: null
-
- > ROLE ID: User manager
-    REALMS: 
-       - /
-    ENTITLEMENTS:
-       - WORKFLOW_FORM_SUBMIT
-       - USER_READ
-       - USER_LIST
-       - USER_SEARCH
-       - WORKFLOW_FORM_CLAIM
-    dynamic membership condition: null
-
- > ROLE ID: Other
-    REALMS: 
-       - /odd
-    ENTITLEMENTS:
-       - SCHEMA_READ
-       - GROUP_READ
-       - WORKFLOW_FORM_CLAIM
-    dynamic membership condition: null
-
- > ROLE ID: Search for realm evenTwo
-    REALMS: 
-       - /even/two
-    ENTITLEMENTS:
-       - USER_READ
-       - USER_SEARCH
-    dynamic membership condition: null
-
---
-
-===== Read option
+--read::
 The option to read all the information of specified roles.
-
-[source]
---
-$ ./syncopeadm.sh role --read {ROLE-NAME} {ROLE-NAME} [...]
---
-
-Unlike the list option, the read option shows only the roles passed as input.
-
-===== Delete option
+--delete::
 The option to delete specified roles.
-
-[source]
---
-$ ./syncopeadm.sh role --delete {ROLE-NAME} {ROLE-NAME} [...]
---
-
-The delete option, as can be imagined, tries to remove specified roles. 
-The output will be something like:
-[source]
---
- - role {ROLE-NAME} successfully deleted
---

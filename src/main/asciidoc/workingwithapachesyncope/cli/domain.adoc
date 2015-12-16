@@ -32,64 +32,13 @@ Usage: domain [options]
        Syntax: --delete {DOMAIN-NAME} {DOMAIN-NAME} [...]
 ----
 
-===== Details option
+===== Options
+
+--details::
 This option shows a table with domain amount.
 
-[source]
---
-$ ./syncopeadm.sh domain --details
---
-
-[source]
---
-
-You are running: domain --details 
-
-############################
-#                          #
-#     DOMAINS DETAILS      #
-#                          #
-############################
-#                #         #
-#     DETAIL     #  VALUE  #
-#                #         #
-############################
-#                #         #
-#  Total number  #    1    #
-#                #         #
-############################
-
---
-
-===== List option
+--list::
 Running the command with this option you will see the list of the domains.
 
-[source]
---
-$ ./syncopeadm.sh domain --list 
---
-
-[source]
---
-
-You are running: domain --list 
-
- > DOIMAIN NAME: Two
-    chiper algorithm: SHA
-
---
-
-===== Delete option
+--delete::
 The option to delete a specified domain.
-
-[source]
---
-$ ./syncopeadm.sh domain --delete {DOMAIN-NAME} {DOMAIN-NAME} [...]
---
-
-The delete option, as can be imagined, tries to remove a specified domain. 
-The output will be something like:
-[source]
---
- - Domain {DOMAIN-NAME} successfully deleted
---

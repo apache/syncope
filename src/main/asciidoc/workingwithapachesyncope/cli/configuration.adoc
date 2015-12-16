@@ -38,134 +38,15 @@ Usage: configuration [options]
 
 ----
 
-===== Get option
+===== Options
+
+--get::
 This get option shows a table with the Syncope configuration.
-
-[source]
---
-$ ./syncopeadm.sh configuration --get
---
-
-[source]
---
-
-You are running: configuration --get 
-
-########################################################
-#                                                      #
-#                SYNCOPE CONFIGURATION                 #
-#                                                      #
-########################################################
-#                                  #                   #
-#            ATTRIBUTE             #       VALUE       #
-#                                  #                   #
-########################################################
-#                                  #                   #
-#    password.cipher.algorithm     #       SHA1        #
-#  notificationjob.cronExpression  #  0/20 * * * * ?   #
-#     notification.maxRetries      #         3         #
-#           token.length           #        256        #
-#         token.expireTime         #        60         #
-#     selfRegistration.allowed     #       true        #
-#      passwordReset.allowed       #       true        #
-#  passwordReset.securityQuestion  #       true        #
-#     authentication.statuses      #  created, active  #
-#        log.lastlogindate         #       true        #
-#    tasks.interruptMaxRetries     #        20         #
-#      return.password.value       #       false       #
-#                                  #                   #
-########################################################
-
---
-
-===== Read option
+--read::
 The option to read the value of specified configuration attributes.
-
-[source]
---
-$ ./syncopeadm.sh configuration --read {CONF-NAME} {CONF-NAME} [...]
---
-
-[source]
---
-
-You are running: configuration --read passwordReset.allowed 
-
-#####################################
-#                                   #
-#       SYNCOPE CONFIGURATION       #
-#                                   #
-#####################################
-#                         #         #
-#        ATTRIBUTE        #  VALUE  #
-#                         #         #
-#####################################
-#                         #         #
-#  passwordReset.allowed  #  true   #
-#                         #         #
-#####################################
-
---
-
-===== Update option
+--update::
 The option to update a value of specified configuration attributes.
-
-[source]
---
-$ ./syncopeadm.sh configuration --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]
---
-
-[source]
---
-
-You are running: configuration --update passwordReset.allowed=false 
-
-#####################################
-#                                   #
-#  UPDATED CONFIGURATION ATTRIBUTES #
-#                                   #
-#####################################
-#                         #         #
-#        ATTRIBUTE        #  VALUE  #
-#                         #         #
-#####################################
-#                         #         #
-#  passwordReset.allowed  #  false  #
-#                         #         #
-#####################################
-
---
-
-===== Delete option
+--delete::
 The option to delete specified configuration attributes.
-
-[source]
---
-$ ./syncopeadm.sh configuration --delete {CONF-NAME} {CONF-NAME} [...]
---
-
-The delete option, as can be imagined, tries to remove the specified configurations. The output will be something like:
-[source]
---
- - Configuration {CONF-NAME} successfully deleted
---
-
-===== Export option
+--export::
 The option to export the Syncope configuration to a specified directory.
-
-[source]
---
-$ ./syncopeadm.sh  - Usage: configuration --export {WHERE-DIR}
---
-
-[source,xml]
-----
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><dataset>
-<RELATIONSHIPTYPE DESCRIPTION="Models the act that an object is included in another" NAME="inclusion"/>
-<RELATIONSHIPTYPE NAME="neighborhood"/>
-<PASSWORDPOLICY ALLOWNULLPASSWORD="1" DESCRIPTION="a password policy" HISTORYLENGTH="1" ID="2" TYPE="PASSWORD"/>
-<PASSWORDPOLICY ALLOWNULLPASSWORD="1" DESCRIPTION="sample password policy" HISTORYLENGTH="0" ID="4" TYPE="PASSWORD"/>
-<PASSWORDPOLICY ALLOWNULLPASSWORD="0" DESCRIPTION="sample password policy" HISTORYLENGTH="0" ID="8" TYPE="PASSWORD"/>
-
-[...]
-----

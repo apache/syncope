@@ -33,45 +33,11 @@ Usage: question [options]
        Syntax: --delete {QUESTION-ID} {QUESTION-ID} [...]
 ----
 
-===== List option
+===== Options
+
+--list::
 Running the command with this option you will see the list of questions with their content.
-
-[source]
---
-$ ./syncopeadm.sh question --list
---
-
-[source]
---
-
-You are running: question --list 
-
-  > SECURITY QUESTION ID: 1
-    content: What's your mother's maiden name?
-
---
-
-===== Read option
+--read::
 The option to read all the information of specified questions.
-
-[source]
---
-$ ./syncopeadm.sh question --read {QUESTION-ID} {QUESTION-ID} [...]
---
-
-Unlike the list option, the read option shows only the questions passed as input.
-
-===== Delete option
+--delete::
 The option to delete a specified question.
-
-[source]
---
-$ ./syncopeadm.sh question --delete {QUESTION-ID} {QUESTION-ID} [...]
---
-
-The delete option, as can be imagined, tries to remove a specified question. 
-The output will be something like:
-[source]
---
- - security question {QUESTION-ID} successfully deleted
---
