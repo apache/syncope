@@ -16,30 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.pages.StatusModal;
 import org.apache.syncope.client.console.pages.UserDisplayAttributesModalPage;
+import org.apache.syncope.client.console.panels.UserSearchResultPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -50,18 +46,16 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
+public final class UserSelectionSearchResultPanel extends UserSearchResultPanel {
 
-    private static final long serialVersionUID = -1100228004207271270L;
+    private static final long serialVersionUID = -1100228004207271272L;
 
-    protected UserSearchResultPanel(final String id, final Builder builder, final String entitlement) {
-        super(id, builder, entitlement);
+    private UserSelectionSearchResultPanel(final String id, final UserSelectionSearchResultPanel.Builder builder) {
+        super(id, builder, StandardEntitlement.USER_LIST);
     }
 
     @Override
@@ -118,61 +112,10 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel
-                                = new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
-                        modal.setFormModel(formModel);
-
-                        target.add(modal.setContent(new StatusModal<>(
-                                modal, page.getPageReference(), formModel.getObject().getInnerObject())));
-
-                        modal.header(new Model<>(MessageFormat.format(
-                                getString("any.edit"), model.getObject().getKey())));
-                        modal.show(true);
+                        send(UserSelectionSearchResultPanel.this,
+                                Broadcast.BUBBLE, new UserSelection(target, model.getObject()));
                     }
-                }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_LIST).add(new ActionLink<UserTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel
-                                = new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
-                        modal.setFormModel(formModel);
-
-                        target.add(modal.setContent(new StatusModal<>(
-                                modal, page.getPageReference(), formModel.getObject().getInnerObject(), true)));
-
-                        modal.header(new Model<>(MessageFormat.format(
-                                getString("any.edit"), model.getObject().getKey())));
-                        modal.show(true);
-                    }
-                }, ActionLink.ActionType.ENABLE, entitlement).add(new ActionLink<UserTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        send(UserSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<AnyHandler<UserTO>>(
-                                        new AnyHandler<UserTO>(model.getObject()), target));
-                    }
-                }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<UserTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        try {
-                            restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (SyncopeClientException e) {
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                        }
-                        ((BasePage) getPage()).getFeedbackPanel().refresh(target);
-                    }
-                }, ActionLink.ActionType.DELETE, entitlement);
+                }, ActionLink.ActionType.SELECT, StandardEntitlement.USER_READ);
 
                 return panel.build(componentId, model.getObject());
             }
@@ -182,18 +125,6 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
                 final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder(page.getPageReference());
 
                 return panel.add(new ActionLink<Serializable>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        target.add(modal.setContent(new UserDisplayAttributesModalPage(
-                                modal, page.getPageReference(), schemaNames, dSchemaNames)));
-
-                        modal.header(new ResourceModel("any.attr.display", ""));
-                        modal.show(true);
-                    }
-                }, ActionLink.ActionType.CHANGE_VIEW, entitlement).add(new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -212,26 +143,12 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
 
     @Override
     protected <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions() {
-        final List<ActionType> bulkActions = new ArrayList<>();
-
-        bulkActions.add(ActionType.DELETE);
-        bulkActions.add(ActionType.SUSPEND);
-        bulkActions.add(ActionType.REACTIVATE);
-
-        return bulkActions;
+        return Collections.<ActionLink.ActionType>emptyList();
     }
 
-    @Override
-    protected String getPageId() {
-        return pageID;
-    }
-
-    public static class Builder extends AbstractSearchResultPanel.Builder<UserTO>
-            implements AnySearchResultPanelBuilder {
+    public static final class Builder extends UserSearchResultPanel.Builder {
 
         private static final long serialVersionUID = 1L;
-
-        private final List<AnyTypeClassTO> anyTypeClassTOs;
 
         public Builder(
                 final List<AnyTypeClassTO> anyTypeClassTOs,
@@ -239,18 +156,36 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
                 final String type,
                 final PageReference pageRef) {
 
-            super(restClient, type, pageRef);
-            this.anyTypeClassTOs = anyTypeClassTOs;
+            super(anyTypeClassTOs, restClient, type, pageRef);
+            this.filtered = true;
+            this.checkBoxEnabled = false;
         }
 
         @Override
         protected WizardMgtPanel<AnyHandler<UserTO>> newInstance(final String id) {
-            return new UserSearchResultPanel(id, this, StandardEntitlement.USER_LIST);
+            return new UserSelectionSearchResultPanel(id, this);
+        }
+    }
+
+    public static class UserSelection implements Serializable {
+
+        private static final long serialVersionUID = 1242677935378149180L;
+
+        private final AjaxRequestTarget target;
+
+        private final UserTO usr;
+
+        public UserSelection(final AjaxRequestTarget target, final UserTO usr) {
+            this.target = target;
+            this.usr = usr;
         }
 
-        @Override
-        public List<AnyTypeClassTO> getAnyTypeClassTOs() {
-            return this.anyTypeClassTOs;
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
+
+        public UserTO getSelection() {
+            return usr;
         }
     }
 }

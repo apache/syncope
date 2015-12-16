@@ -30,7 +30,7 @@ public class AjaxDataNavigationToolbar extends AjaxNavigationToolbar {
     private static final long serialVersionUID = -225570234877133351L;
 
     private final WebMarkupContainer container;
-    
+
     public AjaxDataNavigationToolbar(final DataTable<?, ?> table, final WebMarkupContainer container) {
         super(table);
         this.container = container;
@@ -44,7 +44,9 @@ public class AjaxDataNavigationToolbar extends AjaxNavigationToolbar {
 
             @Override
             protected void onAjaxEvent(final AjaxRequestTarget target) {
-                target.add(container);
+                if (container != null) {
+                    target.add(container);
+                }
             }
         };
     }

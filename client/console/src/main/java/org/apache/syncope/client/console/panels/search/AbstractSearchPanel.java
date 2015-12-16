@@ -25,12 +25,15 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.NotificationPanel;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.search.SearchableFields;
+import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -49,6 +52,8 @@ public abstract class AbstractSearchPanel extends Panel {
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSearchPanel.class);
+
+    protected AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
     protected SchemaRestClient schemaRestClient = new SchemaRestClient();
 
@@ -180,7 +185,15 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return schemaRestClient.getPlainSchemaNames();
+                return CollectionUtils.collect(schemaRestClient.getSchemas(SchemaType.PLAIN,
+                        anyTypeRestClient.get(typeKind.name()).getClasses().toArray(new String[] {})),
+                        new Transformer<AbstractSchemaTO, String>() {
+
+                    @Override
+                    public String transform(final AbstractSchemaTO input) {
+                        return input.getKey();
+                    }
+                }, new ArrayList<String>());
             }
         };
 

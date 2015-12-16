@@ -82,7 +82,7 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<AnyHand
         addOptionalDetailsPanel(modelObject, wizardModel);
 
         if ((this instanceof GroupWizardBuilder) && (modelObject.getInnerObject() instanceof GroupTO)) {
-            wizardModel.add(new Ownership(GroupHandler.class.cast(modelObject)));
+            wizardModel.add(new Ownership(GroupHandler.class.cast(modelObject), pageRef));
             wizardModel.add(new DynamicMemberships(GroupHandler.class.cast(modelObject)));
         }
 

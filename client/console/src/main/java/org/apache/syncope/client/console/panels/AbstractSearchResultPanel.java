@@ -78,6 +78,8 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
      */
     private final boolean filtered;
 
+    private final boolean checkBoxEnabled;
+
     /**
      * Filter used in case of filtered search.
      */
@@ -108,26 +110,20 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
      */
     private final String type;
 
-    protected AbstractSearchResultPanel(
-            final String id,
-            final boolean filtered,
-            final String fiql,
-            final PageReference pageRef,
-            final AbstractAnyRestClient<T> restClient,
-            final String realm,
-            final String type) {
+    protected AbstractSearchResultPanel(final String id, final Builder<T> builder) {
 
-        super(id, pageRef, true);
+        super(id, builder.getPageRef(), true);
 
         setOutputMarkupId(true);
 
-        this.page = (AbstractBasePage) pageRef.getPage();
+        this.page = (AbstractBasePage) builder.getPageRef().getPage();
 
-        this.filtered = filtered;
-        this.fiql = fiql;
+        this.filtered = builder.filtered;
+        this.checkBoxEnabled = builder.checkBoxEnabled;
+        this.fiql = builder.fiql;
         this.feedbackPanel = page.getFeedbackPanel();
 
-        this.restClient = restClient;
+        this.restClient = builder.restClient;
 
         // Container for user search result
         container = new WebMarkupContainer("searchContainer");
@@ -136,8 +132,8 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
 
         rows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
 
-        this.realm = realm;
-        this.type = type;
+        this.realm = builder.realm;
+        this.type = builder.type;
 
         setWindowClosedReloadCallback(modal);
     }
@@ -194,22 +190,21 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
         final int currentPage = resultTable != null
                 ? (create ? (int) resultTable.getPageCount() - 1 : (int) resultTable.getCurrentPage()) : 0;
 
-        resultTable = new AjaxDataTablePanel<>(
-                "resultTable",
-                getColumns(),
-                dataProvider,
-                rows,
-                getBulkActions(),
-                restClient,
-                "key",
-                getPageId(),
-                page.getPageReference(),
-                container);
+        AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<>(
+                dataProvider, getPageId(), page.getPageReference()).
+                setColumns(getColumns()).
+                setRowsPerPage(rows).
+                setBulkActions(getBulkActions(), restClient, "key").
+                setContainer(container);
+
+        if (!checkBoxEnabled) {
+            resultTableBuilder.disableCheckBoxes();
+        }
+
+        resultTable = resultTableBuilder.build("resultTable");
 
         resultTable.setCurrentPage(currentPage);
-
         resultTable.setOutputMarkupId(true);
-
         container.addOrReplace(resultTable);
     }
 
@@ -300,44 +295,58 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
         private static final long serialVersionUID = 5088962796986706805L;
 
         /**
-         * Specify if results are about a filtered search or not. Using this attribute it is possible to use this panel
-         * to show results about user list and user search.
+         * Specify if results are about a filtered search or not.
+         * By using this attribute it is possible to force this panel to show results about user list and user search.
          */
-        protected final boolean filtered;
+        protected boolean filtered = false;
+
+        protected boolean checkBoxEnabled = true;
 
         /**
          * Filter used in case of filtered search.
          */
-        protected final String fiql;
+        protected String fiql;
 
         protected final AbstractAnyRestClient<T> restClient;
 
         /**
          * Realm related to current panel.
          */
-        protected final String realm;
+        protected String realm = "/";
 
         /**
          * Any type related to current panel.
          */
         protected final String type;
 
-        protected Builder(
-                final Class<T> reference,
-                final boolean filtered,
-                final String fiql,
-                final PageReference pageRef,
-                final AbstractAnyRestClient<T> restClient,
-                final String realm,
-                final String type) {
-
+        protected Builder(final AbstractAnyRestClient<T> restClient, final String type, final PageReference pageRef) {
             super(pageRef);
-            this.filtered = filtered;
-            this.fiql = fiql;
             this.restClient = restClient;
-            this.realm = realm;
             this.type = type;
         }
 
+        public Builder<T> setFiltered(final boolean filtered) {
+            this.filtered = filtered;
+            return this;
+        }
+
+        public Builder<T> disableCheckBoxes() {
+            this.checkBoxEnabled = false;
+            return this;
+        }
+
+        public Builder<T> setFiql(final String fiql) {
+            this.fiql = fiql;
+            return this;
+        }
+
+        public Builder<T> setRealm(final String realm) {
+            this.realm = realm;
+            return this;
+        }
+
+        private PageReference getPageRef() {
+            return pageRef;
+        }
     }
 }

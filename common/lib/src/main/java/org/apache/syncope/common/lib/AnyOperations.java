@@ -324,9 +324,9 @@ public final class AnyOperations {
 
         // 2. ownership
         result.setUserOwner(replacePatchItem(
-                original.getUserOwner(), updated.getUserOwner(), new LongReplacePatchItem()));
+                updated.getUserOwner(), original.getUserOwner(), new LongReplacePatchItem()));
         result.setGroupOwner(replacePatchItem(
-                original.getGroupOwner(), updated.getGroupOwner(), new LongReplacePatchItem()));
+                updated.getGroupOwner(), original.getGroupOwner(), new LongReplacePatchItem()));
 
         // 3. dynamic membership
         result.setUDynMembershipCond(updated.getUDynMembershipCond());

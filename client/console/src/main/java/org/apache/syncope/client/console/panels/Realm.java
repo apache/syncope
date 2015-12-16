@@ -117,10 +117,10 @@ public class Realm extends Panel {
                 final UserTO userTO = new UserTO();
                 userTO.setRealm(realmTO.getFullPath());
                 panel = new UserSearchResultPanel.Builder(
-                        false, null, pageReference, userRestClient,
                         anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
-                        realmTO.getFullPath(),
-                        anyTypeTO.getKey()).
+                        userRestClient,
+                        anyTypeTO.getKey(),
+                        pageReference).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new UserWizardBuilder(
                                 BaseModal.CONTENT_ID, userTO, anyTypeTO.getClasses(), pageRef)).
                         addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
@@ -130,10 +130,10 @@ public class Realm extends Panel {
                 final GroupTO groupTO = new GroupTO();
                 groupTO.setRealm(realmTO.getFullPath());
                 panel = new GroupSearchResultPanel.Builder(
-                        false, null, pageReference, groupRestClient,
                         anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
-                        realmTO.getFullPath(),
-                        anyTypeTO.getKey()).
+                        groupRestClient,
+                        anyTypeTO.getKey(),
+                        pageReference).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new GroupWizardBuilder(
                                 BaseModal.CONTENT_ID, groupTO, anyTypeTO.getClasses(), pageRef)).
                         addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
@@ -144,10 +144,10 @@ public class Realm extends Panel {
                 anyObjectTO.setRealm(realmTO.getFullPath());
                 anyObjectTO.setType(anyTypeTO.getKey());
                 panel = new AnyObjectSearchResultPanel.Builder(
-                        false, null, pageReference, anyObjectRestClient,
                         anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
-                        realmTO.getFullPath(),
-                        anyTypeTO.getKey()).
+                        anyObjectRestClient,
+                        anyTypeTO.getKey(),
+                        pageReference).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new AnyWizardBuilder<AnyObjectTO>(
                                 BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).
                         addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).

@@ -16,29 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.GroupDisplayAttributesModalPage;
+import org.apache.syncope.client.console.panels.GroupSearchResultPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
-import org.apache.syncope.client.console.wizards.any.GroupHandler;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -53,12 +50,12 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> {
+public final class GroupSelectionSearchResultPanel extends GroupSearchResultPanel {
 
-    private static final long serialVersionUID = -1100228004207271270L;
+    private static final long serialVersionUID = -1100228004207271271L;
 
-    protected GroupSearchResultPanel(final String id, final Builder builder, final String entitlement) {
-        super(id, builder, entitlement);
+    private GroupSelectionSearchResultPanel(final String id, final Builder builder) {
+        super(id, builder, StandardEntitlement.GROUP_SEARCH);
     }
 
     @Override
@@ -112,53 +109,11 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final GroupTO anyTO) {
-                        send(GroupSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<GroupHandler>(
-                                        new GroupHandler(model.getObject()), target));
+                    public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                        send(GroupSelectionSearchResultPanel.this,
+                                Broadcast.BUBBLE, new GroupSelection(target, model.getObject()));
                     }
-                }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<GroupTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final GroupTO anyTO) {
-                        try {
-                            restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (SyncopeClientException e) {
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                        }
-                        ((BasePage) getPage()).getFeedbackPanel().refresh(target);
-
-//                        try {
-//                            final GroupTO modelObject = (GroupTO) restClient.
-//                                    delete(model.getObject().getETagValue(), model.getObject().getKey());
-//
-//                            final IModel<GroupTO> model = new CompoundPropertyModel<>(modelObject);
-//                            modal.setFormModel(model);
-//
-//                            target.add(modal.setContent(new ResultStatusModal.Builder<GroupTO>(
-//                                    modal, getPage().getPageReference(), modelObject).build()));
-//
-//                            modal.header(
-//                                    new Model<String>(MessageFormat.format(getString("any.delete"), anyTO.getKey())));
-//                            modal.show(true);
-//
-//                            //editmodal.setContent(new ResultStatusModal.Builder(editmodal, groupTO).build());
-////                            editModal.addOrReplace(new GroupModalPanel(
-////                                    BaseModal.getModalContentId(), editModal, (GroupTO) model.getObject()));
-////
-////                            target.add(editModal);
-////                            editModal.show(target);
-//                        } catch (SyncopeClientException scce) {
-//                            error(getString(Constants.ERROR) + ": " + scce.getMessage());
-//                            LOG.error("While deleting object {}", anyTO.getKey(), scce);
-//                        }
-                    }
-                }, ActionLink.ActionType.DELETE, entitlement);
+                }, ActionLink.ActionType.SELECT, StandardEntitlement.GROUP_READ);
 
                 return panel.build(componentId);
             }
@@ -168,18 +123,6 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                 final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder(page.getPageReference());
 
                 return panel.add(new ActionLink<Serializable>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        target.add(modal.setContent(new GroupDisplayAttributesModalPage(
-                                modal, page.getPageReference(), schemaNames, dSchemaNames)));
-
-                        modal.header(new ResourceModel("any.attr.display", ""));
-                        modal.show(true);
-                    }
-                }, ActionLink.ActionType.CHANGE_VIEW, entitlement).add(new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -198,26 +141,12 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
 
     @Override
     protected <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions() {
-        final List<ActionType> bulkActions = new ArrayList<>();
-
-        bulkActions.add(ActionType.DELETE);
-        bulkActions.add(ActionType.SUSPEND);
-        bulkActions.add(ActionType.REACTIVATE);
-
-        return bulkActions;
+        return Collections.<ActionLink.ActionType>emptyList();
     }
 
-    @Override
-    protected String getPageId() {
-        return pageID;
-    }
-
-    public static class Builder extends AbstractSearchResultPanel.Builder<GroupTO>
-            implements AnySearchResultPanelBuilder {
+    public static final class Builder extends GroupSearchResultPanel.Builder {
 
         private static final long serialVersionUID = 1L;
-
-        private final List<AnyTypeClassTO> anyTypeClassTOs;
 
         public Builder(
                 final List<AnyTypeClassTO> anyTypeClassTOs,
@@ -225,18 +154,36 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                 final String type,
                 final PageReference pageRef) {
 
-            super(restClient, type, pageRef);
-            this.anyTypeClassTOs = anyTypeClassTOs;
+            super(anyTypeClassTOs, restClient, type, pageRef);
+            this.filtered = true;
+            this.checkBoxEnabled = false;
         }
 
         @Override
         protected WizardMgtPanel<AnyHandler<GroupTO>> newInstance(final String id) {
-            return new GroupSearchResultPanel(id, this, StandardEntitlement.GROUP_SEARCH);
+            return new GroupSelectionSearchResultPanel(id, this);
+        }
+    }
+
+    public static class GroupSelection implements Serializable {
+
+        private static final long serialVersionUID = 1242677935378149180L;
+
+        private final AjaxRequestTarget target;
+
+        private final GroupTO grp;
+
+        public GroupSelection(final AjaxRequestTarget target, final GroupTO grp) {
+            this.target = target;
+            this.grp = grp;
         }
 
-        @Override
-        public List<AnyTypeClassTO> getAnyTypeClassTOs() {
-            return this.anyTypeClassTOs;
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
+
+        public GroupTO getSelection() {
+            return grp;
         }
     }
 }

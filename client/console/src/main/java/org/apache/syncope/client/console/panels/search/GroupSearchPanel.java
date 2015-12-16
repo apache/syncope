@@ -45,7 +45,7 @@ public final class GroupSearchPanel extends AbstractSearchPanel {
     }
 
     private GroupSearchPanel(final String id, final GroupSearchPanel.Builder builder) {
-        super(id, AnyTypeKind.USER, builder);
+        super(id, AnyTypeKind.GROUP, builder);
     }
 
     @Override

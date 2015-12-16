@@ -338,3 +338,9 @@ END - Style for Information panel
   width: 110px !important;
 }
 
+div.searchResult{
+  margin-top: 30px;
+  display: block;
+  clear: both;
+}
+

@@ -56,7 +56,9 @@ public class AjaxFallbackDataTable<T, S> extends DataTable<T, S> {
 
                     @Override
                     protected void onAjaxClick(final AjaxRequestTarget target) {
-                        target.add(container);
+                        if (container != null) {
+                            target.add(container);
+                        }
                     }
                 };
             }

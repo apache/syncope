@@ -115,7 +115,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 send(this, Broadcast.BUBBLE, new SearchEvent(target));
             }
-
         };
 
         searchButtonFragment = new Fragment("operator", "searchButtonFragment", this);
@@ -608,7 +607,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         }
     }
 
-    protected static class SearchEvent implements Serializable {
+    public static class SearchEvent implements Serializable {
 
         private static final long serialVersionUID = 2693338614198749301L;
 

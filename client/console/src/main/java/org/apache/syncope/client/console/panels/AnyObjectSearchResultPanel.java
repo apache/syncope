@@ -67,29 +67,21 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
     protected final String entitlement;
 
     protected AnyObjectSearchResultPanel(
-            final String type,
-            final String parentId,
-            final boolean filtered,
-            final String fiql,
-            final PageReference callerRef,
-            final AbstractAnyRestClient<T> restClient,
-            final List<AnyTypeClassTO> anyTypeClassTOs,
-            final String realm,
-            final String entitlement) {
+            final String id, final AbstractSearchResultPanel.Builder<T> builder, final String entitlement) {
+        super(id, builder);
 
-        super(parentId, filtered, fiql, callerRef, restClient, realm, type);
         modal.size(Modal.Size.Large);
 
         this.entitlement = entitlement;
 
-        add(new Label("name", type));
+        add(new Label("name", builder.type));
 
         this.schemaNames = new ArrayList<>();
-        for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
+        for (AnyTypeClassTO anyTypeClassTO : AnySearchResultPanelBuilder.class.cast(builder).getAnyTypeClassTOs()) {
             this.schemaNames.addAll(anyTypeClassTO.getPlainSchemas());
         }
         this.dSchemaNames = new ArrayList<>();
-        for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
+        for (AnyTypeClassTO anyTypeClassTO : AnySearchResultPanelBuilder.class.cast(builder).getAnyTypeClassTOs()) {
             this.dSchemaNames.addAll(anyTypeClassTO.getDerSchemas());
         }
 
@@ -223,30 +215,36 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
         return pageID;
     }
 
-    public static final class Builder extends AbstractSearchResultPanel.Builder<AnyObjectTO> {
+    public interface AnySearchResultPanelBuilder extends Serializable {
+
+        List<AnyTypeClassTO> getAnyTypeClassTOs();
+    }
+
+    public static final class Builder extends AbstractSearchResultPanel.Builder<AnyObjectTO>
+            implements AnySearchResultPanelBuilder {
 
         private static final long serialVersionUID = -6828423611982275640L;
 
         private final List<AnyTypeClassTO> anyTypeClassTOs;
 
         public Builder(
-                final boolean filtered,
-                final String fiql,
-                final PageReference pageRef,
-                final AbstractAnyRestClient<AnyObjectTO> restClient,
                 final List<AnyTypeClassTO> anyTypeClassTOs,
-                final String realm,
-                final String type) {
+                final AbstractAnyRestClient<AnyObjectTO> restClient,
+                final String type,
+                final PageReference pageRef) {
 
-            super(AnyObjectTO.class, filtered, fiql, pageRef, restClient, realm, type);
+            super(restClient, type, pageRef);
             this.anyTypeClassTOs = anyTypeClassTOs;
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<AnyObjectTO>> newInstance(final String parentId) {
-            return new AnyObjectSearchResultPanel<>(
-                    type, parentId, filtered, fiql, pageRef, restClient, anyTypeClassTOs, realm, type + "_LIST");
+        protected WizardMgtPanel<AnyHandler<AnyObjectTO>> newInstance(final String id) {
+            return new AnyObjectSearchResultPanel<>(id, this, type + "_LIST");
         }
 
+        @Override
+        public List<AnyTypeClassTO> getAnyTypeClassTOs() {
+            return this.anyTypeClassTOs;
+        }
     }
 }

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.client.console.rest.BaseRestClient;
@@ -43,21 +45,106 @@ import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
 
-public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
+public final class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
 
     private static final long serialVersionUID = -7264400471578272966L;
 
-    public AjaxDataTablePanel(
-            final String id,
-            final List<IColumn<T, S>> columns,
-            final ISortableDataProvider<T, S> dataProvider,
-            final int rowsPerPage,
-            final Collection<ActionLink.ActionType> actions,
-            final BaseRestClient bulkActionExecutor,
-            final String itemKeyField,
-            final String pageId,
-            final PageReference pageRef,
-            final WebMarkupContainer container) {
+    public static class Builder<T, S> implements Serializable {
+
+        private static final long serialVersionUID = 8876232177473972722L;
+
+        private boolean checkBoxEnabled = true;
+
+        private final List<IColumn<T, S>> columns = new ArrayList<>();
+
+        private final ISortableDataProvider<T, S> dataProvider;
+
+        private int rowsPerPage = 10;
+
+        private final Collection<ActionLink.ActionType> bulkActions = new ArrayList<>();
+
+        private BaseRestClient bulkActionExecutor;
+
+        private String itemKeyField;
+
+        private final String pageId;
+
+        private final PageReference pageRef;
+
+        private WebMarkupContainer container;
+
+        public Builder(final ISortableDataProvider<T, S> provider, final String pageId, final PageReference pageRef) {
+            this.dataProvider = provider;
+            this.pageId = pageId;
+            this.pageRef = pageRef;
+        }
+
+        public AjaxDataTablePanel<T, S> build(final String id) {
+            return new AjaxDataTablePanel<>(id, this);
+        }
+
+        public Builder<T, S> setContainer(final WebMarkupContainer container) {
+            this.container = container;
+            return this;
+        }
+
+        public Builder<T, S> addBulkAction(final ActionLink.ActionType actionType) {
+            bulkActions.add(actionType);
+            return this;
+        }
+
+        public Builder<T, S> setBulkActionExecutor(final BaseRestClient bulkActionExecutor) {
+            this.bulkActionExecutor = bulkActionExecutor;
+            return this;
+        }
+
+        public Builder<T, S> setItemKeyField(final String itemKeyField) {
+            this.itemKeyField = itemKeyField;
+            return this;
+        }
+
+        public Builder<T, S> setBulkActions(
+                final Collection<ActionLink.ActionType> bulkActions,
+                final BaseRestClient bulkActionExecutor,
+                final String itemKeyField) {
+            this.bulkActions.clear();
+            if (bulkActions != null) {
+                this.bulkActions.addAll(bulkActions);
+            }
+            this.bulkActionExecutor = bulkActionExecutor;
+            this.itemKeyField = itemKeyField;
+            return this;
+        }
+
+        public Builder<T, S> addColumn(final IColumn<T, S> column) {
+            columns.add(column);
+            return this;
+        }
+
+        public Builder<T, S> setColumns(final List<IColumn<T, S>> columns) {
+            this.columns.clear();
+            if (columns != null) {
+                this.columns.addAll(columns);
+            }
+            return this;
+        }
+
+        public Builder<T, S> setRowsPerPage(final int rowsPerPage) {
+            this.rowsPerPage = rowsPerPage;
+            return this;
+        }
+
+        public Builder<T, S> disableCheckBoxes() {
+            this.checkBoxEnabled = false;
+            return this;
+        }
+
+        private boolean isBulkEnabled() {
+            return checkBoxEnabled && bulkActionExecutor != null && !bulkActions.isEmpty();
+        }
+    }
+
+    private AjaxDataTablePanel(final String id, final Builder<T, S> builder) {
 
         super(id);
 
@@ -72,11 +159,11 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
             public void onClose(final AjaxRequestTarget target) {
                 final EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
-                data.setRows(rowsPerPage);
+                data.setRows(builder.rowsPerPage);
 
-                send(pageRef.getPage(), Broadcast.BREADTH, data);
+                send(builder.pageRef.getPage(), Broadcast.BREADTH, data);
 
-                final AbstractBasePage page = (AbstractBasePage) pageRef.getPage();
+                final AbstractBasePage page = (AbstractBasePage) builder.pageRef.getPage();
 
                 if (page.isModalResult()) {
                     // reset modal result
@@ -106,13 +193,17 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
         });
         bulkActionForm.add(group);
 
-        columns.add(0, new CheckGroupColumn<T, S>(group));
-        dataTable = new AjaxFallbackDataTable<>("dataTable", columns, dataProvider, rowsPerPage, container);
+        if (builder.checkBoxEnabled) {
+            builder.columns.add(0, new CheckGroupColumn<T, S>(group));
+        }
+
+        dataTable = new AjaxFallbackDataTable<>(
+                "dataTable", builder.columns, builder.dataProvider, builder.rowsPerPage, builder.container);
         dataTable.add(new AttributeModifier("class", "table table-bordered table-hover dataTable"));
 
         group.add(dataTable);
 
-        fragment.add(new ClearIndicatingAjaxButton("bulkActionLink", bulkActionForm, pageRef) {
+        fragment.add(new ClearIndicatingAjaxButton("bulkActionLink", bulkActionForm, builder.pageRef) {
 
             private static final long serialVersionUID = 382302811235019988L;
 
@@ -120,16 +211,16 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
             protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 bulkModalWin.setContent(new BulkActionModalPage<>(
                         bulkModalWin,
-                        pageRef,
+                        builder.pageRef,
                         group.getModelObject(),
-                        columns,
-                        actions,
-                        bulkActionExecutor,
-                        itemKeyField,
-                        pageId));
+                        builder.columns,
+                        builder.bulkActions,
+                        builder.bulkActionExecutor,
+                        builder.itemKeyField,
+                        builder.pageId));
 
                 bulkModalWin.show(target);
             }
-        });
+        }.setEnabled(builder.isBulkEnabled()).setVisible(builder.isBulkEnabled()));
     }
 }

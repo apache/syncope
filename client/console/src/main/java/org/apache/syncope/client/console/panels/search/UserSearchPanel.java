@@ -19,19 +19,12 @@
 package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
-import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.model.IModel;
 
 public final class UserSearchPanel extends AnyObjectSearchPanel {
 
     private static final long serialVersionUID = -1769527800450203738L;
-
-    private final UserRestClient userRestClient = new UserRestClient();
 
     public static class Builder extends AnyObjectSearchPanel.Builder {
 
@@ -49,22 +42,6 @@ public final class UserSearchPanel extends AnyObjectSearchPanel {
 
     private UserSearchPanel(final String id, final Builder builder) {
         super(id, AnyTypeKind.USER, builder);
-    }
-
-    @Override
-    public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
-            final String fiql = SearchUtils.buildFIQL(
-                    UserSearchPanel.this.getModel().getObject(), SyncopeClient.getUserSearchConditionBuilder());
-
-            final List<UserTO> res = userRestClient.search(
-                    "/", fiql, 1, 50, new SortParam<>("username", true), AnyTypeKind.USER.name());
-
-            // let's provide result panel to be populated ....
-            
-        } else {
-            super.onEvent(event);
-        }
     }
 
 }
