@@ -102,6 +102,15 @@ Remember to configure right DataSource on it and to configure Tomcat user like:
 </tomcat-users>
 ----
 
+
+The next images shows how the installer print some feedback directly on the GUI or reading the log file under the 
+configuration directory:
+
+[source]
+--
+/var/tmp/syncope_2_0_0/install.log
+--
+
 image::installer-11.png[installer-11]
 
 image::installer-12.png[installer-12]
@@ -109,10 +118,3 @@ image::installer-12.png[installer-12]
 image::installer-13.png[installer-13]
 
 image::installer-14.png[installer-14]
-
-The latest images shows how the installer print some feedback directly on the GUI or following the log
-
-[source]
---
-/var/tmp/syncope_2_0_0/install.log
---
