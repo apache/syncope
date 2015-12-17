@@ -43,4 +43,7 @@ public interface Report extends Entity<Long> {
 
     void setCronExpression(String cronExpression);
 
+    boolean isActive();
+
+    void setActive(boolean active);
 }

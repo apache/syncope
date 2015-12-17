@@ -51,6 +51,8 @@ public class ReportTO extends AbstractStartEndBean {
 
     private Date nextExec;
 
+    private boolean active;
+
     public long getKey() {
         return key;
     }
@@ -121,6 +123,14 @@ public class ReportTO extends AbstractStartEndBean {
         if (nextExec != null) {
             this.nextExec = new Date(nextExec.getTime());
         }
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(final boolean active) {
+        this.active = active;
     }
 
 }

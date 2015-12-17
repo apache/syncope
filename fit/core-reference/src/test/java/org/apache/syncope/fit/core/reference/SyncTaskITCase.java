@@ -601,6 +601,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         SyncTaskTO task = new SyncTaskTO();
         task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         task.setName("Test Sync Rule");
+        task.setActive(true);
         task.setResource(RESOURCE_NAME_WS2);
         task.setSyncMode(SyncMode.FULL_RECONCILIATION);
         task.setPerformCreate(true);
@@ -745,6 +746,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         SyncTaskTO syncTask = new SyncTaskTO();
         syncTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         syncTask.setName("DB Sync Task");
+        syncTask.setActive(true);
         syncTask.setPerformCreate(true);
         syncTask.setPerformUpdate(true);
         syncTask.setSyncMode(SyncMode.FULL_RECONCILIATION);
@@ -818,6 +820,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         SyncTaskTO syncTask = new SyncTaskTO();
         syncTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         syncTask.setName("LDAP Sync Task");
+        syncTask.setActive(true);
         syncTask.setPerformCreate(true);
         syncTask.setPerformUpdate(true);
         syncTask.setSyncMode(SyncMode.FULL_RECONCILIATION);

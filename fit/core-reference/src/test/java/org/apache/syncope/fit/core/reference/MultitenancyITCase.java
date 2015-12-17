@@ -190,6 +190,7 @@ public class MultitenancyITCase extends AbstractITCase {
         // create sync task
         SyncTaskTO task = new SyncTaskTO();
         task.setName("LDAP Sync Task");
+        task.setActive(true);
         task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         task.setResource(resource.getKey());
         task.setSyncMode(SyncMode.FULL_RECONCILIATION);

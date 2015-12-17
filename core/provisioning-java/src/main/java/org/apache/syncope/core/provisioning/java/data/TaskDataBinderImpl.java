@@ -103,7 +103,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
     private void fill(final ProvisioningTask task, final AbstractProvisioningTaskTO taskTO) {
         if (task instanceof PushTask && taskTO instanceof PushTaskTO) {
-            final PushTask pushTask = (PushTask) task;
+            PushTask pushTask = (PushTask) task;
             final PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
 
             pushTask.setJobDelegateClassName(PushJobDelegate.class.getName());
@@ -137,7 +137,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 }
             });
         } else if (task instanceof SyncTask && taskTO instanceof SyncTaskTO) {
-            final SyncTask syncTask = (SyncTask) task;
+            SyncTask syncTask = (SyncTask) task;
             final SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
             syncTask.setSyncMode(syncTaskTO.getSyncMode());
@@ -201,6 +201,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         task.setCronExpression(taskTO.getCronExpression());
         task.setName(taskTO.getName());
         task.setDescription(taskTO.getDescription());
+        task.setActive(taskTO.isActive());
 
         if (taskUtils.getType() == TaskType.SCHEDULED) {
             task.setJobDelegateClassName(taskTO.getJobDelegateClassName());
@@ -313,8 +314,6 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                             + task.getClass().getName());
                 }
                 setExecTime((SchedTaskTO) taskTO, task);
-                ((SchedTaskTO) taskTO).setName(((SchedTask) task).getName());
-                ((SchedTaskTO) taskTO).setDescription(((SchedTask) task).getDescription());
                 break;
 
             case SYNCHRONIZATION:
@@ -323,8 +322,6 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                             + task.getClass().getName());
                 }
                 setExecTime((SchedTaskTO) taskTO, task);
-                ((SyncTaskTO) taskTO).setName(((SyncTask) task).getName());
-                ((SyncTaskTO) taskTO).setDescription(((SyncTask) task).getDescription());
                 ((SyncTaskTO) taskTO).setDestinationRealm(((SyncTask) task).getDestinatioRealm().getFullPath());
                 ((SyncTaskTO) taskTO).setResource(((SyncTask) task).getResource().getKey());
                 ((SyncTaskTO) taskTO).setMatchingRule(((SyncTask) task).getMatchingRule() == null
@@ -343,8 +340,6 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                             + task.getClass().getName());
                 }
                 setExecTime((SchedTaskTO) taskTO, task);
-                ((PushTaskTO) taskTO).setName(((PushTask) task).getName());
-                ((PushTaskTO) taskTO).setDescription(((PushTask) task).getDescription());
                 ((PushTaskTO) taskTO).setResource(((PushTask) task).getResource().getKey());
                 ((PushTaskTO) taskTO).setMatchingRule(((PushTask) task).getMatchingRule() == null
                         ? MatchingRule.LINK : ((PushTask) task).getMatchingRule());

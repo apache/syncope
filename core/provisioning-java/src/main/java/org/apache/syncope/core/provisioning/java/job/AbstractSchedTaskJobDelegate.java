@@ -25,7 +25,7 @@ import org.apache.syncope.core.misc.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.task.Task;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -42,7 +42,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
     /**
      * The actual task to be executed.
      */
-    protected Task task;
+    protected SchedTask task;
 
     /**
      * Task execution DAO.
@@ -77,6 +77,10 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         task = taskDAO.find(taskKey);
         if (task == null) {
             throw new JobExecutionException("Task " + taskKey + " not found");
+        }
+
+        if (!task.isActive()) {
+            LOG.info("Task {} not active, aborting...", taskKey);
         }
 
         TaskExec execution = entityFactory.newEntity(TaskExec.class);

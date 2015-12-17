@@ -207,6 +207,12 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
             case SCHEDULED:
             case SYNCHRONIZATION:
             case PUSH:
+                if (!((SchedTask) task).isActive()) {
+                    SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+                    sce.getElements().add("Task " + taskKey + " is not active");
+                    throw sce;
+                }
+
                 try {
                     Map<String, Object> jobDataMap = jobInstanceLoader.registerJob(
                             (SchedTask) task,

@@ -236,6 +236,12 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
             throw new NotFoundException("Report " + reportKey);
         }
 
+        if (!report.isActive()) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add("Report " + reportKey + " is not active");
+            throw sce;
+        }
+
         try {
             jobInstanceLoader.registerJob(report);
 

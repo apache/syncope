@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
@@ -184,9 +185,21 @@ public class ReportITCase extends AbstractITCase {
         ReportTO reportTO = reportService.read(1L);
         reportTO.setKey(0);
         reportTO.setName("executeAndExport" + getUUIDString());
+        reportTO.setActive(false);
         reportTO.getExecutions().clear();
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
+
+        try {
+            execute(reportTO.getKey());
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.Scheduling, e.getType());
+            assertTrue(e.getElements().iterator().next().contains("active"));
+        }
+
+        reportTO.setActive(true);
+        reportService.update(reportTO);
 
         long execId = execute(reportTO.getKey());
 
@@ -234,6 +247,7 @@ public class ReportITCase extends AbstractITCase {
     public void issueSYNCOPE43() {
         ReportTO reportTO = new ReportTO();
         reportTO.setName("issueSYNCOPE43" + getUUIDString());
+        reportTO.setActive(true);
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 

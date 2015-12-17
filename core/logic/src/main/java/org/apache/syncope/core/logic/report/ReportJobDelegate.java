@@ -81,6 +81,11 @@ public class ReportJobDelegate {
             throw new JobExecutionException("Report " + reportKey + " not found");
         }
 
+        if (!report.isActive()) {
+            LOG.info("Report {} not active, aborting...", reportKey);
+            return;
+        }
+
         // 1. create execution
         ReportExec execution = entityFactory.newEntity(ReportExec.class);
         execution.setStatus(ReportExecStatus.STARTED);

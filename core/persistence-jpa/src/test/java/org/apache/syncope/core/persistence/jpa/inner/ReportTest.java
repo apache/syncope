@@ -59,6 +59,7 @@ public class ReportTest extends AbstractTest {
 
         Report report = entityFactory.newEntity(Report.class);
         report.setName("new report");
+        report.setActive(true);
         report.add(new UserReportletConf("first"));
         report.add(new UserReportletConf("second"));
 

@@ -312,6 +312,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             // create push task ad-hoc
             PushTaskTO task = new PushTaskTO();
             task.setName("issueSYNCOPE598");
+            task.setActive(true);
             task.setResource(resourceName);
             task.setPerformCreate(true);
             task.setPerformDelete(true);
@@ -341,6 +342,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // 1. Create Push Task
         PushTaskTO task = new PushTaskTO();
         task.setName("Test create Push");
+        task.setActive(true);
         task.setResource(RESOURCE_NAME_LDAP);
         task.getFilters().put(AnyTypeKind.USER.name(),
                 SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("_NO_ONE_").query());

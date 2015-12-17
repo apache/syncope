@@ -35,4 +35,8 @@ public interface SchedTask extends Task {
     void setJobDelegateClassName(String jobDelegateClassName);
 
     void setName(String name);
+
+    boolean isActive();
+
+    void setActive(boolean active);
 }

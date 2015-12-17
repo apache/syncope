@@ -220,6 +220,7 @@ public class TaskTest extends AbstractTest {
         SyncTask task = entityFactory.newEntity(SyncTask.class);
         task.setName("saveSyncTask");
         task.setDescription("SyncTask description");
+        task.setActive(true);
         task.setSyncMode(SyncMode.FULL_RECONCILIATION);
         task.add(template);
         task.setCronExpression("BLA BLA");
@@ -278,6 +279,7 @@ public class TaskTest extends AbstractTest {
         task.setResource(resource);
         task.setName("issueSYNCOPE144");
         task.setDescription("issueSYNCOPE144 Description");
+        task.setActive(true);
         task.setSyncMode(SyncMode.FULL_RECONCILIATION);
         task.getActionsClassNames().add(SyncActions.class.getName());
         task.setMatchingRule(MatchingRule.UPDATE);

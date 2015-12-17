@@ -43,6 +43,8 @@ public class SchedTaskTO extends AbstractTaskTO {
 
     private Date nextExec;
 
+    private boolean active;
+
     public String getCronExpression() {
         return cronExpression;
     }
@@ -101,4 +103,13 @@ public class SchedTaskTO extends AbstractTaskTO {
     public void setName(final String name) {
         this.name = name;
     }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(final boolean active) {
+        this.active = active;
+    }
+
 }

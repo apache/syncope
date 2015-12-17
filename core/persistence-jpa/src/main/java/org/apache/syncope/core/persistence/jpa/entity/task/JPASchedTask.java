@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
+import javax.persistence.Basic;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
@@ -40,6 +43,12 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
     protected String name;
 
     protected String description;
+
+    @NotNull
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer active;
 
     public JPASchedTask() {
         super();
@@ -84,5 +93,15 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
     @Override
     public void setName(final String name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isBooleanAsInteger(active);
+    }
+
+    @Override
+    public void setActive(final boolean active) {
+        this.active = getBooleanAsInteger(active);
     }
 }

@@ -63,6 +63,7 @@ public class ReportTest extends AbstractTest {
 
         report = entityFactory.newEntity(Report.class);
         report.setName(name);
+        report.setActive(true);
 
         reportDAO.save(report);
         reportDAO.flush();

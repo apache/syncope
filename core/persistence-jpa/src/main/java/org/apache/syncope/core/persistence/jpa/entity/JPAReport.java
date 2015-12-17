@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,6 +28,9 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.report.ReportletConf;
@@ -56,6 +60,12 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "report")
     private List<JPAReportExec> executions = new ArrayList<>();
+
+    @NotNull
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer active;
 
     @Override
     public Long getKey() {
@@ -126,5 +136,15 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
     @Override
     public void setCronExpression(final String cronExpression) {
         this.cronExpression = cronExpression;
+    }
+
+    @Override
+    public boolean isActive() {
+        return isBooleanAsInteger(active);
+    }
+
+    @Override
+    public void setActive(final boolean active) {
+        this.active = getBooleanAsInteger(active);
     }
 }
