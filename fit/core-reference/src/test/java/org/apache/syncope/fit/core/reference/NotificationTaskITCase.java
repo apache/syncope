@@ -308,11 +308,12 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         notification.getAbouts().put(AnyTypeKind.GROUP.name(),
                 SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo(groupName).query());
 
-        notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().inGroups(8L).query());
+        notification.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(false);
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
         notification.getStaticRecipients().add(MAIL_ADDRESS);
+        notification.setRecipientsProviderClassName(TestNotificationRecipientsProvider.class.getName());
 
         String sender = "syncopetest-" + getUUIDString() + "@syncope.apache.org";
         notification.setSender(sender);
@@ -324,6 +325,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         Response response = notificationService.create(notification);
         notification = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
         assertNotNull(notification);
+        assertEquals(TestNotificationRecipientsProvider.class.getName(), notification.getRecipientsProviderClassName());
 
         // 2. create group
         GroupTO groupTO = new GroupTO();
@@ -335,6 +337,8 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // 3. verify
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertTrue(taskTO.getRecipients().containsAll(
+                new TestNotificationRecipientsProvider().provideRecipients(null)));
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
 
@@ -364,7 +368,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
                     SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
         }
 
-        notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().inGroups(8L).query());
+        notification.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserPlainSchema);

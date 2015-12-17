@@ -16,37 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.task;
+package org.apache.syncope.core.provisioning.api.notification;
 
 import java.util.Set;
-import org.apache.syncope.common.lib.types.TraceLevel;
+import org.apache.syncope.core.persistence.api.entity.Notification;
 
-public interface NotificationTask extends Task {
+public interface NotificationRecipientsProvider {
 
-    void setSender(String sender);
-
-    String getSender();
-
-    Set<String> getRecipients();
-
-    String getSubject();
-
-    void setSubject(String subject);
-
-    void setTextBody(String textBody);
-
-    String getTextBody();
-
-    void setHtmlBody(String htmlBody);
-
-    String getHtmlBody();
-
-    void setTraceLevel(TraceLevel traceLevel);
-
-    TraceLevel getTraceLevel();
-
-    boolean isExecuted();
-
-    void setExecuted(boolean executed);
-
+    Set<String> provideRecipients(Notification notification);
 }

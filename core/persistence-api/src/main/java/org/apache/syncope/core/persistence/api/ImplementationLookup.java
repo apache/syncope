@@ -41,8 +41,8 @@ public interface ImplementationLookup extends SyncopeLoader {
         SYNC_ACTIONS,
         PUSH_ACTIONS,
         SYNC_CORRELATION_RULE,
-        PUSH_CORRELATION_RULE,
-        VALIDATOR
+        VALIDATOR,
+        NOTIFICATION_RECIPIENTS_PROVIDER;
 
     }
 

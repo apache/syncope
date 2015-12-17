@@ -143,8 +143,9 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
         syncopeTO.getSyncActions().addAll(implLookup.getClassNames(Type.SYNC_ACTIONS));
         syncopeTO.getPushActions().addAll(implLookup.getClassNames(Type.PUSH_ACTIONS));
         syncopeTO.getSyncCorrelationRules().addAll(implLookup.getClassNames(Type.SYNC_CORRELATION_RULE));
-        syncopeTO.getPushCorrelationRules().addAll(implLookup.getClassNames(Type.PUSH_CORRELATION_RULE));
         syncopeTO.getValidators().addAll(implLookup.getClassNames(Type.VALIDATOR));
+        syncopeTO.getNotificationRecipientsProviders().
+                addAll(implLookup.getClassNames(Type.NOTIFICATION_RECIPIENTS_PROVIDER));
 
         Set<String> htmlTemplates = new HashSet<>();
         Set<String> textTemplates = new HashSet<>();

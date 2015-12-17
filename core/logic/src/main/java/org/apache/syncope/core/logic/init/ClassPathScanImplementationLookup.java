@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
 import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
+import org.apache.syncope.core.provisioning.api.notification.NotificationRecipientsProvider;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
@@ -100,9 +101,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(SyncActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SyncCorrelationRule.class));
-        // Remove once SYNCOPE-470 is done
-        //scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(NotificationRecipientsProvider.class));
 
         for (BeanDefinition bd : scanner.findCandidateComponents(StringUtils.EMPTY)) {
             try {
@@ -170,12 +170,12 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(Type.SYNC_CORRELATION_RULE).add(bd.getBeanClassName());
                 }
 
-                // Uncomment when SYNCOPE-470 is done
-                /* if (PushCorrelationRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
-                 * classNames.get(Type.PUSH_CORRELATION_RULES).add(metadata.getClassName());
-                 * } */
                 if (Validator.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                     classNames.get(Type.VALIDATOR).add(bd.getBeanClassName());
+                }
+
+                if (NotificationRecipientsProvider.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.NOTIFICATION_RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
                 }
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);

@@ -40,9 +40,13 @@ public interface Notification extends Entity<Long> {
 
     void setRecipientAttrType(IntMappingType recipientAttrType);
 
-    String getRecipients();
+    String getRecipientsFIQL();
 
-    void setRecipients(String recipients);
+    void setRecipientsFIQL(String recipientsFIQL);
+
+    String getRecipientsProviderClassName();
+
+    void setRecipientsProviderClassName(String recipientsProviderClassName);
 
     boolean add(AnyAbout about);
 

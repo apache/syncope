@@ -54,6 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -65,6 +66,7 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
+import org.apache.syncope.core.provisioning.api.notification.NotificationRecipientsProvider;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
@@ -73,6 +75,7 @@ import org.apache.velocity.tools.ToolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -188,9 +191,9 @@ public class NotificationManagerImpl implements NotificationManager {
 
         List<User> recipients = new ArrayList<>();
 
-        if (notification.getRecipients() != null) {
+        if (notification.getRecipientsFIQL() != null) {
             recipients.addAll(searchDAO.<User>search(
-                    SearchCondConverter.convert(notification.getRecipients()),
+                    SearchCondConverter.convert(notification.getRecipientsFIQL()),
                     Collections.<OrderByClause>emptyList(), AnyTypeKind.USER));
         }
 
@@ -215,6 +218,18 @@ public class NotificationManagerImpl implements NotificationManager {
 
         if (notification.getStaticRecipients() != null) {
             recipientEmails.addAll(notification.getStaticRecipients());
+        }
+
+        if (notification.getRecipientsProviderClassName() != null) {
+            try {
+                NotificationRecipientsProvider recipientsProvider =
+                        (NotificationRecipientsProvider) ApplicationContextProvider.getBeanFactory().
+                        createBean(Class.forName(notification.getRecipientsProviderClassName()),
+                                AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                recipientEmails.addAll(recipientsProvider.provideRecipients(notification));
+            } catch (Exception e) {
+                LOG.error("Could not fetch recipients from {}", notification.getRecipientsProviderClassName(), e);
+            }
         }
 
         model.put("recipients", recipientTOs);

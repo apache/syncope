@@ -49,7 +49,7 @@ public class NotificationTest extends AbstractTest {
         assertNotNull(notification.getEvents());
         assertFalse(notification.getEvents().isEmpty());
         assertNotNull(notification.getAbout(anyTypeDAO.findUser()));
-        assertNotNull(notification.getRecipients());
+        assertNotNull(notification.getRecipientsFIQL());
 
     }
 
@@ -71,7 +71,7 @@ public class NotificationTest extends AbstractTest {
         about.setAnyType(anyTypeDAO.findUser());
         about.set("fake search condition");
 
-        notification.setRecipients("fake recipients");
+        notification.setRecipientsFIQL("fake recipients");
 
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
@@ -102,7 +102,7 @@ public class NotificationTest extends AbstractTest {
         about.setAnyType(anyTypeDAO.findUser());
         about.set("fake search condition");
 
-        notification.setRecipients("fake search condition");
+        notification.setRecipientsFIQL("fake search condition");
 
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserPlainSchema);

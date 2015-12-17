@@ -36,7 +36,7 @@ public class NotificationResultManager extends CommonsResultManager {
         System.out.println("    events: " + notificationTO.getEvents());
         System.out.println("    sender: " + notificationTO.getSender());
         System.out.println("    subject: " + notificationTO.getSubject());
-        System.out.println("    recipients: " + notificationTO.getRecipients());
+        System.out.println("    recipients: " + notificationTO.getRecipientsFIQL());
         System.out.println("    recipient attribute name: " + notificationTO.getRecipientAttrName());
         System.out.println("    template: " + notificationTO.getTemplate());
         System.out.println("    abouts: " + notificationTO.getAbouts());

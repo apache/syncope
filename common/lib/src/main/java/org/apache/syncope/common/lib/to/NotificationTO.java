@@ -49,7 +49,7 @@ public class NotificationTO extends AbstractBaseBean {
     @JsonIgnore
     private final Map<String, String> abouts = new HashMap<>();
 
-    private String recipients;
+    private String recipientsFIQL;
 
     private final List<String> staticRecipients = new ArrayList<>();
 
@@ -58,6 +58,8 @@ public class NotificationTO extends AbstractBaseBean {
     private String recipientAttrName;
 
     private boolean selfAsRecipient;
+
+    private String recipientsProviderClassName;
 
     private String sender;
 
@@ -97,12 +99,12 @@ public class NotificationTO extends AbstractBaseBean {
         this.key = key;
     }
 
-    public String getRecipients() {
-        return recipients;
+    public String getRecipientsFIQL() {
+        return recipientsFIQL;
     }
 
-    public void setRecipients(final String recipients) {
-        this.recipients = recipients;
+    public void setRecipientsFIQL(final String recipientsFIQL) {
+        this.recipientsFIQL = recipientsFIQL;
     }
 
     public String getRecipientAttrName() {
@@ -127,6 +129,14 @@ public class NotificationTO extends AbstractBaseBean {
 
     public void setSelfAsRecipient(final boolean selfAsRecipient) {
         this.selfAsRecipient = selfAsRecipient;
+    }
+
+    public String getRecipientsProviderClassName() {
+        return recipientsProviderClassName;
+    }
+
+    public void setRecipientsProviderClassName(final String recipientsProviderClassName) {
+        this.recipientsProviderClassName = recipientsProviderClassName;
     }
 
     public String getSender() {

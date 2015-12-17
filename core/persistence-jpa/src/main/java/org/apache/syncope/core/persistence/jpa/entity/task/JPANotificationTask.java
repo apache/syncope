@@ -89,16 +89,6 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
     }
 
     @Override
-    public boolean addRecipient(final String recipient) {
-        return recipients.add(recipient);
-    }
-
-    @Override
-    public boolean removeRecipient(final String recipient) {
-        return recipients.remove(recipient);
-    }
-
-    @Override
     public String getSender() {
         return sender;
     }

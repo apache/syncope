@@ -40,7 +40,7 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationDataBinder.class);
 
-    private static final String[] IGNORE_PROPERTIES = { "key", "abouts", "recipients" };
+    private static final String[] IGNORE_PROPERTIES = { "key", "abouts" };
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -59,8 +59,6 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
             result.getAbouts().put(about.getAnyType().getKey(), about.get());
         }
 
-        result.setRecipients(notification.getRecipients());
-
         return result;
     }
 
@@ -74,7 +72,6 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
     @Override
     public void update(final Notification notification, final NotificationTO notificationTO) {
         BeanUtils.copyProperties(notificationTO, notification, IGNORE_PROPERTIES);
-        notification.setRecipients(notificationTO.getRecipients());
 
         // 1. add or update all (valid) abouts from TO
         for (Map.Entry<String, String> entry : notificationTO.getAbouts().entrySet()) {

@@ -68,7 +68,7 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "notification")
     private List<JPAAnyAbout> abouts;
 
-    private String recipients;
+    private String recipientsFIQL;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "Notification_staticRecipients",
@@ -83,6 +83,8 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
 
     @NotNull
     private String recipientAttrName;
+
+    private String recipientsProviderClassName;
 
     @NotNull
     @Basic
@@ -124,13 +126,13 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     }
 
     @Override
-    public String getRecipients() {
-        return recipients;
+    public String getRecipientsFIQL() {
+        return recipientsFIQL;
     }
 
     @Override
-    public void setRecipients(final String recipients) {
-        this.recipients = recipients;
+    public void setRecipientsFIQL(final String recipientsFIQL) {
+        this.recipientsFIQL = recipientsFIQL;
     }
 
     @Override
@@ -149,9 +151,18 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     }
 
     @Override
-
     public void setRecipientAttrType(final IntMappingType recipientAttrType) {
         this.recipientAttrType = recipientAttrType;
+    }
+
+    @Override
+    public String getRecipientsProviderClassName() {
+        return recipientsProviderClassName;
+    }
+
+    @Override
+    public void setRecipientsProviderClassName(final String recipientsProviderClassName) {
+        this.recipientsProviderClassName = recipientsProviderClassName;
     }
 
     @Override

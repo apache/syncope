@@ -77,7 +77,7 @@ public class NotificationITCase extends AbstractITCase {
     @Test
     public void create() {
         NotificationTO notificationTO = buildNotificationTO();
-        notificationTO.setRecipients(SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
+        notificationTO.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
 
         Response response = notificationService.create(notificationTO);
         NotificationTO actual = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
@@ -91,7 +91,7 @@ public class NotificationITCase extends AbstractITCase {
     @Test
     public void update() {
         NotificationTO notificationTO = notificationService.read(10L);
-        notificationTO.setRecipients(SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
+        notificationTO.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
 
         notificationService.update(notificationTO);
         NotificationTO actual = notificationService.read(notificationTO.getKey());

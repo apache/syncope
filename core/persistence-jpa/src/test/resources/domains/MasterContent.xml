@@ -1108,7 +1108,7 @@ under the License.
 
   <Notification id="10" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" 
                 traceLevel="FAILURES"
-                recipients="$groups==7"
+                recipientsFIQL="$groups==7"
                 recipientAttrType="UserPlainSchema" recipientAttrName="email" active="1"/>
   <AnyAbout id="10" anyType_name="USER" notification_id="10" about="fullname==*o*;fullname==*i*"/>
   <Notification_events Notification_id="10" event="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
