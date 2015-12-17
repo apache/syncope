@@ -42,6 +42,7 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
+import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 
@@ -106,17 +107,6 @@ public interface TaskService extends JAXRSService {
     @Path("{key}")
     void delete(@NotNull @PathParam("key") Long key);
 
-    /*
-     * Returns the task execution with the given id.
-     *
-     * @param executionKey key of task execution to be read
-     * @return task execution with matching Id
-     */
-    @GET
-    @Path("executions/{executionKey}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    TaskExecTO readExecution(@NotNull @PathParam("executionKey") Long executionKey);
-
     /**
      * Returns a paged list of task executions matching the given query.
      *
@@ -136,6 +126,17 @@ public interface TaskService extends JAXRSService {
     @DELETE
     @Path("executions/{executionKey}")
     void deleteExecution(@NotNull @PathParam("executionKey") Long executionKey);
+
+    /**
+     * Deletes the task executions belonging matching the given query.
+     *
+     * @param query query conditions
+     * @return bulk action result
+     */
+    @DELETE
+    @Path("{key}/executions")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    BulkActionResult deleteExecutions(@BeanParam BulkExecDeleteQuery query);
 
     /**
      * Executes the task matching the given id.

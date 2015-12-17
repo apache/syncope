@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.Date;
 import java.util.List;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -32,7 +32,8 @@ public interface TaskExecDAO extends DAO<TaskExec, Long> {
 
     <T extends Task> TaskExec findLatestEnded(T task);
 
-    List<TaskExec> findAll(TaskType type);
+    <T extends Task> List<TaskExec> findAll(
+            T task, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
 
     int count(Long taskKey);
 

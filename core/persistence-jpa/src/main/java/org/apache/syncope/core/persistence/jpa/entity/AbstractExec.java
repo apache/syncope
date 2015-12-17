@@ -44,6 +44,7 @@ public abstract class AbstractExec extends AbstractEntity<Long> implements Exec 
     /**
      * Start instant of this execution.
      */
+    @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     protected Date startDate;
 

@@ -29,6 +29,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractExecTO;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
@@ -258,15 +259,6 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
-    public TaskExecTO readExecution(final Long execKey) {
-        TaskExec taskExec = taskExecDAO.find(execKey);
-        if (taskExec == null) {
-            throw new NotFoundException("Task execution " + execKey);
-        }
-        return binder.getTaskExecTO(taskExec);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
     public int countExecutions(final Long taskId) {
         return taskExecDAO.count(taskId);
     }
@@ -295,6 +287,52 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         TaskExecTO taskExecutionToDelete = binder.getTaskExecTO(taskExec);
         taskExecDAO.delete(taskExec);
         return taskExecutionToDelete;
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
+    public BulkActionResult deleteExecutions(
+            final Long taskKey,
+            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+
+        Task task = taskDAO.find(taskKey);
+        if (task == null) {
+            throw new NotFoundException("Task " + taskKey);
+        }
+
+        BulkActionResult result = new BulkActionResult();
+
+        for (TaskExec exec : taskExecDAO.findAll(task, startedBefore, startedAfter, endedBefore, endedAfter)) {
+            try {
+                taskExecDAO.delete(exec);
+                result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.SUCCESS);
+            } catch (Exception e) {
+                LOG.error("Error deleting execution {} of task {}", exec.getKey(), taskKey, e);
+                result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.FAILURE);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    protected Long getKeyFromJobName(final JobKey jobKey) {
+        return JobNamer.getTaskKeyFromJobName(jobKey.getName());
+    }
+
+    @Override
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
+    public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, final Class<E> reference) {
+        return super.listJobs(type, reference);
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    public void actionJob(final Long taskKey, final JobAction action) {
+        Task task = taskDAO.find(taskKey);
+        if (task == null) {
+            throw new NotFoundException("Task " + taskKey);
+        }
+        String jobName = JobNamer.getJobName(task);
+        actionJob(jobName, action);
     }
 
     @Override
@@ -326,26 +364,5 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         }
 
         throw new UnresolvedReferenceException();
-    }
-
-    @Override
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
-    public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, final Class<E> reference) {
-        return super.listJobs(type, reference);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
-    public void actionJob(final Long taskKey, final JobAction action) {
-        Task task = taskDAO.find(taskKey);
-        if (task == null) {
-            throw new NotFoundException("Task " + taskKey);
-        }
-        String jobName = JobNamer.getJobName(task);
-        actionJob(jobName, action);
-    }
-
-    @Override
-    protected Long getKeyFromJobName(final JobKey jobKey) {
-        return JobNamer.getTaskKeyFromJobName(jobKey.getName());
     }
 }

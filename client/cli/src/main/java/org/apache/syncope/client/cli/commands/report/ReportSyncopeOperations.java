@@ -36,12 +36,8 @@ public class ReportSyncopeOperations {
 
     private final ReportService reportService = SyncopeServices.get(ReportService.class);
 
-    public ReportExecTO readExecution(final String executionid) {
-        return reportService.readExecution(Long.valueOf(executionid));
-    }
-
-    public ReportTO read(final String reportId) {
-        return reportService.read(Long.valueOf(reportId));
+    public ReportTO read(final String reportKey) {
+        return reportService.read(Long.valueOf(reportKey));
     }
 
     public List<ReportExecTO> listJobs(final String jobStatusType) {
@@ -76,15 +72,15 @@ public class ReportSyncopeOperations {
         return xmlFinalName;
     }
 
-    public void execute(final String reportId) {
-        reportService.execute(Long.valueOf(reportId));
+    public void execute(final String reportKey) {
+        reportService.execute(Long.valueOf(reportKey));
     }
 
     public void deleteExecution(final String executionId) {
         reportService.deleteExecution(Long.valueOf(executionId));
     }
 
-    public void delete(final String reportId) {
-        reportService.delete(Long.valueOf(reportId));
+    public void delete(final String reportKey) {
+        reportService.delete(Long.valueOf(reportKey));
     }
 }

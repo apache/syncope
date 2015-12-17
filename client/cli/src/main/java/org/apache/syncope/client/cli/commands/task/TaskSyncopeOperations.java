@@ -55,15 +55,11 @@ public class TaskSyncopeOperations {
         return taskService.list(new TaskQuery.Builder().type(TaskType.PROPAGATION).build()).getResult();
     }
 
-    public TaskExecTO readExecution(final String executionId) {
-        return taskService.readExecution(Long.valueOf(executionId));
+    public void deleteExecution(final String executionKey) {
+        taskService.deleteExecution(Long.valueOf(executionKey));
     }
 
-    public void deleteExecution(final String executionId) {
-        taskService.deleteExecution(Long.valueOf(executionId));
-    }
-
-    public TaskExecTO execute(final String executionId, final boolean dryRun) {
-        return taskService.execute(Long.valueOf(executionId), dryRun);
+    public TaskExecTO execute(final String executionKey, final boolean dryRun) {
+        return taskService.execute(Long.valueOf(executionKey), dryRun);
     }
 }

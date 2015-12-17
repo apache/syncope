@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -69,12 +69,41 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
     }
 
     @Override
-    public List<TaskExec> findAll(final TaskType type) {
-        String queryString = "SELECT e FROM " + JPATaskExec.class.getSimpleName()
-                + " e WHERE e.task IN ("
-                + "SELECT t FROM " + taskDAO.getEntityReference(type).getSimpleName() + " t)";
+    public <T extends Task> List<TaskExec> findAll(
+            final T task,
+            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
 
-        TypedQuery<TaskExec> query = entityManager().createQuery(queryString, TaskExec.class);
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPATaskExec.class.getSimpleName()).
+                append(" e WHERE e.task=:task ");
+
+        if (startedBefore != null) {
+            queryString.append(" AND e.startDate < :startedBefore");
+        }
+        if (startedAfter != null) {
+            queryString.append(" AND e.startDate > :startedAfter");
+        }
+        if (endedBefore != null) {
+            queryString.append(" AND e.endDate < :endedBefore");
+        }
+        if (endedAfter != null) {
+            queryString.append(" AND e.endDate > :endedAfter");
+        }
+
+        TypedQuery<TaskExec> query = entityManager().createQuery(queryString.toString(), TaskExec.class);
+        query.setParameter("task", task);
+        if (startedBefore != null) {
+            query.setParameter("startedBefore", startedBefore);
+        }
+        if (startedAfter != null) {
+            query.setParameter("startedAfter", startedAfter);
+        }
+        if (endedBefore != null) {
+            query.setParameter("endedBefore", endedBefore);
+        }
+        if (endedAfter != null) {
+            query.setParameter("endedAfter", endedAfter);
+        }
+
         return query.getResultList();
     }
 

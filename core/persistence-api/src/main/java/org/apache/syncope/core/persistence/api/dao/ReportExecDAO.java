@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.Date;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -30,7 +31,7 @@ public interface ReportExecDAO extends DAO<ReportExec, Long> {
 
     ReportExec findLatestEnded(Report report);
 
-    List<ReportExec> findAll();
+    List<ReportExec> findAll(Report report, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
 
     ReportExec save(ReportExec execution);
 

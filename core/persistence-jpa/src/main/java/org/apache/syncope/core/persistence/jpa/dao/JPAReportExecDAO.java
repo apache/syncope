@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.Date;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
@@ -59,9 +60,41 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
     }
 
     @Override
-    public List<ReportExec> findAll() {
-        TypedQuery<ReportExec> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAReportExec.class.getSimpleName() + " e", ReportExec.class);
+    public List<ReportExec> findAll(
+            final Report report,
+            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPAReportExec.class.getSimpleName()).
+                append(" e WHERE e.report=:report ");
+
+        if (startedBefore != null) {
+            queryString.append(" AND e.startDate < :startedBefore");
+        }
+        if (startedAfter != null) {
+            queryString.append(" AND e.startDate > :startedAfter");
+        }
+        if (endedBefore != null) {
+            queryString.append(" AND e.endDate < :endedBefore");
+        }
+        if (endedAfter != null) {
+            queryString.append(" AND e.endDate > :endedAfter");
+        }
+
+        TypedQuery<ReportExec> query = entityManager().createQuery(queryString.toString(), ReportExec.class);
+        query.setParameter("report", report);
+        if (startedBefore != null) {
+            query.setParameter("startedBefore", startedBefore);
+        }
+        if (startedAfter != null) {
+            query.setParameter("startedAfter", startedAfter);
+        }
+        if (endedBefore != null) {
+            query.setParameter("endedBefore", endedBefore);
+        }
+        if (endedAfter != null) {
+            query.setParameter("endedAfter", endedAfter);
+        }
+
         return query.getResultList();
     }
 

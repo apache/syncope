@@ -32,6 +32,7 @@ import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.staxutils.DocumentDepthProperties;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
@@ -124,7 +125,8 @@ public class SyncopeClientFactoryBean {
         features.add(new LoggingFeature());
         defaultRestClientFactoryBean.setFeatures(features);
 
-        List<Object> providers = new ArrayList<>(3);
+        List<Object> providers = new ArrayList<>(4);
+        providers.add(new DateParamConverterProvider());
         providers.add(getJaxbProvider());
         providers.add(getJsonProvider());
         providers.add(getExceptionMapper());

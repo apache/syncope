@@ -55,6 +55,7 @@ import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.core.logic.report.TextSerializer;
 import org.apache.syncope.common.lib.to.AbstractExecTO;
+import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -64,7 +65,6 @@ import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ReportLogic extends AbstractJobLogic<ReportTO> {
@@ -131,11 +131,11 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         return CollectionUtils.collect(reportDAO.findAll(),
                 new Transformer<Report, ReportTO>() {
 
-                    @Override
-                    public ReportTO transform(final Report input) {
-                        return binder.getReportTO(input);
-                    }
-                }, new ArrayList<ReportTO>());
+            @Override
+            public ReportTO transform(final Report input) {
+                return binder.getReportTO(input);
+            }
+        }, new ArrayList<ReportTO>());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
@@ -145,16 +145,6 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
             throw new NotFoundException("Report " + reportKey);
         }
         return binder.getReportTO(report);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
-    @Transactional(readOnly = true)
-    public ReportExecTO readExecution(final Long executionKey) {
-        ReportExec reportExec = reportExecDAO.find(executionKey);
-        if (reportExec == null) {
-            throw new NotFoundException("Report execution " + executionKey);
-        }
-        return binder.getReportExecTO(reportExec);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
@@ -293,6 +283,52 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         return reportExecToDelete;
     }
 
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
+    public BulkActionResult deleteExecutions(
+            final Long reportKey,
+            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+
+        Report report = reportDAO.find(reportKey);
+        if (report == null) {
+            throw new NotFoundException("Report " + reportKey);
+        }
+
+        BulkActionResult result = new BulkActionResult();
+
+        for (ReportExec exec : reportExecDAO.findAll(report, startedBefore, startedAfter, endedBefore, endedAfter)) {
+            try {
+                reportExecDAO.delete(exec);
+                result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.SUCCESS);
+            } catch (Exception e) {
+                LOG.error("Error deleting execution {} of report {}", exec.getKey(), reportKey, e);
+                result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.FAILURE);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    protected Long getKeyFromJobName(final JobKey jobKey) {
+        return JobNamer.getReportKeyFromJobName(jobKey.getName());
+    }
+
+    @Override
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
+    public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, final Class<E> reference) {
+        return super.listJobs(type, reference);
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
+    public void actionJob(final Long reportKey, final JobAction action) {
+        Report report = reportDAO.find(reportKey);
+        if (report == null) {
+            throw new NotFoundException("Report " + reportKey);
+        }
+        String jobName = JobNamer.getJobName(report);
+        actionJob(jobName, action);
+    }
+
     @Override
     protected ReportTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
@@ -321,26 +357,5 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         }
 
         throw new UnresolvedReferenceException();
-    }
-
-    @Override
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
-    public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, final Class<E> reference) {
-        return super.listJobs(type, reference);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
-    public void actionJob(final Long reportKey, final JobAction action) {
-        Report report = reportDAO.find(reportKey);
-        if (report == null) {
-            throw new NotFoundException("Report " + reportKey);
-        }
-        String jobName = JobNamer.getJobName(report);
-        actionJob(jobName, action);
-    }
-
-    @Override
-    protected Long getKeyFromJobName(final JobKey jobKey) {
-        return JobNamer.getReportKeyFromJobName(jobKey.getName());
     }
 }

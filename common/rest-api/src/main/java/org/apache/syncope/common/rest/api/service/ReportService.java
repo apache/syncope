@@ -20,6 +20,7 @@ package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -32,11 +33,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
+import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 
 /**
  * REST operations for reports.
@@ -54,17 +57,6 @@ public interface ReportService extends JAXRSService {
     @Path("{key}")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
     ReportTO read(@NotNull @PathParam("key") Long key);
-
-    /**
-     * Returns report execution with matching key.
-     *
-     * @param executionKey report execution id to be selected
-     * @return report execution with matching key
-     */
-    @GET
-    @Path("executions/{executionKey}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ReportExecTO readExecution(@NotNull @PathParam("executionKey") Long executionKey);
 
     /**
      * Returns a list of all existing reports.
@@ -112,6 +104,17 @@ public interface ReportService extends JAXRSService {
     @DELETE
     @Path("executions/{executionKey}")
     void deleteExecution(@NotNull @PathParam("executionKey") Long executionKey);
+
+    /**
+     * Deletes the report executions belonging matching the given query.
+     *
+     * @param query query conditions
+     * @return bulk action result
+     */
+    @DELETE
+    @Path("{key}/executions")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    BulkActionResult deleteExecutions(@BeanParam BulkExecDeleteQuery query);
 
     /**
      * Executes the report with matching key.

@@ -20,12 +20,11 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -46,17 +45,16 @@ public class TaskExecTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<TaskExec> list = taskExecDAO.findAll(TaskType.PROPAGATION);
-        assertEquals(2, list.size());
+        PropagationTask task = taskDAO.find(1L);
+        assertNotNull(task);
 
-        list = taskExecDAO.findAll(TaskType.SCHEDULED);
-        assertTrue(list.isEmpty());
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.set(2015, 11, 18, 0, 0, 0);
 
-        list = taskExecDAO.findAll(TaskType.SYNCHRONIZATION);
-        assertTrue(list.isEmpty());
-
-        list = taskExecDAO.findAll(TaskType.NOTIFICATION);
-        assertTrue(list.isEmpty());
+        List<TaskExec> execs = taskExecDAO.findAll(task, calendar.getTime(), null, null, null);
+        assertNotNull(execs);
+        assertEquals(1, execs.size());
     }
 
     @Test

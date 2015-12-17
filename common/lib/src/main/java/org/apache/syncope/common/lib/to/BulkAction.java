@@ -48,9 +48,6 @@ public class BulkAction extends AbstractBaseBean {
 
     private Type type;
 
-    /**
-     * Serialized identifiers.
-     */
     private final List<String> targets = new ArrayList<>();
 
     public Type getType() {

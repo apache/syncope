@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.HttpHeaders;
@@ -34,10 +35,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.UserReportletConf;
+import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
+import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -76,12 +79,6 @@ public class ReportITCase extends AbstractITCase {
         assertNotNull(reportTO);
         assertNotNull(reportTO.getExecutions());
         assertFalse(reportTO.getExecutions().isEmpty());
-    }
-
-    @Test
-    public void readExecution() {
-        ReportExecTO reportExecTO = reportService.readExecution(1L);
-        assertNotNull(reportExecTO);
     }
 
     @Test
@@ -140,6 +137,35 @@ public class ReportITCase extends AbstractITCase {
         }
     }
 
+    private Long execute(final Long reportKey) {
+        ReportExecTO execution = reportService.execute(reportKey);
+        assertNotNull(execution);
+
+        int i = 0;
+        int maxit = 50;
+
+        ReportTO reportTO;
+
+        // wait for report execution completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            reportTO = reportService.read(reportKey);
+
+            assertNotNull(reportTO);
+            assertNotNull(reportTO.getExecutions());
+
+            i++;
+        } while (reportTO.getExecutions().isEmpty()
+                || (!ReportExecStatus.SUCCESS.name().equals(reportTO.getExecutions().get(0).getStatus()) && i < maxit));
+        assertEquals(ReportExecStatus.SUCCESS.name(), reportTO.getExecutions().get(0).getStatus());
+
+        return reportTO.getExecutions().get(0).getKey();
+    }
+
     private void checkExport(final Long execId, final ReportExecExportFormat fmt) throws IOException {
         Response response = reportService.exportExecutionResult(execId, fmt);
         assertNotNull(response);
@@ -162,36 +188,46 @@ public class ReportITCase extends AbstractITCase {
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 
-        ReportExecTO execution = reportService.execute(reportTO.getKey());
-        assertNotNull(execution);
-
-        int i = 0;
-        int maxit = 50;
-
-        // wait for report execution completion (executions incremented)
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            reportTO = reportService.read(reportTO.getKey());
-
-            assertNotNull(reportTO);
-            assertNotNull(reportTO.getExecutions());
-
-            i++;
-        } while (reportTO.getExecutions().isEmpty()
-                || (!ReportExecStatus.SUCCESS.name().equals(reportTO.getExecutions().get(0).getStatus()) && i < maxit));
-        assertEquals(ReportExecStatus.SUCCESS.name(), reportTO.getExecutions().get(0).getStatus());
-
-        long execId = reportTO.getExecutions().get(0).getKey();
+        long execId = execute(reportTO.getKey());
 
         checkExport(execId, ReportExecExportFormat.XML);
         checkExport(execId, ReportExecExportFormat.HTML);
         checkExport(execId, ReportExecExportFormat.PDF);
         checkExport(execId, ReportExecExportFormat.RTF);
         checkExport(execId, ReportExecExportFormat.CSV);
+    }
+
+    @Test
+    public void deleteExecutions() {
+        Date start = new Date();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+
+        ReportTO reportTO = reportService.read(1L);
+        reportTO.setKey(0);
+        reportTO.setName("deleteExecutions" + getUUIDString());
+        reportTO.getExecutions().clear();
+        reportTO = createReport(reportTO);
+        assertNotNull(reportTO);
+
+        Long execId = execute(reportTO.getKey());
+        assertNotNull(execId);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+        Date end = new Date();
+
+        BulkActionResult result = reportService.deleteExecutions(
+                new BulkExecDeleteQuery.Builder().key(reportTO.getKey()).startedAfter(start).endedBefore(end).build());
+        assertNotNull(result);
+
+        assertEquals(1, result.getResults().size());
+        assertEquals(execId.toString(), result.getResults().keySet().iterator().next());
+        assertEquals(BulkActionResult.Status.SUCCESS, result.getResults().entrySet().iterator().next().getValue());
     }
 
     @Test

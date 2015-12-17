@@ -52,9 +52,6 @@ public class TaskCommand extends AbstractCommand {
             case READ:
                 new TaskRead(input).read();
                 break;
-            case READ_EXECUTION:
-                new TaskExecutionRead(input).read();
-                break;
             case DELETE:
                 new TaskDelete(input).delete();
                 break;
@@ -88,7 +85,6 @@ public class TaskCommand extends AbstractCommand {
         LIST_RUNNING_JOBS("--list-running-jobs"),
         LIST_SCHEDULED_JOBS("--list-scheduled-jobs"),
         READ("--read"),
-        READ_EXECUTION("--read-execution"),
         DELETE("--delete"),
         DELETE_PROP_TASK("--delete-all-prop"),
         DELETE_EXECUTION("--delete-execution"),

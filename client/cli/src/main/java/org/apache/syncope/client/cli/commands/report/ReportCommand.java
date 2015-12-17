@@ -55,9 +55,6 @@ public class ReportCommand extends AbstractCommand {
             case EXECUTE:
                 new ReportExecute(input).execute();
                 break;
-            case READ_EXECUTION:
-                new ReportReadExecution(input).read();
-                break;
             case DELETE_EXECUTION:
                 new ReportDeleteExecution(input).delete();
                 break;
@@ -86,7 +83,6 @@ public class ReportCommand extends AbstractCommand {
         READ("--read"),
         DELETE("--delete"),
         EXECUTE("--execute"),
-        READ_EXECUTION("--read-execution"),
         DELETE_EXECUTION("--delete-execution"),
         EXPORT_EXECUTION_RESULT("--export-execution-result");
 

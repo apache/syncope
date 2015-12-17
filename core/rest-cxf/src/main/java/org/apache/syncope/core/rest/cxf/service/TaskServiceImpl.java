@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
@@ -110,11 +111,6 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public TaskExecTO readExecution(final Long executionKey) {
-        return logic.readExecution(executionKey);
-    }
-
-    @Override
     public PagedResult<TaskExecTO> listExecutions(final TaskExecQuery query) {
         return buildPagedResult(
                 logic.listExecutions(
@@ -130,6 +126,16 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     @Override
     public void deleteExecution(final Long executionKey) {
         logic.deleteExecution(executionKey);
+    }
+
+    @Override
+    public BulkActionResult deleteExecutions(final BulkExecDeleteQuery query) {
+        return logic.deleteExecutions(
+                query.getKey(),
+                query.getStartedBefore(),
+                query.getStartedAfter(),
+                query.getEndedBefore(),
+                query.getEndedAfter());
     }
 
     @Override

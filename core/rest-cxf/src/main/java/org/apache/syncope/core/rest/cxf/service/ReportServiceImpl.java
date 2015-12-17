@@ -25,12 +25,14 @@ import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.core.logic.ReportLogic;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -68,11 +70,6 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public ReportExecTO readExecution(final Long executionKey) {
-        return logic.readExecution(executionKey);
-    }
-
-    @Override
     public Response exportExecutionResult(final Long executionKey, final ReportExecExportFormat fmt) {
         final ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
         final ReportExec reportExec = logic.getAndCheckReportExec(executionKey);
@@ -103,6 +100,16 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     @Override
     public void deleteExecution(final Long executionKey) {
         logic.deleteExecution(executionKey);
+    }
+
+    @Override
+    public BulkActionResult deleteExecutions(final BulkExecDeleteQuery query) {
+        return logic.deleteExecutions(
+                query.getKey(),
+                query.getStartedBefore(),
+                query.getStartedAfter(),
+                query.getEndedBefore(),
+                query.getEndedAfter());
     }
 
     @Override

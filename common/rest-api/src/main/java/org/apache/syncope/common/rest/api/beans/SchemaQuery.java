@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -76,6 +77,7 @@ public class SchemaQuery extends AbstractBaseBean {
         return type;
     }
 
+    @NotNull
     @PathParam("type")
     public void setType(final SchemaType type) {
         this.type = type;

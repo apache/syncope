@@ -77,12 +77,6 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void readExecution() {
-        TaskExecTO taskTO = taskService.readExecution(6L);
-        assertNotNull(taskTO);
-    }
-
-    @Test
     public void bulkAction() {
         PagedResult<PropagationTaskTO> before = taskService.list(
                 new TaskQuery.Builder().type(TaskType.PROPAGATION).build());
