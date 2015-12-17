@@ -207,6 +207,10 @@ public class ReportTestITCase extends AbstractTest {
     @Test
     public void deleteExecutions() {
         Date start = new Date();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
 
         ReportTO reportTO = reportService.read(1L);
         reportTO.setId(0);
@@ -218,6 +222,10 @@ public class ReportTestITCase extends AbstractTest {
         Long execId = execute(reportTO.getId());
         assertNotNull(execId);
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
         Date end = new Date();
 
         BulkActionResult result = reportService.deleteExecutions(reportTO.getId(), null, start, end, null);
