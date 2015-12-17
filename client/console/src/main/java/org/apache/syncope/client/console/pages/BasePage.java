@@ -79,6 +79,18 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("dashboard", Dashboard.class));
 
+        liContainer = new WebMarkupContainer(getLIContainerId("realms"));
+        add(liContainer);
+        liContainer.add(new BookmarkablePageLink<>("realms", Realms.class));
+
+        liContainer = new WebMarkupContainer(getLIContainerId("topology"));
+        add(liContainer);
+        liContainer.add(new BookmarkablePageLink<>("topology", Topology.class));
+
+        liContainer = new WebMarkupContainer(getLIContainerId("reports"));
+        add(liContainer);
+        liContainer.add(new BookmarkablePageLink<>("reports", Reports.class));
+
         WebMarkupContainer confLIContainer = new WebMarkupContainer(getLIContainerId("configuration"));
         add(confLIContainer);
         WebMarkupContainer confULContainer = new WebMarkupContainer(getULContainerId("configuration"));
@@ -96,13 +108,29 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
         liContainer.add(link);
 
-        liContainer = new WebMarkupContainer(getLIContainerId("realms"));
-        add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("realms", Realms.class));
+        liContainer = new WebMarkupContainer(getLIContainerId("policies"));
+        confULContainer.add(liContainer);
+        liContainer.add(new BookmarkablePageLink<>("policies", Policies.class));
 
-        liContainer = new WebMarkupContainer(getLIContainerId("topology"));
+        liContainer = new WebMarkupContainer(getLIContainerId("securityQuestions"));
+        confULContainer.add(liContainer);
+        liContainer.add(new BookmarkablePageLink<>("securityQuestions", SecurityQuestions.class));
+
+        liContainer = new WebMarkupContainer(getLIContainerId("logs"));
+        confULContainer.add(liContainer);
+        liContainer.add(new BookmarkablePageLink<>("logs", Logs.class));
+
+        liContainer = new WebMarkupContainer(getLIContainerId("layouts"));
+        confULContainer.add(liContainer);
+        liContainer.add(new BookmarkablePageLink<>("layouts", Layouts.class));
+
+        liContainer = new WebMarkupContainer(getLIContainerId("notifications"));
+        confULContainer.add(liContainer);
+        liContainer.add(new BookmarkablePageLink<>("notifications", Notifications.class));
+
+        liContainer = new WebMarkupContainer(getLIContainerId("camelRoutes"));
         add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("topology", Topology.class));
+        liContainer.add(new BookmarkablePageLink<>("camelRoutes", CamelRoutes.class));
 
         add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
         add(new BookmarkablePageLink<Page>("logout", Logout.class));
