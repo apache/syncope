@@ -193,8 +193,6 @@ public class ReportTestITCase extends AbstractTest {
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 
-        execute(reportTO.getId());
-
         long execId = execute(reportTO.getId());
 
         checkExport(execId, ReportExecExportFormat.XML);
