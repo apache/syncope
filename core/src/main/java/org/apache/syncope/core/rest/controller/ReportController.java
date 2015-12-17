@@ -45,6 +45,7 @@ import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.AbstractExecTO;
 import org.apache.syncope.common.types.JobAction;
 import org.apache.syncope.common.types.JobStatusType;
@@ -306,6 +307,31 @@ public class ReportController extends AbstractJobController<ReportTO> {
         ReportExecTO reportExecToDelete = binder.getReportExecTO(reportExec);
         reportExecDAO.delete(reportExec);
         return reportExecToDelete;
+    }
+
+    @PreAuthorize("hasRole('REPORT_DELETE')")
+    public BulkActionResult deleteExecutions(
+            final Long reportId,
+            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+
+        Report report = reportDAO.find(reportId);
+        if (report == null) {
+            throw new NotFoundException("Report " + reportId);
+        }
+
+        BulkActionResult res = new BulkActionResult();
+
+        for (ReportExec exec : reportExecDAO.findAll(report, startedBefore, startedAfter, endedBefore, endedAfter)) {
+            try {
+                reportExecDAO.delete(exec);
+                res.add(exec.getId(), BulkActionResult.Status.SUCCESS);
+            } catch (Exception e) {
+                LOG.error("Error deleting execution {} of report {}", exec.getId(), reportId, e);
+                res.add(exec.getId(), BulkActionResult.Status.FAILURE);
+            }
+        }
+
+        return res;
     }
 
     /**

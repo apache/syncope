@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
+import java.util.Date;
 import java.util.List;
-
 import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -32,7 +32,8 @@ public interface TaskExecDAO extends DAO {
 
     <T extends Task> TaskExec findLatestEnded(T task);
 
-    <T extends Task> List<TaskExec> findAll(Class<T> reference);
+    <T extends Task> List<TaskExec> findAll(
+            T task, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
 
     int count(Long taskId);
 

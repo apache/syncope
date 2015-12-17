@@ -21,10 +21,12 @@ package org.apache.syncope.core.services;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.ReportExecTO;
@@ -43,67 +45,67 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ReportServiceImpl extends AbstractServiceImpl implements ReportService {
-    
+
     @Autowired
     private ReportController controller;
-    
+
     @Override
     public Response create(final ReportTO reportTO) {
         ReportTO createdReportTO = controller.create(reportTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdReportTO.getId())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID.toString(), createdReportTO.getId()).
+                header(RESTHeaders.RESOURCE_ID, createdReportTO.getId()).
                 build();
     }
-    
+
     @Override
     public void update(final Long reportId, final ReportTO reportTO) {
         reportTO.setId(reportId);
         controller.update(reportTO);
     }
-    
+
     @Override
     public PagedResult<ReportTO> list() {
         return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
     }
-    
+
     @Override
     public PagedResult<ReportTO> list(final String orderBy) {
         return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
     }
-    
+
     @Override
     public PagedResult<ReportTO> list(final Integer page, final Integer size) {
         return list(page, size, null);
     }
-    
+
     @Override
     public PagedResult<ReportTO> list(final Integer page, final Integer size, final String orderBy) {
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return buildPagedResult(controller.list(page, size, orderByClauses), page, size, controller.count());
     }
-    
+
     @Override
     public List<ReportletConfClass> getReportletConfClasses() {
         return CollectionWrapper.wrap(controller.getReportletConfClasses(), ReportletConfClass.class);
     }
-    
+
     @Override
     public ReportTO read(final Long reportId) {
         return controller.read(reportId);
     }
-    
+
     @Override
     public ReportExecTO readExecution(final Long executionId) {
         return controller.readExecution(executionId);
     }
-    
+
     @Override
     public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
         final ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
         final ReportExec reportExec = controller.getAndCheckReportExec(executionId);
         StreamingOutput sout = new StreamingOutput() {
-            
+
             @Override
             public void write(final OutputStream os) throws IOException {
                 controller.exportExecutionResult(os, reportExec, format);
@@ -115,27 +117,35 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
                 header(HttpHeaders.CONTENT_DISPOSITION, disposition).
                 build();
     }
-    
+
     @Override
     public ReportExecTO execute(final Long reportId) {
         return controller.execute(reportId);
     }
-    
+
     @Override
     public void delete(final Long reportId) {
         controller.delete(reportId);
     }
-    
+
     @Override
     public void deleteExecution(final Long executionId) {
         controller.deleteExecution(executionId);
     }
-    
+
+    @Override
+    public BulkActionResult deleteExecutions(
+            final Long reportId,
+            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+
+        return controller.deleteExecutions(reportId, startedBefore, startedAfter, endedBefore, endedAfter);
+    }
+
     @Override
     public List<ReportExecTO> listJobs(final JobStatusType type) {
         return controller.listJobs(type, ReportExecTO.class);
     }
-    
+
     @Override
     public void actionJob(final Long reportId, final JobAction action) {
         controller.actionJob(reportId, action);

@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.core.persistence.dao.impl;
 
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.core.persistence.beans.SchedTask;
-import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.Task;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.apache.syncope.core.persistence.dao.TaskDAO;
@@ -67,16 +66,41 @@ public class TaskExecDAOImpl extends AbstractDAOImpl implements TaskExecDAO {
     }
 
     @Override
-    public <T extends Task> List<TaskExec> findAll(final Class<T> reference) {
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(TaskExec.class.getSimpleName()).append(
-                " e WHERE e.task IN (").append("SELECT t FROM ").append(reference.getSimpleName()).append(" t");
-        if (SchedTask.class.equals(reference)) {
-            queryString.append(" WHERE t.id NOT IN (SELECT t.id FROM ").append(SyncTask.class.getSimpleName()).append(
-                    " t) ");
+    public <T extends Task> List<TaskExec> findAll(
+            final T task,
+            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(TaskExec.class.getSimpleName()).
+                append(" e WHERE e.task=:task ");
+
+        if (startedBefore != null) {
+            queryString.append(" AND e.startDate < :startedBefore");
         }
-        queryString.append(')');
+        if (startedAfter != null) {
+            queryString.append(" AND e.startDate > :startedAfter");
+        }
+        if (endedBefore != null) {
+            queryString.append(" AND e.endDate < :endedBefore");
+        }
+        if (endedAfter != null) {
+            queryString.append(" AND e.endDate > :endedAfter");
+        }
 
         TypedQuery<TaskExec> query = entityManager.createQuery(queryString.toString(), TaskExec.class);
+        query.setParameter("task", task);
+        if (startedBefore != null) {
+            query.setParameter("startedBefore", startedBefore);
+        }
+        if (startedAfter != null) {
+            query.setParameter("startedAfter", startedAfter);
+        }
+        if (endedBefore != null) {
+            query.setParameter("endedBefore", endedBefore);
+        }
+        if (endedAfter != null) {
+            query.setParameter("endedAfter", endedAfter);
+        }
+
         return query.getResultList();
     }
 

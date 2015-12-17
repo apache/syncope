@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -39,6 +40,7 @@ import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.wrap.ReportletConfClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -140,6 +142,35 @@ public class ReportTestITCase extends AbstractTest {
         }
     }
 
+    private Long execute(final Long reportId) {
+        ReportExecTO execution = reportService.execute(reportId);
+        assertNotNull(execution);
+
+        int i = 0;
+        int maxit = 50;
+
+        ReportTO reportTO;
+
+        // wait for report execution completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            reportTO = reportService.read(reportId);
+
+            assertNotNull(reportTO);
+            assertNotNull(reportTO.getExecutions());
+
+            i++;
+        } while (reportTO.getExecutions().isEmpty()
+                || (!ReportExecStatus.SUCCESS.name().equals(reportTO.getExecutions().get(0).getStatus()) && i < maxit));
+        assertEquals(ReportExecStatus.SUCCESS.name(), reportTO.getExecutions().get(0).getStatus());
+
+        return reportTO.getExecutions().get(0).getId();
+    }
+
     private void checkExport(final Long execId, final ReportExecExportFormat fmt) throws IOException {
         final Response response = reportService.exportExecutionResult(execId, fmt);
         assertNotNull(response);
@@ -162,36 +193,39 @@ public class ReportTestITCase extends AbstractTest {
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 
-        ReportExecTO execution = reportService.execute(reportTO.getId());
-        assertNotNull(execution);
+        execute(reportTO.getId());
 
-        int i = 0;
-        int maxit = 50;
-
-        // wait for report execution completion (executions incremented)
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            reportTO = reportService.read(reportTO.getId());
-
-            assertNotNull(reportTO);
-            assertNotNull(reportTO.getExecutions());
-
-            i++;
-        } while (reportTO.getExecutions().isEmpty()
-                || (!ReportExecStatus.SUCCESS.name().equals(reportTO.getExecutions().get(0).getStatus()) && i < maxit));
-        assertEquals(ReportExecStatus.SUCCESS.name(), reportTO.getExecutions().get(0).getStatus());
-
-        long execId = reportTO.getExecutions().get(0).getId();
+        long execId = execute(reportTO.getId());
 
         checkExport(execId, ReportExecExportFormat.XML);
         checkExport(execId, ReportExecExportFormat.HTML);
         checkExport(execId, ReportExecExportFormat.PDF);
         checkExport(execId, ReportExecExportFormat.RTF);
         checkExport(execId, ReportExecExportFormat.CSV);
+    }
+
+    @Test
+    public void deleteExecutions() {
+        Date start = new Date();
+
+        ReportTO reportTO = reportService.read(1L);
+        reportTO.setId(0);
+        reportTO.setName("deleteExecutions" + getUUIDString());
+        reportTO.getExecutions().clear();
+        reportTO = createReport(reportTO);
+        assertNotNull(reportTO);
+
+        Long execId = execute(reportTO.getId());
+        assertNotNull(execId);
+
+        Date end = new Date();
+
+        BulkActionResult result = reportService.deleteExecutions(reportTO.getId(), null, start, end, null);
+        assertNotNull(result);
+
+        assertEquals(1, result.getResult().size());
+        assertEquals(execId.toString(), result.getResult().get(0).getKey());
+        assertEquals(BulkActionResult.Status.SUCCESS, result.getResult().get(0).getValue());
     }
 
     @Test

@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
+import java.util.Date;
 import java.util.List;
-
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.ReportExec;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -32,7 +32,7 @@ public interface ReportExecDAO extends DAO {
 
     ReportExec findLatestEnded(Report report);
 
-    List<ReportExec> findAll();
+    List<ReportExec> findAll(Report report, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
 
     ReportExec save(ReportExec execution) throws InvalidEntityException;
 

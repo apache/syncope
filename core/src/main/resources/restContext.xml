@@ -68,6 +68,8 @@ under the License.
     </property>
   </bean>
 
+  <bean id="dateParamConverterProvider" class="org.apache.syncope.common.reqres.DateParamConverterProvider"/>
+
   <bean id="jacksonObjectMapper" class="org.apache.syncope.core.rest.data.UnwrappedObjectMapper"/>
   <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider">
     <property name="mapper" ref="jacksonObjectMapper"/>
@@ -114,6 +116,7 @@ under the License.
       <ref bean="validationOutInterceptor"/>
     </jaxrs:outInterceptors>
     <jaxrs:providers>
+      <ref bean="dateParamConverterProvider"/>
       <ref bean="jaxbProvider"/>
       <ref bean="jsonProvider"/>
       <ref bean="exceptionMapper"/>

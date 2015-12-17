@@ -25,6 +25,7 @@ import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 
 @MappedSuperclass
 public abstract class AbstractExec extends AbstractBaseBean {
@@ -43,6 +44,7 @@ public abstract class AbstractExec extends AbstractBaseBean {
     /**
      * Start instant of this execution.
      */
+    @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     protected Date startDate;
 

@@ -20,16 +20,13 @@ package org.apache.syncope.core.persistence.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
-import org.apache.syncope.core.persistence.beans.NotificationTask;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
-import org.apache.syncope.core.persistence.beans.SchedTask;
-import org.apache.syncope.core.persistence.beans.SyncTask;
 import org.apache.syncope.core.persistence.beans.TaskExec;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,19 +43,16 @@ public class TaskExecTest extends AbstractDAOTest {
 
     @Test
     public void findAll() {
-        List<TaskExec> list = taskExecDAO.findAll(PropagationTask.class);
-        assertEquals(2, list.size());
+        PropagationTask task = taskDAO.find(1L);
+        assertNotNull(task);
 
-        list = taskExecDAO.findAll(SchedTask.class);
-        assertEquals(0, list.size());
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.set(2015, 11, 18, 0, 0, 0);
 
-        list = taskExecDAO.findAll(SyncTask.class);
-        assertEquals(0, list.size());
-
-        list = taskExecDAO.findAll(NotificationTask.class);
-        // Notification task executions existence depends on the execution time of the NotificationJob.
-        // Notification task executio list could be empty or not ....
-        assertTrue(list.size() >= 0);
+        List<TaskExec> execs = taskExecDAO.findAll(task, calendar.getTime(), null, null, null);
+        assertNotNull(execs);
+        assertEquals(1, execs.size());
     }
 
     @Test

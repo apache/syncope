@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.services;
 
+import java.util.Date;
 import java.util.List;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -171,12 +172,12 @@ public interface TaskService extends JAXRSService {
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
 
     /**
-     * Returns the task matching the given id.
+     * Returns the task executions for the given task.
      *
-     * @param taskId id of task where to list the executions
+     * @param taskId task to which executions belong
      * @param page page number of executions in relation to page size
      * @param size number of executions listed per page
-     * @return list of executions with matching id
+     * @return list of task executions for the given task
      */
     @GET
     @Path("{taskId}/executions")
@@ -230,6 +231,26 @@ public interface TaskService extends JAXRSService {
     void deleteExecution(@NotNull @PathParam("executionId") Long executionId);
 
     /**
+     * Deletes the task executions belonging to the given task and matching the date conditions.
+     *
+     * @param taskId task to which executions belong
+     * @param startedBefore selects executions started before this timestamp
+     * @param startedAfter selects executions started after this timestamp
+     * @param endedBefore selects executions ended before this timestamp
+     * @param endedAfter selects executions ended after this timestamp
+     * @return bulk action result
+     */
+    @DELETE
+    @Path("{taskId}/executions")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    BulkActionResult deleteExecutions(
+            @NotNull @PathParam("taskId") Long taskId,
+            @QueryParam("startedBefore") Date startedBefore,
+            @QueryParam("startedAfter") Date startedAfter,
+            @QueryParam("endedBefore") Date endedBefore,
+            @QueryParam("endedAfter") Date endedAfter);
+
+    /**
      * Executes the task matching the given id.
      *
      * @param taskId id of task to be executed
@@ -257,7 +278,7 @@ public interface TaskService extends JAXRSService {
      * Executes the provided bulk action.
      *
      * @param bulkAction list of task ids against which the bulk action will be performed.
-     * @return Bulk action result
+     * @return bulk action result
      */
     @POST
     @Path("bulk")

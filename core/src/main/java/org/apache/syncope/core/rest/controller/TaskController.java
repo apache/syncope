@@ -332,6 +332,31 @@ public class TaskController extends AbstractJobController<AbstractTaskTO> {
         return taskExecutionToDelete;
     }
 
+    @PreAuthorize("hasRole('TASK_DELETE')")
+    public BulkActionResult deleteExecutions(
+            final Long taskId,
+            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+
+        Task task = taskDAO.find(taskId);
+        if (task == null) {
+            throw new NotFoundException("Task " + taskId);
+        }
+
+        BulkActionResult res = new BulkActionResult();
+
+        for (TaskExec exec : taskExecDAO.findAll(task, startedBefore, startedAfter, endedBefore, endedAfter)) {
+            try {
+                taskExecDAO.delete(exec);
+                res.add(exec.getId(), BulkActionResult.Status.SUCCESS);
+            } catch (Exception e) {
+                LOG.error("Error deleting execution {} of task {}", exec.getId(), taskId, e);
+                res.add(exec.getId(), BulkActionResult.Status.FAILURE);
+            }
+        }
+
+        return res;
+    }
+
     @PreAuthorize("(hasRole('TASK_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE) or "
             + "(hasRole('TASK_EXECUTE') and "
             + "(#bulkAction.operation == #bulkAction.operation.EXECUTE or "

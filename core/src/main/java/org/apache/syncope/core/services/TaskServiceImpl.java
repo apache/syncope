@@ -19,6 +19,7 @@
 package org.apache.syncope.core.services;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
@@ -75,6 +76,14 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     @Override
     public void deleteExecution(final Long executionId) {
         controller.deleteExecution(executionId);
+    }
+
+    @Override
+    public BulkActionResult deleteExecutions(
+            final Long taskId,
+            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+
+        return controller.deleteExecutions(taskId, startedBefore, startedAfter, endedBefore, endedAfter);
     }
 
     @Override

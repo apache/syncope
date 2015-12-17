@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.services;
 
+import java.util.Date;
 import java.util.List;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -37,6 +38,7 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
+import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
@@ -171,6 +173,26 @@ public interface ReportService extends JAXRSService {
     @DELETE
     @Path("executions/{executionId}")
     void deleteExecution(@NotNull @PathParam("executionId") Long executionId);
+
+    /**
+     * Deletes the report executions belonging to the given report and matching the date conditions.
+     *
+     * @param reportId report to which executions belong
+     * @param startedBefore selects executions started before this timestamp
+     * @param startedAfter selects executions started after this timestamp
+     * @param endedBefore selects executions ended before this timestamp
+     * @param endedAfter selects executions ended after this timestamp
+     * @return bulk action result
+     */
+    @DELETE
+    @Path("{reportId}/executions")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    BulkActionResult deleteExecutions(
+            @NotNull @PathParam("reportId") Long reportId,
+            @QueryParam("startedBefore") Date startedBefore,
+            @QueryParam("startedAfter") Date startedAfter,
+            @QueryParam("endedBefore") Date endedBefore,
+            @QueryParam("endedAfter") Date endedAfter);
 
     /**
      * Executes the report with matching id.
