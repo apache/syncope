@@ -18,6 +18,6 @@
 //
 include::../../commondocs/guiinstaller.adoc[]
 
-include::maven.adoc[]
+include::../../commondocs/maven.adoc[]
 
 include::../../commondocs/debpackages.adoc[]
