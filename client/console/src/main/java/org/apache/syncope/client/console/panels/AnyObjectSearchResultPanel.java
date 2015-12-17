@@ -29,6 +29,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AnyDisplayAttributesModalPage;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -140,7 +141,9 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
                     public void onClick(final AjaxRequestTarget target, final T ignore) {
                         send(AnyObjectSearchResultPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<AnyHandler<T>>(
-                                        new AnyHandler<T>(model.getObject()), target));
+                                        new AnyHandler<T>(
+                                                new AnyObjectRestClient().<T>read(model.getObject().getKey())),
+                                        target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<T>() {
 

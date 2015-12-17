@@ -31,7 +31,7 @@ public class RoleRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 1L;
 
-    public static List<RoleTO> getAll() {
+    public List<RoleTO> getAll() {
         return getService(RoleService.class).list();
     }
 }

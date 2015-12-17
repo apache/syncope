@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.StatusModal;
 import org.apache.syncope.client.console.pages.UserDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -154,7 +155,8 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                         send(UserSearchResultPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<AnyHandler<UserTO>>(
-                                        new AnyHandler<UserTO>(model.getObject()), target));
+                                        new AnyHandler<UserTO>(new UserRestClient().read(model.getObject().getKey())),
+                                        target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<UserTO>() {
 

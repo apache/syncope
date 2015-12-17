@@ -29,6 +29,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.GroupDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -115,7 +116,8 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                     public void onClick(final AjaxRequestTarget target, final GroupTO anyTO) {
                         send(GroupSearchResultPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<GroupHandler>(
-                                        new GroupHandler(model.getObject()), target));
+                                        new GroupHandler(new GroupRestClient().read(model.getObject().getKey())),
+                                        target));
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<GroupTO>() {
 

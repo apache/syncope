@@ -70,7 +70,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
         if (toBeProcessed.getKey() == 0) {
             actual = groupRestClient.create(toBeProcessed);
         } else {
-            final GroupPatch patch = AnyOperations.diff(toBeProcessed, getOriginalItem().getInnerObject(), true);
+            final GroupPatch patch = AnyOperations.diff(toBeProcessed, getOriginalItem().getInnerObject(), false);
             // update user just if it is changed
             if (!patch.isEmpty()) {
                 actual = groupRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);

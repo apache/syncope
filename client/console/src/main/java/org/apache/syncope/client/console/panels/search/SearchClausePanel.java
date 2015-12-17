@@ -166,7 +166,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 switch (field.getModel().getObject().getType()) {
                     case ATTRIBUTE:
                         final List<String> names = new ArrayList<String>(dnames.getObject());
-                        if (anames.getObject() != null && !anames.getObject().isEmpty()) {
+                        if (anames != null && anames.getObject() != null && !anames.getObject().isEmpty()) {
                             names.addAll(anames.getObject());
                         }
                         Collections.sort(names);
