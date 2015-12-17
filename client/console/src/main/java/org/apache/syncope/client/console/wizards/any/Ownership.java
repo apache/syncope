@@ -21,6 +21,8 @@ package org.apache.syncope.client.console.wizards.any;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggle;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
@@ -57,6 +59,8 @@ import org.apache.wicket.model.util.ListModel;
 public class Ownership extends WizardStep {
 
     private static final long serialVersionUID = 855618618337931784L;
+
+    private final Pattern owner = Pattern.compile("\\[\\(\\d+\\)\\] .*");
 
     private final GroupHandler handler;
 
@@ -102,11 +106,6 @@ public class Ownership extends WizardStep {
             @Override
             public Boolean getObject() {
                 return isGroupOwnership.getObject();
-            }
-
-            @Override
-            public void setObject(final Boolean object) {
-
             }
         }, config) {
 
@@ -197,7 +196,8 @@ public class Ownership extends WizardStep {
                         if (groupHandler.getInnerObject().getUserOwner() == null) {
                             return StringUtils.EMPTY;
                         } else {
-                            return String.valueOf(groupHandler.getInnerObject().getUserOwner());
+                            UserTO userTO = userRestClient.read(groupHandler.getInnerObject().getUserOwner());
+                            return String.format("[%d] %s", userTO.getKey(), userTO.getUsername());
                         }
                     }
 
@@ -206,7 +206,10 @@ public class Ownership extends WizardStep {
                         if (StringUtils.isBlank(object)) {
                             groupHandler.getInnerObject().setUserOwner(null);
                         } else {
-                            groupHandler.getInnerObject().setUserOwner(Long.parseLong(object));
+                            final Matcher matcher = owner.matcher(object);
+                            if (matcher.matches()) {
+                                groupHandler.getInnerObject().setUserOwner(Long.parseLong(matcher.group(1)));
+                            }
                         }
                     }
                 }, false);
@@ -237,7 +240,8 @@ public class Ownership extends WizardStep {
                         if (groupHandler.getInnerObject().getGroupOwner() == null) {
                             return StringUtils.EMPTY;
                         } else {
-                            return String.valueOf(groupHandler.getInnerObject().getGroupOwner());
+                            GroupTO groupTO = groupRestClient.read(groupHandler.getInnerObject().getGroupOwner());
+                            return String.format("[%d] %s", groupTO.getKey(), groupTO.getName());
                         }
                     }
 
@@ -246,7 +250,10 @@ public class Ownership extends WizardStep {
                         if (StringUtils.isBlank(object)) {
                             groupHandler.getInnerObject().setGroupOwner(null);
                         } else {
-                            groupHandler.getInnerObject().setGroupOwner(Long.parseLong(object));
+                            final Matcher matcher = owner.matcher(object);
+                            if (matcher.matches()) {
+                                groupHandler.getInnerObject().setGroupOwner(Long.parseLong(matcher.group(1)));
+                            }
                         }
                     }
                 }, false);

@@ -339,7 +339,7 @@ END - Style for Information panel
 }
 
 div.searchResult{
-  margin-top: 30px;
+  padding-top: 30px;
   display: block;
   clear: both;
 }
