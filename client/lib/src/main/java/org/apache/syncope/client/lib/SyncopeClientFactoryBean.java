@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.lib;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,7 +82,10 @@ public class SyncopeClientFactoryBean {
     private RestClientFactoryBean restClientFactoryBean;
 
     protected JacksonJaxbJsonProvider defaultJsonProvider() {
-        return new JacksonJaxbJsonProvider();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JodaModule());
+        objectMapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        return new JacksonJaxbJsonProvider(objectMapper, JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS);
     }
 
     @SuppressWarnings({ "rawtypes" })

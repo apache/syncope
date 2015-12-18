@@ -125,7 +125,6 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         assertTrue(execs.getResult().get(0).getStart().after(initial));
         // round 1 sec for safety
         assertTrue(DateUtils.addSeconds(execs.getResult().get(0).getStart(), 1).after(later));
-
     }
 
     @Test

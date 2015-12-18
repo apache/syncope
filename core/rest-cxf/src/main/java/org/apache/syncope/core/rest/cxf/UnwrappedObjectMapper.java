@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.cxf;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -34,6 +35,13 @@ import java.util.Map;
 public class UnwrappedObjectMapper extends ObjectMapper {
 
     private static final long serialVersionUID = -317191546835195103L;
+
+    public UnwrappedObjectMapper() {
+        super();
+
+        registerModule(new JodaModule());
+        configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    }
 
     /**
      * Unwraps the given value if it implements the Map interface and contains only a single entry, otherwise the
