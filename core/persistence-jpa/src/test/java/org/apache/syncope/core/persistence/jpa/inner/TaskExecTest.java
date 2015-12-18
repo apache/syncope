@@ -76,8 +76,8 @@ public class TaskExecTest extends AbstractTest {
         faultyMessage = faultyMessage.replace('a', '\0');
 
         TaskExec exec = entityFactory.newEntity(TaskExec.class);
-        exec.setStartDate(new Date());
-        exec.setEndDate(new Date());
+        exec.setStart(new Date());
+        exec.setEnd(new Date());
         exec.setStatus(PropagationTaskExecStatus.SUCCESS.name());
         exec.setMessage(faultyMessage);
 

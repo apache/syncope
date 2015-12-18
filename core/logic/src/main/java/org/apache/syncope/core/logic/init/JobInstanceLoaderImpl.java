@@ -92,7 +92,7 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
 
     private void registerJob(
             final String jobName, final Job jobInstance,
-            final String cronExpression, final Date start,
+            final String cronExpression, final Date startAt,
             final Map<String, Object> jobMap)
             throws SchedulerException, ParseException {
 
@@ -125,7 +125,7 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
                 usingJobData(new JobDataMap(jobMap));
 
         // 3. Trigger
-        if (cronExpression == null && start == null) {
+        if (cronExpression == null && startAt == null) {
             // Jobs added with no trigger must be durable
             scheduler.getScheduler().addJob(jobDetailBuilder.storeDurably().build(), true);
         } else {
@@ -134,16 +134,16 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
             if (cronExpression == null) {
                 triggerBuilder = TriggerBuilder.newTrigger().
                         withIdentity(JobNamer.getTriggerName(jobName)).
-                        startAt(start);
+                        startAt(startAt);
             } else {
                 triggerBuilder = TriggerBuilder.newTrigger().
                         withIdentity(JobNamer.getTriggerName(jobName)).
                         withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
 
-                if (start == null) {
+                if (startAt == null) {
                     triggerBuilder = triggerBuilder.startNow();
                 } else {
-                    triggerBuilder = triggerBuilder.startAt(start);
+                    triggerBuilder = triggerBuilder.startAt(startAt);
                 }
             }
 
@@ -177,7 +177,7 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
     }
 
     @Override
-    public Map<String, Object> registerJob(final SchedTask task, final Date start, final long interruptMaxRetries)
+    public Map<String, Object> registerJob(final SchedTask task, final Date startAt, final long interruptMaxRetries)
             throws SchedulerException, ParseException {
 
         TaskJob job = createSpringBean(TaskJob.class);
@@ -198,20 +198,20 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
                 JobNamer.getJobName(task),
                 job,
                 task.getCronExpression(),
-                start,
+                startAt,
                 jobMap);
         return jobMap;
     }
 
     @Override
-    public void registerJob(final Report report, final Date start) throws SchedulerException, ParseException {
+    public void registerJob(final Report report, final Date startAt) throws SchedulerException, ParseException {
         ReportJob job = createSpringBean(ReportJob.class);
         job.setReportKey(report.getKey());
 
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(JobInstanceLoader.DOMAIN, AuthContextUtils.getDomain());
 
-        registerJob(JobNamer.getJobName(report), job, report.getCronExpression(), start, jobMap);
+        registerJob(JobNamer.getJobName(report), job, report.getCronExpression(), startAt, jobMap);
     }
 
     private void registerNotificationJob(final String cronExpression) throws SchedulerException, ParseException {
@@ -282,7 +282,7 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
                     tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
                     for (SchedTask task : tasks) {
                         try {
-                            registerJob(task, task.getStart(), notificationConf.getRight());
+                            registerJob(task, task.getStartAt(), notificationConf.getRight());
                         } catch (Exception e) {
                             LOG.error("While loading job instance for task " + task.getKey(), e);
                         }

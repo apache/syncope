@@ -126,7 +126,7 @@ public class TaskTest extends AbstractTest {
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setTask(task);
         execution.setStatus(PropagationTaskExecStatus.CREATED.name());
-        execution.setStartDate(new Date());
+        execution.setStart(new Date());
         task.addExec(execution);
 
         taskDAO.save(task);
@@ -148,7 +148,7 @@ public class TaskTest extends AbstractTest {
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStatus("Text-free status");
         execution.setTask(task);
-        execution.setStartDate(new Date());
+        execution.setStart(new Date());
         execution.setMessage("A message");
         task.addExec(execution);
 
@@ -171,7 +171,7 @@ public class TaskTest extends AbstractTest {
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStatus("Text-free status");
         execution.setTask(task);
-        execution.setStartDate(new Date());
+        execution.setStart(new Date());
         execution.setMessage("A message");
         task.addExec(execution);
 

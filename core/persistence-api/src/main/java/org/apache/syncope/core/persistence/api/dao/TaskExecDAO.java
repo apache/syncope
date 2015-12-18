@@ -37,7 +37,7 @@ public interface TaskExecDAO extends DAO<TaskExec, Long> {
 
     int count(Long taskKey);
 
-    List<TaskExec> findAll(Long taskKey, int page, int itemsPerPage, List<OrderByClause> orderByClauses);
+    <T extends Task> List<TaskExec> findAll(T task, int page, int itemsPerPage, List<OrderByClause> orderByClauses);
 
     TaskExec save(TaskExec execution);
 

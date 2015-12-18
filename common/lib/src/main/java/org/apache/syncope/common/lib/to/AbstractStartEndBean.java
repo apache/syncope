@@ -27,9 +27,9 @@ public class AbstractStartEndBean extends AbstractBaseBean {
 
     private static final long serialVersionUID = 2399577415544539917L;
 
-    protected Date start;
+    private Date start;
 
-    protected Date end;
+    private Date end;
 
     public Date getStart() {
         return start == null
@@ -37,10 +37,10 @@ public class AbstractStartEndBean extends AbstractBaseBean {
                 : new Date(start.getTime());
     }
 
-    public void setStartDate(final Date start) {
-        if (start != null) {
-            this.start = new Date(start.getTime());
-        }
+    public void setStart(final Date start) {
+        this.start = start == null
+                ? null
+                : new Date(start.getTime());
     }
 
     public Date getEnd() {
@@ -49,9 +49,9 @@ public class AbstractStartEndBean extends AbstractBaseBean {
                 : new Date(end.getTime());
     }
 
-    public void setEndDate(final Date end) {
-        if (end != null) {
-            this.end = new Date(end.getTime());
-        }
+    public void setEnd(final Date end) {
+        this.end = end == null
+                ? null
+                : new Date(end.getTime());
     }
 }

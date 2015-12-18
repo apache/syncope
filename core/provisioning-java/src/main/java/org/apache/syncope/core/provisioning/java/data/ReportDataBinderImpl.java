@@ -80,13 +80,13 @@ public class ReportDataBinderImpl implements ReportDataBinder {
                 ? StringUtils.EMPTY
                 : latestExec.getStatus());
 
-        reportTO.setStartDate(latestExec == null
+        reportTO.setStart(latestExec == null
                 ? null
-                : latestExec.getStartDate());
+                : latestExec.getStart());
 
-        reportTO.setEndDate(latestExec == null
+        reportTO.setEnd(latestExec == null
                 ? null
-                : latestExec.getEndDate());
+                : latestExec.getEnd());
 
         for (ReportExec reportExec : report.getExecs()) {
             reportTO.getExecutions().add(getReportExecTO(reportExec));

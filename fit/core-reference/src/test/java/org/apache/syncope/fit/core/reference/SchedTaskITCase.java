@@ -25,7 +25,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -98,9 +97,9 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         assertNotNull(task);
 
         Date initial = new Date();
-        Date fiveSecsLater = DateUtils.addSeconds(initial, 2);
+        Date later = DateUtils.addSeconds(initial, 2);
 
-        taskService.execute(new ExecuteQuery.Builder().key(task.getKey()).start(fiveSecsLater).build());
+        taskService.execute(new ExecuteQuery.Builder().key(task.getKey()).startAt(later).build());
 
         int i = 0;
         int maxit = 50;
@@ -124,9 +123,9 @@ public class SchedTaskITCase extends AbstractTaskITCase {
                 taskService.listExecutions(new TaskExecQuery.Builder().key(task.getKey()).build());
         assertEquals(1, execs.getTotalCount());
         assertTrue(execs.getResult().get(0).getStart().after(initial));
-        assertEquals(
-                DateUtils.round(fiveSecsLater, Calendar.SECOND),
-                DateUtils.round(execs.getResult().get(0).getStart(), Calendar.SECOND));
+        // round 1 sec for safety
+        assertTrue(DateUtils.addSeconds(execs.getResult().get(0).getStart(), 1).after(later));
+
     }
 
     @Test

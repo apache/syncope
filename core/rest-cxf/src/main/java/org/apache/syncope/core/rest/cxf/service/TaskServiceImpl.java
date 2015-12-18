@@ -70,7 +70,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
 
     @Override
     public TaskExecTO execute(final ExecuteQuery query) {
-        return logic.execute(query.getKey(), query.getStart(), query.getDryRun());
+        return logic.execute(query.getKey(), query.getStartAt(), query.getDryRun());
     }
 
     @SuppressWarnings("unchecked")

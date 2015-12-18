@@ -38,8 +38,8 @@ public class ExecuteQuery extends AbstractBaseBean {
             return this;
         }
 
-        public Builder start(final Date date) {
-            instance.setStart(date);
+        public Builder startAt(final Date date) {
+            instance.setStartAt(date);
             return this;
         }
 
@@ -55,7 +55,7 @@ public class ExecuteQuery extends AbstractBaseBean {
 
     private Long key;
 
-    private Date start;
+    private Date startAt;
 
     private Boolean dryRun;
 
@@ -69,13 +69,13 @@ public class ExecuteQuery extends AbstractBaseBean {
         this.key = key;
     }
 
-    public Date getStart() {
-        return start;
+    public Date getStartAt() {
+        return startAt;
     }
 
-    @QueryParam("start")
-    public void setStart(final Date start) {
-        this.start = start;
+    @QueryParam("startAt")
+    public void setStartAt(final Date startAt) {
+        this.startAt = startAt;
     }
 
     public Boolean getDryRun() {

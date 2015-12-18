@@ -90,7 +90,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
 
     @Override
     public ReportExecTO execute(final ExecuteQuery query) {
-        return logic.execute(query.getKey(), query.getStart());
+        return logic.execute(query.getKey(), query.getStartAt());
     }
 
     @Override

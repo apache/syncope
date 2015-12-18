@@ -59,7 +59,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
 
     @Override
     public void startExecution(final long reportKey, final Date start) {
-        getService(ReportService.class).execute(new ExecuteQuery.Builder().key(reportKey).start(start).build());
+        getService(ReportService.class).execute(new ExecuteQuery.Builder().key(reportKey).startAt(start).build());
     }
 
     /**

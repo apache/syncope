@@ -77,8 +77,8 @@ public class ReportTest extends AbstractTest {
 
         ReportExec reportExec = entityFactory.newEntity(ReportExec.class);
         reportExec.setReport(report);
-        reportExec.setStartDate(new Date());
-        reportExec.setEndDate(new Date());
+        reportExec.setStart(new Date());
+        reportExec.setEnd(new Date());
         reportExec.setStatus(ReportExecStatus.SUCCESS);
 
         report.add(reportExec);

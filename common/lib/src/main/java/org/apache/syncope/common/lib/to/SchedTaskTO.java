@@ -31,7 +31,7 @@ public class SchedTaskTO extends AbstractTaskTO {
 
     private static final long serialVersionUID = -5722284116974636425L;
 
-    private Date start;
+    private Date startAt;
 
     private String cronExpression;
 
@@ -47,12 +47,12 @@ public class SchedTaskTO extends AbstractTaskTO {
 
     private boolean active;
 
-    public Date getStart() {
-        return start == null ? null : new Date(start.getTime());
+    public Date getStartAt() {
+        return startAt == null ? null : new Date(startAt.getTime());
     }
 
-    public void setStart(final Date start) {
-        this.start = start == null ? null : new Date(start.getTime());
+    public void setStartAt(final Date start) {
+        this.startAt = start == null ? null : new Date(start.getTime());
     }
 
     public String getCronExpression() {

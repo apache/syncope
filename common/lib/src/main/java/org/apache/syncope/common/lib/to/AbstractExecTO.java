@@ -25,11 +25,11 @@ public class AbstractExecTO extends AbstractStartEndBean {
 
     private static final long serialVersionUID = -4621191979198357081L;
 
-    protected long key;
+    private long key;
 
-    protected String status;
+    private String status;
 
-    protected String message;
+    private String message;
 
     public long getKey() {
         return key;

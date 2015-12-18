@@ -105,7 +105,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         try {
             jobInstanceLoader.registerJob(
                     task,
-                    task.getStart(),
+                    task.getStartAt(),
                     confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
@@ -138,7 +138,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         try {
             jobInstanceLoader.registerJob(
                     task,
-                    task.getStart(),
+                    task.getStartAt(),
                     confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
@@ -187,7 +187,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
-    public TaskExecTO execute(final Long taskKey, final Date start, final boolean dryRun) {
+    public TaskExecTO execute(final Long taskKey, final Date startAt, final boolean dryRun) {
         Task task = taskDAO.find(taskKey);
         if (task == null) {
             throw new NotFoundException("Task " + taskKey);
@@ -218,12 +218,12 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
                 try {
                     Map<String, Object> jobDataMap = jobInstanceLoader.registerJob(
                             (SchedTask) task,
-                            start,
+                            startAt,
                             confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
 
                     jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
 
-                    if (start == null) {
+                    if (startAt == null) {
                         scheduler.getScheduler().triggerJob(
                                 new JobKey(JobNamer.getJobName(task), Scheduler.DEFAULT_GROUP),
                                 new JobDataMap(jobDataMap));
@@ -238,7 +238,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
 
                 result = new TaskExecTO();
                 result.setTask(taskKey);
-                result.setStartDate(new Date());
+                result.setStart(new Date());
                 result.setStatus("JOB_FIRED");
                 result.setMessage("Job fired; waiting for results...");
                 break;
@@ -279,7 +279,12 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     public List<TaskExecTO> listExecutions(
             final Long taskKey, final int page, final int size, final List<OrderByClause> orderByClauses) {
 
-        return CollectionUtils.collect(taskExecDAO.findAll(taskKey, page, size, orderByClauses),
+        Task task = taskDAO.find(taskKey);
+        if (task == null) {
+            throw new NotFoundException("Task " + taskKey);
+        }
+
+        return CollectionUtils.collect(taskExecDAO.findAll(task, page, size, orderByClauses),
                 new Transformer<TaskExec, TaskExecTO>() {
 
             @Override

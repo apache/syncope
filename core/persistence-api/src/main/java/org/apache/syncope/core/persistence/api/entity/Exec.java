@@ -22,16 +22,6 @@ import java.util.Date;
 
 public interface Exec extends Entity<Long> {
 
-    Date getEndDate();
-
-    String getMessage();
-
-    Date getStartDate();
-
-    String getStatus();
-
-    void setEndDate(Date endDate);
-
     /**
      * Set a message for this execution, taking care of replacing every null character with newline.
      *
@@ -39,7 +29,18 @@ public interface Exec extends Entity<Long> {
      */
     void setMessage(String message);
 
-    void setStartDate(Date startDate);
+    String getMessage();
 
     void setStatus(String status);
+
+    String getStatus();
+
+    void setStart(Date start);
+
+    Date getStart();
+
+    void setEnd(Date end);
+
+    Date getEnd();
+
 }

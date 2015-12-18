@@ -75,7 +75,7 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
                                         jobExecTO.setKey(key);
                                         jobExecTO.
                                                 setStatus(scheduler.getScheduler().getTriggerState(t.getKey()).name());
-                                        jobExecTO.setStartDate(t.getStartTime());
+                                        jobExecTO.setStart(t.getStartTime());
 
                                         jobExecTOs.add(jobExecTO);
                                     }
@@ -101,7 +101,7 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
                             setTaskOrReportKey(jobExecTO, key);
                             jobExecTO.setStatus(
                                     scheduler.getScheduler().getTriggerState(jec.getTrigger().getKey()).name());
-                            jobExecTO.setStartDate(jec.getFireTime());
+                            jobExecTO.setStart(jec.getFireTime());
 
                             jobExecTOs.add(jobExecTO);
                         }
@@ -128,7 +128,7 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
                                     E jobExecTO = reference.newInstance();
                                     setTaskOrReportKey(jobExecTO, key);
                                     jobExecTO.setStatus(scheduler.getScheduler().getTriggerState(t.getKey()).name());
-                                    jobExecTO.setStartDate(t.getStartTime());
+                                    jobExecTO.setStart(t.getStartTime());
 
                                     jobExecTOs.add(jobExecTO);
                                 }

@@ -26,8 +26,8 @@ under the License.
  
   <xsl:param name="status"/>
   <xsl:param name="message"/>
-  <xsl:param name="startDate"/>
-  <xsl:param name="endDate"/>
+  <xsl:param name="start"/>
+  <xsl:param name="end"/>
     
   <xsl:template match="/">
     <xsl:apply-templates/>

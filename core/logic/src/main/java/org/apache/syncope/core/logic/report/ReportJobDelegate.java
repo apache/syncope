@@ -89,7 +89,7 @@ public class ReportJobDelegate {
         // 1. create execution
         ReportExec execution = entityFactory.newEntity(ReportExec.class);
         execution.setStatus(ReportExecStatus.STARTED);
-        execution.setStartDate(new Date());
+        execution.setStart(new Date());
         execution.setReport(report);
         execution = reportExecDAO.save(execution);
 
@@ -188,7 +188,7 @@ public class ReportJobDelegate {
 
             execution.setExecResult(baos.toByteArray());
             execution.setMessage(reportExecutionMessage.toString());
-            execution.setEndDate(new Date());
+            execution.setEnd(new Date());
             reportExecDAO.save(execution);
         }
     }

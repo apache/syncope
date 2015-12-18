@@ -164,8 +164,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("status", reportExec.getStatus());
             parameters.put("message", reportExec.getMessage());
-            parameters.put("startDate", reportExec.getStartDate());
-            parameters.put("endDate", reportExec.getEndDate());
+            parameters.put("start", reportExec.getStart());
+            parameters.put("end", reportExec.getEnd());
 
             switch (format) {
                 case HTML:
@@ -230,7 +230,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
-    public ReportExecTO execute(final Long key, final Date start) {
+    public ReportExecTO execute(final Long key, final Date startAt) {
         Report report = reportDAO.find(key);
         if (report == null) {
             throw new NotFoundException("Report " + key);
@@ -243,7 +243,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         }
 
         try {
-            jobInstanceLoader.registerJob(report, start);
+            jobInstanceLoader.registerJob(report, startAt);
 
             scheduler.getScheduler().triggerJob(new JobKey(JobNamer.getJobName(report), Scheduler.DEFAULT_GROUP));
         } catch (Exception e) {
@@ -256,7 +256,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
         ReportExecTO result = new ReportExecTO();
         result.setReport(key);
-        result.setStartDate(new Date());
+        result.setStart(new Date());
         result.setStatus(ReportExecStatus.STARTED.name());
         result.setMessage("Job fired; waiting for results...");
 

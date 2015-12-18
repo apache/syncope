@@ -84,7 +84,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         }
 
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
-        execution.setStartDate(new Date());
+        execution.setStart(new Date());
         execution.setTask(task);
 
         AuditElements.Result result;
@@ -100,7 +100,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
             execution.setMessage(ExceptionUtils2.getFullStackTrace(e));
             execution.setStatus(TaskJob.Status.FAILURE.name());
         }
-        execution.setEndDate(new Date());
+        execution.setEnd(new Date());
 
         if (hasToBeRegistered(execution)) {
             taskExecDAO.saveAndAdd(taskKey, execution);

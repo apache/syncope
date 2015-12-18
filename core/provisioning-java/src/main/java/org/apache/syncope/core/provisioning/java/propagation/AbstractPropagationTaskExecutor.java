@@ -347,7 +347,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     public TaskExec execute(final PropagationTask task, final PropagationReporter reporter) {
         List<PropagationActions> actions = getPropagationActions(task.getResource());
 
-        Date startDate = new Date();
+        Date start = new Date();
 
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStatus(PropagationTaskExecStatus.CREATED.name());
@@ -440,9 +440,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 }
             }
 
-            execution.setStartDate(startDate);
+            execution.setStart(start);
             execution.setMessage(taskExecutionMessage);
-            execution.setEndDate(new Date());
+            execution.setEnd(new Date());
 
             LOG.debug("Execution finished: {}", execution);
 

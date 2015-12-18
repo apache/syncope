@@ -26,8 +26,8 @@ under the License.
  
   <xsl:param name="status"/>
   <xsl:param name="message"/>
-  <xsl:param name="startDate"/>
-  <xsl:param name="endDate"/>
+  <xsl:param name="start"/>
+  <xsl:param name="end"/>
   
   <xsl:template match="/">
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -53,7 +53,7 @@ under the License.
             </td>
             <td>
               <h2>
-                <xsl:value-of select="$startDate"/>
+                <xsl:value-of select="$start"/>
               </h2>
             </td>
           </tr>
@@ -63,7 +63,7 @@ under the License.
             </td>
             <td>
               <h2>
-                <xsl:value-of select="$endDate"/>
+                <xsl:value-of select="$end"/>
               </h2>
             </td>
           </tr>

@@ -118,7 +118,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     public void startExecution(final long taskKey, final Date start, final boolean dryRun) {
         getService(TaskService.class).execute(
-                new ExecuteQuery.Builder().key(taskKey).start(start).dryRun(dryRun).build());
+                new ExecuteQuery.Builder().key(taskKey).startAt(start).dryRun(dryRun).build());
     }
 
     @Override

@@ -46,13 +46,13 @@ public abstract class AbstractExec extends AbstractEntity<Long> implements Exec 
      */
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
-    protected Date startDate;
+    protected Date start;
 
     /**
      * End instant of this execution.
      */
     @Temporal(TemporalType.TIMESTAMP)
-    protected Date endDate;
+    protected Date end;
 
     @Override
     public String getStatus() {
@@ -75,33 +75,30 @@ public abstract class AbstractExec extends AbstractEntity<Long> implements Exec 
     }
 
     @Override
-    public Date getEndDate() {
-        return endDate == null
+    public Date getStart() {
+        return start == null
                 ? null
-                : new Date(endDate.getTime());
+                : new Date(start.getTime());
     }
 
     @Override
-
-    public void setEndDate(final Date endDate) {
-        this.endDate = endDate == null
+    public void setStart(final Date start) {
+        this.start = start == null
                 ? null
-                : new Date(endDate.getTime());
+                : new Date(start.getTime());
     }
 
     @Override
-
-    public Date getStartDate() {
-        return startDate == null
+    public Date getEnd() {
+        return end == null
                 ? null
-                : new Date(startDate.getTime());
+                : new Date(end.getTime());
     }
 
     @Override
-
-    public void setStartDate(final Date startDate) {
-        this.startDate = startDate == null
+    public void setEnd(final Date end) {
+        this.end = end == null
                 ? null
-                : new Date(startDate.getTime());
+                : new Date(end.getTime());
     }
 }

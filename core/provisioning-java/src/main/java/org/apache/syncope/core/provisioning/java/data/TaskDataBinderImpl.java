@@ -198,7 +198,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         }
 
         SchedTask task = taskUtils.newTask();
-        task.setStart(taskTO.getStart());
+        task.setStartAt(taskTO.getStartAt());
         task.setCronExpression(taskTO.getCronExpression());
         task.setName(taskTO.getName());
         task.setDescription(taskTO.getDescription());
@@ -288,8 +288,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
         TaskExec latestExec = taskExecDAO.findLatestStarted(task);
         taskTO.setLatestExecStatus(latestExec == null ? StringUtils.EMPTY : latestExec.getStatus());
-        taskTO.setStartDate(latestExec == null ? null : latestExec.getStartDate());
-        taskTO.setEndDate(latestExec == null ? null : latestExec.getEndDate());
+        taskTO.setStart(latestExec == null ? null : latestExec.getStart());
+        taskTO.setEnd(latestExec == null ? null : latestExec.getEnd());
 
         if (details) {
             for (TaskExec execution : task.getExecs()) {

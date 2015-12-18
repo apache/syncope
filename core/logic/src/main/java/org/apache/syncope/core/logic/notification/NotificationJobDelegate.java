@@ -85,7 +85,7 @@ public class NotificationJobDelegate {
 
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setTask(task);
-        execution.setStartDate(new Date());
+        execution.setStart(new Date());
 
         boolean retryPossible = true;
 
@@ -181,7 +181,7 @@ public class NotificationJobDelegate {
                             "Could not send notification to " + to, e);
                 }
 
-                execution.setEndDate(new Date());
+                execution.setEnd(new Date());
             }
         }
 

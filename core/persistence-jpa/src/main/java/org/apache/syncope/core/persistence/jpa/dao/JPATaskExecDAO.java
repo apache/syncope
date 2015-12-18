@@ -60,12 +60,12 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
 
     @Override
     public <T extends Task> TaskExec findLatestStarted(final T task) {
-        return findLatest(task, "startDate");
+        return findLatest(task, "start");
     }
 
     @Override
     public <T extends Task> TaskExec findLatestEnded(final T task) {
-        return findLatest(task, "endDate");
+        return findLatest(task, "end");
     }
 
     @Override
@@ -77,16 +77,16 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
                 append(" e WHERE e.task=:task ");
 
         if (startedBefore != null) {
-            queryString.append(" AND e.startDate < :startedBefore");
+            queryString.append(" AND e.start < :startedBefore");
         }
         if (startedAfter != null) {
-            queryString.append(" AND e.startDate > :startedAfter");
+            queryString.append(" AND e.start > :startedAfter");
         }
         if (endedBefore != null) {
-            queryString.append(" AND e.endDate < :endedBefore");
+            queryString.append(" AND e.end < :endedBefore");
         }
         if (endedAfter != null) {
-            queryString.append(" AND e.endDate > :endedAfter");
+            queryString.append(" AND e.end > :endedAfter");
         }
 
         TypedQuery<TaskExec> query = entityManager().createQuery(queryString.toString(), TaskExec.class);
@@ -135,15 +135,15 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
     }
 
     @Override
-    public List<TaskExec> findAll(
-            final Long taskKey, final int page, final int itemsPerPage, final List<OrderByClause> orderByClauses) {
+    public <T extends Task> List<TaskExec> findAll(
+            final T task, final int page, final int itemsPerPage, final List<OrderByClause> orderByClauses) {
 
         String queryString =
-                "SELECT e FROM " + JPATaskExec.class.getSimpleName() + " e WHERE e.task.id=:taskKey "
+                "SELECT e FROM " + JPATaskExec.class.getSimpleName() + " e WHERE e.task=:task "
                 + toOrderByStatement(orderByClauses);
 
         TypedQuery<TaskExec> query = entityManager().createQuery(queryString, TaskExec.class);
-        query.setParameter("taskKey", taskKey);
+        query.setParameter("task", task);
 
         // page starts from 1, while setFirtResult() starts from 0
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));

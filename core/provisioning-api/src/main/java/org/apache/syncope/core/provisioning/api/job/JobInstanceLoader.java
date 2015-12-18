@@ -30,10 +30,10 @@ public interface JobInstanceLoader {
 
     String DOMAIN = "domain";
 
-    Map<String, Object> registerJob(final SchedTask task, final Date start, final long interruptMaxRetries)
+    Map<String, Object> registerJob(final SchedTask task, final Date startAt, final long interruptMaxRetries)
             throws SchedulerException, ParseException;
 
-    void registerJob(final Report report, final Date start)
+    void registerJob(final Report report, final Date startAt)
             throws SchedulerException, ParseException;
 
     void unregisterJob(Task task);

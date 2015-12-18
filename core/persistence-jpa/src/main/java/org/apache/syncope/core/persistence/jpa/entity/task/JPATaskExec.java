@@ -68,8 +68,8 @@ public class JPATaskExec extends AbstractExec implements TaskExec {
     public String toString() {
         return new StringBuilder(getClass().getSimpleName()).append('{').
                 append("id=").append(id).append(", ").
-                append("startDate=").append(startDate).append(", ").
-                append("endDate=").append(endDate).append(", ").
+                append("start=").append(start).append(", ").
+                append("end=").append(end).append(", ").
                 append("task=").append(task).append(", ").
                 append("status=").append(status).append(", ").
                 append("message=").append(message).

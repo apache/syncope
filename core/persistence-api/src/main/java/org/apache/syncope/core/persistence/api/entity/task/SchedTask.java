@@ -34,9 +34,9 @@ public interface SchedTask extends Task {
 
     String getJobDelegateClassName();
 
-    Date getStart();
+    Date getStartAt();
 
-    void setStart(Date start);
+    void setStartAt(Date startAt);
 
     void setCronExpression(String cronExpression);
 

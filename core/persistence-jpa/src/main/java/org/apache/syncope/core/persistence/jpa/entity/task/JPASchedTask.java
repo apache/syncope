@@ -39,7 +39,7 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
     private static final long serialVersionUID = 7596236684832602180L;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date start;
+    private Date startAt;
 
     private String cronExpression;
 
@@ -62,13 +62,13 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
     }
 
     @Override
-    public Date getStart() {
-        return start;
+    public Date getStartAt() {
+        return startAt;
     }
 
     @Override
-    public void setStart(final Date start) {
-        this.start = start;
+    public void setStartAt(final Date start) {
+        this.startAt = start;
     }
 
     @Override

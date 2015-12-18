@@ -51,12 +51,12 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
 
     @Override
     public ReportExec findLatestStarted(final Report report) {
-        return findLatest(report, "startDate");
+        return findLatest(report, "start");
     }
 
     @Override
     public ReportExec findLatestEnded(final Report report) {
-        return findLatest(report, "endDate");
+        return findLatest(report, "end");
     }
 
     @Override
@@ -68,16 +68,16 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
                 append(" e WHERE e.report=:report ");
 
         if (startedBefore != null) {
-            queryString.append(" AND e.startDate < :startedBefore");
+            queryString.append(" AND e.start < :startedBefore");
         }
         if (startedAfter != null) {
-            queryString.append(" AND e.startDate > :startedAfter");
+            queryString.append(" AND e.start > :startedAfter");
         }
         if (endedBefore != null) {
-            queryString.append(" AND e.endDate < :endedBefore");
+            queryString.append(" AND e.end < :endedBefore");
         }
         if (endedAfter != null) {
-            queryString.append(" AND e.endDate > :endedAfter");
+            queryString.append(" AND e.end > :endedAfter");
         }
 
         TypedQuery<ReportExec> query = entityManager().createQuery(queryString.toString(), ReportExec.class);

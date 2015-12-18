@@ -27,8 +27,8 @@ under the License.
  
   <xsl:param name="status"/>
   <xsl:param name="message"/>
-  <xsl:param name="startDate"/>
-  <xsl:param name="endDate"/>
+  <xsl:param name="start"/>
+  <xsl:param name="end"/>
   
   <xsl:template match="/">
     <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" font-family="Helvetica" font-size="10pt">
@@ -71,7 +71,7 @@ under the License.
                 </fo:table-cell>
                 <fo:table-cell>
                   <fo:block font-size="18pt" font-weight="bold">
-                    <xsl:value-of select="$startDate"/>
+                    <xsl:value-of select="$start"/>
                   </fo:block>
                 </fo:table-cell>
               </fo:table-row>
@@ -81,7 +81,7 @@ under the License.
                 </fo:table-cell>
                 <fo:table-cell>
                   <fo:block font-size="18pt" font-weight="bold">
-                    <xsl:value-of select="$endDate"/>
+                    <xsl:value-of select="$end"/>
                   </fo:block>
                 </fo:table-cell>
               </fo:table-row>
