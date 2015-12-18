@@ -99,18 +99,16 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 new AjaxTextFieldPanel("panel", "enumerationValues", new Model<String>(null));
 
         enumerationValues = new MultiFieldPanel.Builder<>(
-                new ListModel<String>()).build(
+                new ListModel<String>(getEnumValuesAsList(((PlainSchemaTO) schemaTO).getEnumerationValues()))).build(
                         "enumerationValues",
                         "enumerationValues",
                         enumerationValuesPanel);
-        enumerationValues.setModelObject(getEnumValuesAsList(((PlainSchemaTO) schemaTO).getEnumerationValues()));
 
         enumerationKeys = new MultiFieldPanel.Builder<>(
-                new ListModel<String>()).build(
+                new ListModel<String>(getEnumValuesAsList(((PlainSchemaTO) schemaTO).getEnumerationKeys()))).build(
                         "enumerationKeys",
                         "enumerationKeys",
                         new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<String>()));
-        enumerationKeys.setModelObject(getEnumValuesAsList(((PlainSchemaTO) schemaTO).getEnumerationKeys()));
 
         final WebMarkupContainer enumParams = new WebMarkupContainer("enumParams");
         enumParams.setOutputMarkupPlaceholderTag(true);

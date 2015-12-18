@@ -134,31 +134,6 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
                         }
                         ((BasePage) getPage()).getFeedbackPanel().refresh(target);
-
-//                        try {
-//                            final GroupTO modelObject = (GroupTO) restClient.
-//                                    delete(model.getObject().getETagValue(), model.getObject().getKey());
-//
-//                            final IModel<GroupTO> model = new CompoundPropertyModel<>(modelObject);
-//                            modal.setFormModel(model);
-//
-//                            target.add(modal.setContent(new ResultStatusModal.Builder<GroupTO>(
-//                                    modal, getPage().getPageReference(), modelObject).build()));
-//
-//                            modal.header(
-//                                    new Model<String>(MessageFormat.format(getString("any.delete"), anyTO.getKey())));
-//                            modal.show(true);
-//
-//                            //editmodal.setContent(new ResultStatusModal.Builder(editmodal, groupTO).build());
-////                            editModal.addOrReplace(new GroupModalPanel(
-////                                    BaseModal.getModalContentId(), editModal, (GroupTO) model.getObject()));
-////
-////                            target.add(editModal);
-////                            editModal.show(target);
-//                        } catch (SyncopeClientException scce) {
-//                            error(getString(Constants.ERROR) + ": " + scce.getMessage());
-//                            LOG.error("While deleting object {}", anyTO.getKey(), scce);
-//                        }
                     }
                 }, ActionLink.ActionType.DELETE, entitlement);
 

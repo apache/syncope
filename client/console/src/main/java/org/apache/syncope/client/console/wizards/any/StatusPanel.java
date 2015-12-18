@@ -131,7 +131,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
         ListViewPanel.Builder<StatusBean> builder = new ListViewPanel.Builder<StatusBean>(StatusBean.class, pageRef) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -6809736686861678498L;
 
             @Override
             protected Component getValueComponent(final String key, final StatusBean bean) {

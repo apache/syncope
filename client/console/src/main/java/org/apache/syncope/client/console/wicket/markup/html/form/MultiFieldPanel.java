@@ -71,6 +71,8 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractFi
         container.add(form);
         // -----------------------
 
+        view = new InnerView("view", name, model);
+
         final List<E> obj = model.getObject();
         if (obj == null || obj.isEmpty()) {
             form.addOrReplace(getNoDataFragment(model, name));
@@ -88,75 +90,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractFi
 
     private Fragment getDataFragment(final IModel<List<E>> model, final String label) {
         final Fragment contentFragment = new Fragment("content", "dataFragment", MultiFieldPanel.this);
-
-        view = new ListView<E>("view", model) {
-
-            private static final long serialVersionUID = -9180479401817023838L;
-
-            @Override
-            protected void populateItem(final ListItem<E> item) {
-                final FieldPanel<? extends Serializable> fieldPanel = panelTemplate.clone();
-                fieldPanel.setIndex(item.getIndex());
-                fieldPanel.setNewModel(item);
-                fieldPanel.settingsDependingComponents();
-
-                if (eventTemplate) {
-                    fieldPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-                        private static final long serialVersionUID = -1107858522700306810L;
-
-                        @Override
-                        protected void onUpdate(final AjaxRequestTarget target) {
-                            send(getPage(), Broadcast.BREADTH, new MultiValueSelectorEvent(target));
-                        }
-                    });
-                }
-
-                item.add(fieldPanel.hideLabel().setRenderBodyOnly(true));
-
-                final AjaxSubmitLink minus = new AjaxSubmitLink("drop") {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                        //Drop current component
-                        model.getObject().remove(item.getModelObject());
-                        fieldPanel.getField().clearInput();
-
-                        if (model.getObject().isEmpty()) {
-                            form.addOrReplace(getNoDataFragment(model, label));
-                        }
-
-                        target.add(container);
-
-                        if (eventTemplate) {
-                            send(getPage(), Broadcast.BREADTH, new MultiValueSelectorEvent(target));
-                        }
-                    }
-
-                    @Override
-                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                        error(getString(Constants.OPERATION_ERROR));
-                        super.onError(target, form);
-                    }
-                };
-
-                item.add(minus);
-
-                final Fragment fragment;
-                if (item.getIndex() == model.getObject().size() - 1) {
-                    fragment = getPlusFragment(model, label);
-                } else {
-                    fragment = new Fragment("panelPlus", "emptyFragment", MultiFieldPanel.this);
-                }
-
-                item.add(fragment.setRenderBodyOnly(true));
-            }
-        };
-
         contentFragment.add(view.setOutputMarkupId(true));
-
         return contentFragment;
     }
 
@@ -299,6 +233,82 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractFi
                 }
 
             };
+        }
+    }
+
+    private final class InnerView extends ListView<E> {
+
+        private static final long serialVersionUID = -9180479401817023838L;
+
+        private final String label;
+
+        private final IModel<List<E>> model;
+
+        private InnerView(final String id, final String label, final IModel<List<E>> model) {
+            super(id, model);
+            this.label = label;
+            this.model = model;
+        }
+
+        @Override
+        protected void populateItem(final ListItem<E> item) {
+            final FieldPanel<? extends Serializable> fieldPanel = panelTemplate.clone();
+            fieldPanel.setIndex(item.getIndex());
+            fieldPanel.setNewModel(item);
+            fieldPanel.settingsDependingComponents();
+
+            if (eventTemplate) {
+                fieldPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                    private static final long serialVersionUID = -1107858522700306810L;
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        send(getPage(), Broadcast.BREADTH, new MultiValueSelectorEvent(target));
+                    }
+                });
+            }
+
+            item.add(fieldPanel.hideLabel().setRenderBodyOnly(true));
+
+            final AjaxSubmitLink minus = new AjaxSubmitLink("drop") {
+
+                private static final long serialVersionUID = -7978723352517770644L;
+
+                @Override
+                protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                    //Drop current component
+                    model.getObject().remove(item.getModelObject());
+                    fieldPanel.getField().clearInput();
+
+                    if (model.getObject().isEmpty()) {
+                        form.addOrReplace(getNoDataFragment(model, label));
+                    }
+
+                    target.add(container);
+
+                    if (eventTemplate) {
+                        send(getPage(), Broadcast.BREADTH, new MultiValueSelectorEvent(target));
+                    }
+                }
+
+                @Override
+                protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                    error(getString(Constants.OPERATION_ERROR));
+                    super.onError(target, form);
+                }
+            };
+
+            item.add(minus);
+
+            final Fragment fragment;
+            if (item.getIndex() == model.getObject().size() - 1) {
+                fragment = getPlusFragment(model, label);
+            } else {
+                fragment = new Fragment("panelPlus", "emptyFragment", MultiFieldPanel.this);
+            }
+
+            item.add(fragment.setRenderBodyOnly(true));
         }
     }
 }
