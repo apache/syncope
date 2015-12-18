@@ -104,7 +104,7 @@ public class DynamicMemberships extends WizardStep {
                     @Override
                     public Panel getPanel(final String panelId) {
                         return new AnyObjectSearchPanel.Builder(
-                                new MapOfListModel<SearchClause>(groupHandler, "aDynClauses", key)).
+                                key, new MapOfListModel<SearchClause>(groupHandler, "aDynClauses", key)).
                                 required(false).build(panelId);
                     }
                 }), Model.of(StringUtils.isBlank(groupHandler.getADynMembershipConds().get(key)) ? -1 : 0))

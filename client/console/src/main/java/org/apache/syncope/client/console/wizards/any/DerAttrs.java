@@ -61,11 +61,11 @@ public class DerAttrs extends AbstractAttrs {
                         anyTypeRestClient.getAnyTypeClass(getAllAuxClasses().toArray(new String[] {})),
                         new Transformer<AnyTypeClassTO, String>() {
 
-                            @Override
-                            public String transform(final AnyTypeClassTO input) {
-                                return input.getKey();
-                            }
-                        }, new ArrayList<String>(Arrays.asList(anyTypeClass)));
+                    @Override
+                    public String transform(final AnyTypeClassTO input) {
+                        return input.getKey();
+                    }
+                }, new ArrayList<String>(Arrays.asList(anyTypeClass)));
 
                 final List<DerSchemaTO> derSchemas
                         = schemaRestClient.getSchemas(SchemaType.DERIVED, classes.toArray(new String[] {}));
@@ -73,18 +73,21 @@ public class DerAttrs extends AbstractAttrs {
                 final Map<String, AttrTO> currents = entityTO.getDerAttrMap();
                 entityTO.getDerAttrs().clear();
 
-                return CollectionUtils.collect(derSchemas, new Transformer<DerSchemaTO, AttrTO>() {
+                // This conversion from set to lis is required by the ListView.
+                // Didn't performed by using collect parameter because entityTO change is required.
+                return new ArrayList<AttrTO>(
+                        CollectionUtils.collect(derSchemas, new Transformer<DerSchemaTO, AttrTO>() {
 
-                    @Override
-                    public AttrTO transform(final DerSchemaTO input) {
-                        AttrTO attrTO = currents.get(input.getKey());
-                        if (attrTO == null) {
-                            attrTO = new AttrTO();
-                            attrTO.setSchema(input.getKey());
-                        }
-                        return attrTO;
-                    }
-                }, new ArrayList<>(entityTO.getDerAttrs()));
+                            @Override
+                            public AttrTO transform(final DerSchemaTO input) {
+                                AttrTO attrTO = currents.get(input.getKey());
+                                if (attrTO == null) {
+                                    attrTO = new AttrTO();
+                                    attrTO.setSchema(input.getKey());
+                                }
+                                return attrTO;
+                            }
+                        }, entityTO.getDerAttrs()));
             }
         };
 

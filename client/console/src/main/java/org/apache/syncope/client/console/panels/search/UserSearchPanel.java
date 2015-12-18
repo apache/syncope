@@ -31,7 +31,7 @@ public final class UserSearchPanel extends AnyObjectSearchPanel {
         private static final long serialVersionUID = 6308997285778809578L;
 
         public Builder(final IModel<List<SearchClause>> model) {
-            super(model);
+            super(AnyTypeKind.USER.name(), model);
         }
 
         @Override

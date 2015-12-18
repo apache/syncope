@@ -38,18 +38,25 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
         private static final long serialVersionUID = 6308997285778809578L;
 
-        public Builder(final IModel<List<SearchClause>> model) {
+        private final String type;
+
+        public Builder(final String type, final IModel<List<SearchClause>> model) {
             super(model);
+            this.type = type;
         }
 
         @Override
         public AnyObjectSearchPanel build(final String id) {
-            return new AnyObjectSearchPanel(id, AnyTypeKind.ANY_OBJECT, this);
+            return new AnyObjectSearchPanel(id, AnyTypeKind.ANY_OBJECT, type, this);
         }
     }
 
     protected AnyObjectSearchPanel(final String id, final AnyTypeKind kind, final Builder builder) {
         super(id, kind, builder);
+    }
+
+    protected AnyObjectSearchPanel(final String id, final AnyTypeKind kind, final String type, final Builder builder) {
+        super(id, kind, type, builder);
     }
 
     @Override

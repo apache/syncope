@@ -35,8 +35,6 @@ public class Roles extends WizardStep {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    private final RoleRestClient roleRestClient = new RoleRestClient();
-
     public <T extends AnyTO> Roles(final UserTO entityTO) {
         this.setOutputMarkupId(true);
 
@@ -56,6 +54,6 @@ public class Roles extends WizardStep {
 
         add(new AjaxPalettePanel.Builder<String>().build("dynroles",
                 new PropertyModel<List<String>>(entityTO, "dynRoles"),
-                new ListModel<>(allRoles)).setOutputMarkupId(true));
+                new ListModel<>(allRoles)).setEnabled(false).setOutputMarkupId(true));
     }
 }

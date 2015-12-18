@@ -77,6 +77,8 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected final AnyTypeKind typeKind;
 
+    protected final String type;
+
     protected final boolean required;
 
     protected final boolean enableSearch;
@@ -108,13 +110,19 @@ public abstract class AbstractSearchPanel extends Panel {
         public abstract T build(final String id);
     }
 
-    protected AbstractSearchPanel(final String id, final AnyTypeKind typeKind, final Builder<?> builder) {
+    protected AbstractSearchPanel(final String id, final AnyTypeKind kind, final Builder<?> builder) {
+        this(id, kind, kind.name(), builder);
+    }
+
+    protected AbstractSearchPanel(
+            final String id, final AnyTypeKind kind, final String type, final Builder<?> builder) {
 
         super(id);
         populate();
 
         this.model = builder.model;
-        this.typeKind = typeKind;
+        this.typeKind = kind;
+        this.type = type;
         this.required = builder.required;
         this.enableSearch = builder.enableSearch;
 
@@ -186,7 +194,7 @@ public abstract class AbstractSearchPanel extends Panel {
             @Override
             protected List<String> load() {
                 return CollectionUtils.collect(schemaRestClient.getSchemas(SchemaType.PLAIN,
-                        anyTypeRestClient.get(typeKind.name()).getClasses().toArray(new String[] {})),
+                        anyTypeRestClient.get(type).getClasses().toArray(new String[] {})),
                         new Transformer<AbstractSchemaTO, String>() {
 
                     @Override

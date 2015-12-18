@@ -59,11 +59,11 @@ public class VirAttrs extends AbstractAttrs {
                         anyTypeRestClient.getAnyTypeClass(getAllAuxClasses().toArray(new String[] {})),
                         new Transformer<AnyTypeClassTO, String>() {
 
-                            @Override
-                            public String transform(final AnyTypeClassTO input) {
-                                return input.getKey();
-                            }
-                        }, new ArrayList<String>(Arrays.asList(anyTypeClass)));
+                    @Override
+                    public String transform(final AnyTypeClassTO input) {
+                        return input.getKey();
+                    }
+                }, new ArrayList<String>(Arrays.asList(anyTypeClass)));
 
                 final List<VirSchemaTO> virSchemas
                         = schemaRestClient.getSchemas(SchemaType.VIRTUAL, classes.toArray(new String[] {}));
@@ -71,7 +71,9 @@ public class VirAttrs extends AbstractAttrs {
                 final Map<String, AttrTO> currents = entityTO.getVirAttrMap();
                 entityTO.getVirAttrs().clear();
 
-                return CollectionUtils.collect(virSchemas, new Transformer<VirSchemaTO, AttrTO>() {
+                // This conversion from set to lis is required by the ListView.
+                // Didn't performed by using collect parameter because entityTO change is required.
+                return new ArrayList<>(CollectionUtils.collect(virSchemas, new Transformer<VirSchemaTO, AttrTO>() {
 
                     @Override
                     public AttrTO transform(final VirSchemaTO input) {
@@ -87,7 +89,7 @@ public class VirAttrs extends AbstractAttrs {
                         attrTO.setReadonly(input.isReadonly());
                         return attrTO;
                     }
-                }, new ArrayList<>(entityTO.getVirAttrs()));
+                }, entityTO.getVirAttrs()));
             }
         };
 
@@ -120,9 +122,9 @@ public class VirAttrs extends AbstractAttrs {
 
                 item.add(new MultiFieldPanel.Builder<String>(
                         new PropertyModel<List<String>>(attrTO, "values")).build(
-                                "panel",
-                                attrTO.getSchema(),
-                                panel).setEnabled(!attrTO.isReadonly()));
+                        "panel",
+                        attrTO.getSchema(),
+                        panel).setEnabled(!attrTO.isReadonly()));
             }
         };
 
