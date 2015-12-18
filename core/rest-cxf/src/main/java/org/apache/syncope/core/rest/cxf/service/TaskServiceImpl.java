@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
@@ -68,8 +69,8 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public TaskExecTO execute(final Long key, final boolean dryRun) {
-        return logic.execute(key, dryRun);
+    public TaskExecTO execute(final ExecuteQuery query) {
+        return logic.execute(query.getKey(), query.getStart(), query.getDryRun());
     }
 
     @SuppressWarnings("unchecked")
@@ -159,7 +160,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
             case DRYRUN:
                 for (String key : bulkAction.getTargets()) {
                     try {
-                        logic.execute(Long.valueOf(key), true);
+                        logic.execute(Long.valueOf(key), null, true);
                         result.getResults().put(key, BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing dryrun for task {}", key, e);
@@ -171,7 +172,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
             case EXECUTE:
                 for (String key : bulkAction.getTargets()) {
                     try {
-                        logic.execute(Long.valueOf(key), false);
+                        logic.execute(Long.valueOf(key), null, false);
                         result.getResults().put(key, BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing execute for task {}", key, e);

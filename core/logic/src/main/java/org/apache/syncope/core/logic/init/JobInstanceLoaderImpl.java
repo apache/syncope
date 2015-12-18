@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic.init;
 
 import java.text.ParseException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -50,15 +51,16 @@ import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.sync.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.sync.SyncJobDelegate;
+import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
+import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
-import org.quartz.impl.JobDetailImpl;
-import org.quartz.impl.triggers.CronTriggerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;
@@ -89,7 +91,9 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
     private ConfDAO confDAO;
 
     private void registerJob(
-            final String jobName, final Job jobInstance, final String cronExpression, final Map<String, Object> jobMap)
+            final String jobName, final Job jobInstance,
+            final String cronExpression, final Date start,
+            final Map<String, Object> jobMap)
             throws SchedulerException, ParseException {
 
         synchronized (scheduler.getScheduler()) {
@@ -116,23 +120,34 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
         ApplicationContextProvider.getBeanFactory().registerSingleton(jobName, jobInstance);
 
         // 2. JobDetail bean
-        JobDetailImpl jobDetail = new JobDetailImpl();
-        jobDetail.setName(jobName);
-        jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
-        jobDetail.setJobClass(jobInstance.getClass());
-        jobDetail.setJobDataMap(new JobDataMap(jobMap));
+        JobBuilder jobDetailBuilder = JobBuilder.newJob(jobInstance.getClass()).
+                withIdentity(jobName).
+                usingJobData(new JobDataMap(jobMap));
 
         // 3. Trigger
-        if (cronExpression == null) {
+        if (cronExpression == null && start == null) {
             // Jobs added with no trigger must be durable
-            jobDetail.setDurability(true);
-            scheduler.getScheduler().addJob(jobDetail, true);
+            scheduler.getScheduler().addJob(jobDetailBuilder.storeDurably().build(), true);
         } else {
-            CronTriggerImpl cronTrigger = new CronTriggerImpl();
-            cronTrigger.setName(JobNamer.getTriggerName(jobName));
-            cronTrigger.setCronExpression(cronExpression);
+            TriggerBuilder<?> triggerBuilder;
 
-            scheduler.getScheduler().scheduleJob(jobDetail, cronTrigger);
+            if (cronExpression == null) {
+                triggerBuilder = TriggerBuilder.newTrigger().
+                        withIdentity(JobNamer.getTriggerName(jobName)).
+                        startAt(start);
+            } else {
+                triggerBuilder = TriggerBuilder.newTrigger().
+                        withIdentity(JobNamer.getTriggerName(jobName)).
+                        withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
+
+                if (start == null) {
+                    triggerBuilder = triggerBuilder.startNow();
+                } else {
+                    triggerBuilder = triggerBuilder.startAt(start);
+                }
+            }
+
+            scheduler.getScheduler().scheduleJob(jobDetailBuilder.build(), triggerBuilder.build());
         }
     }
 
@@ -162,7 +177,7 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
     }
 
     @Override
-    public Map<String, Object> registerJob(final SchedTask task, final long interruptMaxRetries)
+    public Map<String, Object> registerJob(final SchedTask task, final Date start, final long interruptMaxRetries)
             throws SchedulerException, ParseException {
 
         TaskJob job = createSpringBean(TaskJob.class);
@@ -179,25 +194,30 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
         jobMap.put(TaskJob.DELEGATE_CLASS_KEY, jobDelegateClassName);
         jobMap.put(TaskJob.INTERRUPT_MAX_RETRIES_KEY, interruptMaxRetries);
 
-        registerJob(JobNamer.getJobName(task), job, task.getCronExpression(), jobMap);
+        registerJob(
+                JobNamer.getJobName(task),
+                job,
+                task.getCronExpression(),
+                start,
+                jobMap);
         return jobMap;
     }
 
     @Override
-    public void registerJob(final Report report) throws SchedulerException, ParseException {
+    public void registerJob(final Report report, final Date start) throws SchedulerException, ParseException {
         ReportJob job = createSpringBean(ReportJob.class);
         job.setReportKey(report.getKey());
 
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(JobInstanceLoader.DOMAIN, AuthContextUtils.getDomain());
 
-        registerJob(JobNamer.getJobName(report), job, report.getCronExpression(), jobMap);
+        registerJob(JobNamer.getJobName(report), job, report.getCronExpression(), start, jobMap);
     }
 
     private void registerNotificationJob(final String cronExpression) throws SchedulerException, ParseException {
         NotificationJob job = createSpringBean(NotificationJob.class);
 
-        registerJob("taskNotificationJob", job, cronExpression, Collections.<String, Object>emptyMap());
+        registerJob("taskNotificationJob", job, cronExpression, null, Collections.<String, Object>emptyMap());
     }
 
     private void unregisterJob(final String jobName) {
@@ -234,22 +254,22 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
         final Pair<String, Long> notificationConf = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN,
                 new AuthContextUtils.Executable<Pair<String, Long>>() {
 
-                    @Override
-                    public Pair<String, Long> exec() {
-                        String notificationJobCronExpression = StringUtils.EMPTY;
+            @Override
+            public Pair<String, Long> exec() {
+                String notificationJobCronExpression = StringUtils.EMPTY;
 
-                        CPlainAttr notificationJobCronExp =
+                CPlainAttr notificationJobCronExp =
                         confDAO.find("notificationjob.cronExpression", NotificationJob.DEFAULT_CRON_EXP);
-                        if (!notificationJobCronExp.getValuesAsStrings().isEmpty()) {
-                            notificationJobCronExpression = notificationJobCronExp.getValuesAsStrings().get(0);
-                        }
+                if (!notificationJobCronExp.getValuesAsStrings().isEmpty()) {
+                    notificationJobCronExpression = notificationJobCronExp.getValuesAsStrings().get(0);
+                }
 
-                        long interruptMaxRetries = confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).
+                long interruptMaxRetries = confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).
                         getLongValue();
 
-                        return ImmutablePair.of(notificationJobCronExpression, interruptMaxRetries);
-                    }
-                });
+                return ImmutablePair.of(notificationJobCronExpression, interruptMaxRetries);
+            }
+        });
 
         for (String domain : domainsHolder.getDomains().keySet()) {
             AuthContextUtils.execWithAuthContext(domain, new AuthContextUtils.Executable<Void>() {
@@ -262,7 +282,7 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
                     tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
                     for (SchedTask task : tasks) {
                         try {
-                            registerJob(task, notificationConf.getRight());
+                            registerJob(task, task.getStart(), notificationConf.getRight());
                         } catch (Exception e) {
                             LOG.error("While loading job instance for task " + task.getKey(), e);
                         }
@@ -271,7 +291,7 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
                     // 2. ReportJobs
                     for (Report report : reportDAO.findAll()) {
                         try {
-                            registerJob(report);
+                            registerJob(report, null);
                         } catch (Exception e) {
                             LOG.error("While loading job instance for report " + report.getName(), e);
                         }

@@ -43,6 +43,7 @@ import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 
@@ -139,17 +140,15 @@ public interface TaskService extends JAXRSService {
     BulkActionResult deleteExecutions(@BeanParam BulkExecDeleteQuery query);
 
     /**
-     * Executes the task matching the given id.
+     * Executes the task matching the given query.
      *
-     * @param key key of task to be executed
-     * @param dryRun if true, task will only be simulated
-     * @return execution report for the task matching the given id
+     * @param query query conditions
+     * @return execution report for the task matching the given query
      */
     @POST
     @Path("{key}/execute")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    TaskExecTO execute(@NotNull @PathParam("key") Long key,
-            @QueryParam("dryRun") @DefaultValue("false") boolean dryRun);
+    TaskExecTO execute(@BeanParam ExecuteQuery query);
 
     /**
      * Executes the provided bulk action.

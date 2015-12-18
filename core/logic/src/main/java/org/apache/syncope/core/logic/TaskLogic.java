@@ -105,6 +105,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         try {
             jobInstanceLoader.registerJob(
                     task,
+                    task.getStart(),
                     confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
@@ -137,6 +138,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         try {
             jobInstanceLoader.registerJob(
                     task,
+                    task.getStart(),
                     confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
@@ -185,7 +187,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
-    public TaskExecTO execute(final Long taskKey, final boolean dryRun) {
+    public TaskExecTO execute(final Long taskKey, final Date start, final boolean dryRun) {
         Task task = taskDAO.find(taskKey);
         if (task == null) {
             throw new NotFoundException("Task " + taskKey);
@@ -216,12 +218,16 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
                 try {
                     Map<String, Object> jobDataMap = jobInstanceLoader.registerJob(
                             (SchedTask) task,
+                            start,
                             confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
 
                     jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
-                    scheduler.getScheduler().triggerJob(
-                            new JobKey(JobNamer.getJobName(task), Scheduler.DEFAULT_GROUP),
-                            new JobDataMap(jobDataMap));
+
+                    if (start == null) {
+                        scheduler.getScheduler().triggerJob(
+                                new JobKey(JobNamer.getJobName(task), Scheduler.DEFAULT_GROUP),
+                                new JobDataMap(jobDataMap));
+                    }
                 } catch (Exception e) {
                     LOG.error("While executing task {}", task, e);
 

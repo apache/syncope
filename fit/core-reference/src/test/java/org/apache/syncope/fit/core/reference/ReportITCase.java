@@ -42,6 +42,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -139,7 +140,7 @@ public class ReportITCase extends AbstractITCase {
     }
 
     private Long execute(final Long reportKey) {
-        ReportExecTO execution = reportService.execute(reportKey);
+        ReportExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
         assertNotNull(execution);
 
         int i = 0;
@@ -251,7 +252,7 @@ public class ReportITCase extends AbstractITCase {
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 
-        ReportExecTO execution = reportService.execute(reportTO.getKey());
+        ReportExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
         assertNotNull(execution);
 
         int maxit = 50;
@@ -280,7 +281,7 @@ public class ReportITCase extends AbstractITCase {
 
         // Execute (multiple requests)
         for (int i = 0; i < 10; i++) {
-            ReportExecTO execution = reportService.execute(reportTO.getKey());
+            ReportExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
             assertNotNull(execution);
         }
 

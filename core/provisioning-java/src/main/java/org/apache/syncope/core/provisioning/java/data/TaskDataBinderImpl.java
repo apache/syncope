@@ -198,6 +198,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         }
 
         SchedTask task = taskUtils.newTask();
+        task.setStart(taskTO.getStart());
         task.setCronExpression(taskTO.getCronExpression());
         task.setName(taskTO.getName());
         task.setDescription(taskTO.getDescription());

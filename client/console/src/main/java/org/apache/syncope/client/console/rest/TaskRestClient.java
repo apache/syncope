@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -30,6 +31,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -110,12 +112,13 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     @Override
-    public void startExecution(final long taskKey) {
-        startExecution(taskKey, false);
+    public void startExecution(final long taskKey, final Date start) {
+        startExecution(taskKey, start, false);
     }
 
-    public void startExecution(final long taskKey, final boolean dryRun) {
-        getService(TaskService.class).execute(taskKey, dryRun);
+    public void startExecution(final long taskKey, final Date start, final boolean dryRun) {
+        getService(TaskService.class).execute(
+                new ExecuteQuery.Builder().key(taskKey).start(start).dryRun(dryRun).build());
     }
 
     @Override

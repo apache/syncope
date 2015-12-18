@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
+import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.springframework.stereotype.Component;
 
@@ -30,8 +32,8 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
 
     private static final long serialVersionUID = 1644689667998953604L;
 
-    public ReportTO read(final Long reportId) {
-        return getService(ReportService.class).read(reportId);
+    public ReportTO read(final Long reportKey) {
+        return getService(ReportService.class).read(reportKey);
     }
 
     public List<ReportTO> list() {
@@ -49,20 +51,15 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
     /**
      * Delete specified report.
      *
-     * @param reportId report to delete
+     * @param reportKey report to delete
      */
-    public void delete(final Long reportId) {
-        getService(ReportService.class).delete(reportId);
+    public void delete(final Long reportKey) {
+        getService(ReportService.class).delete(reportKey);
     }
 
-    /**
-     * Start execution for the specified report.
-     *
-     * @param reportId report id
-     */
     @Override
-    public void startExecution(final long reportId) {
-        getService(ReportService.class).execute(reportId);
+    public void startExecution(final long reportKey, final Date start) {
+        getService(ReportService.class).execute(new ExecuteQuery.Builder().key(reportKey).start(start).build());
     }
 
     /**

@@ -40,8 +40,8 @@ public class ReportResultManager extends CommonsResultManager {
         System.out.println("    name: " + reportTO.getName());
         System.out.println("    cron expression: " + reportTO.getCronExpression());
         System.out.println("    latest execution status: " + reportTO.getLatestExecStatus());
-        System.out.println("    start date: " + reportTO.getStartDate());
-        System.out.println("    end date: " + reportTO.getEndDate());
+        System.out.println("    start date: " + reportTO.getStart());
+        System.out.println("    end date: " + reportTO.getEnd());
         System.out.println("    CONF:");
         for (final AbstractReportletConf reportletConf : reportTO.getReportletConfs()) {
             printReportletConf(reportletConf);
@@ -68,8 +68,8 @@ public class ReportResultManager extends CommonsResultManager {
             System.out.println("       REPORT EXEC ID: " + reportExecTO.getKey());
             System.out.println("       status: " + reportExecTO.getStatus());
             System.out.println("       message: " + reportExecTO.getMessage());
-            System.out.println("       start date: " + reportExecTO.getStartDate());
-            System.out.println("       end date: " + reportExecTO.getEndDate());
+            System.out.println("       start date: " + reportExecTO.getStart());
+            System.out.println("       end date: " + reportExecTO.getEnd());
             System.out.println("       report id: " + reportExecTO.getReport());
         }
     }

@@ -41,6 +41,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.logic.notification.NotificationJob;
@@ -99,7 +100,8 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         assertNotNull(taskTO.getExecutions());
 
         int preSyncSize = taskTO.getExecutions().size();
-        TaskExecTO execution = taskService.execute(taskTO.getKey(), dryRun);
+        TaskExecTO execution = taskService.execute(
+                new ExecuteQuery.Builder().key(taskTO.getKey()).dryRun(dryRun).build());
         assertEquals(initialStatus, execution.getStatus());
 
         int i = 0;

@@ -48,6 +48,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
+import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.core.logic.notification.NotificationJob;
 import org.junit.AfterClass;
@@ -259,7 +260,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         assertNotNull(taskTO);
         assertTrue(taskTO.getExecutions().isEmpty());
 
-        taskService.execute(taskTO.getKey(), false);
+        taskService.execute(new ExecuteQuery.Builder().key(taskTO.getKey()).build());
 
         try {
             Thread.sleep(5);

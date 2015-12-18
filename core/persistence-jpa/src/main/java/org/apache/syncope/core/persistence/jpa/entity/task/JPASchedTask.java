@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
+import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -35,14 +38,17 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
 
     private static final long serialVersionUID = 7596236684832602180L;
 
-    protected String cronExpression;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date start;
 
-    protected String jobDelegateClassName;
+    private String cronExpression;
+
+    private String jobDelegateClassName;
 
     @NotNull
-    protected String name;
+    private String name;
 
-    protected String description;
+    private String description;
 
     @NotNull
     @Basic
@@ -53,6 +59,16 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
     public JPASchedTask() {
         super();
         this.type = TaskType.SCHEDULED;
+    }
+
+    @Override
+    public Date getStart() {
+        return start;
+    }
+
+    @Override
+    public void setStart(final Date start) {
+        this.start = start;
     }
 
     @Override

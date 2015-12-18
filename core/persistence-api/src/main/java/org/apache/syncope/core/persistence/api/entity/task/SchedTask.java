@@ -18,23 +18,29 @@
  */
 package org.apache.syncope.core.persistence.api.entity.task;
 
+import java.util.Date;
+
 public interface SchedTask extends Task {
 
-    String getCronExpression();
-
-    String getDescription();
-
-    String getJobDelegateClassName();
+    void setName(String name);
 
     String getName();
 
-    void setCronExpression(String cronExpression);
-
     void setDescription(String description);
+
+    String getDescription();
 
     void setJobDelegateClassName(String jobDelegateClassName);
 
-    void setName(String name);
+    String getJobDelegateClassName();
+
+    Date getStart();
+
+    void setStart(Date start);
+
+    void setCronExpression(String cronExpression);
+
+    String getCronExpression();
 
     boolean isActive();
 

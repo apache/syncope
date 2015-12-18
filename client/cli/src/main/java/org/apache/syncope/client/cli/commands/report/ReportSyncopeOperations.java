@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
+import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.xml.sax.SAXException;
 
@@ -73,7 +74,7 @@ public class ReportSyncopeOperations {
     }
 
     public void execute(final String reportKey) {
-        reportService.execute(Long.valueOf(reportKey));
+        reportService.execute(new ExecuteQuery.Builder().key(Long.valueOf(reportKey)).build());
     }
 
     public void deleteExecution(final String executionId) {

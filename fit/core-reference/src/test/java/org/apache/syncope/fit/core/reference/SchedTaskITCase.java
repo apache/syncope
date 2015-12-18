@@ -25,9 +25,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -37,6 +40,8 @@ import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.junit.FixMethodOrder;
@@ -82,6 +87,49 @@ public class SchedTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
+    public void deferred() {
+        SchedTaskTO task = new SchedTaskTO();
+        task.setActive(true);
+        task.setName("deferred");
+        task.setJobDelegateClassName(TestSampleJobDelegate.class.getName());
+
+        Response response = taskService.create(task);
+        task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
+        assertNotNull(task);
+
+        Date initial = new Date();
+        Date fiveSecsLater = DateUtils.addSeconds(initial, 2);
+
+        taskService.execute(new ExecuteQuery.Builder().key(task.getKey()).start(fiveSecsLater).build());
+
+        int i = 0;
+        int maxit = 50;
+
+        // wait for completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            task = taskService.read(task.getKey(), true);
+
+            assertNotNull(task);
+            assertNotNull(task.getExecutions());
+
+            i++;
+        } while (task.getExecutions().isEmpty() && i < maxit);
+
+        PagedResult<TaskExecTO> execs =
+                taskService.listExecutions(new TaskExecQuery.Builder().key(task.getKey()).build());
+        assertEquals(1, execs.getTotalCount());
+        assertTrue(execs.getResult().get(0).getStart().after(initial));
+        assertEquals(
+                DateUtils.round(fiveSecsLater, Calendar.SECOND),
+                DateUtils.round(execs.getResult().get(0).getStart(), Calendar.SECOND));
+    }
+
+    @Test
     public void issueSYNCOPE144() {
         SchedTaskTO task = new SchedTaskTO();
         task.setName("issueSYNCOPE144");
@@ -89,12 +137,12 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task.setJobDelegateClassName(TestSampleJobDelegate.class.getName());
 
         Response response = taskService.create(task);
-        SchedTaskTO actual = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
-        assertNotNull(actual);
-        assertEquals("issueSYNCOPE144", actual.getName());
-        assertEquals("issueSYNCOPE144 Description", actual.getDescription());
+        task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
+        assertNotNull(task);
+        assertEquals("issueSYNCOPE144", task.getName());
+        assertEquals("issueSYNCOPE144 Description", task.getDescription());
 
-        task = taskService.read(actual.getKey(), true);
+        task = taskService.read(task.getKey(), true);
         assertNotNull(task);
         assertEquals("issueSYNCOPE144", task.getName());
         assertEquals("issueSYNCOPE144 Description", task.getDescription());
@@ -103,10 +151,10 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task.setDescription("issueSYNCOPE144 Description_2");
 
         response = taskService.create(task);
-        actual = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
-        assertNotNull(actual);
-        assertEquals("issueSYNCOPE144_2", actual.getName());
-        assertEquals("issueSYNCOPE144 Description_2", actual.getDescription());
+        task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
+        assertNotNull(task);
+        assertEquals("issueSYNCOPE144_2", task.getName());
+        assertEquals("issueSYNCOPE144 Description_2", task.getDescription());
     }
 
     @Test

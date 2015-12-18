@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api.job;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Map;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
@@ -29,10 +30,11 @@ public interface JobInstanceLoader {
 
     String DOMAIN = "domain";
 
-    Map<String, Object> registerJob(final SchedTask task, final long interruptMaxRetries)
+    Map<String, Object> registerJob(final SchedTask task, final Date start, final long interruptMaxRetries)
             throws SchedulerException, ParseException;
 
-    void registerJob(final Report report) throws SchedulerException, ParseException;
+    void registerJob(final Report report, final Date start)
+            throws SchedulerException, ParseException;
 
     void unregisterJob(Task task);
 

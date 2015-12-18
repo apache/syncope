@@ -93,8 +93,8 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     html body: " + notificationTaskTO.getHtmlBody());
         System.out.println("     latest execution status: "
                 + notificationTaskTO.getLatestExecStatus());
-        System.out.println("     start date: " + notificationTaskTO.getStartDate());
-        System.out.println("     end date: " + notificationTaskTO.getEndDate());
+        System.out.println("     start date: " + notificationTaskTO.getStart());
+        System.out.println("     end date: " + notificationTaskTO.getEnd());
         System.out.println("     recipients: " + notificationTaskTO.getRecipients());
         System.out.println("     trace level: " + notificationTaskTO.getTraceLevel());
         printTaskExecTO(notificationTaskTO.getExecutions());
@@ -114,8 +114,8 @@ public class TaskResultManager extends CommonsResultManager {
                 + propagationTaskTO.getLatestExecStatus());
         System.out.println("     class name: " + propagationTaskTO.getObjectClassName());
         System.out.println("     attributes: " + propagationTaskTO.getAttributes());
-        System.out.println("     start date: " + propagationTaskTO.getStartDate());
-        System.out.println("     end date: " + propagationTaskTO.getEndDate());
+        System.out.println("     start date: " + propagationTaskTO.getStart());
+        System.out.println("     end date: " + propagationTaskTO.getEnd());
         System.out.println("     operation: " + propagationTaskTO.getOperation());
         printTaskExecTO(propagationTaskTO.getExecutions());
         System.out.println("");
@@ -131,8 +131,8 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     is perform delete: " + pushTaskTO.isPerformDelete());
         System.out.println("     is perform update: " + pushTaskTO.isPerformUpdate());
         System.out.println("     is sync status: " + pushTaskTO.isSyncStatus());
-        System.out.println("     start date: " + pushTaskTO.getStartDate());
-        System.out.println("     end date: " + pushTaskTO.getEndDate());
+        System.out.println("     start date: " + pushTaskTO.getStart());
+        System.out.println("     end date: " + pushTaskTO.getEnd());
         System.out.println("     last execution: " + pushTaskTO.getLastExec());
         System.out.println("     next execution: " + pushTaskTO.getNextExec());
         System.out.println("     latest execution status: "
@@ -151,8 +151,8 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     name: " + schedTaskTO.getName());
         System.out.println("     cron expression: " + schedTaskTO.getCronExpression());
         System.out.println("     description: " + schedTaskTO.getDescription());
-        System.out.println("     start date: " + schedTaskTO.getStartDate());
-        System.out.println("     end date: " + schedTaskTO.getEndDate());
+        System.out.println("     start date: " + schedTaskTO.getStart());
+        System.out.println("     end date: " + schedTaskTO.getEnd());
         System.out.println("     last execution: " + schedTaskTO.getLastExec());
         System.out.println("     next execution: " + schedTaskTO.getNextExec());
         System.out.println("     latest execution status: "
@@ -177,8 +177,8 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     sync status: " + syncTaskTO.isSyncStatus());
         System.out.println("     TEMPLATES:");
         printTemplates(syncTaskTO.getTemplates());
-        System.out.println("     start date: " + syncTaskTO.getStartDate());
-        System.out.println("     end date: " + syncTaskTO.getEndDate());
+        System.out.println("     start date: " + syncTaskTO.getStart());
+        System.out.println("     end date: " + syncTaskTO.getEnd());
         System.out.println("     next execution: " + syncTaskTO.getNextExec());
         System.out.println("     last execution: " + syncTaskTO.getLastExec());
         System.out.println("     latest execution status: "
@@ -213,8 +213,8 @@ public class TaskResultManager extends CommonsResultManager {
             System.out.println("       message: " + taskExecTO.getMessage());
             System.out.println("       ###############     <END   MESSAGE>     ###############");
             System.out.println("       status: " + taskExecTO.getStatus());
-            System.out.println("       start date: " + taskExecTO.getStartDate());
-            System.out.println("       end date: " + taskExecTO.getEndDate());
+            System.out.println("       start date: " + taskExecTO.getStart());
+            System.out.println("       end date: " + taskExecTO.getEnd());
             System.out.println("");
         }
     }

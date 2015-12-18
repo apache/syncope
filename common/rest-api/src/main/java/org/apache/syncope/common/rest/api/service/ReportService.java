@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 
 /**
  * REST operations for reports.
@@ -117,15 +118,15 @@ public interface ReportService extends JAXRSService {
     BulkActionResult deleteExecutions(@BeanParam BulkExecDeleteQuery query);
 
     /**
-     * Executes the report with matching key.
+     * Executes the report matching the given query.
      *
-     * @param key key of report to be executed
-     * @return report execution result
+     * @param query query conditions
+     * @return execution report for the report matching the given query
      */
     @POST
     @Path("{key}/execute")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ReportExecTO execute(@NotNull @PathParam("key") Long key);
+    ReportExecTO execute(@BeanParam ExecuteQuery query);
 
     /**
      * Exports the report execution with matching key in the requested format.

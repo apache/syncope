@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.core.logic.ReportLogic;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -88,8 +89,8 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public ReportExecTO execute(final Long key) {
-        return logic.execute(key);
+    public ReportExecTO execute(final ExecuteQuery query) {
+        return logic.execute(query.getKey(), query.getStart());
     }
 
     @Override

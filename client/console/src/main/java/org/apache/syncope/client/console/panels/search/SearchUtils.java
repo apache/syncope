@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels.search;
 
-import static org.apache.syncope.client.console.panels.search.AbstractSearchPanel.LOG;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,14 +36,14 @@ import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.search.SyncopeProperty;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class SearchUtils implements Serializable {
 
     private static final long serialVersionUID = 398381905376547084L;
 
-    private SearchUtils() {
-
-    }
+    private static final Logger LOG = LoggerFactory.getLogger(SearchUtils.class);
 
     private static Pattern getTypeConditionPattern(final String type) {
         return Pattern.compile(String.format(";\\$type==%s|\\$type==%s;", type, type));
@@ -77,7 +75,7 @@ public final class SearchUtils implements Serializable {
     }
 
     public static List<SearchClause> getSearchClauses(final SearchCondition<SearchBean> sc) {
-        List<SearchClause> res = new ArrayList<SearchClause>();
+        List<SearchClause> res = new ArrayList<>();
 
         if (sc.getStatement() == null) {
             res.addAll(getCompoundSearchClause(sc));
@@ -89,7 +87,7 @@ public final class SearchUtils implements Serializable {
     }
 
     public static List<SearchClause> getCompoundSearchClause(final SearchCondition<SearchBean> sc) {
-        List<SearchClause> res = new ArrayList<SearchClause>();
+        List<SearchClause> res = new ArrayList<>();
 
         for (SearchCondition<SearchBean> searchCondition : sc.getSearchConditions()) {
             if (searchCondition.getStatement() == null) {
@@ -263,4 +261,9 @@ public final class SearchUtils implements Serializable {
 
         return fiql;
     }
+
+    private SearchUtils() {
+        // private constructor for static utility class
+    }
+
 }

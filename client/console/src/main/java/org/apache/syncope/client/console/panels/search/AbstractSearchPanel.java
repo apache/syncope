@@ -48,9 +48,6 @@ public abstract class AbstractSearchPanel extends Panel {
 
     private static final long serialVersionUID = 5922413053568696414L;
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSearchPanel.class);
 
     protected AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();

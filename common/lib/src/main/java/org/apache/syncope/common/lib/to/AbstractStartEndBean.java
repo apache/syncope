@@ -27,31 +27,31 @@ public class AbstractStartEndBean extends AbstractBaseBean {
 
     private static final long serialVersionUID = 2399577415544539917L;
 
-    protected Date startDate;
+    protected Date start;
 
-    protected Date endDate;
+    protected Date end;
 
-    public Date getStartDate() {
-        return startDate == null
+    public Date getStart() {
+        return start == null
                 ? null
-                : new Date(startDate.getTime());
+                : new Date(start.getTime());
     }
 
-    public void setStartDate(final Date startDate) {
-        if (startDate != null) {
-            this.startDate = new Date(startDate.getTime());
+    public void setStartDate(final Date start) {
+        if (start != null) {
+            this.start = new Date(start.getTime());
         }
     }
 
-    public Date getEndDate() {
-        return endDate == null
+    public Date getEnd() {
+        return end == null
                 ? null
-                : new Date(endDate.getTime());
+                : new Date(end.getTime());
     }
 
-    public void setEndDate(final Date endDate) {
-        if (endDate != null) {
-            this.endDate = new Date(endDate.getTime());
+    public void setEndDate(final Date end) {
+        if (end != null) {
+            this.end = new Date(end.getTime());
         }
     }
 }

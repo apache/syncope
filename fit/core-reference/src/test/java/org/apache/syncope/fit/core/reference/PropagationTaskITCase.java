@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.junit.FixMethodOrder;
@@ -108,8 +109,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE741() {
         for (int i = 0; i < 3; i++) {
-            taskService.execute(1L, false);
-            taskService.execute(2L, false);
+            taskService.execute(new ExecuteQuery.Builder().key(1L).build());
+            taskService.execute(new ExecuteQuery.Builder().key(2L).build());
         }
         try {
             Thread.sleep(3000);

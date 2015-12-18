@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.Date;
+
 public interface ExecutionRestClient {
 
-    void startExecution(long executionCollectorId);
+    void startExecution(long executionCollectorId, Date start);
 
     void deleteExecution(long executionId);
 }

@@ -91,7 +91,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         report = reportDAO.save(report);
 
         try {
-            jobInstanceLoader.registerJob(report);
+            jobInstanceLoader.registerJob(report, null);
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -114,7 +114,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         report = reportDAO.save(report);
 
         try {
-            jobInstanceLoader.registerJob(report);
+            jobInstanceLoader.registerJob(report, null);
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -139,10 +139,10 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
-    public ReportTO read(final Long reportKey) {
-        Report report = reportDAO.find(reportKey);
+    public ReportTO read(final Long key) {
+        Report report = reportDAO.find(key);
         if (report == null) {
-            throw new NotFoundException("Report " + reportKey);
+            throw new NotFoundException("Report " + key);
         }
         return binder.getReportTO(report);
     }
@@ -230,23 +230,22 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
-    public ReportExecTO execute(final Long reportKey) {
-        Report report = reportDAO.find(reportKey);
+    public ReportExecTO execute(final Long key, final Date start) {
+        Report report = reportDAO.find(key);
         if (report == null) {
-            throw new NotFoundException("Report " + reportKey);
+            throw new NotFoundException("Report " + key);
         }
 
         if (!report.isActive()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
-            sce.getElements().add("Report " + reportKey + " is not active");
+            sce.getElements().add("Report " + key + " is not active");
             throw sce;
         }
 
         try {
-            jobInstanceLoader.registerJob(report);
+            jobInstanceLoader.registerJob(report, start);
 
-            scheduler.getScheduler().triggerJob(
-                    new JobKey(JobNamer.getJobName(report), Scheduler.DEFAULT_GROUP));
+            scheduler.getScheduler().triggerJob(new JobKey(JobNamer.getJobName(report), Scheduler.DEFAULT_GROUP));
         } catch (Exception e) {
             LOG.error("While executing report {}", report, e);
 
@@ -256,7 +255,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         }
 
         ReportExecTO result = new ReportExecTO();
-        result.setReport(reportKey);
+        result.setReport(key);
         result.setStartDate(new Date());
         result.setStatus(ReportExecStatus.STARTED.name());
         result.setMessage("Job fired; waiting for results...");
@@ -265,10 +264,10 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
-    public ReportTO delete(final Long reportKey) {
-        Report report = reportDAO.find(reportKey);
+    public ReportTO delete(final Long key) {
+        Report report = reportDAO.find(key);
         if (report == null) {
-            throw new NotFoundException("Report " + reportKey);
+            throw new NotFoundException("Report " + key);
         }
 
         ReportTO deletedReport = binder.getReportTO(report);
@@ -291,12 +290,12 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
     public BulkActionResult deleteExecutions(
-            final Long reportKey,
+            final Long key,
             final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
 
-        Report report = reportDAO.find(reportKey);
+        Report report = reportDAO.find(key);
         if (report == null) {
-            throw new NotFoundException("Report " + reportKey);
+            throw new NotFoundException("Report " + key);
         }
 
         BulkActionResult result = new BulkActionResult();
@@ -306,7 +305,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
                 reportExecDAO.delete(exec);
                 result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.SUCCESS);
             } catch (Exception e) {
-                LOG.error("Error deleting execution {} of report {}", exec.getKey(), reportKey, e);
+                LOG.error("Error deleting execution {} of report {}", exec.getKey(), key, e);
                 result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.FAILURE);
             }
         }
@@ -326,10 +325,10 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
-    public void actionJob(final Long reportKey, final JobAction action) {
-        Report report = reportDAO.find(reportKey);
+    public void actionJob(final Long key, final JobAction action) {
+        Report report = reportDAO.find(key);
         if (report == null) {
-            throw new NotFoundException("Report " + reportKey);
+            throw new NotFoundException("Report " + key);
         }
         String jobName = JobNamer.getJobName(report);
         actionJob(jobName, action);

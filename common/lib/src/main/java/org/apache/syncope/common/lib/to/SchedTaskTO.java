@@ -31,6 +31,8 @@ public class SchedTaskTO extends AbstractTaskTO {
 
     private static final long serialVersionUID = -5722284116974636425L;
 
+    private Date start;
+
     private String cronExpression;
 
     private String jobDelegateClassName;
@@ -44,6 +46,14 @@ public class SchedTaskTO extends AbstractTaskTO {
     private Date nextExec;
 
     private boolean active;
+
+    public Date getStart() {
+        return start == null ? null : new Date(start.getTime());
+    }
+
+    public void setStart(final Date start) {
+        this.start = start == null ? null : new Date(start.getTime());
+    }
 
     public String getCronExpression() {
         return cronExpression;
@@ -61,32 +71,21 @@ public class SchedTaskTO extends AbstractTaskTO {
         this.jobDelegateClassName = jobDelegateClassName;
     }
 
-    @SuppressWarnings("CPD-START")
     public Date getLastExec() {
-        return lastExec == null
-                ? null
-                : new Date(lastExec.getTime());
+        return lastExec == null ? null : new Date(lastExec.getTime());
     }
 
     public void setLastExec(final Date lastExec) {
-        if (lastExec != null) {
-            this.lastExec = new Date(lastExec.getTime());
-        }
+        this.lastExec = lastExec == null ? null : new Date(lastExec.getTime());
     }
 
     public Date getNextExec() {
-        return nextExec == null
-                ? null
-                : new Date(nextExec.getTime());
+        return nextExec == null ? null : new Date(nextExec.getTime());
     }
 
     public void setNextExec(final Date nextExec) {
-        if (nextExec != null) {
-            this.nextExec = new Date(nextExec.getTime());
-        }
+        this.nextExec = nextExec == null ? null : new Date(nextExec.getTime());
     }
-
-    @SuppressWarnings("CPD-END")
 
     public String getDescription() {
         return description;
