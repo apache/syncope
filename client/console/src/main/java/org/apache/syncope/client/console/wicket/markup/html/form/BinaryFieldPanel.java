@@ -18,14 +18,16 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.BootstrapFileInputField;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.FileInputConfig;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.InvocationTargetException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Component;
@@ -38,7 +40,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
-import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
@@ -108,9 +109,13 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         downloadLink.setOutputMarkupId(true);
         uploadForm.add(downloadLink);
 
+        FileInputConfig config = new FileInputConfig();
+        config.showUpload(false);
+
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        final FileUploadField fileUpload = new FileUploadField("fileUpload", new Model());
+        final BootstrapFileInputField fileUpload = new BootstrapFileInputField("fileUpload", new Model(), config);
         fileUpload.setOutputMarkupId(true);
+
         fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -144,7 +149,6 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                 }
             }
         });
-
         uploadForm.add(fileUpload);
 
         IndicatingAjaxLink<Void> uploadLink = new IndicatingAjaxLink<Void>("uploadLink") {
