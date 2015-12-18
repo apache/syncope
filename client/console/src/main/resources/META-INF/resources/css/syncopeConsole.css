@@ -344,3 +344,22 @@ div.searchResult{
   clear: both;
 }
 
+.box-body {
+  min-height: 550px !important;
+}
+
+.logs .input-group-addon .input-group-btn {
+  width: 130px !important;
+}
+
+.logs .col_width {
+  width: 90% !important;
+}
+
+.logs .box-header {
+  display: none !important;
+}
+
+.logs .box{
+  border-top: 0px !important;
+}

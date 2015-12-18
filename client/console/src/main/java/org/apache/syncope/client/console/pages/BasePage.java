@@ -96,17 +96,23 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         WebMarkupContainer confULContainer = new WebMarkupContainer(getULContainerId("configuration"));
         confLIContainer.add(confULContainer);
 
-        liContainer = new WebMarkupContainer(getLIContainerId("types"));
-        confULContainer.add(liContainer);
-        BookmarkablePageLink<Page> typesLink = new BookmarkablePageLink<>("types", Types.class);
-        MetaDataRoleAuthorizationStrategy.authorize(typesLink, WebPage.ENABLE, StandardEntitlement.SCHEMA_LIST);
-        liContainer.add(typesLink);
-
         liContainer = new WebMarkupContainer(getLIContainerId("workflow"));
         confULContainer.add(liContainer);
         BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("workflow", Workflow.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
         liContainer.add(link);
+        
+        liContainer = new WebMarkupContainer(getLIContainerId("logs"));
+        confULContainer.add(liContainer);
+        BookmarkablePageLink<Page> logsLink = new BookmarkablePageLink<>("logs", Logs.class);
+        MetaDataRoleAuthorizationStrategy.authorize(logsLink, WebPage.ENABLE, StandardEntitlement.LOG_LIST);
+        liContainer.add(logsLink);
+        
+        liContainer = new WebMarkupContainer(getLIContainerId("types"));
+        confULContainer.add(liContainer);
+        BookmarkablePageLink<Page> typesLink = new BookmarkablePageLink<>("types", Types.class);
+        MetaDataRoleAuthorizationStrategy.authorize(typesLink, WebPage.ENABLE, StandardEntitlement.SCHEMA_LIST);
+        liContainer.add(typesLink);
 
         liContainer = new WebMarkupContainer(getLIContainerId("policies"));
         confULContainer.add(liContainer);
@@ -115,10 +121,6 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         liContainer = new WebMarkupContainer(getLIContainerId("securityQuestions"));
         confULContainer.add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("securityQuestions", SecurityQuestions.class));
-
-        liContainer = new WebMarkupContainer(getLIContainerId("logs"));
-        confULContainer.add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("logs", Logs.class));
 
         liContainer = new WebMarkupContainer(getLIContainerId("layouts"));
         confULContainer.add(liContainer);

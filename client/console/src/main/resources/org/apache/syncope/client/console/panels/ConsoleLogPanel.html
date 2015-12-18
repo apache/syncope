@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -17,25 +16,13 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:extend>
-    <div class="wrapper">
-      <div class="admin-content-page" wicket:id="content">
-        <div class="box box-solid box-primary">
-          <div class="box-header with-border">
-            <h3 class="box-title">
-              <span wicket:id="header"></span>
-            </h3>
-          </div>
-          <div class="box-body">
-            <div class="realms">
-              <div wicket:id="tabbedPanel"></div>
-            </div>
-          </div>
-        </div>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://xmlns.jcp.org/jsf/composite">
+  <head><title></title></head>
+  <wicket:panel>
+    <span wicket:id="loggerContainer">
+      <div class="logs">
+        <span wicket:id="logger">[logger]</span>
       </div>
-    </div>
-    <div wicket:id="coreLogModal"></div>
-    <div wicket:id="consoleLogModal"></div>
-  </wicket:extend>
+    </span>
+  </wicket:panel>
 </html>

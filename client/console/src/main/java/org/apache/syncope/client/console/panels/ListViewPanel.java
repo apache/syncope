@@ -127,7 +127,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         final List<String> toBeIncluded;
         if (includes == null || includes.isEmpty()) {
-            toBeIncluded = new ArrayList<String>();
+            toBeIncluded = new ArrayList<>();
             for (Field field : Arrays.asList(reference.getDeclaredFields())) {
                 toBeIncluded.add(field.getName());
             }
