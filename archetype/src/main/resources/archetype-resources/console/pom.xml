@@ -96,6 +96,19 @@ under the License.
       <groupId>org.webjars</groupId>
       <artifactId>codemirror</artifactId>
     </dependency>    
+
+    <!-- TEST -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.activiti</groupId>
+      <artifactId>activiti-webapp-explorer2</artifactId>            
+      <type>war</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
