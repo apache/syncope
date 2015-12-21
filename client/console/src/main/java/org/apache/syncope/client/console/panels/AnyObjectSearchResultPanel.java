@@ -93,7 +93,7 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
     protected List<IColumn<T, String>> getColumns() {
         final List<IColumn<T, String>> columns = new ArrayList<>();
 
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_ANY_DETAILS_VIEW)) {
+        for (String name : prefMan.getList(getRequest(), String.format(Constants.PREF_ANY_DETAILS_VIEW, type))) {
             final Field field = ReflectionUtils.findField(AnyObjectTO.class, name);
 
             if ("token".equalsIgnoreCase(name)) {
@@ -105,13 +105,14 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
             }
         }
 
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_ANY_ATTRIBUTES_VIEW)) {
+        for (String name : prefMan.getList(getRequest(), String.format(Constants.PREF_ANY_ATTRIBUTES_VIEW, type))) {
             if (schemaNames.contains(name)) {
                 columns.add(new AttrColumn<T>(name, SchemaType.PLAIN));
             }
         }
 
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_ANY_DERIVED_ATTRIBUTES_VIEW)) {
+        for (String name
+                : prefMan.getList(getRequest(), String.format(Constants.PREF_ANY_DERIVED_ATTRIBUTES_VIEW, type))) {
             if (dSchemaNames.contains(name)) {
                 columns.add(new AttrColumn<T>(name, SchemaType.DERIVED));
             }
@@ -178,7 +179,7 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         // still missing content
                         target.add(modal.setContent(new AnyDisplayAttributesModalPage<>(
-                                modal, page.getPageReference(), schemaNames, dSchemaNames)));
+                                modal, page.getPageReference(), schemaNames, dSchemaNames, type)));
 
                         modal.header(new ResourceModel("any.attr.display", ""));
                         modal.show(true);

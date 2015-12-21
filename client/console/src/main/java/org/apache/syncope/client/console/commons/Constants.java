@@ -104,11 +104,11 @@ public final class Constants {
 
     public static final String PREF_POLICY_PAGINATOR_ROWS = "policy.paginator.rows";
 
-    public static final String PREF_ANY_DETAILS_VIEW = "any.details.view";
+    public static final String PREF_ANY_DETAILS_VIEW = "any.%s.details.view";
 
-    public static final String PREF_ANY_ATTRIBUTES_VIEW = "any.attributes.view";
+    public static final String PREF_ANY_ATTRIBUTES_VIEW = "any.%s.attributes.view";
 
-    public static final String PREF_ANY_DERIVED_ATTRIBUTES_VIEW = "any.derived.attributes.view";
+    public static final String PREF_ANY_DERIVED_ATTRIBUTES_VIEW = "any.%s.derived.attributes.view";
 
     /**
      * ConnId's GuardedString is not in the classpath.

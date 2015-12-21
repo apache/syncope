@@ -108,7 +108,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
     /**
      * Any type related to current panel.
      */
-    private final String type;
+    protected final String type;
 
     protected AbstractSearchResultPanel(final String id, final Builder<T> builder) {
 

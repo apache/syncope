@@ -344,10 +344,6 @@ div.searchResult{
   clear: both;
 }
 
-.box-body {
-  min-height: 550px !important;
-}
-
 .logs .input-group-addon .input-group-btn {
   width: 130px !important;
 }

@@ -37,28 +37,32 @@ public class AnyDisplayAttributesModalPage<T extends AnyTO> extends DisplayAttri
 
     public static final String[] ANY_DEFAULT_SELECTION = { "key" };
 
+    private final String type;
+
     public AnyDisplayAttributesModalPage(
             final BaseModal<?> modal,
             final PageReference pageRef,
             final List<String> schemaNames,
-            final List<String> dSchemaNames) {
+            final List<String> dSchemaNames,
+            final String type) {
 
         super(modal, pageRef, schemaNames, dSchemaNames);
+        this.type = type;
     }
 
     @Override
     public String getPrefDetailView() {
-        return Constants.PREF_ANY_DETAILS_VIEW;
+        return String.format(Constants.PREF_ANY_DETAILS_VIEW, type);
     }
 
     @Override
     public String getPrefAttributeView() {
-        return Constants.PREF_ANY_ATTRIBUTES_VIEW;
+        return String.format(Constants.PREF_ANY_ATTRIBUTES_VIEW, type);
     }
 
     @Override
     public String getPrefDerivedAttributeView() {
-        return Constants.PREF_ANY_DERIVED_ATTRIBUTES_VIEW;
+        return String.format(Constants.PREF_ANY_DERIVED_ATTRIBUTES_VIEW, type);
     }
 
     @Override
