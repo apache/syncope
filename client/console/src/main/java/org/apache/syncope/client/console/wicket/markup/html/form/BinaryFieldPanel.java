@@ -66,7 +66,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
     private final transient PreviewUtils previewUtils = PreviewUtils.getInstance();
 
     public BinaryFieldPanel(final String id, final String name, final IModel<String> model, final String mimeType) {
-        super(id, model);
+        super(id, name, model);
         this.mimeType = mimeType;
 
         uploadForm = new StatelessForm<>("uploadForm");

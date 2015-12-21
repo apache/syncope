@@ -20,28 +20,34 @@ under the License.
   <head><title></title></head>
   <body>
     <wicket:extend>
-      <input style="display: none;" wicket:id="textField"/>
-      <span style="margin-right: 20px;">
-        <div style="display: table-cell;">
-          <form wicket:id="uploadForm" encType="multipart/form-data" method="post" accept-charset="UTF-8">
-            <input wicket:id="fileUpload" type="file"/>
-            <div style="top: -25px; left: 100%; position: relative; vertical-align: middle;">
-              <!--<a href="#" wicket:id="uploadLink"><i title="upload" alt="file upload icon" class="glyphicon glyphicon-upload"></i></a>-->
-              <a href="#" wicket:id="downloadLink"><i title="download" alt="file download icon" class="glyphicon glyphicon-download"></i></a>
-              <a href="#" wicket:id="resetLink"><i title="remove value" alt="remove value icon" class="glyphicon glyphicon-remove"></i></a>
-              <span wicket:id="preview"/>
-            </div>
-            <span wicket:id="previewContainer">
-              <span wicket:id="panelPreview">[panelPreview]</span>
-              <wicket:fragment wicket:id="previewFragment">
-                <div wicket:id = "previewer" class="ui-widget-content ui-corner-all"></div>
-              </wicket:fragment>
-              <wicket:fragment wicket:id="emptyFragment">
-              </wicket:fragment>
-            </span>
-          </form>
-        </div>
-      </span>
+      <wicket:enclosure child="field-label">
+        <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
+        <span wicket:id="externalAction"/>
+      </wicket:enclosure>
+      <fieldset class="input-group">
+        <input style="display: none;" wicket:id="textField"/>
+        <span style="margin-right: 20px;">
+          <div style="display: table-cell;">
+            <form wicket:id="uploadForm" encType="multipart/form-data" method="post" accept-charset="UTF-8">
+              <input wicket:id="fileUpload" type="file"/>
+              <div style="top: -25px; left: 100%; position: relative; vertical-align: middle;">
+                <!--<a href="#" wicket:id="uploadLink"><i title="upload" alt="file upload icon" class="glyphicon glyphicon-upload"></i></a>-->
+                <a href="#" wicket:id="downloadLink"><i title="download" alt="file download icon" class="glyphicon glyphicon-download"></i></a>
+                <a href="#" wicket:id="resetLink"><i title="remove value" alt="remove value icon" class="glyphicon glyphicon-remove"></i></a>
+                <span wicket:id="preview"/>
+              </div>
+              <span wicket:id="previewContainer">
+                <span wicket:id="panelPreview">[panelPreview]</span>
+                <wicket:fragment wicket:id="previewFragment">
+                  <div wicket:id = "previewer" class="ui-widget-content ui-corner-all"></div>
+                </wicket:fragment>
+                <wicket:fragment wicket:id="emptyFragment">
+                </wicket:fragment>
+              </span>
+            </form>
+          </div>
+        </span>
+      </fieldset>
     </wicket:extend>
   </body>
 </html>
