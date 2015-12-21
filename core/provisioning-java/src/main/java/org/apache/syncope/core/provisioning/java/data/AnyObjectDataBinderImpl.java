@@ -157,12 +157,16 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
                 } else if (assignableAnyObjects.contains(otherEnd)) {
                     RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
-                    ARelationship relationship = entityFactory.newEntity(ARelationship.class);
-                    relationship.setType(relationshipType);
-                    relationship.setRightEnd(anyObject);
-                    relationship.setLeftEnd(anyObject);
+                    if (relationshipType == null) {
+                        LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
+                    } else {
+                        ARelationship relationship = entityFactory.newEntity(ARelationship.class);
+                        relationship.setType(relationshipType);
+                        relationship.setRightEnd(anyObject);
+                        relationship.setLeftEnd(anyObject);
 
-                    anyObject.add(relationship);
+                        anyObject.add(relationship);
+                    }
                 } else {
                     LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
 
@@ -234,33 +238,37 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         for (RelationshipPatch patch : anyObjectPatch.getRelationships()) {
             if (patch.getRelationshipTO() != null) {
                 RelationshipType relationshipType = relationshipTypeDAO.find(patch.getRelationshipTO().getType());
-                ARelationship relationship =
-                        anyObject.getRelationship(relationshipType, patch.getRelationshipTO().getRightKey());
-                if (relationship != null) {
-                    anyObject.remove(relationship);
-                    toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceNames());
-                }
+                if (relationshipType == null) {
+                    LOG.debug("Ignoring invalid relationship type {}", patch.getRelationshipTO().getType());
+                } else {
+                    ARelationship relationship =
+                            anyObject.getRelationship(relationshipType, patch.getRelationshipTO().getRightKey());
+                    if (relationship != null) {
+                        anyObject.remove(relationship);
+                        toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceNames());
+                    }
 
-                if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                    AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getRightKey());
-                    if (otherEnd == null) {
-                        LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getRightKey());
-                    } else if (assignableAnyObjects.contains(otherEnd)) {
-                        relationship = entityFactory.newEntity(ARelationship.class);
-                        relationship.setType(relationshipType);
-                        relationship.setRightEnd(otherEnd);
-                        relationship.setLeftEnd(anyObject);
+                    if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                        AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getRightKey());
+                        if (otherEnd == null) {
+                            LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getRightKey());
+                        } else if (assignableAnyObjects.contains(otherEnd)) {
+                            relationship = entityFactory.newEntity(ARelationship.class);
+                            relationship.setType(relationshipType);
+                            relationship.setRightEnd(otherEnd);
+                            relationship.setLeftEnd(anyObject);
 
-                        anyObject.add(relationship);
+                            anyObject.add(relationship);
 
-                        toBeProvisioned.addAll(otherEnd.getResourceNames());
-                    } else {
-                        LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
+                            toBeProvisioned.addAll(otherEnd.getResourceNames());
+                        } else {
+                            LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
 
-                        SyncopeClientException unassignabled =
-                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                        unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
-                        scce.addException(unassignabled);
+                            SyncopeClientException unassignabled =
+                                    SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                            unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
+                            scce.addException(unassignabled);
+                        }
                     }
                 }
             }

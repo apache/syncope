@@ -555,6 +555,7 @@ abstract class AbstractAnyDataBinder {
 
     protected RelationshipTO getRelationshipTO(final Relationship<? extends Any<?>, AnyObject> relationship) {
         return new RelationshipTO.Builder().
+                type(relationship.getType().getKey()).
                 left(relationship.getLeftEnd().getType().getKey(), relationship.getLeftEnd().getKey()).
                 right(relationship.getRightEnd().getType().getKey(), relationship.getRightEnd().getKey()).
                 build();
