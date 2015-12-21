@@ -21,13 +21,8 @@ package org.apache.syncope.client.console.pages;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ConsoleLogPanel;
 import org.apache.syncope.client.console.panels.CoreLogPanel;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.LoggerTO;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -40,29 +35,18 @@ public class Logs extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271271L;
 
-    private final BaseModal<LoggerTO> coreLogModal;
-
-    private final BaseModal<LoggerTO> consoleLogModal;
-
     private final AjaxBootstrapTabbedPanel<ITab> tabbedPanel;
 
     public Logs(final PageParameters parameters) {
         super(parameters);
 
-        coreLogModal = new BaseModal<>("coreLogModal");
-        consoleLogModal = new BaseModal<>("consoleLogModal");
-
         final WebMarkupContainer content = new WebMarkupContainer("content");
-        content.add(new Label("header", "Logs"));
+        content.add(new Label("header", getString("header_title")));
         content.setOutputMarkupId(true);
         tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
         content.add(tabbedPanel);
 
         add(content);
-        addWindowWindowClosedCallback(coreLogModal);
-        addWindowWindowClosedCallback(consoleLogModal);
-        add(coreLogModal);
-        add(consoleLogModal);
     }
 
     private List<ITab> buildTabList() {
@@ -75,7 +59,7 @@ public class Logs extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new CoreLogPanel(panelId, getPageReference(), coreLogModal);
+                return new CoreLogPanel(panelId, getPageReference());
             }
         });
 
@@ -85,30 +69,10 @@ public class Logs extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new ConsoleLogPanel(panelId, getPageReference(), consoleLogModal);
+                return new ConsoleLogPanel(panelId, getPageReference());
             }
         });
 
         return tabs;
-    }
-
-    private void addWindowWindowClosedCallback(final BaseModal<?> modal) {
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                tabbedPanel.setSelectedTab(tabbedPanel.getSelectedTab());
-                target.add(tabbedPanel);
-                modal.show(false);
-
-                if (((AbstractBasePage) Logs.this.getPage()).isModalResult()) {
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                    feedbackPanel.refresh(target);
-                    ((AbstractBasePage) Logs.this.getPage()).setModalResult(false);
-                }
-            }
-        });
     }
 }

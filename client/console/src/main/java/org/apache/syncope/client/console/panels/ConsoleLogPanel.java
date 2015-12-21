@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
@@ -36,7 +35,7 @@ public class ConsoleLogPanel extends AbstractLogsPanel<LoggerTO> {
 
     private static final ConsoleLoggerController CONSOLE_LOGGER_CONTROLLER = new ConsoleLoggerController();
 
-    public ConsoleLogPanel(final String id, final PageReference pageReference, final BaseModal<LoggerTO> modal) {
+    public ConsoleLogPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, CONSOLE_LOGGER_CONTROLLER.getLoggers());
     }
 

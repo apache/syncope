@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.rest.api.service.LoggerService;
@@ -29,7 +28,7 @@ public class CoreLogPanel extends AbstractLogsPanel<LoggerTO> {
 
     private static final long serialVersionUID = 3905038169553185171L;
 
-    public CoreLogPanel(final String id, final PageReference pageReference, final BaseModal<LoggerTO> modal) {
+    public CoreLogPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, SyncopeConsoleSession.get().getService(LoggerService.class).list(LoggerType.LOG));
 
     }

@@ -96,18 +96,27 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         WebMarkupContainer confULContainer = new WebMarkupContainer(getULContainerId("configuration"));
         confLIContainer.add(confULContainer);
 
+        liContainer = new WebMarkupContainer(getLIContainerId("securityQuestions"));
+        confULContainer.add(liContainer);
+        final BookmarkablePageLink<Page> securityQuestionLink = new BookmarkablePageLink<>(
+                "securityQuestions", SecurityQuestions.class);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                securityQuestionLink, WebPage.ENABLE, StandardEntitlement.SECURITY_QUESTION_CREATE);
+        liContainer.add(securityQuestionLink);
+
         liContainer = new WebMarkupContainer(getLIContainerId("workflow"));
         confULContainer.add(liContainer);
-        BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("workflow", Workflow.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
-        liContainer.add(link);
-        
+        final BookmarkablePageLink<Page> workflowLink = new BookmarkablePageLink<>("workflow", Workflow.class);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                workflowLink, WebPage.ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
+        liContainer.add(workflowLink);
+
         liContainer = new WebMarkupContainer(getLIContainerId("logs"));
         confULContainer.add(liContainer);
-        BookmarkablePageLink<Page> logsLink = new BookmarkablePageLink<>("logs", Logs.class);
+        final BookmarkablePageLink<Page> logsLink = new BookmarkablePageLink<>("logs", Logs.class);
         MetaDataRoleAuthorizationStrategy.authorize(logsLink, WebPage.ENABLE, StandardEntitlement.LOG_LIST);
         liContainer.add(logsLink);
-        
+
         liContainer = new WebMarkupContainer(getLIContainerId("types"));
         confULContainer.add(liContainer);
         BookmarkablePageLink<Page> typesLink = new BookmarkablePageLink<>("types", Types.class);
@@ -117,10 +126,6 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         liContainer = new WebMarkupContainer(getLIContainerId("policies"));
         confULContainer.add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("policies", Policies.class));
-
-        liContainer = new WebMarkupContainer(getLIContainerId("securityQuestions"));
-        confULContainer.add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("securityQuestions", SecurityQuestions.class));
 
         liContainer = new WebMarkupContainer(getLIContainerId("layouts"));
         confULContainer.add(liContainer);

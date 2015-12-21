@@ -79,7 +79,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> implements Notif
         feedbackPanel.setOutputMarkupId(true);
         add(feedbackPanel);
 
-        form = new Form<T>(FORM);
+        form = new Form<>(FORM);
         add(form);
 
         content = new AbstractModalPanel(this, null) {
