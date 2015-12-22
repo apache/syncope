@@ -73,23 +73,23 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'growlProvi
               url: '/credentials',
               templateUrl: 'views/user-credentials.html'
             })
+            .state('create.groups', {
+              url: '/groups',
+              templateUrl: 'views/user-groups.html'
+            })
             .state('create.plainSchemas', {
               url: '/plainSchemas',
               templateUrl: 'views/user-plain-schemas.html'
             })
-            .state('create.derivedSchemas', {
+            /*.state('create.derivedSchemas', {
               url: '/derivedSchemas',
               templateUrl: 'views/user-derived-schemas.html'
             })
             .state('create.virtualSchemas', {
               url: '/virtualSchemas',
               templateUrl: 'views/user-virtual-schemas.html'
-            })
+            })*/
             // url will be /self/create/schema
-            .state('create.groups', {
-              url: '/groups',
-              templateUrl: 'views/user-groups.html'
-            })
             .state('create.resources', {
               url: '/resources',
               templateUrl: 'views/user-resources.html'
@@ -124,7 +124,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'growlProvi
                 }
               }
             })
-            .state('update.derivedSchemas', {
+            /*.state('update.derivedSchemas', {
               url: '/derivedSchemas',
               templateUrl: 'views/user-derived-schemas.html',
               resolve: {
@@ -141,7 +141,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'growlProvi
                   return AuthenticationHelper.authenticated();
                 }
               }
-            })
+            })*/
             // url will be /self/create/schema
             .state('update.groups', {
               url: '/groups',

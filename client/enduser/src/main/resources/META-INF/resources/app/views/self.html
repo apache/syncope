@@ -44,14 +44,14 @@ under the License.
             </a>
           </div>
           <div>
-            <div id="language" class="form-group" ng-controller="LanguageController" ng-init="init()">
+            <!--<div id="language" class="form-group" ng-controller="LanguageController" ng-init="init()">
               <div id="languageContainer" class="col-xs-2">
 
                 <select class="form-control" ng-options="language.name for language in languages.availableLanguages track by language.id"
                         ng-model="languages.selectedLanguage" ></select>
 
               </div>
-            </div>
+            </div>-->
 
             <h3>Welcome to Apache Syncope Enduser</h3>
             <h5 ng-show="!isLogged()">please login to self update</h5>
@@ -76,7 +76,7 @@ under the License.
 
                 <button type="submit" id="login-btn" class="btn btn-default btn-signin login-btn" ng-click="login(credentials)">Login</button>
                 <a href="javascript:void(0);" class="btn btn-link" ng-click="selfCreate()">Self Registration</a>
-                <a href="javascript:void(0);" class="btn btn-link" ng-click="passwordReset()">Password Reset</a>
+                <!--<a href="javascript:void(0);" class="btn btn-link" ng-click="passwordReset()">Password Reset</a>-->
               </div>
             </form>
 

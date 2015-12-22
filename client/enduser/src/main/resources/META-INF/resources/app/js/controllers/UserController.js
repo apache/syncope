@@ -192,8 +192,13 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
         UserSelfService.update(user).then(function (response) {
           console.log("Updated user: ", response);
-          growl.success("User " + $scope.user.username + " successfully updated", {referenceId: 1});
-          $location.path('/self');
+          AuthService.logout().then(function (response) {
+            console.log("LOGOUT SUCCESS: ", response);
+            $location.path('/self');
+            growl.success("User " + $scope.user.username + " successfully updated", {referenceId: 1});
+          }, function () {
+            console.log("LOGOUT FAILED");
+          });
         }, function (response) {
           console.log("Error during user update: ", response);
           growl.error("Error: " + response, {referenceId: 2});
