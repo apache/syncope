@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.pages;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.SecurityQuestionModalPanel;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
@@ -65,15 +64,17 @@ public class SecurityQuestions extends BasePage {
             @Override
             protected void onClickInternal(final AjaxRequestTarget target) {
                 securityQuestionModal.header(new ResourceModel("createSecurityQuestion"));
-                target.add(securityQuestionModal.setContent(buildModalPanel()));
+                securityQuestionModal.setFormModel(new SecurityQuestionTO());
+                securityQuestionModal.size(Modal.Size.Large);
+                target.add(securityQuestionModal.setContent(
+                        new SecurityQuestionModalPanel(securityQuestionModal, getPageReference(), true)));
                 securityQuestionModal.addSumbitButton();
                 securityQuestionModal.show(true);
             }
         };
         content.add(createLink);
 
-        if (SyncopeConsoleSession.get()
-                .owns(StandardEntitlement.SECURITY_QUESTION_CREATE)) {
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.SECURITY_QUESTION_CREATE)) {
             MetaDataRoleAuthorizationStrategy.authorize(
                     createLink, ENABLE, StandardEntitlement.SECURITY_QUESTION_CREATE);
         }
@@ -83,12 +84,6 @@ public class SecurityQuestions extends BasePage {
         securityQuestionsPanel.setOutputMarkupId(true);
 
         content.add(securityQuestionsPanel);
-    }
-
-    private ModalPanel buildModalPanel() {
-        securityQuestionModal.setFormModel(new SecurityQuestionTO());
-        securityQuestionModal.size(Modal.Size.Large);
-        return new SecurityQuestionModalPanel(securityQuestionModal, getPageReference(), true);
     }
 
     private void addWindowWindowClosedCallback(final BaseModal<?> modal) {

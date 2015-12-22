@@ -49,14 +49,6 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         this(null);
     }
 
-    private String getLIContainerId(final String linkId) {
-        return linkId + "LI";
-    }
-
-    private String getULContainerId(final String linkId) {
-        return linkId + "UL";
-    }
-
     public BasePage(final PageParameters parameters) {
         super(parameters);
 
@@ -102,12 +94,6 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         MetaDataRoleAuthorizationStrategy.authorize(
                 liContainer, WebPage.RENDER, StandardEntitlement.CONFIGURATION_LIST);
 
-        liContainer = new WebMarkupContainer(getLIContainerId("securityQuestions"));
-        confULContainer.add(liContainer);
-        final BookmarkablePageLink<Page> securityQuestionLink = new BookmarkablePageLink<>(
-                "securityQuestions", SecurityQuestions.class);
-        liContainer.add(securityQuestionLink);
-
         liContainer = new WebMarkupContainer(getLIContainerId("workflow"));
         confULContainer.add(liContainer);
         final BookmarkablePageLink<Page> workflowLink = new BookmarkablePageLink<>("workflow", Workflow.class);
@@ -121,6 +107,12 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         MetaDataRoleAuthorizationStrategy.authorize(logsLink, WebPage.ENABLE, StandardEntitlement.LOG_LIST);
         liContainer.add(logsLink);
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.LOG_LIST);
+
+        liContainer = new WebMarkupContainer(getLIContainerId("securityquestions"));
+        confULContainer.add(liContainer);
+        final BookmarkablePageLink<Page> secuityQuestionsLink = new BookmarkablePageLink<>("securityquestions",
+                SecurityQuestions.class);
+        liContainer.add(secuityQuestionsLink);
 
         liContainer = new WebMarkupContainer(getLIContainerId("types"));
         confULContainer.add(liContainer);
@@ -142,9 +134,9 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         liContainer.add(new BookmarkablePageLink<>("notifications", Notifications.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.NOTIFICATION_LIST);
 
-        liContainer = new WebMarkupContainer(getLIContainerId("camelRoutes"));
+        liContainer = new WebMarkupContainer(getLIContainerId("camelroutes"));
         add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("camelRoutes", CamelRoutes.class));
+        liContainer.add(new BookmarkablePageLink<>("camelroutes", CamelRoutes.class));
 
         add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
         add(new BookmarkablePageLink<Page>("logout", Logout.class));
@@ -192,6 +184,14 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
                 });
             }
         }
+    }
+
+    private String getLIContainerId(final String linkId) {
+        return linkId + "LI";
+    }
+
+    private String getULContainerId(final String linkId) {
+        return linkId + "UL";
     }
 
     @Override
