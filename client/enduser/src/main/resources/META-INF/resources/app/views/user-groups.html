@@ -18,7 +18,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<div class="form-group row upper-select">
+<div id="attribute" class="form-group row upper-select">
   <label>Realm</label>
   <select class="form-control"
           ng-disabled="true"
@@ -28,10 +28,10 @@ under the License.
   </select>
 </div>
 
-<div class="form-group row">
+<div id="attribute" class="form-group row">
   <navigation-buttons ng-show="createMode" next="create.plainSchemas" previous="create.credentials"></navigation-buttons>
   <navigation-buttons ng-show="!createMode" next="update.plainSchemas" previous="update.credentials"></navigation-buttons>
-  <div class="col-xs-6 col-xs-offset-3">
-    <a id="cancel" href="#/self" class="btn btn-danger">Cancel</a>
+  <div class="pull-left">
+    <a id="cancel" href="#/self" class="btn btn-default pull-left">Cancel</a>
   </div>
 </div>

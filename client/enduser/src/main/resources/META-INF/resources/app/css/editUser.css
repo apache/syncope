@@ -97,7 +97,7 @@ under the License.
   background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */
   float: left;
   color: black;
-  width: 30%;
+  //width: 30%;
 }
 #previous:hover {
   background: #658D5D;
@@ -109,10 +109,10 @@ under the License.
   background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Chrome10+,Safari5.1+ */
   background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Opera 11.10+ */
   background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */
-  margin-top: 5px;
+  margin-left: 5px;
   float: right;
   color: black;
-  width: 30%;
+  //width: 30%;
 }
 #next:hover {
   background: #658D5D;
@@ -125,15 +125,15 @@ under the License.
   background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Opera 11.10+ */
   background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */
   color: black;
-  margin-top: 5%;
-  width: 15%;
+  margin-left: 5px;
+  //width: 15%;
 }
 #save:hover {
   background: #658D5D;
 }
 #cancel {
-  margin-top: 5%;
-  width: 15%;
+  //margin-top: 5%;
+  //width: 15%;
 }
 
 #form-views             { width:auto; }

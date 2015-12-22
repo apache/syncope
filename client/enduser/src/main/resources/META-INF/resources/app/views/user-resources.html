@@ -18,11 +18,11 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<div class="form-group row">
+<div id="attribute" class="form-group row">
+  <button id="save" type="submit" class="btn btn-default pull-right">Save</button>
   <navigation-buttons ng-show="createMode" next="none" previous="create.plainSchemas"></navigation-buttons>
   <navigation-buttons ng-show="!createMode" next="none" previous="update.plainSchemas"></navigation-buttons>
-  <div class="col-xs-6 col-xs-offset-3">
+  <div class="pull-left">
     <a id="cancel" href="#/self" class="btn btn-danger">Cancel</a>
-    <button id="save" type="submit" class="btn btn-success">Save</button>
   </div>
 </div>
