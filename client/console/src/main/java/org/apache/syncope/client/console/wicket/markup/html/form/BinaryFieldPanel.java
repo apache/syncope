@@ -151,8 +151,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         config.showRemove(false);
         config.showPreview(false);
 
-        fileUpload = new BootstrapFileInputField("fileUpload",
-                new ListModel<FileUpload>(new ArrayList<FileUpload>()), config);
+        fileUpload = new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<FileUpload>()), config);
         fileUpload.setOutputMarkupId(true);
 
         fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {

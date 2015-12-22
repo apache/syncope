@@ -55,21 +55,19 @@ public final class PreviewUtils {
     }
 
     public AbstractBinaryPreviewer getPreviewer(final String mimeType) {
-
         if (StringUtils.isBlank(mimeType)) {
             return null;
         }
 
-        final Class<? extends AbstractBinaryPreviewer> previewer
-                = classPathScanImplementationLookup.getPreviewerClass(mimeType);
-
+        Class<? extends AbstractBinaryPreviewer> previewer =
+                classPathScanImplementationLookup.getPreviewerClass(mimeType);
         try {
             return previewer == null
                     ? null
                     : getConstructorIfAvailable(previewer, String.class, String.class).
                     newInstance(new Object[] { "previewer", mimeType });
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException 
-                | InvocationTargetException ex) {
+        } catch (InstantiationException | IllegalAccessException 
+                | IllegalArgumentException | InvocationTargetException e) {
             return null;
         }
     }

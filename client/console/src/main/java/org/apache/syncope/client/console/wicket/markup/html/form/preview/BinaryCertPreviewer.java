@@ -44,20 +44,20 @@ public class BinaryCertPreviewer extends AbstractBinaryPreviewer {
 
     @Override
     public Component preview(final byte[] uploadedBytes) {
-        final Label commonNameLabel = new Label("certCommonName", new Model<String>());
+        Label commonNameLabel = new Label("certCommonName", new Model<String>());
         if (uploadedBytes.length == 0) {
             LOG.info("Enpty certificate");
             return commonNameLabel;
         }
 
-        final ByteArrayInputStream certificateStream = new ByteArrayInputStream(uploadedBytes);
+        ByteArrayInputStream certificateStream = new ByteArrayInputStream(uploadedBytes);
         try {
-            final X509Certificate certificate = (X509Certificate) CertificateFactory.getInstance("X.509").
+            X509Certificate certificate = (X509Certificate) CertificateFactory.getInstance("X.509").
                     generateCertificate(certificateStream);
 
-            final StringBuilder commonNameBuilder = new StringBuilder("cn=");
+            StringBuilder commonNameBuilder = new StringBuilder("cn=");
 
-            final LdapName ldapName = new LdapName(certificate.getIssuerDN().getName());
+            LdapName ldapName = new LdapName(certificate.getIssuerDN().getName());
 
             for (Rdn rdn : ldapName.getRdns()) {
                 if ("CN".equalsIgnoreCase(rdn.getType())) {
