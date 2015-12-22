@@ -100,8 +100,6 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         confULContainer.add(liContainer);
         final BookmarkablePageLink<Page> securityQuestionLink = new BookmarkablePageLink<>(
                 "securityQuestions", SecurityQuestions.class);
-        MetaDataRoleAuthorizationStrategy.authorize(
-                securityQuestionLink, WebPage.ENABLE, StandardEntitlement.SECURITY_QUESTION_CREATE);
         liContainer.add(securityQuestionLink);
 
         liContainer = new WebMarkupContainer(getLIContainerId("workflow"));

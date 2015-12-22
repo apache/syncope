@@ -38,8 +38,7 @@ public class SecurityQuestionDetailsPanel extends Panel {
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
 
-        container.setOutputMarkupId(
-                true);
+        container.setOutputMarkupId(true);
         add(container);
 
         final Form<SecurityQuestionTO> form = new Form<>("form");
@@ -58,8 +57,6 @@ public class SecurityQuestionDetailsPanel extends Panel {
         final AjaxTextFieldPanel content = new AjaxTextFieldPanel(
                 "content", getString("content"), new PropertyModel<String>(securityQuestionTO, "content"));
         content.addRequiredLabel();
-        content.setEnabled(true);
-        content.setVisible(true);
         form.add(content);
     }
 }
