@@ -25,8 +25,7 @@ import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
-import org.apache.wicket.Component;
-import org.apache.wicket.util.crypt.Base64;
+import org.apache.syncope.client.console.wicket.markup.html.form.preview.DefaultPreviewer;
 import org.springframework.util.Assert;
 
 public final class PreviewUtils {
@@ -51,30 +50,27 @@ public final class PreviewUtils {
                 getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
     }
 
-    public Component getPreviewer(final String mimeType, final String file)
-            throws InstantiationException, IllegalAccessException, InvocationTargetException {
-
-        Class<? extends AbstractBinaryPreviewer> previewer = StringUtils.isBlank(file)
-                ? null
-                : classPathScanImplementationLookup.getPreviewerClass(mimeType);
-
-        return previewer == null
-                ? null
-                : getConstructorIfAvailable(previewer, String.class, String.class, byte[].class).
-                newInstance(new Object[] { "previewer", mimeType, Base64.decodeBase64(file) }).
-                preview();
+    public AbstractBinaryPreviewer getDefaultPreviewer(final String mimeType) {
+        return new DefaultPreviewer("previewer", mimeType);
     }
 
-    public Component getPreviewer(final String mimeType, final byte[] file)
-            throws InstantiationException, IllegalAccessException, InvocationTargetException {
+    public AbstractBinaryPreviewer getPreviewer(final String mimeType) {
 
-        Class<? extends AbstractBinaryPreviewer> previewer = classPathScanImplementationLookup.getPreviewerClass(
-                mimeType);
+        if (StringUtils.isBlank(mimeType)) {
+            return null;
+        }
 
-        return previewer == null
-                ? null
-                : getConstructorIfAvailable(previewer, String.class, String.class, byte[].class).
-                newInstance(new Object[] { "previewer", mimeType, file }).
-                preview();
+        final Class<? extends AbstractBinaryPreviewer> previewer
+                = classPathScanImplementationLookup.getPreviewerClass(mimeType);
+
+        try {
+            return previewer == null
+                    ? null
+                    : getConstructorIfAvailable(previewer, String.class, String.class).
+                    newInstance(new Object[] { "previewer", mimeType });
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException 
+                | InvocationTargetException ex) {
+            return null;
+        }
     }
 }

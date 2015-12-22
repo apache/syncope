@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wicket.markup.html.form.preview;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.util.crypt.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,13 +35,14 @@ public abstract class AbstractBinaryPreviewer extends Panel {
 
     protected final String mimeType;
 
-    protected final byte[] uploadedBytes;
-
-    public AbstractBinaryPreviewer(final String id, final String mimeType, final byte[] uploadedBytes) {
+    public AbstractBinaryPreviewer(final String id, final String mimeType) {
         super(id);
         this.mimeType = mimeType;
-        this.uploadedBytes = uploadedBytes;
     }
 
-    public abstract Component preview();
+    public Component preview(final String uploaded) {
+        return preview(Base64.decodeBase64(uploaded));
+    }
+
+    public abstract Component preview(final byte[] uploadedBytes);
 }

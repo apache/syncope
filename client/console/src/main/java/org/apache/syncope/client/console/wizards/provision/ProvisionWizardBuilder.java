@@ -28,16 +28,19 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -78,11 +81,11 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
                         }
                     }, res), new Predicate<String>() {
 
-                        @Override
-                        public boolean evaluate(final String key) {
-                            return !currentlyAdded.contains(key);
-                        }
-                    });
+                @Override
+                public boolean evaluate(final String key) {
+                    return !currentlyAdded.contains(key);
+                }
+            });
 
             return res;
         }
@@ -95,6 +98,10 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
 
         private static final long serialVersionUID = 1L;
 
+        private static final String ACCOUNT = "__ACCOUNT__";
+
+        private static final String GROUP = "__GROUP__";
+
         /**
          * Construct.
          */
@@ -102,12 +109,37 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
             super(new ResourceModel("type.title", StringUtils.EMPTY),
                     new ResourceModel("type.summary", StringUtils.EMPTY), new Model<ProvisionTO>(item));
 
-            add(new AjaxDropDownChoicePanel<String>("type", "type", new PropertyModel<String>(item, "anyType"), false).
+            final WebMarkupContainer container = new WebMarkupContainer("container");
+            container.setOutputMarkupId(true);
+            add(container);
+
+            final FieldPanel<String> type = new AjaxDropDownChoicePanel<String>(
+                    "type", "type", new PropertyModel<String>(item, "anyType"), false).
                     setChoices(anyTypes).
                     setStyleSheet("form-control").
-                    setRequired(true));
+                    setRequired(true);
+            container.add(type);
 
-            add(new TextField<String>("class", new PropertyModel<String>(item, "objectClass")).setRequired(true));
+            final FormComponent<String> clazz = new TextField<String>(
+                    "class", new PropertyModel<String>(item, "objectClass")).setRequired(true);
+
+            container.add(clazz);
+
+            type.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                private static final long serialVersionUID = -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(final AjaxRequestTarget target) {
+                    if (AnyTypeKind.USER.name().equals(type.getModelObject())) {
+                        clazz.setModelObject(ACCOUNT);
+                        target.add(container);
+                    } else if (AnyTypeKind.GROUP.name().equals(type.getModelObject())) {
+                        clazz.setModelObject(GROUP);
+                        target.add(container);
+                    }
+                }
+            });
         }
     }
 
@@ -216,6 +248,6 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
 
     @Override
     protected void onApplyInternal(final ProvisionTO modelObject) {
-        // do nothing
+        this.resourceTO.getProvisions().add(modelObject);
     }
 }

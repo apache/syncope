@@ -19,12 +19,15 @@
 package org.apache.syncope.client.console.wicket.markup.html.form.preview;
 
 import java.io.ByteArrayInputStream;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.annotations.BinaryPreview;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
@@ -35,13 +38,18 @@ public class BinaryCertPreviewer extends AbstractBinaryPreviewer {
 
     private static final long serialVersionUID = -5843835939538055110L;
 
-    public BinaryCertPreviewer(final String id, final String mimeType, final byte[] uploadedBytes) {
-        super(id, mimeType, uploadedBytes);
+    public BinaryCertPreviewer(final String id, final String mimeType) {
+        super(id, mimeType);
     }
 
     @Override
-    public Component preview() {
+    public Component preview(final byte[] uploadedBytes) {
         final Label commonNameLabel = new Label("certCommonName", new Model<String>());
+        if (uploadedBytes.length == 0) {
+            LOG.info("Enpty certificate");
+            return commonNameLabel;
+        }
+
         final ByteArrayInputStream certificateStream = new ByteArrayInputStream(uploadedBytes);
         try {
             final X509Certificate certificate = (X509Certificate) CertificateFactory.getInstance("X.509").
@@ -59,12 +67,12 @@ public class BinaryCertPreviewer extends AbstractBinaryPreviewer {
                 }
             }
             commonNameLabel.setDefaultModelObject(commonNameBuilder.toString());
-        } catch (Exception e) {
+        } catch (CertificateException | InvalidNameException e) {
             LOG.error("Error evaluating certificate file", e);
-            throw new IllegalArgumentException("Error evaluating certificate file", e);
+            commonNameLabel.setDefaultModelObject(getString(Constants.ERROR));
         } finally {
             IOUtils.closeQuietly(certificateStream);
         }
-        return this.add(commonNameLabel);
+        return this.addOrReplace(commonNameLabel);
     }
 }

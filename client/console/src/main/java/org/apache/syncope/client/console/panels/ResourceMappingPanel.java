@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
@@ -310,8 +310,8 @@ public class ResourceMappingPanel extends Panel {
 
                         intAttrNames.setChoices(Collections.<String>emptyList());
 
-                        target.add(intMappingTypes.getField());
-                        target.add(intAttrNames.getField());
+                        target.add(intMappingTypes);
+                        target.add(intAttrNames);
                     }
                 });
                 item.add(entitiesPanel);
@@ -445,15 +445,23 @@ public class ResourceMappingPanel extends Panel {
         connInstanceTO.getConf().addAll(conf);
 
         // SYNCOPE-156: use provided info to give schema names (and type!) by ObjectClass
-        return CollectionUtils.collect(connRestClient.buildObjectClassInfo(connInstanceTO, true),
-                new Transformer<ConnIdObjectClassTO, String>() {
+        ConnIdObjectClassTO clazz = IterableUtils.find(
+                connRestClient.buildObjectClassInfo(connInstanceTO, true), new Predicate<ConnIdObjectClassTO>() {
 
             @Override
-            public String transform(final ConnIdObjectClassTO input) {
-                return input.getType();
+            public boolean evaluate(final ConnIdObjectClassTO object) {
+                return object.getType().equalsIgnoreCase(ResourceMappingPanel.this.provisionTO.getObjectClass());
             }
-        },
-                new ArrayList<String>());
+        });
+
+        return clazz == null ? new ArrayList<String>()
+                : IterableUtils.toList(IterableUtils.filteredIterable(clazz.getAttributes(), new Predicate<String>() {
+                    @Override
+                    public boolean evaluate(final String object) {
+                        return !("__NAME__".equals(object) || "__ENABLE__".equals(object) 
+                                || "__PASSWORD__".equals(object));
+                    }
+                }));
     }
 
     private void setEnabled() {

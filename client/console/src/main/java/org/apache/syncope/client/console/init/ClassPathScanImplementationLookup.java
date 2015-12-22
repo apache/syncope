@@ -86,7 +86,8 @@ public class ClassPathScanImplementationLookup {
         Class<? extends AbstractBinaryPreviewer> previewer = null;
         for (Class<? extends AbstractBinaryPreviewer> candidate : previewers) {
             LOG.debug("Evaluating previewer class {} for MIME type {}", candidate.getName(), mimeType);
-            if (ArrayUtils.contains(candidate.getAnnotation(BinaryPreview.class).mimeTypes(), mimeType)) {
+            if (candidate.isAnnotationPresent(BinaryPreview.class)
+                    && ArrayUtils.contains(candidate.getAnnotation(BinaryPreview.class).mimeTypes(), mimeType)) {
                 LOG.debug("Found existing previewer for MIME type {}: {}", mimeType, candidate.getName());
                 previewer = candidate;
             }

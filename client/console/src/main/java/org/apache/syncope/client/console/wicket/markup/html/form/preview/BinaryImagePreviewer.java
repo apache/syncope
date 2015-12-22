@@ -30,14 +30,14 @@ public class BinaryImagePreviewer extends AbstractBinaryPreviewer {
 
     private static final long serialVersionUID = 3338812359368457349L;
 
-    private static final int IMG_SIZE = 230;
+    private static final int IMG_SIZE = 300;
 
-    public BinaryImagePreviewer(final String id, final String mimeType, final byte[] uploadedBytes) {
-        super(id, mimeType, uploadedBytes);
+    public BinaryImagePreviewer(final String id, final String mimeType) {
+        super(id, mimeType);
     }
 
     @Override
-    public Component preview() {
+    public Component preview(final byte[] uploadedBytes) {
         return this.add(new NonCachingImage("previewImage", new ThumbnailImageResource(new DynamicImageResource() {
 
             private static final long serialVersionUID = 923201517955737928L;
