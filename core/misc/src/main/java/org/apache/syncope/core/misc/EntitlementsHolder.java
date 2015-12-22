@@ -23,17 +23,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.syncope.common.lib.types.AnyEntitlement;
+
 public final class EntitlementsHolder {
-
-    public enum AnyEntitlement {
-        SEARCH,
-        LIST,
-        CREATE,
-        READ,
-        UPDATE,
-        DELETE;
-
-    }
 
     private static final Object MONITOR = new Object();
 

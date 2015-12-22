@@ -36,9 +36,13 @@ import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyEntitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.slf4j.Logger;
@@ -125,6 +129,7 @@ public class Realm extends Panel {
                                 BaseModal.CONTENT_ID, userTO, anyTypeTO.getClasses(), pageRef)).
                         addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
                         build(id);
+                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER, StandardEntitlement.USER_LIST);
                 break;
             case GROUP:
                 final GroupTO groupTO = new GroupTO();
@@ -138,6 +143,7 @@ public class Realm extends Panel {
                                 BaseModal.CONTENT_ID, groupTO, anyTypeTO.getClasses(), pageRef)).
                         addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
                         build(id);
+                // list of group is available to all authenticated users
                 break;
             case ANY_OBJECT:
                 final AnyObjectTO anyObjectTO = new AnyObjectTO();
@@ -152,6 +158,8 @@ public class Realm extends Panel {
                                 BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).
                         addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
                         build(id);
+                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER,
+                        String.format("%s_%s", anyObjectTO.getType(), AnyEntitlement.LIST));
                 break;
             default:
                 panel = new LabelPanel(id, null);

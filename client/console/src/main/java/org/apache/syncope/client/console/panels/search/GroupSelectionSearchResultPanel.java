@@ -55,7 +55,7 @@ public final class GroupSelectionSearchResultPanel extends GroupSearchResultPane
     private static final long serialVersionUID = -1100228004207271271L;
 
     private GroupSelectionSearchResultPanel(final String id, final Builder builder) {
-        super(id, builder, StandardEntitlement.GROUP_SEARCH);
+        super(id, builder);
     }
 
     @Override
@@ -132,7 +132,7 @@ public final class GroupSelectionSearchResultPanel extends GroupSearchResultPane
                             target.add(container);
                         }
                     }
-                }, ActionLink.ActionType.RELOAD, entitlement).build(componentId);
+                }, ActionLink.ActionType.RELOAD, StandardEntitlement.GROUP_SEARCH).build(componentId);
             }
         });
 

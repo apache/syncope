@@ -55,7 +55,7 @@ public final class UserSelectionSearchResultPanel extends UserSearchResultPanel 
     private static final long serialVersionUID = -1100228004207271272L;
 
     private UserSelectionSearchResultPanel(final String id, final UserSelectionSearchResultPanel.Builder builder) {
-        super(id, builder, StandardEntitlement.USER_LIST);
+        super(id, builder);
     }
 
     @Override
@@ -134,7 +134,7 @@ public final class UserSelectionSearchResultPanel extends UserSearchResultPanel 
                             target.add(container);
                         }
                     }
-                }, ActionLink.ActionType.RELOAD, entitlement).build(componentId);
+                }, ActionLink.ActionType.RELOAD, StandardEntitlement.USER_SEARCH).build(componentId);
             }
         });
 

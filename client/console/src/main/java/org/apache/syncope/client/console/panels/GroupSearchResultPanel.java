@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.GroupDisplayAttributesModalPage;
@@ -58,8 +59,8 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected GroupSearchResultPanel(final String id, final Builder builder, final String entitlement) {
-        super(id, builder, entitlement);
+    protected GroupSearchResultPanel(final String id, final Builder builder) {
+        super(id, builder);
     }
 
     @Override
@@ -119,7 +120,18 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                                         new GroupHandler(new GroupRestClient().read(model.getObject().getKey())),
                                         target));
                     }
-                }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<GroupTO>() {
+                }, ActionLink.ActionType.EDIT, StandardEntitlement.GROUP_READ).add(new ActionLink<GroupTO>() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final GroupTO anyTO) {
+                        final GroupTO clone = SerializationUtils.clone(model.getObject());
+                        clone.setKey(0L);
+                        send(GroupSearchResultPanel.this, Broadcast.EXACT,
+                                new AjaxWizard.NewItemActionEvent<GroupHandler>(new GroupHandler(clone), target));
+                    }
+                }, ActionLink.ActionType.CLONE, StandardEntitlement.GROUP_CREATE).add(new ActionLink<GroupTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -135,7 +147,7 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                         }
                         ((BasePage) getPage()).getFeedbackPanel().refresh(target);
                     }
-                }, ActionLink.ActionType.DELETE, entitlement);
+                }, ActionLink.ActionType.DELETE, StandardEntitlement.GROUP_DELETE);
 
                 return panel.build(componentId);
             }
@@ -156,7 +168,8 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                         modal.header(new ResourceModel("any.attr.display", ""));
                         modal.show(true);
                     }
-                }, ActionLink.ActionType.CHANGE_VIEW, entitlement).add(new ActionLink<Serializable>() {
+                }, ActionLink.ActionType.CHANGE_VIEW, StandardEntitlement.GROUP_READ).add(
+                        new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -166,7 +179,7 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                             target.add(container);
                         }
                     }
-                }, ActionLink.ActionType.RELOAD, entitlement).build(componentId);
+                }, ActionLink.ActionType.RELOAD, StandardEntitlement.GROUP_SEARCH).build(componentId);
             }
         });
 
@@ -208,7 +221,7 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
 
         @Override
         protected WizardMgtPanel<AnyHandler<GroupTO>> newInstance(final String id) {
-            return new GroupSearchResultPanel(id, this, StandardEntitlement.GROUP_SEARCH);
+            return new GroupSearchResultPanel(id, this);
         }
 
         @Override

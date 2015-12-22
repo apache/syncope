@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AnyDisplayAttributesModalPage;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -42,7 +43,9 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -65,15 +68,10 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
 
     protected final String pageID = "Any";
 
-    protected final String entitlement;
-
-    protected AnyObjectSearchResultPanel(
-            final String id, final AbstractSearchResultPanel.Builder<T> builder, final String entitlement) {
+    protected AnyObjectSearchResultPanel(final String id, final AbstractSearchResultPanel.Builder<T> builder) {
         super(id, builder);
 
         modal.size(Modal.Size.Large);
-
-        this.entitlement = entitlement;
 
         add(new Label("name", builder.type));
 
@@ -146,23 +144,35 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
                                                 new AnyObjectRestClient().<T>read(model.getObject().getKey())),
                                         target));
                     }
-                }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<T>() {
+                }, ActionLink.ActionType.EDIT, String.format("%s_%s", type, AnyEntitlement.READ)).add(
+                        new ActionLink<T>() {
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770645L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final T ignore) {
-                        try {
-                            restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (SyncopeClientException e) {
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                        }
-                        ((BasePage) getPage()).getFeedbackPanel().refresh(target);
+                        final T clone = SerializationUtils.clone(model.getObject());
+                        clone.setKey(0L);
+                        send(AnyObjectSearchResultPanel.this, Broadcast.EXACT,
+                                new AjaxWizard.NewItemActionEvent<AnyHandler<T>>(new AnyHandler<T>(clone), target));
                     }
-                }, ActionLink.ActionType.DELETE, entitlement);
+                }, ActionLink.ActionType.CLONE, StandardEntitlement.USER_CREATE).add(new ActionLink<T>() {
+
+                            private static final long serialVersionUID = -7978723352517770646L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final T ignore) {
+                                try {
+                                    restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
+                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    target.add(container);
+                                } catch (SyncopeClientException e) {
+                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                                }
+                                ((BasePage) getPage()).getFeedbackPanel().refresh(target);
+                            }
+                        }, ActionLink.ActionType.DELETE, String.format("%s_%s", type, AnyEntitlement.DELETE));
 
                 return panel.build(componentId, model.getObject());
             }
@@ -184,7 +194,8 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
                         modal.header(new ResourceModel("any.attr.display", ""));
                         modal.show(true);
                     }
-                }, ActionLink.ActionType.CHANGE_VIEW, entitlement).add(new ActionLink<Serializable>() {
+                }, ActionLink.ActionType.CHANGE_VIEW, String.format("%s_%s", type, AnyEntitlement.READ)).add(
+                        new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -194,7 +205,7 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
                             target.add(container);
                         }
                     }
-                }, ActionLink.ActionType.RELOAD, entitlement);
+                }, ActionLink.ActionType.RELOAD, String.format("%s_%s", type, AnyEntitlement.SEARCH));
 
                 return panel.build(componentId);
             }
@@ -243,7 +254,7 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
 
         @Override
         protected WizardMgtPanel<AnyHandler<AnyObjectTO>> newInstance(final String id) {
-            return new AnyObjectSearchResultPanel<>(id, this, type + "_LIST");
+            return new AnyObjectSearchResultPanel<>(id, this);
         }
 
         @Override

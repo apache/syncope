@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.apache.wicket.Component.ENABLE;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,10 +31,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.RealmSidebarPanel.ControlSidebarClick;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -151,6 +155,8 @@ public class RealmSidebarPanel extends Panel {
             fragment.addOrReplace(link);
             fragment.setOutputMarkupId(true);
             listItems.addOrReplace(fragment);
+
+            MetaDataRoleAuthorizationStrategy.authorize(link, ENABLE, StandardEntitlement.REALM_LIST);
         }
 
         return container;

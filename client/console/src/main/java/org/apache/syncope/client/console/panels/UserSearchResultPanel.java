@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.StatusModal;
@@ -61,8 +62,8 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected UserSearchResultPanel(final String id, final Builder builder, final String entitlement) {
-        super(id, builder, entitlement);
+    protected UserSearchResultPanel(final String id, final Builder builder) {
+        super(id, builder);
     }
 
     @Override
@@ -130,7 +131,7 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
                                 getString("any.edit"), model.getObject().getKey())));
                         modal.show(true);
                     }
-                }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_LIST).add(new ActionLink<UserTO>() {
+                }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -147,7 +148,7 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
                                 getString("any.edit"), model.getObject().getKey())));
                         modal.show(true);
                     }
-                }, ActionLink.ActionType.ENABLE, entitlement).add(new ActionLink<UserTO>() {
+                }, ActionLink.ActionType.ENABLE, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -158,7 +159,19 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
                                         new AnyHandler<UserTO>(new UserRestClient().read(model.getObject().getKey())),
                                         target));
                     }
-                }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<UserTO>() {
+                }, ActionLink.ActionType.EDIT, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                        final UserTO clone = SerializationUtils.clone(model.getObject());
+                        clone.setKey(0L);
+                        send(UserSearchResultPanel.this, Broadcast.EXACT,
+                                new AjaxWizard.NewItemActionEvent<AnyHandler<UserTO>>(
+                                        new AnyHandler<UserTO>(clone), target));
+                    }
+                }, ActionLink.ActionType.CLONE, StandardEntitlement.USER_CREATE).add(new ActionLink<UserTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -174,7 +187,7 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
                         }
                         ((BasePage) getPage()).getFeedbackPanel().refresh(target);
                     }
-                }, ActionLink.ActionType.DELETE, entitlement);
+                }, ActionLink.ActionType.DELETE, StandardEntitlement.USER_DELETE);
 
                 return panel.build(componentId, model.getObject());
             }
@@ -195,7 +208,8 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
                         modal.header(new ResourceModel("any.attr.display", ""));
                         modal.show(true);
                     }
-                }, ActionLink.ActionType.CHANGE_VIEW, entitlement).add(new ActionLink<Serializable>() {
+                }, ActionLink.ActionType.CHANGE_VIEW, StandardEntitlement.USER_READ).add(
+                        new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -205,7 +219,7 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
                             target.add(container);
                         }
                     }
-                }, ActionLink.ActionType.RELOAD, entitlement).build(componentId);
+                }, ActionLink.ActionType.RELOAD, StandardEntitlement.USER_SEARCH).build(componentId);
             }
         });
 
@@ -247,7 +261,7 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
 
         @Override
         protected WizardMgtPanel<AnyHandler<UserTO>> newInstance(final String id) {
-            return new UserSearchResultPanel(id, this, StandardEntitlement.USER_LIST);
+            return new UserSearchResultPanel(id, this);
         }
 
         @Override

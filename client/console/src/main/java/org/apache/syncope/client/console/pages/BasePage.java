@@ -82,19 +82,25 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         liContainer = new WebMarkupContainer(getLIContainerId("realms"));
         add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("realms", Realms.class));
+        MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.REALM_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("topology"));
         add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("topology", Topology.class));
+        MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER,
+                String.format("%s,%s", StandardEntitlement.CONNECTOR_LIST, StandardEntitlement.RESOURCE_LIST));
 
         liContainer = new WebMarkupContainer(getLIContainerId("reports"));
         add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("reports", Reports.class));
+        MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.REPORT_LIST);
 
         WebMarkupContainer confLIContainer = new WebMarkupContainer(getLIContainerId("configuration"));
         add(confLIContainer);
         WebMarkupContainer confULContainer = new WebMarkupContainer(getULContainerId("configuration"));
         confLIContainer.add(confULContainer);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                liContainer, WebPage.RENDER, StandardEntitlement.CONFIGURATION_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("securityQuestions"));
         confULContainer.add(liContainer);
@@ -114,6 +120,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         final BookmarkablePageLink<Page> logsLink = new BookmarkablePageLink<>("logs", Logs.class);
         MetaDataRoleAuthorizationStrategy.authorize(logsLink, WebPage.ENABLE, StandardEntitlement.LOG_LIST);
         liContainer.add(logsLink);
+        MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.LOG_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("types"));
         confULContainer.add(liContainer);
@@ -124,6 +131,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         liContainer = new WebMarkupContainer(getLIContainerId("policies"));
         confULContainer.add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("policies", Policies.class));
+        MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.POLICY_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("layouts"));
         confULContainer.add(liContainer);
@@ -132,6 +140,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         liContainer = new WebMarkupContainer(getLIContainerId("notifications"));
         confULContainer.add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("notifications", Notifications.class));
+        MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.NOTIFICATION_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("camelRoutes"));
         add(liContainer);

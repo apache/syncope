@@ -28,6 +28,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.misc.EntitlementsHolder;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
@@ -64,7 +65,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     protected void securityChecks(final AnyObject anyObject) {
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(EntitlementsHolder.getInstance().
-                getFor(anyObject.getType().getKey(), EntitlementsHolder.AnyEntitlement.READ));
+                getFor(anyObject.getType().getKey(), AnyEntitlement.READ));
         boolean authorized = IterableUtils.matchesAny(authRealms, new Predicate<String>() {
 
             @Override
