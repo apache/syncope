@@ -359,3 +359,24 @@ div.searchResult{
 .logs .box{
   border-top: 0px !important;
 }
+
+*::after, *::before {
+    box-sizing: border-box;
+}
+
+
+.wicket-aa-container {
+    border-color: #eee;
+    box-shadow: none;
+    background-clip: padding-box;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+    float: left;
+    font-size: 14px;
+    list-style: outside none none;
+    min-width: 160px;
+    text-align: left;
+    max-height: 250px;
+}

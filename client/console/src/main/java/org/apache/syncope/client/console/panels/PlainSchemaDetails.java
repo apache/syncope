@@ -95,20 +95,20 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         typeParams.setOutputMarkupPlaceholderTag(true);
 
         // enum
-        final AjaxTextFieldPanel enumerationValuesPanel =
-                new AjaxTextFieldPanel("panel", "enumerationValues", new Model<String>(null));
+        final AjaxTextFieldPanel enumerationValuesPanel = new AjaxTextFieldPanel("panel", "enumerationValues",
+                new Model<String>(null));
 
         enumerationValues = new MultiFieldPanel.Builder<>(
                 new ListModel<String>(getEnumValuesAsList(((PlainSchemaTO) schemaTO).getEnumerationValues()))).build(
-                        "enumerationValues",
-                        "enumerationValues",
-                        enumerationValuesPanel);
+                "enumerationValues",
+                "enumerationValues",
+                enumerationValuesPanel);
 
         enumerationKeys = new MultiFieldPanel.Builder<>(
                 new ListModel<String>(getEnumValuesAsList(((PlainSchemaTO) schemaTO).getEnumerationKeys()))).build(
-                        "enumerationKeys",
-                        "enumerationKeys",
-                        new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<String>()));
+                "enumerationKeys",
+                "enumerationKeys",
+                new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<String>()));
 
         final WebMarkupContainer enumParams = new WebMarkupContainer("enumParams");
         enumParams.setOutputMarkupPlaceholderTag(true);
@@ -136,8 +136,6 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         // binary
         final AjaxTextFieldPanel mimeType = new AjaxTextFieldPanel("mimeType",
                 getString("mimeType"), new PropertyModel<String>(schemaTO, "mimeType"));
-
-        mimeType.setChoices(MIME_TYPES_INITIALIZER.getMimeTypes());
 
         final WebMarkupContainer binaryParams = new WebMarkupContainer("binaryParams");
         binaryParams.setOutputMarkupPlaceholderTag(true);
@@ -185,26 +183,26 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         validatorClass.setChoices(validatorsList.getObject());
         schemaForm.add(validatorClass);
 
-        final AutoCompleteTextField<String> mandatoryCondition =
-                new AutoCompleteTextField<String>("mandatoryCondition") {
+        final AutoCompleteTextField<String> mandatoryCondition
+                = new AutoCompleteTextField<String>("mandatoryCondition") {
 
-                    private static final long serialVersionUID = -2428903969518079100L;
+            private static final long serialVersionUID = -2428903969518079100L;
 
-                    @Override
-                    protected Iterator<String> getChoices(final String input) {
-                        List<String> choices = new ArrayList<>();
+            @Override
+            protected Iterator<String> getChoices(final String input) {
+                List<String> choices = new ArrayList<>();
 
-                        if (Strings.isEmpty(input)) {
-                            choices = Collections.emptyList();
-                        } else if ("true".startsWith(input.toLowerCase())) {
-                            choices.add("true");
-                        } else if ("false".startsWith(input.toLowerCase())) {
-                            choices.add("false");
-                        }
+                if (Strings.isEmpty(input)) {
+                    choices = Collections.emptyList();
+                } else if ("true".startsWith(input.toLowerCase())) {
+                    choices.add("true");
+                } else if ("false".startsWith(input.toLowerCase())) {
+                    choices.add("false");
+                }
 
-                        return choices.iterator();
-                    }
-                };
+                return choices.iterator();
+            }
+        };
         mandatoryCondition.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -269,6 +267,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
+            mimeType.setChoices(null);
         } else if (AttrSchemaType.Enum.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -292,6 +291,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
+            mimeType.setChoices(null);
         } else if (AttrSchemaType.Encrypted.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -313,6 +313,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
+            mimeType.setChoices(null);
         } else if (AttrSchemaType.Binary.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -335,6 +336,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             cipherAlgorithm.setModelObject(null);
 
             binaryParams.setVisible(true);
+            MIME_TYPES_INITIALIZER.load();
+            mimeType.setChoices(MIME_TYPES_INITIALIZER.getMimeTypes());
         } else {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
@@ -358,6 +361,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
+            mimeType.setChoices(null);
         }
     }
 

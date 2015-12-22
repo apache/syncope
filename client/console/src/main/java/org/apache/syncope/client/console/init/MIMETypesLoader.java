@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
@@ -35,19 +36,21 @@ public class MIMETypesLoader {
     private List<String> mimeTypes;
 
     public void load() {
-        Set<String> mediaTypes = new HashSet<>();
-        this.mimeTypes = new ArrayList<>();
-        try {
-            final String mimeTypesFile = IOUtils.toString(getClass().getResourceAsStream("/MIMETypes"));
-            for (String fileRow : mimeTypesFile.split("\n")) {
-                if (StringUtils.isNotBlank(fileRow) && !fileRow.startsWith("#")) {
-                    mediaTypes.add(fileRow);
+        if (CollectionUtils.isEmpty(mimeTypes)) {
+            Set<String> mediaTypes = new HashSet<>();
+            this.mimeTypes = new ArrayList<>();
+            try {
+                final String mimeTypesFile = IOUtils.toString(getClass().getResourceAsStream("/MIMETypes"));
+                for (String fileRow : mimeTypesFile.split("\n")) {
+                    if (StringUtils.isNotBlank(fileRow) && !fileRow.startsWith("#")) {
+                        mediaTypes.add(fileRow);
+                    }
                 }
+                this.mimeTypes.addAll(mediaTypes);
+                Collections.sort(this.mimeTypes);
+            } catch (Exception e) {
+                LOG.error("Error reading file MIMETypes from resources", e);
             }
-            this.mimeTypes.addAll(mediaTypes);
-            Collections.sort(this.mimeTypes);
-        } catch (Exception e) {
-            LOG.error("Error reading file MIMETypes from resources", e);
         }
     }
 
