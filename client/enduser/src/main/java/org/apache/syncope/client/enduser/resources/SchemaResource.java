@@ -67,13 +67,13 @@ public class SchemaResource extends AbstractBaseResource {
             final AnyTypeTO anyTypeUserTO = anyTypeService.read(AnyTypeKind.USER.name());
 
             final List<PlainSchemaTO> plainSchemas = schemaService.list(
-                    new SchemaQuery.Builder().type(SchemaType.PLAIN).
+                    SchemaType.PLAIN, new SchemaQuery.Builder().type(SchemaType.PLAIN).
                     anyTypeClasses(anyTypeUserTO.getClasses()).build());
             final List<DerSchemaTO> derSchemas = schemaService.list(
-                    new SchemaQuery.Builder().type(SchemaType.DERIVED).
+                    SchemaType.DERIVED, new SchemaQuery.Builder().type(SchemaType.DERIVED).
                     anyTypeClasses(anyTypeUserTO.getClasses()).build());
             final List<VirSchemaTO> virSchemas = schemaService.list(
-                    new SchemaQuery.Builder().type(SchemaType.VIRTUAL).
+                    SchemaType.VIRTUAL, new SchemaQuery.Builder().type(SchemaType.VIRTUAL).
                     anyTypeClasses(anyTypeUserTO.getClasses()).build());
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {

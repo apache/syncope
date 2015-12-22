@@ -41,7 +41,8 @@ public class DerSchemaITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<DerSchemaTO> derSchemas = schemaService.list(new SchemaQuery.Builder().type(SchemaType.DERIVED).build());
+        List<DerSchemaTO> derSchemas = schemaService.list(
+                SchemaType.DERIVED, new SchemaQuery.Builder().type(SchemaType.DERIVED).build());
         assertFalse(derSchemas.isEmpty());
         for (DerSchemaTO derivedSchemaTO : derSchemas) {
             assertNotNull(derivedSchemaTO);

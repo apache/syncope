@@ -21,20 +21,48 @@ package org.apache.syncope.core.rest.cxf;
 import java.net.URL;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Automatically loads available javadocs from class loader (when {@link java.net.URLClassLoader}).
  */
 public class Swagger2Feature extends org.apache.cxf.jaxrs.swagger.Swagger2Feature {
 
-    @Override
-    public void initialize(final Server server, final Bus bus) {
-        URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
-        if (javaDocURLs != null) {
-            super.setJavaDocURLs(javaDocURLs);
-        }
+    private static final Logger LOG = LoggerFactory.getLogger(Swagger2Feature.class);
 
-        super.initialize(server, bus);
+    private static final boolean SWAGGER_JAXRS_AVAILABLE;
+
+    static {
+        SWAGGER_JAXRS_AVAILABLE = isSwaggerJaxRsAvailable();
     }
 
+    private static boolean isSwaggerJaxRsAvailable() {
+        try {
+            Class.forName("io.swagger.jaxrs.DefaultParameterExtension");
+            return true;
+        } catch (Throwable ex) {
+            return false;
+        }
+    }
+
+    public void setActivateOnlyIfJaxrsSupported(final boolean activateOnlyIfJaxrsSupported) {
+        // do nothing
+    }
+
+    @Override
+    public void initialize(final Server server, final Bus bus) {
+        if (SWAGGER_JAXRS_AVAILABLE) {
+            URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
+            if (javaDocURLs != null && javaDocURLs.length >= 0) {
+                try {
+                    super.setJavaDocPath(javaDocURLs[0].toExternalForm());
+                } catch (Exception e) {
+                    LOG.error("Could not load Javadocs from {}", javaDocURLs[0], e);
+                }
+            }
+
+            super.initialize(server, bus);
+        }
+    }
 }

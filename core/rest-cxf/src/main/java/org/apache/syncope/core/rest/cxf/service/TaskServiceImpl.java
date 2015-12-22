@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -75,7 +76,8 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskQuery query) {
+    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType type, final TaskQuery query) {
+        query.setType(type);
         return (PagedResult<T>) buildPagedResult(
                 logic.list(
                         query.getType(),
