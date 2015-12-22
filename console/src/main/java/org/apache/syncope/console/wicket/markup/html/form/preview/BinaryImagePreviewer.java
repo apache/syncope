@@ -38,14 +38,15 @@ public class BinaryImagePreviewer extends AbstractBinaryPreviewer {
 
     @Override
     public Component preview() {
-        return this.add(new NonCachingImage("previewImage", new ThumbnailImageResource(new DynamicImageResource() {
+        return this.addOrReplace(
+                new NonCachingImage("previewImage", new ThumbnailImageResource(new DynamicImageResource() {
 
-            private static final long serialVersionUID = 923201517955737928L;
+                    private static final long serialVersionUID = 923201517955737928L;
 
-            @Override
-            protected byte[] getImageData(final IResource.Attributes attributes) {
-                return uploadedBytes;
-            }
-        }, IMG_SIZE)));
+                    @Override
+                    protected byte[] getImageData(final IResource.Attributes attributes) {
+                        return uploadedBytes;
+                    }
+                }, IMG_SIZE)));
     }
 }

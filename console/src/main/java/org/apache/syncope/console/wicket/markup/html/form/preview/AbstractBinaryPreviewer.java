@@ -25,9 +25,6 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractBinaryPreviewer extends Panel {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractBinaryPreviewer.class);
 
     private static final long serialVersionUID = -2482706463911903025L;

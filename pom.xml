@@ -834,6 +834,12 @@ under the License.
       <!-- /Wicket -->
 
       <dependency>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>pdfbox</artifactId>
+        <version>1.8.10</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.codehaus.groovy</groupId>
         <artifactId>groovy-all</artifactId>
         <version>${groovy.version}</version>

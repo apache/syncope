@@ -31,10 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @org.springframework.stereotype.Component
 public class PreviewUtil {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(PreviewUtil.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(PreviewUtil.class);
 
     @Autowired
     private PreviewPanelClassInitializer previewPanelClassInitializer;
@@ -50,7 +47,7 @@ public class PreviewUtil {
                 ? null
                 : ((AbstractBinaryPreviewer) Class.forName(previewer.getName()).
                 getConstructor(String.class, String.class, byte[].class).newInstance(
-                        new Object[] { "previewer", mimeType, Base64.decodeBase64(file) })).preview();
+                new Object[] { "previewer", mimeType, Base64.decodeBase64(file) })).preview();
     }
 
     public Component getPreviewer(final String mimeType, final byte[] file) throws ClassNotFoundException,
@@ -62,6 +59,6 @@ public class PreviewUtil {
                 ? null
                 : ((AbstractBinaryPreviewer) Class.forName(previewer.getName()).
                 getConstructor(String.class, String.class, byte[].class).newInstance(
-                        new Object[] { "previewer", mimeType, file })).preview();
+                new Object[] { "previewer", mimeType, file })).preview();
     }
 }
