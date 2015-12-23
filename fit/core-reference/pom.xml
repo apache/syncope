@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-fit</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.0.0-M1</version>
   </parent>
 
   <name>Apache Syncope FIT Core Reference</name>
@@ -182,10 +182,10 @@ under the License.
             <phase>pre-integration-test</phase>
             <configuration>
               <target>
-                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true"/>
+                <copy file="${project.build.directory}/test-classes/test.csv" todir="${test.csvdir.path}" overwrite="true" />
 
-                <mkdir dir="${cli-test.dir}"/>
-                <unzip src="${basedir}/../../client/cli/target/syncope-client-cli-${project.version}.zip" dest="${cli-test.dir}"/>
+                <mkdir dir="${cli-test.dir}" />
+                <unzip src="${basedir}/../../client/cli/target/syncope-client-cli-${project.version}.zip" dest="${cli-test.dir}" />
               </target>
             </configuration>
             <goals>
@@ -644,8 +644,7 @@ under the License.
                 <configuration>
                   <target>
                     <delete> 
-                      <fileset dir="${project.build.directory}/${project.build.finalName}/WEB-INF/lib"
-                               includes="syncope-*-persistence-jpa-${project.version}.jar"/>
+                      <fileset dir="${project.build.directory}/${project.build.finalName}/WEB-INF/lib" includes="syncope-*-persistence-jpa-${project.version}.jar" />
                     </delete>
                   </target>
                 </configuration>

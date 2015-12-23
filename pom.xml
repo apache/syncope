@@ -26,7 +26,7 @@ under the License.
 
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope</artifactId>
-  <version>2.0.0-SNAPSHOT</version>
+  <version>2.0.0-M1</version>
   <packaging>pom</packaging>
 
   <parent>
@@ -52,6 +52,7 @@ under the License.
     <connection>scm:git:https://git-wip-us.apache.org/repos/asf/syncope.git</connection>
     <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/syncope.git</developerConnection>
     <url>https://git-wip-us.apache.org/repos/asf?p=syncope.git</url>
+    <tag>syncope-2.0.0-M1</tag>
   </scm>
 
   <issueManagement>
@@ -1671,10 +1672,10 @@ under the License.
                 <year>${year}</year>
                 <numbered>true</numbered>
                 <icons>font</icons>
-                <pagenums/>
-                <idprefix/>
+                <pagenums />
+                <idprefix />
                 <idseparator>-</idseparator>
-                <allow-uri-read/>
+                <allow-uri-read />
               </attributes>
             </configuration>
             <executions>
@@ -1798,7 +1799,7 @@ under the License.
                 <configuration>
                   <target>
                     <replace dir="${rootpom.basedir}/target/site" token="48px" value="70px">
-                      <include name="**/*.html"/>
+                      <include name="**/*.html" />
                     </replace>
                   </target>
                 </configuration>
@@ -1812,11 +1813,11 @@ under the License.
                 <configuration>
                   <target>
                     <copy todir="${site.deploymentBaseDir}/docs">
-                      <fileset dir="${project.build.directory}/generated-docs/" includes="getting-started.*"/>
-                      <fileset dir="${project.build.directory}/generated-docs/" includes="reference-guide.*"/>
+                      <fileset dir="${project.build.directory}/generated-docs/" includes="getting-started.*" />
+                      <fileset dir="${project.build.directory}/generated-docs/" includes="reference-guide.*" />
                     </copy>
                     <copy todir="${site.deploymentBaseDir}/docs/images">
-                      <fileset dir="${project.build.directory}/generated-docs/images"/>
+                      <fileset dir="${project.build.directory}/generated-docs/images" />
                     </copy>
                   </target>
                 </configuration>
