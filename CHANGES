@@ -2,6 +2,206 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.0-M1
+================================================================================
+
+** Sub-task
+    * [SYNCOPE-552] - Provide Activiti modeler installation feature to installer
+    * [SYNCOPE-580] - Add user services to command line interface
+    * [SYNCOPE-581] - Add configuration services to command line interface
+    * [SYNCOPE-582] - Add connector services to command line interface
+    * [SYNCOPE-583] - Add entitlement services to command line interface
+    * [SYNCOPE-584] - Add logger services to command line interface
+    * [SYNCOPE-585] - Add notification services to command line interface
+    * [SYNCOPE-586] - Add policy services to command line interface
+    * [SYNCOPE-587] - Add report services to command line interface
+    * [SYNCOPE-588] - Add resource services to command line interface
+    * [SYNCOPE-589] - Add role services to command line interface
+    * [SYNCOPE-590] - Add schema services to command line interface
+    * [SYNCOPE-591] - Add security question services to command line interface
+    * [SYNCOPE-592] - Add task services to command line interface
+    * [SYNCOPE-595] - Add workflow services to command line interface
+    * [SYNCOPE-626] - make it possible to disallow using the username as password
+    * [SYNCOPE-636] - Include proper LICENSE & NOTICE in the dist artifact
+    * [SYNCOPE-711] - Add domain services to command line interface
+    * [SYNCOPE-718] - Add missing integrations
+    * [SYNCOPE-722] - CLI documentation
+    * [SYNCOPE-723] - Create bash script file to wrap java command
+    * [SYNCOPE-724] - create properties file as help messages
+    * [SYNCOPE-727] - Integration test
+    * [SYNCOPE-728] - Delete all users
+    * [SYNCOPE-740] - Website update for 2.0.0
+
+** Bug
+    * [SYNCOPE-532] - Installer does not pick Syncope version from POM
+    * [SYNCOPE-539] - Edit user with resources causes Ajax failure
+    * [SYNCOPE-540] - Console build fails on Windows
+    * [SYNCOPE-543] - Role's "Inherit Attributes" does not inherit from parent role for check box attribute
+    * [SYNCOPE-545] - Date field without conversion pattern specified goes in NPE if deleting date
+    * [SYNCOPE-547] - Cannot send e-mails out when SMTP server requires authentication
+    * [SYNCOPE-548] - Provide Activiti Modeler setup instructions
+    * [SYNCOPE-549] - Activiti Modeler always show the default workflow definition
+    * [SYNCOPE-551] - Admin console shows 24 roles at most in the role tree
+    * [SYNCOPE-553] - Internal Server Error when creating account policy
+    * [SYNCOPE-554] - Class Cast Exception when syncronization task starts
+    * [SYNCOPE-556] - Error in the enum schema when trying to add new enumeration value/label
+    * [SYNCOPE-557] - Exception during report execution when matching condition is not provided for user and role reportlets
+    * [SYNCOPE-560] - build-tools classes artifact not published to Maven repository
+    * [SYNCOPE-561] - HTML reports not displayed correctly with no external resources
+    * [SYNCOPE-562] - Duplicated configuration parameters in the CATTR table
+    * [SYNCOPE-564] - Error while viewing user details in approval request workflow from Approvers login
+    * [SYNCOPE-565] - Error on ResourceModalPage when override a SpinnerField in the ConnectorModalPage
+    * [SYNCOPE-566] - Name attribute value disappears after changing attribute type during schema manipulation
+    * [SYNCOPE-567] - Security question is not displayed correctly during password reset 
+    * [SYNCOPE-568] - Connectors configuration "check connection" 
+    * [SYNCOPE-569] - The user status is not propagated on the resources
+    * [SYNCOPE-571] - ResourceConnConfPanel feedback panel does not work
+    * [SYNCOPE-572] - overridable resource connector properties cannot be changed
+    * [SYNCOPE-574] - NullPointerException in ConnInstanceDataBinder with Java 8
+    * [SYNCOPE-576] - The values of configuration parameters are not saved
+    * [SYNCOPE-578] - Role bulk delete not working
+    * [SYNCOPE-596] - Standalone persistence not configured for H2
+    * [SYNCOPE-597] - Error when serializating SyncToken with byte array type during sync task from Active Directory
+    * [SYNCOPE-598] - Push Task fails on role with LDAP resource with rolemapping defined
+    * [SYNCOPE-600] - Approval chains do not work from second form onwards
+    * [SYNCOPE-601] - AD deleted object synchronization fails if a sync policy is specified on one or more attributes that can have no values on Syncope
+    * [SYNCOPE-603] - Remote unauthorized exception when a user makes a request to add a role to his profile
+    * [SYNCOPE-605] - Impossible to update the connector capabilities
+    * [SYNCOPE-607] - Error when adding a value to a multivalue configuration parameter of type long
+    * [SYNCOPE-608] - Cannot configure audit for AuthenticationController
+    * [SYNCOPE-610] - Installer doesn't update the console.properties with the container port
+    * [SYNCOPE-611] - An approver displays all approval tasks including those not assigned to him
+    * [SYNCOPE-613] - delete overridable connector configuration property of type array String in resource edit panel
+    * [SYNCOPE-614] - NotificationJob fails with NullPointerException
+    * [SYNCOPE-615] - Updating properties and xml files of the installer module with the current version
+    * [SYNCOPE-617] - User/role schema attribute with minus symbol in name
+    * [SYNCOPE-625] - Build fails with Java 6
+    * [SYNCOPE-629] - ATTRTEMPLATE entities not exported
+    * [SYNCOPE-632] - Errors during update propagation when derived attribute is configured as account id
+    * [SYNCOPE-638] - MAttrTemplate and RAttrTemplate sequence values are not managed in content.xml
+    * [SYNCOPE-639] - Notification 'recipientAttrType' and 'recipientAttrName' are not required
+    * [SYNCOPE-641] - Concurrency issues with multiple client threads
+    * [SYNCOPE-643] - WorkflowResult provides unmodifiable collection for performed tasks
+    * [SYNCOPE-644] - Error during synchronization of roles when using a RoleSchema as accountId
+    * [SYNCOPE-647] - Problem during propagation of an updated membership on a resource 
+    * [SYNCOPE-649] - Paged lists not working properly
+    * [SYNCOPE-654] - Some generic and uninformative error messages
+    * [SYNCOPE-656] - Debian configuration files overwrittern
+    * [SYNCOPE-658] - Duplicate derived attribute after sync task when it is configured as accountid for the synched resource
+    * [SYNCOPE-659] - Wrong fasterxml.jackson, common-lang3 version in the Import-Package in the syncope-common, syncope-client
+    * [SYNCOPE-664] - Empty string values not allowed with Oracle DB
+    * [SYNCOPE-668] - JobInstanceLoader class is not able to return the correct Task id or Report id from its job name 
+    * [SYNCOPE-669] - Search filter in the notifications doesn't work properly
+    * [SYNCOPE-670] - Prpagation miss all UserMod's changes performed by the Activiti update service task
+    * [SYNCOPE-671] - Changed password value is not propagated to external resources on successful password reset
+    * [SYNCOPE-672] - Console doesn't display the right condition when configuring a search filter with a resource
+    * [SYNCOPE-673] - Null ids in SyncJob report
+    * [SYNCOPE-678] - Password generation fails with no password policy or no min / max length
+    * [SYNCOPE-684] - Password not updated on external resources from self-service
+    * [SYNCOPE-686] - Indirect LDAP resource provisioning fails on missing password
+    * [SYNCOPE-688] - JSON (de)serialization not working in Glassfish 4.1
+    * [SYNCOPE-691] - Multivalue virtual attribute does not work
+    * [SYNCOPE-702] - Documentation issue on Architecture section
+    * [SYNCOPE-703] - Static WADL is missing extension services
+    * [SYNCOPE-706] - INTERNAL_SERVER_ERROR when authenticating with non existing username
+    * [SYNCOPE-707] - ConfigurationLogic doesn't check the existence of key during deletion.
+    * [SYNCOPE-710] - Password propagation not occuring if other updates are set on different resources
+    * [SYNCOPE-717] - Inconsistent double attribute value management
+    * [SYNCOPE-729] - Skipped remote update during resource assignment if connector CREATE capability is not provided
+    * [SYNCOPE-733] - Table sort does not work fine in case of multi paged result
+    * [SYNCOPE-735] - Acitiviti history tables uncontrolled growth
+    * [SYNCOPE-739] - Virtual attributes are not updated after a sync task
+    * [SYNCOPE-741] - Tasks page unusable when a task has thousand executions
+
+** Improvement
+    * [SYNCOPE-120] - Avoid duplication in console's authorization management
+    * [SYNCOPE-139] - Support OpenICF connector bundles
+    * [SYNCOPE-141] - Concurrent propagation
+    * [SYNCOPE-142] - Asynchronous propagation
+    * [SYNCOPE-391] - Make password management optional
+    * [SYNCOPE-536] - Upgrade to Activiti 5.16
+    * [SYNCOPE-538] - Externalize all WAR configuration
+    * [SYNCOPE-550] - Provide cleaner user workflow definition for production
+    * [SYNCOPE-555] - check for id != 0 in *Controller.resolveReference()
+    * [SYNCOPE-570] - Remove usage of deprecated com.thoughtworks.selenium.Selenium
+    * [SYNCOPE-575] - Choose between stable and snapshot release
+    * [SYNCOPE-599] - Enhance console's authorization.xml parsing
+    * [SYNCOPE-602] - Make form approver available as workflow variable
+    * [SYNCOPE-604] - allow configuring empty connid location list
+    * [SYNCOPE-612] - explicit configuration of Velocity logging
+    * [SYNCOPE-616] - Improving the management of the xml and properties files inside the installer
+    * [SYNCOPE-618] - Upgrade Activiti to 5.17
+    * [SYNCOPE-620] - Code re-organization
+    * [SYNCOPE-621] - Reduce log level of bean validation errors (in data binder)
+    * [SYNCOPE-622] - Improve VirAttrCache management
+    * [SYNCOPE-627] - Camel provisioning manager: separate user / role route management and introduce Unit Test
+    * [SYNCOPE-630] - Eliminate duplicate Syncope WADL methods
+    * [SYNCOPE-634] - performance optimization for content loading
+    * [SYNCOPE-637] - Let user choose extensions
+    * [SYNCOPE-640] - Allow MariaDB to be chosen with installer
+    * [SYNCOPE-645] - Provide validation error message when add a role attribute in a user mapping as accountId
+    * [SYNCOPE-646] - Do not propagate password if not explicitely requested
+    * [SYNCOPE-648] - Notification Configuration: missing some labels in events
+    * [SYNCOPE-651] - SyncopeUser:checkToken() should fail if token is not set on user
+    * [SYNCOPE-660] - Extend control over asynchronous job execution
+    * [SYNCOPE-661] - Remove overloaded methods from REST services
+    * [SYNCOPE-663] - Option to ignore users / roles during synchronization or push
+    * [SYNCOPE-665] - Introduce LogicActions for users and groups
+    * [SYNCOPE-674] - NotificationManager should be able to return a list of created task ids
+    * [SYNCOPE-676] - Option for getting simplified list of users and roles
+    * [SYNCOPE-679] - Deferred tasks
+    * [SYNCOPE-680] - Recipient provider extension class
+    * [SYNCOPE-692] - List and search on external resources
+    * [SYNCOPE-694] - PATCH and PUT update for users, groups and any objects
+    * [SYNCOPE-696] - Allow to restrict task list
+    * [SYNCOPE-705] - Support gzip compression for REST services
+    * [SYNCOPE-708] - Conform the Logger "service stack" to others
+    * [SYNCOPE-709] - Virtual attributes management refactoring
+    * [SYNCOPE-713] - Remove ConfTO object from ConfigurationService
+    * [SYNCOPE-714] - Add the possibility to override the capabilities of the connector
+    * [SYNCOPE-715] - Configure whether password hash values should be returned via REST calls
+    * [SYNCOPE-725] - Derived attributes management refactoring
+    * [SYNCOPE-731] - Fine-grained entitlements for any objects
+    * [SYNCOPE-732] - Filtered reconciliation for synchronization
+    * [SYNCOPE-736] - Exchange JSON by default
+    * [SYNCOPE-747] - Option to disable tasks / reports
+    * [SYNCOPE-748] - Selectively delete task and report executions
+    * [SYNCOPE-749] - Human-readable date values for JSON payloads
+    * [SYNCOPE-751] - Preview for PDF binary values
+
+** New Feature
+    * [SYNCOPE-119] - Realm-based authorization
+    * [SYNCOPE-135] - Password reset
+    * [SYNCOPE-140] - Dynamic role and group memberships
+    * [SYNCOPE-143] - GUI Installer
+    * [SYNCOPE-158] - CLI admin tool
+    * [SYNCOPE-558] - Ability to configure which user, role and membership attributes to display, and in which order
+    * [SYNCOPE-623] - Provisioning manager integration
+    * [SYNCOPE-650] - Handling errors for external resource operations
+    * [SYNCOPE-652] - Domains
+    * [SYNCOPE-666] - Any objects
+    * [SYNCOPE-685] - Custom Account / Password policy specifications
+    * [SYNCOPE-690] - Must change password at next login
+    * [SYNCOPE-693] - Use ConnId 1.4 pagination API
+    * [SYNCOPE-695] - REST endpoints for attribute CRUD
+    * [SYNCOPE-698] - Pluggable transformation for resource mapping items
+    * [SYNCOPE-704] - Swagger extension
+
+** Task
+    * [SYNCOPE-494] - Set Java 7 as minimum requirement
+    * [SYNCOPE-537] - Upgrade to ConnId 1.4.0.0
+    * [SYNCOPE-573] - Upgrade ConnId connectors to latest versions featuring ConnId 1.4.0.0
+    * [SYNCOPE-633] - Add support for MariaDB
+    * [SYNCOPE-635] - Upgrade CSVDir connector bundle dependency version
+    * [SYNCOPE-642] - Upgrade to ConnId 1.4.1.0
+    * [SYNCOPE-653] - Upgrade Spring Security to 4.0.0.RELEASE
+    * [SYNCOPE-657] - Enable build-time Checkstyle checks
+    * [SYNCOPE-662] - Upgrade to OpenJPA 2.4.0
+    * [SYNCOPE-697] - Clean up ONE_PHASE / TWO_PHASES
+
+** Wish
+    * [SYNCOPE-535] - Provide Debian packages for Apache Syncope
+
 Release Notes - Syncope - Version 1.2.6
 ================================================================================
 
