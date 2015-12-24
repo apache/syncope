@@ -19,9 +19,9 @@
 
 'use strict';
 
-angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', 'AuthService',
+angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', 'AuthService',
   'UserSelfService', 'SchemaService', 'RealmService', 'SecurityQuestionService', 'growl', function ($scope, $rootScope,
-          $location, AuthService, UserSelfService, SchemaService, RealmService, SecurityQuestionService, growl) {
+          $location, $compile, AuthService, UserSelfService, SchemaService, RealmService, SecurityQuestionService, growl) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -108,8 +108,14 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             }
           }
 
-        }, function () {
-          console.log("Error retrieving user schemas");
+        }, function (response) {
+          var errorMessage;
+          // parse error response 
+          if (response !== undefined) {
+            errorMessage = response.split("ErrorMessage{{")[1];
+            errorMessage = errorMessage.split("}}")[0];
+          }
+          console.log("Error retrieving user schemas: ", errorMessage);
         });
         console.log("USER WITH ATTRTO: ", $scope.user);
 
@@ -118,8 +124,14 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       var initSecurityQuestions = function () {
         SecurityQuestionService.getAvailableSecurityQuestions().then(function (response) {
           $scope.availableSecurityQuestions = response;
-        }, function () {
-          console.log("Error");
+        }, function (response) {
+          var errorMessage;
+          // parse error response 
+          if (response !== undefined) {
+            errorMessage = response.split("ErrorMessage{{")[1];
+            errorMessage = errorMessage.split("}}")[0];
+          }
+          console.log("Error retrieving avaliable security questions: ", errorMessage);
         });
       };
 
@@ -185,7 +197,13 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           $location.path('/self');
         }, function (response) {
           console.log("Error during user creation: ", response);
-          growl.error("Error: " + response, {referenceId: 2});
+          var errorMessage;
+          // parse error response 
+          if (response !== undefined) {
+            errorMessage = response.split("ErrorMessage{{")[1];
+            errorMessage = errorMessage.split("}}")[0];
+          }
+          growl.error("Error: " + (errorMessage || response), {referenceId: 2});
         });
 
       } else {
@@ -201,7 +219,13 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           });
         }, function (response) {
           console.log("Error during user update: ", response);
-          growl.error("Error: " + response, {referenceId: 2});
+          var errorMessage;
+          // parse error response 
+          if (response !== undefined) {
+            errorMessage = response.split("ErrorMessage{{")[1];
+            errorMessage = errorMessage.split("}}")[0];
+          }
+          growl.error("Error: " + (errorMessage || response), {referenceId: 2});
         });
       }
     };

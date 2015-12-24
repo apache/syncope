@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.model.Credentials;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
@@ -40,8 +41,6 @@ public class LoginResource extends AbstractBaseResource {
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
 
-        int responseStatus;
-        final String responseMessage;
         ResourceResponse response = new ResourceResponse();
 
         try {
@@ -54,30 +53,33 @@ public class LoginResource extends AbstractBaseResource {
             LOG.debug("Enduser login, user: {}", username);
 
             if (StringUtils.isBlank(username)) {
-                responseMessage = "Could not read credentials from request: username is blank!";
-                LOG.error(responseMessage);
-                responseStatus = 400;
-            } else {
-                // authenticate user
-                final boolean authenticated = SyncopeEnduserSession.get().authenticate(username, password);
-                responseStatus = authenticated ? 200 : 401;
-                responseMessage = username;
-            }
+                LOG.error("Could not read credentials from request: username is blank!");
+                response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
+                        "ErrorMessage{{ Could not read credentials from request: username is blank! }}");
+            } else // authenticate user
+             if (SyncopeEnduserSession.get().authenticate(username, password)) {
+                    // user has been authenticated successfully
+                    response.setWriteCallback(new WriteCallback() {
 
-            response.setWriteCallback(new WriteCallback() {
-
-                @Override
-                public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(responseMessage);
+                        @Override
+                        public void writeData(final Attributes attributes) throws IOException {
+                            attributes.getResponse().write(username);
+                        }
+                    });
+                    response.setStatusCode(Response.Status.OK.getStatusCode());
+                } else {
+                    // not authenticated
+                    response.setError(Response.Status.UNAUTHORIZED.getStatusCode(),
+                            "ErrorMessage{{ Username or password are incorrect }}");
                 }
-            });
-
         } catch (Exception e) {
-            responseStatus = 400;
             LOG.error("Could not read credentials from request", e);
+            response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
+                    .append("ErrorMessage{{ ")
+                    .append(e.getMessage())
+                    .append(" }}")
+                    .toString());
         }
-
-        response.setStatusCode(responseStatus);
         return response;
     }
 

@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import java.util.List;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
@@ -48,8 +49,6 @@ public class SecurityQuestionResource extends AbstractBaseResource {
 
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
 
-        int responseStatus = 200;
-
         try {
 
             final List<SecurityQuestionTO> securityQuestionTOs = securityQuestionService.list();
@@ -62,12 +61,16 @@ public class SecurityQuestionResource extends AbstractBaseResource {
                 }
             });
 
+            response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
             LOG.error("Error retrieving security questions", e);
-            responseStatus = 400;
+            response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
+                    .append("ErrorMessage{{ ")
+                    .append(e.getMessage())
+                    .append(" }}")
+                    .toString());
         }
 
-        response.setStatusCode(responseStatus);
         return response;
     }
 

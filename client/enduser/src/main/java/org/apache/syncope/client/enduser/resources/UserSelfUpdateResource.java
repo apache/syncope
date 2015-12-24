@@ -49,8 +49,6 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
 
-        int responseStatus;
-        final String responseMessage;
         ResourceResponse response = new ResourceResponse();
 
         try {
@@ -68,9 +66,12 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
 
             // update user
             Response res = userSelfService.update(userTO);
-            responseStatus = res.getStatus();
 
-            responseMessage = "User updated successfully";
+            final String responseMessage = res.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)
+                            ? new StringBuilder().append("User").append(userTO.getUsername()).append(
+                            " successfully updated").toString()
+                            : new StringBuilder().append("ErrorMessage{{ ").
+                            append(res.getStatusInfo().getReasonPhrase()).append(" }}").toString();
 
             response.setWriteCallback(new WriteCallback() {
 
@@ -80,19 +81,16 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
                 }
             });
 
+            response.setStatusCode(res.getStatus());
+
         } catch (final Exception e) {
             LOG.error("Error while updating user", e);
-            responseStatus = 400;
-            response.setWriteCallback(new WriteCallback() {
-
-                @Override
-                public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(e.getMessage());
-                }
-            });
+            response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
+                    .append("ErrorMessage{{ ")
+                    .append(e.getMessage())
+                    .append(" }}")
+                    .toString());
         }
-
-        response.setStatusCode(responseStatus);
         return response;
     }
 

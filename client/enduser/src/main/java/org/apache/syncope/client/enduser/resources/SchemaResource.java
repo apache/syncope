@@ -19,11 +19,10 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.model.SchemaResponse;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -61,8 +60,6 @@ public class SchemaResource extends AbstractBaseResource {
 
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
 
-        int responseStatus = 200;
-
         try {
             final AnyTypeTO anyTypeUserTO = anyTypeService.read(AnyTypeKind.USER.name());
 
@@ -86,25 +83,16 @@ public class SchemaResource extends AbstractBaseResource {
                             virSchemas(virSchemas)));
                 }
             });
+            response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
             LOG.error("Error retrieving {} any type kind related schemas", AnyTypeKind.USER.name(), e);
-            responseStatus = 400;
+            response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
+                    .append("ErrorMessage{{ ")
+                    .append(e.getMessage())
+                    .append(" }}")
+                    .toString());
         }
-
-        response.setStatusCode(responseStatus);
         return response;
-    }
-
-    private <T extends AbstractSchemaTO> List<T> getSchemaTOs(final List<String> schemaNames,
-            final SchemaType schemaType, final Class<T> type) {
-
-        List<T> schemaTOs = new ArrayList<>();
-
-        for (String schemaName : schemaNames) {
-            schemaTOs.add(type.cast(schemaService.read(schemaType, schemaName)));
-        }
-
-        return schemaTOs;
     }
 
 }

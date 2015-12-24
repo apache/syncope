@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.UserTOAdapter;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
@@ -45,19 +46,29 @@ public class UserSelfReadResource extends AbstractResource {
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
 
         LOG.debug("Requested user self information");
-        
-        ResourceResponse response = new ResourceResponse();
-        final String selfTOJson = POJOHelper.serialize(userTOAdapter.toUserTORequest(SyncopeEnduserSession.get().
-                getSelfTO()));
 
-        response.setWriteCallback(new WriteCallback() {
+        AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
+        try {
 
-            @Override
-            public void writeData(final Attributes attributes) throws IOException {
-                attributes.getResponse().write(selfTOJson);
-            }
-        });
+            final String selfTOJson = POJOHelper.serialize(userTOAdapter.toUserTORequest(SyncopeEnduserSession.get().
+                    getSelfTO()));
 
+            response.setWriteCallback(new WriteCallback() {
+
+                @Override
+                public void writeData(final Attributes attributes) throws IOException {
+                    attributes.getResponse().write(selfTOJson);
+                }
+            });
+            response.setStatusCode(Response.Status.OK.getStatusCode());
+        } catch (Exception e) {
+            LOG.error("Error retrieving selfTO user", e);
+            response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
+                    .append("ErrorMessage{{ ")
+                    .append(e.getMessage())
+                    .append(" }}")
+                    .toString());
+        }
         return response;
     }
 }

@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.UserTOAdapter;
 import org.apache.syncope.client.enduser.model.UserTORequest;
@@ -47,7 +48,6 @@ public class UserSelfCreateResource extends AbstractBaseResource {
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
 
-        int responseStatus = 200;
         final StringBuilder responseMessage = new StringBuilder();
         ResourceResponse response = new ResourceResponse();
 
@@ -61,35 +61,33 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                 LOG.debug("Received user self registration request for user: [{}]", userTORequest.getUsername());
                 LOG.trace("Received user self registration request is: [{}]", userTORequest);
                 // adapt request and create user
-                userSelfService.create(userTOAdapter.fromUserTORequest(userTORequest, null), true);
-                responseMessage.append("User").append(userTORequest.getUsername()).append("created successfully");
+                final Response res = userSelfService.create(userTOAdapter.fromUserTORequest(userTORequest, null), true);
+
+                response.setWriteCallback(new WriteCallback() {
+
+                    @Override
+                    public void writeData(final Attributes attributes) throws IOException {
+                        attributes.getResponse().write(res.getStatusInfo().getFamily().equals(
+                                Response.Status.Family.SUCCESSFUL)
+                                        ? responseMessage.append("User: ").append(userTORequest.getUsername()).append(
+                                        " successfully created")
+                                        : new StringBuilder().append("ErrorMessage{{ ").
+                                        append(res.getStatusInfo().getReasonPhrase()).append(" }}"));
+                    }
+                });
+                response.setStatusCode(res.getStatus());
             } else {
-                responseMessage.append(userTORequest == null
+                response.setError(Response.Status.FORBIDDEN.getStatusCode(), new StringBuilder().
+                        append("ErrorMessage{{").append(userTORequest == null
                         ? "Request received is not valid"
-                        : "Self registration not allowed");
-                responseStatus = 403;
+                        : "Self registration not allowed").append("}}").toString());
             }
-            response.setWriteCallback(new WriteCallback() {
 
-                @Override
-                public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(responseMessage);
-                }
-            });
-
-        } catch (final Exception e) {
-            LOG.error("Could not read userTO from request", e);
-            responseStatus = 400;
-            response.setWriteCallback(new WriteCallback() {
-
-                @Override
-                public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(e.getMessage());
-                }
-            });
+        } catch (Exception e) {
+            LOG.error("Could not create userTO", e);
+            response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder().append("ErrorMessage{{ ")
+                    .append(e.getMessage()).append(" }}").toString());
         }
-
-        response.setStatusCode(responseStatus);
         return response;
     }
 

@@ -44,7 +44,13 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
         $location.path("/self/update");
       }, function (response) {
         console.log("LOGIN FAILED: ", response);
-        $scope.credentials.errorMessage = "Login failed: " + response;
+        var errorMessage;
+        // parse error response 
+        if (response !== undefined) {
+          errorMessage = response.split("ErrorMessage{{")[1];
+          errorMessage = errorMessage.split("}}")[0];
+        }
+        $scope.credentials.errorMessage = "Login failed: " + errorMessage;
         growl.error($scope.credentials.errorMessage, {referenceId: 1});
       });
     };

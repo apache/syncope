@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.SyncopeTOAdapter;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
@@ -42,7 +43,6 @@ public class InfoResource extends AbstractBaseResource {
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
 
         ResourceResponse response = new ResourceResponse();
-        int responseStatus = 200;
 
         try {
             response.setWriteCallback(new WriteCallback() {
@@ -53,12 +53,16 @@ public class InfoResource extends AbstractBaseResource {
                             SyncopeEnduserSession.get().getSyncopeTO())));
                 }
             });
+        response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
             LOG.error("Error retrieving syncope info", e);
-            responseStatus = 500;
+            response.setError(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), new StringBuilder()
+                    .append("ErrorMessage{{ ")
+                    .append(e.getMessage())
+                    .append(" }}")
+                    .toString());
         }
 
-        response.setStatusCode(responseStatus);
         return response;
     }
 }
