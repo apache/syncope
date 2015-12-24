@@ -23,6 +23,7 @@ angular.module('home', []);
 angular.module('login', []);
 angular.module('language', []);
 angular.module('self', []);
+angular.module('info', []);
 
 // Declare app level module which depends on views, and components
 var app = angular.module('SyncopeEnduserApp', [
@@ -37,7 +38,8 @@ var app = angular.module('SyncopeEnduserApp', [
   'home',
   'login',
   'language',
-  'self'
+  'self',
+  'info'
 ]);
 
 app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'growlProvider',

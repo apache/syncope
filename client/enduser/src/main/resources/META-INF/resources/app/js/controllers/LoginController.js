@@ -20,7 +20,8 @@
 'use strict';
 
 angular.module("login").controller("LoginController", ['$scope', '$rootScope', '$http', '$location', '$cookies',
-  'AuthService', 'growl', function ($scope, $rootScope, $http, $location, $cookies, AuthService, growl) {
+  'AuthService', 'growl', 'InfoService', function ($scope, $rootScope, $http, $location, $cookies, AuthService, growl,
+          InfoService) {
 
     $scope.credentials = {
       username: '',
@@ -88,6 +89,33 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
       $http.get("/syncope-enduser/api/schema").success(function (data) {
         console.log("schemaAPI response: ", data);
       });
+    };
+
+    $scope.selfRegAllowed = false;
+    $scope.pwdResetAllowed = false;
+    $scope.version = "";
+    
+    //info settings are initialized every time an user open the login page
+    InfoService.getInfo().then(
+            function (response) {
+              $scope.pwdResetAllowed = response.pwdResetAllowed;              
+              $scope.selfRegAllowed = response.selfRegAllowed;
+              $scope.version = response.version;
+            },
+            function () {
+              console.log("Something went wrong while accessing info resource", response);
+            });
+            
+    $scope.isSelfRegAllowed = function () {
+      return $scope.selfRegAllowed == true;
+    };
+    
+    $scope.isPwdResetAllowed = function () {
+      return $scope.pwdResetAllowed == true;
+    };
+
+    $scope.getVersion = function () {
+      return $scope.version;
     };
 
   }]);

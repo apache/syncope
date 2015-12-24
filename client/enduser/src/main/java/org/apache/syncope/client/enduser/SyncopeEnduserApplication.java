@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+import org.apache.syncope.client.enduser.resources.InfoResource;
 import org.apache.syncope.client.enduser.resources.LoginResource;
 import org.apache.syncope.client.enduser.resources.LogoutResource;
 import org.apache.syncope.client.enduser.resources.SchemaResource;
@@ -186,6 +187,16 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             @Override
             public IResource getResource() {
                 return new SecurityQuestionResource();
+            }
+        });
+
+        mountResource("/api/info", new ResourceReference("info") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new InfoResource();
             }
         });
 

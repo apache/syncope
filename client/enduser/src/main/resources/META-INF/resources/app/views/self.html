@@ -83,13 +83,17 @@ under the License.
           </div>
 
         </div>
-        <div class="text-center" ng-show="!isLogged()">
+        <div class="text-center" ng-show="!isLogged() && isSelfRegAllowed()">
           <a href="javascript:void(0);" class="btn btn-link" ng-click="selfCreate()">Self Registration</a>
-          <!--<a href="javascript:void(0);" class="btn btn-link" ng-click="passwordReset()">Password Reset</a>-->
+
           <!--      <div id="initialLoaderDiv">
                   <img src="img/busy.gif" class="ajax-loader"/>
                 </div>-->
-        </div> <!-- /#login-container -->
+        </div>
+        <div class="text-center" ng-show="!isLogged() && isPwdResetAllowed()">
+          <a href="javascript:void(0);" class="btn btn-link" ng-click="passwordReset()">Password Reset</a>
+        </div>
+        <!-- /#login-container -->
       </div> <!-- /#login -->
     </div>
 
