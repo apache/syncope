@@ -98,7 +98,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
     @Test
     public void list() {
         PagedResult<SyncTaskTO> tasks = taskService.list(
-                TaskType.SYNCHRONIZATION, new TaskQuery.Builder().type(TaskType.SYNCHRONIZATION).build());
+                new TaskQuery.Builder().type(TaskType.SYNCHRONIZATION).build());
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
             if (!(task instanceof SyncTaskTO)) {

@@ -20,15 +20,11 @@ package org.apache.syncope.core.rest.cxf;
 
 import java.net.URL;
 import javax.ws.rs.container.ContainerRequestContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Automatically loads available javadocs from class loader (when {@link java.net.URLClassLoader}).
  */
 public class WadlGenerator extends org.apache.cxf.jaxrs.model.wadl.WadlGenerator {
-
-    private static final Logger LOG = LoggerFactory.getLogger(WadlGenerator.class);
 
     private boolean inited = false;
 
@@ -37,10 +33,8 @@ public class WadlGenerator extends org.apache.cxf.jaxrs.model.wadl.WadlGenerator
         synchronized (this) {
             if (!inited) {
                 URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
-                try {
-                    super.setJavaDocPath(javaDocURLs[0].toExternalForm());
-                } catch (Exception e) {
-                    LOG.error("Could not load Javadocs from {}", javaDocURLs[0], e);
+                if (javaDocURLs != null) {
+                    super.setJavaDocURLs(javaDocURLs);
                 }
 
                 inited = true;

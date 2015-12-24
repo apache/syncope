@@ -52,8 +52,7 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     }
 
     @Override
-    public <T extends AbstractSchemaTO> List<T> list(final SchemaType type, final SchemaQuery query) {
-        query.setType(type);
+    public <T extends AbstractSchemaTO> List<T> list(final SchemaQuery query) {
         return logic.list(query.getType(), query.getAnyTypeClasses());
     }
 

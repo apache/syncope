@@ -44,8 +44,7 @@ public class VirSchemaITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<VirSchemaTO> vSchemas = schemaService.list(
-                SchemaType.VIRTUAL, new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
+        List<VirSchemaTO> vSchemas = schemaService.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
         assertFalse(vSchemas.isEmpty());
         for (VirSchemaTO vSchemaTO : vSchemas) {
             assertNotNull(vSchemaTO);
@@ -95,15 +94,14 @@ public class VirSchemaITCase extends AbstractITCase {
     public void anonymous() {
         SchemaService unauthenticated = clientFactory.create().getService(SchemaService.class);
         try {
-            unauthenticated.list(SchemaType.VIRTUAL, new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
+            unauthenticated.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
         SchemaService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(SchemaService.class);
-        assertFalse(anonymous.list(
-                SchemaType.VIRTUAL, new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build()).isEmpty());
+        assertFalse(anonymous.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build()).isEmpty());
     }
 
     @Test

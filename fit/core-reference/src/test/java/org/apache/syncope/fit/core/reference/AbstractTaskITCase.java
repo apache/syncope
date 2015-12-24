@@ -168,7 +168,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
     protected NotificationTaskTO findNotificationTaskBySender(final String sender) {
         PagedResult<NotificationTaskTO> tasks =
-                taskService.list(TaskType.NOTIFICATION, new TaskQuery.Builder().type(TaskType.NOTIFICATION).build());
+                taskService.list(new TaskQuery.Builder().type(TaskType.NOTIFICATION).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 

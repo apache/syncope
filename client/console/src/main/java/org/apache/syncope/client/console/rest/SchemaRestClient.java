@@ -64,10 +64,10 @@ public class SchemaRestClient extends BaseRestClient {
         try {
             if (kind == null || kind.length == 0) {
                 schemas.addAll(getService(SchemaService.class).
-                        <T>list(schemaType, new SchemaQuery.Builder().type(schemaType).build()));
+                        <T>list(new SchemaQuery.Builder().type(schemaType).build()));
             } else {
                 schemas.addAll(getService(SchemaService.class).
-                        <T>list(schemaType, new SchemaQuery.Builder().type(schemaType).anyTypeClasses(kind).build()));
+                        <T>list(new SchemaQuery.Builder().type(schemaType).anyTypeClasses(kind).build()));
             }
         } catch (SyncopeClientException e) {
             LOG.error("While getting all {} schemas for {}", schemaType, kind, e);

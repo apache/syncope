@@ -65,8 +65,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      */
     public int count(final String kind) {
         return getService(TaskService.class).
-                list(TaskType.valueOf(kind),
-                        new TaskQuery.Builder().type(TaskType.valueOf(kind)).page(1).size(1).build()).
+                list(new TaskQuery.Builder().type(TaskType.valueOf(kind)).page(1).size(1).build()).
                 getTotalCount();
     }
 
@@ -75,8 +74,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             final Class<T> reference, final int page, final int size, final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
-                list(getTaskType(reference),
-                        new TaskQuery.Builder().type(getTaskType(reference)).page(page).size(size).
+                list(new TaskQuery.Builder().type(getTaskType(reference)).page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
                 getResult();
     }
