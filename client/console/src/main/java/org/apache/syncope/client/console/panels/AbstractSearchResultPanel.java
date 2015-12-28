@@ -18,18 +18,17 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.client.console.PreferenceManager;
-import org.apache.syncope.client.console.commons.AnyDataProvider;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
-import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -44,7 +43,9 @@ import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardMgtPanel<AnyHandler<T>> {
+public abstract class AbstractSearchResultPanel<
+        T extends Serializable, W extends Serializable, DP extends SearchableDataProvider<T>, E extends BaseRestClient>
+        extends WizardMgtPanel<W> {
 
     private static final long serialVersionUID = -9170191461250434024L;
 
@@ -55,12 +56,12 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
      */
     protected PreferenceManager prefMan = new PreferenceManager();
 
-    protected final AbstractAnyRestClient<T> restClient;
+    protected final E restClient;
 
     /**
      * Number of rows per page.
      */
-    private final int rows;
+    protected int rows;
 
     /**
      * Container used to refresh table.
@@ -76,14 +77,9 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
      * Specify if results are about a filtered search or not. Using this attribute it is possible to use this panel to
      * show results about user list and user search.
      */
-    private final boolean filtered;
+    protected final boolean filtered;
 
     private final boolean checkBoxEnabled;
-
-    /**
-     * Filter used in case of filtered search.
-     */
-    private String fiql;
 
     /**
      * Result table.
@@ -93,26 +89,16 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
     /**
      * Data provider used to search for users.
      */
-    private AnyDataProvider<T> dataProvider;
+    protected DP dataProvider;
 
     /**
      * Owner page.
      */
     protected final AbstractBasePage page;
 
-    /**
-     * Realm related to current panel.
-     */
-    private final String realm;
+    protected AbstractSearchResultPanel(final String id, final Builder<T, W, E> builder) {
 
-    /**
-     * Any type related to current panel.
-     */
-    protected final String type;
-
-    protected AbstractSearchResultPanel(final String id, final Builder<T> builder) {
-
-        super(id, builder.getPageRef(), true);
+        super(id, true);
 
         setOutputMarkupId(true);
 
@@ -120,7 +106,6 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
 
         this.filtered = builder.filtered;
         this.checkBoxEnabled = builder.checkBoxEnabled;
-        this.fiql = builder.fiql;
         this.feedbackPanel = page.getFeedbackPanel();
 
         this.restClient = builder.restClient;
@@ -130,13 +115,16 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
         container.setOutputMarkupId(true);
         add(container);
 
-        rows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
-
-        this.realm = builder.realm;
-        this.type = builder.type;
+        rows = prefMan.getPaginatorRows(getRequest(), paginatorRowsKey());
 
         setWindowClosedReloadCallback(modal);
     }
+
+    protected abstract DP dataProvider();
+
+    protected abstract String paginatorRowsKey();
+
+    protected abstract List<IColumn<T, String>> getColumns();
 
     protected void initResultTable() {
         // ---------------------------
@@ -160,7 +148,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(), Constants.PREF_USERS_PAGINATOR_ROWS, String.valueOf(rows));
+                prefMan.set(getRequest(), getResponse(), paginatorRowsKey(), String.valueOf(rows));
 
                 final EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
@@ -173,9 +161,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
         // ---------------------------
     }
 
-    public void search(final String fiql, final AjaxRequestTarget target) {
-        this.fiql = fiql;
-        dataProvider.setFIQL(fiql);
+    public void search(final AjaxRequestTarget target) {
         target.add(container);
     }
 
@@ -184,8 +170,7 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
     }
 
     private void updateResultTable(final boolean create, final int rows) {
-        dataProvider = new AnyDataProvider<>(restClient, rows, filtered, realm, type);
-        dataProvider.setFIQL(fiql);
+        dataProvider = dataProvider();
 
         final int currentPage = resultTable != null
                 ? (create ? (int) resultTable.getPageCount() - 1 : (int) resultTable.getCurrentPage()) : 0;
@@ -207,8 +192,6 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
         resultTable.setOutputMarkupId(true);
         container.addOrReplace(resultTable);
     }
-
-    protected abstract List<IColumn<T, String>> getColumns();
 
     @Override
     public void onEvent(final IEvent<?> event) {
@@ -286,11 +269,12 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
         }
     }
 
-    protected abstract <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions();
+    protected abstract Collection<ActionLink.ActionType> getBulkActions();
 
     protected abstract String getPageId();
 
-    public abstract static class Builder<T extends AnyTO> extends WizardMgtPanel.Builder<AnyHandler<T>> {
+    public abstract static class Builder<T extends Serializable, W extends Serializable, E extends BaseRestClient>
+            extends WizardMgtPanel.Builder<W> {
 
         private static final long serialVersionUID = 5088962796986706805L;
 
@@ -307,41 +291,25 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends WizardM
          */
         protected String fiql;
 
-        protected final AbstractAnyRestClient<T> restClient;
+        protected final E restClient;
 
-        /**
-         * Realm related to current panel.
-         */
-        protected String realm = "/";
-
-        /**
-         * Any type related to current panel.
-         */
-        protected final String type;
-
-        protected Builder(final AbstractAnyRestClient<T> restClient, final String type, final PageReference pageRef) {
+        protected Builder(final E restClient, final PageReference pageRef) {
             super(pageRef);
             this.restClient = restClient;
-            this.type = type;
         }
 
-        public Builder<T> setFiltered(final boolean filtered) {
+        public Builder<T, W, E> setFiltered(final boolean filtered) {
             this.filtered = filtered;
             return this;
         }
 
-        public Builder<T> disableCheckBoxes() {
+        public Builder<T, W, E> disableCheckBoxes() {
             this.checkBoxEnabled = false;
             return this;
         }
 
-        public Builder<T> setFiql(final String fiql) {
+        public Builder<T, W, E> setFiql(final String fiql) {
             this.fiql = fiql;
-            return this;
-        }
-
-        public Builder<T> setRealm(final String realm) {
-            this.realm = realm;
             return this;
         }
 

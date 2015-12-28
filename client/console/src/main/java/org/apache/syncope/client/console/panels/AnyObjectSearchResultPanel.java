@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.client.console.commons.AnyDataProvider;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AnyDisplayAttributesModalPage;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -56,7 +57,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchResultPanel<T> {
+public class AnyObjectSearchResultPanel<T extends AnyTO>
+        extends AbstractSearchResultPanel<T, AnyHandler<T>, AnyDataProvider<T>, AbstractAnyRestClient<T>> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -66,10 +68,28 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
 
     protected final List<String> dSchemaNames;
 
-    protected final String pageID = "Any";
+    private final String pageID = "Any";
 
-    protected AnyObjectSearchResultPanel(final String id, final AbstractSearchResultPanel.Builder<T> builder) {
+    /**
+     * Filter used in case of filtered search.
+     */
+    private String fiql;
+
+    /**
+     * Realm related to current panel.
+     */
+    protected final String realm;
+
+    /**
+     * Any type related to current panel.
+     */
+    protected final String type;
+
+    protected AnyObjectSearchResultPanel(final String id, final Builder<T> builder) {
         super(id, builder);
+        this.realm = builder.realm;
+        this.type = builder.type;
+        this.fiql = builder.fiql;
 
         modal.size(Modal.Size.Large);
 
@@ -85,6 +105,17 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
         }
 
         initResultTable();
+    }
+
+    @Override
+    protected AnyDataProvider<T> dataProvider() {
+        final AnyDataProvider<T> dp = new AnyDataProvider<>(restClient, rows, filtered, realm, type);
+        return dp.setFIQL(this.fiql);
+    }
+
+    @Override
+    protected String paginatorRowsKey() {
+        return Constants.PREF_ANYOBJECT_PAGINATOR_ROWS;
     }
 
     @Override
@@ -214,8 +245,14 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
         return columns;
     }
 
+    public void search(final String fiql, final AjaxRequestTarget target) {
+        this.fiql = fiql;
+        dataProvider.setFIQL(fiql);
+        super.search(target);
+    }
+
     @Override
-    protected <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions() {
+    protected Collection<ActionLink.ActionType> getBulkActions() {
         final List<ActionLink.ActionType> bulkActions = new ArrayList<>();
 
         bulkActions.add(ActionLink.ActionType.DELETE);
@@ -235,26 +272,43 @@ public class AnyObjectSearchResultPanel<T extends AnyTO> extends AbstractSearchR
         List<AnyTypeClassTO> getAnyTypeClassTOs();
     }
 
-    public static final class Builder extends AbstractSearchResultPanel.Builder<AnyObjectTO>
+    public static class Builder<T extends AnyTO>
+            extends AbstractSearchResultPanel.Builder<T, AnyHandler<T>, AbstractAnyRestClient<T>>
             implements AnySearchResultPanelBuilder {
 
         private static final long serialVersionUID = -6828423611982275640L;
+
+        /**
+         * Realm related to current panel.
+         */
+        protected String realm = "/";
+
+        /**
+         * Any type related to current panel.
+         */
+        protected final String type;
 
         private final List<AnyTypeClassTO> anyTypeClassTOs;
 
         public Builder(
                 final List<AnyTypeClassTO> anyTypeClassTOs,
-                final AbstractAnyRestClient<AnyObjectTO> restClient,
+                final AbstractAnyRestClient<T> restClient,
                 final String type,
                 final PageReference pageRef) {
 
-            super(restClient, type, pageRef);
+            super(restClient, pageRef);
             this.anyTypeClassTOs = anyTypeClassTOs;
+            this.type = type;
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<AnyObjectTO>> newInstance(final String id) {
-            return new AnyObjectSearchResultPanel<>(id, this);
+        protected WizardMgtPanel<AnyHandler<T>> newInstance(final String id) {
+            return new AnyObjectSearchResultPanel<T>(id, this);
+        }
+
+        public Builder<T> setRealm(final String realm) {
+            this.realm = realm;
+            return this;
         }
 
         @Override

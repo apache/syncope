@@ -36,8 +36,8 @@ public class GroupHandler extends AnyHandler<GroupTO> {
 
     private Map<String, List<SearchClause>> aDynClauses;
 
-    public GroupHandler(final GroupTO anyTO) {
-        super(anyTO);
+    public GroupHandler(final GroupTO groupTO) {
+        super(groupTO);
     }
 
     public List<SearchClause> getUDynClauses() {

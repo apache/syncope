@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import static org.apache.syncope.client.console.rest.BaseRestClient.getService;
+
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.rest.api.service.RoleService;
@@ -31,7 +34,35 @@ public class RoleRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 1L;
 
+    public void delete(final String key) {
+        getService(RoleService.class).delete(key);
+    }
+
+    public RoleTO read(final String key) {
+        return getService(RoleService.class).read(key);
+    }
+
+    public void update(final RoleTO roleTO) {
+        getService(RoleService.class).update(roleTO);
+    }
+
+    public void create(final RoleTO roleTO) {
+        getService(RoleService.class).create(roleTO);
+    }
+
     public List<RoleTO> getAll() {
         return getService(RoleService.class).list();
+    }
+
+    public List<RoleTO> list() {
+        return getService(RoleService.class).list();
+    }
+
+    public int count() {
+        return getService(RoleService.class).list().size();
+    }
+
+    public List<String> getAllAvailableEntitlements() {
+        return new ArrayList<>(getSyncopeService().info().getEntitlements());
     }
 }

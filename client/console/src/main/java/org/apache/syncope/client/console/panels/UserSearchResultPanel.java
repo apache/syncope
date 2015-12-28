@@ -42,7 +42,6 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -62,8 +61,15 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
+    private final String pageID = "Users";
+
     protected UserSearchResultPanel(final String id, final Builder builder) {
         super(id, builder);
+    }
+
+    @Override
+    protected String paginatorRowsKey() {
+        return Constants.PREF_USERS_PAGINATOR_ROWS;
     }
 
     @Override
@@ -227,7 +233,7 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
     }
 
     @Override
-    protected <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions() {
+    protected Collection<ActionLink.ActionType> getBulkActions() {
         final List<ActionType> bulkActions = new ArrayList<>();
 
         bulkActions.add(ActionType.DELETE);
@@ -242,12 +248,9 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
         return pageID;
     }
 
-    public static class Builder extends AbstractSearchResultPanel.Builder<UserTO>
-            implements AnySearchResultPanelBuilder {
+    public static class Builder extends AnyObjectSearchResultPanel.Builder<UserTO> {
 
         private static final long serialVersionUID = 1L;
-
-        private final List<AnyTypeClassTO> anyTypeClassTOs;
 
         public Builder(
                 final List<AnyTypeClassTO> anyTypeClassTOs,
@@ -255,18 +258,12 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
                 final String type,
                 final PageReference pageRef) {
 
-            super(restClient, type, pageRef);
-            this.anyTypeClassTOs = anyTypeClassTOs;
+            super(anyTypeClassTOs, restClient, type, pageRef);
         }
 
         @Override
         protected WizardMgtPanel<AnyHandler<UserTO>> newInstance(final String id) {
             return new UserSearchResultPanel(id, this);
-        }
-
-        @Override
-        public List<AnyTypeClassTO> getAnyTypeClassTOs() {
-            return this.anyTypeClassTOs;
         }
     }
 }

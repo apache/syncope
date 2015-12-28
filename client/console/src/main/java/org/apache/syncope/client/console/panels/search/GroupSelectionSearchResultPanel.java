@@ -36,7 +36,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -140,7 +139,7 @@ public final class GroupSelectionSearchResultPanel extends GroupSearchResultPane
     }
 
     @Override
-    protected <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions() {
+    protected Collection<ActionLink.ActionType> getBulkActions() {
         return Collections.<ActionLink.ActionType>emptyList();
     }
 

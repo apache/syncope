@@ -120,6 +120,11 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         MetaDataRoleAuthorizationStrategy.authorize(typesLink, WebPage.ENABLE, StandardEntitlement.SCHEMA_LIST);
         liContainer.add(typesLink);
 
+        liContainer = new WebMarkupContainer(getLIContainerId("roles"));
+        confULContainer.add(liContainer);
+        liContainer.add(new BookmarkablePageLink<>("roles", Roles.class));
+        MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.ROLE_LIST);
+        
         liContainer = new WebMarkupContainer(getLIContainerId("policies"));
         confULContainer.add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("policies", Policies.class));

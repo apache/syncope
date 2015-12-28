@@ -41,7 +41,6 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
 import org.apache.syncope.client.console.wizards.any.GroupHandler;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -59,8 +58,15 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
 
     private static final long serialVersionUID = -1100228004207271270L;
 
+    private final String pageID = "Groups";
+
     protected GroupSearchResultPanel(final String id, final Builder builder) {
         super(id, builder);
+    }
+
+    @Override
+    protected String paginatorRowsKey() {
+        return Constants.PREF_GROUP_PAGINATOR_ROWS;
     }
 
     @Override
@@ -114,7 +120,7 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final GroupTO anyTO) {
+                    public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                         send(GroupSearchResultPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<GroupHandler>(
                                         new GroupHandler(new GroupRestClient().read(model.getObject().getKey())),
@@ -125,7 +131,7 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final GroupTO anyTO) {
+                    public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                         final GroupTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(0L);
                         send(GroupSearchResultPanel.this, Broadcast.EXACT,
@@ -136,7 +142,7 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final GroupTO anyTO) {
+                    public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                         try {
                             restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
                             info(getString(Constants.OPERATION_SUCCEEDED));
@@ -187,7 +193,7 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
     }
 
     @Override
-    protected <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions() {
+    protected Collection<ActionLink.ActionType> getBulkActions() {
         final List<ActionType> bulkActions = new ArrayList<>();
 
         bulkActions.add(ActionType.DELETE);
@@ -202,12 +208,10 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
         return pageID;
     }
 
-    public static class Builder extends AbstractSearchResultPanel.Builder<GroupTO>
+    public static class Builder extends AnyObjectSearchResultPanel.Builder<GroupTO>
             implements AnySearchResultPanelBuilder {
 
         private static final long serialVersionUID = 1L;
-
-        private final List<AnyTypeClassTO> anyTypeClassTOs;
 
         public Builder(
                 final List<AnyTypeClassTO> anyTypeClassTOs,
@@ -215,18 +219,12 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
                 final String type,
                 final PageReference pageRef) {
 
-            super(restClient, type, pageRef);
-            this.anyTypeClassTOs = anyTypeClassTOs;
+            super(anyTypeClassTOs, restClient, type, pageRef);
         }
 
         @Override
         protected WizardMgtPanel<AnyHandler<GroupTO>> newInstance(final String id) {
             return new GroupSearchResultPanel(id, this);
-        }
-
-        @Override
-        public List<AnyTypeClassTO> getAnyTypeClassTOs() {
-            return this.anyTypeClassTOs;
         }
     }
 }

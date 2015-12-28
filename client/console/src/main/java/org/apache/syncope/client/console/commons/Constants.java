@@ -82,6 +82,12 @@ public final class Constants {
 
     public static final String PREF_USERS_PAGINATOR_ROWS = "users.paginator.rows";
 
+    public static final String PREF_ANYOBJECT_PAGINATOR_ROWS = "anyobject.paginator.rows";
+
+    public static final String PREF_GROUP_PAGINATOR_ROWS = "group.paginator.rows";
+
+    public static final String PREF_ROLE_PAGINATOR_ROWS = "role.paginator.rows";
+
     public static final String PREF_RESOURCES_PAGINATOR_ROWS = "resources.paginator.rows";
 
     public static final String PREF_CONNECTORS_PAGINATOR_ROWS = "connectors.paginator.rows";

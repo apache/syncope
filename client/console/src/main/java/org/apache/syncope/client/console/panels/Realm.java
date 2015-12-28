@@ -149,7 +149,7 @@ public class Realm extends Panel {
                 final AnyObjectTO anyObjectTO = new AnyObjectTO();
                 anyObjectTO.setRealm(realmTO.getFullPath());
                 anyObjectTO.setType(anyTypeTO.getKey());
-                panel = new AnyObjectSearchResultPanel.Builder(
+                panel = new AnyObjectSearchResultPanel.Builder<AnyObjectTO>(
                         anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
                         anyObjectRestClient,
                         anyTypeTO.getKey(),

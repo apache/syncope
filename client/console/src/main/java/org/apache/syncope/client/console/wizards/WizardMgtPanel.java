@@ -51,8 +51,6 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     private NotificationPanel notificationPanel;
 
-    private final PageReference pageRef;
-
     /**
      * Modal window.
      */
@@ -70,14 +68,13 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     private final boolean wizardInModal;
 
-    protected WizardMgtPanel(final String id, final PageReference pageRef) {
-        this(id, pageRef, false);
+    protected WizardMgtPanel(final String id) {
+        this(id, false);
     }
 
-    protected WizardMgtPanel(final String id, final PageReference pageRef, final boolean wizardInModal) {
+    protected WizardMgtPanel(final String id, final boolean wizardInModal) {
         super(id);
         setOutputMarkupId(true);
-        this.pageRef = pageRef;
         this.wizardInModal = wizardInModal;
 
         add(modal);
@@ -156,12 +153,13 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         super.onEvent(event);
     }
 
-    private WizardMgtPanel<T> addNewItemPanelBuilder(final AjaxWizardBuilder<T> panelBuilder) {
+    private WizardMgtPanel<T> addNewItemPanelBuilder(
+            final AjaxWizardBuilder<T> panelBuilder, final boolean newItemDefaultButtonEnabled) {
         this.newItemPanelBuilder = panelBuilder;
 
         if (this.newItemPanelBuilder != null) {
-            addAjaxLink.setEnabled(true);
-            addAjaxLink.setVisible(true);
+            addAjaxLink.setEnabled(newItemDefaultButtonEnabled);
+            addAjaxLink.setVisible(newItemDefaultButtonEnabled);
         }
 
         return this;
@@ -185,6 +183,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
         private AjaxWizardBuilder<T> newItemPanelBuilder;
 
+        private boolean newItemDefaultButtonEnabled = true;
+
         private NotificationPanel notificationPanel;
 
         protected Builder(final PageReference pageRef) {
@@ -200,7 +200,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
          * @return List view.
          */
         public WizardMgtPanel<T> build(final String id) {
-            return newInstance(id).addNewItemPanelBuilder(newItemPanelBuilder).addNotificationPanel(notificationPanel);
+            return newInstance(id).
+                    addNewItemPanelBuilder(newItemPanelBuilder, newItemDefaultButtonEnabled).
+                    addNotificationPanel(notificationPanel);
         }
 
         public Builder<T> addNewItemPanelBuilder(final AjaxWizardBuilder<T> panelBuilder) {
@@ -208,6 +210,25 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
             return this;
         }
 
+        /**
+         * Adds new item panel builder.
+         *
+         * @param panelBuilder new item panel builder.
+         * @param newItemDefaultButtonEnabled enable default button to adda new item.
+         * @return the current builder.
+         */
+        public Builder<T> addNewItemPanelBuilder(
+                final AjaxWizardBuilder<T> panelBuilder, final boolean newItemDefaultButtonEnabled) {
+            this.newItemDefaultButtonEnabled = newItemDefaultButtonEnabled;
+            return addNewItemPanelBuilder(panelBuilder);
+        }
+
+        /**
+         * Adds new item panel builder and enables default button to adda new item.
+         *
+         * @param notificationPanel new item panel builder.
+         * @return the current builder.
+         */
         public Builder<T> addNotificationPanel(final NotificationPanel notificationPanel) {
             this.notificationPanel = notificationPanel;
             return this;

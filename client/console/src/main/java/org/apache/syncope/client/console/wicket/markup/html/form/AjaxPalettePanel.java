@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,6 +33,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
+import org.apache.wicket.extensions.markup.html.form.palette.component.Recorder;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -94,18 +96,72 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         this.palette = new NonI18nPalette<T>(
                 "paletteField", model, choicesModel, builder.renderer, 8, builder.allowOrder, builder.allowMoveAll) {
 
-                    private static final long serialVersionUID = -3074655279011678437L;
+            private static final long serialVersionUID = -3074655279011678437L;
+
+            @Override
+            protected Component newAvailableHeader(final String componentId) {
+                return new Label(componentId, new ResourceModel("palette.available", builder.availableLabel));
+            }
+
+            @Override
+            protected Component newSelectedHeader(final String componentId) {
+                return new Label(componentId, new ResourceModel("palette.selected", builder.selectedLabel));
+            }
+
+            @Override
+            protected Recorder<T> newRecorderComponent() {
+                return new Recorder<T>("recorder", this) {
+
+                    private static final long serialVersionUID = -9169109967480083523L;
 
                     @Override
-                    protected Component newAvailableHeader(final String componentId) {
-                        return new Label(componentId, new ResourceModel("palette.available", builder.availableLabel));
+                    public List<T> getUnselectedList() {
+                        final IChoiceRenderer<? super T> renderer = getPalette().getChoiceRenderer();
+                        final Collection<? extends T> choices = getPalette().getChoices();
+                        final List<T> unselected = new ArrayList<>(choices.size());
+                        final List<String> ids = Arrays.asList(getValue().split(","));
+
+                        for (final T choice : choices) {
+                            final String choiceId = renderer.getIdValue(choice, 0);
+
+                            if (!ids.contains(choiceId)) {
+                                unselected.add(choice);
+                            }
+                        }
+
+                        return unselected;
                     }
 
                     @Override
-                    protected Component newSelectedHeader(final String componentId) {
-                        return new Label(componentId, new ResourceModel("palette.selected", builder.selectedLabel));
+                    public List<T> getSelectedList() {
+                        final IChoiceRenderer<? super T> renderer = getPalette().getChoiceRenderer();
+                        final Collection<? extends T> choices = getPalette().getChoices();
+                        final List<T> selected = new ArrayList<>(choices.size());
+
+                        // reduce number of method calls by building a lookup table
+                        final Map<T, String> idForChoice = new HashMap<>(choices.size());
+                        for (final T choice : choices) {
+                            idForChoice.put(choice, renderer.getIdValue(choice, 0));
+                        }
+
+                        final String value = getValue();
+                        int start = value.indexOf(';') + 1;
+
+                        for (final String id : Strings.split(value.substring(start), ',')) {
+                            for (final T choice : choices) {
+                                final String idValue = idForChoice.get(choice);
+                                if (id.equals(idValue)) {
+                                    selected.add(choice);
+                                    break;
+                                }
+                            }
+                        }
+
+                        return selected;
                     }
                 };
+            }
+        };
 
         add(palette.setOutputMarkupId(true));
 

@@ -24,23 +24,20 @@ import java.util.List;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-public class AnyDataProvider<T extends AnyTO> extends SortableDataProvider<T, String> {
+public class AnyDataProvider<T extends AnyTO> extends SearchableDataProvider<T> {
 
     private static final long serialVersionUID = 6267494272884913376L;
 
     private final SortableAnyProviderComparator<T> comparator;
 
-    private String fiql = null;
-
-    private final int paginatorRows;
-
-    private final boolean filtered;
-
     private final AbstractAnyRestClient<T> restClient;
+
+    protected String fiql;
+
+    protected final boolean filtered;
 
     private final String realm;
 
@@ -53,11 +50,11 @@ public class AnyDataProvider<T extends AnyTO> extends SortableDataProvider<T, St
             final String realm,
             final String type) {
 
-        super();
+        super(paginatorRows);
 
         this.restClient = restClient;
+
         this.filtered = filtered;
-        this.paginatorRows = paginatorRows;
 
         // default sorting
         setSort("key", SortOrder.ASCENDING);
@@ -66,10 +63,6 @@ public class AnyDataProvider<T extends AnyTO> extends SortableDataProvider<T, St
 
         this.realm = realm;
         this.type = type;
-    }
-
-    public void setFIQL(final String fiql) {
-        this.fiql = fiql;
     }
 
     @Override
@@ -101,6 +94,11 @@ public class AnyDataProvider<T extends AnyTO> extends SortableDataProvider<T, St
         }
 
         return result;
+    }
+
+    public AnyDataProvider<T> setFIQL(final String fiql) {
+        this.fiql = fiql;
+        return this;
     }
 
     @Override
