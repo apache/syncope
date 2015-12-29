@@ -23,11 +23,13 @@ under the License.
   <body>
     <wicket:extend>
       <div wicket:id="searchContainer">
-        <span wicket:id="resultTable">[Table]</span>
-
-        <span style="float:right">
-          <form wicket:id="paginator" style="display:inline">
-            <div class="col-sm-6">
+        <div class="dataTable">
+          <span wicket:id="resultTable">[Table]</span>
+        </div>
+        
+        <div class="rowsChooser">
+          <form wicket:id="paginator">
+            <div>
               <div class="dataTables_length">
                 <label>
                   <wicket:message key="displayRows"/>
@@ -36,7 +38,7 @@ under the License.
               </div>
             </div>
           </form>
-        </span>
+        </div>
       </div>
     </wicket:extend>
   </body>

@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
@@ -33,14 +35,17 @@ public class RealmDetails extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDetails.class);
 
+    private final WebMarkupContainer container;
+
     public RealmDetails(final String id, final RealmTO realmTO) {
-        this(id, realmTO, true);
+        this(id, realmTO, null, true);
     }
 
-    public RealmDetails(final String id, final RealmTO realmTO, final boolean unwraped) {
+    public RealmDetails(
+            final String id, final RealmTO realmTO, final ActionLinksPanel<?> actions, final boolean unwraped) {
         super(id);
 
-        final WebMarkupContainer container = new WebMarkupContainer("container");
+        container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         container.setRenderBodyOnly(unwraped);
         add(container);
@@ -62,5 +67,18 @@ public class RealmDetails extends Panel {
         final FieldPanel<String> passwordPolicy = new AjaxTextFieldPanel(
                 "passwordPolicy", "passwordPolicy", new PropertyModel<String>(realmTO, "passwordPolicy"), false);
         container.add(passwordPolicy);
+
+        if (actions == null) {
+            add(new Fragment("actions", "emptyFragment", this).setRenderBodyOnly(true));
+        } else {
+            Fragment fragment = new Fragment("actions", "actionsFragment", this);
+            fragment.add(actions);
+            add(fragment.setRenderBodyOnly(true));
+        }
+    }
+
+    public RealmDetails setContentEnabled(final boolean enable) {
+        container.setEnabled(enable);
+        return this;
     }
 }

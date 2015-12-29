@@ -27,6 +27,8 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.GroupWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
@@ -38,6 +40,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
@@ -47,7 +50,7 @@ import org.apache.wicket.model.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Realm extends Panel {
+public abstract class Realm extends Panel {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -91,8 +94,39 @@ public class Realm extends Panel {
 
             @Override
             public Panel getPanel(final String panelId) {
-                final RealmDetails panel = new RealmDetails(panelId, realmTO, false);
-                panel.setEnabled(false);
+                final ActionLinksPanel<RealmTO> actionLinksPanel = ActionLinksPanel.<RealmTO>builder(pageRef).
+                        add(new ActionLink<RealmTO>(realmTO) {
+
+                            private static final long serialVersionUID = 2802988981431379827L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final RealmTO modelObject) {
+                                onClickCreate(target);
+                            }
+                        }, ActionLink.ActionType.CREATE, StandardEntitlement.REALM_CREATE).
+                        add(new ActionLink<RealmTO>(realmTO) {
+
+                            private static final long serialVersionUID = 2802988981431379828L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final RealmTO modelObject) {
+                                onClickEdit(target, realmTO);
+                            }
+                        }, ActionLink.ActionType.EDIT, StandardEntitlement.REALM_UPDATE).
+                        add(new ActionLink<RealmTO>(realmTO) {
+
+                            private static final long serialVersionUID = 2802988981431379829L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final RealmTO modelObject) {
+                                onClickDelete(target, realmTO);
+                            }
+                        }, ActionLink.ActionType.DELETE, StandardEntitlement.REALM_DELETE).
+                        build("actions");
+
+                final RealmDetails panel = new RealmDetails(panelId, realmTO, actionLinksPanel, false);
+                panel.setContentEnabled(false);
+                actionLinksPanel.setEnabled(true);
                 return panel;
             }
         });
@@ -165,4 +199,10 @@ public class Realm extends Panel {
         }
         return panel;
     }
+
+    protected abstract void onClickCreate(final AjaxRequestTarget target);
+
+    protected abstract void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO);
+
+    protected abstract void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO);
 }

@@ -74,16 +74,6 @@ pre {
   min-height: 554px
 }
 
-.actions > li > a {
-  padding-top: 5px !important;
-  padding-bottom: 5px !important;
-}
-
-div.listview-actions a{
-  float:left; 
-  padding-right:8px
-}
-
 .block-header {
   position: fixed !important;
   width: 100% !important;
@@ -352,7 +342,6 @@ div.searchResult{
   box-sizing: border-box;
 }
 
-
 .wicket-aa-container {
   border-color: #eee;
   box-shadow: none;
@@ -369,6 +358,9 @@ div.searchResult{
   max-height: 250px;
 }
 
+/**
+START - Notifications
+*/
 .k-notification-error.k-group {
   background: rgba(100% , 0% , 0% , .7);
   color: red;
@@ -419,3 +411,60 @@ div.searchResult{
   width:85%
 }
 
+/**
+END - Notifications
+*/
+
+/**
+START - Actions
+*/
+.actions > li > a {
+  padding: 5px 0px 5px 0px !important;
+}
+
+div.listview-actions a {
+  float:left;
+  padding: 5px 0px 5px 0px !important;
+}
+
+.action a.btn {
+  padding: 0px;
+}
+
+.btn-circle, .circular-actions a {
+  border-radius: 15px;
+  font-size: 12px;
+  height: 30px;
+  line-height: 1.42857;
+  padding: 6px 0;
+  text-align: center;
+  width: 30px;
+}
+
+.circular-actions a.btn {
+  background-color: #3c8dbc;
+  border-color: #367fa9;
+  color: #fff;
+}
+
+.btn-circle i, .circular-actions a i {
+  margin: 0px;
+}
+/**
+END - Actions
+*/
+
+/**
+START - DataTable
+*/
+.dataTable {
+  clear: both;
+}
+
+.rowsChooser {
+  padding: 5px 0px 15px 0px;
+  text-align: right;
+}
+/**
+END - DataTable
+*/

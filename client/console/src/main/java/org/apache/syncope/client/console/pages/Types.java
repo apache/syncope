@@ -72,7 +72,6 @@ public class Types extends BasePage {
         ANYTYPECLASS,
         ANYTYPE,
         RELATIONSHIPTYPE;
-
     }
 
     public Types(final PageParameters parameters) {

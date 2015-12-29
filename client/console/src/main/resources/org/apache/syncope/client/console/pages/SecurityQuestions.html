@@ -27,18 +27,18 @@ under the License.
               <span wicket:id="header"></span>
             </h3>
             <div class="box-tools pull-right">
-              <ul class="nav navbar-nav actions">
-                <li>
-                  <a wicket:message="title:createSecurityQuestion" wicket:id="createSecurityQuestion">
-                    <i class="glyphicon glyphicon-plus"></i>
-                  </a>                  
-                </li>
-              </ul>
             </div>
           </div>
           <div class="box-body">
             <div class="realms">
               <div wicket:id="securityQuestionPanel"></div>
+
+              <div class="modal-footer">
+                <a wicket:message="title:createSecurityQuestion" wicket:id="createSecurityQuestion" class="btn btn-primary btn-circle btn-lg">
+                  <i class="glyphicon glyphicon-plus"></i>
+                </a>                  
+              </div>
+
             </div>
           </div>
         </div>

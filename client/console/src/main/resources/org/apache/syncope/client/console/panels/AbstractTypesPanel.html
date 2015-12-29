@@ -20,12 +20,12 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
     <div wicket:id="container">
-      <span wicket:id="tableContainer">
+      <div wicket:id="tableContainer" class="dataTable">
         <table class="table table-bordered table-hover dataTable" wicket:id="datatable">[datatable]</table>
-      </span>
-      <span style="float:right">
-        <form wicket:id="paginator" style="display:inline">
-          <div class="col-sm-6">
+      </div>
+      <div class="rowsChooser">
+        <form wicket:id="paginator">
+          <div>
             <div class="dataTables_length">
               <label>
                 <wicket:message key="displayRows"/>
@@ -34,7 +34,7 @@ under the License.
             </div>
           </div>
         </form>
-      </span>
+      </div>
     </div>
   </wicket:panel>
 </html>

@@ -24,15 +24,11 @@ import org.apache.syncope.client.console.panels.RealmModalPanel;
 import org.apache.syncope.client.console.panels.RealmSidebarPanel;
 import org.apache.syncope.client.console.panels.RealmSidebarPanel.ControlSidebarClick;
 import org.apache.syncope.client.console.rest.RealmRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -82,10 +78,6 @@ public class Realms extends BasePage {
             }
         });
 
-        setupDeleteLink();
-        setupCreateLink();
-        setupEditLink();
-
         updateRealmContent(realmSidebarPanel.getCurrentRealm());
     }
 
@@ -103,63 +95,22 @@ public class Realms extends BasePage {
 
     private WebMarkupContainer updateRealmContent(final RealmTO realmTO) {
         content.addOrReplace(new Label("header", realmTO.getName()));
-        content.addOrReplace(new Realm("body", realmTO, getPageReference()));
-        return content;
-    }
+        content.addOrReplace(new Realm("body", realmTO, getPageReference()) {
 
-    private void setupDeleteLink() {
-
-        @SuppressWarnings("unchecked")
-        final AjaxLink<Void> deleteLink = new AjaxLink("deleteLink", Model.of("deleteLink")) {
-
-            private static final long serialVersionUID = 3776750333491622263L;
+            private static final long serialVersionUID = 8221398624379357183L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
-                try {
-                    final RealmTO toBeDeleted = realmSidebarPanel.getCurrentRealm();
-
-                    if (toBeDeleted.getKey() == 0) {
-                        throw new Exception("Root realm cannot be deleted");
-                    }
-
-                    realmRestClient.delete(toBeDeleted.getFullPath());
-
-                    target.add(realmSidebarPanel.reloadRealmTree());
-                    target.add(updateRealmContent(realmSidebarPanel.getCurrentRealm()));
-
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                } catch (Exception e) {
-                    LOG.error("While deleting realm", e);
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                }
-                notificationPanel.refresh(target);
-            }
-        };
-
-        deleteLink.add(new ConfirmationModalBehavior());
-        MetaDataRoleAuthorizationStrategy.authorize(deleteLink, ENABLE, StandardEntitlement.REALM_DELETE);
-
-        content.addOrReplace(deleteLink);
-    }
-
-    private void setupCreateLink() {
-
-        final AjaxLink<Void> createLink = new IndicatingAjaxLink<Void>("createLink") {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
+            protected void onClickCreate(final AjaxRequestTarget target) {
                 modal.header(new ResourceModel("createRealm"));
 
-                final RealmTO realmTO = new RealmTO();
-                modal.setFormModel(realmTO);
+                final RealmTO newRealmTO = new RealmTO();
+
+                modal.setFormModel(newRealmTO);
 
                 final RealmModalPanel panel = new RealmModalPanel(
                         modal,
                         Realms.this.getPageReference(),
-                        realmTO,
+                        newRealmTO,
                         realmSidebarPanel.getCurrentRealm().getFullPath(),
                         StandardEntitlement.REALM_CREATE,
                         true);
@@ -168,22 +119,11 @@ public class Realms extends BasePage {
                 modal.addSumbitButton();
                 modal.show(true);
             }
-        };
-
-        MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE, StandardEntitlement.REALM_CREATE);
-        content.addOrReplace(createLink);
-    }
-
-    private void setupEditLink() {
-        final AjaxLink<Void> editLink = new IndicatingAjaxLink<Void>("editLink") {
-
-            private static final long serialVersionUID = -6957616042924610290L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            protected void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO) {
                 modal.header(Model.of(realmSidebarPanel.getCurrentRealm().getName()));
 
-                final RealmTO realmTO = realmSidebarPanel.getCurrentRealm();
                 modal.setFormModel(realmTO);
 
                 final RealmModalPanel panel = new RealmModalPanel(
@@ -198,9 +138,24 @@ public class Realms extends BasePage {
                 modal.addSumbitButton();
                 modal.show(true);
             }
-        };
 
-        MetaDataRoleAuthorizationStrategy.authorize(editLink, ENABLE, StandardEntitlement.REALM_UPDATE);
-        content.addOrReplace(editLink);
+            @Override
+            protected void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO) {
+                try {
+                    if (realmTO.getKey() == 0) {
+                        throw new Exception("Root realm cannot be deleted");
+                    }
+                    realmRestClient.delete(realmTO.getFullPath());
+                    target.add(realmSidebarPanel.reloadRealmTree());
+                    target.add(updateRealmContent(realmSidebarPanel.getCurrentRealm()));
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (Exception e) {
+                    LOG.error("While deleting realm", e);
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                }
+                BasePage.class.cast(getPage()).getNotificationPanel().refresh(target);
+            }
+        });
+        return content;
     }
 }

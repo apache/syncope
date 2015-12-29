@@ -18,6 +18,8 @@
  */
 th.checkGroupColumn{
   width: 20px;
+  text-align: center;
+  padding-right: 8px !important;
 }
 
 td.checkGroupColumn{
