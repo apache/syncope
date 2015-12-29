@@ -1,0 +1,17 @@
+<div style="padding-left: 29%">
+  <nav class="navbar">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <img alt="captcha" ng-src="{{captchaUrl}}'"/>
+        <div style="margin-top: 5%">
+          <button id="refresh" type="button" class="btn btn-default btn-xs glyphicon glyphicon-refresh" ng-click="refreshCaptcha()" title="Refresh Captcha"></button>
+          <a id="refresh" class="btn btn-default btn-xs glyphicon glyphicon-question-sign" title="What is?" href="https://it.wikipedia.org/wiki/CAPTCHA"/>
+        </div>
+        <input class="form-control" style="margin-top: 5%" type="text" ng-model="input.value"/>
+      </div>
+      <div class="navbar-header">
+        <span class="help-block">Please enter the code displayed within the image.</span>
+      </div>
+    </div>
+  </nav>
+</div>

@@ -96,6 +96,10 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'growlProvi
               url: '/resources',
               templateUrl: 'views/user-resources.html'
             })
+            .state('create.finish', {
+              url: '/finish',
+              templateUrl: 'views/user-form-finish.html'
+            })
             .state('update', {
               url: '/self/update',
               templateUrl: 'views/editUser.html',
@@ -157,6 +161,15 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'growlProvi
             .state('update.resources', {
               url: '/resources',
               templateUrl: 'views/user-resources.html',
+              resolve: {
+                'authenticated': function (AuthenticationHelper) {
+                  return AuthenticationHelper.authenticated();
+                }
+              }
+            })
+            .state('update.finish', {
+              url: '/finish',
+              templateUrl: 'views/user-form-finish.html',
               resolve: {
                 'authenticated': function (AuthenticationHelper) {
                   return AuthenticationHelper.authenticated();

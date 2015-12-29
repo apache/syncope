@@ -19,8 +19,13 @@ under the License.
 -->
 
 <div id="attribute" class="form-group row">
-  <navigation-buttons ng-show="createMode" next="create.finish" previous="create.plainSchemas"></navigation-buttons>
-  <navigation-buttons ng-show="!createMode" next="update.finish" previous="update.plainSchemas"></navigation-buttons>
+  <!--captcha-->
+  <div class="form-group row">
+    <captcha input="captchaInput"></captcha>
+  </div>
+  <button id="save" type="submit" class="btn btn-default pull-right">Save</button>
+  <navigation-buttons ng-show="createMode" next="none" previous="create.resources"></navigation-buttons>
+  <navigation-buttons ng-show="!createMode" next="none" previous="update.resources"></navigation-buttons>
   <div class="pull-left">
     <a id="cancel" href="#/self" class="btn btn-danger">Cancel</a>
   </div>

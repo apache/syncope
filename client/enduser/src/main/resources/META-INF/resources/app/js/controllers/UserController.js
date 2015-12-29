@@ -20,8 +20,9 @@
 'use strict';
 
 angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', 'AuthService',
-  'UserSelfService', 'SchemaService', 'RealmService', 'SecurityQuestionService', 'growl', function ($scope, $rootScope,
-          $location, $compile, AuthService, UserSelfService, SchemaService, RealmService, SecurityQuestionService, growl) {
+  'UserSelfService', 'SchemaService', 'RealmService', 'SecurityQuestionService', 'CaptchaService', 'growl', function ($scope,
+          $rootScope, $location, $compile, AuthService, UserSelfService, SchemaService, RealmService, SecurityQuestionService,
+          CaptchaService, growl) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -34,6 +35,9 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     $scope.availableSecurityQuestions = [];
 
     $scope.initialSecurityQuestion = undefined;
+    $scope.captchaInput = {
+      value: ""
+    };
 
     $scope.initUser = function () {
 
@@ -46,7 +50,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         errorMessage: '',
         attributeTable: {}
       };
-
 
       var initSchemas = function () {
         // initialization is done here synchronously to have all schema fields populated correctly
@@ -178,58 +181,73 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
       }
 
+
+
       initRealms();
       //retrieve security available questions
       initSecurityQuestions();
       // initialize user attributes starting from any object schemas
       initSchemas();
-
     };
 
     $scope.saveUser = function (user) {
       console.log("Save user: ", user);
+      // validate captcha and then save user
+      CaptchaService.validate($scope.captchaInput).then(function (response) {
+        if (!(response === 'true')) {
+          growl.error("Captcha inserted is not valid, please digit the correct captcha", {referenceId: 2});
+          return;
+        }
 
-      if ($scope.createMode) {
+        if ($scope.createMode) {
 
-        UserSelfService.create(user).then(function (response) {
-          console.log("Created user: ", response);
-          growl.success("User " + $scope.user.username + " successfully created", {referenceId: 1});
-          $location.path('/self');
-        }, function (response) {
-          console.log("Error during user creation: ", response);
-          var errorMessage;
-          // parse error response 
-          if (response !== undefined) {
-            errorMessage = response.split("ErrorMessage{{")[1];
-            errorMessage = errorMessage.split("}}")[0];
-          }
-          growl.error("Error: " + (errorMessage || response), {referenceId: 2});
-        });
-
-      } else {
-
-        UserSelfService.update(user).then(function (response) {
-          console.log("Updated user: ", response);
-          AuthService.logout().then(function (response) {
-            console.log("LOGOUT SUCCESS: ", response);
+          UserSelfService.create(user).then(function (response) {
+            console.log("Created user: ", response);
+            growl.success("User " + $scope.user.username + " successfully created", {referenceId: 1});
             $location.path('/self');
-            growl.success("User " + $scope.user.username + " successfully updated", {referenceId: 1});
-          }, function () {
-            console.log("LOGOUT FAILED");
+          }, function (response) {
+            console.log("Error during user creation: ", response);
+            var errorMessage;
+            // parse error response 
+            if (response !== undefined) {
+              errorMessage = response.split("ErrorMessage{{")[1];
+              errorMessage = errorMessage.split("}}")[0];
+            }
+            growl.error("Error: " + (errorMessage || response), {referenceId: 2});
           });
-        }, function (response) {
-          console.log("Error during user update: ", response);
-          var errorMessage;
-          // parse error response 
-          if (response !== undefined) {
-            errorMessage = response.split("ErrorMessage{{")[1];
-            errorMessage = errorMessage.split("}}")[0];
-          }
-          growl.error("Error: " + (errorMessage || response), {referenceId: 2});
-        });
-      }
+
+        } else {
+
+          UserSelfService.update(user).then(function (response) {
+            console.log("Updated user: ", response);
+            AuthService.logout().then(function (response) {
+              console.log("LOGOUT SUCCESS: ", response);
+              $location.path('/self');
+              growl.success("User " + $scope.user.username + " successfully updated", {referenceId: 1});
+            }, function () {
+              console.log("LOGOUT FAILED");
+            });
+          }, function (response) {
+            console.log("Error during user update: ", response);
+            var errorMessage;
+            // parse error response 
+            if (response !== undefined) {
+              errorMessage = response.split("ErrorMessage{{")[1];
+              errorMessage = errorMessage.split("}}")[0];
+            }
+            growl.error("Error: " + (errorMessage || response), {referenceId: 2});
+          });
+        }
+      }, function (response) {
+        console.log("Error during validate captcha ", response);
+        var errorMessage;
+        // parse error response 
+        if (response !== undefined) {
+          errorMessage = response.split("ErrorMessage{{")[1];
+          errorMessage = errorMessage.split("}}")[0];
+        }
+        growl.error("Error: " + (errorMessage || response), {referenceId: 2});
+        return;
+      });
     };
-
-
-
   }]);

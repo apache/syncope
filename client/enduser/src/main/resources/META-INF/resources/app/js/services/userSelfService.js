@@ -41,7 +41,7 @@ angular.module('login')
               return $http
                       .post('/syncope-enduser/api/self/create', user)
                       .then(function (response) {
-                        console.log("response save: ", response)
+                        console.log("response save: ", response);
                         var username = response;
                       }, function (response) {
                         console.log("Something went wrong during user self creation, exit with status: ", response);

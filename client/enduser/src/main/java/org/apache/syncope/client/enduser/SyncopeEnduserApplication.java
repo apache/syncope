@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+import org.apache.syncope.client.enduser.resources.CaptchaResource;
+import org.apache.syncope.client.enduser.resources.CaptchaValidateResource;
 import org.apache.syncope.client.enduser.resources.InfoResource;
 import org.apache.syncope.client.enduser.resources.LoginResource;
 import org.apache.syncope.client.enduser.resources.LogoutResource;
@@ -197,6 +199,28 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             @Override
             public IResource getResource() {
                 return new InfoResource();
+            }
+        });
+
+        // resource to get a fresh captcha image
+        mountResource("/api/captcha", new ResourceReference("captcha") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new CaptchaResource();
+            }
+        });
+
+        // resource to validate current captcha
+        mountResource("/api/captcha/validate", new ResourceReference("captchaValidate") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new CaptchaValidateResource();
             }
         });
 
