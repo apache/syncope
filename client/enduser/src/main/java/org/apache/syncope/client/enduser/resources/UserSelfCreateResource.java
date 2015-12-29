@@ -79,14 +79,17 @@ public class UserSelfCreateResource extends AbstractBaseResource {
             } else {
                 response.setError(Response.Status.FORBIDDEN.getStatusCode(), new StringBuilder().
                         append("ErrorMessage{{").append(userTORequest == null
-                        ? "Request received is not valid"
-                        : "Self registration not allowed").append("}}").toString());
+                        ? "Request received is not valid }}"
+                        : "Self registration not allowed }}").toString());
             }
 
         } catch (Exception e) {
             LOG.error("Could not create userTO", e);
-            response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder().append("ErrorMessage{{ ")
-                    .append(e.getMessage()).append(" }}").toString());
+            response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
+                    .append("ErrorMessage{{ ")
+                    .append(e.getMessage())
+                    .append(" }}")
+                    .toString());
         }
         return response;
     }

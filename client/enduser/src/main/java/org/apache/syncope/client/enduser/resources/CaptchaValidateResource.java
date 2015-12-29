@@ -55,10 +55,9 @@ public class CaptchaValidateResource extends AbstractBaseResource {
 
             if (StringUtils.isBlank(currentCaptcha) || enteredCaptcha == null) {
                 LOG.info("Could not validate captcha: current session captcha or inserted captcha are empty or null");
-                response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
-                        .append("ErrorMessage{{ Could not validate captcha: current session captcha or entered")
-                        .append(" captcha areempty or null }}")
-                        .toString());
+                response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
+                        "ErrorMessage{{ Could not validate captcha: current session captcha or entered captcha are "
+                                + "empty or null }}");
             } else {
                 LOG.info("Is entered captcha equal to current session captcha? {}", enteredCaptcha.getValue().equals(
                         currentCaptcha));
