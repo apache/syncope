@@ -60,7 +60,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> implements Notif
 
     private static final String FORM = "form";
 
-    private final NotificationPanel feedbackPanel;
+    protected NotificationPanel notificationPanel;
 
     private final List<Component> components;
 
@@ -75,9 +75,9 @@ public class BaseModal<T extends Serializable> extends Modal<T> implements Notif
     public BaseModal(final String id) {
         super(id);
 
-        feedbackPanel = new NotificationPanel(Constants.FEEDBACK);
-        feedbackPanel.setOutputMarkupId(true);
-        add(feedbackPanel);
+        notificationPanel = new NotificationPanel(Constants.FEEDBACK);
+        notificationPanel.setOutputMarkupId(true);
+        addOrReplace(notificationPanel);
 
         form = new Form<>(FORM);
         add(form);
@@ -109,8 +109,8 @@ public class BaseModal<T extends Serializable> extends Modal<T> implements Notif
     }
 
     @Override
-    public NotificationPanel getFeedbackPanel() {
-        return feedbackPanel;
+    public NotificationPanel getNotificationPanel() {
+        return notificationPanel;
     }
 
     public Form<T> getForm() {

@@ -17,23 +17,22 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head>
-    <title></title>
+  <wicket:panel>
 
-    <link rel="stylesheet" type="text/css" href="webjars/jquery-ui/${jquery-ui.version}/themes/base/minified/jquery-ui.min.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="css/style.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="css/fieldstyle.css" media="all"/>
+    <span wicket:id="feedback"></span>
 
-    <style type="text/css">
-      table.palette td.header {
-        background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
-          repeat-x scroll 50% 50% #E6E6E6 !important;
-      }
-    </style>
+    <script id="errorTemplate" type="text/x-kendo-template">
+      <div data-time="0" class="errorNotification">
+      <span class="glyphicon glyphicon-remove-circle"></span>
+      <h3>#= message #</h3>
+      </div>
+    </script>
 
-  </head>
-  <body onload="setTimeout('window.focus();', 0);">
-    <wicket:child />
-  </body>
+    <script id="successTemplate" type="text/x-kendo-template">
+      <div data-time="3000" class="successNotification">
+      <span class="glyphicon glyphicon-ok-circle"></span>
+      <h3>#= message #</h3>
+      </div>
+    </script>
+  </wicket:panel>
 </html>

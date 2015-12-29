@@ -22,12 +22,12 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ConnectorModal;
 import org.apache.syncope.client.console.panels.ResourceModal;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -41,6 +41,7 @@ import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -123,12 +124,12 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
     private Fragment getLocationFragment(final TopologyNode node, final PageReference pageRef) {
         final Fragment fragment = new Fragment("actions", "locationActions", this);
 
-        final AjaxLink<String> create = new ClearIndicatingAjaxLink<String>("create", pageRef) {
+        final AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
-            public void onClickInternal(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 final ConnInstanceTO modelObject = new ConnInstanceTO();
                 modelObject.setLocation(node.getKey().toString());
 
@@ -155,12 +156,12 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
     private Fragment getConnectorFragment(final TopologyNode node, final PageReference pageRef) {
         final Fragment fragment = new Fragment("actions", "connectorActions", this);
 
-        final AjaxLink<String> delete = new ClearIndicatingAjaxLink<String>("delete", pageRef) {
+        final AjaxLink<String> delete = new IndicatingAjaxLink<String>("delete") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
-            public void onClickInternal(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 try {
                     connectorRestClient.delete(Long.class.cast(node.getKey()));
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
@@ -169,20 +170,21 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
                 }
-                ((BasePage) pageRef.getPage()).getFeedbackPanel().refresh(target);
+                ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
             }
         };
+        
         fragment.add(delete);
         delete.add(new ConfirmationModalBehavior());
 
         MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.CONNECTOR_DELETE);
 
-        final AjaxLink<String> create = new ClearIndicatingAjaxLink<String>("create", pageRef) {
+        final AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
-            public void onClickInternal(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 final ResourceTO modelObject = new ResourceTO();
                 modelObject.setConnector(Long.class.cast(node.getKey()));
                 modelObject.setConnectorDisplayName(node.getDisplayName());
@@ -204,12 +206,12 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
         MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.RESOURCE_CREATE);
 
-        final AjaxLink<String> edit = new ClearIndicatingAjaxLink<String>("edit", pageRef) {
+        final AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
-            public void onClickInternal(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 final ConnInstanceTO modelObject = connectorRestClient.read(Long.class.cast(node.getKey()));
 
                 final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(modelObject);
@@ -235,12 +237,12 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
     private Fragment getResurceFragment(final TopologyNode node, final PageReference pageRef) {
         final Fragment fragment = new Fragment("actions", "resourceActions", this);
 
-        final AjaxLink<String> delete = new ClearIndicatingAjaxLink<String>("delete", pageRef) {
+        final AjaxLink<String> delete = new IndicatingAjaxLink<String>("delete") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
-            public void onClickInternal(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 try {
                     resourceRestClient.delete(node.getKey().toString());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
@@ -249,8 +251,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
                 }
-
-                ((BasePage) pageRef.getPage()).getFeedbackPanel().refresh(target);
+                ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
             }
         };
         fragment.add(delete);
@@ -259,12 +260,12 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
         MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.RESOURCE_DELETE);
 
-        final AjaxLink<String> edit = new ClearIndicatingAjaxLink<String>("edit", pageRef) {
+        final AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
-            public void onClickInternal(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 final ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
 
                 final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);

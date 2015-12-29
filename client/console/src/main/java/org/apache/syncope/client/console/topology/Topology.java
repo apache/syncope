@@ -30,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractResourceModal.CreateEvent;
 import org.apache.syncope.client.console.rest.BaseRestClient;
@@ -156,11 +155,10 @@ public class Topology extends BasePage {
             public void onClose(final AjaxRequestTarget target) {
                 modal.show(false);
 
-                if (isModalResult()) {
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                    feedbackPanel.refresh(target);
-                    setModalResult(false);
-                }
+//                if (isModalResult()) {
+//                    info(getString(Constants.OPERATION_SUCCEEDED));
+//                    notificationPanel.refresh(target);
+//                }
             }
         });
 

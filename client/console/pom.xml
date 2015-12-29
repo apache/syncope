@@ -71,6 +71,14 @@ under the License.
       <artifactId>wicket-jquery-ui</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.googlecode.wicket-jquery-ui</groupId>
+      <artifactId>wicket-kendo-ui</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.wicket-jquery-ui</groupId>
+      <artifactId>wicket-kendo-ui-theme-bootstrap</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-native-websocket-javax</artifactId>
     </dependency>

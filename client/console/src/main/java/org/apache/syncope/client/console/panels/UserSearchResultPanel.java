@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.pages.StatusModal;
 import org.apache.syncope.client.console.pages.UserDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
@@ -126,8 +126,8 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel
-                                = new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
+                        final IModel<AnyHandler<UserTO>> formModel =
+                                new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
                         modal.setFormModel(formModel);
 
                         target.add(modal.setContent(new StatusModal<>(
@@ -143,8 +143,8 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel
-                                = new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
+                        final IModel<AnyHandler<UserTO>> formModel =
+                                new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
                         modal.setFormModel(formModel);
 
                         target.add(modal.setContent(new StatusModal<>(
@@ -191,7 +191,8 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
                         }
-                        ((BasePage) getPage()).getFeedbackPanel().refresh(target);
+                        ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
+
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.USER_DELETE);
 

@@ -899,6 +899,16 @@ under the License.
         <version>${wicket-jqueryui.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.googlecode.wicket-jquery-ui</groupId>
+        <artifactId>wicket-kendo-ui</artifactId>
+        <version>${wicket-jqueryui.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.googlecode.wicket-jquery-ui</groupId>
+        <artifactId>wicket-kendo-ui-theme-bootstrap</artifactId>
+        <version>${wicket-jqueryui.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.wicket</groupId>
         <artifactId>wicket-native-websocket-javax</artifactId>
         <version>${wicket.version}</version>

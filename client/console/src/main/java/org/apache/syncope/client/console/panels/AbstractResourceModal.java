@@ -73,7 +73,7 @@ public abstract class AbstractResourceModal extends AbstractModalPanel {
 
                 @Override
                 protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                    modal.getFeedbackPanel().refresh(target);
+                    modal.getNotificationPanel().refresh(target);
                 }
             };
         }

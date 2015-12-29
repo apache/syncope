@@ -44,14 +44,11 @@ public abstract class AbstractLogsPanel<T extends AbstractBaseBean> extends Pane
 
     private static final long serialVersionUID = -6313532280206208227L;
 
-    protected final NotificationPanel feedbackPanel;
-
     public AbstractLogsPanel(
-            final String id, 
+            final String id,
             final PageReference pageRef,
             final List<LoggerTO> loggerTOs) {
         super(id);
-        this.feedbackPanel = ((AbstractBasePage) pageRef.getPage()).getFeedbackPanel();
 
         final WebMarkupContainer container = new WebMarkupContainer("loggerContainer");
         container.setOutputMarkupId(true);
@@ -82,9 +79,9 @@ public abstract class AbstractLogsPanel<T extends AbstractBaseBean> extends Pane
                                 info(getString(Constants.OPERATION_SUCCEEDED));
                             } catch (SyncopeClientException e) {
                                 LOG.error("Error updating the logger level", e);
-                                info(getString(Constants.OPERATION_ERROR));
+                                error(getString(Constants.OPERATION_ERROR + e.getMessage()));
                             }
-                            feedbackPanel.refresh(target);
+                            ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
                         }
                     });
                     return loggerTOs;

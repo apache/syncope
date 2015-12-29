@@ -69,11 +69,6 @@ public abstract class AbstractSearchResultPanel<
     protected final WebMarkupContainer container;
 
     /**
-     * Feedback panel specified by the caller.
-     */
-    protected final NotificationPanel feedbackPanel;
-
-    /**
      * Specify if results are about a filtered search or not. Using this attribute it is possible to use this panel to
      * show results about user list and user search.
      */
@@ -106,7 +101,6 @@ public abstract class AbstractSearchResultPanel<
 
         this.filtered = builder.filtered;
         this.checkBoxEnabled = builder.checkBoxEnabled;
-        this.feedbackPanel = page.getFeedbackPanel();
 
         this.restClient = builder.restClient;
 
@@ -223,15 +217,7 @@ public abstract class AbstractSearchResultPanel<
                 data.setRows(rows);
 
                 send(getParent(), Broadcast.BREADTH, data);
-
-                if (page.isModalResult()) {
-                    // reset modal result
-                    page.setModalResult(false);
-                    // set operation succeeded
-                    getSession().info(getString(Constants.OPERATION_SUCCEEDED));
-                    // refresh feedback panel
-                    feedbackPanel.refresh(target);
-                }
+                ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
             }
         });
     }

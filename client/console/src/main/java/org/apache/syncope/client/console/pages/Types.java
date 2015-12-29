@@ -23,7 +23,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AnyTypeClassModalPanel;
 import org.apache.syncope.client.console.panels.AnyTypeClassesPanel;
 import org.apache.syncope.client.console.panels.AnyTypeModalPanel;
@@ -32,7 +31,6 @@ import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.RelationshipTypeModalPanel;
 import org.apache.syncope.client.console.panels.RelationshipTypePanel;
 import org.apache.syncope.client.console.panels.SchemasPanel;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -52,6 +50,7 @@ import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
 public class Types extends BasePage {
@@ -185,12 +184,12 @@ public class Types extends BasePage {
 
     private AjaxLink<Void> buildCreateLink(final String label, final BaseModal<?> modal, final Type type) {
 
-        final AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>(label, getPageReference()) {
+        final AjaxLink<Void> createLink = new IndicatingAjaxLink<Void>(label) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 modal.header(new ResourceModel(label));
                 target.add(modal.setContent(buildModalPanel(type)));
                 modal.addSumbitButton();
@@ -237,12 +236,7 @@ public class Types extends BasePage {
                 tabbedPanel.setSelectedTab(tabbedPanel.getSelectedTab());
                 target.add(tabbedPanel);
                 modal.show(false);
-
-                if (((AbstractBasePage) Types.this.getPage()).isModalResult()) {
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                    feedbackPanel.refresh(target);
-                    ((AbstractBasePage) Types.this.getPage()).setModalResult(false);
-                }
+                notificationPanel.refresh(target);
             }
         });
     }

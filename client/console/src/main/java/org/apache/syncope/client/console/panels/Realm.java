@@ -22,7 +22,6 @@ import com.googlecode.wicket.jquery.core.panel.LabelPanel;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
@@ -127,7 +126,7 @@ public class Realm extends Panel {
                         pageReference).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new UserWizardBuilder(
                                 BaseModal.CONTENT_ID, userTO, anyTypeTO.getClasses(), pageRef)).
-                        addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
+                        //addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getPopupComponent()).
                         build(id);
                 MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER, StandardEntitlement.USER_LIST);
                 break;
@@ -141,7 +140,7 @@ public class Realm extends Panel {
                         pageReference).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new GroupWizardBuilder(
                                 BaseModal.CONTENT_ID, groupTO, anyTypeTO.getClasses(), pageRef)).
-                        addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
+                        //addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel).
                         build(id);
                 // list of group is available to all authenticated users
                 break;
@@ -156,7 +155,7 @@ public class Realm extends Panel {
                         pageReference).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new AnyWizardBuilder<AnyObjectTO>(
                                 BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).
-                        addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getFeedbackPanel()).
+                        //addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getPopupComponent()).
                         build(id);
                 MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER,
                         String.format("%s_%s", anyObjectTO.getType(), AnyEntitlement.LIST));

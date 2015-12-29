@@ -68,11 +68,11 @@ public class AbstractModalPanel extends Panel implements ModalPanel {
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        modal.getFeedbackPanel().refresh(target);
+        modal.getNotificationPanel().refresh(target);
     }
 
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        modal.getFeedbackPanel().refresh(target);
+        modal.getNotificationPanel().refresh(target);
     }
 }

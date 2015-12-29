@@ -44,12 +44,7 @@ public abstract class AbstractSchemaDetailsPanel extends Panel {
      * Schema rest client for create and update operations
      */
     protected final SchemaRestClient schemaRestClient = new SchemaRestClient();
-
-    /**
-     * Feedback panel specified by the caller.
-     */
-    protected final NotificationPanel feedbackPanel;
-
+    
     /**
      * Schema form
      */
@@ -66,7 +61,6 @@ public abstract class AbstractSchemaDetailsPanel extends Panel {
         super(id);
 
         this.page = (AbstractBasePage) pageReference.getPage();
-        this.feedbackPanel = page.getFeedbackPanel();
         this.schemaTO = modal.getFormModel();
 
         schemaForm = new Form<>(FORM);

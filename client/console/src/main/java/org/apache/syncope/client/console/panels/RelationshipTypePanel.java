@@ -151,13 +151,12 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
                             SyncopeConsoleSession.get().getService(
                                     RelationshipTypeService.class).delete(relationshipTypeTO.getKey());
                             info(getString(Constants.OPERATION_SUCCEEDED));
-                            feedbackPanel.refresh(target);
                             target.add(webContainer);
                         } catch (Exception e) {
                             LOG.error("While deleting RelationshipType", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            feedbackPanel.refresh(target);
                         }
+                        modal.getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RELATIONSHIPTYPE_DELETE);
 

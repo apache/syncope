@@ -27,7 +27,6 @@ import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -36,6 +35,7 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
@@ -88,8 +88,8 @@ public class BulkActionModalPage<T, S> extends AbstractModalPanel {
                 Integer.MAX_VALUE).setVisible(items != null && !items.isEmpty()));
 
         @SuppressWarnings("rawtypes")
-        final ActionLinksPanel<Serializable> actionPanel
-                = ActionLinksPanel.builder(pageRef).build("actions");
+        final ActionLinksPanel<Serializable> actionPanel =
+                ActionLinksPanel.builder(pageRef).build("actions");
         add(actionPanel);
 
         for (ActionLink.ActionType action : actions) {
@@ -139,7 +139,7 @@ public class BulkActionModalPage<T, S> extends AbstractModalPanel {
                             | IllegalArgumentException | InvocationTargetException e) {
                         error(getString(Constants.ERROR)
                                 + ": Operation " + bulkAction.getType() + " not supported");
-                        modal.getFeedbackPanel().refresh(target);
+                        modal.getNotificationPanel().refresh(target);
                     }
 
                 }
@@ -149,14 +149,15 @@ public class BulkActionModalPage<T, S> extends AbstractModalPanel {
         final Form<Void> form = new Form<>(FORM);
         add(form);
 
-        final AjaxButton cancel = new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), pageRef) {
+        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 modal.close(target);
             }
+
         };
 
         cancel.setDefaultFormProcessing(false);

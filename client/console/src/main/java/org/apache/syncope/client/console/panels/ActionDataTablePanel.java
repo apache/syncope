@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.client.console.commons.ActionTableCheckGroup;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -34,6 +33,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -100,12 +100,12 @@ public class ActionDataTablePanel<T, S> extends DataTablePanel<T, S> {
             actionPanelContainer.add(new AttributeModifier("style", "display: none"));
         }
 
-        bulkActionForm.add(new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), pageRef) {
+        bulkActionForm.add(new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -2341391430136818025L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 // ignore
             }
         }.setVisible(false).setEnabled(false));
@@ -123,15 +123,15 @@ public class ActionDataTablePanel<T, S> extends DataTablePanel<T, S> {
 
     public void addCancelButton(final BaseModal<?> modal) {
 
-        final AjaxButton cancel = new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), pageRef) {
+        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
-            private static final long serialVersionUID = -2341391430136818025L;
+            private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 modal.close(target);
             }
-        }.feedbackPanelAutomaticReload(false);
+        };
 
         cancel.setDefaultFormProcessing(false);
         bulkActionForm.addOrReplace(cancel);

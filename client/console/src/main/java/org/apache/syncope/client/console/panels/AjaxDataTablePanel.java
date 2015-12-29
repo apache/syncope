@@ -26,17 +26,17 @@ import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.panels.AbstractSearchResultPanel.EventDataWrapper;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.console.pages.BulkActionModalPage;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
@@ -164,15 +164,7 @@ public final class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
                 send(builder.pageRef.getPage(), Broadcast.BREADTH, data);
 
                 final AbstractBasePage page = (AbstractBasePage) builder.pageRef.getPage();
-
-                if (page.isModalResult()) {
-                    // reset modal result
-                    page.setModalResult(false);
-                    // set operation succeeded
-                    getSession().info(getString(Constants.OPERATION_SUCCEEDED));
-                    // refresh feedback panel
-                    target.add(page.getFeedbackPanel());
-                }
+                ((BasePage) getPage()).getNotificationPanel().refresh(target);
             }
         });
 
@@ -203,12 +195,12 @@ public final class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
 
         group.add(dataTable);
 
-        fragment.add(new ClearIndicatingAjaxButton("bulkActionLink", bulkActionForm, builder.pageRef) {
+        fragment.add(new IndicatingAjaxButton("bulkActionLink", bulkActionForm) {
 
             private static final long serialVersionUID = 382302811235019988L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 bulkModalWin.setContent(new BulkActionModalPage<>(
                         bulkModalWin,
                         builder.pageRef,

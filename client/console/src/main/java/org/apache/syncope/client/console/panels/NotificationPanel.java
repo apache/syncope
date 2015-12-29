@@ -18,93 +18,55 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import com.googlecode.wicket.jquery.core.Options;
+import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.syncope.client.console.commons.StyledNotificationBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.feedback.FeedbackMessage;
-import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.feedback.FeedbackMessage;
 
 public class NotificationPanel extends FeedbackPanel {
 
     private static final long serialVersionUID = 5895940553202128621L;
 
+    private final Notification notification;
+
+    private StyledNotificationBehavior behavior;
+
     public NotificationPanel(final String id) {
-        this(id, null);
-    }
+        super(id);
 
-    public NotificationPanel(
-            final String id, final IFeedbackMessageFilter feedbackMessageFilter) {
+        final Options options = new Options();
+        options.set("position", "{ pinned: true }");
+        options.set("autoHideAfter", "0");
+        options.set("templates",
+                "[ { type: 'success' , template: $('#successTemplate').html() },"
+                + "  { type: 'error', template: $('#errorTemplate').html() } ] ");
 
-        super(id, feedbackMessageFilter);
+        notification = new Notification(Constants.FEEDBACK, options) {
 
-        this.add(new AjaxEventBehavior(Constants.ON_CLICK) {
-
-            private static final long serialVersionUID = -7133385027739964990L;
+            private static final long serialVersionUID = 785830249476640904L;
 
             @Override
-            protected void onEvent(final AjaxRequestTarget target) {
-                target.appendJavaScript("setTimeout(\"$('div#" + getMarkupId() + "').fadeOut('normal')\", 0);");
+            public StyledNotificationBehavior newWidgetBehavior(final String selector) {
+                behavior = new StyledNotificationBehavior(selector, options);
+                return behavior;
             }
-        });
+        };
 
-        setOutputMarkupId(true);
-
-        this.add(new AttributeModifier("class", new Model<>("alert")));
-        this.add(new AttributeModifier("style", new Model<>("opacity: 1; display: none;")));
+        add(notification);
     }
 
-    private String getCSSClass(final int level) {
-        return level == FeedbackMessage.SUCCESS
-                ? "alert alert-success"
-                : level == FeedbackMessage.INFO
-                        ? "alert alert-info"
-                        : level == FeedbackMessage.WARNING
-                                ? "alert alert-warning"
-                                : "alert alert-danger";
-    }
-
-    /**
-     * Method to refresh the notification panel.
-     *
-     * If there are any feedback messages for the user, find the gravest level, format the notification panel
-     * accordingly and show it.
-     *
-     * @param target AjaxRequestTarget to add panel and the calling javascript function
-     */
     public void refresh(final AjaxRequestTarget target) {
-        // any feedback at all in the current form?
         if (anyMessage()) {
-            int highestFeedbackLevel = FeedbackMessage.INFO;
-
-            // any feedback with the given level?
-            if (anyMessage(FeedbackMessage.WARNING)) {
-                highestFeedbackLevel = FeedbackMessage.WARNING;
-            }
-            if (anyMessage(FeedbackMessage.ERROR)) {
-                highestFeedbackLevel = FeedbackMessage.ERROR;
-            }
-
-            // add the css classes to the notification panel,
-            add(new AttributeModifier("class", new Model<>(getCSSClass(highestFeedbackLevel))));
-
-            // refresh the panel and call the js function with the panel markup id 
-            // and the total count of messages
-            target.add(this);
-
-            if (anyMessage(FeedbackMessage.ERROR)) {
-                target.appendJavaScript("$('div#" + getMarkupId() + "').fadeTo('normal', 1.0);");
-            } else {
-                target.appendJavaScript(
-                        "showNotification('" + getMarkupId() + "', " + getCurrentMessages().size() + ");");
+            for (FeedbackMessage message : getCurrentMessages()) {
+                if (anyErrorMessage()) {
+                    notification.error(target, message.getMessage());
+                } else {
+                    notification.success(target, message.getMessage());
+                }
             }
         }
-    }
-
-    @Override
-    protected String getCSSClass(final FeedbackMessage message) {
-        return "notificationpanel_row";
     }
 }

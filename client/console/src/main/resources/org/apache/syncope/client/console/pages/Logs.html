@@ -21,6 +21,7 @@ under the License.
   <wicket:extend>
     <div class="wrapper">
       <div class="admin-content-page" wicket:id="content">
+
         <div class="box box-solid box-primary">
           <div class="box-header with-border">
             <h3 class="box-title">
@@ -29,10 +30,13 @@ under the License.
           </div>
           <div class="box-body">
             <div class="realms">
-              <div wicket:id="tabbedPanel"></div>
+              <form wicket:id="form">
+                <div wicket:id="tabbedPanel"></div>
+              </form>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </wicket:extend>

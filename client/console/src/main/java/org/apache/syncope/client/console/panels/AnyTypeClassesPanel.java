@@ -154,7 +154,7 @@ public class AnyTypeClassesPanel extends Panel {
                     LOG.error("While deleting AnyTypeClass", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                 }
-                ((AbstractBasePage) pageRef.getPage()).getFeedbackPanel().refresh(target);
+                ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPECLASS_DELETE);
 

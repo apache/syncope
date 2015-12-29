@@ -48,6 +48,9 @@ import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSessio
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.feedback.DefaultCleanupFeedbackMessageFilter;
+import org.apache.wicket.feedback.FeedbackMessage;
+import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
@@ -83,6 +86,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     private String activitiModelerDirectory;
 
     private SyncopeClientFactoryBean clientFactory;
+
+    private IFeedbackMessageFilter feedbackMessageCleanupFilter = new DefaultCleanupFeedbackMessageFilter();
 
     @Override
     protected void init() {
@@ -153,6 +158,16 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
         getRequestCycleListeners().add(new SyncopeConsoleRequestCycleListener());
 
+        getApplicationSettings().setFeedbackMessageCleanupFilter(new DefaultCleanupFeedbackMessageFilter() {
+
+            private static final long serialVersionUID = 4419535854770831722L;
+
+            @Override
+            public boolean accept(final FeedbackMessage message) {
+                return true;
+            }
+        });
+
         mountPage("/login", getSignInPageClass());
 
         activitiModelerDirectory = props.getProperty("activitiModelerDirectory");
@@ -201,8 +216,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     public Class<? extends Page> getHomePage() {
         return AuthenticatedWebSession.get().isSignedIn()
                 && SyncopeConsoleSession.get().owns(StandardEntitlement.MUST_CHANGE_PASSWORD)
-                        ? MustChangePassword.class
-                        : Dashboard.class;
+                ? MustChangePassword.class
+                : Dashboard.class;
     }
 
     public String getVersion() {

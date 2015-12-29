@@ -74,12 +74,12 @@ public class CamelRouteModalPage extends AbstractModalPanel {
                 } catch (SyncopeClientException scee) {
                     error(getString(Constants.ERROR) + ": " + scee.getMessage());
                 }
-                modal.getFeedbackPanel().refresh(target);
+                modal.getNotificationPanel().refresh(target);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                modal.getFeedbackPanel().refresh(target);
+                modal.getNotificationPanel().refresh(target);
             }
 
         };

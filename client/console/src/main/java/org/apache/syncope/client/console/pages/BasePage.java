@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -51,6 +51,10 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
 
     public BasePage(final PageParameters parameters) {
         super(parameters);
+
+        notificationPanel = new NotificationPanel("feedback");
+        notificationPanel.setOutputMarkupId(true);
+        addOrReplace(notificationPanel);
 
         // header, footer
         add(new Label("version", SyncopeConsoleApplication.get().getVersion()));
@@ -124,7 +128,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         confULContainer.add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("roles", Roles.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.ROLE_LIST);
-        
+
         liContainer = new WebMarkupContainer(getLIContainerId("policies"));
         confULContainer.add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("policies", Policies.class));
@@ -205,32 +209,6 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
     }
 
     /**
-     * Set a WindowClosedCallback for a ModalWindow instance.
-     *
-     * @param window window
-     * @param container container
-     */
-    public void setWindowClosedCallback(final ModalWindow window, final WebMarkupContainer container) {
-        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                if (container != null) {
-                    target.add(container);
-                }
-
-                if (isModalResult()) {
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                    feedbackPanel.refresh(target);
-                    setModalResult(false);
-                }
-            }
-        });
-    }
-
-    /**
      * Set a WindowClosedCallback for a Modal instance.
      *
      * @param modal window
@@ -247,11 +225,10 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
                     target.add(container);
                 }
 
-                if (isModalResult()) {
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                    feedbackPanel.refresh(target);
-                    setModalResult(false);
-                }
+//                if (isModalResult()) {
+//                    notification.success(target, getString(Constants.OPERATION_SUCCEEDED));
+//                    setModalResult(false);
+//                }
             }
         });
     }

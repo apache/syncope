@@ -25,7 +25,6 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
@@ -145,7 +144,7 @@ public class ResourceModal extends AbstractResourceModal {
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_DELETE);
 
         builder.addNewItemPanelBuilder(new ProvisionWizardBuilder("wizard", model.getObject(), pageRef));
-        builder.addNotificationPanel(modal.getFeedbackPanel());
+        builder.addNotificationPanel(modal.getNotificationPanel());
 
         tabs.add(new AbstractTab(new ResourceModel("provisions", "provisions")) {
 
@@ -178,7 +177,7 @@ public class ResourceModal extends AbstractResourceModal {
                         } else {
                             error(getString("error_connection"));
                         }
-                        modal.getFeedbackPanel().refresh(target);
+                        modal.getNotificationPanel().refresh(target);
                     }
                 };
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE, StandardEntitlement.CONNECTOR_READ);
@@ -204,7 +203,7 @@ public class ResourceModal extends AbstractResourceModal {
 
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        modal.getFeedbackPanel().refresh(target);
+        modal.getNotificationPanel().refresh(target);
     }
 
     @Override
@@ -236,7 +235,6 @@ public class ResourceModal extends AbstractResourceModal {
 
         if (connObjectKeyError) {
             error(getString("connObjectKeyValidation"));
-            modal.getFeedbackPanel().refresh(target);
         } else {
             try {
                 if (createFlag) {
@@ -251,16 +249,13 @@ public class ResourceModal extends AbstractResourceModal {
                     resourceRestClient.update(resourceTO);
                 }
 
-                if (pageRef.getPage() instanceof AbstractBasePage) {
-                    ((AbstractBasePage) pageRef.getPage()).setModalResult(true);
-                }
+                info(getString(Constants.OPERATION_SUCCEEDED));
                 modal.close(target);
             } catch (Exception e) {
                 LOG.error("Failure managing resource {}", resourceTO, e);
                 error(getString(Constants.ERROR) + ": " + e.getMessage());
-                modal.getFeedbackPanel().refresh(target);
             }
         }
+        modal.getNotificationPanel().refresh(target);
     }
-
 }

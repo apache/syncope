@@ -16,18 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-.feedbackPanel {
-  padding-left: 0px;
-  text-align: center;
-}
-
-.notificationpanel_row {  
-  list-style-type: none;
-}  
-
-.notificationpanel_row span {  
-  border:0 none;
-}
 
 pre {
   white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
@@ -361,22 +349,64 @@ div.searchResult{
 }
 
 *::after, *::before {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 
 .wicket-aa-container {
-    border-color: #eee;
-    box-shadow: none;
-    background-clip: padding-box;
-    background-color: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 4px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
-    float: left;
-    font-size: 14px;
-    list-style: outside none none;
-    min-width: 160px;
-    text-align: left;
-    max-height: 250px;
+  border-color: #eee;
+  box-shadow: none;
+  background-clip: padding-box;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+  float: left;
+  font-size: 14px;
+  list-style: outside none none;
+  min-width: 160px;
+  text-align: left;
+  max-height: 250px;
+}
+
+.k-notification-error.k-group {
+  background: rgba(100% , 0% , 0% , .7);
+  color: red;
+}
+
+.errorNotification {
+  width: 300px;
+  height: 100px;
+}
+
+.errorNotification h3 {
+  font-size: 1em;
+  padding: 10px 10px 5px;
+}
+
+.errorNotification span {
+  float: left;
+  margin: 30px 15px 30px 15px;
+  font-size: 2em;
+}
+
+.k-notification-success.k-group {
+  background: rgba(0% , 60% , 0% , .7);
+  color: #fff;
+}
+
+.successNotification {
+  width: 300px;
+  height: 100px;
+}
+
+.successNotification h3 {
+  font-size: 1em;
+  padding: 32px 10px 5px;
+}
+
+.successNotification span {
+  float: left;
+  margin: 30px 15px 30px 15px;
+  font-size: 2em;
 }

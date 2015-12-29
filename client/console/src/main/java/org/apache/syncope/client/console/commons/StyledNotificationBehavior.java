@@ -18,8 +18,22 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import org.apache.syncope.client.console.panels.NotificationPanel;
+import com.googlecode.wicket.jquery.core.Options;
+import com.googlecode.wicket.kendo.ui.widget.notification.NotificationBehavior;
+import java.io.Serializable;
+import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
 
-public interface NotificationAwareComponent {
-    NotificationPanel getNotificationPanel();
+public class StyledNotificationBehavior extends NotificationBehavior {
+
+    private static final long serialVersionUID = -3985689554352173472L;
+
+    public StyledNotificationBehavior(final String selector, final Options options) {
+        super(selector, options);
+    }
+
+    @Override
+    public void show(final IPartialPageRequestHandler handler, final Serializable message, final String level) {
+        handler.appendJavaScript(String.format("%s.show( { message: '%s' } , '%s');", this.widget(), this.format(String.
+                valueOf(message), level), level.toLowerCase()));
+    }
 }

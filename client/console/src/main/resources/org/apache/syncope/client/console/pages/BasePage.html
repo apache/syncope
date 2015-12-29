@@ -34,21 +34,11 @@ under the License.
     <link href="css/fieldstyle.css" rel="stylesheet" type="text/css" />
 
     <script type="text/javascript" src="webjars/bootbox/${bootbox.version}/bootbox.js"></script>
-
-    <script type="text/javascript">
-      var notificationShownTimes = 0;
-      function showNotification(componentId, messagecount) {
-        notificationShownTimes++;
-        timeout = 1700 + (messagecount * 500) + notificationShownTimes * 200;
-        $('div#' + componentId).fadeTo('normal', 1.0);
-        setTimeout("$('div#" + componentId + "').fadeOut('normal')", timeout);
-      }
-    </script>
   </head>
   <body class="skin-green">
 
     <div class="wrapper">
-
+      <span wicket:id="feedback"></span>
       <header class="main-header block-header">
         <div class="logo logo-pos">
           <img src="img/logo.png"/>
@@ -130,9 +120,7 @@ under the License.
         </section>
       </aside>
 
-      <div class="content-wrapper basepage-content">
-        <div wicket:id="feedback" role="alert"/>
-
+      <div id="main-content" class="content-wrapper basepage-content">
         <wicket:child />
       </div>
 

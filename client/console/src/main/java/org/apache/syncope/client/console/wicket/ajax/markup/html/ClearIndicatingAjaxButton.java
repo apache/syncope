@@ -69,7 +69,7 @@ public abstract class ClearIndicatingAjaxButton extends IndicatingAjaxButton {
 
         Page page = pageRef.getPage();
         if (reloadFeebackPanel && page instanceof BasePage) {
-            target.add(((BasePage) page).getFeedbackPanel());
+            target.add(((BasePage) page).getNotificationPanel());
         }
         onSubmitInternal(target, form);
     }

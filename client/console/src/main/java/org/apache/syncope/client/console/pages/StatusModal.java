@@ -34,7 +34,6 @@ import org.apache.syncope.client.console.panels.ActionDataTablePanel;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -47,6 +46,7 @@ import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -85,7 +85,7 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
     // --------------------------------
     // password management fields ..
     // --------------------------------
-    private final ClearIndicatingAjaxButton cancel;
+    private final IndicatingAjaxButton cancel;
 
     private final WebMarkupContainer pwdMgt;
 
@@ -232,26 +232,25 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
             }
         });
 
-        cancel = new ClearIndicatingAjaxButton("cancel", new ResourceModel("cancel"), pageRef) {
+        cancel = new IndicatingAjaxButton("cancel", new ResourceModel("cancel")) {
 
             private static final long serialVersionUID = -2341391430136818026L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 // ignore
                 modal.close(target);
             }
-        }.feedbackPanelAutomaticReload(false);
+        };
 
         pwdMgtForm.add(cancel);
 
-        final ClearIndicatingAjaxButton goon = new ClearIndicatingAjaxButton("continue", new ResourceModel("continue"),
-                pageRef) {
+        final IndicatingAjaxButton goon = new IndicatingAjaxButton("continue", new ResourceModel("continue")) {
 
             private static final long serialVersionUID = -2341391430136818027L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 // none
             }
         };
@@ -271,13 +270,12 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
                                 anyTO.getKey(),
                                 new ArrayList<>(table.getModelObject()));
 
-                        ((BasePage) pageRef.getPage()).setModalResult(true);
-
+                        info(getString(Constants.OPERATION_SUCCEEDED));
                         modal.close(target);
                     } catch (Exception e) {
                         LOG.error("Error enabling resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        modal.getFeedbackPanel().refresh(target);
+                        modal.getNotificationPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.REACTIVATE, pageId);
@@ -294,15 +292,12 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
                                 anyTO.getKey(),
                                 new ArrayList<>(table.getModelObject()));
 
-                        if (pageRef.getPage() instanceof BasePage) {
-                            ((BasePage) pageRef.getPage()).setModalResult(true);
-                        }
-
+                        info(getString(Constants.OPERATION_SUCCEEDED));
                         modal.close(target);
                     } catch (Exception e) {
                         LOG.error("Error disabling resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        modal.getFeedbackPanel().refresh(target);
+                        modal.getNotificationPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.SUSPEND, pageId);
@@ -326,12 +321,12 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
                                     new ArrayList<>(table.getModelObject()));
                         }
 
-                        ((BasePage) pageRef.getPage()).setModalResult(true);
+                        info(getString(Constants.OPERATION_SUCCEEDED));
                         modal.close(target);
                     } catch (Exception e) {
                         LOG.error("Error unlinking resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        modal.getFeedbackPanel().refresh(target);
+                        modal.getNotificationPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.UNLINK, pageId);
@@ -355,12 +350,12 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
                                     new ArrayList<>(table.getModelObject()));
                         }
 
-                        ((BasePage) pageRef.getPage()).setModalResult(true);
+                        info(getString(Constants.OPERATION_SUCCEEDED));
                         modal.close(target);
                     } catch (Exception e) {
                         LOG.error("Error linking resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        modal.getFeedbackPanel().refresh(target);
+                        modal.getNotificationPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.LINK, pageId);
@@ -385,12 +380,12 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
                                     new ArrayList<>(table.getModelObject()));
                         }
 
-                        ((BasePage) pageRef.getPage()).setModalResult(true);
+                        info(getString(Constants.OPERATION_SUCCEEDED));
                         loadBulkActionResultPage(target, table.getModelObject(), bulkActionResult);
                     } catch (Exception e) {
                         LOG.error("Error de-provisioning user", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        modal.getFeedbackPanel().refresh(target);
+                        modal.getNotificationPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.DEPROVISION, pageId);
@@ -412,12 +407,12 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
                                     anyTO.getKey(),
                                     new ArrayList<>(table.getModelObject()));
 
-                            ((BasePage) pageRef.getPage()).setModalResult(true);
+                            info(getString(Constants.OPERATION_SUCCEEDED));
                             loadBulkActionResultPage(target, table.getModelObject(), bulkActionResult);
                         } catch (Exception e) {
                             LOG.error("Error provisioning user", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            modal.getFeedbackPanel().refresh(target);
+                            modal.getNotificationPanel().refresh(target);
                         }
                     }
                 }
@@ -443,12 +438,12 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
                                     new ArrayList<>(table.getModelObject()));
                         }
 
-                        ((BasePage) pageRef.getPage()).setModalResult(true);
+                        info(getString(Constants.OPERATION_SUCCEEDED));
                         loadBulkActionResultPage(target, table.getModelObject(), bulkActionResult);
                     } catch (Exception e) {
                         LOG.error("Error unassigning resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        modal.getFeedbackPanel().refresh(target);
+                        modal.getNotificationPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.UNASSIGN, pageId);
@@ -469,12 +464,12 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
                                     anyTO.getKey(),
                                     new ArrayList<>(table.getModelObject()));
 
-                            ((BasePage) pageRef.getPage()).setModalResult(true);
+                            info(getString(Constants.OPERATION_SUCCEEDED));
                             loadBulkActionResultPage(target, table.getModelObject(), bulkActionResult);
                         } catch (Exception e) {
                             LOG.error("Error assigning resources", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            modal.getFeedbackPanel().refresh(target);
+                            modal.getNotificationPanel().refresh(target);
                         }
                     }
                 }
@@ -552,13 +547,13 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
             final ResourceAssociationAction type,
             final Collection<StatusBean> selection) {
 
-        final ClearIndicatingAjaxButton goon = new ClearIndicatingAjaxButton("continue", new ResourceModel("continue",
-                "Continue"), pageRef) {
+        final IndicatingAjaxButton goon =
+                new IndicatingAjaxButton("continue", new ResourceModel("continue", "Continue")) {
 
             private static final long serialVersionUID = -2341391430136818027L;
 
             @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
                     if (StringUtils.isNotBlank(password.getModelObject())
                             && !password.getModelObject().equals(confirm.getModelObject())) {
@@ -588,22 +583,19 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
                         // ignore
                     }
 
-                    ((BasePage) pageRef.getPage()).setModalResult(true);
-
                     if (bulkActionResult != null) {
                         loadBulkActionResultPage(target, selection, bulkActionResult);
                     } else {
-
-                        target.add(((BasePage) pageRef.getPage()).getFeedbackPanel());
+                        modal.getNotificationPanel().refresh(target);
                         modal.close(target);
                     }
                 } catch (Exception e) {
                     LOG.error("Error provisioning resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    modal.getFeedbackPanel().refresh(target);
+                    modal.getNotificationPanel().refresh(target);
                 }
             }
-        }.feedbackPanelAutomaticReload(false);
+        };
 
         pwdMgtForm.addOrReplace(goon);
 

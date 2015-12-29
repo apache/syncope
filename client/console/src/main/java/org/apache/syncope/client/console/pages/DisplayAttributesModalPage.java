@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.console.PreferenceManager;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.search.SearchableFields;
@@ -200,7 +201,7 @@ public abstract class DisplayAttributesModalPage<T extends AnyTO> extends Abstra
 
                     prefMan.setList(getRequest(), getResponse(), prefs);
 
-                    ((BasePage) pageRef.getPage()).setModalResult(true);
+                    info(getString(Constants.OPERATION_SUCCEEDED));
 
                     modal.close(target);
                 }
@@ -208,7 +209,7 @@ public abstract class DisplayAttributesModalPage<T extends AnyTO> extends Abstra
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                modal.getFeedbackPanel().refresh(target);
+                modal.getNotificationPanel().refresh(target);
             }
         };
 

@@ -24,7 +24,6 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -126,16 +125,13 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
             } else {
                 schemaRestClient.updateVirSchema(updatedVirSchemaTO);
             }
-
-            if (pageReference.getPage() instanceof AbstractBasePage) {
-                ((AbstractBasePage) pageReference.getPage()).setModalResult(true);
-            }
+            
+            info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
-
         } catch (Exception e) {
             LOG.error("While creating or updating VirSchema", e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getFeedbackPanel().refresh(target);
+            modal.getNotificationPanel().refresh(target);
         }
     }
 

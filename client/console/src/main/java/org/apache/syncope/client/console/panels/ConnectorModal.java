@@ -26,7 +26,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -102,7 +101,7 @@ public class ConnectorModal extends AbstractResourceModal {
                         } else {
                             error(getString("error_connection"));
                         }
-                        modal.getFeedbackPanel().refresh(target);
+                        modal.getNotificationPanel().refresh(target);
                     }
 
                 };
@@ -127,7 +126,7 @@ public class ConnectorModal extends AbstractResourceModal {
 
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        modal.getFeedbackPanel().refresh(target);
+        modal.getNotificationPanel().refresh(target);
     }
 
     @Override
@@ -163,15 +162,12 @@ public class ConnectorModal extends AbstractResourceModal {
             } else {
                 connectorRestClient.update(connInstanceTO);
             }
-
-            if (pageRef.getPage() instanceof AbstractBasePage) {
-                ((AbstractBasePage) pageRef.getPage()).setModalResult(true);
-            }
+            info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
             LOG.error("Failure managing resource {}", connInstanceTO, e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getFeedbackPanel().refresh(target);
+            modal.getNotificationPanel().refresh(target);
         }
     }
 

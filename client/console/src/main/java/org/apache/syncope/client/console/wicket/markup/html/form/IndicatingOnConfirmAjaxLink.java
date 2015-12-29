@@ -18,22 +18,21 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
-import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
-import org.apache.wicket.PageReference;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 
-public abstract class IndicatingOnConfirmAjaxLink<T> extends ClearIndicatingAjaxLink<T> {
+public abstract class IndicatingOnConfirmAjaxLink<T> extends IndicatingAjaxLink<T> {
 
     private static final long serialVersionUID = 2228670850922265663L;
 
     private final String msg;
 
-    public IndicatingOnConfirmAjaxLink(final String id, final PageReference pageRef) {
-        this(id, pageRef, "confirmDelete");
+    public IndicatingOnConfirmAjaxLink(final String id) {
+        this(id, "confirmDelete");
     }
 
-    public IndicatingOnConfirmAjaxLink(final String id, final PageReference pageRef, final String msg) {
-        super(id, pageRef);
+    public IndicatingOnConfirmAjaxLink(final String id, final String msg) {
+        super(id);
         this.msg = msg;
         this.add(new ConfirmationModalBehavior(msg));
     }

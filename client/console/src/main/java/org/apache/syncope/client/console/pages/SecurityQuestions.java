@@ -20,16 +20,15 @@ package org.apache.syncope.client.console.pages;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.SecurityQuestionModalPanel;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -56,13 +55,12 @@ public class SecurityQuestions extends BasePage {
         addWindowWindowClosedCallback(securityQuestionModal);
         add(securityQuestionModal);
 
-        final AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>(
-                "createSecurityQuestion", getPageReference()) {
+        final AjaxLink<Void> createLink = new IndicatingAjaxLink<Void>("createSecurityQuestion") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 securityQuestionModal.header(new ResourceModel("createSecurityQuestion"));
                 securityQuestionModal.setFormModel(new SecurityQuestionTO());
                 securityQuestionModal.size(Modal.Size.Large);
@@ -96,12 +94,9 @@ public class SecurityQuestions extends BasePage {
                 target.add(securityQuestionsPanel);
                 modal.show(false);
 
-                if (((AbstractBasePage) SecurityQuestions.this.getPage()).isModalResult()) {
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                    feedbackPanel.refresh(target);
-                    ((AbstractBasePage) SecurityQuestions.this.getPage()).setModalResult(false);
-                }
+                ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
             }
-        });
+        }
+        );
     }
 }

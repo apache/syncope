@@ -201,7 +201,7 @@ public class AnyObjectSearchResultPanel<T extends AnyTO>
                                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
                                 }
-                                ((BasePage) getPage()).getFeedbackPanel().refresh(target);
+                                ((BasePage) getPage()).getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, String.format("%s_%s", type, AnyEntitlement.DELETE));
 

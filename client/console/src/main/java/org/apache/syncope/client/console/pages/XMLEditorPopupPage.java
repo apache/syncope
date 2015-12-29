@@ -68,12 +68,12 @@ public class XMLEditorPopupPage extends BasePopupPage {
                 } catch (SyncopeClientException scee) {
                     error(getString(Constants.ERROR) + ": " + scee.getMessage());
                 }
-                feedbackPanel.refresh(target);
+                notificationPanel.refresh(target);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                feedbackPanel.refresh(target);
+                notificationPanel.refresh(target);
             }
         };
 

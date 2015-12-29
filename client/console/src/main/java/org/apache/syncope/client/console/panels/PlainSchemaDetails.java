@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -412,14 +411,12 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 schemaRestClient.updatePlainSchema(updatedPlainSchemaTO);
             }
 
-            if (pageReference.getPage() instanceof AbstractBasePage) {
-                ((AbstractBasePage) pageReference.getPage()).setModalResult(true);
-            }
+            info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating plain schema", e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getFeedbackPanel().refresh(target);
+            modal.getNotificationPanel().refresh(target);
         }
     }
 }

@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -171,13 +172,12 @@ public class SecurityQuestionsPanel extends AbstractTypesPanel<SecurityQuestionT
                                     SyncopeConsoleSession.get().getService(SecurityQuestionService.class
                                     ).delete(securityQuestionTO.getKey());
                                     info(getString(Constants.OPERATION_SUCCEEDED));
-                                    feedbackPanel.refresh(target);
                                     target.add(webContainer);
                                 } catch (Exception e) {
                                     LOG.error("While deleting SecutiryQuestionTO", e);
                                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                                    feedbackPanel.refresh(target);
                                 }
+                                ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
 
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.SECURITY_QUESTION_DELETE);

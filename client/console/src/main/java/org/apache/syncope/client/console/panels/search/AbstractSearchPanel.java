@@ -34,8 +34,6 @@ import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.wicket.feedback.FeedbackMessage;
-import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -129,27 +127,27 @@ public abstract class AbstractSearchPanel extends Panel {
         searchFormContainer.setOutputMarkupId(true);
         add(searchFormContainer);
 
-        searchFeedback = new NotificationPanel("searchFeedback", new IFeedbackMessageFilter() {
-
-            private static final long serialVersionUID = 6895024863321391672L;
-
-            @Override
-            public boolean accept(final FeedbackMessage message) {
-                boolean result;
-
-                // messages reported on the session have a null reporter
-                if (message.getReporter() == null) {
-                    result = false;
-                } else {
-                    // only accept messages coming from the children of the search form container
-                    result = searchFormContainer.contains(message.getReporter(), true);
-                }
-
-                return result;
-            }
-        });
-        searchFeedback.setOutputMarkupId(true);
-        add(searchFeedback);
+//        searchFeedback = new NotificationPanel("searchFeedback", new IFeedbackMessageFilter() {
+//
+//            private static final long serialVersionUID = 6895024863321391672L;
+//
+//            @Override
+//            public boolean accept(final FeedbackMessage message) {
+//                boolean result;
+//
+//                // messages reported on the session have a null reporter
+//                if (message.getReporter() == null) {
+//                    result = false;
+//                } else {
+//                    // only accept messages coming from the children of the search form container
+//                    result = searchFormContainer.contains(message.getReporter(), true);
+//                }
+//
+//                return result;
+//            }
+//        });
+//        searchFeedback.setOutputMarkupId(true);
+//        add(searchFeedback);
 
         final SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),

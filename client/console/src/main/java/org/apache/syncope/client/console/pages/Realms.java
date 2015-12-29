@@ -24,7 +24,6 @@ import org.apache.syncope.client.console.panels.RealmModalPanel;
 import org.apache.syncope.client.console.panels.RealmSidebarPanel;
 import org.apache.syncope.client.console.panels.RealmSidebarPanel.ControlSidebarClick;
 import org.apache.syncope.client.console.rest.RealmRestClient;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -33,6 +32,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -79,12 +79,6 @@ public class Realms extends BasePage {
                 target.add(updateRealmContent(realmSidebarPanel.getCurrentRealm()));
 
                 modal.show(false);
-
-                if (isModalResult()) {
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                    feedbackPanel.refresh(target);
-                    setModalResult(false);
-                }
             }
         });
 
@@ -135,12 +129,11 @@ public class Realms extends BasePage {
                     target.add(updateRealmContent(realmSidebarPanel.getCurrentRealm()));
 
                     info(getString(Constants.OPERATION_SUCCEEDED));
-                    feedbackPanel.refresh(target);
                 } catch (Exception e) {
                     LOG.error("While deleting realm", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    getFeedbackPanel().refresh(target);
                 }
+                notificationPanel.refresh(target);
             }
         };
 
@@ -152,12 +145,12 @@ public class Realms extends BasePage {
 
     private void setupCreateLink() {
 
-        final AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>("createLink", getPageReference()) {
+        final AjaxLink<Void> createLink = new IndicatingAjaxLink<Void>("createLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 modal.header(new ResourceModel("createRealm"));
 
                 final RealmTO realmTO = new RealmTO();
@@ -182,12 +175,12 @@ public class Realms extends BasePage {
     }
 
     private void setupEditLink() {
-        final AjaxLink<Void> editLink = new ClearIndicatingAjaxLink<Void>("editLink", getPageReference()) {
+        final AjaxLink<Void> editLink = new IndicatingAjaxLink<Void>("editLink") {
 
             private static final long serialVersionUID = -6957616042924610290L;
 
             @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 modal.header(Model.of(realmSidebarPanel.getCurrentRealm().getName()));
 
                 final RealmTO realmTO = realmSidebarPanel.getCurrentRealm();

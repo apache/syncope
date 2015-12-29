@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
@@ -54,14 +53,12 @@ public class SecurityQuestionModalPanel extends AbstractModalPanel {
                 SyncopeConsoleSession.get().getService(SecurityQuestionService.class).update(securityQuestionTO);
             }
 
-            if (pageRef.getPage() instanceof AbstractBasePage) {
-                ((AbstractBasePage) pageRef.getPage()).setModalResult(true);
-            }
+            info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating SecutiryQuestionTO", e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getFeedbackPanel().refresh(target);
+            modal.getNotificationPanel().refresh(target);
         }
     }
 }

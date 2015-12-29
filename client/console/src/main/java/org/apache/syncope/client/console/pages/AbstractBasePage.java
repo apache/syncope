@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.NotificationAwareComponent;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
@@ -46,7 +45,7 @@ public class AbstractBasePage extends WebPage implements NotificationAwareCompon
 
     protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
-    protected NotificationPanel feedbackPanel;
+    protected NotificationPanel notificationPanel;
 
     /**
      * Response flag set by the Modal Window after the operation is completed.
@@ -60,22 +59,6 @@ public class AbstractBasePage extends WebPage implements NotificationAwareCompon
     public AbstractBasePage(final PageParameters parameters) {
         super(parameters);
 
-        feedbackPanel = new NotificationPanel(Constants.FEEDBACK);
-        feedbackPanel.setOutputMarkupId(true);
-        add(feedbackPanel);
-    }
-
-    @Override
-    public NotificationPanel getFeedbackPanel() {
-        return feedbackPanel;
-    }
-
-    public boolean isModalResult() {
-        return modalResult;
-    }
-
-    public void setModalResult(final boolean modalResult) {
-        this.modalResult = modalResult;
     }
 
     @Override
@@ -84,4 +67,8 @@ public class AbstractBasePage extends WebPage implements NotificationAwareCompon
         response.render(new PriorityHeaderItem(meta));
     }
 
+    @Override
+    public NotificationPanel getNotificationPanel() {
+        return notificationPanel;
+    }
 }

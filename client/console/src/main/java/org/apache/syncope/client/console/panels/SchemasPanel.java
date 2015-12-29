@@ -98,8 +98,6 @@ public class SchemasPanel extends Panel {
         }
     };
 
-    private final NotificationPanel feedbackPanel;
-
     private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     private final PreferenceManager prefMan = new PreferenceManager();
@@ -112,7 +110,6 @@ public class SchemasPanel extends Panel {
         super(id);
 
         this.pageReference = pageReference;
-        this.feedbackPanel = ((AbstractBasePage) pageReference.getPage()).getFeedbackPanel();
         this.modal = modal;
 
         final Collapsible collapsible = new Collapsible("collapsePanel", buildTabList());
@@ -231,25 +228,28 @@ public class SchemasPanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                        try {
+                            switch (schemaType) {
+                                case DERIVED:
+                                    schemaRestClient.deleteDerSchema(schemaTO.getKey());
+                                    break;
 
-                        switch (schemaType) {
-                            case DERIVED:
-                                schemaRestClient.deleteDerSchema(schemaTO.getKey());
-                                break;
+                                case VIRTUAL:
+                                    schemaRestClient.deleteVirSchema(schemaTO.getKey());
+                                    break;
 
-                            case VIRTUAL:
-                                schemaRestClient.deleteVirSchema(schemaTO.getKey());
-                                break;
+                                default:
+                                    schemaRestClient.deletePlainSchema(schemaTO.getKey());
+                                    break;
+                            }
 
-                            default:
-                                schemaRestClient.deletePlainSchema(schemaTO.getKey());
-                                break;
+                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(webContainer);
+
+                        } catch (Exception e) {
+                            error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
-
-                        info(getString(Constants.OPERATION_SUCCEEDED));
-                        feedbackPanel.refresh(target);
-
-                        target.add(webContainer);
+                        ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.SCHEMA_DELETE);
 

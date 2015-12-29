@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import java.util.List;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.syncope.client.console.wicket.markup.html.form.SelectChoiceRenderer;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -42,17 +41,13 @@ public class AbstractTypesPanel<T extends AbstractBaseBean> extends Panel {
 
     protected final PreferenceManager prefMan = new PreferenceManager();
 
-    protected final NotificationPanel feedbackPanel;
-
     protected final PageReference pageRef;
 
     protected int pageRows;
 
     public AbstractTypesPanel(final String id, final PageReference pageRef) {
         super(id);
-
         this.pageRef = pageRef;
-        this.feedbackPanel = ((AbstractBasePage) pageRef.getPage()).getFeedbackPanel();
     }
 
     protected void buildDataTable(final WebMarkupContainer container, final List<IColumn<T, String>> tableCols,

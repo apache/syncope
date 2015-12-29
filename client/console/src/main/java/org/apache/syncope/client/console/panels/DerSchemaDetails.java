@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
@@ -65,14 +64,12 @@ public class DerSchemaDetails extends AbstractSchemaDetailsPanel {
                 schemaRestClient.updateDerSchema(updatedDerSchemaTO);
             }
 
-            if (pageReference.getPage() instanceof AbstractBasePage) {
-                ((AbstractBasePage) pageReference.getPage()).setModalResult(true);
-            }
+            info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating derived schema", e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getFeedbackPanel().refresh(target);
+            modal.getNotificationPanel().refresh(target);
         }
     }
 }
