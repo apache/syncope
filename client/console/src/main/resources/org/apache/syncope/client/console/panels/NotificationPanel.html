@@ -23,15 +23,15 @@ under the License.
 
     <script id="errorTemplate" type="text/x-kendo-template">
       <div data-time="0" class="errorNotification">
-      <span class="glyphicon glyphicon-remove-circle"></span>
-      <h3>#= message #</h3>
+      <div id="level" class="glyphicon glyphicon-remove-circle"></div>
+      <div id="message"><p>#= message #</p></div>
       </div>
     </script>
 
     <script id="successTemplate" type="text/x-kendo-template">
       <div data-time="3000" class="successNotification">
-      <span class="glyphicon glyphicon-ok-circle"></span>
-      <h3>#= message #</h3>
+      <div id="level" class="glyphicon glyphicon-ok-circle"></div>
+      <div id="message"><p>#= message #</p></div>
       </div>
     </script>
   </wicket:panel>

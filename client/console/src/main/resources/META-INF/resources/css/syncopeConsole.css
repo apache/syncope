@@ -377,17 +377,21 @@ div.searchResult{
 .errorNotification {
   width: 300px;
   height: 100px;
+  vertical-align: middle;
+  display: table-cell;
 }
 
-.errorNotification h3 {
-  font-size: 1em;
-  padding: 10px 10px 5px;
+.errorNotification #level {
+  float: left; 
+  padding-left: 10px; 
+  font-size: 2em; 
+  width: 2%;
 }
 
-.errorNotification span {
-  float: left;
-  margin: 30px 15px 30px 15px;
-  font-size: 2em;
+.errorNotification #message {
+  float: right; 
+  padding-left: 0px; 
+  width:85%
 }
 
 .k-notification-success.k-group {
@@ -398,15 +402,20 @@ div.searchResult{
 .successNotification {
   width: 300px;
   height: 100px;
+  vertical-align: middle;
+  display: table-cell;
 }
 
-.successNotification h3 {
-  font-size: 1em;
-  padding: 32px 10px 5px;
+.successNotification #level {
+  float: left; 
+  padding-left: 10px; 
+  font-size: 2em; 
+  width: 2%;
 }
 
-.successNotification span {
-  float: left;
-  margin: 30px 15px 30px 15px;
-  font-size: 2em;
+.successNotification #message {
+  float: right; 
+  padding-left: 0px; 
+  width:85%
 }
+
