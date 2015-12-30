@@ -29,7 +29,7 @@ angular.module('info', []);
 var app = angular.module('SyncopeEnduserApp', [
   'ui.router',
   'ui.bootstrap',
-//  'ui.select',
+  'ui.select',
   'ngSanitize',
   'ngAnimate',
   'ngResource',

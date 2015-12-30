@@ -1,0 +1,12 @@
+<ui-select on-select="addResource($item, $model)" on-remove="removeResource($item, $model)" multiple
+           ng-model="dynamicForm.selectedResources" theme="select2" class="attribute-ui-select">
+  <ui-select-match placeholder="Select resource...">{{$item}}</ui-select-match>
+  <ui-select-choices repeat="resource in dynamicForm.resources">
+    <div ng-bind-html="resource | highlight: $select.search"></div>
+  </ui-select-choices>
+</ui-select>
+<ul class="attribute-ui-select">
+  <li class="attribute-virtual-value-field" ng-if="dynamicForm.selectedResources.length == 0">
+    <strong>No resources selected...</strong>
+  </li>
+</ul>

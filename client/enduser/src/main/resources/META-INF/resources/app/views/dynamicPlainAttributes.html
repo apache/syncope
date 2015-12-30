@@ -5,10 +5,12 @@
   </div>
 
   <div ng-if="plainSchema.multivalue">
-    <div ng-repeat="field in dynamicForm.attributeTable[plainSchema.key].fields track by $index" ng-model='dynamicForm.attributeTable[plainSchema.key].fields[$index]'>
+    <div ng-repeat="field in dynamicForm.attributeTable[plainSchema.key].fields track by $index" 
+         ng-model='dynamicForm.attributeTable[plainSchema.key].fields[$index]'>
       <dynamic-plain-attribute schema="plainSchema" user="user" index="$index"></dynamic-plain-attribute>
       <span>
-        <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" ng-click="removeAttributeField(plainSchema.key, $index)">
+        <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" 
+                ng-click="removeAttributeField(plainSchema.key, $index)">
           <i class="glyphicon glyphicon-minus" title="Remove value"></i>
         </button>
       </span>

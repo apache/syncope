@@ -20,7 +20,9 @@ package org.apache.syncope.client.enduser.model;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.to.AttrTO;
 
@@ -45,6 +47,8 @@ public class UserTORequest implements Serializable {
     private Map<String, AttrTO> derAttrs = new HashMap<>();
 
     private Map<String, AttrTO> virAttrs = new HashMap<>();
+
+    private Set<String> resources = new HashSet<>();
 
     public UserTORequest() {
     }
@@ -121,6 +125,14 @@ public class UserTORequest implements Serializable {
         this.virAttrs = virAttrs;
     }
 
+    public Set<String> getResources() {
+        return resources;
+    }
+
+    public void setResources(final Set<String> resources) {
+        this.resources = resources;
+    }
+
     public UserTORequest key(final Long value) {
         this.key = value;
         return this;
@@ -163,6 +175,11 @@ public class UserTORequest implements Serializable {
 
     public UserTORequest virAttrs(final Map<String, AttrTO> value) {
         this.virAttrs = value;
+        return this;
+    }
+
+    public UserTORequest resources(final Set<String> value) {
+        this.resources = value;
         return this;
     }
 

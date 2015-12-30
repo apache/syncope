@@ -54,6 +54,8 @@ public class UserTOAdapter {
         userTO.getPlainAttrs().addAll(userTORequest.getPlainAttrs().values());
         userTO.getDerAttrs().addAll(userTORequest.getDerAttrs().values());
         userTO.getVirAttrs().addAll(userTORequest.getVirAttrs().values());
+        // add resources
+        userTO.getResources().addAll(userTORequest.getResources());
 
         return userTO;
     }
@@ -70,6 +72,8 @@ public class UserTOAdapter {
         userTORequest.getPlainAttrs().putAll(userTO.getPlainAttrMap());
         userTORequest.getDerAttrs().putAll(userTO.getDerAttrMap());
         userTORequest.getVirAttrs().putAll(userTO.getVirAttrMap());
+        
+        userTORequest.getResources().addAll(userTO.getResources());
 
         return userTORequest;
     }

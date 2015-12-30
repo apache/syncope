@@ -20,9 +20,9 @@
 'use strict';
 
 angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', 'AuthService',
-  'UserSelfService', 'SchemaService', 'RealmService', 'SecurityQuestionService', 'CaptchaService', 'growl', function ($scope,
-          $rootScope, $location, $compile, AuthService, UserSelfService, SchemaService, RealmService, SecurityQuestionService,
-          CaptchaService, growl) {
+  'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService', 'CaptchaService',
+  'growl', function ($scope, $rootScope, $location, $compile, AuthService, UserSelfService, SchemaService, RealmService,
+          ResourceService, SecurityQuestionService, CaptchaService, growl) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -45,9 +45,11 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         plainSchemas: [],
         derSchemas: [],
         virSchemas: [],
+        resources: [],
         errorMessage: '',
         attributeTable: {},
-        virtualAttributeTable: {}
+        virtualAttributeTable: {},
+        selectedResources: []
       };
 
       var initSchemas = function () {
@@ -141,8 +143,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           }
           console.log("Error retrieving user schemas: ", errorMessage);
         });
-        console.log("USER WITH ATTRTO: ", $scope.user);
-
       };
 
       var initSecurityQuestions = function () {
@@ -167,12 +167,19 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         $scope.user.realm = RealmService.getUserRealm();
       };
 
+      var initResources = function () {
+        ResourceService.getResources().then(function (response) {
+          $scope.dynamicForm.resources = response.resources;
+        });
+      };
 
       var readUser = function () {
         UserSelfService.read().then(function (response) {
           $scope.user = response;
           $scope.user.password = undefined;
           $scope.initialSecurityQuestion = $scope.user.securityQuestion;
+          // initialize already assigned resources
+          $scope.dynamicForm.selectedResources = $scope.user.resources;
         }, function () {
           console.log("Error");
         });
@@ -188,12 +195,11 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           securityAnswer: '',
           plainAttrs: {},
           derAttrs: {},
-          virAttrs: {}
+          virAttrs: {},
+          resources: []
         };
-
         // retrieve user realm or all available realms
         initUserRealm();
-
       } else {
         // read user from syncope core
         readUser();
@@ -204,6 +210,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       initSecurityQuestions();
       // initialize user attributes starting from any object schemas
       initSchemas();
+      // initialize available resources
+      initResources();
     };
 
     $scope.saveUser = function (user) {

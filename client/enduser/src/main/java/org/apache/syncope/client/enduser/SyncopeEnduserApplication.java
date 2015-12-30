@@ -34,6 +34,7 @@ import org.apache.syncope.client.enduser.resources.LoginResource;
 import org.apache.syncope.client.enduser.resources.LogoutResource;
 import org.apache.syncope.client.enduser.resources.SchemaResource;
 import org.apache.syncope.client.enduser.resources.SecurityQuestionResource;
+import org.apache.syncope.client.enduser.resources.SyncopeResourceResource;
 import org.apache.syncope.client.enduser.resources.UserSelfCreateResource;
 import org.apache.syncope.client.enduser.resources.UserSelfReadResource;
 import org.apache.syncope.client.enduser.resources.UserSelfUpdateResource;
@@ -182,6 +183,16 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             }
         });
 
+        mountResource("/api/resources", new ResourceReference("resources") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new SyncopeResourceResource();
+            }
+        });
+        
         mountResource("/api/securityQuestions", new ResourceReference("securityQuestions") {
 
             private static final long serialVersionUID = -128426276529456602L;

@@ -84,9 +84,9 @@ under the License.
 }
 
 .attribute-ui-select {
-  width: 100%;
-  padding-right: 7%;
-  padding-left: 7%;
+  width: 60%;
+  margin-left: 20%;
+  list-style: none;
 }
 
 #previous {

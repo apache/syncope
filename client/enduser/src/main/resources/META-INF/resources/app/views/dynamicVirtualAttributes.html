@@ -1,10 +1,12 @@
 <div id="attribute" class="form-group" ng-repeat="virtualSchema in dynamicForm.virSchemas">
   <label for="virtualSchema.key">{{virtualSchema.key}}</label>
   <!--all virtual schemas are multivalue-->
-  <div ng-repeat="field in dynamicForm.virtualAttributeTable[virtualSchema.key].fields track by $index" ng-model='dynamicForm.virtualAttributeTable[virtualSchema.key].fields[$index]'>
+  <div ng-repeat="field in dynamicForm.virtualAttributeTable[virtualSchema.key].fields track by $index" 
+       ng-model='dynamicForm.virtualAttributeTable[virtualSchema.key].fields[$index]'>
     <dynamic-virtual-attribute schema="virtualSchema" user="user" index="$index"></dynamic-virtual-attribute>
     <span>
-      <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" ng-click="removeVirtualAttributeField(virtualSchema.key, $index)">
+      <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" 
+              ng-click="removeVirtualAttributeField(virtualSchema.key, $index)">
         <i class="glyphicon glyphicon-minus" title="Remove value"></i>
       </button>
     </span>
