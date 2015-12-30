@@ -45,8 +45,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         plainSchemas: [],
         derSchemas: [],
         virSchemas: [],
-        selectedDerSchemas: [],
-        selectedVirSchemas: [],
+//        selectedDerSchemas: [],
+//        selectedVirSchemas: [],
         errorMessage: '',
         attributeTable: {}
       };
@@ -96,8 +96,14 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
             var derSchemaKey = schemas.derSchemas[i].key;
 
-            if ($scope.user.derAttrs[derSchemaKey]) {
-              $scope.dynamicForm.selectedDerSchemas.push(schemas.derSchemas[i]);
+            if (!$scope.user.derAttrs[derSchemaKey]) {
+
+              $scope.user.derAttrs[derSchemaKey] = {
+                schema: derSchemaKey,
+                values: [],
+                readonly: true
+              };
+
             }
           }
 
@@ -106,8 +112,31 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
             var virSchemaKey = schemas.virSchemas[i].key;
 
-            if ($scope.user.virAttrs[virSchemaKey]) {
-              $scope.dynamicForm.selectedVirSchemas.push(schemas.virSchemas[i]);
+            if (!$scope.user.virAttrs[virSchemaKey]) {
+
+              $scope.user.virAttrs[virSchemaKey] = {
+                schema: virSchemaKey,
+                values: [],
+                readonly: schemas.virSchemas[i].readonly
+              };
+
+              // initialize multivalue schema and support table: create mode, only first value
+//              if (schemas.plainSchemas[i].multivalue) {
+//                $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key] = {
+//                  fields: [schemas.plainSchemas[i].key + "_" + 0]
+//                };
+//              }
+            } else {
+              // initialize multivalue schema and support table: update mode, all provided values
+//              if (schemas.virSchemas[i].multivalue) {
+//                $scope.dynamicForm.attributeTable[schemas.virSchemas[i].key] = {
+//                  fields: [schemas.virSchemas[i].key + "_" + 0]
+//                };
+//                // add other values
+//                for (var j = 1; j < $scope.user.plainAttrs[plainSchemaKey].values.length; j++) {
+//                  $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key].fields.push(schemas.plainSchemas[i].key + "_" + j);
+//                }
+//              }
             }
           }
 
@@ -174,14 +203,9 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         initUserRealm();
 
       } else {
-
         // read user from syncope core
         readUser();
-        // read user security question
-
       }
-
-
 
       initRealms();
       //retrieve security available questions

@@ -19,34 +19,25 @@
 'use strict';
 
 angular.module('self')
-        .directive('dynamicDerivedAttributes', function () {
+        .directive('dynamicDerivedAttribute', function ($filter) {
           return {
             restrict: 'E',
-            templateUrl: 'views/dynamicDerivedAttributes.html',
+            templateUrl: 'views/dynamicDerivedAttribute.html',
             scope: {
-              dynamicForm: "=form",
+              schema: "=",
+              index: "=",
               user: "="
             },
-            controller: function ($scope) {
-
-              $scope.addDerivedAttribute = function (item, model) {
-                var derSchemaKey = item.key;
-                console.log("ADDING DERIVED item: ", derSchemaKey);
-                $scope.user.derAttrs[derSchemaKey] = {
-                  schema: derSchemaKey,
-                  values: [],
-                  readonly: false
-                };
-
-              };
-
-              $scope.removeDerivedAttribute = function (item, model) {
-                var derSchemaKey = item.key;
-                console.log("REMOVING DERIVED item: ", derSchemaKey);
-                delete $scope.user.derAttrs[derSchemaKey];
-
-              };
-
-            }
+            controller: function ($scope, $element, $window) {
+              $scope.$watch(function () {
+                return $scope.user.derAttrs[$scope.schema.key].values[$scope.index];
+              }, function (newValue, oldValue) {
+                $scope.user.derAttrs[$scope.schema.key].values = $scope.user.derAttrs[$scope.schema.key].values
+                        .filter(function (n) {
+                          return (n !== undefined && n !== "");
+                        });
+              });
+            },
+            replace: true
           };
         });

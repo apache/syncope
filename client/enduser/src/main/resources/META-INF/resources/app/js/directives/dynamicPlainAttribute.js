@@ -19,10 +19,10 @@
 'use strict';
 
 angular.module('self')
-        .directive('dynamicAttribute', function ($filter) {
+        .directive('dynamicPlainAttribute', function ($filter) {
           return {
             restrict: 'E',
-            templateUrl: 'views/dynamicAttribute.html',
+            templateUrl: 'views/dynamicPlainAttribute.html',
             scope: {
               schema: "=",
               index: "=",
