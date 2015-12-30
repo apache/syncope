@@ -29,24 +29,17 @@ angular.module('self')
             },
             controller: function ($scope) {
 
-              $scope.addVirtualAttribute = function (item, model) {
-                var virSchemaKey = item.key;
-                console.log("ADDING VIRTUAL item: ", virSchemaKey);
-                $scope.user.virAttrs[virSchemaKey] = {
-                  schema: virSchemaKey,
-                  values: [],
-                  readonly: false
-                };
-
+              $scope.addVirtualAttributeField = function (virSchemaKey) {
+                console.log("ADDING VIRTUAL: ", virSchemaKey + "_" + ($scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.length));
+                $scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.push(virSchemaKey + "_" + ($scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.length));
               };
 
-              $scope.removeVirtualAttribute = function (item, model) {
-                var virSchemaKey = item.key;
-                console.log("REMOVING VIRTUAL item: ", virSchemaKey);
-                delete $scope.user.virAttrs[virSchemaKey];
-                
+              $scope.removeVirtualAttributeField = function (virSchemaKey, index) {
+                console.log("REMOVING FROM: " + virSchemaKey + " VIRTUAL ATTRIBUTE INDEX: " + index);
+                $scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.splice(index, 1);
+                // clean user model
+                $scope.user.virAttrs[virSchemaKey].values.splice(index, 1);
               };
-
             }
           };
         });

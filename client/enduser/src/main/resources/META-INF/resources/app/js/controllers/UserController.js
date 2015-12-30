@@ -45,10 +45,9 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         plainSchemas: [],
         derSchemas: [],
         virSchemas: [],
-//        selectedDerSchemas: [],
-//        selectedVirSchemas: [],
         errorMessage: '',
-        attributeTable: {}
+        attributeTable: {},
+        virtualAttributeTable: {}
       };
 
       var initSchemas = function () {
@@ -77,16 +76,14 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
                   fields: [schemas.plainSchemas[i].key + "_" + 0]
                 };
               }
-            } else {
+            } else if (schemas.plainSchemas[i].multivalue) {
               // initialize multivalue schema and support table: update mode, all provided values
-              if (schemas.plainSchemas[i].multivalue) {
-                $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key] = {
-                  fields: [schemas.plainSchemas[i].key + "_" + 0]
-                };
-                // add other values
-                for (var j = 1; j < $scope.user.plainAttrs[plainSchemaKey].values.length; j++) {
-                  $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key].fields.push(schemas.plainSchemas[i].key + "_" + j);
-                }
+              $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key] = {
+                fields: [schemas.plainSchemas[i].key + "_" + 0]
+              };
+              // add other values
+              for (var j = 1; j < $scope.user.plainAttrs[plainSchemaKey].values.length; j++) {
+                $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key].fields.push(schemas.plainSchemas[i].key + "_" + j);
               }
             }
           }
@@ -119,24 +116,19 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
                 values: [],
                 readonly: schemas.virSchemas[i].readonly
               };
-
               // initialize multivalue schema and support table: create mode, only first value
-//              if (schemas.plainSchemas[i].multivalue) {
-//                $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key] = {
-//                  fields: [schemas.plainSchemas[i].key + "_" + 0]
-//                };
-//              }
+              $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key] = {
+                fields: [schemas.virSchemas[i].key + "_" + 0]
+              };
             } else {
               // initialize multivalue schema and support table: update mode, all provided values
-//              if (schemas.virSchemas[i].multivalue) {
-//                $scope.dynamicForm.attributeTable[schemas.virSchemas[i].key] = {
-//                  fields: [schemas.virSchemas[i].key + "_" + 0]
-//                };
-//                // add other values
-//                for (var j = 1; j < $scope.user.plainAttrs[plainSchemaKey].values.length; j++) {
-//                  $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key].fields.push(schemas.plainSchemas[i].key + "_" + j);
-//                }
-//              }
+              $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key] = {
+                fields: [schemas.virSchemas[i].key + "_" + 0]
+              };
+              // add other values
+              for (var j = 1; j < $scope.user.virAttrs[virSchemaKey].values.length; j++) {
+                $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key].fields.push(schemas.virSchemas[i].key + "_" + j);
+              }
             }
           }
 

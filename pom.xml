@@ -402,7 +402,6 @@ under the License.
     <angular-ui-select.version>0.13.1</angular-ui-select.version>
     <angular-sanitize.version>1.4.8</angular-sanitize.version>
     <angular-growl-2.version>0.7.3</angular-growl-2.version>
-    <select2.version>3.4.8</select2.version>
     <FileSaver.version>0.0.2</FileSaver.version>
     
     <izpack.version>5.0.6</izpack.version>
@@ -1077,17 +1076,6 @@ under the License.
         <groupId>org.webjars</groupId>
         <artifactId>angular-growl-2</artifactId>
         <version>${angular-growl-2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>select2</artifactId>
-        <version>${select2.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>jquery</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.webjars.bower</groupId>

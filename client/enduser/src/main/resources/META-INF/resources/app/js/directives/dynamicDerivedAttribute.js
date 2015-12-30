@@ -19,7 +19,7 @@
 'use strict';
 
 angular.module('self')
-        .directive('dynamicDerivedAttribute', function ($filter) {
+        .directive('dynamicDerivedAttribute', function () {
           return {
             restrict: 'E',
             templateUrl: 'views/dynamicDerivedAttribute.html',
@@ -28,7 +28,7 @@ angular.module('self')
               index: "=",
               user: "="
             },
-            controller: function ($scope, $element, $window) {
+            controller: function ($scope) {
               $scope.$watch(function () {
                 return $scope.user.derAttrs[$scope.schema.key].values[$scope.index];
               }, function (newValue, oldValue) {
