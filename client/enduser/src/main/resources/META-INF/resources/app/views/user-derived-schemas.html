@@ -17,16 +17,14 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<div id="attribute-derived" class="form-group" >
-  <div>
-    <dynamic-derived-attributes user="user" form="dynamicForm"></dynamic-derived-attributes>
-  </div>
-  <!--    <div style="color:#dd301b" ng-if="attribute.validated == false" class="row-fluid">
-        <div class="col-md-5"></div>
-        <div class="col-md-7">{{attribute.validationMessage| translate }}</div>
-      </div>-->
-  <!--</div>-->
+<div>
+  <dynamic-derived-attributes user="user" form="dynamicForm"></dynamic-derived-attributes>
 </div>
+<!--    <div style="color:#dd301b" ng-if="attribute.validated == false" class="row-fluid">
+      <div class="col-md-5"></div>
+      <div class="col-md-7">{{attribute.validationMessage| translate }}</div>
+    </div>-->
+<!--</div>-->
 
 <div class="form-group row">
   <navigation-buttons ng-show="createMode" next="create.virtualSchemas" previous="create.plainSchemas"></navigation-buttons>

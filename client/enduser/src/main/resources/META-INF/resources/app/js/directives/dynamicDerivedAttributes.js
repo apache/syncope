@@ -26,27 +26,6 @@ angular.module('self')
             scope: {
               dynamicForm: "=form",
               user: "="
-            },
-            controller: function ($scope) {
-
-              $scope.addDerivedAttribute = function (item, model) {
-                var derSchemaKey = item.key;
-                console.log("ADDING DERIVED item: ", derSchemaKey);
-                $scope.user.derAttrs[derSchemaKey] = {
-                  schema: derSchemaKey,
-                  values: [],
-                  readonly: false
-                };
-
-              };
-
-              $scope.removeDerivedAttribute = function (item, model) {
-                var derSchemaKey = item.key;
-                console.log("REMOVING DERIVED item: ", derSchemaKey);
-                delete $scope.user.derAttrs[derSchemaKey];
-
-              };
-
             }
           };
         });

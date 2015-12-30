@@ -17,17 +17,14 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<div id="attribute-virtual" class="form-group">
-  <div>
-    <dynamic-virtual-attributes form="dynamicForm" user="user"></dynamic-virtual-attributes>
-  </div>
-  <!--    <div style="color:#dd301b" ng-if="attribute.validated == false" class="row-fluid">
-        <div class="col-md-5"></div>
-        <div class="col-md-7">{{attribute.validationMessage| translate }}</div>
-      </div>-->
-  <!--</div>-->
+<div>
+  <dynamic-virtual-attributes form="dynamicForm" user="user"></dynamic-virtual-attributes>
 </div>
-
+<!--    <div style="color:#dd301b" ng-if="attribute.validated == false" class="row-fluid">
+      <div class="col-md-5"></div>
+      <div class="col-md-7">{{attribute.validationMessage| translate }}</div>
+    </div>-->
+<!--</div>-->
 <div class="form-group row">
   <navigation-buttons ng-show="createMode" next="create.groups" previous="create.derivedSchemas"></navigation-buttons>
   <navigation-buttons ng-show="!createMode" next="update.groups" previous="update.derivedSchemas"></navigation-buttons>
