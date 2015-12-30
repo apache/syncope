@@ -18,26 +18,24 @@
  */
 package org.apache.syncope.core.misc.jexl;
 
-import org.apache.commons.jexl2.JexlInfo;
-import org.apache.commons.jexl2.introspection.JexlMethod;
-import org.apache.commons.jexl2.introspection.JexlPropertyGet;
-import org.apache.commons.jexl2.introspection.UberspectImpl;
-import org.apache.commons.logging.Log;
+import org.apache.commons.jexl3.internal.introspection.Uberspect;
+import org.apache.commons.jexl3.introspection.JexlMethod;
+import org.apache.commons.jexl3.introspection.JexlPropertyGet;
 
-class ClassFreeUberspectImpl extends UberspectImpl {
+class ClassFreeUberspect extends Uberspect {
 
-    ClassFreeUberspectImpl(final Log runtimeLogger) {
-        super(runtimeLogger);
+    ClassFreeUberspect() {
+        super(null, null);
     }
 
     @Override
-    public JexlPropertyGet getPropertyGet(final Object obj, final Object identifier, final JexlInfo info) {
-        return "class".equals(identifier) ? null : super.getPropertyGet(obj, identifier, info);
+    public JexlPropertyGet getPropertyGet(final Object obj, final Object identifier) {
+        return "class".equals(identifier) ? null : super.getPropertyGet(obj, identifier);
     }
 
     @Override
-    public JexlMethod getMethod(final Object obj, final String method, final Object[] args, final JexlInfo info) {
-        return "getClass".equals(method) ? null : super.getMethod(obj, method, args, info);
+    public JexlMethod getMethod(final Object obj, final String method, final Object... args) {
+        return "getClass".equals(method) ? null : super.getMethod(obj, method, args);
     }
 
 }

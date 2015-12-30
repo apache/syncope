@@ -26,11 +26,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.JexlContext;
-import org.apache.commons.jexl2.JexlEngine;
-import org.apache.commons.jexl2.JexlException;
-import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.JexlException;
+import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -58,11 +59,13 @@ public final class JexlUtils {
     private static JexlEngine getEngine() {
         synchronized (LOG) {
             if (JEXL_ENGINE == null) {
-                JEXL_ENGINE = new JexlEngine(new ClassFreeUberspectImpl(null), null, null, null);
-                JEXL_ENGINE.setClassLoader(new EmptyClassLoader());
-                JEXL_ENGINE.setCache(512);
-                JEXL_ENGINE.setLenient(true);
-                JEXL_ENGINE.setSilent(false);
+                JEXL_ENGINE = new JexlBuilder().
+                        uberspect(new ClassFreeUberspect()).
+                        loader(new EmptyClassLoader()).
+                        cache(512).
+                        silent(false).
+                        strict(false).
+                        create();
             }
         }
 
@@ -87,7 +90,7 @@ public final class JexlUtils {
 
         if (StringUtils.isNotBlank(expression) && jexlContext != null) {
             try {
-                Expression jexlExpression = getEngine().createExpression(expression);
+                JexlExpression jexlExpression = getEngine().createExpression(expression);
                 Object evaluated = jexlExpression.evaluate(jexlContext);
                 if (evaluated != null) {
                     result = evaluated.toString();
@@ -128,8 +131,8 @@ public final class JexlUtils {
                         context.set(fieldName, fieldValue == null
                                 ? StringUtils.EMPTY
                                 : (type.equals(Date.class)
-                                        ? FormatUtils.format((Date) fieldValue, false)
-                                        : fieldValue));
+                                ? FormatUtils.format((Date) fieldValue, false)
+                                : fieldValue));
 
                         LOG.debug("Add field {} with value {}", fieldName, fieldValue);
                     } catch (Exception iae) {

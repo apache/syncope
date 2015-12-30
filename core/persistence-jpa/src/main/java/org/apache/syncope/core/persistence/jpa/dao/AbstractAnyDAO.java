@@ -30,9 +30,9 @@ import java.util.regex.Pattern;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
-import org.apache.commons.jexl2.parser.Parser;
-import org.apache.commons.jexl2.parser.ParserConstants;
-import org.apache.commons.jexl2.parser.Token;
+import org.apache.commons.jexl3.parser.Parser;
+import org.apache.commons.jexl3.parser.ParserConstants;
+import org.apache.commons.jexl3.parser.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -226,13 +226,13 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
      * @return where clauses to use to build the query
      */
     private Set<String> getWhereClause(final String expression, final String value) {
-        final Parser parser = new Parser(new StringReader(expression));
+        Parser parser = new Parser(new StringReader(expression));
 
         // Schema names
-        final List<String> identifiers = new ArrayList<>();
+        List<String> identifiers = new ArrayList<>();
 
         // Literals
-        final List<String> literals = new ArrayList<>();
+        List<String> literals = new ArrayList<>();
 
         // Get schema names and literals
         for (Token token = parser.getNextToken(); token != null && StringUtils.isNotBlank(token.toString());
@@ -269,7 +269,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
         });
 
         // Split value on provided literals
-        final List<String> attrValues = split(value, literals);
+        List<String> attrValues = split(value, literals);
 
         if (attrValues.size() != identifiers.size()) {
             LOG.error("Ambiguous JEXL expression resolution.");
@@ -277,13 +277,13 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
         }
 
         // clauses to be used with INTERSECTed queries
-        final Set<String> clauses = new HashSet<>();
+        Set<String> clauses = new HashSet<>();
 
         // builder to build the clauses
-        final StringBuilder bld = new StringBuilder();
+        StringBuilder bld = new StringBuilder();
 
         // Contains used identifiers in order to avoid replications
-        final Set<String> used = new HashSet<>();
+        Set<String> used = new HashSet<>();
 
         // Create several clauses: one for eanch identifiers
         for (int i = 0; i < identifiers.size(); i++) {
