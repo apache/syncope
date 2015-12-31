@@ -65,6 +65,8 @@ public class SyncopeEnduserSession extends WebSession {
     private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<Class<?>, Object>());
     
     private final CookieUtils cookieUtils;
+    
+    private boolean xsrfTokenGenerated = false;
 
     public static SyncopeEnduserSession get() {
         return (SyncopeEnduserSession) Session.get();
@@ -180,6 +182,14 @@ public class SyncopeEnduserSession extends WebSession {
 
     public CookieUtils getCookieUtils() {
         return cookieUtils;
+    }
+
+    public boolean isXsrfTokenGenerated() {
+        return xsrfTokenGenerated;
+    }
+
+    public void setXsrfTokenGenerated(final boolean xsrfTokenGenerated) {
+        this.xsrfTokenGenerated = xsrfTokenGenerated;
     }
 
 }

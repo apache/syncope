@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.SyncopeTOAdapter;
-import org.apache.syncope.client.lib.SaltGenerator;
+import org.apache.syncope.client.enduser.util.SaltGenerator;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.cookies.CookieUtils;
@@ -50,11 +50,12 @@ public class InfoResource extends AbstractBaseResource {
 
         try {
             final CookieUtils sessionCookieUtils = SyncopeEnduserSession.get().getCookieUtils();
-//            HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
             // set XSRF_TOKEN cookie
-            if (sessionCookieUtils.getCookie(SyncopeEnduserConstants.XSRF_COOKIE) == null || StringUtils.isBlank(
-                    sessionCookieUtils.getCookie(SyncopeEnduserConstants.XSRF_COOKIE).getValue())) {
+            if (!SyncopeEnduserSession.get().isXsrfTokenGenerated() && (sessionCookieUtils.getCookie(
+                    SyncopeEnduserConstants.XSRF_COOKIE) == null || StringUtils.isBlank(
+                            sessionCookieUtils.getCookie(SyncopeEnduserConstants.XSRF_COOKIE).getValue()))) {
                 LOG.info("Set XSRF-TOKEN cookie");
+                SyncopeEnduserSession.get().setXsrfTokenGenerated(true);
                 sessionCookieUtils.save(SyncopeEnduserConstants.XSRF_COOKIE, SaltGenerator.generate(
                         SyncopeEnduserSession.get().getId()));
             }

@@ -16,17 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.lib;
+package org.apache.syncope.client.enduser.util;
 
 import java.security.SecureRandom;
-import java.util.Base64;
+import org.apache.wicket.util.crypt.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class SaltGenerator {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SaltGenerator.class);
 
     public static String generate(final String input) {
         // generate salt
@@ -34,7 +30,7 @@ public final class SaltGenerator {
         // fill array with random bytes
         new SecureRandom().nextBytes(salt);
         // create digest with MD5
-        return DigestUtils.md2Hex(input + Base64.getEncoder().encodeToString(salt));
+        return DigestUtils.md2Hex(input + Base64.encodeBase64String(salt));
     }
 
     private SaltGenerator() {
