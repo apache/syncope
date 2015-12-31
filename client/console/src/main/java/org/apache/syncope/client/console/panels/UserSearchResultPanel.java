@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -126,15 +125,16 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel =
-                                new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
+                        final IModel<AnyHandler<UserTO>> formModel
+                                = new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
                         modal.setFormModel(formModel);
 
                         target.add(modal.setContent(new StatusModal<>(
                                 modal, page.getPageReference(), formModel.getObject().getInnerObject())));
 
-                        modal.header(new Model<>(MessageFormat.format(
-                                getString("any.edit"), model.getObject().getKey())));
+                        modal.header(new Model<>(
+                                getString("any.edit", new Model<>(new AnyHandler<UserTO>(model.getObject())))));
+
                         modal.show(true);
                     }
                 }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
@@ -143,15 +143,16 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel =
-                                new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
+                        final IModel<AnyHandler<UserTO>> formModel
+                                = new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
                         modal.setFormModel(formModel);
 
                         target.add(modal.setContent(new StatusModal<>(
                                 modal, page.getPageReference(), formModel.getObject().getInnerObject(), true)));
 
-                        modal.header(new Model<>(MessageFormat.format(
-                                getString("any.edit"), model.getObject().getKey())));
+                        modal.header(new Model<>(
+                                getString("any.edit", new Model<>(new AnyHandler<UserTO>(model.getObject())))));
+
                         modal.show(true);
                     }
                 }, ActionLink.ActionType.ENABLE, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
@@ -209,7 +210,7 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        target.add(modal.setContent(new UserDisplayAttributesModalPage(
+                        target.add(modal.setContent(new UserDisplayAttributesModalPage<>(
                                 modal, page.getPageReference(), schemaNames, dSchemaNames)));
 
                         modal.header(new ResourceModel("any.attr.display", ""));

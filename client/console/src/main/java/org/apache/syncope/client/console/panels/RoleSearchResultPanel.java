@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -54,8 +55,11 @@ public class RoleSearchResultPanel
 
     protected RoleSearchResultPanel(final String id, final Builder builder) {
         super(id, builder);
+
         modal.size(Modal.Size.Large);
         initResultTable();
+
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.ROLE_CREATE);
     }
 
     @Override

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -31,32 +30,27 @@ public class RelationshipTypeDetailsPanel extends Panel {
 
     private static final long serialVersionUID = -4962850669086306255L;
 
-    private final RelationshipTypeTO relationshipTypeTO;
-
     public RelationshipTypeDetailsPanel(
             final String id,
-            final BaseModal<RelationshipTypeTO> modal) {
+            final RelationshipTypeTO relationshipTypeTO) {
         super(id);
-
-        this.relationshipTypeTO = modal.getFormModel();
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
 
         final Form<RelationshipTypeTO> form = new Form<>("form");
-        form.setModel(new CompoundPropertyModel<>(this.relationshipTypeTO));
+        form.setModel(new CompoundPropertyModel<>(relationshipTypeTO));
         container.add(form);
 
-        final AjaxTextFieldPanel key =
-                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(relationshipTypeTO, "key"));
+        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(
+                relationshipTypeTO, "key"));
         key.addRequiredLabel();
         key.setEnabled(key.getModelObject() == null || key.getModelObject().isEmpty());
         form.add(key);
 
-        final AjaxTextFieldPanel description =
-                new AjaxTextFieldPanel("description", 
-                        getString("description"), new PropertyModel<String>(relationshipTypeTO, "description"));
+        final AjaxTextFieldPanel description = new AjaxTextFieldPanel("description",
+                getString("description"), new PropertyModel<String>(relationshipTypeTO, "description"));
         description.addRequiredLabel();
         form.add(description);
     }

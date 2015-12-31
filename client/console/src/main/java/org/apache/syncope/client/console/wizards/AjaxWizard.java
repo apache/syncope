@@ -29,7 +29,7 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AjaxWizard<T extends Serializable> extends Wizard implements ModalPanel {
+public abstract class AjaxWizard<T extends Serializable> extends Wizard implements ModalPanel<T> {
 
     private static final long serialVersionUID = -1272120742876833520L;
 
@@ -53,11 +53,8 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         super(id);
         this.item = item;
         this.edit = edit;
-
         setOutputMarkupId(true);
-
         setDefaultModel(new CompoundPropertyModel<>(this));
-
         init(model);
     }
 

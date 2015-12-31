@@ -33,14 +33,16 @@ import org.apache.wicket.markup.html.form.Form;
 
 /**
  * Modal window with Resource form.
+ *
+ * @param <T>
  */
-public abstract class AbstractResourceModal extends AbstractModalPanel {
+public abstract class AbstractResourceModal<T extends Serializable> extends AbstractModalPanel<T> {
 
     private static final long serialVersionUID = 1734415311027284221L;
 
     protected final List<ITab> tabs;
 
-    public AbstractResourceModal(final BaseModal<?> modal, final PageReference pageRef) {
+    public AbstractResourceModal(final BaseModal<T> modal, final PageReference pageRef) {
         super(modal, pageRef);
 
         this.tabs = new ArrayList<>();

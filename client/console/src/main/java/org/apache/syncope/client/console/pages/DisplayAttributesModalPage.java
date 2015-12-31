@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,8 +50,7 @@ import org.apache.wicket.model.ResourceModel;
  *
  * @param <T> anyTO
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public abstract class DisplayAttributesModalPage<T extends AnyTO> extends AbstractModalPanel {
+public abstract class DisplayAttributesModalPage<T extends Serializable> extends AbstractModalPanel<T> {
 
     private static final long serialVersionUID = -4274117450918385110L;
 
@@ -105,8 +105,8 @@ public abstract class DisplayAttributesModalPage<T extends AnyTO> extends Abstra
             }
         };
 
-        final Form form = new Form(FORM);
-        form.setModel(new CompoundPropertyModel(this));
+        final Form<DisplayAttributesModalPage<T>> form = new Form<>(FORM);
+        form.setModel(new CompoundPropertyModel<>(this));
 
         selectedDetails = prefMan.getList(getRequest(), getPrefDetailView());
 
@@ -114,7 +114,8 @@ public abstract class DisplayAttributesModalPage<T extends AnyTO> extends Abstra
 
         selectedDerSchemas = prefMan.getList(getRequest(), getPrefDerivedAttributeView());
 
-        final CheckGroup dgroup = new CheckGroup("dCheckGroup", new PropertyModel(this, "selectedDetails"));
+        final CheckGroup<String> dgroup
+                = new CheckGroup<>("dCheckGroup", new PropertyModel<List<String>>(this, "selectedDetails"));
         form.add(dgroup);
 
         final ListView<String> details = new ListView<String>("details", fnames) {
@@ -123,7 +124,7 @@ public abstract class DisplayAttributesModalPage<T extends AnyTO> extends Abstra
 
             @Override
             protected void populateItem(final ListItem<String> item) {
-                item.add(new Check("dcheck", item.getModel()));
+                item.add(new Check<>("dcheck", item.getModel()));
                 item.add(new Label("dname", new ResourceModel(item.getModelObject(), item.getModelObject())));
             }
         };
@@ -138,7 +139,8 @@ public abstract class DisplayAttributesModalPage<T extends AnyTO> extends Abstra
             final Fragment fragment = new Fragment("plainSchemas", "sfragment", form);
             form.add(fragment);
 
-            final CheckGroup sgroup = new CheckGroup("psCheckGroup", new PropertyModel(this, "selectedPlainSchemas"));
+            final CheckGroup<String> sgroup
+                    = new CheckGroup<>("psCheckGroup", new PropertyModel<List<String>>(this, "selectedPlainSchemas"));
             fragment.add(sgroup);
 
             final ListView<String> schemas = new ListView<String>("plainSchemas", names) {
@@ -147,7 +149,7 @@ public abstract class DisplayAttributesModalPage<T extends AnyTO> extends Abstra
 
                 @Override
                 protected void populateItem(final ListItem<String> item) {
-                    item.add(new Check("scheck", item.getModel()));
+                    item.add(new Check<>("scheck", item.getModel()));
                     item.add(new Label("sname", new ResourceModel(item.getModelObject(), item.getModelObject())));
                 }
             };
@@ -163,7 +165,8 @@ public abstract class DisplayAttributesModalPage<T extends AnyTO> extends Abstra
             final Fragment fragment = new Fragment("dschemas", "dsfragment", form);
             form.add(fragment);
 
-            final CheckGroup dsgroup = new CheckGroup("dsCheckGroup", new PropertyModel(this, "selectedDerSchemas"));
+            final CheckGroup<String> dsgroup
+                    = new CheckGroup<>("dsCheckGroup", new PropertyModel<List<String>>(this, "selectedDerSchemas"));
             fragment.add(dsgroup);
 
             final ListView<String> derSchemas = new ListView<String>("derSchemas", dsnames) {
@@ -172,7 +175,7 @@ public abstract class DisplayAttributesModalPage<T extends AnyTO> extends Abstra
 
                 @Override
                 protected void populateItem(final ListItem<String> item) {
-                    item.add(new Check("dscheck", item.getModel()));
+                    item.add(new Check<>("dscheck", item.getModel()));
                     item.add(new Label("dsname", new ResourceModel(item.getModelObject(), item.getModelObject())));
                 }
             };
@@ -237,6 +240,6 @@ public abstract class DisplayAttributesModalPage<T extends AnyTO> extends Abstra
 
     public abstract String getPrefDerivedAttributeView();
 
-    public abstract Class getTOClass();
+    public abstract Class<? extends AnyTO> getTOClass();
 
 }

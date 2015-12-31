@@ -30,7 +30,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
 
-public class AnyTypeClassModalPanel extends AbstractModalPanel {
+public class AnyTypeClassModalPanel extends AbstractModalPanel<AnyTypeClassTO> {
 
     private static final long serialVersionUID = 1086997609984272599L;
 
@@ -51,8 +51,8 @@ public class AnyTypeClassModalPanel extends AbstractModalPanel {
         antTypeClassForm.setModel(new CompoundPropertyModel<>(anyTypeClassTO));
         antTypeClassForm.setOutputMarkupId(true);
 
-        final AjaxTextFieldPanel key =
-                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(anyTypeClassTO, "key"));
+        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(
+                anyTypeClassTO, "key"));
         key.addRequiredLabel();
         key.setEnabled(anyTypeClassTO.getKey() == null || anyTypeClassTO.getKey().isEmpty());
         antTypeClassForm.add(key);

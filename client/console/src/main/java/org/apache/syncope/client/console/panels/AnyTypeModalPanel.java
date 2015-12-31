@@ -18,44 +18,24 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 
-public class AnyTypeModalPanel extends AbstractModalPanel {
+public class AnyTypeModalPanel extends AbstractModalPanel<AnyTypeTO> {
 
     private static final long serialVersionUID = -4603032036433309900L;
 
-    private final boolean createFlag;
+    protected final AnyTypeTO anyTypeTO;
 
-    public AnyTypeModalPanel(final BaseModal<AnyTypeTO> modal, final PageReference pageRef, final boolean createFlag) {
+    public AnyTypeModalPanel(final BaseModal<AnyTypeTO> modal, final AnyTypeTO anyTypeTO, final PageReference pageRef) {
         super(modal, pageRef);
-
-        this.createFlag = createFlag;
-        add(new AnyTypeDetailsPanel("anyTypeDetailsPanel", modal));
+        this.anyTypeTO = anyTypeTO;
+        add(new AnyTypeDetailsPanel("anyTypeDetailsPanel", this.anyTypeTO));
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        try {
-            final AnyTypeTO updateAnyTypeTO = AnyTypeTO.class.cast(form.getModelObject());
-
-            if (createFlag) {
-                SyncopeConsoleSession.get().getService(AnyTypeService.class).create(updateAnyTypeTO);
-            } else {
-                SyncopeConsoleSession.get().getService(AnyTypeService.class).update(updateAnyTypeTO);
-            }
-            info(getString(Constants.OPERATION_SUCCEEDED));
-            modal.close(target);
-        } catch (Exception e) {
-            LOG.error("While creating or updating AnyTypeTO", e);
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getNotificationPanel().refresh(target);
-        }
+    public AnyTypeTO getItem() {
+        return this.anyTypeTO;
     }
 }

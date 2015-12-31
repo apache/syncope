@@ -73,7 +73,6 @@ public class Realms extends BasePage {
             public void onClose(final AjaxRequestTarget target) {
                 target.add(realmSidebarPanel.reloadRealmTree());
                 target.add(updateRealmContent(realmSidebarPanel.getCurrentRealm()));
-
                 modal.show(false);
             }
         });
@@ -148,12 +147,13 @@ public class Realms extends BasePage {
                     realmRestClient.delete(realmTO.getFullPath());
                     target.add(realmSidebarPanel.reloadRealmTree());
                     target.add(updateRealmContent(realmSidebarPanel.getCurrentRealm()));
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While deleting realm", e);
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    // Excape line breaks
+                    getSession().error(getString(Constants.ERROR) + ": " + e.getMessage().replace("\n", " "));
                 }
-                BasePage.class.cast(getPage()).getNotificationPanel().refresh(target);
+                getNotificationPanel().refresh(target);
             }
         });
         return content;

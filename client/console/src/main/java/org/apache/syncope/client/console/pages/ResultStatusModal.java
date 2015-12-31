@@ -64,7 +64,7 @@ import org.apache.wicket.request.resource.ContextRelativeResource;
  *
  * @param <T> anyTO
  */
-public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel {
+public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel<T> {
 
     private static final long serialVersionUID = 2646115294319713723L;
 
@@ -157,87 +157,87 @@ public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel
             final ListView<PropagationStatus> propRes = new ListView<PropagationStatus>("resources",
                     propagations) {
 
-                        private static final long serialVersionUID = -1020475259727720708L;
+                private static final long serialVersionUID = -1020475259727720708L;
+
+                @Override
+                protected void populateItem(final ListItem<PropagationStatus> item) {
+                    final PropagationStatus propTO = (PropagationStatus) item.getDefaultModelObject();
+
+                    final ListView<String> attributes = getConnObjectView(propTO);
+
+                    final Fragment attrhead;
+                    if (attributes.getModelObject() == null || attributes.getModelObject().isEmpty()) {
+                        attrhead = new Fragment("attrhead", "emptyAttrHeadFrag", this);
+                    } else {
+                        attrhead = new Fragment("attrhead", "attrHeadFrag", this);
+                    }
+
+                    item.add(attrhead);
+                    item.add(attributes);
+
+                    attrhead.add(new Label("resource", propTO.getResource()));
+
+                    attrhead.add(new Label("propagation", propTO.getStatus() == null
+                            ? "UNDEFINED" : propTO.getStatus().toString()));
+
+                    final Image image;
+                    final String alt, title;
+
+                    final BaseModal<T> failureWindow = new BaseModal<>("failureWindow");
+
+                    final AjaxLink<?> failureWindowLink = new AjaxLink<Void>("showFailureWindow") {
+
+                        private static final long serialVersionUID = -7978723352517770644L;
 
                         @Override
-                        protected void populateItem(final ListItem<PropagationStatus> item) {
-                            final PropagationStatus propTO = (PropagationStatus) item.getDefaultModelObject();
-
-                            final ListView<String> attributes = getConnObjectView(propTO);
-
-                            final Fragment attrhead;
-                            if (attributes.getModelObject() == null || attributes.getModelObject().isEmpty()) {
-                                attrhead = new Fragment("attrhead", "emptyAttrHeadFrag", this);
-                            } else {
-                                attrhead = new Fragment("attrhead", "attrHeadFrag", this);
-                            }
-
-                            item.add(attrhead);
-                            item.add(attributes);
-
-                            attrhead.add(new Label("resource", propTO.getResource()));
-
-                            attrhead.add(new Label("propagation", propTO.getStatus() == null
-                                                    ? "UNDEFINED" : propTO.getStatus().toString()));
-
-                            final Image image;
-                            final String alt, title;
-
-                            final BaseModal<?> failureWindow = new BaseModal<>("failureWindow");
-
-                            final AjaxLink<?> failureWindowLink = new AjaxLink<Void>("showFailureWindow") {
-
-                                private static final long serialVersionUID = -7978723352517770644L;
-
-                                @Override
-                                public void onClick(final AjaxRequestTarget target) {
-                                    failureWindow.show(target);
-                                }
-                            };
-
-                            switch (propTO.getStatus()) {
-
-                                case SUCCESS:
-                                case CREATED:
-                                    image = new Image("icon",
-                                            new ContextRelativeResource(IMG_PREFIX + Status.ACTIVE.toString()
-                                                    + Constants.PNG_EXT));
-                                    alt = "success icon";
-                                    title = "success";
-                                    failureWindow.setVisible(false);
-                                    failureWindowLink.setEnabled(false);
-                                    break;
-
-                                default:
-                                    image = new Image("icon",
-                                            new ContextRelativeResource(IMG_PREFIX + Status.SUSPENDED.toString()
-                                                    + Constants.PNG_EXT));
-                                    alt = "failure icon";
-                                    title = "failure";
-                            }
-
-                            image.add(new Behavior() {
-
-                                private static final long serialVersionUID = 1469628524240283489L;
-
-                                @Override
-                                public void onComponentTag(final Component component, final ComponentTag tag) {
-                                    tag.put("alt", alt);
-                                    tag.put("title", title);
-                                }
-                            });
-                            final FailureMessageModal executionFailureMessagePage;
-                            if (propTO.getFailureReason() == null) {
-                                executionFailureMessagePage = new FailureMessageModal(
-                                        modal, pageRef, StringUtils.EMPTY);
-                            } else {
-                                executionFailureMessagePage = new FailureMessageModal(
-                                        modal, pageRef, propTO.getFailureReason());
-                            }
-
-                            failureWindow.setContent(executionFailureMessagePage);
+                        public void onClick(final AjaxRequestTarget target) {
+                            failureWindow.show(target);
                         }
                     };
+
+                    switch (propTO.getStatus()) {
+
+                        case SUCCESS:
+                        case CREATED:
+                            image = new Image("icon",
+                                    new ContextRelativeResource(IMG_PREFIX + Status.ACTIVE.toString()
+                                            + Constants.PNG_EXT));
+                            alt = "success icon";
+                            title = "success";
+                            failureWindow.setVisible(false);
+                            failureWindowLink.setEnabled(false);
+                            break;
+
+                        default:
+                            image = new Image("icon",
+                                    new ContextRelativeResource(IMG_PREFIX + Status.SUSPENDED.toString()
+                                            + Constants.PNG_EXT));
+                            alt = "failure icon";
+                            title = "failure";
+                    }
+
+                    image.add(new Behavior() {
+
+                        private static final long serialVersionUID = 1469628524240283489L;
+
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            tag.put("alt", alt);
+                            tag.put("title", title);
+                        }
+                    });
+                    final FailureMessageModal<T> executionFailureMessagePage;
+                    if (propTO.getFailureReason() == null) {
+                        executionFailureMessagePage = new FailureMessageModal<>(
+                                modal, pageRef, StringUtils.EMPTY);
+                    } else {
+                        executionFailureMessagePage = new FailureMessageModal<>(
+                                modal, pageRef, propTO.getFailureReason());
+                    }
+
+                    failureWindow.setContent(executionFailureMessagePage);
+                }
+            };
             fragment.add(propRes);
         }
 
@@ -343,14 +343,12 @@ public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel
 
         if (attr == null || attr.getValues() == null || attr.getValues().isEmpty()) {
             value = "";
+        } else if (ConnIdSpecialAttributeName.PASSWORD.equals(attrName)) {
+            value = "********";
         } else {
-            if (ConnIdSpecialAttributeName.PASSWORD.equals(attrName)) {
-                value = "********";
-            } else {
-                value = attr.getValues().size() > 1
-                        ? attr.getValues().toString()
-                        : attr.getValues().get(0);
-            }
+            value = attr.getValues().size() > 1
+                    ? attr.getValues().toString()
+                    : attr.getValues().get(0);
         }
 
         Component label = new Label("value", value.length() > 50 ? value.substring(0, 50) + "..." : value).

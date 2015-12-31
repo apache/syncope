@@ -18,20 +18,12 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import org.apache.syncope.client.console.panels.RoleSearchResultPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.role.RoleHandler;
 import org.apache.syncope.client.console.wizards.role.RoleWizardBuilder;
 import org.apache.syncope.common.lib.to.RoleTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
@@ -54,21 +46,8 @@ public class Roles extends BasePage {
 
             private static final long serialVersionUID = -5960765294082359003L;
 
-        }.addNewItemPanelBuilder(new RoleWizardBuilder(BaseModal.CONTENT_ID, new RoleTO(), getPageReference()), false).
-                build("roles");
-
-        final AjaxLink<RoleTO> createLink = new AjaxLink<RoleTO>("add") {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                send(roleSearchResultPanel, Broadcast.EXACT, new AjaxWizard.NewItemActionEvent<RoleTO>(null, target));
-            }
-        };
-
-        content.add(createLink);
-        MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE, StandardEntitlement.ROLE_CREATE);
+        }.addNewItemPanelBuilder(new RoleWizardBuilder(BaseModal.CONTENT_ID, new RoleTO(), getPageReference()), true)
+                .build("roles");
 
         content.add(roleSearchResultPanel);
     }

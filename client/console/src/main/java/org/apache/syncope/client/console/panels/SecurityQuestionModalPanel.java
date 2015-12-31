@@ -27,27 +27,30 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
 
-public class SecurityQuestionModalPanel extends AbstractModalPanel {
+public class SecurityQuestionModalPanel extends AbstractModalPanel<SecurityQuestionTO> {
 
     private static final long serialVersionUID = 4024126489500665435L;
 
-    private final boolean createFlag;
+    private final SecurityQuestionTO securityQuestionTO;
 
     public SecurityQuestionModalPanel(
             final BaseModal<SecurityQuestionTO> modal,
-            final PageReference pageRef,
-            final boolean createFlag) {
+            final SecurityQuestionTO securityQuestionTO,
+            final PageReference pageRef) {
         super(modal, pageRef);
-        this.createFlag = createFlag;
-        add(new SecurityQuestionDetailsPanel("securityQuestionDetailsPanel", modal));
+        this.securityQuestionTO = securityQuestionTO;
+        add(new SecurityQuestionDetailsPanel("securityQuestionDetailsPanel", getItem()));
+    }
+
+    @Override
+    public final SecurityQuestionTO getItem() {
+        return this.securityQuestionTO;
     }
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
-            final SecurityQuestionTO securityQuestionTO = SecurityQuestionTO.class.cast(form.getModelObject());
-
-            if (createFlag) {
+            if (securityQuestionTO.getKey() == 0) {
                 SyncopeConsoleSession.get().getService(SecurityQuestionService.class).create(securityQuestionTO);
             } else {
                 SyncopeConsoleSession.get().getService(SecurityQuestionService.class).update(securityQuestionTO);

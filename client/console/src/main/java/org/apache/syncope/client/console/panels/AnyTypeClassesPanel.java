@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -38,6 +39,7 @@ import org.apache.wicket.markup.html.form.ListChoice;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +55,6 @@ public class AnyTypeClassesPanel extends Panel {
 
     public AnyTypeClassesPanel(final String id, final PageReference pageRef, final BaseModal<AnyTypeClassTO> modal) {
         super(id);
-
         this.setOutputMarkupId(true);
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
@@ -124,6 +125,20 @@ public class AnyTypeClassesPanel extends Panel {
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                modal.header(new ResourceModel("createAnyTypeClass"));
+                modal.setFormModel(new AnyTypeClassTO());
+                modal.size(Modal.Size.Large);
+                target.add(modal.setContent(new AnyTypeClassModalPanel(modal, pageRef, true)));
+                modal.addSumbitButton();
+                modal.show(true);
+            }
+        }, ActionLink.ActionType.CREATE, StandardEntitlement.ANYTYPECLASS_CREATE).addWithRoles(
+                new ActionLink<Serializable>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 if (anyTypeClasses != null && anyTypeClasses.getModelObject() != null) {
                     modal.header(Model.of(anyTypeClasses.getModelObject().getKey()));
                     modal.setFormModel(anyTypeClasses.getModelObject());
@@ -133,30 +148,32 @@ public class AnyTypeClassesPanel extends Panel {
                 }
             }
         }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPECLASS_UPDATE).addWithRoles(
-                new ActionLink<Serializable>() {
+                        new ActionLink<Serializable>() {
 
-            private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                try {
-                    if (anyTypeClasses != null && anyTypeClasses.getModelObject() != null) {
-                        SyncopeConsoleSession.get()
-                                .getService(AnyTypeClassService.class).delete(anyTypeClasses.getModelObject().getKey());
-                        anyTypeClasses.setModelObject(null);
-                        anyTypeClasses.setChoices(SyncopeConsoleSession.get().getService(AnyTypeClassService.class).
-                                list());
-                        target.add(anyTypeClasses);
-                        target.add(updateAnyTypeClassDetails(new AnyTypeClassTO(), true));
-                        info(getString(Constants.OPERATION_SUCCEEDED));
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                        try {
+                            if (anyTypeClasses != null && anyTypeClasses.getModelObject() != null) {
+                                SyncopeConsoleSession.get()
+                                        .getService(AnyTypeClassService.class).delete(anyTypeClasses.getModelObject().
+                                        getKey());
+                                anyTypeClasses.setModelObject(null);
+                                anyTypeClasses.setChoices(SyncopeConsoleSession.get().getService(
+                                        AnyTypeClassService.class).
+                                        list());
+                                target.add(anyTypeClasses);
+                                target.add(updateAnyTypeClassDetails(new AnyTypeClassTO(), true));
+                                info(getString(Constants.OPERATION_SUCCEEDED));
+                            }
+                        } catch (Exception e) {
+                            LOG.error("While deleting AnyTypeClass", e);
+                            error(getString(Constants.ERROR) + ": " + e.getMessage());
+                        }
+                        ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
                     }
-                } catch (Exception e) {
-                    LOG.error("While deleting AnyTypeClass", e);
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                }
-                ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
-            }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPECLASS_DELETE);
+                }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPECLASS_DELETE);
 
         container.add(actionLinks.build("editRemove"));
     }

@@ -35,12 +35,15 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -117,6 +120,21 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
         BasePage.class.cast(pageRef.getPage()).setWindowClosedCallback(modal, null);
     }
 
+    @Override
+    public final MarkupContainer add(final Component... childs) {
+        return super.add(childs);
+    }
+
+    @Override
+    public final Component add(final Behavior... behaviors) {
+        return super.add(behaviors);
+    }
+
+    @Override
+    public final Component setMarkupId(final String markupId) {
+        return super.setMarkupId(markupId);
+    }
+
     private Fragment getSyncopeFragment() {
         return new Fragment("actions", "syncopeActions", this);
     }
@@ -173,7 +191,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                 ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
             }
         };
-        
+
         fragment.add(delete);
         delete.add(new ConfirmationModalBehavior());
 
@@ -192,7 +210,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                 final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
                 modal.setFormModel(model);
 
-                target.add(modal.setContent(new ResourceModal(modal, pageRef, model, true)));
+                target.add(modal.setContent(new ResourceModal<>(modal, pageRef, model, true)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("resource.new"), node.getKey())));
 
@@ -271,7 +289,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                 final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
                 modal.setFormModel(model);
 
-                target.add(modal.setContent(new ResourceModal(modal, pageRef, model, false)));
+                target.add(modal.setContent(new ResourceModal<>(modal, pageRef, model, false)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
 

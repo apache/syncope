@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -30,8 +31,7 @@ import org.apache.wicket.PageReference;
  *
  * @param <T> anyTO
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public class AnyDisplayAttributesModalPage<T extends AnyTO> extends DisplayAttributesModalPage {
+public class AnyDisplayAttributesModalPage<T extends Serializable> extends DisplayAttributesModalPage<T> {
 
     private static final long serialVersionUID = 5194630813773543054L;
 
@@ -40,7 +40,7 @@ public class AnyDisplayAttributesModalPage<T extends AnyTO> extends DisplayAttri
     private final String type;
 
     public AnyDisplayAttributesModalPage(
-            final BaseModal<?> modal,
+            final BaseModal<T> modal,
             final PageReference pageRef,
             final List<String> schemaNames,
             final List<String> dSchemaNames,
@@ -66,7 +66,7 @@ public class AnyDisplayAttributesModalPage<T extends AnyTO> extends DisplayAttri
     }
 
     @Override
-    public Class getTOClass() {
+    public Class<? extends AnyTO> getTOClass() {
         return AnyObjectTO.class;
     }
 }

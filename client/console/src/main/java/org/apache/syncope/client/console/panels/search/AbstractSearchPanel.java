@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
@@ -63,8 +62,6 @@ public abstract class AbstractSearchPanel extends Panel {
     protected IModel<List<SearchClause.Type>> types;
 
     protected IModel<List<Pair<Long, String>>> groupNames;
-
-    protected NotificationPanel searchFeedback;
 
     protected IModel<List<SearchClause>> model;
 
@@ -126,28 +123,6 @@ public abstract class AbstractSearchPanel extends Panel {
         searchFormContainer = new WebMarkupContainer("searchFormContainer");
         searchFormContainer.setOutputMarkupId(true);
         add(searchFormContainer);
-
-//        searchFeedback = new NotificationPanel("searchFeedback", new IFeedbackMessageFilter() {
-//
-//            private static final long serialVersionUID = 6895024863321391672L;
-//
-//            @Override
-//            public boolean accept(final FeedbackMessage message) {
-//                boolean result;
-//
-//                // messages reported on the session have a null reporter
-//                if (message.getReporter() == null) {
-//                    result = false;
-//                } else {
-//                    // only accept messages coming from the children of the search form container
-//                    result = searchFormContainer.contains(message.getReporter(), true);
-//                }
-//
-//                return result;
-//            }
-//        });
-//        searchFeedback.setOutputMarkupId(true);
-//        add(searchFeedback);
 
         final SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),
@@ -215,10 +190,6 @@ public abstract class AbstractSearchPanel extends Panel {
                 }, new ArrayList<String>());
             }
         };
-    }
-
-    public NotificationPanel getSearchFeedback() {
-        return searchFeedback;
     }
 
     public IModel<List<SearchClause>> getModel() {

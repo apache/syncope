@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,7 +33,7 @@ import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class DataTablePanel<T, S> extends Panel {
+public abstract class DataTablePanel<T extends Serializable, S> extends Panel {
 
     private static final long serialVersionUID = -7264400471578272966L;
 

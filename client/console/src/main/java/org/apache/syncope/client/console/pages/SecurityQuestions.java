@@ -18,21 +18,13 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.panels.SecurityQuestionModalPanel;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class SecurityQuestions extends BasePage {
@@ -55,30 +47,7 @@ public class SecurityQuestions extends BasePage {
         addWindowWindowClosedCallback(securityQuestionModal);
         add(securityQuestionModal);
 
-        final AjaxLink<Void> createLink = new IndicatingAjaxLink<Void>("createSecurityQuestion") {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                securityQuestionModal.header(new ResourceModel("createSecurityQuestion"));
-                securityQuestionModal.setFormModel(new SecurityQuestionTO());
-                securityQuestionModal.size(Modal.Size.Large);
-                target.add(securityQuestionModal.setContent(
-                        new SecurityQuestionModalPanel(securityQuestionModal, getPageReference(), true)));
-                securityQuestionModal.addSumbitButton();
-                securityQuestionModal.show(true);
-            }
-        };
-        content.add(createLink);
-
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.SECURITY_QUESTION_CREATE)) {
-            MetaDataRoleAuthorizationStrategy.authorize(
-                    createLink, ENABLE, StandardEntitlement.SECURITY_QUESTION_CREATE);
-        }
-
-        securityQuestionsPanel = new SecurityQuestionsPanel(
-                "securityQuestionPanel", getPageReference(), securityQuestionModal);
+        securityQuestionsPanel = new SecurityQuestionsPanel("securityQuestionPanel", getPageReference());
         securityQuestionsPanel.setOutputMarkupId(true);
 
         content.add(securityQuestionsPanel);

@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.HeaderItem;
@@ -30,13 +33,13 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractModalPanel extends Panel implements ModalPanel {
+public class AbstractModalPanel<T extends Serializable> extends Panel implements ModalPanel<T> {
 
     private static final long serialVersionUID = 8611724965544132636L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractModalPanel.class);
 
-    protected final BaseModal<?> modal;
+    protected final BaseModal<T> modal;
 
     protected static final String CANCEL = "cancel";
 
@@ -50,10 +53,20 @@ public class AbstractModalPanel extends Panel implements ModalPanel {
 
     protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
-    public AbstractModalPanel(final BaseModal<?> modal, final PageReference pageRef) {
+    public AbstractModalPanel(final BaseModal<T> modal, final PageReference pageRef) {
         super(BaseModal.getContentId());
         this.pageRef = pageRef;
         this.modal = modal;
+    }
+
+    @Override
+    public final MarkupContainer add(final Component... childs) {
+        return super.add(childs);
+    }
+
+    @Override
+    public final MarkupContainer addOrReplace(final Component... childs) {
+        return super.addOrReplace(childs);
     }
 
     @Override
@@ -74,5 +87,10 @@ public class AbstractModalPanel extends Panel implements ModalPanel {
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
         modal.getNotificationPanel().refresh(target);
+    }
+
+    @Override
+    public T getItem() {
+        return modal.getFormModel();
     }
 }

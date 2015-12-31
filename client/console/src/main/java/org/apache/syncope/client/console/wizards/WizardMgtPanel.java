@@ -20,8 +20,11 @@ package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -45,11 +48,13 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     private final Fragment initialFragment;
 
-    private final AjaxLink<?> addAjaxLink;
+    protected final AjaxLink<?> addAjaxLink;
 
-    private AjaxWizardBuilder<T> newItemPanelBuilder;
+    private AbstractModalPanelBuilder<T> newItemPanelBuilder;
 
     private NotificationPanel notificationPanel;
+
+    private boolean footerVisibility = false;
 
     /**
      * Modal window.
@@ -61,7 +66,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         @Override
         protected void onConfigure() {
             super.onConfigure();
-            setFooterVisible(false);
+            setFooterVisible(footerVisibility);
         }
 
     };
@@ -102,6 +107,15 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     }
 
     @Override
+    public final MarkupContainer add(final Component... childs) {
+        return super.add(childs);
+    }
+
+    public void setFooterVisibility(final boolean footerVisibility) {
+        this.footerVisibility = footerVisibility;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
@@ -109,27 +123,27 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
             final AjaxRequestTarget target = newItemEvent.getTarget();
             final T item = newItemEvent.getItem();
 
-            if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent) {
+            if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && newItemPanelBuilder != null) {
                 newItemPanelBuilder.setItem(item);
 
-                final AjaxWizard<T> wizard = newItemPanelBuilder.build(
+                final ModalPanel<T> modalPanel = newItemPanelBuilder.build(
                         ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(), item != null);
 
                 if (wizardInModal) {
                     final IModel<T> model = new CompoundPropertyModel<>(item);
                     modal.setFormModel(model);
 
-                    target.add(modal.setContent(wizard));
+                    target.add(modal.setContent(modalPanel));
 
                     modal.header(new StringResourceModel(
                             String.format("any.%s", newItemEvent.getEventDescription()),
                             this,
-                            new Model<T>(wizard.getItem())));
+                            new Model<T>(modalPanel.getItem())));
 
                     modal.show(true);
                 } else {
                     final Fragment fragment = new Fragment("content", "wizard", WizardMgtPanel.this);
-                    fragment.add(wizard);
+                    fragment.add(Component.class.cast(modalPanel));
                     container.addOrReplace(fragment);
                 }
             } else {
@@ -153,8 +167,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         super.onEvent(event);
     }
 
-    private WizardMgtPanel<T> addNewItemPanelBuilder(
-            final AjaxWizardBuilder<T> panelBuilder, final boolean newItemDefaultButtonEnabled) {
+    protected <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> addNewItemPanelBuilder(
+            final B panelBuilder, final boolean newItemDefaultButtonEnabled) {
         this.newItemPanelBuilder = panelBuilder;
 
         if (this.newItemPanelBuilder != null) {
@@ -165,7 +179,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         return this;
     }
 
-    private WizardMgtPanel<T> addNotificationPanel(final NotificationPanel notificationPanel) {
+    protected WizardMgtPanel<T> addNotificationPanel(final NotificationPanel notificationPanel) {
         this.notificationPanel = notificationPanel;
         return this;
     }
@@ -181,7 +195,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
         protected final PageReference pageRef;
 
-        private AjaxWizardBuilder<T> newItemPanelBuilder;
+        private AbstractModalPanelBuilder<T> newItemPanelBuilder;
 
         private boolean newItemDefaultButtonEnabled = true;
 
@@ -205,7 +219,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                     addNotificationPanel(notificationPanel);
         }
 
-        public Builder<T> addNewItemPanelBuilder(final AjaxWizardBuilder<T> panelBuilder) {
+        public Builder<T> addNewItemPanelBuilder(final AbstractModalPanelBuilder<T> panelBuilder) {
             this.newItemPanelBuilder = panelBuilder;
             return this;
         }
@@ -218,7 +232,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
          * @return the current builder.
          */
         public Builder<T> addNewItemPanelBuilder(
-                final AjaxWizardBuilder<T> panelBuilder, final boolean newItemDefaultButtonEnabled) {
+                final AbstractModalPanelBuilder<T> panelBuilder, final boolean newItemDefaultButtonEnabled) {
             this.newItemDefaultButtonEnabled = newItemDefaultButtonEnabled;
             return addNewItemPanelBuilder(panelBuilder);
         }

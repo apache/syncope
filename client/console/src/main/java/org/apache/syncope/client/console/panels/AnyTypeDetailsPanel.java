@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -43,32 +42,30 @@ public class AnyTypeDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 8131650329622035501L;
 
-    private final AnyTypeTO anyTypeTO;
-
-    public AnyTypeDetailsPanel(final String id, final BaseModal<AnyTypeTO> modal) {
+    public AnyTypeDetailsPanel(final String id, final AnyTypeTO anyTypeTO) {
         super(id);
-
-        this.anyTypeTO = modal.getFormModel();
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
 
         final Form<AnyTypeTO> form = new Form<>("form");
-        form.setModel(new CompoundPropertyModel<>(this.anyTypeTO));
+        form.setModel(new CompoundPropertyModel<>(anyTypeTO));
         container.add(form);
 
-        final AjaxTextFieldPanel key =
-                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(this.anyTypeTO, "key"));
+        final AjaxTextFieldPanel key
+                = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(anyTypeTO, "key"));
         key.addRequiredLabel();
         key.setEnabled(key.getModelObject() == null || key.getModelObject().isEmpty());
         form.add(key);
 
         final AjaxDropDownChoicePanel<AnyTypeKind> kind = new AjaxDropDownChoicePanel<>(
-                "kind", getString("kind"), new PropertyModel<AnyTypeKind>(this.anyTypeTO, "kind"));
+                "kind", getString("kind"), new PropertyModel<AnyTypeKind>(anyTypeTO, "kind"));
         kind.setChoices(Arrays.asList(AnyTypeKind.values()));
-        kind.setModelObject(AnyTypeKind.ANY_OBJECT);
         kind.setOutputMarkupId(true);
+        if (anyTypeTO.getKind() == null) {
+            kind.setModelObject(AnyTypeKind.ANY_OBJECT);
+        }
         kind.setEnabled(false);
         form.add(kind);
 

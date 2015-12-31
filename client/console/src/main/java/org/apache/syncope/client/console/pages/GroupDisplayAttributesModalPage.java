@@ -18,24 +18,27 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.PageReference;
 
 /**
  * Modal window with Display group attributes form.
+ *
+ * @param <T>
  */
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public class GroupDisplayAttributesModalPage extends DisplayAttributesModalPage {
+public class GroupDisplayAttributesModalPage<T extends Serializable> extends DisplayAttributesModalPage<T> {
 
     private static final long serialVersionUID = 5194630813773543054L;
 
     public static final String[] GROUP_DEFAULT_SELECTION = { "key", "name" };
 
     public GroupDisplayAttributesModalPage(
-            final BaseModal<?> modal,
+            final BaseModal<T> modal,
             final PageReference pageRef,
             final List<String> schemaNames,
             final List<String> dSchemaNames) {
@@ -58,7 +61,7 @@ public class GroupDisplayAttributesModalPage extends DisplayAttributesModalPage 
     }
 
     @Override
-    public Class getTOClass() {
+    public Class<? extends AnyTO> getTOClass() {
         return GroupTO.class;
     }
 }

@@ -16,21 +16,12 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 
-public abstract class AjaxWizardBuilder<T extends Serializable> implements Serializable {
+public abstract class AjaxWizardBuilder<T extends Serializable> extends AbstractModalPanelBuilder<T> {
 
     private static final long serialVersionUID = 5241745929825564456L;
-
-    private final String id;
-
-    protected final PageReference pageRef;
-
-    private final T defaultItem;
-
-    private T item;
 
     /**
      * Construct.
@@ -40,11 +31,10 @@ public abstract class AjaxWizardBuilder<T extends Serializable> implements Seria
      * @param pageRef Caller page reference.
      */
     public AjaxWizardBuilder(final String id, final T defaultItem, final PageReference pageRef) {
-        this.id = id;
-        this.defaultItem = defaultItem;
-        this.pageRef = pageRef;
+        super(id, defaultItem, pageRef);
     }
 
+    @Override
     public AjaxWizard<T> build(final int index, final boolean edit) {
         final AjaxWizard<T> wizard = build(edit);
         for (int i = 1; i < index; i++) {
@@ -74,41 +64,4 @@ public abstract class AjaxWizardBuilder<T extends Serializable> implements Seria
     }
 
     protected abstract WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel);
-
-    protected abstract void onCancelInternal(T modelObject);
-
-    protected abstract void onApplyInternal(T modelObject);
-
-    protected T getOriginalItem() {
-        return item;
-    }
-
-    public T getDefaultItem() {
-        return defaultItem;
-    }
-
-    private T newModelObject() {
-        if (item == null) {
-            // keep the original item: the which one before the changes performed during wizard browsing
-            item = SerializationUtils.clone(defaultItem);
-        }
-
-        // instantiate a new model object and return it
-        return SerializationUtils.clone(item);
-    }
-
-    /**
-     * Replaces the default value provided with the constructor and nullify working item object.
-     *
-     * @param item new value.
-     * @return the current wizard factory instance.
-     */
-    public AjaxWizardBuilder<T> setItem(final T item) {
-        this.item = item;
-        return this;
-    }
-
-    public PageReference getPageReference() {
-        return pageRef;
-    }
 }

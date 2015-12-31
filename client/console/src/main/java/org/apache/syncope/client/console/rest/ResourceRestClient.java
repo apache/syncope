@@ -43,7 +43,7 @@ public class ResourceRestClient extends BaseRestClient {
         return new ArrayList<>(SyncopeConsoleSession.get().getSyncopeTO().getPropagationActions());
     }
 
-    public static List<ResourceTO> getAll() {
+    public List<ResourceTO> getAll() {
         List<ResourceTO> resources = null;
 
         try {

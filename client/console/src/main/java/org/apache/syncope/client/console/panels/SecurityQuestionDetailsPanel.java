@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -31,9 +30,7 @@ public class SecurityQuestionDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 6278708606604582875L;
 
-    public SecurityQuestionDetailsPanel(
-            final String id,
-            final BaseModal<SecurityQuestionTO> modal) {
+    public SecurityQuestionDetailsPanel(final String id, final SecurityQuestionTO securityQuestionTO) {
         super(id);
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
@@ -43,7 +40,6 @@ public class SecurityQuestionDetailsPanel extends Panel {
 
         final Form<SecurityQuestionTO> form = new Form<>("form");
 
-        final SecurityQuestionTO securityQuestionTO = modal.getFormModel();
         form.setModel(new CompoundPropertyModel<>(securityQuestionTO));
         container.add(form);
 

@@ -64,7 +64,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
+public class StatusModal<T extends Serializable> extends AbstractStatusModalPage<T> {
 
     private static final long serialVersionUID = -9148734710505211261L;
 
@@ -103,15 +103,15 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
     private final List<IColumn<StatusBean, String>> columns;
 
     public StatusModal(
-            final BaseModal<?> modal,
+            final BaseModal<T> modal,
             final PageReference pageRef,
-            final AnyTO attributableTO) {
+            final AnyTO anyTO) {
 
-        this(modal, pageRef, attributableTO, false);
+        this(modal, pageRef, anyTO, false);
     }
 
     public StatusModal(
-            final BaseModal<?> modal,
+            final BaseModal<T> modal,
             final PageReference pageRef,
             final AnyTO anyTO,
             final boolean statusOnly) {
@@ -547,8 +547,8 @@ public class StatusModal<T extends AnyTO> extends AbstractStatusModalPage {
             final ResourceAssociationAction type,
             final Collection<StatusBean> selection) {
 
-        final IndicatingAjaxButton goon =
-                new IndicatingAjaxButton("continue", new ResourceModel("continue", "Continue")) {
+        final IndicatingAjaxButton goon
+                = new IndicatingAjaxButton("continue", new ResourceModel("continue", "Continue")) {
 
             private static final long serialVersionUID = -2341391430136818027L;
 

@@ -18,16 +18,17 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.io.Serializable;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.panel.Fragment;
 
-public class AbstractStatusModalPage extends AbstractModalPanel {
+public class AbstractStatusModalPage<T extends Serializable> extends AbstractModalPanel<T> {
 
     private static final long serialVersionUID = 6633408683036028540L;
 
-    public AbstractStatusModalPage(final BaseModal<?> modal, final PageReference pageRef) {
+    public AbstractStatusModalPage(final BaseModal<T> modal, final PageReference pageRef) {
         super(modal, pageRef);
         add(new Fragment("pwdMgtFields", "emptyFragment", this));
     }

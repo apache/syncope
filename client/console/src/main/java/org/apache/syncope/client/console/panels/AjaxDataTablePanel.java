@@ -45,11 +45,11 @@ import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
 
-public final class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
+public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTablePanel<T, S> {
 
     private static final long serialVersionUID = -7264400471578272966L;
 
-    public static class Builder<T, S> implements Serializable {
+    public static class Builder<T extends Serializable, S> implements Serializable {
 
         private static final long serialVersionUID = 8876232177473972722L;
 
@@ -148,7 +148,7 @@ public final class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
 
         super(id);
 
-        final BaseModal<?> bulkModalWin = new BaseModal<>("bulkModal");
+        final BaseModal<T> bulkModalWin = new BaseModal<>("bulkModal");
         add(bulkModalWin);
 
         bulkModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {

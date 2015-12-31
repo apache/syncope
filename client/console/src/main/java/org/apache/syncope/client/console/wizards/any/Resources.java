@@ -53,7 +53,7 @@ public class Resources extends WizardStep {
                 entityTO.getResources().addAll(object);
             }
         }, new ListModel<>(CollectionUtils.collect(
-                        ResourceRestClient.getAll(),
+                        new ResourceRestClient().getAll(),
                         new Transformer<ResourceTO, String>() {
 
                     @Override

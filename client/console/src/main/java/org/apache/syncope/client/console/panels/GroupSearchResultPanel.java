@@ -168,7 +168,7 @@ public class GroupSearchResultPanel extends AnyObjectSearchResultPanel<GroupTO> 
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        target.add(modal.setContent(new GroupDisplayAttributesModalPage(
+                        target.add(modal.setContent(new GroupDisplayAttributesModalPage<>(
                                 modal, page.getPageReference(), schemaNames, dSchemaNames)));
 
                         modal.header(new ResourceModel("any.attr.display", ""));

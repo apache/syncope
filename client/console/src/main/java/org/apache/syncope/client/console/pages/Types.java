@@ -18,39 +18,24 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.panels.AnyTypeClassModalPanel;
 import org.apache.syncope.client.console.panels.AnyTypeClassesPanel;
-import org.apache.syncope.client.console.panels.AnyTypeModalPanel;
 import org.apache.syncope.client.console.panels.AnyTypePanel;
-import org.apache.syncope.client.console.panels.ModalPanel;
-import org.apache.syncope.client.console.panels.RelationshipTypeModalPanel;
 import org.apache.syncope.client.console.panels.RelationshipTypePanel;
 import org.apache.syncope.client.console.panels.SchemasPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.syncope.client.console.panels.SchemaModalPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.RelationshipTypeTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
 public class Types extends BasePage {
@@ -61,10 +46,6 @@ public class Types extends BasePage {
 
     private final BaseModal<AnyTypeClassTO> anyTypeClassModal;
 
-    private final BaseModal<AnyTypeTO> anyTypeModal;
-
-    private final BaseModal<RelationshipTypeTO> relationshipTypeModal;
-
     private final AjaxBootstrapTabbedPanel<ITab> tabbedPanel;
 
     private enum Type {
@@ -72,6 +53,7 @@ public class Types extends BasePage {
         ANYTYPECLASS,
         ANYTYPE,
         RELATIONSHIPTYPE;
+
     }
 
     public Types(final PageParameters parameters) {
@@ -79,8 +61,6 @@ public class Types extends BasePage {
 
         this.schemaModal = new BaseModal<>("schemaModal");
         this.anyTypeClassModal = new BaseModal<>("anyTypeClassModal");
-        this.anyTypeModal = new BaseModal<>("anyTypeModal");
-        this.relationshipTypeModal = new BaseModal<>("relationshipTypeModal");
 
         final WebMarkupContainer content = new WebMarkupContainer("content");
         content.add(new Label("header", "Types"));
@@ -88,50 +68,11 @@ public class Types extends BasePage {
         tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
         content.add(tabbedPanel);
 
-        final AjaxLink<Void> createSchemaLink =
-                buildCreateLink("createSchema", schemaModal, Type.SCHEMA);
-        content.add(createSchemaLink);
-
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.SCHEMA_CREATE)) {
-            MetaDataRoleAuthorizationStrategy.authorize(createSchemaLink, ENABLE, StandardEntitlement.SCHEMA_CREATE);
-        }
-
-        final AjaxLink<Void> createAnyTypeClassLink =
-                buildCreateLink("createAnyTypeClass", anyTypeClassModal, Type.ANYTYPECLASS);
-        content.add(createAnyTypeClassLink);
-
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.ANYTYPECLASS_CREATE)) {
-            MetaDataRoleAuthorizationStrategy.authorize(
-                    createAnyTypeClassLink, ENABLE, StandardEntitlement.ANYTYPECLASS_CREATE);
-        }
-
-        final AjaxLink<Void> createAnyTypeLink =
-                buildCreateLink("createAnyType", anyTypeModal, Type.ANYTYPE);
-        content.add(createAnyTypeLink);
-
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.ANYTYPE_CREATE)) {
-            MetaDataRoleAuthorizationStrategy.authorize(
-                    createAnyTypeLink, ENABLE, StandardEntitlement.ANYTYPE_CREATE);
-        }
-
-        final AjaxLink<Void> createRelationshipTypeLink =
-                buildCreateLink("createRelationshipType", relationshipTypeModal, Type.RELATIONSHIPTYPE);
-        content.add(createRelationshipTypeLink);
-
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.RELATIONSHIPTYPE_CREATE)) {
-            MetaDataRoleAuthorizationStrategy.authorize(
-                    createRelationshipTypeLink, ENABLE, StandardEntitlement.RELATIONSHIPTYPE_CREATE);
-        }
-
         add(content);
         addWindowWindowClosedCallback(schemaModal);
         addWindowWindowClosedCallback(anyTypeClassModal);
-        addWindowWindowClosedCallback(anyTypeModal);
-        addWindowWindowClosedCallback(relationshipTypeModal);
         add(schemaModal);
         add(anyTypeClassModal);
-        add(anyTypeModal);
-        add(relationshipTypeModal);
     }
 
     private List<ITab> buildTabList() {
@@ -144,7 +85,7 @@ public class Types extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new RelationshipTypePanel(panelId, getPageReference(), relationshipTypeModal);
+                return new RelationshipTypePanel(panelId, getPageReference());
             }
         });
 
@@ -154,7 +95,7 @@ public class Types extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new AnyTypePanel(panelId, getPageReference(), anyTypeModal);
+                return new AnyTypePanel(panelId, getPageReference());
             }
         });
 
@@ -179,50 +120,6 @@ public class Types extends BasePage {
         });
 
         return tabs;
-    }
-
-    private AjaxLink<Void> buildCreateLink(final String label, final BaseModal<?> modal, final Type type) {
-
-        final AjaxLink<Void> createLink = new IndicatingAjaxLink<Void>(label) {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                modal.header(new ResourceModel(label));
-                target.add(modal.setContent(buildModalPanel(type)));
-                modal.addSumbitButton();
-                modal.show(true);
-            }
-        };
-
-        return createLink;
-    }
-
-    private ModalPanel buildModalPanel(final Type type) {
-        final ModalPanel panel;
-        switch (type) {
-            case ANYTYPECLASS:
-                anyTypeClassModal.setFormModel(new AnyTypeClassTO());
-                anyTypeClassModal.size(Modal.Size.Large);
-                panel = new AnyTypeClassModalPanel(anyTypeClassModal, getPageReference(), true);
-                break;
-            case ANYTYPE:
-                anyTypeModal.setFormModel(new AnyTypeTO());
-                anyTypeModal.size(Modal.Size.Large);
-                panel = new AnyTypeModalPanel(anyTypeModal, getPageReference(), true);
-                break;
-            case RELATIONSHIPTYPE:
-                relationshipTypeModal.setFormModel(new RelationshipTypeTO());
-                relationshipTypeModal.size(Modal.Size.Medium);
-                panel = new RelationshipTypeModalPanel(relationshipTypeModal, getPageReference(), true);
-                break;
-            case SCHEMA:
-            default:
-                schemaModal.setFormModel(new PlainSchemaTO());
-                panel = new SchemaModalPanel(schemaModal, getPageReference(), true);
-        }
-        return panel;
     }
 
     private void addWindowWindowClosedCallback(final BaseModal<?> modal) {

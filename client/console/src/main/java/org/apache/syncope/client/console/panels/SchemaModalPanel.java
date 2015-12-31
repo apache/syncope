@@ -32,7 +32,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
-public class SchemaModalPanel extends AbstractModalPanel {
+public class SchemaModalPanel extends AbstractModalPanel<AbstractSchemaTO> {
 
     private static final long serialVersionUID = -4681998932778822125L;
 

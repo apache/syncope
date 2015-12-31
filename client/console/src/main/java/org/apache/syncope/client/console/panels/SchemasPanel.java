@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.apache.wicket.Component.ENABLE;
+
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.Collapsible;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -41,12 +43,15 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.SelectChoiceRenderer;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -74,8 +79,7 @@ public class SchemasPanel extends Panel {
 
     private static final long serialVersionUID = -1140213992451232279L;
 
-    private static final Map<SchemaType, String> PAGINATOR_ROWS_KEYS =
-            new HashMap<SchemaType, String>() {
+    private static final Map<SchemaType, String> PAGINATOR_ROWS_KEYS = new HashMap<SchemaType, String>() {
 
         private static final long serialVersionUID = 3109256773218160485L;
 
@@ -106,15 +110,32 @@ public class SchemasPanel extends Panel {
 
     private final BaseModal<AbstractSchemaTO> modal;
 
-    public SchemasPanel(final String id, final PageReference pageReference, final BaseModal<AbstractSchemaTO> modal) {
+    public SchemasPanel(final String id, final PageReference pageRef, final BaseModal<AbstractSchemaTO> modal) {
         super(id);
 
-        this.pageReference = pageReference;
+        this.pageReference = pageRef;
         this.modal = modal;
 
         final Collapsible collapsible = new Collapsible("collapsePanel", buildTabList());
         collapsible.setOutputMarkupId(true);
         add(collapsible);
+
+        final IndicatingAjaxLink<Void> schemaLink = new IndicatingAjaxLink<Void>("createSchema") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                modal.header(new ResourceModel("createSchema"));
+                modal.setFormModel(new PlainSchemaTO());
+                target.add(modal.setContent(new SchemaModalPanel(modal, pageRef, true)));
+                modal.addSumbitButton();
+                modal.show(true);
+            }
+        };
+
+        add(schemaLink);
+        MetaDataRoleAuthorizationStrategy.authorize(schemaLink, ENABLE, StandardEntitlement.SCHEMA_CREATE);
     }
 
     private List<ITab> buildTabList() {
@@ -171,8 +192,8 @@ public class SchemasPanel extends Panel {
                         }
                     });
                 } else {
-                    final IColumn<AbstractSchemaTO, String> column =
-                            new PropertyColumn<AbstractSchemaTO, String>(new ResourceModel(field), field, field) {
+                    final IColumn<AbstractSchemaTO, String> column = new PropertyColumn<AbstractSchemaTO, String>(
+                            new ResourceModel(field), field, field) {
 
                         private static final long serialVersionUID = 3282547854226892169L;
 
@@ -291,9 +312,8 @@ public class SchemasPanel extends Panel {
             final List<IColumn<AbstractSchemaTO, String>> tableCols = getColumns(schemaContainer,
                     schemaType, COL_NAMES.get(schemaType));
 
-            final AjaxFallbackDataTable<AbstractSchemaTO, String> table =
-                    new AjaxFallbackDataTable<>("datatable",
-                            tableCols, new SchemaProvider(schemaType), pageRows, schemaContainer);
+            final AjaxFallbackDataTable<AbstractSchemaTO, String> table = new AjaxFallbackDataTable<>("datatable",
+                    tableCols, new SchemaProvider(schemaType), pageRows, schemaContainer);
             table.setOutputMarkupId(true);
             schemaContainer.add(table);
 

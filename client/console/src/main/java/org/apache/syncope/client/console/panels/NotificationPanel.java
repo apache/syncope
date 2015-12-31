@@ -61,10 +61,12 @@ public class NotificationPanel extends FeedbackPanel {
     public void refresh(final AjaxRequestTarget target) {
         if (anyMessage()) {
             for (FeedbackMessage message : getCurrentMessages()) {
-                if (anyErrorMessage()) {
+                if (message.isError()) {
                     notification.error(target, message.getMessage());
-                } else {
+                } else if (message.isSuccess() || message.isInfo()) {
                     notification.success(target, message.getMessage());
+                } else {
+                    notification.warn(target, message.getMessage());
                 }
             }
         }

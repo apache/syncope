@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -28,20 +29,18 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.form.Form;
 
-public class RealmModalPanel extends AbstractModalPanel {
+public class RealmModalPanel extends AbstractModalPanel<RealmTO> {
 
     private static final long serialVersionUID = -4285220460543213901L;
 
     private final RealmRestClient realmRestClient = new RealmRestClient();
-
-    private RealmTO realmTO;
 
     private boolean newRealm = false;
 
     private final String parentPath;
 
     public RealmModalPanel(
-            final BaseModal<?> modal,
+            final BaseModal<RealmTO> modal,
             final PageReference pageRef,
             final RealmTO realmTO,
             final String parentPath,
@@ -51,7 +50,7 @@ public class RealmModalPanel extends AbstractModalPanel {
     }
 
     public RealmModalPanel(
-            final BaseModal<?> modal,
+            final BaseModal<RealmTO> modal,
             final PageReference pageRef,
             final RealmTO realmTO,
             final String parentPath,
@@ -61,7 +60,6 @@ public class RealmModalPanel extends AbstractModalPanel {
         super(modal, pageRef);
 
         this.newRealm = newRealm;
-        this.realmTO = realmTO;
         this.parentPath = parentPath;
 
         final RealmDetails realmDetail = new RealmDetails("details", realmTO);
@@ -81,13 +79,13 @@ public class RealmModalPanel extends AbstractModalPanel {
             } else {
                 realmRestClient.update(updatedRealmTO);
             }
-            
+
             info(getString(Constants.OPERATION_SUCCEEDED));
             closeAction(target, form);
         } catch (Exception e) {
             LOG.error("While creating or updating realm", e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getNotificationPanel().refresh(target);
         }
+        BasePage.class.cast(pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 }

@@ -18,70 +18,120 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.apache.wicket.Component.ENABLE;
+
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
+import org.apache.syncope.client.console.panels.SecurityQuestionsPanel.SecurityQuestionsProvider;
+import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SecurityQuestionsPanel extends AbstractTypesPanel<SecurityQuestionTO> {
+public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
+        SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionsProvider, BaseRestClient> {
 
     private static final long serialVersionUID = 3323019773236588850L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(SecurityQuestionsPanel.class);
+    private final String pageID = "SecurityQuestions";
 
-    private static final String PAGINATOR_ROWS_KEYS = Constants.PREF_SECURITY_QUESTIONS_PAGINATOR_ROWS;
+    public SecurityQuestionsPanel(final String id, final PageReference pageRef) {
+        super(id, new Builder<SecurityQuestionTO, SecurityQuestionTO, BaseRestClient>(null, pageRef) {
 
-    private final BaseModal<SecurityQuestionTO> modal;
+            private static final long serialVersionUID = 8769126634538601689L;
 
-    public SecurityQuestionsPanel(
-            final String id, final PageReference pageReference, final BaseModal<SecurityQuestionTO> modal) {
-        super(id, pageReference);
-        this.pageRows = prefMan.getPaginatorRows(getRequest(), PAGINATOR_ROWS_KEYS);
-        this.modal = modal;
+            @Override
+            protected WizardMgtPanel<SecurityQuestionTO> newInstance(final String id) {
+                return new SecurityQuestionsPanel(id, this);
+            }
+        });
 
-        final WebMarkupContainer container = new WebMarkupContainer("container");
-        container.setOutputMarkupId(true);
-        add(container);
+        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<SecurityQuestionTO>(
+                BaseModal.CONTENT_ID, new SecurityQuestionTO(), pageRef) {
 
-        buildDataTable(container,
-                getColumns(container, pageReference),
-                new SecurityQuestionsPanel.SecurityQuestionsProvider(),
-                PAGINATOR_ROWS_KEYS);
+            private static final long serialVersionUID = -6388405037134399367L;
 
+            @Override
+            public ModalPanel<SecurityQuestionTO> build(final int index, final boolean edit) {
+                final SecurityQuestionTO modelObject = newModelObject();
+                return new SecurityQuestionModalPanel(modal, modelObject, pageRef);
+            }
+
+            @Override
+            protected void onCancelInternal(final SecurityQuestionTO modelObject) {
+            }
+
+            @Override
+            protected void onApplyInternal(final SecurityQuestionTO modelObject) {
+            }
+        }, true);
+
+        setFooterVisibility(true);
+        modal.addSumbitButton();
+        modal.size(Modal.Size.Large);
+        initResultTable();
+
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.SECURITY_QUESTION_CREATE);
     }
 
-    private List<IColumn<SecurityQuestionTO, String>> getColumns(
-            final WebMarkupContainer webContainer, final PageReference pageReference) {
+    public SecurityQuestionsPanel(
+            final String id, final Builder<SecurityQuestionTO, SecurityQuestionTO, BaseRestClient> builder) {
+        super(id, builder);
+    }
+
+    @Override
+    protected SecurityQuestionsProvider dataProvider() {
+        return new SecurityQuestionsProvider(rows);
+    }
+
+    @Override
+    protected String paginatorRowsKey() {
+        return Constants.PREF_SECURITY_QUESTIONS_PAGINATOR_ROWS;
+    }
+
+    @Override
+    protected Collection<ActionLink.ActionType> getBulkActions() {
+        return Collections.<ActionLink.ActionType>emptyList();
+    }
+
+    @Override
+    protected String getPageId() {
+        return pageID;
+    }
+
+    @Override
+    protected List<IColumn<SecurityQuestionTO, String>> getColumns() {
 
         final List<IColumn<SecurityQuestionTO, String>> columns = new ArrayList<>();
 
@@ -145,7 +195,8 @@ public class SecurityQuestionsPanel extends AbstractTypesPanel<SecurityQuestionT
 
                 final SecurityQuestionTO securityQuestionTO = model.getObject();
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(pageReference);
+                final ActionLinksPanel.Builder<Serializable> actionLinks
+                        = ActionLinksPanel.builder(page.getPageReference());
                 actionLinks.setDisableIndicator(true);
                 actionLinks
                         .addWithRoles(new ActionLink<Serializable>() {
@@ -154,12 +205,9 @@ public class SecurityQuestionsPanel extends AbstractTypesPanel<SecurityQuestionT
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                                modal.header(Model.of(String.valueOf(securityQuestionTO.getKey())));
-                                modal.setFormModel(securityQuestionTO);
-                                target.add(modal.setContent(
-                                        new SecurityQuestionModalPanel(modal, pageReference, false)));
-                                modal.addSumbitButton();
-                                modal.show(true);
+                                send(SecurityQuestionsPanel.this, Broadcast.EXACT,
+                                        new AjaxWizard.EditItemActionEvent<SecurityQuestionTO>(
+                                                model.getObject(), target));
                             }
                         }, ActionLink.ActionType.EDIT, StandardEntitlement.SECURITY_QUESTION_UPDATE)
                         .addWithRoles(new ActionLink<Serializable>() {
@@ -172,7 +220,7 @@ public class SecurityQuestionsPanel extends AbstractTypesPanel<SecurityQuestionT
                                     SyncopeConsoleSession.get().getService(SecurityQuestionService.class
                                     ).delete(securityQuestionTO.getKey());
                                     info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(webContainer);
+                                    target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting SecutiryQuestionTO", e);
                                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -190,15 +238,14 @@ public class SecurityQuestionsPanel extends AbstractTypesPanel<SecurityQuestionT
 
     }
 
-    private final class SecurityQuestionsProvider extends SortableDataProvider<SecurityQuestionTO, String> {
+    protected final class SecurityQuestionsProvider extends SearchableDataProvider<SecurityQuestionTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
         private final SortableDataProviderComparator<SecurityQuestionTO> comparator;
 
-        private SecurityQuestionsProvider() {
-            super();
-            setSort("key", SortOrder.ASCENDING);
+        private SecurityQuestionsProvider(final int paginatorRows) {
+            super(paginatorRows);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

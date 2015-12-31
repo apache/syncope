@@ -56,7 +56,9 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
      */
     @Override
     public AjaxWizardBuilder<AnyHandler<GroupTO>> setItem(final AnyHandler<GroupTO> item) {
-        return item == null ? super.setItem(item) : super.setItem(new GroupHandler(item.getInnerObject()));
+        return (AjaxWizardBuilder<AnyHandler<GroupTO>>) (item == null
+                ? super.setItem(item)
+                : super.setItem(new GroupHandler(item.getInnerObject())));
     }
 
     @Override

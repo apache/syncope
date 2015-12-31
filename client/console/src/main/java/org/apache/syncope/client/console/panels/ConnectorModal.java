@@ -43,7 +43,7 @@ import org.apache.wicket.model.ResourceModel;
 /**
  * Modal window with Connector form.
  */
-public class ConnectorModal extends AbstractResourceModal {
+public class ConnectorModal extends AbstractResourceModal<Serializable> {
 
     private static final long serialVersionUID = -2025535531121434050L;
 

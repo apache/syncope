@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -39,15 +40,14 @@ import org.apache.wicket.model.IModel;
 /**
  * Show user or group status after performing a successful operation.
  *
- * @param <T> type of the object that will be rendered in columns
- * @param <S> type of the sorting parameter
+ * @param <E> type of the inner model object
  */
-public class BulkActionResultModalPage<T, S> extends AbstractModalPanel {
+public class BulkActionResultModalPage<E extends Serializable> extends AbstractModalPanel<E> {
 
     private static final long serialVersionUID = 2646115294319713724L;
 
-    public BulkActionResultModalPage(
-            final BaseModal<?> modal,
+    public <T extends Serializable, S> BulkActionResultModalPage(
+            final BaseModal<E> modal,
             final PageReference pageRef,
             final Collection<T> items,
             final List<IColumn<T, S>> columns,

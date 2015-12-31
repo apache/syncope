@@ -45,12 +45,12 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.beans.BeanUtils;
 
-public class BulkActionModalPage<T, S> extends AbstractModalPanel {
+public class BulkActionModalPage<T extends Serializable, S> extends AbstractModalPanel<T> {
 
     private static final long serialVersionUID = 4114026480146090962L;
 
     public BulkActionModalPage(
-            final BaseModal<?> modal,
+            final BaseModal<T> modal,
             final PageReference pageRef,
             final Collection<T> items,
             final List<IColumn<T, S>> columns,
@@ -88,8 +88,7 @@ public class BulkActionModalPage<T, S> extends AbstractModalPanel {
                 Integer.MAX_VALUE).setVisible(items != null && !items.isEmpty()));
 
         @SuppressWarnings("rawtypes")
-        final ActionLinksPanel<Serializable> actionPanel =
-                ActionLinksPanel.builder(pageRef).build("actions");
+        final ActionLinksPanel<Serializable> actionPanel = ActionLinksPanel.builder(pageRef).build("actions");
         add(actionPanel);
 
         for (ActionLink.ActionType action : actions) {

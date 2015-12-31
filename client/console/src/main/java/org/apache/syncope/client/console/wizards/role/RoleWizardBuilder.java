@@ -68,7 +68,9 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
      */
     @Override
     public AjaxWizardBuilder<RoleHandler> setItem(final RoleHandler item) {
-        return item == null ? super.setItem(item) : super.setItem(new RoleHandler(item.getInnerObject()));
+        return (AjaxWizardBuilder<RoleHandler>) (item == null
+                ? super.setItem(item)
+                : super.setItem(new RoleHandler(item.getInnerObject())));
     }
 
     @Override

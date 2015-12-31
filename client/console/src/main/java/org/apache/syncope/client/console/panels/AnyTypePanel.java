@@ -18,68 +18,135 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.apache.syncope.client.console.panels.AbstractModalPanel.LOG;
+import static org.apache.wicket.Component.ENABLE;
+
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
+import org.apache.syncope.client.console.panels.AnyTypePanel.AnyTypeProvider;
+import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
-import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
+public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider> {
 
     private static final long serialVersionUID = 3905038169553185171L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AnyTypePanel.class);
+    private final String pageID = "AnyTypes";
 
-    private static final String PAGINATOR_ROWS_KEYS = Constants.PREF_ANYTYPE_PAGINATOR_ROWS;
-
-    private final BaseModal<AnyTypeTO> modal;
-
-    public AnyTypePanel(final String id, final PageReference pageReference, final BaseModal<AnyTypeTO> modal) {
-        super(id, pageReference);
-
-        this.pageRows = prefMan.getPaginatorRows(getRequest(), PAGINATOR_ROWS_KEYS);
-        this.modal = modal;
-
-        final WebMarkupContainer container = new WebMarkupContainer("container");
-        container.setOutputMarkupId(true);
-        add(container);
-
-        buildDataTable(container,
-                getColumns(container, pageReference), new AnyTypePanel.AnyTypeProvider(), PAGINATOR_ROWS_KEYS);
-
+    public AnyTypePanel(final String id, final Builder<AnyTypeTO, AnyTypeTO, BaseRestClient> builder) {
+        super(id, builder);
     }
 
-    private <T extends AnyTypeModalPanel> List<IColumn<AnyTypeTO, String>> getColumns(
-            final WebMarkupContainer webContainer, final PageReference pageReference) {
+    public AnyTypePanel(final String id, final PageReference pageRef) {
+        super(id, new Builder<AnyTypeTO, AnyTypeTO, BaseRestClient>(null, pageRef) {
+
+            private static final long serialVersionUID = 8769126634538601689L;
+
+            @Override
+            protected WizardMgtPanel<AnyTypeTO> newInstance(final String id) {
+                return new AnyTypePanel(id, this);
+            }
+        });
+
+        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeTO>(
+                BaseModal.CONTENT_ID, new AnyTypeTO(), pageRef) {
+
+            private static final long serialVersionUID = -6388405037134399367L;
+
+            @Override
+            public ModalPanel<AnyTypeTO> build(final int index, final boolean edit) {
+                final AnyTypeTO modelObject = newModelObject();
+                return new AnyTypeModalPanel(modal, modelObject, pageRef) {
+
+                    private static final long serialVersionUID = -6227956682141146095L;
+
+                    @Override
+                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                        try {
+                            if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
+                                SyncopeConsoleSession.get().getService(AnyTypeService.class).create(modelObject);
+                            } else {
+                                SyncopeConsoleSession.get().getService(AnyTypeService.class).update(modelObject);
+                            }
+                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            modal.close(target);
+                        } catch (Exception e) {
+                            LOG.error("While creating or updating AnyTypeTO", e);
+                            error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            modal.getNotificationPanel().refresh(target);
+                        }
+                    }
+                };
+            }
+
+            @Override
+            protected void onCancelInternal(final AnyTypeTO modelObject) {
+            }
+
+            @Override
+            protected void onApplyInternal(final AnyTypeTO modelObject) {
+            }
+        }, true);
+
+        initResultTable();
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.ANYTYPE_CREATE);
+    }
+
+    @Override
+    protected AnyTypeProvider dataProvider() {
+        return new AnyTypeProvider(rows);
+    }
+
+    @Override
+    protected String paginatorRowsKey() {
+        return Constants.PREF_ANYTYPE_PAGINATOR_ROWS;
+    }
+
+    @Override
+    protected Collection<ActionLink.ActionType> getBulkActions() {
+        return Collections.<ActionLink.ActionType>emptyList();
+    }
+
+    @Override
+    protected String getPageId() {
+        return pageID;
+    }
+
+    @Override
+    protected List<IColumn<AnyTypeTO, String>> getColumns() {
 
         final List<IColumn<AnyTypeTO, String>> columns = new ArrayList<>();
 
@@ -88,9 +155,8 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
             if (field != null && !Modifier.isStatic(field.getModifiers())) {
                 final String fieldName = field.getName();
                 if (field.getType().isArray()) {
-                    final IColumn<AnyTypeTO, String> column =
-                            new PropertyColumn<AnyTypeTO, String>(
-                                    new ResourceModel(field.getName()), field.getName()) {
+                    final IColumn<AnyTypeTO, String> column = new PropertyColumn<AnyTypeTO, String>(
+                            new ResourceModel(field.getName()), field.getName()) {
 
                         private static final long serialVersionUID = 3282547854226892169L;
 
@@ -108,9 +174,8 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
                     columns.add(column);
 
                 } else {
-                    final IColumn<AnyTypeTO, String> column =
-                            new PropertyColumn<AnyTypeTO, String>(
-                                    new ResourceModel(field.getName()), field.getName(), field.getName()) {
+                    final IColumn<AnyTypeTO, String> column = new PropertyColumn<AnyTypeTO, String>(
+                            new ResourceModel(field.getName()), field.getName(), field.getName()) {
 
                         private static final long serialVersionUID = 3282547854226892169L;
 
@@ -143,9 +208,8 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
             public void populateItem(final Item<ICellPopulator<AnyTypeTO>> item, final String componentId,
                     final IModel<AnyTypeTO> model) {
 
-                final AnyTypeTO anyTypeTO = model.getObject();
-
-                final ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(pageReference);
+                final ActionLinksPanel.Builder<Serializable> actionLinks
+                        = ActionLinksPanel.builder(page.getPageReference());
                 actionLinks.setDisableIndicator(true);
                 actionLinks.addWithRoles(new ActionLink<Serializable>() {
 
@@ -153,11 +217,8 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        modal.header(Model.of(anyTypeTO.getKey()));
-                        modal.setFormModel(anyTypeTO);
-                        target.add(modal.setContent(new AnyTypeModalPanel(modal, pageReference, false)));
-                        modal.addSumbitButton();
-                        modal.show(true);
+                        send(AnyTypePanel.this, Broadcast.EXACT,
+                                new AjaxWizard.EditItemActionEvent<AnyTypeTO>(model.getObject(), target));
                     }
                 }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPE_UPDATE).addWithRoles(
                         new ActionLink<Serializable>() {
@@ -167,9 +228,10 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         try {
-                            SyncopeConsoleSession.get().getService(AnyTypeService.class).delete(anyTypeTO.getKey());
+                            SyncopeConsoleSession.get().
+                                    getService(AnyTypeService.class).delete(model.getObject().getKey());
                             info(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(webContainer);
+                            target.add(container);
                         } catch (Exception e) {
                             LOG.error("While deleting AnyTypeTO", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -186,15 +248,14 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO> {
 
     }
 
-    private final class AnyTypeProvider extends SortableDataProvider<AnyTypeTO, String> {
+    protected final class AnyTypeProvider extends SearchableDataProvider<AnyTypeTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
         private final SortableDataProviderComparator<AnyTypeTO> comparator;
 
-        private AnyTypeProvider() {
-            super();
-            setSort("key", SortOrder.ASCENDING);
+        private AnyTypeProvider(final int paginatorRows) {
+            super(paginatorRows);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

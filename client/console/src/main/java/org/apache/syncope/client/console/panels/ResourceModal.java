@@ -48,8 +48,10 @@ import org.apache.wicket.model.ResourceModel;
 
 /**
  * Modal window with Resource form.
+ *
+ * @param <T>
  */
-public class ResourceModal extends AbstractResourceModal {
+public class ResourceModal<T extends Serializable> extends AbstractResourceModal<T> {
 
     private static final long serialVersionUID = 1734415311027284221L;
 
@@ -60,7 +62,7 @@ public class ResourceModal extends AbstractResourceModal {
     private final boolean createFlag;
 
     public ResourceModal(
-            final BaseModal<Serializable> modal,
+            final BaseModal<T> modal,
             final PageReference pageRef,
             final IModel<ResourceTO> model,
             final boolean createFlag) {
@@ -91,37 +93,39 @@ public class ResourceModal extends AbstractResourceModal {
         builder.setItems(model.getObject().getProvisions());
         builder.includes("anyType", "objectClass");
 
-        builder.addAction(new ActionLink<ProvisionTO>() {
+        builder.
+                addAction(new ActionLink<ProvisionTO>() {
 
-            private static final long serialVersionUID = -3722207913631435504L;
+                    private static final long serialVersionUID = -3722207913631435504L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                send(pageRef.getPage(), Broadcast.DEPTH,
-                        new AjaxWizard.NewItemActionEvent<>(provisionTO, 2, target));
-            }
-        }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                        send(pageRef.getPage(), Broadcast.DEPTH,
+                                new AjaxWizard.NewItemActionEvent<>(provisionTO, 2, target));
+                    }
+                }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_UPDATE).
+                addAction(new ActionLink<ProvisionTO>() {
 
-            private static final long serialVersionUID = -3722207913631435514L;
+                    private static final long serialVersionUID = -3722207913631435514L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                send(pageRef.getPage(), Broadcast.DEPTH,
-                        new AjaxWizard.NewItemActionEvent<>(provisionTO, 3, target));
-            }
-        }, ActionLink.ActionType.ACCOUNT_LINK, StandardEntitlement.RESOURCE_UPDATE).addAction(
-                new ActionLink<ProvisionTO>() {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                        send(pageRef.getPage(), Broadcast.DEPTH,
+                                new AjaxWizard.NewItemActionEvent<>(provisionTO, 3, target));
+                    }
+                }, ActionLink.ActionType.ACCOUNT_LINK, StandardEntitlement.RESOURCE_UPDATE).
+                addAction(new ActionLink<ProvisionTO>() {
 
-            private static final long serialVersionUID = -3722207913631435524L;
+                    private static final long serialVersionUID = -3722207913631435524L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                provisionTO.setSyncToken(null);
-                send(pageRef.getPage(), Broadcast.DEPTH,
-                        new AjaxWizard.NewItemFinishEvent<>(provisionTO, target));
-            }
-        }, ActionLink.ActionType.RESET_TIME, StandardEntitlement.RESOURCE_UPDATE).addAction(
-                        new ActionLink<ProvisionTO>() {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                        provisionTO.setSyncToken(null);
+                        send(pageRef.getPage(), Broadcast.DEPTH,
+                                new AjaxWizard.NewItemFinishEvent<>(provisionTO, target));
+                    }
+                }, ActionLink.ActionType.RESET_TIME, StandardEntitlement.RESOURCE_UPDATE).
+                addAction(new ActionLink<ProvisionTO>() {
 
                     private static final long serialVersionUID = -3722207913631435534L;
 
@@ -130,8 +134,8 @@ public class ResourceModal extends AbstractResourceModal {
                         send(pageRef.getPage(), Broadcast.DEPTH,
                                 new AjaxWizard.NewItemActionEvent<>(SerializationUtils.clone(provisionTO), target));
                     }
-                }, ActionLink.ActionType.CLONE, StandardEntitlement.RESOURCE_CREATE).addAction(
-                        new ActionLink<ProvisionTO>() {
+                }, ActionLink.ActionType.CLONE, StandardEntitlement.RESOURCE_CREATE).
+                addAction(new ActionLink<ProvisionTO>() {
 
                     private static final long serialVersionUID = -3722207913631435544L;
 

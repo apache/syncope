@@ -18,13 +18,16 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.request.component.IRequestableComponent;
 
-public interface ModalPanel extends IRequestableComponent {
+public interface ModalPanel<T extends Serializable> extends IRequestableComponent, Serializable {
 
     void onSubmit(final AjaxRequestTarget target, final Form<?> form);
 
     void onError(final AjaxRequestTarget target, final Form<?> form);
+
+    T getItem();
 }

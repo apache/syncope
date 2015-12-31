@@ -18,47 +18,27 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
-import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 
-public class RelationshipTypeModalPanel extends AbstractModalPanel {
+public class RelationshipTypeModalPanel extends AbstractModalPanel<RelationshipTypeTO> {
 
     private static final long serialVersionUID = 1602285111803121341L;
 
-    private final boolean createFlag;
+    private final RelationshipTypeTO relationshipTypeTO;
 
     public RelationshipTypeModalPanel(
             final BaseModal<RelationshipTypeTO> modal,
-            final PageReference pageRef, final boolean createFlag) {
+            final RelationshipTypeTO relationshipTypeTO,
+            final PageReference pageRef) {
         super(modal, pageRef);
-
-        this.createFlag = createFlag;
-        add(new RelationshipTypeDetailsPanel("relationshipTypeDetails", modal));
+        this.relationshipTypeTO = relationshipTypeTO;
+        add(new RelationshipTypeDetailsPanel("relationshipTypeDetails", this.relationshipTypeTO));
     }
 
     @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        try {
-            final RelationshipTypeTO updateRelationshipTypeTO = RelationshipTypeTO.class.cast(form.getModelObject());
-
-            if (createFlag) {
-                SyncopeConsoleSession.get().getService(RelationshipTypeService.class).create(updateRelationshipTypeTO);
-            } else {
-                SyncopeConsoleSession.get().getService(RelationshipTypeService.class).update(updateRelationshipTypeTO);
-            }
-
-            info(getString(Constants.OPERATION_SUCCEEDED));
-            modal.close(target);
-        } catch (Exception e) {
-            LOG.error("While creating or updating RelationshipTypeTO", e);
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getNotificationPanel().refresh(target);
-        }
+    public RelationshipTypeTO getItem() {
+        return this.relationshipTypeTO;
     }
 }

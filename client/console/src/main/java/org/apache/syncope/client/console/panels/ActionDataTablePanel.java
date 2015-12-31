@@ -40,7 +40,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.ResourceModel;
 
-public class ActionDataTablePanel<T, S> extends DataTablePanel<T, S> {
+public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePanel<T, S> {
 
     private static final long serialVersionUID = -8826989026203543957L;
 
