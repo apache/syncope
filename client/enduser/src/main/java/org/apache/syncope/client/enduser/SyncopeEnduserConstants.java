@@ -20,10 +20,14 @@ package org.apache.syncope.client.enduser;
 
 public final class SyncopeEnduserConstants {
 
-    public static final String CAPTCHA_SESSION_KEY  = "captcha";
+    public static final String CAPTCHA_SESSION_KEY = "captcha";
+
+    public static final String XSRF_COOKIE = "XSRF-TOKEN";
+
+    public static final String XSRF_HEADER_NAME = "X-XSRF-TOKEN";
 
     private SyncopeEnduserConstants() {
         // private constructor for utility class
     }
-    
+
 }

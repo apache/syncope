@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
+import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -41,6 +44,13 @@ public abstract class AbstractBaseResource extends AbstractResource {
         return result == null
                 ? false
                 : result;
+    }
+
+    protected final boolean xsrfCheck(final HttpServletRequest request) {
+        final String requestXSRFHeader = request.getHeader(SyncopeEnduserConstants.XSRF_HEADER_NAME);
+        return StringUtils.isNotBlank(requestXSRFHeader)
+                && SyncopeEnduserSession.get().getCookieUtils().getCookie(SyncopeEnduserConstants.XSRF_COOKIE).
+                getValue().equals(requestXSRFHeader);
     }
 
 }

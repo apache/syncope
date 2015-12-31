@@ -20,8 +20,7 @@
 'use strict';
 
 angular.module("login").controller("LoginController", ['$scope', '$rootScope', '$http', '$location', '$cookies',
-  'AuthService', 'growl', 'InfoService', function ($scope, $rootScope, $http, $location, $cookies, AuthService, growl,
-          InfoService) {
+  'AuthService', 'growl', function ($scope, $rootScope, $http, $location, $cookies, AuthService, growl) {
 
     $scope.credentials = {
       username: '',
@@ -31,19 +30,14 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
 
     $scope.login = function (credentials) {
 
-      console.log("CREDENTIALS FROM PAGE: ", credentials);
-      console.log("AUTHSERVICE: ", AuthService);
-
       AuthService.login($scope.credentials).then(function (user) {
-        console.log("LOGIN SUCCESS FOR: ", user);
-        console.log("DOPO AVER SETTATO CURRENT USER: ", $rootScope.currentUser);
-        console.log("COOKIE CURRENT USER: ", $cookies.get('currentUser'));
+        console.log("Login success for: ", user);
         // reset error message
         $scope.credentials.errorMessage = '';
         // got to update page
         $location.path("/self/update");
       }, function (response) {
-        console.log("LOGIN FAILED: ", response);
+        console.log("Login failed for: ", response);
         var errorMessage;
         // parse error response 
         if (response !== undefined) {
@@ -56,13 +50,10 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
     };
 
     $scope.logout = function () {
-
-      console.log("PERFORMING LOGOUT");
-
       AuthService.logout().then(function (response) {
-        console.log("LOGOUT SUCCESS: ", response);
-      }, function () {
-        console.log("LOGOUT FAILED");
+        console.log("Logout successfully");
+      }, function (response) {
+        console.log("Logout failed: ", response);
       });
     };
 
@@ -96,32 +87,4 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
         console.log("schemaAPI response: ", data);
       });
     };
-
-    $scope.selfRegAllowed = false;
-    $scope.pwdResetAllowed = false;
-    $scope.version = "";
-    
-    //info settings are initialized every time an user open the login page
-    InfoService.getInfo().then(
-            function (response) {
-              $scope.pwdResetAllowed = response.pwdResetAllowed;              
-              $scope.selfRegAllowed = response.selfRegAllowed;
-              $scope.version = response.version;
-            },
-            function () {
-              console.log("Something went wrong while accessing info resource", response);
-            });
-            
-    $scope.isSelfRegAllowed = function () {
-      return $scope.selfRegAllowed == true;
-    };
-    
-    $scope.isPwdResetAllowed = function () {
-      return $scope.pwdResetAllowed == true;
-    };
-
-    $scope.getVersion = function () {
-      return $scope.version;
-    };
-
   }]);

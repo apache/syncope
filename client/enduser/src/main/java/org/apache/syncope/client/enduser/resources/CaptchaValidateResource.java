@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.model.CaptchaRequest;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
+import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
@@ -41,9 +42,16 @@ public class CaptchaValidateResource extends AbstractBaseResource {
 
         LOG.debug("Validate captcha request");
 
-        ResourceResponse response = new ResourceResponse();
+        AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
         try {
             HttpServletRequest currentRequest = (HttpServletRequest) attributes.getRequest().getContainerRequest();
+
+            if (!xsrfCheck(currentRequest)) {
+                LOG.error("XSRF TOKEN does not match");
+                response.setError(Response.Status.BAD_REQUEST.getStatusCode(), "XSRF TOKEN does not match");
+                return response;
+            }
+
             final CaptchaRequest enteredCaptcha = POJOHelper.deserialize(IOUtils.toString(currentRequest.
                     getInputStream()), CaptchaRequest.class);
 
@@ -57,7 +65,7 @@ public class CaptchaValidateResource extends AbstractBaseResource {
                 LOG.info("Could not validate captcha: current session captcha or inserted captcha are empty or null");
                 response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
                         "ErrorMessage{{ Could not validate captcha: current session captcha or entered captcha are "
-                                + "empty or null }}");
+                        + "empty or null }}");
             } else {
                 LOG.info("Is entered captcha equal to current session captcha? {}", enteredCaptcha.getValue().equals(
                         currentCaptcha));

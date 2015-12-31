@@ -19,15 +19,17 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.UserTOAdapter;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.wicket.request.resource.AbstractResource;
+import org.apache.wicket.request.resource.IResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UserSelfReadResource extends AbstractResource {
+public class UserSelfReadResource extends AbstractBaseResource {
 
     private static final long serialVersionUID = -9184809392631523912L;
 
@@ -43,12 +45,19 @@ public class UserSelfReadResource extends AbstractResource {
     }
 
     @Override
-    protected ResourceResponse newResourceResponse(final Attributes attributes) {
+    protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
 
         LOG.debug("Requested user self information");
 
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
         try {
+
+            HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
+            if (!xsrfCheck(request)) {
+                LOG.error("XSRF TOKEN does not match");
+                response.setError(Response.Status.BAD_REQUEST.getStatusCode(), "XSRF TOKEN does not match");
+                return response;
+            }
 
             final String selfTOJson = POJOHelper.serialize(userTOAdapter.toUserTORequest(SyncopeEnduserSession.get().
                     getSelfTO()));

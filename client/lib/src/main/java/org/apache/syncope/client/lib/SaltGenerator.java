@@ -16,28 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.enduser.resources;
+package org.apache.syncope.client.lib;
 
-import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import java.security.SecureRandom;
+import java.util.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LogoutResource extends AbstractBaseResource {
+public final class SaltGenerator {
 
-    private static final long serialVersionUID = -648841355644985051L;
+    private static final Logger LOG = LoggerFactory.getLogger(SaltGenerator.class);
 
-    private static final Logger LOG = LoggerFactory.getLogger(LogoutResource.class);
-
-    @Override
-    protected ResourceResponse newResourceResponse(final Attributes attributes) {
-
-        LOG.debug("Logout from enduser application");
-        
-        SyncopeEnduserSession.get().invalidate();
-        
-        ResourceResponse response = new ResourceResponse();
-        response.setStatusCode(204);
-        return response;
+    public static String generate(final String input) {
+        // generate salt
+        byte[] salt = new byte[16];
+        // fill array with random bytes
+        new SecureRandom().nextBytes(salt);
+        // create digest with MD5
+        return DigestUtils.md2Hex(input + Base64.getEncoder().encodeToString(salt));
     }
 
+    private SaltGenerator() {
+    }
 }

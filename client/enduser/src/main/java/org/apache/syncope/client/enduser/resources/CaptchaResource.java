@@ -21,7 +21,6 @@ package org.apache.syncope.client.enduser.resources;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.wicket.extensions.markup.html.captcha.CaptchaImageResource;
-import org.apache.wicket.request.Request;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,11 +48,10 @@ public class CaptchaResource extends CaptchaImageResource {
     protected byte[] render() {
         LOG.info("Generate captcha");
         final String captcha = randomString(6, 8);
-        Request request = RequestCycle.get().getRequest();
-        HttpServletRequest httpRequest = ((HttpServletRequest) request.getContainerRequest());
+        HttpServletRequest httpRequest = ((HttpServletRequest) RequestCycle.get().getRequest().getContainerRequest());
         // store the captcha in the current session
         httpRequest.getSession().setAttribute(SyncopeEnduserConstants.CAPTCHA_SESSION_KEY, captcha);
-        
+
         getChallengeIdModel().setObject(captcha);
         return super.render();
     }

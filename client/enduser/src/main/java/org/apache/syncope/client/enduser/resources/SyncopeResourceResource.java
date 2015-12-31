@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.ResourceTOAdapter;
@@ -54,6 +55,14 @@ public class SyncopeResourceResource extends AbstractBaseResource {
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
 
         try {
+
+            HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
+            if (!xsrfCheck(request)) {
+                LOG.error("XSRF TOKEN does not match");
+                response.setError(Response.Status.BAD_REQUEST.getStatusCode(), "XSRF TOKEN does not match");
+                return response;
+            }
+
             final List<ResourceTO> resourceTOs = resourceService.list();
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {

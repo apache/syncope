@@ -54,6 +54,12 @@ public class UserSelfCreateResource extends AbstractBaseResource {
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 
+            if (!xsrfCheck(request)) {
+                LOG.error("XSRF TOKEN is not matching");
+                response.setError(Response.Status.BAD_REQUEST.getStatusCode(), "XSRF TOKEN is not matching");
+                return response;
+            }
+            
             final UserTORequest userTORequest = POJOHelper.deserialize(IOUtils.toString(request.getInputStream()),
                     UserTORequest.class);
 

@@ -19,7 +19,7 @@
 
 'use strict';
 
-angular.module('info')
+angular.module('SyncopeEnduserApp')
         .factory('InfoService', ['$resource', '$q', '$http',
           function ($resource, $q, $http) {
 
@@ -32,6 +32,7 @@ angular.module('info')
                         return response.data;
                       }, function (response) {
                         console.log("Something went wrong while retrieving info resource", response);
+                        return $q.reject(response.data || response.statusText);
                       });
             };
 

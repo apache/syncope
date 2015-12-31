@@ -37,6 +37,7 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.Request;
+import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,8 @@ public class SyncopeEnduserSession extends WebSession {
     private UserTO selfTO;
 
     private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<Class<?>, Object>());
+    
+    private final CookieUtils cookieUtils;
 
     public static SyncopeEnduserSession get() {
         return (SyncopeEnduserSession) Session.get();
@@ -69,6 +72,8 @@ public class SyncopeEnduserSession extends WebSession {
 
     public SyncopeEnduserSession(final Request request) {
         super(request);
+        // define cookie utility to manage application cookies
+        cookieUtils = new CookieUtils();
 
         anonymousClient = SyncopeEnduserApplication.get().getClientFactory().create(
                 SyncopeEnduserApplication.get().getAnonymousUser(),
@@ -171,6 +176,10 @@ public class SyncopeEnduserSession extends WebSession {
         final Locale locale = getLocale() == null ? Locale.ENGLISH : getLocale();
 
         return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+    }
+
+    public CookieUtils getCookieUtils() {
+        return cookieUtils;
     }
 
 }

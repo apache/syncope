@@ -27,6 +27,8 @@ import org.apache.syncope.client.enduser.model.UserTORequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
+import org.apache.wicket.request.resource.AbstractResource;
+import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,12 +49,17 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
     }
 
     @Override
-    protected ResourceResponse newResourceResponse(final Attributes attributes) {
+    protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
 
-        ResourceResponse response = new ResourceResponse();
+        AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
 
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
+            if (!xsrfCheck(request)) {
+                LOG.error("XSRF TOKEN does not match");
+                response.setError(Response.Status.BAD_REQUEST.getStatusCode(), "XSRF TOKEN does not match");
+                return response;
+            }
 
             final UserTORequest userTOResponse = POJOHelper.deserialize(IOUtils.toString(request.getInputStream()),
                     UserTORequest.class);

@@ -84,13 +84,13 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'growlProvi
               templateUrl: 'views/user-plain-schemas.html'
             })
             .state('create.derivedSchemas', {
-             url: '/derivedSchemas',
-             templateUrl: 'views/user-derived-schemas.html'
-             })
-             .state('create.virtualSchemas', {
-             url: '/virtualSchemas',
-             templateUrl: 'views/user-virtual-schemas.html'
-             })
+              url: '/derivedSchemas',
+              templateUrl: 'views/user-derived-schemas.html'
+            })
+            .state('create.virtualSchemas', {
+              url: '/virtualSchemas',
+              templateUrl: 'views/user-virtual-schemas.html'
+            })
             .state('create.resources', {
               url: '/resources',
               templateUrl: 'views/user-resources.html'
@@ -181,6 +181,8 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'growlProvi
 
     // HTTP service configuration
     $httpProvider.defaults.withCredentials = true;
+    $httpProvider.defaults.xsrfCookieName = 'XSRF-TOKEN';
+    $httpProvider.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
 
     $httpProvider.interceptors.push(function ($q, $rootScope, $location) {
       var numLoadings = 0;
@@ -268,23 +270,49 @@ app.run(['$rootScope', '$location', '$cookies', '$state',
 //        });
   }]);
 
-app.controller('ApplicationController', function ($scope) {
+app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', function ($scope, $rootScope,
+          InfoService) {
 // DO NOTHING
+
+// get syncope info and set cookie, first call
+    $scope.initApplication = function () {
+// call info service
+      $rootScope.selfRegAllowed = false;
+      $rootScope.pwdResetAllowed = false;
+      $rootScope.version = "";
+      //info settings are initialized every time an user open the login page
+      InfoService.getInfo().then(
+              function (response) {
+                $rootScope.pwdResetAllowed = response.pwdResetAllowed;
+                $rootScope.selfRegAllowed = response.selfRegAllowed;
+                $rootScope.version = response.version;
+              },
+              function (response) {
+                console.log("Something went wrong while accessing info resource", response);
+              });
+
+      $rootScope.isSelfRegAllowed = function () {
+        return $rootScope.selfRegAllowed === true;
+      };
+      $rootScope.isPwdResetAllowed = function () {
+        return $rootScope.pwdResetAllowed === true;
+      };
+      $rootScope.getVersion = function () {
+        return $rootScope.version;
+      };
 //  $scope.$on('success', function (event, args) {
 //    console.log("IN CONFIG EVENTO: ", event)
 //    $scope.$broadcast("error", "success");
 //  });
-});
-
+    }
+  }]);
 app.factory('AuthenticationHelper', ['$q', '$rootScope',
   function ($q, $rootScope) {
     return {
       authenticated: function () {
 
         var currentUser = $rootScope.currentUser;
-
         console.log("AuthenticationHelper, currentUser: ", currentUser);
-
         if (angular.isDefined(currentUser) && currentUser) {
           return true;
         } else {
