@@ -21,6 +21,7 @@ package org.apache.syncope.core.misc.utils;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -104,7 +105,7 @@ public class TemplateUtils {
         anyTO.getAuxClasses().addAll(template.getAuxClasses());
     }
 
-    private void fillRelationships(final Map<Long, RelationshipTO> anyRelMap,
+    private void fillRelationships(final Map<Pair<String, Long>, RelationshipTO> anyRelMap,
             final List<RelationshipTO> anyRels, final List<RelationshipTO> templateRels) {
 
         for (RelationshipTO memb : templateRels) {

@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "user")
@@ -187,10 +188,10 @@ public class UserTO extends AnyTO {
     }
 
     @JsonIgnore
-    public Map<Long, RelationshipTO> getRelationshipMap() {
-        Map<Long, RelationshipTO> result = new HashMap<>(getRelationships().size());
-        for (RelationshipTO membership : getRelationships()) {
-            result.put(membership.getRightKey(), membership);
+    public Map<Pair<String, Long>, RelationshipTO> getRelationshipMap() {
+        Map<Pair<String, Long>, RelationshipTO> result = new HashMap<>(getRelationships().size());
+        for (RelationshipTO relationship : getRelationships()) {
+            result.put(Pair.of(relationship.getType(), relationship.getRightKey()), relationship);
         }
         result = Collections.unmodifiableMap(result);
 

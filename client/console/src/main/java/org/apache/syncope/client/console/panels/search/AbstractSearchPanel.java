@@ -195,4 +195,8 @@ public abstract class AbstractSearchPanel extends Panel {
     public IModel<List<SearchClause>> getModel() {
         return this.model;
     }
+
+    public String getBackObjectType() {
+        return this.type;
+    }
 }

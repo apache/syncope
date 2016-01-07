@@ -368,7 +368,25 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             }
 
             target.add(ListViewPanel.this);
+            super.onEvent(event);
+        } else if (event.getPayload() instanceof ListViewReload) {
+            ((ListViewReload) event.getPayload()).getTarget().add(ListViewPanel.this);
+        } else {
+            super.onEvent(event);
         }
-        super.onEvent(event);
+    }
+
+    public static class ListViewReload {
+
+        private final AjaxRequestTarget target;
+
+        public ListViewReload(final AjaxRequestTarget target) {
+            this.target = target;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
+
     }
 }

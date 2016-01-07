@@ -98,6 +98,11 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<AnyHand
             wizardModel.add(new Roles(UserTO.class.cast(modelObject.getInnerObject())));
         }
 
+        // relationship panel step (jst available for users)
+        if (!(this instanceof GroupWizardBuilder)) {
+            wizardModel.add(new Relationships(modelObject.getInnerObject(), pageRef));
+        }
+
         // resource panel step
         wizardModel.add(new Resources(modelObject.getInnerObject()));
         return wizardModel;
@@ -121,7 +126,7 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<AnyHand
         if (obj.getKey() == 0) {
             actual = anyTypeRestClient.create(AnyObjectTO.class.cast(obj));
         } else {
-            final AnyObjectPatch patch = AnyOperations.diff(obj, getOriginalItem().getInnerObject(), true);
+            final AnyObjectPatch patch = AnyOperations.diff(obj, getOriginalItem().getInnerObject(), false);
 
             // update user just if it is changed
             if (!patch.isEmpty()) {

@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.tuple.Pair;
 
 @XmlRootElement(name = "anyObject")
 @XmlType
@@ -50,10 +51,10 @@ public class AnyObjectTO extends AnyTO {
     }
 
     @JsonIgnore
-    public Map<Long, RelationshipTO> getRelationshipMap() {
-        Map<Long, RelationshipTO> result = new HashMap<>(getRelationships().size());
-        for (RelationshipTO membership : getRelationships()) {
-            result.put(membership.getRightKey(), membership);
+    public Map<Pair<String, Long>, RelationshipTO> getRelationshipMap() {
+        Map<Pair<String, Long>, RelationshipTO> result = new HashMap<>(getRelationships().size());
+        for (RelationshipTO relationship : getRelationships()) {
+            result.put(Pair.of(relationship.getType(), relationship.getRightKey()), relationship);
         }
         result = Collections.unmodifiableMap(result);
 

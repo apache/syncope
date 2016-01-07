@@ -150,7 +150,7 @@ public class AuxClasses extends WizardStep {
         final List<String> current = Arrays.asList(anyTypeClass);
 
         final List<String> choices = new ArrayList<>();
-        for (AnyTypeClassTO aux : AnyTypeRestClient.getAllAnyTypeClass()) {
+        for (AnyTypeClassTO aux : new AnyTypeRestClient().getAllAnyTypeClass()) {
             if (!current.contains(aux.getKey())) {
                 choices.add(aux.getKey());
             }

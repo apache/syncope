@@ -23,47 +23,48 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.PageReference;
 
-public final class GroupSelectionSearchResultPanel extends AnySelectionSearchResultPanel<GroupTO> {
+public final class AnyObjectSelectionSearchResultPanel extends AnySelectionSearchResultPanel<AnyObjectTO> {
 
-    private static final long serialVersionUID = -1100228004207271271L;
+    private static final long serialVersionUID = -1100228004207271272L;
 
-    public static final String[] GROUP_DEFAULT_SELECTION = { "key", "name" };
+    public static final String[] USER_DEFAULT_SELECTION = { "key" };
 
-    private GroupSelectionSearchResultPanel(final String id, final Builder builder) {
+    private AnyObjectSelectionSearchResultPanel(final String id,
+            final AnyObjectSelectionSearchResultPanel.Builder builder) {
         super(id, builder);
     }
 
     @Override
     protected String[] getDislayAttributes() {
-        return GROUP_DEFAULT_SELECTION;
+        return USER_DEFAULT_SELECTION;
     }
 
     @Override
     public String getPrefDetailsView() {
-        return Constants.PREF_GROUP_DETAILS_VIEW;
+        return String.format(Constants.PREF_ANY_DETAILS_VIEW, type);
     }
 
     @Override
     public String getPrefAttributesView() {
-        return Constants.PREF_GROUP_ATTRIBUTES_VIEW;
+        return String.format(Constants.PREF_ANY_ATTRIBUTES_VIEW, type);
     }
 
     @Override
     public String getPrefDerivedAttributesView() {
-        return Constants.PREF_GROUP_DERIVED_ATTRIBUTES_VIEW;
+        return String.format(Constants.PREF_ANY_DERIVED_ATTRIBUTES_VIEW, type);
     }
 
-    public static final class Builder extends AnySelectionSearchResultPanel.Builder<GroupTO> {
+    public static final class Builder extends AnySelectionSearchResultPanel.Builder<AnyObjectTO> {
 
         private static final long serialVersionUID = 1L;
 
         public Builder(
                 final List<AnyTypeClassTO> anyTypeClassTOs,
-                final AbstractAnyRestClient<GroupTO> restClient,
+                final AbstractAnyRestClient<AnyObjectTO> restClient,
                 final String type,
                 final PageReference pageRef) {
 
@@ -73,8 +74,8 @@ public final class GroupSelectionSearchResultPanel extends AnySelectionSearchRes
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<GroupTO>> newInstance(final String id) {
-            return new GroupSelectionSearchResultPanel(id, this);
+        protected WizardMgtPanel<AnyHandler<AnyObjectTO>> newInstance(final String id) {
+            return new AnyObjectSelectionSearchResultPanel(id, this);
         }
     }
 }

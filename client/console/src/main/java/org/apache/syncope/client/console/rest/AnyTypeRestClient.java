@@ -65,7 +65,7 @@ public class AnyTypeRestClient extends BaseRestClient {
         return types;
     }
 
-    public static List<AnyTypeClassTO> getAllAnyTypeClass() {
+    public List<AnyTypeClassTO> getAllAnyTypeClass() {
         List<AnyTypeClassTO> types = null;
 
         try {

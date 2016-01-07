@@ -27,6 +27,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
@@ -172,10 +173,10 @@ public final class AnyOperations {
         diff(updated, original, result, incremental);
 
         // 1. relationships
-        Map<Long, RelationshipTO> updatedRels = updated.getRelationshipMap();
-        Map<Long, RelationshipTO> originalRels = original.getRelationshipMap();
+        Map<Pair<String, Long>, RelationshipTO> updatedRels = updated.getRelationshipMap();
+        Map<Pair<String, Long>, RelationshipTO> originalRels = original.getRelationshipMap();
 
-        for (Map.Entry<Long, RelationshipTO> entry : updatedRels.entrySet()) {
+        for (Map.Entry<Pair<String, Long>, RelationshipTO> entry : updatedRels.entrySet()) {
             if (!originalRels.containsKey(entry.getKey())) {
                 result.getRelationships().add(new RelationshipPatch.Builder().
                         operation(PatchOperation.ADD_REPLACE).
@@ -184,7 +185,7 @@ public final class AnyOperations {
         }
 
         if (!incremental) {
-            for (Long key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
+            for (Pair<String, Long> key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
                 result.getRelationships().add(new RelationshipPatch.Builder().
                         operation(PatchOperation.DELETE).
                         relationshipTO(originalRels.get(key)).build());
@@ -266,10 +267,10 @@ public final class AnyOperations {
         }
 
         // 5. relationships
-        Map<Long, RelationshipTO> updatedRels = updated.getRelationshipMap();
-        Map<Long, RelationshipTO> originalRels = original.getRelationshipMap();
+        Map<Pair<String, Long>, RelationshipTO> updatedRels = updated.getRelationshipMap();
+        Map<Pair<String, Long>, RelationshipTO> originalRels = original.getRelationshipMap();
 
-        for (Map.Entry<Long, RelationshipTO> entry : updatedRels.entrySet()) {
+        for (Map.Entry<Pair<String, Long>, RelationshipTO> entry : updatedRels.entrySet()) {
             if (!originalRels.containsKey(entry.getKey())) {
                 result.getRelationships().add(new RelationshipPatch.Builder().
                         operation(PatchOperation.ADD_REPLACE).
@@ -278,7 +279,7 @@ public final class AnyOperations {
         }
 
         if (!incremental) {
-            for (Long key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
+            for (Pair<String, Long> key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
                 result.getRelationships().add(new RelationshipPatch.Builder().
                         operation(PatchOperation.DELETE).
                         relationshipTO(originalRels.get(key)).build());

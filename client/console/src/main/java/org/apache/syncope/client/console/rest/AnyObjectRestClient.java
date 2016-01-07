@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import static org.apache.syncope.client.console.rest.BaseRestClient.getService;
+import static org.apache.syncope.client.console.rest.BaseRestClient.toOrderBy;
+
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -29,6 +32,7 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -67,7 +71,9 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
 
     @Override
     public int searchCount(final String realm, final String fiql, final String type) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return getService(AnyObjectService.class).
+                search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(1).size(1).build()).
+                getTotalCount();
     }
 
     @Override
@@ -75,7 +81,9 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
             final SortParam<String> sort,
             final String type) {
 
-        throw new UnsupportedOperationException("Not supported yet.");
+        return getService(AnyObjectService.class).search(
+                new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
+                orderBy(toOrderBy(sort)).details(false).build()).getResult();
     }
 
     @Override
