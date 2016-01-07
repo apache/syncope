@@ -126,6 +126,9 @@ under the License.
                 <goals>
                   <goal>parsejavadoc</goal>
                 </goals>
+                <configuration>
+                  <encoding>UTF-8</encoding>
+                </configuration>
               </execution>
               <execution>
                 <id>generate-wadl</id>
