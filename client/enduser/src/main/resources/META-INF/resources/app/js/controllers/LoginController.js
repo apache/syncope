@@ -20,7 +20,7 @@
 'use strict';
 
 angular.module("login").controller("LoginController", ['$scope', '$rootScope', '$http', '$location', '$cookies',
-  'AuthService', 'growl', function ($scope, $rootScope, $http, $location, $cookies, AuthService, growl) {
+  'AuthService', function ($scope, $rootScope, $http, $location, $cookies, AuthService) {
 
     $scope.credentials = {
       username: '',
@@ -45,7 +45,7 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
           errorMessage = errorMessage.split("}}")[0];
         }
         $scope.credentials.errorMessage = "Login failed: " + errorMessage;
-        growl.error($scope.credentials.errorMessage, {referenceId: 1});
+        $scope.showError($scope.credentials.errorMessage, $scope.notification);        
       });
     };
 

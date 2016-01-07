@@ -34,7 +34,7 @@ var app = angular.module('SyncopeEnduserApp', [
   'ngAnimate',
   'ngResource',
   'ngCookies',
-  'angular-growl',
+  'kendo.directives',
   'home',
   'login',
   'language',
@@ -42,8 +42,8 @@ var app = angular.module('SyncopeEnduserApp', [
   'info'
 ]);
 
-app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'growlProvider',
-  function ($stateProvider, $urlRouterProvider, $httpProvider, growlProvider) {
+app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
+  function ($stateProvider, $urlRouterProvider, $httpProvider) {
     // route configuration
     $stateProvider
             .state('home', {
@@ -229,12 +229,6 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'growlProvi
       };
     });
 
-    growlProvider.globalTimeToLive(10000);
-    growlProvider.globalPosition('bottom-left');
-    growlProvider.globalInlineMessages(true);
-    growlProvider.globalDisableIcons(true);
-    //to enable html in growl
-//    growlProvider.globalEnableHtml(true);
   }]);
 
 app.run(['$rootScope', '$location', '$cookies', '$state',
@@ -300,10 +294,31 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $rootScope.getVersion = function () {
         return $rootScope.version;
       };
-//  $scope.$on('success', function (event, args) {
-//    console.log("IN CONFIG EVENTO: ", event)
-//    $scope.$broadcast("error", "success");
-//  });
+
+      //Intercepting location change event
+      $rootScope.$on("$locationChangeStart", function (event, next, current) {
+        //When a location changes, old notifications should be removed
+        if ($scope.notification != null) {
+          var pendingNotifications = $scope.notification.getNotifications();          
+          setTimeout(function () {
+            pendingNotifications.each(function (idx, element) {
+              var popup = $(element).data("kendoPopup");
+              if (popup) {
+                popup.close();
+              }
+            });
+          }, 3000);
+        }
+      });
+
+      $scope.showSuccess = function (message, component) {
+        component.options.autoHideAfter = 3000;
+        component.show(message, "success");
+      }
+      $scope.showError = function (message, component) {
+        component.options.autoHideAfter = 0;
+        component.show(message, "error");
+      }
     }
   }]);
 app.factory('AuthenticationHelper', ['$q', '$rootScope',

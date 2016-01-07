@@ -96,7 +96,7 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
-      <artifactId>angular-growl-2</artifactId>
+      <artifactId>kendo-ui-core</artifactId>
     </dependency>
     <!--Bootstrap-->
     <dependency>

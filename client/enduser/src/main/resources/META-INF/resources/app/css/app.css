@@ -26,3 +26,11 @@ under the License.
   -o-transition:1s linear all;
   transition:1s linear all;
 }
+
+.k-notification-wrap{
+  white-space: normal !important;
+}
+
+.k-notification{
+  width : 320px;
+}

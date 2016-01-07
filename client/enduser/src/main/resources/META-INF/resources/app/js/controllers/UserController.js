@@ -21,8 +21,8 @@
 
 angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', 'AuthService',
   'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService', 'CaptchaService',
-  'growl', function ($scope, $rootScope, $location, $compile, AuthService, UserSelfService, SchemaService, RealmService,
-          ResourceService, SecurityQuestionService, CaptchaService, growl) {
+  function ($scope, $rootScope, $location, $compile, AuthService, UserSelfService, SchemaService, RealmService,
+          ResourceService, SecurityQuestionService, CaptchaService) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -219,15 +219,15 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       // validate captcha and then save user
       CaptchaService.validate($scope.captchaInput).then(function (response) {
         if (!(response === 'true')) {
-          growl.error("Captcha inserted is not valid, please digit the correct captcha", {referenceId: 2});
+          $scope.showError("Captcha inserted is not valid, please digit the correct captcha", $scope.notification);
           return;
         }
 
         if ($scope.createMode) {
 
           UserSelfService.create(user).then(function (response) {
-            console.log("Created user: ", response);
-            growl.success("User " + $scope.user.username + " successfully created", {referenceId: 1});
+            console.log("Created user: ", response);            
+            $scope.showSuccess("User " + $scope.user.username + " successfully created", $scope.notification);
             $location.path('/self');
           }, function (response) {
             console.log("Error during user creation: ", response);
@@ -237,7 +237,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
               errorMessage = response.split("ErrorMessage{{")[1];
               errorMessage = errorMessage.split("}}")[0];
             }
-            growl.error("Error: " + (errorMessage || response), {referenceId: 2});
+            $scope.showError("Error: " + (errorMessage || response), $scope.notification);
           });
 
         } else {
@@ -247,7 +247,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             AuthService.logout().then(function (response) {
               console.log("LOGOUT SUCCESS: ", response);
               $location.path('/self');
-              growl.success("User " + $scope.user.username + " successfully updated", {referenceId: 1});
+              $scope.showSuccess("User " + $scope.user.username + " successfully updated", $scope.notification);
             }, function () {
               console.log("LOGOUT FAILED");
             });
@@ -259,7 +259,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
               errorMessage = response.split("ErrorMessage{{")[1];
               errorMessage = errorMessage.split("}}")[0];
             }
-            growl.error("Error: " + (errorMessage || response), {referenceId: 2});
+            $scope.showError("Error: " + (errorMessage || response), $scope.notification);
           });
         }
       }, function (response) {
@@ -270,7 +270,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           errorMessage = response.split("ErrorMessage{{")[1];
           errorMessage = errorMessage.split("}}")[0];
         }
-        growl.error("Error: " + (errorMessage || response), {referenceId: 2});
+        $scope.showError("Error: " + (errorMessage || response), $scope.notification);
         return;
       });
     };

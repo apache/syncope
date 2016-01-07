@@ -401,7 +401,7 @@ under the License.
     <angular-ui-bootstrap.version>0.14.0</angular-ui-bootstrap.version>
     <angular-ui-select.version>0.13.1</angular-ui-select.version>
     <angular-sanitize.version>1.4.8</angular-sanitize.version>
-    <angular-growl-2.version>0.7.3</angular-growl-2.version>
+    <kendo-ui-core.version>2014.2.716</kendo-ui-core.version>
     <select2.version>3.4.8</select2.version>
     <FileSaver.version>0.0.2</FileSaver.version>
     
@@ -1075,8 +1075,8 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
-        <artifactId>angular-growl-2</artifactId>
-        <version>${angular-growl-2.version}</version>
+        <artifactId>kendo-ui-core</artifactId>
+        <version>${kendo-ui-core.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars.bower</groupId>
