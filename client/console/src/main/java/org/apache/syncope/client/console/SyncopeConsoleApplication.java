@@ -33,8 +33,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.pages.MustChangePassword;
 import org.apache.syncope.client.console.pages.Dashboard;
+import org.apache.syncope.client.console.pages.MustChangePassword;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.console.resources.FilesystemResource;
 import org.apache.syncope.client.console.resources.WorkflowDefGETResource;
@@ -50,7 +50,6 @@ import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.feedback.DefaultCleanupFeedbackMessageFilter;
 import org.apache.wicket.feedback.FeedbackMessage;
-import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
@@ -86,8 +85,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     private String activitiModelerDirectory;
 
     private SyncopeClientFactoryBean clientFactory;
-
-    private IFeedbackMessageFilter feedbackMessageCleanupFilter = new DefaultCleanupFeedbackMessageFilter();
 
     @Override
     protected void init() {

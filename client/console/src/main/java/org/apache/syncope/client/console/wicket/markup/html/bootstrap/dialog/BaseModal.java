@@ -25,7 +25,6 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Resizable
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.NotificationAwareComponent;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
@@ -76,10 +75,6 @@ public class BaseModal<T extends Serializable> extends Modal<T> implements Notif
 
     public BaseModal(final String id) {
         super(id);
-
-        notificationPanel = new NotificationPanel(Constants.FEEDBACK);
-        notificationPanel.setOutputMarkupId(true);
-        addOrReplace(notificationPanel);
 
         form = new Form<>(FORM);
         add(form);

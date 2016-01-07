@@ -18,14 +18,17 @@
  */
 package org.apache.syncope.fit.console.reference;
 
-import org.junit.After;
+import static org.apache.syncope.client.console.init.ConsoleInitializer.CLASSPATH_LOOKUP;
+import static org.apache.syncope.client.console.init.ConsoleInitializer.MIMETYPES_LOADER;
+
+import javax.servlet.ServletContext;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.init.MIMETypesLoader;
+import org.apache.syncope.client.console.pages.Login;
+import org.apache.wicket.util.tester.FormTester;
+import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,31 +40,40 @@ public abstract class AbstractITCase {
 
     public static final String PASSWORD = "password";
 
-    public static final String BASE_URL = "http://localhost:9080/syncope-console/";
+    protected WicketTester wicketTester;
 
-    protected WebDriver seleniumDriver;
-
-    protected WebDriverWait wait;
+    protected SyncopeConsoleApplication testApplicaton;
 
     @Before
-    public void setUp() throws Exception {
-        seleniumDriver = new FirefoxDriver();
-        seleniumDriver.get(BASE_URL);
-        wait = new WebDriverWait(seleniumDriver, 10);
+    public void setUp() {
 
-        WebElement element = seleniumDriver.findElement(By.name("userId"));
-        element.sendKeys(ADMIN);
-        element = seleniumDriver.findElement(By.name("password"));
-        element.sendKeys(PASSWORD);
-        seleniumDriver.findElement(By.name("p::submit")).click();
+        testApplicaton = new SyncopeConsoleApplication() {
 
-        (new WebDriverWait(seleniumDriver, 10))
-                .until(ExpectedConditions.presenceOfElementLocated(By.xpath("//img[@alt='Logout']")));
+            @Override
+            protected void init() {
+                final ServletContext ctx = getServletContext();
+                final ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
+                lookup.load();
+                ctx.setAttribute(CLASSPATH_LOOKUP, lookup);
+
+                final MIMETypesLoader mimeTypes = new MIMETypesLoader();
+                mimeTypes.load();
+                ctx.setAttribute(MIMETYPES_LOADER, mimeTypes);
+                
+                super.init();
+            }
+        };
+
+        wicketTester = new WicketTester(testApplicaton);
     }
 
-    @After
-    public void tearDown() throws Exception {
-        seleniumDriver.findElement(By.xpath("//img[@alt=\"Logout\"]")).click();
-        seleniumDriver.quit();
+    protected void doLogin(final String user, final String passwd) {
+        wicketTester.startPage(Login.class);
+        wicketTester.assertRenderedPage(Login.class);
+
+        final FormTester formTester = wicketTester.newFormTester("login");
+        formTester.setValue("username", user);
+        formTester.setValue("password", passwd);
+        formTester.submit("submit");
     }
 }
