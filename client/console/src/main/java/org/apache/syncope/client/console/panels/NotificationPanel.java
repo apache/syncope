@@ -39,10 +39,11 @@ public class NotificationPanel extends FeedbackPanel {
 
         final Options options = new Options();
         options.set("position", "{ pinned: true }");
-        options.set("autoHideAfter", "0");
         options.set("templates",
-                "[ { type: 'success' , template: $('#successTemplate').html() },"
-                + "  { type: 'error', template: $('#errorTemplate').html() } ] ");
+                "[ { type: 'success', template: $('#successTemplate').html() },"
+                + " { type: 'info', template: $('#successTemplate').html() },"
+                + " { type: 'error', template: $('#errorTemplate').html() },"
+                + " { type: 'warning', template: $('#errorTemplate').html() } ] ");
 
         notification = new Notification(Constants.FEEDBACK, options) {
 
