@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
+import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -42,8 +43,11 @@ public class AnyTypeDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 8131650329622035501L;
 
+    private final AnyTypeTO anyTypeTO;
+
     public AnyTypeDetailsPanel(final String id, final AnyTypeTO anyTypeTO) {
         super(id);
+        this.anyTypeTO = anyTypeTO;
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
@@ -53,8 +57,8 @@ public class AnyTypeDetailsPanel extends Panel {
         form.setModel(new CompoundPropertyModel<>(anyTypeTO));
         container.add(form);
 
-        final AjaxTextFieldPanel key
-                = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(anyTypeTO, "key"));
+        final AjaxTextFieldPanel key =
+                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(anyTypeTO, "key"));
         key.addRequiredLabel();
         key.setEnabled(key.getModelObject() == null || key.getModelObject().isEmpty());
         form.add(key);
@@ -71,14 +75,25 @@ public class AnyTypeDetailsPanel extends Panel {
 
         form.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("classes",
                 new PropertyModel<List<String>>(anyTypeTO, "classes"),
-                new ListModel<>(CollectionUtils.collect(
-                        SyncopeConsoleSession.get().getService(AnyTypeClassService.class).list(),
-                        new Transformer<AnyTypeClassTO, String>() {
+                new ListModel<>(getAvailableAnyTypeClasses())).setOutputMarkupId(true));
+    }
 
-                    @Override
-                    public String transform(final AnyTypeClassTO input) {
-                        return input.getKey();
-                    }
-                }, new ArrayList<String>()))).setOutputMarkupId(true));
+    private List<String> getAvailableAnyTypeClasses() {
+        final List<String> availableAnyTypeClasses = CollectionUtils.collect(
+                SyncopeConsoleSession.get().getService(AnyTypeClassService.class).list(),
+                new Transformer<AnyTypeClassTO, String>() {
+
+            @Override
+            public String transform(final AnyTypeClassTO input) {
+                return input.getKey();
+            }
+        }, new ArrayList<String>());
+
+        for (AnyTypeTO itemTO : SyncopeConsoleSession.get().getService(AnyTypeService.class).list()) {
+            if (anyTypeTO.getKey() == null || !anyTypeTO.getKey().equals(itemTO.getKey())) {
+                availableAnyTypeClasses.removeAll(itemTO.getClasses());
+            }
+        }
+        return availableAnyTypeClasses;
     }
 }

@@ -101,8 +101,8 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
                         } catch (Exception e) {
                             LOG.error("While creating or updating AnyTypeClassTO", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            modal.getNotificationPanel().refresh(target);
                         }
+                        modal.getNotificationPanel().refresh(target);
                     }
                 };
             }

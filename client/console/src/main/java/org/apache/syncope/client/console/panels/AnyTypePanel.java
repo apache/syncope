@@ -104,8 +104,8 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
                         } catch (Exception e) {
                             LOG.error("While creating or updating AnyTypeTO", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            modal.getNotificationPanel().refresh(target);
                         }
+                        modal.getNotificationPanel().refresh(target);
                     }
                 };
             }
@@ -203,8 +203,8 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
             public void populateItem(final Item<ICellPopulator<AnyTypeTO>> item, final String componentId,
                     final IModel<AnyTypeTO> model) {
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks
-                        = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<Serializable> actionLinks =
+                        ActionLinksPanel.builder(page.getPageReference());
                 actionLinks.setDisableIndicator(true);
                 actionLinks.addWithRoles(new ActionLink<Serializable>() {
 
