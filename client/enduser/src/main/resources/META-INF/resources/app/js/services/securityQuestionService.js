@@ -28,11 +28,17 @@ angular.module('self')
             securityQuestionService.getAvailableSecurityQuestions = function () {
               return  $http.get("/syncope-enduser/api/securityQuestions")
                       .then(function (response) {
-                        console.log("security questions response: ", response);
                         return response.data;
                       }, function (response) {
-                        console.log("Something went wrong during security questions retrieval, exit with status: ",
-                                response);
+                        return $q.reject(response.data || response.statusText);
+                      });
+            };
+
+            securityQuestionService.getSecurityQuestionByUser = function (username) {
+              return  $http.get("/syncope-enduser/api/securityQuestions/byUser/"+username)
+                      .then(function (response) {
+                        return response.data;
+                      }, function (response) {
                         return $q.reject(response.data || response.statusText);
                       });
             };

@@ -34,3 +34,23 @@ under the License.
 .k-notification{
   width : 320px;
 }
+
+.suggestions{
+  font-size: 10px;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+#resetpassword{
+  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */
+  color: black;
+  margin-left: 5px;
+  //width: 15%;
+}
+#resetpassword:hover {
+  background: #658D5D;
+}

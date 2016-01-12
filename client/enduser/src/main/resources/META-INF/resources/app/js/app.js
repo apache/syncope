@@ -173,6 +173,10 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
                   return AuthenticationHelper.authenticated();
                 }
               }
+            })
+            .state('passwordreset', {
+              url: '/passwordreset',
+              templateUrl: 'views/passwordreset.html'
             });
 
     // catch all other routes
@@ -187,14 +191,18 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
     $httpProvider.interceptors.push(function ($q, $rootScope, $location) {
       var numLoadings = 0;
       return {
-//        'request': function (config) {
-//          numLoadings++;
-//          // Show loader
-//          if (config.url.indexOf("skipLoader=true") == -1) {
-//            $rootScope.$broadcast("loader_show");
-//          }
-//          return config || $q.when(config);
-//        },
+        'request': function (config, a, b) {
+          //if the url is an html, we're changing page
+          if (config.url.indexOf('.html', config.url.length - 5) == -1) {
+            $rootScope.$broadcast("xhrStarted");
+          }
+          /*numLoadings++;
+           // Show loader
+           if (config.url.indexOf("skipLoader=true") == -1) {
+           $rootScope.$broadcast("loader_show");
+           }*/
+          return config || $q.when(config);
+        },
 //        'response': function (response) {
 //          if ((--numLoadings) === 0) {
 //            // Hide loader
@@ -274,12 +282,14 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $rootScope.selfRegAllowed = false;
       $rootScope.pwdResetAllowed = false;
       $rootScope.version = "";
+      $rootScope.pwdResetRequiringSecurityQuestions = false;
       //info settings are initialized every time an user open the login page
       InfoService.getInfo().then(
               function (response) {
                 $rootScope.pwdResetAllowed = response.pwdResetAllowed;
                 $rootScope.selfRegAllowed = response.selfRegAllowed;
                 $rootScope.version = response.version;
+                $rootScope.pwdResetRequiringSecurityQuestions = response.pwdResetRequiringSecurityQuestions;
               },
               function (response) {
                 console.log("Something went wrong while accessing info resource", response);
@@ -295,30 +305,71 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
         return $rootScope.version;
       };
 
-      //Intercepting location change event
-      $rootScope.$on("$locationChangeStart", function (event, next, current) {
-        //When a location changes, old notifications should be removed
+      //Notification management           
+      $scope.notification = $('#notifications').kendoNotification().data("kendoNotification");
+      $scope.notification.setOptions({stacking: "down"});
+      $scope.notification.options.position["top"] = 20;
+      $scope.showSuccess = function (message, component) {
+        if (!$scope.notificationExists(message)) {
+          component.options.autoHideAfter = 3000;
+          component.show(message, "success");
+        }
+      }
+      $scope.showError = function (message, component) {        
+        if (!$scope.notificationExists(message)) {
+          component.options.autoHideAfter = 0;
+          component.show(message, "error");
+        }
+      }
+      $scope.notificationExists = function (message) {
+        var result = false;
         if ($scope.notification != null) {
-          var pendingNotifications = $scope.notification.getNotifications();          
-          setTimeout(function () {
+          var pendingNotifications = $scope.notification.getNotifications();
+          pendingNotifications.each(function (idx, element) {
+            var popup = $(element).data("kendoPopup");
+            if (!popup.hide && popup.wrapper.html().indexOf(message) > -1) {
+              result = true;
+              return false; //breaking the each and storing the real result
+            }
+          });
+        }
+        return result;
+      }
+      $scope.hideNotifications = function (timer) {
+        if ($scope.notification != null) {
+          var pendingNotifications = $scope.notification.getNotifications();
+          if (timer && timer > 0) {
+            setTimeout(function () {
+              pendingNotifications.each(function (idx, element) {
+                var popup = $(element).data("kendoPopup");
+                if (popup) {
+                  popup.hide = true;
+                  popup.close();
+                }
+              });
+            }, timer);
+          }
+          else {
             pendingNotifications.each(function (idx, element) {
               var popup = $(element).data("kendoPopup");
               if (popup) {
-                popup.close();
+                popup.hide = true;
+                //we should destroy the message immediately
+                popup.destroy();
               }
             });
-          }, 3000);
+          }
         }
+      }
+      //Intercepting location change event
+      $rootScope.$on("$locationChangeStart", function (event, next, current) {
+        //When a location changes, old notifications should be removed
+        $scope.hideNotifications(3000)
       });
-
-      $scope.showSuccess = function (message, component) {
-        component.options.autoHideAfter = 3000;
-        component.show(message, "success");
-      }
-      $scope.showError = function (message, component) {
-        component.options.autoHideAfter = 0;
-        component.show(message, "error");
-      }
+      //Intercepting xhr start event
+      $scope.$on('xhrStarted', function (event, next, current) {
+        $scope.hideNotifications(0);
+      });
     }
   }]);
 app.factory('AuthenticationHelper', ['$q', '$rootScope',

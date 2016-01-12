@@ -66,8 +66,7 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
     };
 
     $scope.passwordReset = function () {
-      // TODO
-      console.log("NOT YET IMPLEMENTED")
+       $location.path("/passwordreset");
     };
 
     $scope.errorAPI = function () {

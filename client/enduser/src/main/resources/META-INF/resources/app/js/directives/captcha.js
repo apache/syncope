@@ -37,6 +37,8 @@ angular.module('self')
 
               // initialize captcha
               $scope.refreshCaptcha();
+              
+              $scope.$on("refreshCaptcha", function(){$scope.refreshCaptcha()});
             }
           };
         });

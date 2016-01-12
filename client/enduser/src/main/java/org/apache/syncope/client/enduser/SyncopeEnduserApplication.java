@@ -36,6 +36,7 @@ import org.apache.syncope.client.enduser.resources.SchemaResource;
 import org.apache.syncope.client.enduser.resources.SecurityQuestionResource;
 import org.apache.syncope.client.enduser.resources.SyncopeResourceResource;
 import org.apache.syncope.client.enduser.resources.UserSelfCreateResource;
+import org.apache.syncope.client.enduser.resources.UserSelfPasswordReset;
 import org.apache.syncope.client.enduser.resources.UserSelfReadResource;
 import org.apache.syncope.client.enduser.resources.UserSelfUpdateResource;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -173,6 +174,16 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             }
         });
 
+        mountResource("/api/self/requestPasswordReset", new ResourceReference("userSelfPasswordReset") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new UserSelfPasswordReset();
+            }
+        });
+
         mountResource("/api/schemas", new ResourceReference("schemas") {
 
             private static final long serialVersionUID = -128426276529456602L;
@@ -192,8 +203,18 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 return new SyncopeResourceResource();
             }
         });
-        
+
         mountResource("/api/securityQuestions", new ResourceReference("securityQuestions") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new SecurityQuestionResource();
+            }
+        });
+
+        mountResource("/api/securityQuestions/byUser/${username}", new ResourceReference("securityQuestions") {
 
             private static final long serialVersionUID = -128426276529456602L;
 

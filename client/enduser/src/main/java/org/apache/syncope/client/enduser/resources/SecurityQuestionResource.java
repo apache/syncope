@@ -26,8 +26,10 @@ import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
+import org.apache.wicket.util.string.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,15 +62,30 @@ public class SecurityQuestionResource extends AbstractBaseResource {
                 return response;
             }
 
-            final List<SecurityQuestionTO> securityQuestionTOs = securityQuestionService.list();
+            PageParameters parameters = attributes.getParameters();
+            StringValue username = parameters.get("username");
+            //if the username is defined then retrieve its security questions, otherwise retrieve all security questions
+            if (!username.isEmpty()) {
+                final SecurityQuestionTO securityQuestionTO = securityQuestionService.readByUser(username.toString());
 
-            response.setWriteCallback(new AbstractResource.WriteCallback() {
+                response.setWriteCallback(new AbstractResource.WriteCallback() {
 
-                @Override
-                public void writeData(final IResource.Attributes attributes) throws IOException {
-                    attributes.getResponse().write(POJOHelper.serialize(securityQuestionTOs));
-                }
-            });
+                    @Override
+                    public void writeData(final IResource.Attributes attributes) throws IOException {
+                        attributes.getResponse().write(POJOHelper.serialize(securityQuestionTO));
+                    }
+                });
+            } else {
+                final List<SecurityQuestionTO> securityQuestionTOs = securityQuestionService.list();
+
+                response.setWriteCallback(new AbstractResource.WriteCallback() {
+
+                    @Override
+                    public void writeData(final IResource.Attributes attributes) throws IOException {
+                        attributes.getResponse().write(POJOHelper.serialize(securityQuestionTOs));
+                    }
+                });
+            }
 
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {

@@ -226,7 +226,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         if ($scope.createMode) {
 
           UserSelfService.create(user).then(function (response) {
-            console.log("Created user: ", response);            
+            console.log("Created user: ", response);
             $scope.showSuccess("User " + $scope.user.username + " successfully created", $scope.notification);
             $location.path('/self');
           }, function (response) {
@@ -273,5 +273,63 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         $scope.showError("Error: " + (errorMessage || response), $scope.notification);
         return;
       });
+    },
+    $scope.retrieveSecurityQuestion = function (user) {
+      if ($rootScope.pwdResetRequiringSecurityQuestions){
+        if(user && user.username && user.username.length) {
+        return SecurityQuestionService.
+                getSecurityQuestionByUser(user.username).then(function (data) {
+                  $scope.userSecurityQuestion = data.content;          
+                }, function (response) {
+                  var errorMessage;
+                  // parse error response 
+                  if (response !== undefined) {
+                    errorMessage = response.split("ErrorMessage{{")[1];
+                    errorMessage = errorMessage.split("}}")[0];
+                    $scope.userSecurityQuestion = "";
+                  }
+                  $scope.showError("Error retrieving user security question: " + errorMessage, $scope.notification);
+                });
+        }
+        else{
+           $scope.userSecurityQuestion = "";
+        }    
+      }
+    },
+    $scope.resetPassword = function (user) {
+      if (user && user.username) {
+        $scope.retrieveSecurityQuestion(user);
+        CaptchaService.validate($scope.captchaInput).then(function (response) {
+          if (!(response === 'true')) {
+            $scope.showError("Captcha inserted is not valid, please digit the correct captcha", $scope.notification);
+            return;
+          }
+          UserSelfService.passwordReset(user).then(function (data) {
+            $scope.showSuccess(data, $scope.notification);
+            $location.path('/self');
+          }, function (response) {
+            var errorMessage;
+            // parse error response 
+            if (response !== undefined) {
+              errorMessage = response.split("ErrorMessage{{")[1];
+              errorMessage = errorMessage.split("}}")[0];
+              $scope.showError("An error occured during password reset: " + errorMessage, $scope.notification);
+              //we need to refresh captcha after a valid request
+              $scope.$broadcast("refreshCaptcha");
+            }
+          });
+        }, function (response) {          
+          var errorMessage;
+          // parse error response 
+          if (response !== undefined) {
+            errorMessage = response.split("ErrorMessage{{")[1];
+            errorMessage = errorMessage.split("}}")[0];
+          }
+          $scope.showError("Error: " + (errorMessage || response), $scope.notification);
+          return;
+        });
+      } else {
+        $scope.showError("You should use a valid and non-empty username", $scope.notification);
+      }
     };
   }]);

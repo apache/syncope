@@ -18,13 +18,11 @@
  */
 
 'use strict';
-
 angular.module('login')
         .factory('UserSelfService', ['$resource', '$q', '$http',
           function ($resource, $q, $http) {
 
             var userSelfService = {};
-
             userSelfService.read = function () {
               return $http
                       .get('/syncope-enduser/api/self/read')
@@ -36,7 +34,6 @@ angular.module('login')
                         return $q.reject(response.data || response.statusText);
                       });
             };
-
             userSelfService.create = function (user) {
               return $http
                       .post('/syncope-enduser/api/self/create', user)
@@ -48,7 +45,6 @@ angular.module('login')
                         return $q.reject(response.data || response.statusText);
                       });
             };
-
             userSelfService.update = function (user) {
               return $http
                       .post('/syncope-enduser/api/self/update', user)
@@ -59,10 +55,24 @@ angular.module('login')
                         return $q.reject(response.data || response.statusText);
                       });
             };
-
-            userSelfService.passwordReset = function () {
+            userSelfService.passwordReset = function (user) {
+              return $http
+                      .post('/syncope-enduser/api/self/requestPasswordReset', user,
+                              {
+                                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
+                                transformRequest: function (obj) {
+                                  var str = [];
+                                  for (var p in obj)
+                                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                                  return str.join("&");
+                                }
+                              })
+                      .then(function (response) {
+                        return response.data || response.statusText;
+                      }, function (response) {
+                        return $q.reject(response.data || response.statusText);
+                      });
             };
-
             return userSelfService;
           }]);
 
