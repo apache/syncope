@@ -64,8 +64,6 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
 
     private static final long serialVersionUID = 3905038169553185171L;
 
-    private final String pageID = "AnyTypes";
-
     public AnyTypePanel(final String id, final Builder<AnyTypeTO, AnyTypeTO, BaseRestClient> builder) {
         super(id, builder);
     }
@@ -117,7 +115,9 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
             }
 
             @Override
-            protected void onApplyInternal(final AnyTypeTO modelObject) {
+            protected Serializable onApplyInternal(final AnyTypeTO modelObject) {
+                // do nothing
+                return null;
             }
         }, true);
 
@@ -138,11 +138,6 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
     @Override
     protected Collection<ActionLink.ActionType> getBulkActions() {
         return Collections.<ActionLink.ActionType>emptyList();
-    }
-
-    @Override
-    protected String getPageId() {
-        return pageID;
     }
 
     @Override

@@ -23,6 +23,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageReference;
@@ -44,6 +45,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     private static final long serialVersionUID = 1L;
 
+    protected PageReference pageRef;
+
     private final WebMarkupContainer container;
 
     private final Fragment initialFragment;
@@ -55,6 +58,10 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     private NotificationPanel notificationPanel;
 
     private boolean footerVisibility = false;
+
+    private boolean showResultPage = false;
+
+    private final boolean wizardInModal;
 
     /**
      * Modal window.
@@ -70,8 +77,6 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         }
 
     };
-
-    private final boolean wizardInModal;
 
     protected WizardMgtPanel(final String id) {
         this(id, false);
@@ -104,6 +109,16 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         addAjaxLink.setEnabled(false);
         addAjaxLink.setVisible(false);
         initialFragment.add(addAjaxLink);
+    }
+
+    public <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> setPageRef(final PageReference pageRef) {
+        this.pageRef = pageRef;
+        return this;
+    }
+
+    public <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> setShowResultPage(final boolean showResultPage) {
+        this.showResultPage = showResultPage;
+        return this;
     }
 
     @Override
@@ -146,15 +161,41 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                     fragment.add(Component.class.cast(modalPanel));
                     container.addOrReplace(fragment);
                 }
-            } else {
-                if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                    if (notificationPanel != null) {
-                        getSession().info(getString(Constants.OPERATION_SUCCEEDED));
-                        notificationPanel.refresh(target);
-                    }
+            } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
+                if (wizardInModal) {
+                    modal.show(false);
+                    modal.close(target);
+                } else {
+                    container.addOrReplace(initialFragment);
+                }
+            } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
+                if (notificationPanel != null) {
+                    getSession().info(getString(Constants.OPERATION_SUCCEEDED));
+                    notificationPanel.refresh(target);
                 }
 
-                if (wizardInModal) {
+                if (wizardInModal && showResultPage) {
+                    modal.setContent(new ResultPage<T>(
+                            item,
+                            AjaxWizard.NewItemFinishEvent.class.cast(newItemEvent).getResult(),
+                            pageRef) {
+
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        protected void closeAction(final AjaxRequestTarget target) {
+                            modal.show(false);
+                            modal.close(target);
+                        }
+
+                        @Override
+                        protected Panel customResultBody(
+                                final String id, final T item, final Serializable result) {
+                            return WizardMgtPanel.this.customResultBody(id, item, result);
+                        }
+                    });
+                    target.add(modal.getForm());
+                } else if (wizardInModal) {
                     modal.show(false);
                     modal.close(target);
                 } else {
@@ -165,6 +206,17 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
             target.add(container);
         }
         super.onEvent(event);
+    }
+
+    /*
+     * Override this method to specify your custom result body panel.
+     */
+    protected Panel customResultBody(final String panelId, final T item, final Serializable result) {
+        return new Panel(panelId) {
+
+            private static final long serialVersionUID = 5538299138211283825L;
+
+        };
     }
 
     protected <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> addNewItemPanelBuilder(
@@ -201,6 +253,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
         private NotificationPanel notificationPanel;
 
+        private boolean showResultPage = false;
+
         protected Builder(final PageReference pageRef) {
             this.pageRef = pageRef;
         }
@@ -215,8 +269,14 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
          */
         public WizardMgtPanel<T> build(final String id) {
             return newInstance(id).
+                    setPageRef(pageRef).
+                    setShowResultPage(showResultPage).
                     addNewItemPanelBuilder(newItemPanelBuilder, newItemDefaultButtonEnabled).
                     addNotificationPanel(notificationPanel);
+        }
+
+        public void setShowResultPage(final boolean showResultPage) {
+            this.showResultPage = showResultPage;
         }
 
         public Builder<T> addNewItemPanelBuilder(final AbstractModalPanelBuilder<T> panelBuilder) {

@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.client.console.wizards.any.AnyWizardBuilder;
+import org.apache.syncope.client.console.wizards.any.AnyObjectWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.GroupWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -183,12 +183,12 @@ public abstract class Realm extends Panel {
                 final AnyObjectTO anyObjectTO = new AnyObjectTO();
                 anyObjectTO.setRealm(realmTO.getFullPath());
                 anyObjectTO.setType(anyTypeTO.getKey());
-                panel = new AnyObjectSearchResultPanel.Builder<AnyObjectTO>(
+                panel = new AnyObjectSearchResultPanel.Builder(
                         anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
                         anyObjectRestClient,
                         anyTypeTO.getKey(),
                         pageReference).setRealm(realmTO.getFullPath()).
-                        addNewItemPanelBuilder(new AnyWizardBuilder<AnyObjectTO>(
+                        addNewItemPanelBuilder(new AnyObjectWizardBuilder(
                                 BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).
                         addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getNotificationPanel()).
                         build(id);

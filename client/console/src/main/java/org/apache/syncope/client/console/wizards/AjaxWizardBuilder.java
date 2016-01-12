@@ -57,8 +57,8 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
             }
 
             @Override
-            protected void onApplyInternal() {
-                AjaxWizardBuilder.this.onApplyInternal(modelObject);
+            protected Serializable onApplyInternal() {
+                return AjaxWizardBuilder.this.onApplyInternal(modelObject);
             }
         };
     }

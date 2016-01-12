@@ -15,6 +15,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +57,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
     }
 
     @Override
-    protected void onApplyInternal(final AnyHandler<UserTO> modelObject) {
+    protected Serializable onApplyInternal(final AnyHandler<UserTO> modelObject) {
         final ProvisioningResult<UserTO> actual;
 
         final UserTO inner = modelObject.getInnerObject();
@@ -72,8 +73,12 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
             // update user just if it is changed
             if (!patch.isEmpty()) {
                 actual = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+            } else {
+                actual = null;
             }
         }
+
+        return actual;
     }
 
     @Override

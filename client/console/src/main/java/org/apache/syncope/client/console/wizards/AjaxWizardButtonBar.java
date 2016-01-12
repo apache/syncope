@@ -16,6 +16,8 @@
 package org.apache.syncope.client.console.wizards;
 
 import org.apache.syncope.client.console.panels.NotificationPanel;
+import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.IWizardModel;
 import org.apache.wicket.extensions.wizard.IWizardStep;
@@ -125,4 +127,8 @@ public class AjaxWizardButtonBar extends WizardButtonBar {
         });
     }
 
+    @Override
+    public final MarkupContainer addOrReplace(final Component... childs) {
+        return super.addOrReplace(childs);
+    }
 }

@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
@@ -35,7 +34,6 @@ import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -56,11 +54,9 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
+public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
-
-    private final String pageID = "Users";
 
     protected UserSearchResultPanel(final String id, final Builder builder) {
         super(id, builder);
@@ -234,23 +230,7 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
         return columns;
     }
 
-    @Override
-    protected Collection<ActionLink.ActionType> getBulkActions() {
-        final List<ActionType> bulkActions = new ArrayList<>();
-
-        bulkActions.add(ActionType.DELETE);
-        bulkActions.add(ActionType.SUSPEND);
-        bulkActions.add(ActionType.REACTIVATE);
-
-        return bulkActions;
-    }
-
-    @Override
-    protected String getPageId() {
-        return pageID;
-    }
-
-    public static class Builder extends AnyObjectSearchResultPanel.Builder<UserTO> {
+    public static class Builder extends AnySearchResultPanel.Builder<UserTO> {
 
         private static final long serialVersionUID = 1L;
 
@@ -261,6 +241,7 @@ public class UserSearchResultPanel extends AnyObjectSearchResultPanel<UserTO> {
                 final PageReference pageRef) {
 
             super(anyTypeClassTOs, restClient, type, pageRef);
+            setShowResultPage(true);
         }
 
         @Override

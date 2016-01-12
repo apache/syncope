@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 import java.io.Serializable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
-public abstract class ActionLink<T> implements Serializable {
+public abstract class ActionLink<T extends Serializable> implements Serializable {
 
     private static final long serialVersionUID = 7031329706998320639L;
 
@@ -56,6 +56,7 @@ public abstract class ActionLink<T> implements Serializable {
         DRYRUN("execute"),
         CLAIM("claim"),
         SELECT("read"),
+        CLOSE("read"),
         EXPORT("read"),
         SUSPEND("update"),
         REACTIVATE("update"),

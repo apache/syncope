@@ -261,6 +261,13 @@ div#resource-modal.modal-lg {
   width: 1200px;
 }
 
+.details {
+  max-height: 380px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: block
+}
+
 /**
   BEGIN - Style for Information panel
 */
@@ -467,4 +474,23 @@ START - DataTable
 }
 /**
 END - DataTable
+*/
+
+/**
+START - Resukt page
+*/
+.attribute {
+  padding: 0px 4px 0px 4px; 
+}
+
+.left {
+  float:left; 
+  width: 50%; 
+}
+
+span.highlight .attribute label {
+  color : red;
+}
+/**
+END - Resukt page
 */

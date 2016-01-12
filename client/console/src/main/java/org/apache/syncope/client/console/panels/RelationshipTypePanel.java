@@ -62,8 +62,6 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
 
     private static final long serialVersionUID = -3731778000138547357L;
 
-    private final String pageID = "RelationshipTypes";
-
     public RelationshipTypePanel(
             final String id, final Builder<RelationshipTypeTO, RelationshipTypeTO, BaseRestClient> builder) {
         super(id, builder);
@@ -119,7 +117,9 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
             }
 
             @Override
-            protected void onApplyInternal(final RelationshipTypeTO modelObject) {
+            protected Serializable onApplyInternal(final RelationshipTypeTO modelObject) {
+                // do nothing
+                return null;
             }
         }, true);
 
@@ -140,11 +140,6 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
     @Override
     protected Collection<ActionLink.ActionType> getBulkActions() {
         return Collections.<ActionLink.ActionType>emptyList();
-    }
-
-    @Override
-    protected String getPageId() {
-        return pageID;
     }
 
     @Override

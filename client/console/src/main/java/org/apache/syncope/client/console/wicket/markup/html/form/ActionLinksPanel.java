@@ -75,6 +75,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelExecute", "emptyFragment", this));
         super.add(new Fragment("panelDryRun", "emptyFragment", this));
         super.add(new Fragment("panelSelect", "emptyFragment", this));
+        super.add(new Fragment("panelClose", "emptyFragment", this));
         super.add(new Fragment("panelExport", "emptyFragment", this));
         super.add(new Fragment("panelSuspend", "emptyFragment", this));
         super.add(new Fragment("panelReactivate", "emptyFragment", this));
@@ -478,6 +479,25 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 }).setVisible(link.isEnabled(model.getObject()));
 
                 break;
+            case CLOSE:
+                fragment = new Fragment("panelClose", "fragmentClose", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("closeLink", pageRef) {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }).setVisible(link.isEnabled(model.getObject()));
+
+                break;
 
             case EXPORT:
                 fragment = new Fragment("panelExport", "fragmentExport", this);
@@ -739,7 +759,9 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
         if (fragment != null) {
             fragment.setEnabled(enabled);
-            MetaDataRoleAuthorizationStrategy.authorize(fragment, ENABLE, entitlements);
+            if (StringUtils.isNotBlank(entitlements)) {
+                MetaDataRoleAuthorizationStrategy.authorize(fragment, ENABLE, entitlements);
+            }
             super.addOrReplace(fragment);
         }
 
@@ -810,6 +832,10 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
             case SELECT:
                 super.addOrReplace(new Fragment("panelSelect", "emptyFragment", this));
+                break;
+
+            case CLOSE:
+                super.addOrReplace(new Fragment("panelClose", "emptyFragment", this));
                 break;
 
             case EXPORT:
@@ -897,6 +923,10 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         public Builder<T> setDisableIndicator(final boolean disableIndicator) {
             this.disableIndicator = disableIndicator;
             return this;
+        }
+
+        public Builder<T> add(final ActionLink<T> link, final ActionLink.ActionType type) {
+            return addWithRoles(link, type, null, true);
         }
 
         public Builder<T> add(

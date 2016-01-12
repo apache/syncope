@@ -39,6 +39,11 @@ public final class AnyObjectSelectionSearchResultPanel extends AnySelectionSearc
     }
 
     @Override
+    protected String paginatorRowsKey() {
+        return Constants.PREF_ANYOBJECT_PAGINATOR_ROWS;
+    }
+
+    @Override
     protected String[] getDislayAttributes() {
         return USER_DEFAULT_SELECTION;
     }

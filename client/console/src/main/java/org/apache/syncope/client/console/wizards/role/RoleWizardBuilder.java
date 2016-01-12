@@ -16,6 +16,7 @@
 package org.apache.syncope.client.console.wizards.role;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.Collapsible;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -74,7 +75,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
     }
 
     @Override
-    protected void onApplyInternal(final RoleHandler modelObject) {
+    protected Serializable onApplyInternal(final RoleHandler modelObject) {
         modelObject.fillDynamicConditions();
         if (getOriginalItem() == null || getOriginalItem().getInnerObject() == null
                 || StringUtils.isBlank(getOriginalItem().getInnerObject().getKey())) {
@@ -82,6 +83,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
         } else {
             groupRestClient.update(modelObject.getInnerObject());
         }
+        return null;
     }
 
     @Override

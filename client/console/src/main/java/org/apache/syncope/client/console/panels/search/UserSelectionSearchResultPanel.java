@@ -38,6 +38,11 @@ public final class UserSelectionSearchResultPanel extends AnySelectionSearchResu
     }
 
     @Override
+    protected String paginatorRowsKey() {
+        return Constants.PREF_USERS_PAGINATOR_ROWS;
+    }
+
+    @Override
     protected String[] getDislayAttributes() {
         return USER_DEFAULT_SELECTION;
     }

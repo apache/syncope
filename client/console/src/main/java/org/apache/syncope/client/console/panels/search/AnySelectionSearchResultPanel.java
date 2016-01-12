@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.console.pages.AnyDisplayAttributesModalPage;
-import org.apache.syncope.client.console.panels.AnyObjectSearchResultPanel;
+import org.apache.syncope.client.console.panels.AnySearchResultPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -47,12 +47,11 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends AnyObjectSearchResultPanel<T> {
+public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends AnySearchResultPanel<T> {
 
     private static final long serialVersionUID = -1100228004207271272L;
 
-    protected AnySelectionSearchResultPanel(
-            final String id, final AnySelectionSearchResultPanel.Builder<T> builder) {
+    protected AnySelectionSearchResultPanel(final String id, final AnySearchResultPanel.Builder<T> builder) {
         super(id, builder);
     }
 
@@ -168,7 +167,7 @@ public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends Any
 
     protected abstract String getPrefDerivedAttributesView();
 
-    public static class Builder<T extends AnyTO> extends AnyObjectSearchResultPanel.Builder<T> {
+    public abstract static class Builder<T extends AnyTO> extends AnySearchResultPanel.Builder<T> {
 
         private static final long serialVersionUID = 1L;
 

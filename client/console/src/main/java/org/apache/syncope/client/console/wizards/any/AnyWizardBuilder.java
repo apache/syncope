@@ -24,18 +24,14 @@ import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.patch.AnyObjectPatch;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<AnyHandler<T>>
+public abstract class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<AnyHandler<T>>
         implements Serializable {
 
     private static final long serialVersionUID = -2480279868319546243L;
@@ -113,36 +109,11 @@ public class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<AnyHand
         // do nothing
     }
 
-    @Override
-    protected void onApplyInternal(final AnyHandler<T> modelObject) {
-        final T obj = modelObject.getInnerObject();
-
-        if (!(obj instanceof AnyObjectTO)) {
-            throw new IllegalArgumentException();
-        }
-
-        final ProvisioningResult<AnyObjectTO> actual;
-
-        if (obj.getKey() == 0) {
-            actual = anyTypeRestClient.create(AnyObjectTO.class.cast(obj));
-        } else {
-            final AnyObjectPatch patch = AnyOperations.diff(obj, getOriginalItem().getInnerObject(), false);
-
-            // update user just if it is changed
-            if (!patch.isEmpty()) {
-                actual = anyTypeRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
-            }
-        }
-    }
-
     protected AnyWizardBuilder<T> addOptionalDetailsPanel(
             final AnyHandler<T> modelObject, final WizardModel wizardModel) {
         if (modelObject.getInnerObject().getKey() > 0) {
             wizardModel.add(new Details<T>(
-                    modelObject,
-                    new ListModel<>(Collections.<StatusBean>emptyList()),
-                    pageRef,
-                    true));
+                    modelObject, new ListModel<>(Collections.<StatusBean>emptyList()), pageRef, true));
         }
         return this;
     }

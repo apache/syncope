@@ -247,7 +247,8 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
     }
 
     @Override
-    protected void onApplyInternal(final ProvisionTO modelObject) {
+    protected Serializable onApplyInternal(final ProvisionTO modelObject) {
         this.resourceTO.getProvisions().add(modelObject);
+        return null;
     }
 }

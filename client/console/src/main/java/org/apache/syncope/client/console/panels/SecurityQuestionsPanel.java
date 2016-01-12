@@ -64,8 +64,6 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
 
     private static final long serialVersionUID = 3323019773236588850L;
 
-    private final String pageID = "SecurityQuestions";
-
     public SecurityQuestionsPanel(final String id, final PageReference pageRef) {
         super(id, new Builder<SecurityQuestionTO, SecurityQuestionTO, BaseRestClient>(null, pageRef) {
 
@@ -93,7 +91,9 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
             }
 
             @Override
-            protected void onApplyInternal(final SecurityQuestionTO modelObject) {
+            protected Serializable onApplyInternal(final SecurityQuestionTO modelObject) {
+                // do nothing
+                return null;
             }
         }, true);
 
@@ -123,11 +123,6 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
     @Override
     protected Collection<ActionLink.ActionType> getBulkActions() {
         return Collections.<ActionLink.ActionType>emptyList();
-    }
-
-    @Override
-    protected String getPageId() {
-        return pageID;
     }
 
     @Override

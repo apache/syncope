@@ -118,6 +118,16 @@ public final class Constants {
 
     public static final String PREF_ANY_DERIVED_ATTRIBUTES_VIEW = "any.%s.derived.attributes.view";
 
+    public static final String SUSPENDED_ICON = "glyphicon glyphicon-ban-circle";
+
+    public static final String ACTIVE_ICON = "glyphicon glyphicon-ok-circle";
+
+    public static final String UNDEFINED_ICON = "glyphicon glyphicon-question-sign";
+
+    public static final String NOT_FOUND_ICON = "glyphicon glyphicon-remove-circle";
+
+    ;
+
     /**
      * ConnId's GuardedString is not in the classpath.
      */

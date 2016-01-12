@@ -18,11 +18,18 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import static org.apache.syncope.client.console.commons.status.Status.ACTIVE;
+import static org.apache.syncope.client.console.commons.status.Status.SUSPENDED;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.SerializableTransformer;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.Status;
 import org.apache.syncope.client.console.commons.status.StatusBean;
@@ -32,6 +39,7 @@ import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -59,40 +67,64 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
     private static final long serialVersionUID = -4064294905566247728L;
 
-    private UserRestClient userRestClient = new UserRestClient();
+    private final UserRestClient userRestClient = new UserRestClient();
 
-    private GroupRestClient groupRestClient = new GroupRestClient();
+    private final GroupRestClient groupRestClient = new GroupRestClient();
 
-    private final List<ConnObjectWrapper> connObjects;
-
-    private final Map<String, StatusBean> initialStatusBeanMap;
+    private Map<String, StatusBean> initialStatusBeanMap;
 
     private final StatusUtils statusUtils;
 
-    private final ListViewPanel<?> listViewPanel;
+    private ListViewPanel<?> listViewPanel;
 
-    private final TransparentWebMarkupContainer container;
+    private TransparentWebMarkupContainer container;
 
-    private final Fragment resourceListFragment;
+    private Fragment resourceListFragment;
 
     public <T extends AnyTO> StatusPanel(
             final String id,
             final T any,
             final IModel<List<StatusBean>> model,
             final PageReference pageRef) {
-
         super(id);
+        statusUtils = new StatusUtils(any instanceof GroupTO ? groupRestClient : userRestClient);
+        init(any, model,
+                CollectionUtils.collect(statusUtils.getConnectorObjects(any),
+                        new SerializableTransformer<ConnObjectWrapper, Pair<ConnObjectTO, ConnObjectWrapper>>() {
+
+                    private static final long serialVersionUID = 2658691884036294287L;
+
+                    @Override
+                    public Pair<ConnObjectTO, ConnObjectWrapper> transform(final ConnObjectWrapper input) {
+                        return Pair.of(null, input);
+                    }
+
+                }, new ArrayList<Pair<ConnObjectTO, ConnObjectWrapper>>()), pageRef);
+    }
+
+    public <T extends AnyTO> StatusPanel(
+            final String id,
+            final T any,
+            final IModel<List<StatusBean>> model,
+            final List<Pair<ConnObjectTO, ConnObjectWrapper>> connObjects,
+            final PageReference pageRef) {
+        super(id);
+        statusUtils = new StatusUtils(any instanceof GroupTO ? groupRestClient : userRestClient);
+        init(any, model, connObjects, pageRef);
+    }
+
+    private void init(
+            final AnyTO any,
+            final IModel<List<StatusBean>> model,
+            final List<Pair<ConnObjectTO, ConnObjectWrapper>> connObjects,
+            final PageReference pageRef) {
 
         container = new TransparentWebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
         add(container);
 
         resourceListFragment = new Fragment("content", "resources", this);
-        container.addOrReplace(resourceListFragment);
-
-        statusUtils = new StatusUtils(any instanceof GroupTO ? groupRestClient : userRestClient);
-
-        connObjects = statusUtils.getConnectorObjects(any);
+        container.addOrReplace(resourceListFragment.setRenderBodyOnly(true));
 
         final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size() + 1);
         initialStatusBeanMap = new LinkedHashMap<>(connObjects.size() + 1);
@@ -119,7 +151,8 @@ public class StatusPanel extends Panel implements IHeaderContributor {
         statusBeans.add(syncope);
         initialStatusBeanMap.put(syncope.getResourceName(), syncope);
 
-        for (ConnObjectWrapper entry : connObjects) {
+        for (Pair<ConnObjectTO, ConnObjectWrapper> pair : connObjects) {
+            ConnObjectWrapper entry = pair.getRight();
             final StatusBean statusBean = statusUtils.getStatusBean(entry.getAny(),
                     entry.getResourceName(),
                     entry.getConnObjectTO(),
@@ -146,18 +179,18 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                             if (null != bean.getStatus()) {
                                 switch (bean.getStatus()) {
                                     case OBJECT_NOT_FOUND:
-                                        tag.put("class", "glyphicon glyphicon-remove-circle");
+                                        tag.put("class", Constants.NOT_FOUND_ICON);
                                         break;
                                     case UNDEFINED:
                                     case CREATED:
                                     case NOT_YET_SUBMITTED:
-                                        tag.put("class", "glyphicon glyphicon-question-sign");
+                                        tag.put("class", Constants.UNDEFINED_ICON);
                                         break;
                                     case SUSPENDED:
-                                        tag.put("class", "glyphicon glyphicon-ban-circle");
+                                        tag.put("class", Constants.SUSPENDED_ICON);
                                         break;
                                     case ACTIVE:
-                                        tag.put("class", "glyphicon glyphicon-ok-circle");
+                                        tag.put("class", Constants.ACTIVE_ICON);
                                         break;
                                     default:
                                         break;
@@ -186,13 +219,16 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                return statusUtils.getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects) != null;
+                final Pair<ConnObjectTO, ConnObjectTO> pair
+                        = getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+
+                return pair != null && pair.getRight() != null;
             }
 
             @Override
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                 final Fragment remoteObjectFragment = new Fragment("content", "remoteObject", StatusPanel.this);
-                container.addOrReplace(remoteObjectFragment);
+                container.addOrReplace(remoteObjectFragment.setRenderBodyOnly(true));
 
                 remoteObjectFragment.add(new AjaxLink<StatusBean>("back") {
 
@@ -200,7 +236,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        container.addOrReplace(resourceListFragment);
+                        container.addOrReplace(resourceListFragment.setRenderBodyOnly(true));
                         target.add(container);
                     }
                 });
@@ -208,8 +244,10 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                 remoteObjectFragment.add(
                         new Label("resource", new ResourceModel(bean.getResourceName(), bean.getResourceName())));
 
-                remoteObjectFragment.add(new ConnObjectPanel("remoteObject",
-                        statusUtils.getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects)));
+                final Pair<ConnObjectTO, ConnObjectTO> res
+                        = getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+
+                remoteObjectFragment.add(new ConnObjectPanel("remoteObject", res == null ? null : res));
 
                 target.add(container);
             }
@@ -225,5 +263,19 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
     public Map<String, StatusBean> getInitialStatusBeanMap() {
         return initialStatusBeanMap;
+    }
+
+    private Pair<ConnObjectTO, ConnObjectTO> getConnObjectTO(
+            final Long anyKey, final String resourceName, final List<Pair<ConnObjectTO, ConnObjectWrapper>> objects) {
+
+        for (Pair<ConnObjectTO, ConnObjectWrapper> object : objects) {
+            if (anyKey.equals(object.getRight().getAny().getKey())
+                    && resourceName.equalsIgnoreCase(object.getRight().getResourceName())) {
+
+                return Pair.of(object.getLeft(), object.getRight().getConnObjectTO());
+            }
+        }
+
+        return null;
     }
 }

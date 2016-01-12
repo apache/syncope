@@ -78,6 +78,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> implements Notif
         super(id);
 
         form = new Form<>(FORM);
+        form.setOutputMarkupId(true);
         add(form);
 
         content = new AbstractModalPanel<T>(this, null) {

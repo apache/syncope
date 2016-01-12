@@ -86,8 +86,6 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
         }
     };
 
-    private final String pageID = "Schema";
-
     private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     private final SchemaType schemaType;
@@ -152,7 +150,8 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                 }
 
                 @Override
-                protected void onApplyInternal(final AbstractSchemaTO modelObject) {
+                protected Serializable onApplyInternal(final AbstractSchemaTO modelObject) {
+                    return null;
                 }
             }, true);
 
@@ -176,11 +175,6 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
     @Override
     protected Collection<ActionLink.ActionType> getBulkActions() {
         return Collections.<ActionLink.ActionType>emptyList();
-    }
-
-    @Override
-    protected String getPageId() {
-        return pageID;
     }
 
     @Override
@@ -255,8 +249,8 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
 
                 final AbstractSchemaTO schemaTO = model.getObject();
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks =
-                        ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.
+                        getPageReference());
                 actionLinks.setDisableIndicator(true);
                 actionLinks.setDisableIndicator(true);
                 actionLinks.addWithRoles(new ActionLink<Serializable>() {

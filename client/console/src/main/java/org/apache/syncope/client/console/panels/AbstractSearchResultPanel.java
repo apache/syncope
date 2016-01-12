@@ -170,7 +170,7 @@ public abstract class AbstractSearchResultPanel<
                 ? (create ? (int) resultTable.getPageCount() - 1 : (int) resultTable.getCurrentPage()) : 0;
 
         AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<>(
-                dataProvider, getPageId(), page.getPageReference()).
+                dataProvider, page.getPageReference()).
                 setColumns(getColumns()).
                 setRowsPerPage(rows).
                 setBulkActions(getBulkActions(), restClient, "key").
@@ -256,8 +256,6 @@ public abstract class AbstractSearchResultPanel<
     }
 
     protected abstract Collection<ActionLink.ActionType> getBulkActions();
-
-    protected abstract String getPageId();
 
     public abstract static class Builder<T extends Serializable, W extends Serializable, E extends BaseRestClient>
             extends WizardMgtPanel.Builder<W> {

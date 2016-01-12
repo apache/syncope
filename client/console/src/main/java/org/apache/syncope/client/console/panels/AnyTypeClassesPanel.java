@@ -60,8 +60,6 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
 
     private static final long serialVersionUID = -2356760296223908382L;
 
-    private final String pageID = "AnyTypesClasses";
-
     public AnyTypeClassesPanel(final String id,
             final AbstractSearchResultPanel.Builder<AnyTypeClassTO, AnyTypeClassTO, BaseRestClient> builder) {
         super(id, builder);
@@ -114,7 +112,8 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
             }
 
             @Override
-            protected void onApplyInternal(final AnyTypeClassTO modelObject) {
+            protected Serializable onApplyInternal(final AnyTypeClassTO modelObject) {
+                return null;
             }
         }, true);
 
@@ -135,11 +134,6 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
     @Override
     protected Collection<ActionLink.ActionType> getBulkActions() {
         return Collections.<ActionLink.ActionType>emptyList();
-    }
-
-    @Override
-    protected String getPageId() {
-        return pageID;
     }
 
     @Override
@@ -205,8 +199,8 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
             public void populateItem(final Item<ICellPopulator<AnyTypeClassTO>> item, final String componentId,
                     final IModel<AnyTypeClassTO> model) {
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks =
-                        ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.
+                        getPageReference());
                 actionLinks.setDisableIndicator(true);
                 actionLinks.addWithRoles(new ActionLink<Serializable>() {
 

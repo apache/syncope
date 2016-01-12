@@ -15,6 +15,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.commons.status.StatusBean;
@@ -62,7 +63,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
     }
 
     @Override
-    protected void onApplyInternal(final AnyHandler<GroupTO> modelObject) {
+    protected Serializable onApplyInternal(final AnyHandler<GroupTO> modelObject) {
         final ProvisioningResult<GroupTO> actual;
 
         GroupTO toBeProcessed = modelObject instanceof GroupHandler
@@ -76,8 +77,12 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
             // update user just if it is changed
             if (!patch.isEmpty()) {
                 actual = groupRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+            } else {
+                actual = null;
             }
         }
+
+        return actual;
     }
 
     @Override

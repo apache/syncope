@@ -21,15 +21,18 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
-public class FailureMessageModal<T extends Serializable> extends AbstractModalPanel<T> {
+public class FailureMessageModal<T extends Serializable> extends Panel implements ModalPanel<T> {
 
     private static final long serialVersionUID = 9216117990503199258L;
 
-    public FailureMessageModal(final BaseModal<T> modal, final PageReference pageRef, final String failureMessage) {
-        super(modal, pageRef);
+    public FailureMessageModal(final PageReference pageRef, final String failureMessage) {
+        super(BaseModal.CONTENT_ID);
         final Label executionFailureMessage;
         if (!failureMessage.isEmpty()) {
             executionFailureMessage = new Label("failureMessage", new Model<String>(failureMessage));
@@ -37,5 +40,20 @@ public class FailureMessageModal<T extends Serializable> extends AbstractModalPa
             executionFailureMessage = new Label("failureMessage");
         }
         add(executionFailureMessage.setOutputMarkupId(true));
+    }
+
+    @Override
+    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void onError(final AjaxRequestTarget target, final Form<?> form) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public T getItem() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

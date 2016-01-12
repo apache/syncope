@@ -51,10 +51,9 @@ public class RoleSearchResultPanel
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    private final String pageID = "Roles";
-
     protected RoleSearchResultPanel(final String id, final Builder builder) {
         super(id, builder);
+        setShowResultPage(true);
 
         modal.size(Modal.Size.Large);
         initResultTable();
@@ -159,11 +158,6 @@ public class RoleSearchResultPanel
         final List<ActionType> bulkActions = new ArrayList<>();
         bulkActions.add(ActionType.DELETE);
         return bulkActions;
-    }
-
-    @Override
-    protected String getPageId() {
-        return pageID;
     }
 
     public abstract static class Builder

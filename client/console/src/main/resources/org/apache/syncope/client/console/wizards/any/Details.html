@@ -20,9 +20,13 @@ under the License.
   <head><title></title></head>
   <body>
     <wicket:panel>
-      <wicket:child/>
-      <span wicket:id="status">[STATUS]</span>
-      <span wicket:id="generalStatusInformation">[GENERAL STATUS INFORMATION]</span>
+      <div class="details">
+        <wicket:child/>
+        <span wicket:id="status">[STATUS]</span>
+      </div>
+      <div class="details-footer">
+        <span wicket:id="generalStatusInformation">[GENERAL STATUS INFORMATION]</span>
+      </div>
     </wicket:panel>
   </body>
 </html>

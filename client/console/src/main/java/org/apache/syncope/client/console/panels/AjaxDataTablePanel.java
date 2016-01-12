@@ -67,15 +67,12 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
         private String itemKeyField;
 
-        private final String pageId;
-
         private final PageReference pageRef;
 
         private WebMarkupContainer container;
 
-        public Builder(final ISortableDataProvider<T, S> provider, final String pageId, final PageReference pageRef) {
+        public Builder(final ISortableDataProvider<T, S> provider, final PageReference pageRef) {
             this.dataProvider = provider;
-            this.pageId = pageId;
             this.pageRef = pageRef;
         }
 
@@ -208,8 +205,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                         builder.columns,
                         builder.bulkActions,
                         builder.bulkActionExecutor,
-                        builder.itemKeyField,
-                        builder.pageId));
+                        builder.itemKeyField));
 
                 bulkModalWin.show(target);
             }

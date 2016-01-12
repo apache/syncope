@@ -49,6 +49,8 @@ public class BulkActionModalPage<T extends Serializable, S> extends AbstractModa
 
     private static final long serialVersionUID = 4114026480146090962L;
 
+    private final String pageId = "Any";
+
     public BulkActionModalPage(
             final BaseModal<T> modal,
             final PageReference pageRef,
@@ -56,8 +58,7 @@ public class BulkActionModalPage<T extends Serializable, S> extends AbstractModa
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
             final BaseRestClient bulkActionExecutor,
-            final String keyFieldName,
-            final String pageId) {
+            final String keyFieldName) {
 
         super(modal, pageRef);
 

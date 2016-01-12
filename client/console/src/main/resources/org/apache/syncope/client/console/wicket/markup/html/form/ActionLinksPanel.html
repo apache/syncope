@@ -45,7 +45,8 @@ under the License.
     <span wicket:id="panelEdit">[plus]</span>
     <span wicket:id="panelExport">[plus]</span>
     <span wicket:id="panelDelete">[plus]</span>
-    <span wicket:id="panelSelect">[plus]</span>
+    <span wicket:id="panelSelect">[select]</span>
+    <span wicket:id="panelClose">[close]</span>
     <span wicket:id="panelSuspend">[plus]</span>
     <span wicket:id="panelReactivate">[plus]</span>
     <span wicket:id="panelReload">[plus]</span>
@@ -133,6 +134,10 @@ under the License.
 
     <wicket:fragment wicket:id="fragmentSelect">
       <a href="#" wicket:id="selectLink" class="btn"><i class="glyphicon glyphicon-ok"></i></a>
+    </wicket:fragment>
+    
+    <wicket:fragment wicket:id="fragmentClose">
+      <a href="#" wicket:id="closeLink" class="btn"><i class="fa fa-sign-out"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentExport">

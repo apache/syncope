@@ -178,20 +178,6 @@ public class StatusUtils implements Serializable {
         return statusPatch;
     }
 
-    public ConnObjectTO getConnObjectTO(
-            final Long anyKey, final String resourceName, final List<ConnObjectWrapper> objects) {
-
-        for (ConnObjectWrapper object : objects) {
-            if (anyKey.equals(object.getAny().getKey())
-                    && resourceName.equalsIgnoreCase(object.getResourceName())) {
-
-                return object.getConnObjectTO();
-            }
-        }
-
-        return null;
-    }
-
     public Image getStatusImage(final String componentId, final Status status) {
         final String alt, title, statusName;
 

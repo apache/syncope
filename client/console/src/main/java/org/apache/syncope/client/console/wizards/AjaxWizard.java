@@ -77,7 +77,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
 
     protected abstract void onCancelInternal();
 
-    protected abstract void onApplyInternal();
+    protected abstract Serializable onApplyInternal();
 
     /**
      * @see org.apache.wicket.extensions.wizard.Wizard#onCancel()
@@ -102,15 +102,21 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
     public final void onFinish() {
         final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         try {
-            onApplyInternal();
-            send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target));
+            final Serializable res = onApplyInternal();
+            send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(res));
         } catch (Exception e) {
+            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1 " + e);
+            e.printStackTrace();
             LOG.warn("Wizard error on finish", e);
             error(getString("wizard.apply.error"));
             feedbackPanel.refresh(target);
+        } catch (Throwable t) {
+            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA2 " + t);
+            t.printStackTrace();
         }
     }
 
+    @Override
     public T getItem() {
         return item;
     }
@@ -207,7 +213,9 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
 
     public static class NewItemFinishEvent<T> extends NewItemEvent<T> {
 
-        private static final String EVENT_DESCRIPTION = "cancel";
+        private static final String EVENT_DESCRIPTION = "finish";
+
+        private Serializable result;
 
         public NewItemFinishEvent(final T item, final AjaxRequestTarget target) {
             super(item, target);
@@ -216,6 +224,15 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         @Override
         public String getEventDescription() {
             return NewItemFinishEvent.EVENT_DESCRIPTION;
+        }
+
+        public NewItemFinishEvent<T> setResult(final Serializable result) {
+            this.result = result;
+            return this;
+        }
+
+        public Serializable getResult() {
+            return result;
         }
     }
 

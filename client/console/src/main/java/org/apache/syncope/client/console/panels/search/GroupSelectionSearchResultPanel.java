@@ -38,6 +38,11 @@ public final class GroupSelectionSearchResultPanel extends AnySelectionSearchRes
     }
 
     @Override
+    protected String paginatorRowsKey() {
+        return Constants.PREF_GROUP_PAGINATOR_ROWS;
+    }
+
+    @Override
     protected String[] getDislayAttributes() {
         return GROUP_DEFAULT_SELECTION;
     }

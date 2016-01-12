@@ -49,7 +49,7 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
 
     protected abstract void onCancelInternal(T modelObject);
 
-    protected abstract void onApplyInternal(T modelObject);
+    protected abstract Serializable onApplyInternal(T modelObject);
 
     protected T getOriginalItem() {
         return item;
