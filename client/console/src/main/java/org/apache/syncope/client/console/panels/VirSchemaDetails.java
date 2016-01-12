@@ -25,19 +25,16 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
 
 public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
@@ -52,8 +49,8 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
     public VirSchemaDetails(final String id,
             final PageReference pageReference,
-            final BaseModal<AbstractSchemaTO> modal) {
-        super(id, pageReference, modal);
+            final AbstractSchemaTO schemaTO) {
+        super(id, pageReference, schemaTO);
 
         final AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel("readonly", getString("readonly"),
                 new PropertyModel<Boolean>(schemaTO, "readonly"));
@@ -111,28 +108,6 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
                 target.add(provision);
             }
         });
-    }
-
-    @Override
-    public void getOnSubmit(final AjaxRequestTarget target,
-            final BaseModal<?> modal, final Form<?> form, final PageReference pageReference, final boolean createFlag) {
-
-        try {
-            final VirSchemaTO updatedVirSchemaTO = VirSchemaTO.class.cast(form.getModelObject());
-
-            if (createFlag) {
-                schemaRestClient.createVirSchema(updatedVirSchemaTO);
-            } else {
-                schemaRestClient.updateVirSchema(updatedVirSchemaTO);
-            }
-            
-            info(getString(Constants.OPERATION_SUCCEEDED));
-            modal.close(target);
-        } catch (Exception e) {
-            LOG.error("While creating or updating VirSchema", e);
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getNotificationPanel().refresh(target);
-        }
     }
 
     private class AnyTypeRenderer extends ChoiceRenderer<Long> {

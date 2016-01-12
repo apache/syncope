@@ -22,14 +22,17 @@ import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class AnyTypeClassDetails extends Panel {
+public class AnyTypeClassDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 3321861543207340469L;
 
@@ -43,16 +46,26 @@ public class AnyTypeClassDetails extends Panel {
 
     private final List<String> availableVirSchemas = schemaRestClient.getVirSchemaNames();
 
-    public AnyTypeClassDetails(final String id,
-            final AnyTypeClassTO anyTypeClassTO, final boolean edit) {
+    public AnyTypeClassDetailsPanel(final String id, final AnyTypeClassTO anyTypeClassTO) {
         super(id);
 
         this.anyTypeClassTO = anyTypeClassTO;
         buildAvailableSchemas(anyTypeClassTO.getKey());
 
+        final Form<AnyTypeClassTO> antTypeClassForm = new Form<>("form");
+        antTypeClassForm.setModel(new CompoundPropertyModel<>(anyTypeClassTO));
+        antTypeClassForm.setOutputMarkupId(true);
+        add(antTypeClassForm);
+
+        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(
+                this.anyTypeClassTO, "key"));
+        key.addRequiredLabel();
+        key.setEnabled(anyTypeClassTO.getKey() == null || this.anyTypeClassTO.getKey().isEmpty());
+        antTypeClassForm.add(key);
+
         final TransparentWebMarkupContainer container = new TransparentWebMarkupContainer("container");
         container.setOutputMarkupId(true);
-        add(container);
+        antTypeClassForm.add(container);
 
         final AjaxPalettePanel<String> plainSchema =
                 new AjaxPalettePanel.Builder<String>()
@@ -63,7 +76,6 @@ public class AnyTypeClassDetails extends Panel {
                         new ListModel<>(availablePlainSchemas));
 
         plainSchema.setOutputMarkupId(true);
-        plainSchema.setEnabled(edit);
         container.add(plainSchema);
 
         final AjaxPalettePanel<String> derSchema =
@@ -75,7 +87,6 @@ public class AnyTypeClassDetails extends Panel {
                         new ListModel<>(availableDerSchemas));
 
         derSchema.setOutputMarkupId(true);
-        derSchema.setEnabled(edit);
         container.add(derSchema);
 
         final AjaxPalettePanel<String> virSchema =
@@ -87,7 +98,6 @@ public class AnyTypeClassDetails extends Panel {
                         new ListModel<>(availableVirSchemas));
 
         virSchema.setOutputMarkupId(true);
-        virSchema.setEnabled(edit);
         container.add(virSchema);
     }
 

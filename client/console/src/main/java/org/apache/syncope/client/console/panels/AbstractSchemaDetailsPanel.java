@@ -18,13 +18,9 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.pages.AbstractBasePage;
-import org.apache.syncope.client.console.rest.SchemaRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -39,29 +35,18 @@ public abstract class AbstractSchemaDetailsPanel extends Panel {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSchemaDetailsPanel.class);
 
     protected static final String FORM = "form";
-
-    /**
-     * Schema rest client for create and update operations
-     */
-    protected final SchemaRestClient schemaRestClient = new SchemaRestClient();
     
-    /**
-     * Schema form
-     */
     protected final Form<AbstractSchemaTO> schemaForm;
 
     protected final AbstractSchemaTO schemaTO;
 
-    private final AbstractBasePage page;
-
     public AbstractSchemaDetailsPanel(
             final String id,
             final PageReference pageReference,
-            final BaseModal<AbstractSchemaTO> modal) {
+            final AbstractSchemaTO schemaTO) {
         super(id);
 
-        this.page = (AbstractBasePage) pageReference.getPage();
-        this.schemaTO = modal.getFormModel();
+        this.schemaTO = schemaTO;
 
         schemaForm = new Form<>(FORM);
         schemaForm.setModel(new CompoundPropertyModel<>(schemaTO));
@@ -70,12 +55,9 @@ public abstract class AbstractSchemaDetailsPanel extends Panel {
         final AjaxTextFieldPanel name =
                 new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(schemaTO, "key"));
         name.addRequiredLabel();
-        name.setEnabled(schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
+        name.setEnabled(schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
 
         schemaForm.add(name);
         add(schemaForm);
     }
-
-    public abstract void getOnSubmit(final AjaxRequestTarget target, final BaseModal<?> modal, final Form<?> form,
-            final PageReference pageReference, final boolean createFlag);
 }

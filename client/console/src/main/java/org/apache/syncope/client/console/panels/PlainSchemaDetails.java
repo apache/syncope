@@ -24,15 +24,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
+import org.apache.syncope.client.console.commons.PropertyList;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -44,12 +44,10 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.string.Strings;
 
 public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
@@ -65,14 +63,14 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
     public PlainSchemaDetails(
             final String id,
             final PageReference pageReference,
-            final BaseModal<AbstractSchemaTO> modal) {
-        super(id, pageReference, modal);
+            final AbstractSchemaTO schemaTO) {
+        super(id, pageReference, schemaTO);
 
         final AjaxDropDownChoicePanel<AttrSchemaType> type = new AjaxDropDownChoicePanel<>(
                 "type", getString("type"), new PropertyModel<AttrSchemaType>(schemaTO, "type"));
 
         type.setChoices(Arrays.asList(AttrSchemaType.values()));
-        type.setEnabled(schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
+        type.setEnabled(schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
         type.addRequiredLabel();
 
         schemaForm.add(type);
@@ -97,14 +95,80 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         final AjaxTextFieldPanel enumerationValuesPanel = new AjaxTextFieldPanel("panel", "enumerationValues",
                 new Model<String>(null));
 
-        enumerationValues = new MultiFieldPanel.Builder<>(
-                new ListModel<String>(getEnumValuesAsList(((PlainSchemaTO) schemaTO).getEnumerationValues()))).build(
+        enumerationValues = new MultiFieldPanel.Builder<String>(
+                new PropertyModel<List<String>>(schemaTO, "enumerationValues") {
+
+            private static final long serialVersionUID = -4953564762272833993L;
+
+            @Override
+            public PropertyList<PlainSchemaTO> getObject() {
+                return new PropertyList<PlainSchemaTO>(PlainSchemaTO.class.cast(schemaTO)) {
+
+                    @Override
+                    public String getValues() {
+                        return PlainSchemaTO.class.cast(schemaTO).getEnumerationValues();
+                    }
+
+                    @Override
+                    public void setValues(final List<String> list) {
+                        PlainSchemaTO.class.cast(schemaTO).setEnumerationValues(getEnumValuesAsString(list));
+                    }
+                };
+            }
+
+            @Override
+            public void setObject(final List<String> object) {
+                PlainSchemaTO.class.cast(schemaTO).setEnumerationValues(PropertyList.getEnumValuesAsString(object));
+            }
+        }) {
+
+            private static final long serialVersionUID = -8752965211744734798L;
+
+            @Override
+            protected String newModelObject() {
+                return StringUtils.EMPTY;
+            }
+
+        }.build(
                 "enumerationValues",
                 "enumerationValues",
                 enumerationValuesPanel);
 
-        enumerationKeys = new MultiFieldPanel.Builder<>(
-                new ListModel<String>(getEnumValuesAsList(((PlainSchemaTO) schemaTO).getEnumerationKeys()))).build(
+        enumerationKeys = new MultiFieldPanel.Builder<String>(
+                new PropertyModel<List<String>>(schemaTO, "enumerationKeys") {
+
+            private static final long serialVersionUID = -4953564762272833993L;
+
+            @Override
+            public PropertyList<PlainSchemaTO> getObject() {
+                return new PropertyList<PlainSchemaTO>(PlainSchemaTO.class.cast(schemaTO)) {
+
+                    @Override
+                    public String getValues() {
+                        return PlainSchemaTO.class.cast(schemaTO).getEnumerationKeys();
+                    }
+
+                    @Override
+                    public void setValues(final List<String> list) {
+                        PlainSchemaTO.class.cast(schemaTO).setEnumerationKeys(PropertyList.getEnumValuesAsString(list));
+                    }
+                };
+            }
+
+            @Override
+            public void setObject(final List<String> object) {
+                PlainSchemaTO.class.cast(schemaTO).setEnumerationKeys(PropertyList.getEnumValuesAsString(object));
+            }
+        }) {
+
+            private static final long serialVersionUID = -8752965211744734798L;
+
+            @Override
+            protected String newModelObject() {
+                return StringUtils.EMPTY;
+            }
+
+        }.build(
                 "enumerationKeys",
                 "enumerationKeys",
                 new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<String>()));
@@ -172,7 +236,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             @Override
             protected List<String> load() {
-                return schemaRestClient.getAllValidatorClasses();
+                return new ArrayList<>(SyncopeConsoleSession.get().getSyncopeTO().getValidators());
             }
         };
 
@@ -182,8 +246,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         validatorClass.setChoices(validatorsList.getObject());
         schemaForm.add(validatorClass);
 
-        final AutoCompleteTextField<String> mandatoryCondition
-                = new AutoCompleteTextField<String>("mandatoryCondition") {
+        final AutoCompleteTextField<String> mandatoryCondition =
+                new AutoCompleteTextField<String>("mandatoryCondition") {
 
             private static final long serialVersionUID = -2428903969518079100L;
 
@@ -251,8 +315,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             if (enumerationValuesPanel.isRequired()) {
                 enumerationValuesPanel.removeRequiredLabel();
             }
-            enumerationValues.setModelObject(getEnumValuesAsList(null));
-            enumerationKeys.setModelObject(getEnumValuesAsList(null));
+            enumerationValues.setModelObject(PropertyList.getEnumValuesAsList(null));
+            enumerationKeys.setModelObject(PropertyList.getEnumValuesAsList(null));
 
             encryptedParams.setVisible(false);
             if (secretKey.isRequired()) {
@@ -275,8 +339,10 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             if (!enumerationValuesPanel.isRequired()) {
                 enumerationValuesPanel.addRequiredLabel();
             }
-            enumerationValues.setModelObject(getEnumValuesAsList(((PlainSchemaTO) schema).getEnumerationValues()));
-            enumerationKeys.setModelObject(getEnumValuesAsList(((PlainSchemaTO) schema).getEnumerationKeys()));
+            enumerationValues.setModelObject(PropertyList.getEnumValuesAsList(((PlainSchemaTO) schema).
+                    getEnumerationValues()));
+            enumerationKeys.setModelObject(PropertyList.getEnumValuesAsList(((PlainSchemaTO) schema).
+                    getEnumerationKeys()));
 
             encryptedParams.setVisible(false);
             if (secretKey.isRequired()) {
@@ -299,8 +365,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             if (enumerationValuesPanel.isRequired()) {
                 enumerationValuesPanel.removeRequiredLabel();
             }
-            enumerationValues.setModelObject(getEnumValuesAsList(null));
-            enumerationKeys.setModelObject(getEnumValuesAsList(null));
+            enumerationValues.setModelObject(PropertyList.getEnumValuesAsList(null));
+            enumerationKeys.setModelObject(PropertyList.getEnumValuesAsList(null));
 
             encryptedParams.setVisible(true);
             if (!secretKey.isRequired()) {
@@ -321,8 +387,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             if (enumerationValuesPanel.isRequired()) {
                 enumerationValuesPanel.removeRequiredLabel();
             }
-            enumerationValues.setModelObject(getEnumValuesAsList(null));
-            enumerationKeys.setModelObject(getEnumValuesAsList(null));
+            enumerationValues.setModelObject(PropertyList.getEnumValuesAsList(null));
+            enumerationKeys.setModelObject(PropertyList.getEnumValuesAsList(null));
 
             encryptedParams.setVisible(false);
             if (secretKey.isRequired()) {
@@ -345,8 +411,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             if (enumerationValuesPanel.isRequired()) {
                 enumerationValuesPanel.removeRequiredLabel();
             }
-            enumerationValues.setModelObject(getEnumValuesAsList(null));
-            enumerationKeys.setModelObject(getEnumValuesAsList(null));
+            enumerationValues.setModelObject(PropertyList.getEnumValuesAsList(null));
+            enumerationKeys.setModelObject(PropertyList.getEnumValuesAsList(null));
 
             encryptedParams.setVisible(false);
             if (secretKey.isRequired()) {
@@ -361,62 +427,6 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             binaryParams.setVisible(false);
             mimeType.setModelObject(null);
             mimeType.setChoices(null);
-        }
-    }
-
-    private String getEnumValuesAsString(final List<String> enumerationValues) {
-        final StringBuilder builder = new StringBuilder();
-
-        for (String str : enumerationValues) {
-            if (StringUtils.isNotBlank(str)) {
-                if (builder.length() > 0) {
-                    builder.append(SyncopeConstants.ENUM_VALUES_SEPARATOR);
-                }
-
-                builder.append(str.trim());
-            }
-        }
-
-        return builder.toString();
-    }
-
-    private List<String> getEnumValuesAsList(final String enumerationValues) {
-        final List<String> values = new ArrayList<>();
-
-        if (StringUtils.isNotBlank(enumerationValues)) {
-            for (String value : enumerationValues.split(SyncopeConstants.ENUM_VALUES_SEPARATOR)) {
-                values.add(value.trim());
-            }
-        } else {
-            values.add(StringUtils.EMPTY);
-        }
-
-        return values;
-    }
-
-    @Override
-    public void getOnSubmit(final AjaxRequestTarget target, final BaseModal<?> modal,
-            final Form<?> form, final PageReference pageReference, final boolean createFlag) {
-
-        try {
-            final PlainSchemaTO updatedPlainSchemaTO = PlainSchemaTO.class.cast(form.getModelObject());
-
-            updatedPlainSchemaTO.setEnumerationValues(
-                    getEnumValuesAsString(enumerationValues.getView().getModelObject()));
-            updatedPlainSchemaTO.setEnumerationKeys(getEnumValuesAsString(enumerationKeys.getView().getModelObject()));
-
-            if (createFlag) {
-                schemaRestClient.createPlainSchema(updatedPlainSchemaTO);
-            } else {
-                schemaRestClient.updatePlainSchema(updatedPlainSchemaTO);
-            }
-
-            info(getString(Constants.OPERATION_SUCCEEDED));
-            modal.close(target);
-        } catch (Exception e) {
-            LOG.error("While creating or updating plain schema", e);
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getNotificationPanel().refresh(target);
         }
     }
 }

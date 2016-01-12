@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.topology.Topology;
@@ -52,7 +53,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
     public BasePage(final PageParameters parameters) {
         super(parameters);
 
-        notificationPanel = new NotificationPanel("feedback");
+        notificationPanel = new NotificationPanel(Constants.FEEDBACK);
         notificationPanel.setOutputMarkupId(true);
         addOrReplace(notificationPanel);
 

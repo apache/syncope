@@ -37,6 +37,7 @@ public class NotificationPanel extends FeedbackPanel {
     public NotificationPanel(final String id) {
         super(id);
 
+        //element.kendoNotification.widget.fn.options.autoHideAfter
         final Options options = new Options();
         options.set("position", "{ pinned: true }");
         options.set("templates",

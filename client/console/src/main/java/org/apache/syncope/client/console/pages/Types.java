@@ -25,9 +25,6 @@ import org.apache.syncope.client.console.panels.AnyTypeClassesPanel;
 import org.apache.syncope.client.console.panels.AnyTypePanel;
 import org.apache.syncope.client.console.panels.RelationshipTypePanel;
 import org.apache.syncope.client.console.panels.SchemasPanel;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -35,16 +32,10 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
 public class Types extends BasePage {
 
     private static final long serialVersionUID = 8091922398776299403L;
-
-    private final BaseModal<AbstractSchemaTO> schemaModal;
-
-    private final BaseModal<AnyTypeClassTO> anyTypeClassModal;
 
     private final AjaxBootstrapTabbedPanel<ITab> tabbedPanel;
 
@@ -59,20 +50,12 @@ public class Types extends BasePage {
     public Types(final PageParameters parameters) {
         super(parameters);
 
-        this.schemaModal = new BaseModal<>("schemaModal");
-        this.anyTypeClassModal = new BaseModal<>("anyTypeClassModal");
-
         final WebMarkupContainer content = new WebMarkupContainer("content");
         content.add(new Label("header", "Types"));
         content.setOutputMarkupId(true);
         tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
         content.add(tabbedPanel);
-
         add(content);
-        addWindowWindowClosedCallback(schemaModal);
-        addWindowWindowClosedCallback(anyTypeClassModal);
-        add(schemaModal);
-        add(anyTypeClassModal);
     }
 
     private List<ITab> buildTabList() {
@@ -105,7 +88,7 @@ public class Types extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new AnyTypeClassesPanel(panelId, getPageReference(), anyTypeClassModal);
+                return new AnyTypeClassesPanel(panelId, getPageReference());
             }
         });
 
@@ -115,25 +98,10 @@ public class Types extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new SchemasPanel(panelId, getPageReference(), schemaModal);
+                return new SchemasPanel(panelId, getPageReference());
             }
         });
 
         return tabs;
-    }
-
-    private void addWindowWindowClosedCallback(final BaseModal<?> modal) {
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                tabbedPanel.setSelectedTab(tabbedPanel.getSelectedTab());
-                target.add(tabbedPanel);
-                modal.show(false);
-                notificationPanel.refresh(target);
-            }
-        });
     }
 }

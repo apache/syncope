@@ -18,17 +18,12 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
-import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
 
 public class DerSchemaDetails extends AbstractSchemaDetailsPanel {
@@ -37,8 +32,8 @@ public class DerSchemaDetails extends AbstractSchemaDetailsPanel {
 
     public DerSchemaDetails(final String id,
             final PageReference pageReference,
-            final BaseModal<AbstractSchemaTO> modal) {
-        super(id, pageReference, modal);
+            final AbstractSchemaTO schemaTO) {
+        super(id, pageReference, schemaTO);
 
         final AjaxTextFieldPanel expression = new AjaxTextFieldPanel("expression", getString("expression"),
                 new PropertyModel<String>(schemaTO, "expression"));
@@ -50,26 +45,5 @@ public class DerSchemaDetails extends AbstractSchemaDetailsPanel {
         final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
         schemaForm.add(questionMarkJexlHelp);
         questionMarkJexlHelp.add(jexlHelp);
-    }
-
-    @Override
-    public void getOnSubmit(final AjaxRequestTarget target,
-            final BaseModal<?> modal, final Form<?> form, final PageReference pageReference, final boolean createFlag) {
-
-        try {
-            final DerSchemaTO updatedDerSchemaTO = DerSchemaTO.class.cast(form.getModelObject());
-            if (createFlag) {
-                schemaRestClient.createDerSchema(updatedDerSchemaTO);
-            } else {
-                schemaRestClient.updateDerSchema(updatedDerSchemaTO);
-            }
-
-            info(getString(Constants.OPERATION_SUCCEEDED));
-            modal.close(target);
-        } catch (Exception e) {
-            LOG.error("While creating or updating derived schema", e);
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getNotificationPanel().refresh(target);
-        }
     }
 }

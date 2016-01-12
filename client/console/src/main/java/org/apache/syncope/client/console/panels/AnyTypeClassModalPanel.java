@@ -18,17 +18,9 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.PropertyModel;
 
 public class AnyTypeClassModalPanel extends AbstractModalPanel<AnyTypeClassTO> {
 
@@ -36,49 +28,13 @@ public class AnyTypeClassModalPanel extends AbstractModalPanel<AnyTypeClassTO> {
 
     private final AnyTypeClassTO anyTypeClassTO;
 
-    private final boolean createFlag;
-
     public AnyTypeClassModalPanel(
             final BaseModal<AnyTypeClassTO> modal,
-            final PageReference pageRef,
-            final boolean createFlag) {
+            final AnyTypeClassTO anyTypeClassTO,
+            final PageReference pageRef) {
         super(modal, pageRef);
 
-        this.anyTypeClassTO = modal.getFormModel();
-        this.createFlag = createFlag;
-
-        final Form<AnyTypeClassTO> antTypeClassForm = new Form<>("form");
-        antTypeClassForm.setModel(new CompoundPropertyModel<>(anyTypeClassTO));
-        antTypeClassForm.setOutputMarkupId(true);
-
-        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(
-                anyTypeClassTO, "key"));
-        key.addRequiredLabel();
-        key.setEnabled(anyTypeClassTO.getKey() == null || anyTypeClassTO.getKey().isEmpty());
-        antTypeClassForm.add(key);
-
-        antTypeClassForm.add(new AnyTypeClassDetails("details", anyTypeClassTO, true));
-        add(antTypeClassForm);
-    }
-
-    @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-
-        try {
-            final AnyTypeClassTO updatedAnyTypeClassTO = AnyTypeClassTO.class.cast(form.getModelObject());
-
-            if (createFlag) {
-                SyncopeConsoleSession.get().getService(AnyTypeClassService.class).create(updatedAnyTypeClassTO);
-            } else {
-                SyncopeConsoleSession.get().getService(AnyTypeClassService.class).update(updatedAnyTypeClassTO);
-            }
-
-            info(getString(Constants.OPERATION_SUCCEEDED));
-            modal.close(target);
-        } catch (Exception e) {
-            LOG.error("While creating or updating AnyTypeClass", e);
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getNotificationPanel().refresh(target);
-        }
+        this.anyTypeClassTO = anyTypeClassTO;
+        add(new AnyTypeClassDetailsPanel("anyTypeClassDetailsPanel", this.anyTypeClassTO));
     }
 }

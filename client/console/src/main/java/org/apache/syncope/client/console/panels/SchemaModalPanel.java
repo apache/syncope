@@ -19,36 +19,30 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.Arrays;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
 public class SchemaModalPanel extends AbstractModalPanel<AbstractSchemaTO> {
 
     private static final long serialVersionUID = -4681998932778822125L;
 
-    private AbstractSchemaDetailsPanel schemaPanel;
+    private final AbstractSchemaDetailsPanel schemaPanel;
 
-    private final boolean createFlag;
+    private final AbstractSchemaTO schemaTO;
 
     public SchemaModalPanel(
             final BaseModal<AbstractSchemaTO> modal,
-            final PageReference pageRef, final boolean createFlag) {
+            final AbstractSchemaTO schemaTO,
+            final PageReference pageRef) {
         super(modal, pageRef);
 
-        this.createFlag = createFlag;
-        final BaseModal<AbstractSchemaTO> schemaModal = modal;
+        this.schemaTO = schemaTO;
 
-        final Panel panel = this;
         final Form<SchemaType> kindForm = new Form<>("kindForm");
         add(kindForm);
 
@@ -57,29 +51,11 @@ public class SchemaModalPanel extends AbstractModalPanel<AbstractSchemaTO> {
         kind.setChoices(Arrays.asList(SchemaType.values()));
         kind.setOutputMarkupId(true);
 
-        SchemaType schemaType = SchemaType.PLAIN;
-        if (!createFlag) {
-            schemaType = SchemaType.fromToClass(schemaModal.getFormModel().getClass());
-            kind.setModelObject(schemaType);
-            kind.setEnabled(false);
-        }
-
-        ((DropDownChoice) kind.getField()).setNullValid(false);
+        kind.setModelObject(SchemaType.fromToClass(schemaTO.getClass()));
+        kind.setEnabled(false);
         kindForm.add(kind);
 
-        kind.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                schemaPanel = getSchemaPanel("details", kind.getModelObject(), modal);
-                panel.addOrReplace(schemaPanel);
-                target.add(panel);
-            }
-        });
-
-        schemaPanel = getSchemaPanel("details", schemaType, modal);
+        schemaPanel = getSchemaPanel("details", SchemaType.fromToClass(schemaTO.getClass()), modal);
         schemaPanel.setOutputMarkupId(true);
         addOrReplace(schemaPanel);
     }
@@ -88,7 +64,7 @@ public class SchemaModalPanel extends AbstractModalPanel<AbstractSchemaTO> {
             final SchemaType schemaType, final BaseModal<AbstractSchemaTO> modal) {
         final AbstractSchemaDetailsPanel panel;
 
-        if (createFlag) {
+        if (schemaTO.getKey() != null) {
             try {
                 final Class<? extends AbstractSchemaTO> schemaTOClass = schemaType.getToClass();
                 modal.setFormModel((AbstractSchemaTO) schemaTOClass.newInstance());
@@ -99,21 +75,16 @@ public class SchemaModalPanel extends AbstractModalPanel<AbstractSchemaTO> {
 
         switch (schemaType) {
             case DERIVED:
-                panel = new DerSchemaDetails(id, pageRef, modal);
+                panel = new DerSchemaDetails(id, pageRef, schemaTO);
                 break;
             case VIRTUAL:
-                panel = new VirSchemaDetails(id, pageRef, modal);
+                panel = new VirSchemaDetails(id, pageRef, schemaTO);
                 break;
             case PLAIN:
             default:
-                panel = new PlainSchemaDetails(id, pageRef, modal);
+                panel = new PlainSchemaDetails(id, pageRef, schemaTO);
         }
         panel.setOutputMarkupId(true);
         return panel;
-    }
-
-    @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        schemaPanel.getOnSubmit(target, modal, form, pageRef, createFlag);
     }
 }

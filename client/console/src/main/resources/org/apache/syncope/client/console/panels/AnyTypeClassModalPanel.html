@@ -17,16 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
-    <div class="form-group">
-      <form wicket:id="form">
-        <div class="form-group">
-          <span wicket:id="key">[key]</span>
-        </div>
-        <div class="form-group">
-          <span wicket:id="details">[details]</span>
-        </div>
-      </form>
-    </div>
-  </wicket:panel>
+  <wicket:extend>
+    <div wicket:id="anyTypeClassDetailsPanel">[anyTypeDetailsPanel]</div>
+  </wicket:extend>
 </html>
