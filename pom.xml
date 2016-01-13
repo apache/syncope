@@ -331,7 +331,10 @@ under the License.
 
     <camel.version>2.16.1</camel.version>	
 
-    <jackson.version>2.7.0</jackson.version>
+    <!-- Cannot upgrade to 2.7.0 because current swagger-jaxrs relies on
+         com.fasterxml.jackson.databind.type.TypeFactory.constructType(Type, Class<?>)
+         which was removed in 2.7.0 -->
+    <jackson.version>2.6.4</jackson.version>
 
     <spring.version>4.2.4.RELEASE</spring.version>
     <spring-security.version>4.0.3.RELEASE</spring-security.version>
@@ -372,7 +375,7 @@ under the License.
     <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
 
     <swagger-core.version>1.5.6</swagger-core.version>    
-    <swagger-ui.version>2.1.3</swagger-ui.version>    
+    <swagger-ui.version>2.1.4</swagger-ui.version>    
     <jquery.version>2.2.0</jquery.version>
     <jquery-ui.version>1.11.4</jquery-ui.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
