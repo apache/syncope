@@ -78,7 +78,8 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
             if (!patch.isEmpty()) {
                 actual = groupRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             } else {
-                actual = null;
+                actual = new ProvisioningResult<>();
+                actual.setAny(toBeProcessed);
             }
         }
 

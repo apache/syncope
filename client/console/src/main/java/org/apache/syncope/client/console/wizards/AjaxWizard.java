@@ -105,14 +105,9 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
             final Serializable res = onApplyInternal();
             send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(res));
         } catch (Exception e) {
-            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1 " + e);
-            e.printStackTrace();
             LOG.warn("Wizard error on finish", e);
             error(getString("wizard.apply.error"));
             feedbackPanel.refresh(target);
-        } catch (Throwable t) {
-            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA2 " + t);
-            t.printStackTrace();
         }
     }
 

@@ -163,8 +163,7 @@ public abstract class AnySearchResultPanel<T extends AnyTO>
 
     @Override
     @SuppressWarnings("unchecked")
-    protected Panel customResultBody(
-            final String panelId, final AnyHandler<T> item, final Serializable result) {
+    protected Panel customResultBody(final String panelId, final AnyHandler<T> item, final Serializable result) {
         if (!(result instanceof ProvisioningResult)) {
             throw new IllegalStateException("Unsupported result type");
         }

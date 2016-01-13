@@ -74,7 +74,8 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
             if (!patch.isEmpty()) {
                 actual = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             } else {
-                actual = null;
+                actual = new ProvisioningResult<>();
+                actual.setAny(inner);
             }
         }
 

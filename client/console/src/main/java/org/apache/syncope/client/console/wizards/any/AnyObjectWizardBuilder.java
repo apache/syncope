@@ -47,21 +47,21 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
 
     @Override
     protected Serializable onApplyInternal(final AnyHandler<AnyObjectTO> modelObject) {
-        final AnyObjectTO obj = modelObject.getInnerObject();
+        final AnyObjectTO inner = modelObject.getInnerObject();
 
         final ProvisioningResult<AnyObjectTO> actual;
 
-        if (obj.getKey() == 0) {
-            actual = anyTypeRestClient.create(AnyObjectTO.class.cast(obj));
+        if (inner.getKey() == 0) {
+            actual = anyTypeRestClient.create(AnyObjectTO.class.cast(inner));
         } else {
-            final AnyObjectPatch patch = AnyOperations.diff(obj, getOriginalItem().getInnerObject(), false);
+            final AnyObjectPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
             // update user just if it is changed
             if (!patch.isEmpty()) {
                 actual = anyTypeRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             } else {
                 actual = new ProvisioningResult<>();
-                actual.setAny(obj);
+                actual.setAny(inner);
             }
         }
 
