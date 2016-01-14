@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractResourceModal.CreateEvent;
 import org.apache.syncope.client.console.panels.NotificationPanel;
@@ -44,6 +45,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.behavior.Behavior;
@@ -78,6 +80,8 @@ public class Topology extends BasePage {
     private final WebMarkupContainer newlyCreatedContainer;
 
     private final ListView<TopologyNode> newlyCreated;
+
+    private final TopologyTogglePanel togglePanel;
 
     private final LoadableDetachableModel<List<ResourceTO>> resModel = new LoadableDetachableModel<List<ResourceTO>>() {
 
@@ -167,6 +171,9 @@ public class Topology extends BasePage {
         });
 
         add(new WebSocketBehavior());
+
+        togglePanel = new TopologyTogglePanel("toggle", getPage().getPageReference());
+        add(togglePanel);
 
         // -----------------------------------------
         // Add Zoom panel
@@ -527,11 +534,13 @@ public class Topology extends BasePage {
 
     private TopologyNodePanel topologyNodePanel(final String id, final TopologyNode node) {
 
-        final TopologyNodePanel panel = new TopologyNodePanel(id, node, modal, getPageReference());
+        final TopologyNodePanel panel = new TopologyNodePanel(id, node);
         panel.setMarkupId(String.valueOf(node.getKey()));
         panel.setOutputMarkupId(true);
 
-        panel.add(new Behavior() {
+        final List<Behavior> behaviors = new ArrayList<>();
+
+        behaviors.add(new Behavior() {
 
             private static final long serialVersionUID = 1L;
 
@@ -541,6 +550,29 @@ public class Topology extends BasePage {
                         node.getKey(), node.getX(), node.getY())));
             }
         });
+
+        if (node.getKind() == TopologyNode.Kind.CONNECTOR_SERVER
+                || node.getKind() == TopologyNode.Kind.FS_PATH
+                || node.getKind() == TopologyNode.Kind.CONNECTOR
+                || node.getKind() == TopologyNode.Kind.RESOURCE) {
+
+            behaviors.add(new AjaxEventBehavior(Constants.ON_CLICK) {
+
+                private static final long serialVersionUID = -9027652037484739586L;
+
+                @Override
+                protected String findIndicatorId() {
+                    return StringUtils.EMPTY;
+                }
+
+                @Override
+                protected void onEvent(final AjaxRequestTarget target) {
+                    togglePanel.toggleWithContent(target, node);
+                }
+            });
+        }
+
+        panel.add(behaviors.toArray(new Behavior[] {}));
 
         return panel;
     }

@@ -18,58 +18,23 @@
  */
 package org.apache.syncope.client.console.topology;
 
-import java.io.Serializable;
-import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.ConnectorModal;
-import org.apache.syncope.client.console.panels.ResourceModal;
-import org.apache.syncope.client.console.rest.ConnectorRestClient;
-import org.apache.syncope.client.console.rest.ResourceRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = -8775095410207013913L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(TopologyNodePanel.class);
-
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
-
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
-
-    private final BaseModal<Serializable> modal;
-
     public TopologyNodePanel(
             final String id,
-            final TopologyNode node,
-            final BaseModal<Serializable> modal,
-            final PageReference pageRef) {
+            final TopologyNode node) {
 
         super(id);
 
@@ -84,28 +49,23 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
         switch (node.getKind()) {
             case SYNCOPE:
                 title = "";
-                add(getSyncopeFragment());
                 add(new AttributeAppender("class", "topology_root", " "));
                 break;
             case CONNECTOR_SERVER:
                 title = node.getDisplayName();
-                add(getLocationFragment(node, pageRef));
                 add(new AttributeAppender("class", "topology_cs", " "));
                 break;
             case FS_PATH:
                 title = node.getDisplayName();
-                add(getLocationFragment(node, pageRef));
                 add(new AttributeAppender("class", "topology_cs", " "));
                 break;
             case CONNECTOR:
                 title = (StringUtils.isBlank(node.getConnectionDisplayName())
                         ? "" : node.getConnectionDisplayName() + ":") + node.getDisplayName();
-                add(getConnectorFragment(node, pageRef));
                 add(new AttributeAppender("class", "topology_conn", " "));
                 break;
             default:
                 title = node.getDisplayName().length() > 20 ? node.getDisplayName() : "";
-                add(getResurceFragment(node, pageRef));
                 add(new AttributeAppender("class", "topology_res", " "));
         }
 
@@ -114,9 +74,6 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
         }
 
         this.setMarkupId(node.getDisplayName());
-
-        this.modal = modal;
-        BasePage.class.cast(pageRef.getPage()).setWindowClosedCallback(modal, null);
     }
 
     @Override
@@ -132,177 +89,6 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
     @Override
     public final Component setMarkupId(final String markupId) {
         return super.setMarkupId(markupId);
-    }
-
-    private Fragment getSyncopeFragment() {
-        return new Fragment("actions", "syncopeActions", this);
-    }
-
-    private Fragment getLocationFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "locationActions", this);
-
-        final AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
-
-            private static final long serialVersionUID = 3776750333491622263L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                final ConnInstanceTO modelObject = new ConnInstanceTO();
-                modelObject.setLocation(node.getKey().toString());
-
-                final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(modelObject);
-                modal.setFormModel(model);
-
-                target.add(modal.setContent(new ConnectorModal(modal, pageRef, model)));
-
-                modal.header(new Model<>(MessageFormat.format(getString("connector.new"), node.getKey())));
-
-                MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.addSumbitButton(), ENABLE, StandardEntitlement.CONNECTOR_CREATE);
-
-                modal.show(true);
-            }
-        };
-        fragment.add(create);
-
-        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.CONNECTOR_CREATE);
-
-        return fragment;
-    }
-
-    private Fragment getConnectorFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "connectorActions", this);
-
-        final AjaxLink<String> delete = new IndicatingAjaxLink<String>("delete") {
-
-            private static final long serialVersionUID = 3776750333491622263L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                try {
-                    connectorRestClient.delete(Long.class.cast(node.getKey()));
-                    target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                } catch (SyncopeClientException e) {
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    LOG.error("While deleting resource {}", node.getKey(), e);
-                }
-                ((BasePage) getPage()).getNotificationPanel().refresh(target);
-            }
-        };
-
-        fragment.add(delete);
-        delete.add(new ConfirmationModalBehavior());
-
-        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.CONNECTOR_DELETE);
-
-        final AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
-
-            private static final long serialVersionUID = 3776750333491622263L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                final ResourceTO modelObject = new ResourceTO();
-                modelObject.setConnector(Long.class.cast(node.getKey()));
-                modelObject.setConnectorDisplayName(node.getDisplayName());
-
-                final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
-                modal.setFormModel(model);
-
-                target.add(modal.setContent(new ResourceModal<>(modal, pageRef, model, true)));
-
-                modal.header(new Model<>(MessageFormat.format(getString("resource.new"), node.getKey())));
-
-                MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.addSumbitButton(), ENABLE, StandardEntitlement.RESOURCE_CREATE);
-
-                modal.show(true);
-            }
-        };
-        fragment.add(create);
-
-        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.RESOURCE_CREATE);
-
-        final AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
-
-            private static final long serialVersionUID = 3776750333491622263L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                final ConnInstanceTO modelObject = connectorRestClient.read(Long.class.cast(node.getKey()));
-
-                final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(modelObject);
-                modal.setFormModel(model);
-
-                target.add(modal.setContent(new ConnectorModal(modal, pageRef, model)));
-
-                modal.header(new Model<>(MessageFormat.format(getString("connector.edit"), node.getKey())));
-
-                MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.addSumbitButton(), ENABLE, StandardEntitlement.CONNECTOR_UPDATE);
-
-                modal.show(true);
-            }
-        };
-        fragment.add(edit);
-
-        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.CONNECTOR_UPDATE);
-
-        return fragment;
-    }
-
-    private Fragment getResurceFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "resourceActions", this);
-
-        final AjaxLink<String> delete = new IndicatingAjaxLink<String>("delete") {
-
-            private static final long serialVersionUID = 3776750333491622263L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                try {
-                    resourceRestClient.delete(node.getKey().toString());
-                    target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                } catch (SyncopeClientException e) {
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    LOG.error("While deleting resource {}", node.getKey(), e);
-                }
-                ((BasePage) getPage()).getNotificationPanel().refresh(target);
-            }
-        };
-        fragment.add(delete);
-
-        delete.add(new ConfirmationModalBehavior());
-
-        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.RESOURCE_DELETE);
-
-        final AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
-
-            private static final long serialVersionUID = 3776750333491622263L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                final ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
-
-                final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
-                modal.setFormModel(model);
-
-                target.add(modal.setContent(new ResourceModal<>(modal, pageRef, model, false)));
-
-                modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
-
-                MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.addSumbitButton(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
-
-                modal.show(true);
-            }
-        };
-        fragment.add(edit);
-
-        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
-
-        return fragment;
     }
 
     @Override
