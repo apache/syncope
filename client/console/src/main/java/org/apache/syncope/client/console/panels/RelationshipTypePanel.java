@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.panels.AbstractModalPanel.LOG;
-
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -76,7 +74,7 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
             protected WizardMgtPanel<RelationshipTypeTO> newInstance(final String id) {
                 return new RelationshipTypePanel(id, this);
             }
-        });
+        }.disableCheckBoxes());
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<RelationshipTypeTO>(
                 BaseModal.CONTENT_ID, new RelationshipTypeTO(), pageRef) {
@@ -188,8 +186,7 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
 
                 final RelationshipTypeTO relationshipTypeTO = model.getObject();
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks
-                        = ActionLinksPanel.builder(page.getPageReference());
+                ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.getPageReference());
                 actionLinks.setDisableIndicator(true);
                 actionLinks.addWithRoles(new ActionLink<Serializable>() {
 
@@ -198,7 +195,7 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         send(RelationshipTypePanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<RelationshipTypeTO>(model.getObject(), target));
+                                new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                     }
                 }, ActionLink.ActionType.EDIT, StandardEntitlement.RELATIONSHIPTYPE_UPDATE).addWithRoles(
                         new ActionLink<Serializable>() {

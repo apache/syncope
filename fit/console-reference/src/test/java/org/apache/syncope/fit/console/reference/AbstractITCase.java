@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.fit.console.reference;
 
-import static org.apache.syncope.client.console.init.ConsoleInitializer.CLASSPATH_LOOKUP;
-import static org.apache.syncope.client.console.init.ConsoleInitializer.MIMETYPES_LOADER;
-
 import javax.servlet.ServletContext;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.wicket.util.tester.FormTester;
@@ -54,12 +52,12 @@ public abstract class AbstractITCase {
                 final ServletContext ctx = getServletContext();
                 final ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
                 lookup.load();
-                ctx.setAttribute(CLASSPATH_LOOKUP, lookup);
+                ctx.setAttribute(ConsoleInitializer.CLASSPATH_LOOKUP, lookup);
 
                 final MIMETypesLoader mimeTypes = new MIMETypesLoader();
                 mimeTypes.load();
-                ctx.setAttribute(MIMETYPES_LOADER, mimeTypes);
-                
+                ctx.setAttribute(ConsoleInitializer.MIMETYPES_LOADER, mimeTypes);
+
                 super.init();
             }
         };

@@ -35,15 +35,13 @@ public class Logs extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271271L;
 
-    private final AjaxBootstrapTabbedPanel<ITab> tabbedPanel;
-
     public Logs(final PageParameters parameters) {
         super(parameters);
 
         final WebMarkupContainer content = new WebMarkupContainer("content");
         content.add(new Label("header", getString("header_title")));
         content.setOutputMarkupId(true);
-        tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
+        AjaxBootstrapTabbedPanel<ITab> tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
         content.add(tabbedPanel);
 
         add(content);
@@ -51,7 +49,7 @@ public class Logs extends BasePage {
 
     private List<ITab> buildTabList() {
 
-        final List<ITab> tabs = new ArrayList<>();
+        final List<ITab> tabs = new ArrayList<>(2);
 
         tabs.add(new AbstractTab(new Model<>("Core")) {
 

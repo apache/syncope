@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.fit.console.reference;
 
-import static org.apache.syncope.fit.console.reference.AbstractITCase.ADMIN;
-import static org.apache.syncope.fit.console.reference.AbstractITCase.PASSWORD;
-
-import org.apache.syncope.client.console.pages.CamelRoutes;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Layouts;
 import org.apache.syncope.client.console.pages.Login;
@@ -94,8 +90,5 @@ public class BaseITCase extends AbstractITCase {
 
         wicketTester.clickLink("configurationLI:configurationUL:notificationsLI:notifications");
         wicketTester.assertRenderedPage(Notifications.class);
-
-        wicketTester.clickLink("camelroutesLI:camelroutes");
-        wicketTester.assertRenderedPage(CamelRoutes.class);
     }
 }

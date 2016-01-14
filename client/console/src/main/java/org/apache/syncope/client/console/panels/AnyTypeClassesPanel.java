@@ -74,7 +74,7 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
             protected WizardMgtPanel<AnyTypeClassTO> newInstance(final String id) {
                 return new AnyTypeClassesPanel(id, this);
             }
-        });
+        }.disableCheckBoxes());
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeClassTO>(
                 BaseModal.CONTENT_ID, new AnyTypeClassTO(), pageRef) {

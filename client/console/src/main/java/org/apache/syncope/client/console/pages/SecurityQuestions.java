@@ -19,10 +19,6 @@
 package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.SecurityQuestionTO;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -30,10 +26,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 public class SecurityQuestions extends BasePage {
 
     private static final long serialVersionUID = 931085006718655535L;
-
-    private final SecurityQuestionsPanel securityQuestionsPanel;
-
-    private final BaseModal<SecurityQuestionTO> securityQuestionModal;
 
     public SecurityQuestions(final PageParameters parameters) {
         super(parameters);
@@ -43,29 +35,10 @@ public class SecurityQuestions extends BasePage {
         content.setOutputMarkupId(true);
         add(content);
 
-        securityQuestionModal = new BaseModal<>("securityQuestionModal");
-        addWindowWindowClosedCallback(securityQuestionModal);
-        add(securityQuestionModal);
-
-        securityQuestionsPanel = new SecurityQuestionsPanel("securityQuestionPanel", getPageReference());
+        SecurityQuestionsPanel securityQuestionsPanel =
+                new SecurityQuestionsPanel("securityQuestionPanel", getPageReference());
         securityQuestionsPanel.setOutputMarkupId(true);
 
         content.add(securityQuestionsPanel);
-    }
-
-    private void addWindowWindowClosedCallback(final BaseModal<?> modal) {
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                target.add(securityQuestionsPanel);
-                modal.show(false);
-
-                ((BasePage) getPage()).getNotificationPanel().refresh(target);
-            }
-        }
-        );
     }
 }

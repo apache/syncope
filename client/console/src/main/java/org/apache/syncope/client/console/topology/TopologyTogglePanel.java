@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.topology;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.text.MessageFormat;
 import org.apache.syncope.client.console.commons.Constants;

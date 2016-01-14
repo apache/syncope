@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.panels.AbstractModalPanel.LOG;
-
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -107,7 +105,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
             protected WizardMgtPanel<AbstractSchemaTO> newInstance(final String id) {
                 return new SchemaTypePanel(id, schemaType, this);
             }
-        });
+        }.disableCheckBoxes());
 
         this.schemaType = schemaType;
 

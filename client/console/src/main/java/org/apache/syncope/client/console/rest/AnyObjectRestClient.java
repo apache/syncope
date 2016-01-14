@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import static org.apache.syncope.client.console.rest.BaseRestClient.getService;
-import static org.apache.syncope.client.console.rest.BaseRestClient.toOrderBy;
-
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;

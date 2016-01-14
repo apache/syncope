@@ -16,19 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.annotations;
+package org.apache.syncope.client.console.pages;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface ExtensionPanel {
+public abstract class AbstractExtPage extends BasePage {
 
-    String value();
+    private static final long serialVersionUID = 4627828052717627159L;
 
+    public AbstractExtPage() {
+        super();
+    }
+
+    public AbstractExtPage(final PageParameters parameters) {
+        super(parameters);
+    }
 }

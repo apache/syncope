@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.panels.AbstractModalPanel.LOG;
-import static org.apache.wicket.Component.ENABLE;
-
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -77,7 +74,7 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
             protected WizardMgtPanel<AnyTypeTO> newInstance(final String id) {
                 return new AnyTypePanel(id, this);
             }
-        });
+        }.disableCheckBoxes());
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeTO>(
                 BaseModal.CONTENT_ID, new AnyTypeTO(), pageRef) {

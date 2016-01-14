@@ -18,15 +18,11 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import java.io.Serializable;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.AbstractModalPanel;
-import org.apache.syncope.client.console.rest.CamelRouteRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.rest.CamelRoutesRestClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.CamelEntitlement;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -37,28 +33,22 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
-public class CamelRouteModalPage<T extends Serializable> extends AbstractModalPanel<T> {
+public class CamelRoutesPopupPage extends BasePopupPage {
 
     private static final long serialVersionUID = -1438441210568592931L;
 
-    private final CamelRouteRestClient restClient = new CamelRouteRestClient();
+    private final CamelRoutesRestClient restClient = new CamelRoutesRestClient();
 
-    public CamelRouteModalPage(
-            final BaseModal<T> modal,
-            final PageReference pageRef,
-            final CamelRouteTO routeTO,
-            final boolean createFlag) {
+    public CamelRoutesPopupPage(final CamelRouteTO routeTO) {
+        super();
 
-        super(modal, pageRef);
-
-        Form<CamelRouteTO> routeForm = new Form<>("routeDefForm");
+        Form<CamelRouteTO> routeDefForm = new Form<>("routeDefForm");
 
         TextArea<String> routeDefArea = new TextArea<>("content", new PropertyModel<String>(routeTO, "content"));
+        routeDefForm.add(routeDefArea);
+        routeDefForm.setModel(new CompoundPropertyModel<>(routeTO));
 
-        routeForm.add(routeDefArea);
-        routeForm.setModel(new CompoundPropertyModel<>(routeTO));
-
-        AjaxButton submit = new IndicatingAjaxButton(APPLY, new Model<>(getString(SUBMIT)), routeForm) {
+        AjaxButton submit = new IndicatingAjaxButton(APPLY, new Model<>(getString(SUBMIT)), routeDefForm) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -67,27 +57,20 @@ public class CamelRouteModalPage<T extends Serializable> extends AbstractModalPa
                 try {
                     restClient.update(routeTO.getKey(), ((CamelRouteTO) form.getModelObject()).getContent());
                     info(getString(Constants.OPERATION_SUCCEEDED));
-
-                    // Uncomment with something similar once SYNCOPE-156 is completed
-                    // Configuration callerPage = (Configuration) pageRef.getPage();
-                    // callerPage.setModalResult(true);
-                    modal.close(target);
                 } catch (SyncopeClientException scee) {
                     error(getString(Constants.ERROR) + ": " + scee.getMessage());
                 }
-                modal.getNotificationPanel().refresh(target);
+                notificationPanel.refresh(target);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                modal.getNotificationPanel().refresh(target);
+                notificationPanel.refresh(target);
             }
-
         };
 
         MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, CamelEntitlement.ROUTE_UPDATE);
-        routeForm.add(submit);
-
-        this.add(routeForm);
+        routeDefForm.add(submit);
+        add(routeDefForm);
     }
 }

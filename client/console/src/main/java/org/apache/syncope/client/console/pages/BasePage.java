@@ -20,14 +20,18 @@ package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.NotificationAwareComponent;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -43,6 +47,8 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,9 +171,33 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
         liContainer.add(new BookmarkablePageLink<>("notifications", Notifications.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.NOTIFICATION_LIST);
 
-        liContainer = new WebMarkupContainer(getLIContainerId("camelroutes"));
-        add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("camelroutes", CamelRoutes.class));
+        ClassPathScanImplementationLookup classPathScanImplementationLookup =
+                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+                getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
+        ListView<Class<? extends AbstractExtPage>> extPages = new ListView<Class<? extends AbstractExtPage>>(
+                "extPages", classPathScanImplementationLookup.getExtPageClasses()) {
+
+            private static final long serialVersionUID = 4949588177564901031L;
+
+            @Override
+            protected void populateItem(final ListItem<Class<? extends AbstractExtPage>> item) {
+                WebMarkupContainer liContainer = new WebMarkupContainer("extPageLI");
+                item.add(liContainer);
+
+                BookmarkablePageLink<?> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
+                liContainer.add(link);
+
+                ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
+
+                link.add(new Label("extPageLabel", ann.label()));
+
+                Label extPageIcon = new Label("extPageIcon");
+                extPageIcon.add(new AttributeModifier("class", "fa " + ann.icon()));
+                link.add(extPageIcon);
+            }
+        };
+        extPages.setOutputMarkupId(true);
+        add(extPages);
 
         add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
         add(new BookmarkablePageLink<Page>("logout", Logout.class));

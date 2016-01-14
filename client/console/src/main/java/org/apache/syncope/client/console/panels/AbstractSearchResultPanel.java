@@ -92,7 +92,6 @@ public abstract class AbstractSearchResultPanel<
     protected final BasePage page;
 
     protected AbstractSearchResultPanel(final String id, final Builder<T, W, E> builder) {
-
         super(id, true);
 
         setOutputMarkupId(true);

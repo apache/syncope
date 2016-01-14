@@ -41,13 +41,14 @@ public class Roles extends BasePage {
         content.setOutputMarkupId(true);
         add(content);
 
-        final WizardMgtPanel<RoleHandler> roleSearchResultPanel
-                = new RoleSearchResultPanel.Builder(getPageReference()) {
+        WizardMgtPanel<RoleHandler> roleSearchResultPanel =
+                new RoleSearchResultPanel.Builder(getPageReference()) {
 
             private static final long serialVersionUID = -5960765294082359003L;
 
-        }.addNewItemPanelBuilder(new RoleWizardBuilder(BaseModal.CONTENT_ID, new RoleTO(), getPageReference()), true)
-                .build("roles");
+        }.disableCheckBoxes().addNewItemPanelBuilder(
+                        new RoleWizardBuilder(BaseModal.CONTENT_ID, new RoleTO(), getPageReference()), true).
+                build("roles");
 
         content.add(roleSearchResultPanel);
     }

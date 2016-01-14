@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import static org.apache.syncope.client.console.commons.status.Status.ACTIVE;
-import static org.apache.syncope.client.console.commons.status.Status.SUSPENDED;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -219,8 +216,8 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                final Pair<ConnObjectTO, ConnObjectTO> pair
-                        = getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+                final Pair<ConnObjectTO, ConnObjectTO> pair =
+                        getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
 
                 return pair != null && pair.getRight() != null;
             }
@@ -244,8 +241,8 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                 remoteObjectFragment.add(
                         new Label("resource", new ResourceModel(bean.getResourceName(), bean.getResourceName())));
 
-                final Pair<ConnObjectTO, ConnObjectTO> res
-                        = getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+                final Pair<ConnObjectTO, ConnObjectTO> res =
+                        getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
 
                 remoteObjectFragment.add(new ConnObjectPanel("remoteObject", res == null ? null : res));
 

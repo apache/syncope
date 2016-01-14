@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -36,7 +34,7 @@ import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel.SecurityQuestionsProvider;
-import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -60,12 +58,12 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
 public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
-        SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionsProvider, BaseRestClient> {
+        SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionsProvider, SecurityQuestionRestClient> {
 
     private static final long serialVersionUID = 3323019773236588850L;
 
     public SecurityQuestionsPanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<SecurityQuestionTO, SecurityQuestionTO, BaseRestClient>(null, pageRef) {
+        super(id, new Builder<SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionRestClient>(null, pageRef) {
 
             private static final long serialVersionUID = 8769126634538601689L;
 
@@ -73,7 +71,7 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
             protected WizardMgtPanel<SecurityQuestionTO> newInstance(final String id) {
                 return new SecurityQuestionsPanel(id, this);
             }
-        });
+        }.disableCheckBoxes());
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<SecurityQuestionTO>(
                 BaseModal.CONTENT_ID, new SecurityQuestionTO(), pageRef) {
@@ -105,8 +103,10 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.SECURITY_QUESTION_CREATE);
     }
 
-    public SecurityQuestionsPanel(
-            final String id, final Builder<SecurityQuestionTO, SecurityQuestionTO, BaseRestClient> builder) {
+    private SecurityQuestionsPanel(
+            final String id,
+            final Builder<SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionRestClient> builder) {
+
         super(id, builder);
     }
 
@@ -188,8 +188,6 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
             public void populateItem(final Item<ICellPopulator<SecurityQuestionTO>> item, final String componentId,
                     final IModel<SecurityQuestionTO> model) {
 
-                final SecurityQuestionTO securityQuestionTO = model.getObject();
-
                 final ActionLinksPanel.Builder<Serializable> actionLinks =
                         ActionLinksPanel.builder(page.getPageReference());
                 actionLinks.setDisableIndicator(true);
@@ -213,7 +211,7 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
                             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                                 try {
                                     SyncopeConsoleSession.get().getService(SecurityQuestionService.class
-                                    ).delete(securityQuestionTO.getKey());
+                                    ).delete(model.getObject().getKey());
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {

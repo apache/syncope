@@ -26,7 +26,7 @@ import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CamelRouteRestClient extends BaseRestClient {
+public class CamelRoutesRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2018208424159468912L;
 

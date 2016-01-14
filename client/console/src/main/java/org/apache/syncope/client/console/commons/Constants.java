@@ -58,7 +58,7 @@ public final class Constants {
 
     public static final String PREF_ANYTYPE_PAGINATOR_ROWS = "anytype.paginator.rows";
 
-    public static final String PREF_SECURITY_QUESTIONS_PAGINATOR_ROWS = "secutiry.questions.paginator.rows";
+    public static final String PREF_SECURITY_QUESTIONS_PAGINATOR_ROWS = "security.questions.paginator.rows";
 
     public static final String PREF_RELATIONSHIPTYPE_PAGINATOR_ROWS = "relationshiptype.painator.rows";
 

@@ -31,7 +31,6 @@ under the License.
     <link href="css/AdminLTE_plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="css/AdminLTE_skins/skin-green.css" rel="stylesheet" type="text/css" />
     <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css" />
-    <link href="css/fieldstyle.css" rel="stylesheet" type="text/css" />
 
     <script type="text/javascript" src="webjars/bootbox/${bootbox.version}/bootbox.js"></script>
   </head>
@@ -112,8 +111,10 @@ under the License.
             </li>
             <li class="treeview">
               <a href="#"><i class="fa fa-puzzle-piece"></i><span>Extensions</span> <i class="fa fa-angle-left pull-right"></i></a>
-              <ul class="treeview-menu">
-                <li wicket:id="camelroutesLI"><a href="#" wicket:id="camelroutes"><i class="fa fa-circle-o"></i>Camel Routes</a></li>
+              <ul class="treeview-menu" wicket:id="extPages">
+                <li wicket:id="extPageLI">
+                  <a href="#" wicket:id="extPage"><i wicket:id="extPageIcon"></i><span wicket:id="extPageLabel"/></a>
+                </li>
               </ul>
             </li>
           </ul>
