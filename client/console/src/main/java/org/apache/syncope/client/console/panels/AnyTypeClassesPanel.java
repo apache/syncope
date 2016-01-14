@@ -31,7 +31,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -227,7 +227,7 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
                             LOG.error("While deleting AnyTypeClassTO", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
-                        ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
+                        ((BasePage) getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPECLASS_DELETE);
 

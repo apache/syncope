@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ConnectorModal;
 import org.apache.syncope.client.console.panels.ResourceModal;
@@ -188,7 +187,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
                 }
-                ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
+                ((BasePage) getPage()).getNotificationPanel().refresh(target);
             }
         };
 
@@ -269,7 +268,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
                 }
-                ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
+                ((BasePage) getPage()).getNotificationPanel().refresh(target);
             }
         };
         fragment.add(delete);

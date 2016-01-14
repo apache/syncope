@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.panels.AbstractSearchResultPanel.EventDataWrapper;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.console.pages.BulkActionModalPage;
@@ -160,7 +159,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
                 send(builder.pageRef.getPage(), Broadcast.BREADTH, data);
 
-                final AbstractBasePage page = (AbstractBasePage) builder.pageRef.getPage();
+                final BasePage page = (BasePage) builder.pageRef.getPage();
                 ((BasePage) getPage()).getNotificationPanel().refresh(target);
             }
         });

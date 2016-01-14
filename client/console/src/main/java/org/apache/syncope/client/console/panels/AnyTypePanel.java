@@ -34,7 +34,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AnyTypePanel.AnyTypeProvider;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -213,7 +213,7 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         send(AnyTypePanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<AnyTypeTO>(model.getObject(), target));
+                                new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                     }
                 }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPE_UPDATE).addWithRoles(
                         new ActionLink<Serializable>() {
@@ -231,7 +231,7 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
                             LOG.error("While deleting AnyTypeTO", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
-                        ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
+                        ((BasePage) getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPE_DELETE);
 

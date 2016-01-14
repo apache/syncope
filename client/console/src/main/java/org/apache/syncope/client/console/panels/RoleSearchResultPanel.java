@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.RoleDataProvider;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -96,7 +96,7 @@ public class RoleSearchResultPanel
                     @Override
                     public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                         send(RoleSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<RoleHandler>(
+                                new AjaxWizard.EditItemActionEvent<>(
                                         new RoleHandler(new RoleRestClient().read(model.getObject().getKey())),
                                         target));
                     }
@@ -109,7 +109,7 @@ public class RoleSearchResultPanel
                         final RoleTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(null);
                         send(RoleSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<RoleHandler>(new RoleHandler(clone), target));
+                                new AjaxWizard.NewItemActionEvent<>(new RoleHandler(clone), target));
                     }
                 }, ActionLink.ActionType.CLONE, StandardEntitlement.ROLE_CREATE).add(new ActionLink<RoleTO>() {
 
@@ -125,7 +125,7 @@ public class RoleSearchResultPanel
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
                         }
-                        ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
+                        ((BasePage) getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.ROLE_DELETE);
 

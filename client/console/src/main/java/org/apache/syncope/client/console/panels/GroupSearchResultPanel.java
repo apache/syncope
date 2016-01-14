@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.GroupDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
@@ -118,7 +118,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                         send(GroupSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<GroupHandler>(
+                                new AjaxWizard.EditItemActionEvent<>(
                                         new GroupHandler(new GroupRestClient().read(model.getObject().getKey())),
                                         target));
                     }
@@ -131,7 +131,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
                         final GroupTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(0L);
                         send(GroupSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<GroupHandler>(new GroupHandler(clone), target));
+                                new AjaxWizard.NewItemActionEvent<>(new GroupHandler(clone), target));
                     }
                 }, ActionLink.ActionType.CLONE, StandardEntitlement.GROUP_CREATE).add(new ActionLink<GroupTO>() {
 
@@ -147,7 +147,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
                         }
-                        ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
+                        ((BasePage) getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.GROUP_DELETE);
 

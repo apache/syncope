@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.io.Serializable;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.CamelRouteRestClient;
@@ -36,14 +37,14 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
-public class CamelRouteModalPage extends AbstractModalPanel {
+public class CamelRouteModalPage<T extends Serializable> extends AbstractModalPanel<T> {
 
     private static final long serialVersionUID = -1438441210568592931L;
 
     private final CamelRouteRestClient restClient = new CamelRouteRestClient();
 
     public CamelRouteModalPage(
-            final BaseModal<?> modal,
+            final BaseModal<T> modal,
             final PageReference pageRef,
             final CamelRouteTO routeTO,
             final boolean createFlag) {

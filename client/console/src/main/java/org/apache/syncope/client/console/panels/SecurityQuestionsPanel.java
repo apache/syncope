@@ -34,7 +34,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel.SecurityQuestionsProvider;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -190,8 +190,8 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
 
                 final SecurityQuestionTO securityQuestionTO = model.getObject();
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks
-                        = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<Serializable> actionLinks =
+                        ActionLinksPanel.builder(page.getPageReference());
                 actionLinks.setDisableIndicator(true);
                 actionLinks
                         .addWithRoles(new ActionLink<Serializable>() {
@@ -201,7 +201,7 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
                             @Override
                             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                                 send(SecurityQuestionsPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<SecurityQuestionTO>(
+                                        new AjaxWizard.EditItemActionEvent<>(
                                                 model.getObject(), target));
                             }
                         }, ActionLink.ActionType.EDIT, StandardEntitlement.SECURITY_QUESTION_UPDATE)
@@ -220,7 +220,7 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
                                     LOG.error("While deleting SecutiryQuestionTO", e);
                                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                                 }
-                                ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
+                                ((BasePage) getPage()).getNotificationPanel().refresh(target);
 
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.SECURITY_QUESTION_DELETE);

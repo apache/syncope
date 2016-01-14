@@ -59,19 +59,17 @@ under the License.
           <div style="padding-top: 1%;">
             <input type="submit"
                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                   wicket:id="apply"
-                   style="width: 50px"/>
+                   wicket:id="apply"/>
             <input type="submit"
                    wicket:id="closePage"
                    class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                   onclick="window.close();"
-                   style="width: 50px"/>
+                   onclick="window.close();"/>
           </div>
         </form>
       </div>
     </div>
     <script>
-      window.onload = function() {
+      window.onload = function () {
         var editor = CodeMirror.fromTextArea(document.getElementById("workflowDefArea"), {lineNumbers: true});
         editor.on("change", updateTextArea);
       };
