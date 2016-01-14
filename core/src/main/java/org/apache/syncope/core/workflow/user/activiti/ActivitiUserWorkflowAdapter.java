@@ -253,6 +253,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             update.append("AND TASK_ID_<>'").append(taskId).append("' ");
         }
         jdbcTemplate.execute(update.toString());
+
+        List<String> byteArrayIds = jdbcTemplate.queryForList(
+                "SELECT BYTEARRAY_ID_ FROM ACT_HI_VARINST WHERE BYTEARRAY_ID_ IS NOT NULL", String.class);
+        update.setLength(0);
+        update.append("DELETE FROM ACT_GE_BYTEARRAY WHERE NAME_ LIKE 'hist.%' ");
+        for (String byteArrayId : byteArrayIds) {
+            update.append("AND ID_<>'").append(byteArrayId).append("' ");
+        }
+        jdbcTemplate.execute(update.toString());
     }
 
     /**
