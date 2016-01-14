@@ -21,5 +21,6 @@ package org.apache.syncope.client.console.commons;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 
 public interface NotificationAwareComponent {
+
     NotificationPanel getNotificationPanel();
 }

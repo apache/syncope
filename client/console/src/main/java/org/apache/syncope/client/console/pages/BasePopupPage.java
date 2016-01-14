@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
-public class BasePopupPage extends AbstractBasePage {
+public class BasePopupPage extends BasePage {
 
     private static final long serialVersionUID = -2633667311332659505L;
 

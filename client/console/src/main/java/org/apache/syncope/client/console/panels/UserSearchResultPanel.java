@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.StatusModal;
 import org.apache.syncope.client.console.pages.UserDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
@@ -121,15 +121,15 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel
-                                = new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
+                        final IModel<AnyHandler<UserTO>> formModel =
+                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
                         modal.setFormModel(formModel);
 
                         target.add(modal.setContent(new StatusModal<>(
                                 modal, page.getPageReference(), formModel.getObject().getInnerObject())));
 
                         modal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyHandler<UserTO>(model.getObject())))));
+                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
 
                         modal.show(true);
                     }
@@ -139,15 +139,15 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel
-                                = new CompoundPropertyModel<>(new AnyHandler<UserTO>(model.getObject()));
+                        final IModel<AnyHandler<UserTO>> formModel =
+                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
                         modal.setFormModel(formModel);
 
                         target.add(modal.setContent(new StatusModal<>(
                                 modal, page.getPageReference(), formModel.getObject().getInnerObject(), true)));
 
                         modal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyHandler<UserTO>(model.getObject())))));
+                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
 
                         modal.show(true);
                     }
@@ -158,8 +158,8 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                         send(UserSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<AnyHandler<UserTO>>(
-                                        new AnyHandler<UserTO>(new UserRestClient().read(model.getObject().getKey())),
+                                new AjaxWizard.EditItemActionEvent<>(
+                                        new AnyHandler<>(new UserRestClient().read(model.getObject().getKey())),
                                         target));
                     }
                 }, ActionLink.ActionType.EDIT, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
@@ -171,8 +171,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                         final UserTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(0L);
                         send(UserSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<AnyHandler<UserTO>>(
-                                        new AnyHandler<UserTO>(clone), target));
+                                new AjaxWizard.NewItemActionEvent<>(new AnyHandler<>(clone), target));
                     }
                 }, ActionLink.ActionType.CLONE, StandardEntitlement.USER_CREATE).add(new ActionLink<UserTO>() {
 
@@ -188,7 +187,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
                         }
-                        ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
+                        ((BasePage) getPage()).getNotificationPanel().refresh(target);
 
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.USER_DELETE);

@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
-import org.apache.syncope.client.console.pages.AbstractBasePage;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -89,7 +89,7 @@ public abstract class AbstractSearchResultPanel<
     /**
      * Owner page.
      */
-    protected final AbstractBasePage page;
+    protected final BasePage page;
 
     protected AbstractSearchResultPanel(final String id, final Builder<T, W, E> builder) {
 
@@ -97,7 +97,7 @@ public abstract class AbstractSearchResultPanel<
 
         setOutputMarkupId(true);
 
-        this.page = (AbstractBasePage) builder.getPageRef().getPage();
+        this.page = (BasePage) builder.getPageRef().getPage();
 
         this.filtered = builder.filtered;
         this.checkBoxEnabled = builder.checkBoxEnabled;

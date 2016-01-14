@@ -63,7 +63,7 @@ public class SecurityQuestions extends BasePage {
                 target.add(securityQuestionsPanel);
                 modal.show(false);
 
-                ((AbstractBasePage) getPage()).getNotificationPanel().refresh(target);
+                ((BasePage) getPage()).getNotificationPanel().refresh(target);
             }
         }
         );
