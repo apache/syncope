@@ -21,9 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.rest.api.service.NotificationService;
-import org.springframework.stereotype.Component;
 
-@Component
 public class NotificationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 6328933265096511690L;

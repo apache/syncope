@@ -35,12 +35,10 @@ import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
-import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Tasks services.
  */
-@Component
 public class TaskRestClient extends BaseRestClient implements ExecutionRestClient {
 
     private static final long serialVersionUID = 6284485820911028843L;

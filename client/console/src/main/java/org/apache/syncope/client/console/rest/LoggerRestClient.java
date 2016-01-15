@@ -31,9 +31,7 @@ import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.rest.api.LoggerWrapper;
 import org.apache.syncope.common.rest.api.service.LoggerService;
-import org.springframework.stereotype.Component;
 
-@Component
 public class LoggerRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 4579786978763032240L;

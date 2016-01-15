@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
@@ -63,6 +64,8 @@ public abstract class Realm extends Panel {
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
+    private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
+
     private final UserRestClient userRestClient = new UserRestClient();
 
     private final GroupRestClient groupRestClient = new GroupRestClient();
@@ -75,7 +78,7 @@ public abstract class Realm extends Panel {
     public Realm(final String id, final RealmTO realmTO, final PageReference pageRef) {
         super(id);
         this.realmTO = realmTO;
-        this.anyTypeTOs = anyTypeRestClient.getAll();
+        this.anyTypeTOs = anyTypeRestClient.list();
         this.pageRef = pageRef;
 
         add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));
@@ -155,7 +158,7 @@ public abstract class Realm extends Panel {
                 final UserTO userTO = new UserTO();
                 userTO.setRealm(realmTO.getFullPath());
                 panel = new UserSearchResultPanel.Builder(
-                        anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
+                        anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         userRestClient,
                         anyTypeTO.getKey(),
                         pageReference).setRealm(realmTO.getFullPath()).
@@ -169,7 +172,7 @@ public abstract class Realm extends Panel {
                 final GroupTO groupTO = new GroupTO();
                 groupTO.setRealm(realmTO.getFullPath());
                 panel = new GroupSearchResultPanel.Builder(
-                        anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
+                        anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         groupRestClient,
                         anyTypeTO.getKey(),
                         pageReference).setRealm(realmTO.getFullPath()).
@@ -184,7 +187,7 @@ public abstract class Realm extends Panel {
                 anyObjectTO.setRealm(realmTO.getFullPath());
                 anyObjectTO.setType(anyTypeTO.getKey());
                 panel = new AnyObjectSearchResultPanel.Builder(
-                        anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
+                        anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyObjectRestClient,
                         anyTypeTO.getKey(),
                         pageReference).setRealm(realmTO.getFullPath()).

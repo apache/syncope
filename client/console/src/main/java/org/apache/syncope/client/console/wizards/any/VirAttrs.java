@@ -56,17 +56,17 @@ public class VirAttrs extends AbstractAttrs {
             @Override
             protected List<AttrTO> load() {
                 final List<String> classes = CollectionUtils.collect(
-                        anyTypeRestClient.getAnyTypeClass(getAllAuxClasses().toArray(new String[] {})),
+                        anyTypeClassRestClient.list(getAllAuxClasses()),
                         new Transformer<AnyTypeClassTO, String>() {
 
                     @Override
                     public String transform(final AnyTypeClassTO input) {
                         return input.getKey();
                     }
-                }, new ArrayList<String>(Arrays.asList(anyTypeClass)));
+                }, new ArrayList<>(Arrays.asList(anyTypeClass)));
 
-                final List<VirSchemaTO> virSchemas
-                        = schemaRestClient.getSchemas(SchemaType.VIRTUAL, classes.toArray(new String[] {}));
+                final List<VirSchemaTO> virSchemas =
+                        schemaRestClient.getSchemas(SchemaType.VIRTUAL, classes.toArray(new String[] {}));
 
                 final Map<String, AttrTO> currents = entityTO.getVirAttrMap();
                 entityTO.getVirAttrs().clear();
@@ -120,7 +120,7 @@ public class VirAttrs extends AbstractAttrs {
                 final AjaxTextFieldPanel panel = new AjaxTextFieldPanel(
                         "panel", attrTO.getSchema(), new Model<String>(), false);
 
-                item.add(new MultiFieldPanel.Builder<String>(
+                item.add(new MultiFieldPanel.Builder<>(
                         new PropertyModel<List<String>>(attrTO, "values")).build(
                         "panel",
                         attrTO.getSchema(),

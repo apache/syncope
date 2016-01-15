@@ -18,38 +18,37 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import static org.apache.syncope.client.console.rest.BaseRestClient.getService;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.rest.api.service.AnyTypeService;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 
-public class AnyTypeRestClient extends BaseRestClient {
+public class AnyTypeClassRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2211371717449597247L;
 
-    public AnyTypeTO get(final String kind) {
-        AnyTypeTO type = null;
+    public List<AnyTypeClassTO> list() {
+        List<AnyTypeClassTO> types = Collections.emptyList();
 
         try {
-            type = getService(AnyTypeService.class).read(kind);
+            types = getService(AnyTypeClassService.class).list();
         } catch (SyncopeClientException e) {
-            LOG.error("While reading all any types", e);
-        }
-
-        return type;
-    }
-
-    public List<AnyTypeTO> list() {
-        List<AnyTypeTO> types = Collections.emptyList();
-
-        try {
-            types = getService(AnyTypeService.class).list();
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading all any types", e);
+            LOG.error("While reading all any type classes", e);
         }
 
         return types;
     }
 
+    public List<AnyTypeClassTO> list(final Collection<String> anyTypeClassNames) {
+        List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
+        for (String anyTypeClass : anyTypeClassNames) {
+            anyTypeClassTOs.add(getService(AnyTypeClassService.class).read(anyTypeClass));
+        }
+        return anyTypeClassTOs;
+    }
 }

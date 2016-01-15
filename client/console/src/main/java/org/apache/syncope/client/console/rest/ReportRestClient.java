@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ReportRestClient extends BaseRestClient implements ExecutionRestClient {
 
     private static final long serialVersionUID = 1644689667998953604L;

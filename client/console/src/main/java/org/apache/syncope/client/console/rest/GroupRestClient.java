@@ -35,12 +35,10 @@ import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
-import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Group's services.
  */
-@Component
 public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
 
     private static final long serialVersionUID = -8549081557283519638L;

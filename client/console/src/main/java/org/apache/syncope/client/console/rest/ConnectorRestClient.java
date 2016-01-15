@@ -36,12 +36,10 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Connectors services.
  */
-@Component
 public class ConnectorRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6870366819966266617L;

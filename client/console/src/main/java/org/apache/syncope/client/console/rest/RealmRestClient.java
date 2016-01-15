@@ -21,12 +21,10 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.service.RealmService;
-import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking REST Realm's services.
  */
-@Component
 public class RealmRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -8549081557283519638L;

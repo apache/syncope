@@ -53,29 +53,29 @@ public class DerAttrs extends AbstractAttrs {
 
         final LoadableDetachableModel<List<AttrTO>> derAttrTOs = new LoadableDetachableModel<List<AttrTO>>() {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<AttrTO> load() {
                 final List<String> classes = CollectionUtils.collect(
-                        anyTypeRestClient.getAnyTypeClass(getAllAuxClasses().toArray(new String[] {})),
+                        anyTypeClassRestClient.list(getAllAuxClasses()),
                         new Transformer<AnyTypeClassTO, String>() {
 
                     @Override
                     public String transform(final AnyTypeClassTO input) {
                         return input.getKey();
                     }
-                }, new ArrayList<String>(Arrays.asList(anyTypeClass)));
+                }, new ArrayList<>(Arrays.asList(anyTypeClass)));
 
-                final List<DerSchemaTO> derSchemas
-                        = schemaRestClient.getSchemas(SchemaType.DERIVED, classes.toArray(new String[] {}));
+                final List<DerSchemaTO> derSchemas =
+                        schemaRestClient.getSchemas(SchemaType.DERIVED, classes.toArray(new String[] {}));
 
                 final Map<String, AttrTO> currents = entityTO.getDerAttrMap();
                 entityTO.getDerAttrs().clear();
 
                 // This conversion from set to lis is required by the ListView.
-                // Didn't performed by using collect parameter because entityTO change is required.
-                return new ArrayList<AttrTO>(
+                // Not performed by using collect parameter because entityTO change is required.
+                return new ArrayList<>(
                         CollectionUtils.collect(derSchemas, new Transformer<DerSchemaTO, AttrTO>() {
 
                             @Override

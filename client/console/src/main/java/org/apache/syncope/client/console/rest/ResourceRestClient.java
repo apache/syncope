@@ -29,12 +29,10 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.rest.api.service.ResourceService;
-import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Resources services.
  */
-@Component
 public class ResourceRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6898907679835668987L;

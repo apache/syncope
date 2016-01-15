@@ -19,8 +19,10 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -33,12 +35,10 @@ import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
-import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest any type class services.
  */
-@Component
 public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
 
     private static final long serialVersionUID = -8874495991295283249L;
@@ -99,16 +99,18 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
         return anyObjectTO;
     }
 
-    public AnyObjectTO create(final AnyObjectTO anyObjectTO) {
-        final Response response = getService(AnyObjectService.class).create(anyObjectTO);
-        return response.readEntity(AnyObjectTO.class);
+    public ProvisioningResult<AnyObjectTO> create(final AnyObjectTO anyObjectTO) {
+        Response response = getService(AnyObjectService.class).create(anyObjectTO);
+        return response.readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
+        });
     }
 
-    public AnyObjectTO update(final String etag, final AnyObjectTO anyObjectTO) {
-        AnyObjectTO result;
+    public ProvisioningResult<AnyObjectTO> update(final String etag, final AnyObjectPatch anyObjectPatch) {
+        ProvisioningResult<AnyObjectTO> result;
         synchronized (this) {
             AnyObjectService service = getService(etag, AnyObjectService.class);
-            result = service.update(anyObjectTO).readEntity(AnyObjectTO.class);
+            result = service.update(anyObjectPatch).readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
+            });
             resetClient(AnyObjectService.class);
         }
         return result;

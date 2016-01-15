@@ -73,7 +73,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
             final List<String> res = new ArrayList<>();
 
             CollectionUtils.filter(
-                    CollectionUtils.collect(new AnyTypeRestClient().getAll(), new Transformer<AnyTypeTO, String>() {
+                    CollectionUtils.collect(new AnyTypeRestClient().list(), new Transformer<AnyTypeTO, String>() {
 
                         @Override
                         public String transform(final AnyTypeTO anyTypeTO) {

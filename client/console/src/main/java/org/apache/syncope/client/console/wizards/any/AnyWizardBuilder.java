@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.commons.status.StatusBean;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -36,7 +36,7 @@ public abstract class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilde
 
     private static final long serialVersionUID = -2480279868319546243L;
 
-    protected final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
+    protected final AnyObjectRestClient anyObjectRestClient = new AnyObjectRestClient();
 
     protected final List<String> anyTypeClasses;
 
@@ -50,7 +50,8 @@ public abstract class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilde
      */
     public AnyWizardBuilder(
             final String id, final T anyTO, final List<String> anyTypeClasses, final PageReference pageRef) {
-        super(id, new AnyHandler<T>(anyTO), pageRef);
+
+        super(id, new AnyHandler<>(anyTO), pageRef);
         this.anyTypeClasses = anyTypeClasses;
     }
 

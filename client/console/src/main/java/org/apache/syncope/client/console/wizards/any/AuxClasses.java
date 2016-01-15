@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -71,8 +71,8 @@ public class AuxClasses extends WizardStep {
                 dyngroups = Collections.<Long>emptyList();
             }
 
-            final AjaxPalettePanel.Builder<MembershipTO> builder
-                    = new AjaxPalettePanel.Builder<MembershipTO>().setRenderer(new IChoiceRenderer<MembershipTO>() {
+            final AjaxPalettePanel.Builder<MembershipTO> builder =
+                    new AjaxPalettePanel.Builder<MembershipTO>().setRenderer(new IChoiceRenderer<MembershipTO>() {
 
                         private static final long serialVersionUID = 1L;
 
@@ -99,7 +99,7 @@ public class AuxClasses extends WizardStep {
                     });
 
             fragment.add(builder.setAllowOrder(true).withFilter().build(
-                    "groups", new ListModel<MembershipTO>(memberships),
+                    "groups", new ListModel<>(memberships),
                     new AjaxPalettePanel.Builder.Query<MembershipTO>() {
 
                 private static final long serialVersionUID = 1L;
@@ -142,7 +142,7 @@ public class AuxClasses extends WizardStep {
 
             fragment.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build(
                     "dyngroups",
-                    new ListModel<String>(dynamics),
+                    new ListModel<>(dynamics),
                     new ListModel<>(dynamics)).setEnabled(false).setOutputMarkupId(true));
         }
         add(fragment);
@@ -150,7 +150,7 @@ public class AuxClasses extends WizardStep {
         final List<String> current = Arrays.asList(anyTypeClass);
 
         final List<String> choices = new ArrayList<>();
-        for (AnyTypeClassTO aux : new AnyTypeRestClient().getAllAnyTypeClass()) {
+        for (AnyTypeClassTO aux : new AnyTypeClassRestClient().list()) {
             if (!current.contains(aux.getKey())) {
                 choices.add(aux.getKey());
             }

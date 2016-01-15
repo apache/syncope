@@ -21,9 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.rest.api.service.UserWorkflowService;
-import org.springframework.stereotype.Component;
 
-@Component
 public class UserWorkflowRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4785231164900813921L;

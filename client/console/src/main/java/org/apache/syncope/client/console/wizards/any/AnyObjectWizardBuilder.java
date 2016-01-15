@@ -52,13 +52,13 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
         final ProvisioningResult<AnyObjectTO> actual;
 
         if (inner.getKey() == 0) {
-            actual = anyTypeRestClient.create(AnyObjectTO.class.cast(inner));
+            actual = anyObjectRestClient.create(AnyObjectTO.class.cast(inner));
         } else {
             final AnyObjectPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
             // update user just if it is changed
             if (!patch.isEmpty()) {
-                actual = anyTypeRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+                actual = anyObjectRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             } else {
                 actual = new ProvisioningResult<>();
                 actual.setAny(inner);

@@ -27,9 +27,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.WorkflowService;
-import org.springframework.stereotype.Component;
 
-@Component
 public class WorkflowRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 5049285686167071017L;

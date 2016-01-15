@@ -21,9 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SecurityQuestionRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3167730221361895176L;

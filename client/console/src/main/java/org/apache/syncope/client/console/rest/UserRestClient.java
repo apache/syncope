@@ -39,12 +39,10 @@ import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
-import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking rest users services.
  */
-@Component
 public class UserRestClient extends AbstractAnyRestClient<UserTO> {
 
     private static final long serialVersionUID = -1575748964398293968L;

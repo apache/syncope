@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.panels.search.UserSelectionSearchResultPanel;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
@@ -69,6 +70,7 @@ public class Ownership extends WizardStep {
     private final WebMarkupContainer ownerContainer;
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
+    private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final GroupSearchPanel groupSearchPanel;
 
@@ -159,7 +161,7 @@ public class Ownership extends WizardStep {
         AnyTypeTO anyTypeTO = anyTypeRestClient.get(AnyTypeKind.GROUP.name());
 
         groupSearchResultPanel = GroupSelectionSearchResultPanel.class.cast(new GroupSelectionSearchResultPanel.Builder(
-                anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
+                anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                 groupRestClient,
                 anyTypeTO.getKey(),
                 pageRef).build("searchResult"));
@@ -174,7 +176,7 @@ public class Ownership extends WizardStep {
         anyTypeTO = anyTypeRestClient.get(AnyTypeKind.USER.name());
 
         userSearchResultPanel = UserSelectionSearchResultPanel.class.cast(new UserSelectionSearchResultPanel.Builder(
-                anyTypeRestClient.getAnyTypeClass(anyTypeTO.getClasses().toArray(new String[] {})),
+                anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                 userRestClient,
                 anyTypeTO.getKey(),
                 pageRef).build("searchResult"));
@@ -236,8 +238,7 @@ public class Ownership extends WizardStep {
         };
         userSearchFragment.add(userOwnerReset);
 
-        final AjaxTextFieldPanel groupOwner
-                = new AjaxTextFieldPanel("groupOwner", "groupOwner",
+        final AjaxTextFieldPanel groupOwner = new AjaxTextFieldPanel("groupOwner", "groupOwner",
                         new PropertyModel<String>(groupHandler.getInnerObject(), "groupOwner") {
 
                     private static final long serialVersionUID = -3743432456095828573L;

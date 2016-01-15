@@ -41,6 +41,7 @@ import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -82,6 +83,7 @@ public class Relationships extends WizardStep {
     private final PageReference pageRef;
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
+    private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final AnyTO anyTO;
 
@@ -234,13 +236,13 @@ public class Relationships extends WizardStep {
                 }
             }, new ArrayList<String>());
 
-            final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<String>(
+            final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>(
                     "type", "type", new PropertyModel<String>(rel, "type"));
             type.setChoices(availableRels);
             add(type.setRenderBodyOnly(true));
 
-            final List<AnyTypeTO> availableTypes
-                    = ListUtils.select(anyTypeRestClient.getAll(), new Predicate<AnyTypeTO>() {
+            final List<AnyTypeTO> availableTypes =
+                    ListUtils.select(anyTypeRestClient.list(), new Predicate<AnyTypeTO>() {
 
                         @Override
                         public boolean evaluate(final AnyTypeTO object) {
@@ -248,7 +250,7 @@ public class Relationships extends WizardStep {
                         }
                     });
 
-            final AjaxDropDownChoicePanel<AnyTypeTO> rightType = new AjaxDropDownChoicePanel<AnyTypeTO>(
+            final AjaxDropDownChoicePanel<AnyTypeTO> rightType = new AjaxDropDownChoicePanel<>(
                     "rightType", "rightType", new PropertyModel<AnyTypeTO>(rel, "rightType") {
 
                 private static final long serialVersionUID = -5861057041758169508L;
@@ -339,7 +341,7 @@ public class Relationships extends WizardStep {
                         fragment.add(anyObjectSearchPanel.setRenderBodyOnly(true));
 
                         anyObjectSearchResultPanel = new AnyObjectSelectionSearchResultPanel.Builder(
-                                anyTypeRestClient.getAnyTypeClass(anyType.getClasses().toArray(new String[] {})),
+                                anyTypeClassRestClient.list(anyType.getClasses()),
                                 new AnyObjectRestClient(),
                                 anyType.getKey(),
                                 pageRef).setFiltered(true).
@@ -375,7 +377,6 @@ public class Relationships extends WizardStep {
             } else {
                 super.onEvent(event);
             }
-
         }
     }
 }

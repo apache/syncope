@@ -25,12 +25,10 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.service.PolicyService;
-import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Policy services.
  */
-@Component
 public class PolicyRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;

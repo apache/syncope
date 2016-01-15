@@ -80,14 +80,14 @@ public class PlainAttrs extends AbstractAttrs {
             @Override
             protected List<AttrTO> load() {
                 setSchemas(CollectionUtils.collect(
-                        anyTypeRestClient.getAnyTypeClass(getAllAuxClasses().toArray(new String[] {})),
+                        anyTypeClassRestClient.list(getAllAuxClasses()),
                         new Transformer<AnyTypeClassTO, String>() {
 
                             @Override
                             public String transform(final AnyTypeClassTO input) {
                                 return input.getKey();
                             }
-                        }, new ArrayList<String>(Arrays.asList(anyTypeClass))));
+                        }, new ArrayList<>(Arrays.asList(anyTypeClass))));
                 setAttrs();
                 return new ArrayList<>(entityTO.getPlainAttrs());
             }
@@ -118,7 +118,7 @@ public class PlainAttrs extends AbstractAttrs {
                     item.add(panel);
                     panel.setNewModel(attributeTO.getValues());
                 } else {
-                    item.add(new MultiFieldPanel.Builder<String>(
+                    item.add(new MultiFieldPanel.Builder<>(
                             new PropertyModel<List<String>>(attributeTO, "values")).build(
                                     "panel",
                                     attributeTO.getSchema(),

@@ -22,12 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.rest.api.service.RoleService;
-import org.springframework.stereotype.Component;
 
 /**
  * Console client for invoking Rest Group's services.
  */
-@Component
 public class RoleRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 1L;

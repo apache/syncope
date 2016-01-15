@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -41,7 +41,7 @@ public abstract class AbstractAttrs extends WizardStep {
 
     protected final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
-    protected final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
+    protected final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final GroupRestClient groupRestClient = new GroupRestClient();
 

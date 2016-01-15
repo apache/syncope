@@ -23,9 +23,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
-import org.springframework.stereotype.Component;
 
-@Component
 public class UserSelfRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 2994691796924731295L;
