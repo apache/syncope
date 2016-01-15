@@ -56,6 +56,8 @@ public class UserTOAdapter {
         userTO.getVirAttrs().addAll(userTORequest.getVirAttrs().values());
         // add resources
         userTO.getResources().addAll(userTORequest.getResources());
+        // add memberships
+        userTO.getMemberships().addAll(userTORequest.getMemberships());
 
         return userTO;
     }
@@ -74,6 +76,8 @@ public class UserTOAdapter {
         userTORequest.getVirAttrs().putAll(userTO.getVirAttrMap());
         
         userTORequest.getResources().addAll(userTO.getResources());
+               
+        userTORequest.getMemberships().addAll(userTO.getMemberships());
 
         return userTORequest;
     }

@@ -21,8 +21,9 @@
 
 angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', 'AuthService',
   'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService', 'CaptchaService',
+  'GroupService',
   function ($scope, $rootScope, $location, $compile, AuthService, UserSelfService, SchemaService, RealmService,
-          ResourceService, SecurityQuestionService, CaptchaService) {
+          ResourceService, SecurityQuestionService, CaptchaService, GroupService) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -46,10 +47,12 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         derSchemas: [],
         virSchemas: [],
         resources: [],
+        groups: [],
         errorMessage: '',
         attributeTable: {},
         virtualAttributeTable: {},
-        selectedResources: []
+        selectedResources: [],
+        selectedGroups: []
       };
 
       var initSchemas = function () {
@@ -173,6 +176,18 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         });
       };
 
+      var initGroups = function () {
+        var realm = $scope.user.realm || "/";
+        GroupService.getGroups(realm).then(function (response) {
+          $scope.dynamicForm.groups = new Array();
+          for (var key in response.groups) {
+            $scope.dynamicForm.groups.push({"rightKey": key, "groupName": response.groups[key]});
+          }
+        }, function (e) {
+          $scope.showError("An error occur during retrieving groups " + e, $scope.notification)
+        });
+      };
+
       var readUser = function () {
         UserSelfService.read().then(function (response) {
           $scope.user = response;
@@ -180,6 +195,14 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           $scope.initialSecurityQuestion = $scope.user.securityQuestion;
           // initialize already assigned resources
           $scope.dynamicForm.selectedResources = $scope.user.resources;
+          // initialize already assigned groups -- keeping the same structure of groups       
+          for (var index in $scope.user.memberships) {
+            $scope.dynamicForm.selectedGroups.push(
+                    {
+                      "rightKey": $scope.user.memberships[index]["rightKey"].toString(),
+                      "groupName": $scope.user.memberships[index]["groupName"]
+                    });
+          }
         }, function () {
           console.log("Error");
         });
@@ -212,6 +235,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       initSchemas();
       // initialize available resources
       initResources();
+      //initialize available groups
+      initGroups();
     };
 
     $scope.saveUser = function (user) {
@@ -274,62 +299,62 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         return;
       });
     },
-    $scope.retrieveSecurityQuestion = function (user) {
-      if ($rootScope.pwdResetRequiringSecurityQuestions){
-        if(user && user.username && user.username.length) {
-        return SecurityQuestionService.
-                getSecurityQuestionByUser(user.username).then(function (data) {
-                  $scope.userSecurityQuestion = data.content;          
+            $scope.retrieveSecurityQuestion = function (user) {
+              if ($rootScope.pwdResetRequiringSecurityQuestions) {
+                if (user && user.username && user.username.length) {
+                  return SecurityQuestionService.
+                          getSecurityQuestionByUser(user.username).then(function (data) {
+                    $scope.userSecurityQuestion = data.content;
+                  }, function (response) {
+                    var errorMessage;
+                    // parse error response 
+                    if (response !== undefined) {
+                      errorMessage = response.split("ErrorMessage{{")[1];
+                      errorMessage = errorMessage.split("}}")[0];
+                      $scope.userSecurityQuestion = "";
+                    }
+                    $scope.showError("Error retrieving user security question: " + errorMessage, $scope.notification);
+                  });
+                }
+                else {
+                  $scope.userSecurityQuestion = "";
+                }
+              }
+            },
+            $scope.resetPassword = function (user) {
+              if (user && user.username) {
+                $scope.retrieveSecurityQuestion(user);
+                CaptchaService.validate($scope.captchaInput).then(function (response) {
+                  if (!(response === 'true')) {
+                    $scope.showError("Captcha inserted is not valid, please digit the correct captcha", $scope.notification);
+                    return;
+                  }
+                  UserSelfService.passwordReset(user).then(function (data) {
+                    $scope.showSuccess(data, $scope.notification);
+                    $location.path('/self');
+                  }, function (response) {
+                    var errorMessage;
+                    // parse error response 
+                    if (response !== undefined) {
+                      errorMessage = response.split("ErrorMessage{{")[1];
+                      errorMessage = errorMessage.split("}}")[0];
+                      $scope.showError("An error occured during password reset: " + errorMessage, $scope.notification);
+                      //we need to refresh captcha after a valid request
+                      $scope.$broadcast("refreshCaptcha");
+                    }
+                  });
                 }, function (response) {
                   var errorMessage;
                   // parse error response 
                   if (response !== undefined) {
                     errorMessage = response.split("ErrorMessage{{")[1];
                     errorMessage = errorMessage.split("}}")[0];
-                    $scope.userSecurityQuestion = "";
                   }
-                  $scope.showError("Error retrieving user security question: " + errorMessage, $scope.notification);
+                  $scope.showError("Error: " + (errorMessage || response), $scope.notification);
+                  return;
                 });
-        }
-        else{
-           $scope.userSecurityQuestion = "";
-        }    
-      }
-    },
-    $scope.resetPassword = function (user) {
-      if (user && user.username) {
-        $scope.retrieveSecurityQuestion(user);
-        CaptchaService.validate($scope.captchaInput).then(function (response) {
-          if (!(response === 'true')) {
-            $scope.showError("Captcha inserted is not valid, please digit the correct captcha", $scope.notification);
-            return;
-          }
-          UserSelfService.passwordReset(user).then(function (data) {
-            $scope.showSuccess(data, $scope.notification);
-            $location.path('/self');
-          }, function (response) {
-            var errorMessage;
-            // parse error response 
-            if (response !== undefined) {
-              errorMessage = response.split("ErrorMessage{{")[1];
-              errorMessage = errorMessage.split("}}")[0];
-              $scope.showError("An error occured during password reset: " + errorMessage, $scope.notification);
-              //we need to refresh captcha after a valid request
-              $scope.$broadcast("refreshCaptcha");
-            }
-          });
-        }, function (response) {          
-          var errorMessage;
-          // parse error response 
-          if (response !== undefined) {
-            errorMessage = response.split("ErrorMessage{{")[1];
-            errorMessage = errorMessage.split("}}")[0];
-          }
-          $scope.showError("Error: " + (errorMessage || response), $scope.notification);
-          return;
-        });
-      } else {
-        $scope.showError("You should use a valid and non-empty username", $scope.notification);
-      }
-    };
+              } else {
+                $scope.showError("You should use a valid and non-empty username", $scope.notification);
+              }
+            };
   }]);

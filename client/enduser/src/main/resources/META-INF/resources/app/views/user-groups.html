@@ -27,7 +27,10 @@ under the License.
     <option ng-repeat="realm in availableRealms" value="{{realm}}">{{realm}}</option>
   </select>
 </div>
-
+<div id="attribute" class="form-group row upper-select">
+  <label>Groups</label><br/>
+  <groups form="dynamicForm" user="user"></groups>
+</div>
 <div id="attribute" class="form-group row">
   <navigation-buttons ng-show="createMode" next="create.plainSchemas" previous="create.credentials"></navigation-buttons>
   <navigation-buttons ng-show="!createMode" next="update.plainSchemas" previous="update.credentials"></navigation-buttons>

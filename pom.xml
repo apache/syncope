@@ -401,7 +401,7 @@ under the License.
     <angular-cookies.version>1.4.8</angular-cookies.version>
     <angular-animate.version>1.4.8</angular-animate.version>
     <angular-ui-router.version>0.2.15</angular-ui-router.version>
-    <angular-ui-bootstrap.version>0.14.0</angular-ui-bootstrap.version>
+    <angular-ui-bootstrap.version>1.0.3</angular-ui-bootstrap.version>
     <angular-ui-select.version>0.13.1</angular-ui-select.version>
     <angular-sanitize.version>1.4.8</angular-sanitize.version>
     <kendo-ui-core.version>2014.2.716</kendo-ui-core.version>

@@ -17,36 +17,37 @@
  * under the License.
  */
 
+/**
+ * This filter has been defined in order to have a workaround for this bug: 
+ * https://github.com/angular-ui/ui-select/issues/665
+ * 
+ * When the bug is fixed, we can remove it.
+ */
+
 'use strict'
 
 angular.module("self")
         .filter('propsFilter', function () {
           return function (items, props) {
-            var out = [];
-
-            if (angular.isArray(items)) {
-              items.forEach(function (item) {
-                var itemMatches = false;
-
-                var keys = Object.keys(props);
-                for (var i = 0; i < keys.length; i++) {
-                  var prop = keys[i];
-                  var text = props[prop].toLowerCase();
-                  if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
-                    itemMatches = true;
+            var out = [];            
+            if (items && items.length && props.selected && props.selected.length) {
+              var selected = props.selected;              
+              for (var i = 0; i < items.length; i++) {
+                var item = items[i], itemMisses = true;
+                for (var j = 0; j < selected.length; j++) {
+                  if (item.rightKey == selected[j].rightKey) {
+                    itemMisses = false;
                     break;
                   }
                 }
-
-                if (itemMatches) {
+                if(itemMisses){
                   out.push(item);
                 }
-              });
-            } else {
-              // Let the output be the input untouched
+              }
+            }
+            else{
               out = items;
             }
-
             return out;
           };
         });

@@ -25,10 +25,10 @@ under the License.
       <div class="col-md-7">{{attribute.validationMessage| translate }}</div>
     </div>-->
 <!--</div>-->
-<div class="form-group row">
+<div id="attribute" class="form-group row">
   <navigation-buttons ng-show="createMode" next="create.groups" previous="create.derivedSchemas"></navigation-buttons>
   <navigation-buttons ng-show="!createMode" next="update.groups" previous="update.derivedSchemas"></navigation-buttons>
-  <div class="col-xs-6 col-xs-offset-3">
+  <div class="pull-left">
     <a id="cancel" href="#/self" class="btn btn-danger">Cancel</a>
   </div>
 </div>

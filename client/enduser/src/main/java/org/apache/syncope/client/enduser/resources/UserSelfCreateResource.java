@@ -26,7 +26,6 @@ import org.apache.syncope.client.enduser.adapters.UserTOAdapter;
 import org.apache.syncope.client.enduser.model.UserTORequest;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
-import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,9 +58,10 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                 response.setError(Response.Status.BAD_REQUEST.getStatusCode(), "XSRF TOKEN is not matching");
                 return response;
             }
+
+            String jsonString = request.getReader().readLine();
             
-            final UserTORequest userTORequest = POJOHelper.deserialize(IOUtils.toString(request.getInputStream()),
-                    UserTORequest.class);
+            final UserTORequest userTORequest = POJOHelper.deserialize(jsonString, UserTORequest.class);
 
             if (isSelfRegistrationAllowed() && userTORequest != null) {
                 LOG.debug("Received user self registration request for user: [{}]", userTORequest.getUsername());
@@ -76,7 +76,7 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                         attributes.getResponse().write(res.getStatusInfo().getFamily().equals(
                                 Response.Status.Family.SUCCESSFUL)
                                         ? responseMessage.append("User: ").append(userTORequest.getUsername()).append(
-                                        " successfully created")
+                                                " successfully created")
                                         : new StringBuilder().append("ErrorMessage{{ ").
                                         append(res.getStatusInfo().getReasonPhrase()).append(" }}"));
                     }
@@ -85,8 +85,8 @@ public class UserSelfCreateResource extends AbstractBaseResource {
             } else {
                 response.setError(Response.Status.FORBIDDEN.getStatusCode(), new StringBuilder().
                         append("ErrorMessage{{").append(userTORequest == null
-                        ? "Request received is not valid }}"
-                        : "Self registration not allowed }}").toString());
+                                        ? "Request received is not valid }}"
+                                        : "Self registration not allowed }}").toString());
             }
 
         } catch (Exception e) {
