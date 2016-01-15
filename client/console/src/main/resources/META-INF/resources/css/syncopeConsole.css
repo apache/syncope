@@ -188,6 +188,7 @@ div.basepage-content{
 
 .modal {
   background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+  z-index: 7000 !important;
 }
 
 .wizard-view {

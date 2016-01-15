@@ -32,14 +32,22 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = -8775095410207013913L;
 
+    protected enum Status {
+        ACTIVE,
+        INACTIVE
+
+    }
+
+    private Status status = Status.INACTIVE;
+
     public TopologyNodePanel(
             final String id,
             final TopologyNode node) {
 
         super(id);
 
-        final String resourceName = node.getDisplayName().length() > 20
-                ? node.getDisplayName().subSequence(0, 19) + "..."
+        final String resourceName = node.getDisplayName().length() > 14
+                ? node.getDisplayName().subSequence(0, 12) + "..."
                 : node.getDisplayName();
 
         add(new Label("label", resourceName));
@@ -65,7 +73,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                 add(new AttributeAppender("class", "topology_conn", " "));
                 break;
             default:
-                title = node.getDisplayName().length() > 20 ? node.getDisplayName() : "";
+                title = node.getDisplayName().length() > 14 ? node.getDisplayName() : "";
                 add(new AttributeAppender("class", "topology_res", " "));
         }
 
@@ -94,5 +102,9 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
     @Override
     public String getAjaxIndicatorMarkupId() {
         return "veil";
+    }
+
+    public void setStatus(final Status status) {
+        this.status = status;
     }
 }

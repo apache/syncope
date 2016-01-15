@@ -35,11 +35,21 @@
   font-family:helvetica;padding:0.0em;
   font-size:0.9em;
   vertical-align: middle;
+  cursor: pointer;
+}
+
+.active-window {
+  box-shadow: 2px 2px 8px rgb(0, 166, 90);
+}
+
+.inactive-window {
+  box-shadow: 2px 2px 19px #aaa;
 }
 
 .window p {
   margin: 0px !important;
   line-height: 1.5em;
+  font-size: 1.5em;
   display: inline-table;
 }
 
@@ -57,12 +67,6 @@
 
 .topology_res {
   background-color:rgba(250,230,0,0.09);
-}
-
-.topology_cs,
-.topology_conn,
-.topology_res {
-  cursor: pointer;
 }
 
 .window:hover {

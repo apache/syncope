@@ -551,26 +551,24 @@ public class Topology extends BasePage {
             }
         });
 
-        if (node.getKind() == TopologyNode.Kind.CONNECTOR_SERVER
-                || node.getKind() == TopologyNode.Kind.FS_PATH
-                || node.getKind() == TopologyNode.Kind.CONNECTOR
-                || node.getKind() == TopologyNode.Kind.RESOURCE) {
+        behaviors.add(new AjaxEventBehavior(Constants.ON_CLICK) {
 
-            behaviors.add(new AjaxEventBehavior(Constants.ON_CLICK) {
+            private static final long serialVersionUID = -9027652037484739586L;
 
-                private static final long serialVersionUID = -9027652037484739586L;
+            @Override
+            protected String findIndicatorId() {
+                return StringUtils.EMPTY;
+            }
 
-                @Override
-                protected String findIndicatorId() {
-                    return StringUtils.EMPTY;
-                }
-
-                @Override
-                protected void onEvent(final AjaxRequestTarget target) {
-                    togglePanel.toggleWithContent(target, node);
-                }
-            });
-        }
+            @Override
+            protected void onEvent(final AjaxRequestTarget target) {
+                togglePanel.toggleWithContent(target, node);
+                target.appendJavaScript(String.format(
+                        "$('.window').removeClass(\"active-window\").addClass(\"inactive-window\"); "
+                        + "$(document.getElementById('%s'))."
+                        + "removeClass(\"inactive-window\").addClass(\"active-window\");", node.getKey()));
+            }
+        });
 
         panel.add(behaviors.toArray(new Behavior[] {}));
 

@@ -42,6 +42,7 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +80,9 @@ public class TopologyTogglePanel extends TogglePanel {
         setHeader(target, node.getDisplayName());
 
         switch (node.getKind()) {
+            case SYNCOPE:
+                container.addOrReplace(getSyncopeFragment(pageRef));
+                break;
             case CONNECTOR_SERVER:
                 container.addOrReplace(getLocationFragment(node, pageRef));
                 break;
@@ -102,6 +106,29 @@ public class TopologyTogglePanel extends TogglePanel {
 
     private Fragment getEmptyFragment() {
         return new Fragment("actions", "emptyFragment", this);
+    }
+
+    private Fragment getSyncopeFragment(final PageReference pageRef) {
+        final Fragment fragment = new Fragment("actions", "syncopeActions", this);
+
+        final AjaxLink<String> tasks = new IndicatingAjaxLink<String>("tasks") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(null);
+                modal.setFormModel(model);
+                target.add(modal);
+                modal.header(new ResourceModel("task.generic.list", "Generic tasks"));
+                modal.show(true);
+            }
+        };
+        fragment.add(tasks);
+
+        MetaDataRoleAuthorizationStrategy.authorize(tasks, ENABLE, StandardEntitlement.TASK_LIST);
+
+        return fragment;
     }
 
     private Fragment getLocationFragment(final TopologyNode node, final PageReference pageRef) {
@@ -265,8 +292,49 @@ public class TopologyTogglePanel extends TogglePanel {
             }
         };
         fragment.add(edit);
-
         MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+
+        final AjaxLink<String> propagation = new IndicatingAjaxLink<String>("propagation") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                target.add(modal);
+                modal.header(new ResourceModel("task.propagation.list", "Propagation tasks"));
+                modal.show(true);
+            }
+        };
+        fragment.add(propagation);
+        MetaDataRoleAuthorizationStrategy.authorize(propagation, ENABLE, StandardEntitlement.TASK_LIST);
+
+        final AjaxLink<String> synchronization = new IndicatingAjaxLink<String>("synchronization") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                target.add(modal);
+                modal.header(new ResourceModel("task.synchronization.list", "Synchronization tasks"));
+                modal.show(true);
+            }
+        };
+        fragment.add(synchronization);
+        MetaDataRoleAuthorizationStrategy.authorize(synchronization, ENABLE, StandardEntitlement.TASK_LIST);
+
+        final AjaxLink<String> push = new IndicatingAjaxLink<String>("push") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                target.add(modal);
+                modal.header(new ResourceModel("task.push.list", "Push tasks"));
+                modal.show(true);
+            }
+        };
+        fragment.add(push);
+        MetaDataRoleAuthorizationStrategy.authorize(push, ENABLE, StandardEntitlement.TASK_LIST);
 
         return fragment;
     }
