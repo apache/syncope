@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtPage;
@@ -88,7 +89,7 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
         add(new Label("version", SyncopeConsoleApplication.get().getVersion()));
         add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
 
-        final WebMarkupContainer todosContainer = new WebMarkupContainer("todosContainer");
+        WebMarkupContainer todosContainer = new WebMarkupContainer("todosContainer");
         add(todosContainer);
         Label todos = new Label("todos", "0");
         todosContainer.add(todos);
@@ -123,27 +124,25 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
         add(confLIContainer);
         WebMarkupContainer confULContainer = new WebMarkupContainer(getULContainerId("configuration"));
         confLIContainer.add(confULContainer);
-        MetaDataRoleAuthorizationStrategy.authorize(
-                liContainer, WebPage.RENDER, StandardEntitlement.CONFIGURATION_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("workflow"));
         confULContainer.add(liContainer);
-        final BookmarkablePageLink<Page> workflowLink = new BookmarkablePageLink<>("workflow", Workflow.class);
+        BookmarkablePageLink<Page> workflowLink = new BookmarkablePageLink<>("workflow", Workflow.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 workflowLink, WebPage.ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
         liContainer.add(workflowLink);
 
         liContainer = new WebMarkupContainer(getLIContainerId("logs"));
         confULContainer.add(liContainer);
-        final BookmarkablePageLink<Page> logsLink = new BookmarkablePageLink<>("logs", Logs.class);
+        BookmarkablePageLink<Page> logsLink = new BookmarkablePageLink<>("logs", Logs.class);
         MetaDataRoleAuthorizationStrategy.authorize(logsLink, WebPage.ENABLE, StandardEntitlement.LOG_LIST);
         liContainer.add(logsLink);
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.LOG_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("securityquestions"));
         confULContainer.add(liContainer);
-        final BookmarkablePageLink<Page> secuityQuestionsLink = new BookmarkablePageLink<>("securityquestions",
-                SecurityQuestions.class);
+        BookmarkablePageLink<Page> secuityQuestionsLink =
+                new BookmarkablePageLink<>("securityquestions", SecurityQuestions.class);
         liContainer.add(secuityQuestionsLink);
 
         liContainer = new WebMarkupContainer(getLIContainerId("types"));
@@ -171,38 +170,10 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
         liContainer.add(new BookmarkablePageLink<>("notifications", Notifications.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.NOTIFICATION_LIST);
 
-        ClassPathScanImplementationLookup classPathScanImplementationLookup =
-                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
-                getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
-        ListView<Class<? extends AbstractExtPage>> extPages = new ListView<Class<? extends AbstractExtPage>>(
-                "extPages", classPathScanImplementationLookup.getExtPageClasses()) {
-
-            private static final long serialVersionUID = 4949588177564901031L;
-
-            @Override
-            protected void populateItem(final ListItem<Class<? extends AbstractExtPage>> item) {
-                WebMarkupContainer liContainer = new WebMarkupContainer("extPageLI");
-                item.add(liContainer);
-
-                BookmarkablePageLink<?> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
-                liContainer.add(link);
-
-                ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
-
-                link.add(new Label("extPageLabel", ann.label()));
-
-                Label extPageIcon = new Label("extPageIcon");
-                extPageIcon.add(new AttributeModifier("class", "fa " + ann.icon()));
-                link.add(extPageIcon);
-            }
-        };
-        extPages.setOutputMarkupId(true);
-        add(extPages);
-
         add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
         add(new BookmarkablePageLink<Page>("logout", Logout.class));
 
-        // set 'active' menu item
+        // set 'active' menu item for everything but extensions
         // 1. check if current class is set to top-level menu
         Component containingLI = get(getLIContainerId(getClass().getSimpleName().toLowerCase()));
         // 2. if not, check if it is under 'Configuration'
@@ -244,6 +215,77 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
                     }
                 });
             }
+        }
+
+        // Extensions
+        ClassPathScanImplementationLookup classPathScanImplementationLookup =
+                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+                getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
+        List<Class<? extends AbstractExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
+
+        WebMarkupContainer extensionsLI = new WebMarkupContainer(getLIContainerId("extensions"));
+        extensionsLI.setOutputMarkupPlaceholderTag(true);
+        extensionsLI.setVisible(!extPageClasses.isEmpty());
+        add(extensionsLI);
+
+        ListView<Class<? extends AbstractExtPage>> extPages = new ListView<Class<? extends AbstractExtPage>>(
+                "extPages", extPageClasses) {
+
+            private static final long serialVersionUID = 4949588177564901031L;
+
+            @Override
+            protected void populateItem(final ListItem<Class<? extends AbstractExtPage>> item) {
+                WebMarkupContainer containingLI = new WebMarkupContainer("extPageLI");
+                item.add(containingLI);
+                if (item.getModelObject().equals(BasePage.this.getClass())) {
+                    containingLI.add(new Behavior() {
+
+                        private static final long serialVersionUID = 1469628524240283489L;
+
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            tag.put("class", "active");
+                        }
+                    });
+                }
+
+                BookmarkablePageLink<?> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
+                containingLI.add(link);
+
+                ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
+
+                link.add(new Label("extPageLabel", ann.label()));
+
+                Label extPageIcon = new Label("extPageIcon");
+                extPageIcon.add(new AttributeModifier("class", "fa " + ann.icon()));
+                link.add(extPageIcon);
+            }
+        };
+        extPages.setOutputMarkupId(true);
+        extensionsLI.add(extPages);
+
+        if (getPage() instanceof AbstractExtPage) {
+            extPages.add(new Behavior() {
+
+                private static final long serialVersionUID = 1469628524240283489L;
+
+                @Override
+                public void onComponentTag(final Component component, final ComponentTag tag) {
+                    tag.put("class", "treeview-menu menu-open");
+                    tag.put("style", "display: block;");
+                }
+
+            });
+
+            extensionsLI.add(new Behavior() {
+
+                private static final long serialVersionUID = 1469628524240283489L;
+
+                @Override
+                public void onComponentTag(final Component component, final ComponentTag tag) {
+                    tag.put("class", "treeview active");
+                }
+            });
         }
     }
 
