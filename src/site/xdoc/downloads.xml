@@ -141,8 +141,8 @@ under the License.
           </tbody>
         </table>
       </subsection>
-      <subsection name="1.2.6 Intermezzo">
-        <p>Release date: November 5th, 2015</p>
+      <subsection name="1.2.7 Intermezzo">
+        <p>Release date: January 15th, 2016</p>
         <p>
           <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Intermezzo">Release notes</a>
         </p>
@@ -156,52 +156,52 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.6/syncope-1.2.6-source-release.zip">syncope-1.2.6-source-release.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.7/syncope-1.2.7-source-release.zip">syncope-1.2.7-source-release.zip</a>
               </td>
               <td>
-                <a href="http://www.apache.org/dist/syncope/1.2.6/syncope-1.2.6-source-release.zip.asc">asc</a> 
-                <a href="http://www.apache.org/dist/syncope/1.2.6/syncope-1.2.6-source-release.zip.md5">md5</a> 
-                <a href="http://www.apache.org/dist/syncope/1.2.6/syncope-1.2.6-source-release.zip.sha1">sha1</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.6/syncope-standalone-1.2.6-distribution.zip">syncope-standalone-1.2.6-distribution.zip</a>
-              </td>
-              <td>
-                <a href="http://www.apache.org/dist/syncope/1.2.6/syncope-standalone-1.2.6-distribution.zip.asc">asc</a> 
-                <a href="http://www.apache.org/dist/syncope/1.2.6/syncope-standalone-1.2.6-distribution.zip.md5">md5</a> 
-                <a href="http://www.apache.org/dist/syncope/1.2.6/syncope-standalone-1.2.6-distribution.zip.sha1">sha1</a>
+                <a href="http://www.apache.org/dist/syncope/1.2.7/syncope-1.2.7-source-release.zip.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.7/syncope-1.2.7-source-release.zip.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.7/syncope-1.2.7-source-release.zip.sha1">sha1</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.6/syncope-installer-1.2.6-uber.jar">syncope-installer-1.2.6.jar</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.7/syncope-standalone-1.2.7-distribution.zip">syncope-standalone-1.2.7-distribution.zip</a>
               </td>
               <td>
-                <a href="http://www.apache.org/dist/syncope/1.2.6/syncope-installer-1.2.6-uber.jar.asc">asc</a> 
-                <a href="http://www.apache.org/dist/syncope/1.2.6/syncope-installer-1.2.6-uber.jar.md5">md5</a> 
-                <a href="http://www.apache.org/dist/syncope/1.2.6/syncope-installer-1.2.6-uber.jar.sha1">sha1</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.6/apache-syncope-1.2.6.deb">apache-syncope-1.2.6.deb</a>
-              </td>
-              <td>
-                <a href="http://www.apache.org/dist/syncope/1.2.6/apache-syncope-1.2.6.deb.asc">asc</a> 
-                <a href="http://www.apache.org/dist/syncope/1.2.6/apache-syncope-1.2.6.deb.md5">md5</a> 
-                <a href="http://www.apache.org/dist/syncope/1.2.6/apache-syncope-1.2.6.deb.sha1">sha1</a>
+                <a href="http://www.apache.org/dist/syncope/1.2.7/syncope-standalone-1.2.7-distribution.zip.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.7/syncope-standalone-1.2.7-distribution.zip.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.7/syncope-standalone-1.2.7-distribution.zip.sha1">sha1</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.6/apache-syncope-console-1.2.6.deb">apache-syncope-console-1.2.6.deb</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.7/syncope-installer-1.2.7-uber.jar">syncope-installer-1.2.7.jar</a>
               </td>
               <td>
-                <a href="http://www.apache.org/dist/syncope/1.2.6/apache-syncope-console-1.2.6.deb.asc">asc</a> 
-                <a href="http://www.apache.org/dist/syncope/1.2.6/apache-syncope-console-1.2.6.deb.md5">md5</a> 
-                <a href="http://www.apache.org/dist/syncope/1.2.6/apache-syncope-console-1.2.6.deb.sha1">sha1</a>
+                <a href="http://www.apache.org/dist/syncope/1.2.7/syncope-installer-1.2.7-uber.jar.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.7/syncope-installer-1.2.7-uber.jar.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.7/syncope-installer-1.2.7-uber.jar.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.7/apache-syncope-1.2.7.deb">apache-syncope-1.2.7.deb</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/1.2.7/apache-syncope-1.2.7.deb.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.7/apache-syncope-1.2.7.deb.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.7/apache-syncope-1.2.7.deb.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.7/apache-syncope-console-1.2.7.deb">apache-syncope-console-1.2.7.deb</a>
+              </td>
+              <td>
+                <a href="http://www.apache.org/dist/syncope/1.2.7/apache-syncope-console-1.2.7.deb.asc">asc</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.7/apache-syncope-console-1.2.7.deb.md5">md5</a> 
+                <a href="http://www.apache.org/dist/syncope/1.2.7/apache-syncope-console-1.2.7.deb.sha1">sha1</a>
               </td>
             </tr>
           </tbody>
