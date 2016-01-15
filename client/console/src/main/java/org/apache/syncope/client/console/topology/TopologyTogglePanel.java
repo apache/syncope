@@ -117,8 +117,6 @@ public class TopologyTogglePanel extends TogglePanel {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(null);
-                modal.setFormModel(model);
                 target.add(modal);
                 modal.header(new ResourceModel("task.generic.list", "Generic tasks"));
                 modal.show(true);
