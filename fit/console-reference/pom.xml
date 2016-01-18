@@ -109,7 +109,7 @@ under the License.
       <type>war</type>
       <scope>test</scope>
     </dependency>
-    <dependency>
+<!--    <dependency>
       <groupId>org.apache.syncope.fit</groupId>
       <artifactId>syncope-fit-build-tools</artifactId>
       <version>${project.version}</version>
@@ -128,7 +128,7 @@ under the License.
       <version>${project.version}</version>
       <type>war</type>
       <scope>test</scope>
-    </dependency>
+    </dependency>-->
   </dependencies>
 
   <build>
@@ -313,7 +313,7 @@ under the License.
                 </properties>
               </configuration>
               <deployables>
-                <deployable>
+<!--                <deployable>
                   <groupId>net.tirasa.connid.bundles.soap</groupId>
                   <artifactId>wssample</artifactId>
                   <type>war</type>
@@ -336,7 +336,7 @@ under the License.
                   <properties>
                     <context>syncope</context>
                   </properties>
-                </deployable>
+                </deployable>-->
                 <deployable>
                   <location>${project.build.directory}/${project.build.finalName}</location>
                   <properties>

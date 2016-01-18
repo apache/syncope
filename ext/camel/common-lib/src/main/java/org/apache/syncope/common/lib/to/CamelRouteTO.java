@@ -30,19 +30,19 @@ public class CamelRouteTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 6431992877435181674L;
 
-    private String name;
+    private String key;
 
     private AnyTypeKind anyTypeKind;
 
     private String content;
 
     public String getKey() {
-        return name;
+        return key;
     }
 
     @PathParam("key")
     public void setKey(final String key) {
-        this.name = key;
+        this.key = key;
     }
 
     public String getContent() {

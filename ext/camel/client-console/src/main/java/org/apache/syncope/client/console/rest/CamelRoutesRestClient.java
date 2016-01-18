@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
@@ -31,16 +32,12 @@ public class CamelRoutesRestClient extends BaseRestClient {
     private static final long serialVersionUID = -2018208424159468912L;
 
     public List<CamelRouteTO> list(final AnyTypeKind anyTypeKind) {
-        return getService(CamelRouteService.class).list(anyTypeKind);
+        return isCamelEnabledFor(anyTypeKind)
+                ? getService(CamelRouteService.class).list(anyTypeKind)
+                : Collections.<CamelRouteTO>emptyList();
     }
 
-    public CamelRouteTO read(final String key) {
-        return getService(CamelRouteService.class).read(key);
-    }
-
-    public void update(final String key, final String content) {
-        CamelRouteTO routeTO = read(key);
-        routeTO.setContent(content);
+    public void update(final CamelRouteTO routeTO) {
         getService(CamelRouteService.class).update(routeTO);
     }
 

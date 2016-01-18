@@ -19,23 +19,28 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.wicket.PageReference;
 
-public class AnyTypeModalPanel extends AbstractModalPanel<AnyTypeTO> {
+public class CamelRoutesModalPanel extends AbstractModalPanel<CamelRouteTO> {
 
-    private static final long serialVersionUID = -4603032036433309900L;
+    private static final long serialVersionUID = 2053048734388383021L;
 
-    private final AnyTypeTO anyTypeTO;
+    private final CamelRouteTO camelRouteTO;
 
-    public AnyTypeModalPanel(final BaseModal<AnyTypeTO> modal, final AnyTypeTO anyTypeTO, final PageReference pageRef) {
+    public CamelRoutesModalPanel(
+            final BaseModal<CamelRouteTO> modal,
+            final CamelRouteTO camelRouteTO,
+            final PageReference pageRef) {
+
         super(modal, pageRef);
-        this.anyTypeTO = anyTypeTO;
-        add(new AnyTypeDetailsPanel("anyTypeDetailsPanel", this.anyTypeTO));
+        this.camelRouteTO = camelRouteTO;
+        add(new CamelRoutesDetailsPanel("camelRouteDetailsPanel", this.camelRouteTO));
     }
 
     @Override
-    public AnyTypeTO getItem() {
-        return this.anyTypeTO;
+    public CamelRouteTO getItem() {
+        return this.camelRouteTO;
     }
+
 }
