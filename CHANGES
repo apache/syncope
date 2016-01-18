@@ -202,6 +202,19 @@ Release Notes - Syncope - Version 2.0.0-M1
 ** Wish
     * [SYNCOPE-535] - Provide Debian packages for Apache Syncope
 
+Release Notes - Syncope - Version 1.2.7
+================================================================================
+
+** Bug
+    * [SYNCOPE-729] - Skipped remote update during resource assignment if connector CREATE capability is not provided
+    * [SYNCOPE-735] - Acitiviti history tables uncontrolled growth
+    * [SYNCOPE-739] - Virtual attributes are not updated after a sync task
+    * [SYNCOPE-741] - Tasks page unusable when a task has thousand executions
+
+** Improvement
+    * [SYNCOPE-748] - Selectively delete task and report executions
+    * [SYNCOPE-751] - Preview for PDF binary values
+
 Release Notes - Syncope - Version 1.2.6
 ================================================================================
 
