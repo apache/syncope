@@ -335,7 +335,7 @@ under the License.
          com.fasterxml.jackson.databind.type.TypeFactory.constructType(Type, Class<?>)
          which was removed in 2.7.0
          See https://github.com/swagger-api/swagger-core/issues/1601 -->
-    <jackson.version>2.6.4</jackson.version>
+    <jackson.version>2.6.5</jackson.version>
 
     <spring.version>4.2.4.RELEASE</spring.version>
     <spring-security.version>4.0.3.RELEASE</spring-security.version>
