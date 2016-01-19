@@ -20,26 +20,26 @@
 
 angular.module('self')
         .directive('dynamicPlainAttributes', function (SchemaService) {
-            return {
-              restrict: 'E',
-              templateUrl: 'views/dynamicPlainAttributes.html',
-              scope: {
-                dynamicForm: "=form",
-                user: "="
-              },
-              controller: function ($scope) {
+          return {
+            restrict: 'E',
+            templateUrl: 'views/dynamicPlainAttributes.html',
+            scope: {
+              dynamicForm: "=form",
+              user: "="
+            },
+            controller: function ($scope) {
 
-                $scope.addAttributeField = function (plainSchemaKey) {
-                  console.log("Add PLAIN value: ", plainSchemaKey + "_" + ($scope.dynamicForm.attributeTable[plainSchemaKey].fields.length));
-                  $scope.dynamicForm.attributeTable[plainSchemaKey].fields.push(plainSchemaKey + "_" + ($scope.dynamicForm.attributeTable[plainSchemaKey].fields.length));
-                };
+              $scope.addAttributeField = function (plainSchemaKey) {
+                console.log("Add PLAIN value: ", plainSchemaKey + "_" + ($scope.dynamicForm.attributeTable[plainSchemaKey].fields.length));
+                $scope.dynamicForm.attributeTable[plainSchemaKey].fields.push(plainSchemaKey + "_" + ($scope.dynamicForm.attributeTable[plainSchemaKey].fields.length));
+              };
 
-                $scope.removeAttributeField = function (plainSchemaKey, index) {
-                  console.log("Remove PLAIN value: " + plainSchemaKey + " attribute index: " + index);
-                  $scope.dynamicForm.attributeTable[plainSchemaKey].fields.splice(index, 1);
-                  // clean user model
-                  $scope.user.plainAttrs[plainSchemaKey].values.splice(index, 1);
-                };
-              }
-            };
-          });
+              $scope.removeAttributeField = function (plainSchemaKey, index) {
+                console.log("Remove PLAIN value: " + plainSchemaKey + " attribute index: " + index);
+                $scope.dynamicForm.attributeTable[plainSchemaKey].fields.splice(index, 1);
+                // clean user model
+                $scope.user.plainAttrs[plainSchemaKey].values.splice(index, 1);
+              };
+            }
+          };
+        });

@@ -52,8 +52,10 @@ public class UserTORequest implements Serializable {
     private Map<String, AttrTO> virAttrs = new HashMap<>();
 
     private Set<String> resources = new HashSet<>();
-    
+
     private List<MembershipTO> memberships = new ArrayList<>();
+
+    private List<String> auxClasses = new ArrayList<>();
 
     public UserTORequest() {
     }
@@ -137,13 +139,21 @@ public class UserTORequest implements Serializable {
     public void setResources(final Set<String> resources) {
         this.resources = resources;
     }
-    
+
     public List<MembershipTO> getMemberships() {
         return memberships;
     }
 
     public void setMemberships(final List<MembershipTO> memberships) {
         this.memberships = memberships;
+    }
+
+    public List<String> getAuxClasses() {
+        return this.auxClasses;
+    }
+
+    public void setAuxClasses(final List<String> auxClasses) {
+        this.auxClasses = auxClasses;
     }
 
     public UserTORequest key(final Long value) {
@@ -193,6 +203,11 @@ public class UserTORequest implements Serializable {
 
     public UserTORequest resources(final Set<String> value) {
         this.resources = value;
+        return this;
+    }
+
+    public UserTORequest auxClasses(final List<String> value) {
+        this.auxClasses = value;
         return this;
     }
 

@@ -20,25 +20,34 @@
 'use strict';
 
 angular.module('self')
-        .factory('SchemaService', ['$resource', '$q', '$http',
-          function ($resource, $q, $http) {
+        .factory('AnyService', ['$resource', '$q', '$http',
+          function ($auxClass, $q, $http) {
 
-            var schemaService = {};
+            var any = {};
 
-            schemaService.getUserSchemas = function (anyTypeClass) {
-
-              var classParam = anyTypeClass ? "?anyTypeClass=" + encodeURI(anyTypeClass) : "";
-
-              return  $http.get("/syncope-enduser/api/schemas" + classParam)
+            any.getAuxClasses = function () {
+              return  $http.get("/syncope-enduser/api/auxiliaryClasses")
                       .then(function (response) {
-                        console.log("schemaAPI response: ", response);
+                        console.log("auxiliaryClasses API response: ", response);
                         return response.data;
                       }, function (response) {
-                        console.log("Something went wrong during schema retrieval, exit with status: ", response);
+                        console.log("Something went wrong during auxiliaryClasses retrieval, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };
-            return schemaService;
+
+            any.getAnyType = function (kind) {
+              return  $http.get("/syncope-enduser/api/anyTypes/" + encodeURI(kind))
+                      .then(function (response) {
+                        console.log("anyType user API response: ", response);
+                        return response.data;
+                      }, function (response) {
+                        console.log("Something went wrong during anyType user API retrieval, exit with status: ", response);
+                        return $q.reject(response.data || response.statusText);
+                      });
+            };
+
+            return any;
           }]);
 
 

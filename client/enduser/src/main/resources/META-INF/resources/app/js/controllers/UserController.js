@@ -21,9 +21,9 @@
 
 angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', 'AuthService',
   'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService', 'CaptchaService',
-  'GroupService',
+  'GroupService', 'AnyService',
   function ($scope, $rootScope, $location, $compile, AuthService, UserSelfService, SchemaService, RealmService,
-          ResourceService, SecurityQuestionService, CaptchaService, GroupService) {
+          ResourceService, SecurityQuestionService, CaptchaService, GroupService, AnyService) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -48,95 +48,21 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         virSchemas: [],
         resources: [],
         groups: [],
+        auxClasses: [],
+        anyUserType: [],
         errorMessage: '',
         attributeTable: {},
         virtualAttributeTable: {},
         selectedResources: [],
-        selectedGroups: []
+        selectedGroups: [],
+        selectedAuxClasses: []
       };
 
-      var initSchemas = function () {
+      var initUserSchemas = function (anyTypeClass) {
         // initialization is done here synchronously to have all schema fields populated correctly
-        SchemaService.getUserSchemas().then(function (schemas) {
-          $scope.dynamicForm.plainSchemas = schemas.plainSchemas;
-          $scope.dynamicForm.derSchemas = schemas.derSchemas;
-          $scope.dynamicForm.virSchemas = schemas.virSchemas;
-
-          // initialize plain attributes
-          for (var i = 0; i < schemas.plainSchemas.length; i++) {
-
-            var plainSchemaKey = schemas.plainSchemas[i].key;
-
-            if (!$scope.user.plainAttrs[plainSchemaKey]) {
-
-              $scope.user.plainAttrs[plainSchemaKey] = {
-                schema: plainSchemaKey,
-                values: [],
-                readonly: schemas.plainSchemas[i].readonly
-              };
-
-              // initialize multivalue schema and support table: create mode, only first value
-              if (schemas.plainSchemas[i].multivalue) {
-                $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key] = {
-                  fields: [schemas.plainSchemas[i].key + "_" + 0]
-                };
-              }
-            } else if (schemas.plainSchemas[i].multivalue) {
-              // initialize multivalue schema and support table: update mode, all provided values
-              $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key] = {
-                fields: [schemas.plainSchemas[i].key + "_" + 0]
-              };
-              // add other values
-              for (var j = 1; j < $scope.user.plainAttrs[plainSchemaKey].values.length; j++) {
-                $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key].fields.push(schemas.plainSchemas[i].key + "_" + j);
-              }
-            }
-          }
-
-          // initialize derived attributes
-          for (var i = 0; i < schemas.derSchemas.length; i++) {
-
-            var derSchemaKey = schemas.derSchemas[i].key;
-
-            if (!$scope.user.derAttrs[derSchemaKey]) {
-
-              $scope.user.derAttrs[derSchemaKey] = {
-                schema: derSchemaKey,
-                values: [],
-                readonly: true
-              };
-
-            }
-          }
-
-          // initialize virtual attributes
-          for (var i = 0; i < schemas.virSchemas.length; i++) {
-
-            var virSchemaKey = schemas.virSchemas[i].key;
-
-            if (!$scope.user.virAttrs[virSchemaKey]) {
-
-              $scope.user.virAttrs[virSchemaKey] = {
-                schema: virSchemaKey,
-                values: [],
-                readonly: schemas.virSchemas[i].readonly
-              };
-              // initialize multivalue schema and support table: create mode, only first value
-              $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key] = {
-                fields: [schemas.virSchemas[i].key + "_" + 0]
-              };
-            } else {
-              // initialize multivalue schema and support table: update mode, all provided values
-              $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key] = {
-                fields: [schemas.virSchemas[i].key + "_" + 0]
-              };
-              // add other values
-              for (var j = 1; j < $scope.user.virAttrs[virSchemaKey].values.length; j++) {
-                $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key].fields.push(schemas.virSchemas[i].key + "_" + j);
-              }
-            }
-          }
-
+        SchemaService.getUserSchemas(anyTypeClass).then(function (schemas) {
+          //initializing user schemas values
+          initSchemaValues(schemas);
         }, function (response) {
           var errorMessage;
           // parse error response 
@@ -146,6 +72,87 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           }
           console.log("Error retrieving user schemas: ", errorMessage);
         });
+      };
+
+      var initSchemaValues = function (schemas) {
+        // initialize plain attributes
+        for (var i = 0; i < schemas.plainSchemas.length; i++) {
+
+          var plainSchemaKey = schemas.plainSchemas[i].key;
+
+          if (!$scope.user.plainAttrs[plainSchemaKey]) {
+
+            $scope.user.plainAttrs[plainSchemaKey] = {
+              schema: plainSchemaKey,
+              values: [],
+              readonly: schemas.plainSchemas[i].readonly
+            };
+
+            // initialize multivalue schema and support table: create mode, only first value
+            if (schemas.plainSchemas[i].multivalue) {
+              $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key] = {
+                fields: [schemas.plainSchemas[i].key + "_" + 0]
+              };
+            }
+          } else if (schemas.plainSchemas[i].multivalue) {
+            // initialize multivalue schema and support table: update mode, all provided values
+            $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key] = {
+              fields: [schemas.plainSchemas[i].key + "_" + 0]
+            };
+            // add other values
+            for (var j = 1; j < $scope.user.plainAttrs[plainSchemaKey].values.length; j++) {
+              $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key].fields.push(schemas.plainSchemas[i].key + "_" + j);
+            }
+          }
+        }
+
+        // initialize derived attributes
+        for (var i = 0; i < schemas.derSchemas.length; i++) {
+
+          var derSchemaKey = schemas.derSchemas[i].key;
+
+          if (!$scope.user.derAttrs[derSchemaKey]) {
+
+            $scope.user.derAttrs[derSchemaKey] = {
+              schema: derSchemaKey,
+              values: [],
+              readonly: true
+            };
+
+          }
+        }
+
+        // initialize virtual attributes
+        for (var i = 0; i < schemas.virSchemas.length; i++) {
+
+          var virSchemaKey = schemas.virSchemas[i].key;
+
+          if (!$scope.user.virAttrs[virSchemaKey]) {
+
+            $scope.user.virAttrs[virSchemaKey] = {
+              schema: virSchemaKey,
+              values: [],
+              readonly: schemas.virSchemas[i].readonly
+            };
+            // initialize multivalue schema and support table: create mode, only first value
+            $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key] = {
+              fields: [schemas.virSchemas[i].key + "_" + 0]
+            };
+          } else {
+            // initialize multivalue schema and support table: update mode, all provided values
+            $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key] = {
+              fields: [schemas.virSchemas[i].key + "_" + 0]
+            };
+            // add other values
+            for (var j = 1; j < $scope.user.virAttrs[virSchemaKey].values.length; j++) {
+              $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key].fields.push(schemas.virSchemas[i].key + "_" + j);
+            }
+          }
+        }
+        //appending new schemas
+        $scope.dynamicForm.plainSchemas = $scope.dynamicForm.plainSchemas.concat(schemas.plainSchemas);
+        $scope.dynamicForm.derSchemas = $scope.dynamicForm.derSchemas.concat(schemas.derSchemas);
+        $scope.dynamicForm.virSchemas = $scope.dynamicForm.virSchemas.concat(schemas.virSchemas);
       };
 
       var initSecurityQuestions = function () {
@@ -188,6 +195,26 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         });
       };
 
+      var initAuxClasses = function () {
+
+        //fetching default user classes, that should remain in any case
+        AnyService.getAnyType("USER").then(function (response) {
+          $scope.dynamicForm.anyUserType = response.classes;
+          AnyService.getAuxClasses().then(function (response) {
+            for (var i = 0; i < response.length; i++) {
+              //we should only add schemas that aren't in the anyUserType
+              if ($scope.dynamicForm.anyUserType.indexOf(response[i].key) == -1) {
+                $scope.dynamicForm.auxClasses.push(response[i].key);
+              }
+            }
+          }, function (e) {
+            $scope.showError("An error occur during retrieving auxiliary classes " + e, $scope.notification)
+          });
+        }, function (e) {
+          $scope.showError("An error occur during retrieving auxiliary classes " + e, $scope.notification)
+        });
+      };
+
       var readUser = function () {
         UserSelfService.read().then(function (response) {
           $scope.user = response;
@@ -203,9 +230,46 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
                       "groupName": $scope.user.memberships[index]["groupName"]
                     });
           }
-        }, function () {
-          console.log("Error");
+          //initialize already assigned auxiliary classes
+          $scope.dynamicForm.selectedAuxClasses = $scope.user.auxClasses;
+          //we need to initialize axiliar attribute schemas
+          for (var index in $scope.user.auxClasses) {
+            $scope.$emit("auxClassAdded", $scope.user.auxClasses[index]);
+          }
+        }, function (e) {
+          console.log("Error during user read ", e);
         });
+      };
+
+      var removeUserSchemas = function (anyTypeClass) {
+
+        //removing plain schemas
+        for (var i = 0; i < $scope.dynamicForm.plainSchemas.length; i++) {
+          if ($scope.dynamicForm.plainSchemas[i].anyTypeClass == anyTypeClass) {
+            //cleaning both form and user model
+            delete $scope.user.plainAttrs[$scope.dynamicForm.plainSchemas[i].key];
+            $scope.dynamicForm.plainSchemas.splice(i, 1);
+            i--;
+          }
+        }
+        //removing derived schemas
+        for (var i = 0; i < $scope.dynamicForm.derSchemas.length; i++) {
+          if ($scope.dynamicForm.derSchemas[i].anyTypeClass == anyTypeClass) {
+            //cleaning both form and user model
+            delete $scope.user.derAttrs[$scope.dynamicForm.derSchemas[i].key];
+            $scope.dynamicForm.derSchemas.splice(i, 1);
+            i--;
+          }
+        }
+        //removing virtual schemas
+        for (var i = 0; i < $scope.dynamicForm.virSchemas.length; i++) {
+          if ($scope.dynamicForm.virSchemas[i].anyTypeClass == anyTypeClass) {
+            //cleaning both form and user model
+            delete $scope.user.virAttrs[$scope.dynamicForm.virSchemas[i].key];
+            $scope.dynamicForm.virSchemas.splice(i, 1);
+            i--;
+          }
+        }
       };
 
       if ($scope.createMode) {
@@ -219,10 +283,15 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           plainAttrs: {},
           derAttrs: {},
           virAttrs: {},
-          resources: []
+          resources: [],
+          auxClasses: []
         };
         // retrieve user realm or all available realms
         initUserRealm();
+        // initialize auxiliary schemas in case of pre-existing classes
+        for (var index in $scope.dynamicForm.selectedAuxClasses) {
+          initUserSchemas($scope.dynamicForm.selectedAuxClasses[index]);
+        }
       } else {
         // read user from syncope core
         readUser();
@@ -231,12 +300,26 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       initRealms();
       //retrieve security available questions
       initSecurityQuestions();
+      //initialize available auxiliary classes
+      initAuxClasses();
       // initialize user attributes starting from any object schemas
-      initSchemas();
+      initUserSchemas();
       // initialize available resources
       initResources();
       //initialize available groups
       initGroups();
+
+      //Event management
+      $scope.$on('auxClassAdded', function (event, auxClass) {
+        if (auxClass)
+          initUserSchemas(auxClass);
+      });
+
+      $scope.$on('auxClassRemoved', function (event, auxClass) {
+        if (auxClass)
+          removeUserSchemas(auxClass);
+      });
+
     };
 
     $scope.saveUser = function (user) {
@@ -298,63 +381,63 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         $scope.showError("Error: " + (errorMessage || response), $scope.notification);
         return;
       });
-    },
-            $scope.retrieveSecurityQuestion = function (user) {
-              if ($rootScope.pwdResetRequiringSecurityQuestions) {
-                if (user && user.username && user.username.length) {
-                  return SecurityQuestionService.
-                          getSecurityQuestionByUser(user.username).then(function (data) {
-                    $scope.userSecurityQuestion = data.content;
-                  }, function (response) {
-                    var errorMessage;
-                    // parse error response 
-                    if (response !== undefined) {
-                      errorMessage = response.split("ErrorMessage{{")[1];
-                      errorMessage = errorMessage.split("}}")[0];
-                      $scope.userSecurityQuestion = "";
-                    }
-                    $scope.showError("Error retrieving user security question: " + errorMessage, $scope.notification);
-                  });
-                }
-                else {
-                  $scope.userSecurityQuestion = "";
-                }
-              }
-            },
-            $scope.resetPassword = function (user) {
-              if (user && user.username) {
-                $scope.retrieveSecurityQuestion(user);
-                CaptchaService.validate($scope.captchaInput).then(function (response) {
-                  if (!(response === 'true')) {
-                    $scope.showError("Captcha inserted is not valid, please digit the correct captcha", $scope.notification);
-                    return;
-                  }
-                  UserSelfService.passwordReset(user).then(function (data) {
-                    $scope.showSuccess(data, $scope.notification);
-                    $location.path('/self');
-                  }, function (response) {
-                    var errorMessage;
-                    // parse error response 
-                    if (response !== undefined) {
-                      errorMessage = response.split("ErrorMessage{{")[1];
-                      errorMessage = errorMessage.split("}}")[0];
-                      $scope.showError("An error occured during password reset: " + errorMessage, $scope.notification);
-                      //we need to refresh captcha after a valid request
-                      $scope.$broadcast("refreshCaptcha");
-                    }
-                  });
-                }, function (response) {
-                  var errorMessage;
-                  // parse error response 
-                  if (response !== undefined) {
-                    errorMessage = response.split("ErrorMessage{{")[1];
-                    errorMessage = errorMessage.split("}}")[0];
-                  }
-                  $scope.showError("Error: " + (errorMessage || response), $scope.notification);
-                  return;
-                });
-              } else {
-                $scope.showError("You should use a valid and non-empty username", $scope.notification);
-              }
-            };
+    };
+    $scope.retrieveSecurityQuestion = function (user) {
+      if ($rootScope.pwdResetRequiringSecurityQuestions) {
+        if (user && user.username && user.username.length) {
+          return SecurityQuestionService.
+                  getSecurityQuestionByUser(user.username).then(function (data) {
+            $scope.userSecurityQuestion = data.content;
+          }, function (response) {
+            var errorMessage;
+            // parse error response 
+            if (response !== undefined) {
+              errorMessage = response.split("ErrorMessage{{")[1];
+              errorMessage = errorMessage.split("}}")[0];
+              $scope.userSecurityQuestion = "";
+            }
+            $scope.showError("Error retrieving user security question: " + errorMessage, $scope.notification);
+          });
+        }
+        else {
+          $scope.userSecurityQuestion = "";
+        }
+      }
+    };
+    $scope.resetPassword = function (user) {
+      if (user && user.username) {
+        $scope.retrieveSecurityQuestion(user);
+        CaptchaService.validate($scope.captchaInput).then(function (response) {
+          if (!(response === 'true')) {
+            $scope.showError("Captcha inserted is not valid, please digit the correct captcha", $scope.notification);
+            return;
+          }
+          UserSelfService.passwordReset(user).then(function (data) {
+            $scope.showSuccess(data, $scope.notification);
+            $location.path('/self');
+          }, function (response) {
+            var errorMessage;
+            // parse error response 
+            if (response !== undefined) {
+              errorMessage = response.split("ErrorMessage{{")[1];
+              errorMessage = errorMessage.split("}}")[0];
+              $scope.showError("An error occured during password reset: " + errorMessage, $scope.notification);
+              //we need to refresh captcha after a valid request
+              $scope.$broadcast("refreshCaptcha");
+            }
+          });
+        }, function (response) {
+          var errorMessage;
+          // parse error response 
+          if (response !== undefined) {
+            errorMessage = response.split("ErrorMessage{{")[1];
+            errorMessage = errorMessage.split("}}")[0];
+          }
+          $scope.showError("Error: " + (errorMessage || response), $scope.notification);
+          return;
+        });
+      } else {
+        $scope.showError("You should use a valid and non-empty username", $scope.notification);
+      }
+    };
   }]);

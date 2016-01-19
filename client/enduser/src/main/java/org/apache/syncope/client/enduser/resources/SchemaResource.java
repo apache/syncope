@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
@@ -72,15 +73,22 @@ public class SchemaResource extends AbstractBaseResource {
 
             final AnyTypeTO anyTypeUserTO = anyTypeService.read(AnyTypeKind.USER.name());
 
+            List<String> classes = new ArrayList<>();
+            String parameter = attributes.getParameters().get("anyTypeClass").toString();
+            if (parameter != null) {
+                classes.add(parameter);
+            } else {
+                classes = anyTypeUserTO.getClasses();
+            }
             final List<PlainSchemaTO> plainSchemas = schemaService.list(
                     new SchemaQuery.Builder().type(SchemaType.PLAIN).
-                    anyTypeClasses(anyTypeUserTO.getClasses()).build());
+                    anyTypeClasses(classes).build());
             final List<DerSchemaTO> derSchemas = schemaService.list(
                     new SchemaQuery.Builder().type(SchemaType.DERIVED).
-                    anyTypeClasses(anyTypeUserTO.getClasses()).build());
+                    anyTypeClasses(classes).build());
             final List<VirSchemaTO> virSchemas = schemaService.list(
                     new SchemaQuery.Builder().type(SchemaType.VIRTUAL).
-                    anyTypeClasses(anyTypeUserTO.getClasses()).build());
+                    anyTypeClasses(classes).build());
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
