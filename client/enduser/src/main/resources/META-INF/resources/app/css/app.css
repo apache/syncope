@@ -54,3 +54,7 @@ under the License.
 #resetpassword:hover {
   background: #658D5D;
 }
+#captchaImg{
+  display: block;
+  margin: 0 auto;
+}

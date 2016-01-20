@@ -40,8 +40,9 @@ under the License.
                                  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
 }
 #form-container .breadcrumb-header   { 
-  margin: 1% 11%;
-  width: 80%; padding:10px; 
+  margin: auto;
+  width: 80%; 
+  padding:10px; 
 }
 
 .signup-form {
@@ -50,7 +51,9 @@ under the License.
 }
 
 #attribute {
-  padding: 0 255px;
+  margin: auto;
+  max-width:480px;
+  padding: 10px;
 }
 
 #attribute-derived,
@@ -221,8 +224,8 @@ under the License.
 }
 
 .text-validation-error{
-    color: #dd301b;
-    font-weight: 600;
+  color: #dd301b;
+  font-weight: 600;
 }
 /* ANIMATIONS
 ============================================================================= */
