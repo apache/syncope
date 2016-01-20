@@ -81,7 +81,7 @@ public class RealmModalPanel extends AbstractModalPanel<RealmTO> {
             }
 
             info(getString(Constants.OPERATION_SUCCEEDED));
-            closeAction(target, form);
+            modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating realm", e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());

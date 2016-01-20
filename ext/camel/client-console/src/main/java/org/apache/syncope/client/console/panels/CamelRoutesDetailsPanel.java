@@ -29,6 +29,8 @@ import org.apache.wicket.model.PropertyModel;
 
 public class CamelRoutesDetailsPanel extends Panel {
 
+    private static final long serialVersionUID = -768345003061796383L;
+
     public CamelRoutesDetailsPanel(final String id, final CamelRouteTO camelRoute) {
         super(id);
 
@@ -44,8 +46,10 @@ public class CamelRoutesDetailsPanel extends Panel {
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
         response.render(OnLoadHeaderItem.forScript(
-                "CodeMirror.fromTextArea(document.getElementById('route'), {lineNumbers: true})."
-                + "on('change', updateTextArea)"));
+                "CodeMirror.fromTextArea(document.getElementById('route'), {"
+                + "  lineNumbers: true, "
+                + "  autoRefresh: true"
+                + "}).on('change', updateTextArea);"));
     }
 
 }

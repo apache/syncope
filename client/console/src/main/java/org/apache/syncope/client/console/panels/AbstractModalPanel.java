@@ -75,10 +75,6 @@ public class AbstractModalPanel<T extends Serializable> extends Panel implements
         response.render(new PriorityHeaderItem(meta));
     }
 
-    protected void closeAction(final AjaxRequestTarget target, final Form<?> form) {
-        this.modal.close(target);
-    }
-
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         modal.getNotificationPanel().refresh(target);

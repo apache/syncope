@@ -33,10 +33,8 @@ import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.DefaultModalCloseButton;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.PrimaryModalButton;
 import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -99,30 +97,15 @@ public class BaseModal<T extends Serializable> extends Modal<T> implements Notif
         this.windowClosedCallback = null;
         components = new ArrayList<>();
 
-        // Note: it would imply the adding of WebjarsJavaScriptResourceReference about JQuery resizable and mouse
+        // Note: not adding this would imply adding WebjarsJavaScriptResourceReference about JQuery resizable and mouse
         add(new Resizable().withChildSelector(".modal-content"));
 
-        // Note: it would imply the adding of WebjarsJavaScriptResourceReference about JQuery draggable
+        // Note: not adding this would imply adding of WebjarsJavaScriptResourceReference about JQuery draggable
         add(new Draggable(new DraggableConfig().withHandle(".modal-header").withCursor("move")));
 
         addButton(new DefaultModalCloseButton());
         setUseKeyboard(true);
         setFadeIn(true);
-    }
-
-    @Override
-    public final Component add(final Behavior... behaviors) {
-        return super.add(behaviors);
-    }
-
-    @Override
-    public final MarkupContainer add(final Component... childs) {
-        return super.add(childs);
-    }
-
-    @Override
-    public final MarkupContainer addOrReplace(final Component... childs) {
-        return super.addOrReplace(childs);
     }
 
     @Override

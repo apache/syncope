@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -23,15 +22,12 @@ under the License.
 
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/lib/codemirror.js"></script>
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/mode/xml/xml.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/display/autorefresh.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/search/search.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/search/searchcursor.js"></script>
     <script type="text/javascript">
       function updateTextArea(editor) {
         document.getElementById("workflowDefArea").value = editor.getValue();
-      }
-    </script>
-    <script>
-      window.onunload = refreshParent;
-      function refreshParent() {
-        window.opener.location.reload();
       }
     </script>
     <style>
@@ -45,34 +41,12 @@ under the License.
       }
     </style>
   </wicket:head>
-  <wicket:extend>
+  <wicket:panel>
     <div style="padding: 1%;">
       <div class="w_content_3">
-        <p class="ui-widget ui-corner-all ui-widget-header">
-          <wicket:message key="title"/>
-        </p>
-        <form wicket:id="workflowDefForm">
-          <div class="ui-tabs ui-widget ui-widget-content ui-corner-all">
-            <textarea wicket:id="workflowDefArea" id="workflowDefArea" style="width: 100%; height: 350px;">
-            </textarea>
-          </div>
-          <div style="padding-top: 1%;">
-            <input type="submit"
-                   class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                   wicket:id="apply"/>
-            <input type="submit"
-                   wicket:id="closePage"
-                   class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                   onclick="window.close();"/>
-          </div>
-        </form>
+        <textarea wicket:id="workflowDefArea" id="workflowDefArea" name="workflowDefArea" style="width: 100%; height: 350px;">
+        </textarea>
       </div>
     </div>
-    <script>
-      window.onload = function () {
-        var editor = CodeMirror.fromTextArea(document.getElementById("workflowDefArea"), {lineNumbers: true});
-        editor.on("change", updateTextArea);
-      };
-    </script>
-  </wicket:extend>
+  </wicket:panel>
 </html>
