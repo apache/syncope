@@ -28,8 +28,10 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 /**
  * Toggle panel.
+ *
+ * @param <T>
  */
-public abstract class TogglePanel extends Panel {
+public abstract class TogglePanel<T extends Serializable> extends Panel {
 
     private static final long serialVersionUID = -2025535531121434056L;
 
@@ -39,7 +41,7 @@ public abstract class TogglePanel extends Panel {
 
     }
 
-    protected final BaseModal<Serializable> modal;
+    protected final BaseModal<T> modal;
 
     private Status status = Status.INACTIVE;
 
@@ -50,7 +52,7 @@ public abstract class TogglePanel extends Panel {
         setRenderBodyOnly(true);
         setOutputMarkupId(true);
 
-        this.modal = new BaseModal<Serializable>("resource-modal");
+        this.modal = new BaseModal<>("resource-modal");
         add(modal);
 
         header = new Label("label", StringUtils.EMPTY);

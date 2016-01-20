@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.topology;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.io.Serializable;
 import java.text.MessageFormat;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -46,10 +47,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Toggle panel.
- */
-public class TopologyTogglePanel extends TogglePanel {
+public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -2025535531121434056L;
 
