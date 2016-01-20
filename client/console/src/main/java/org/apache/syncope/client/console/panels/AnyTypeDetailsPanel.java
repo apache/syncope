@@ -75,7 +75,7 @@ public class AnyTypeDetailsPanel extends Panel {
 
         form.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("classes",
                 new PropertyModel<List<String>>(anyTypeTO, "classes"),
-                new ListModel<>(getAvailableAnyTypeClasses())).setOutputMarkupId(true));
+                new ListModel<>(getAvailableAnyTypeClasses())).hideLabel().setOutputMarkupId(true));
     }
 
     private List<String> getAvailableAnyTypeClasses() {

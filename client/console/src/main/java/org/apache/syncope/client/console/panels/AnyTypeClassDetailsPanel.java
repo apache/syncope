@@ -75,6 +75,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
                         new PropertyModel<List<String>>(this.anyTypeClassTO, "plainSchemas"),
                         new ListModel<>(availablePlainSchemas));
 
+        plainSchema.hideLabel();
         plainSchema.setOutputMarkupId(true);
         container.add(plainSchema);
 
@@ -85,6 +86,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
                 .build("derSchemas",
                         new PropertyModel<List<String>>(this.anyTypeClassTO, "derSchemas"),
                         new ListModel<>(availableDerSchemas));
+        derSchema.hideLabel();
 
         derSchema.setOutputMarkupId(true);
         container.add(derSchema);
@@ -97,6 +99,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
                         new PropertyModel<List<String>>(this.anyTypeClassTO, "virSchemas"),
                         new ListModel<>(availableVirSchemas));
 
+        virSchema.hideLabel();
         virSchema.setOutputMarkupId(true);
         container.add(virSchema);
     }

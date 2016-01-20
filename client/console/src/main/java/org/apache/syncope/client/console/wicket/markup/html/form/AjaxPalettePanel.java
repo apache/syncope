@@ -50,9 +50,9 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
     protected Palette<T> palette;
 
-    private final Model<String> queryFilter = new Model<String>(StringUtils.EMPTY);
+    private final Model<String> queryFilter = new Model<>(StringUtils.EMPTY);
 
-    private final List<T> availableBefore = new ArrayList<T>();
+    private final List<T> availableBefore = new ArrayList<>();
 
     private final LoadableDetachableModel<List<T>> choicesModel;
 
@@ -86,7 +86,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                         ? getFilteredList(choices.getObject(), getFilter().replaceAll("\\*", "\\.\\*"))
                         : choices.getObject();
             }
-        };
+        };     
         initialize(model, builder);
     }
 
@@ -209,7 +209,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         private String availableLabel;
 
         private boolean filtered;
-
+        
         private final AjaxPaletteConf conf = new AjaxPaletteConf();
 
         private String filter = conf.getDefaultFilter();

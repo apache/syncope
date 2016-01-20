@@ -43,7 +43,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPane
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -103,7 +102,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
 
             @Override
             protected WizardMgtPanel<AbstractSchemaTO> newInstance(final String id) {
-                return new SchemaTypePanel(id, schemaType, this);
+                return new SchemaTypePanel(id, schemaType, this).setPageRef(pageRef);
             }
         }.disableCheckBoxes());
 
@@ -287,7 +286,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                         } catch (Exception e) {
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
-                        ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                        BasePage.class.cast(page).getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.SCHEMA_DELETE);
 
@@ -296,22 +295,6 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
         });
 
         return columns;
-    }
-
-    private String getEnumValuesAsString(final List<String> enumerationValues) {
-        final StringBuilder builder = new StringBuilder();
-
-        for (String str : enumerationValues) {
-            if (StringUtils.isNotBlank(str)) {
-                if (builder.length() > 0) {
-                    builder.append(SyncopeConstants.ENUM_VALUES_SEPARATOR);
-                }
-
-                builder.append(str.trim());
-            }
-        }
-
-        return builder.toString();
     }
 
     protected final class SchemaProvider extends SearchableDataProvider<AbstractSchemaTO> {
