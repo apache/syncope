@@ -18,13 +18,19 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
+import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -45,6 +51,10 @@ public class AnyTypeClassDetailsPanel extends Panel {
     private final List<String> availableDerSchemas = schemaRestClient.getDerSchemaNames();
 
     private final List<String> availableVirSchemas = schemaRestClient.getVirSchemaNames();
+
+    private static final List<String> LAYOUT_PARAMETERS =
+            Arrays.asList(new String[] { "admin.user.layout", "self.user.layout",
+        "admin.group.layout", "self.group.layout", "admin.membership.layout", "self.membership.layout" });
 
     public AnyTypeClassDetailsPanel(final String id, final AnyTypeClassTO anyTypeClassTO) {
         super(id);
@@ -106,6 +116,17 @@ public class AnyTypeClassDetailsPanel extends Panel {
 
     private void buildAvailableSchemas(final String key) {
 
+        List<String> configurationSchemas = new ArrayList<>();
+        CollectionUtils.collect(SyncopeConsoleSession.get().
+                getService(ConfigurationService.class).list(),
+                new Transformer<AttrTO, String>() {
+
+            @Override
+            public String transform(final AttrTO attrTO) {
+                return attrTO.getSchema();
+            }
+        }, configurationSchemas);
+
         for (AnyTypeClassTO item : SyncopeConsoleSession.get().getService(AnyTypeClassService.class).list()) {
             if (key == null || !item.getKey().equals(key)) {
                 availablePlainSchemas.removeAll(item.getPlainSchemas());
@@ -113,5 +134,8 @@ public class AnyTypeClassDetailsPanel extends Panel {
                 availableVirSchemas.removeAll(item.getVirSchemas());
             }
         }
+
+        availablePlainSchemas.removeAll(configurationSchemas);
+        availablePlainSchemas.removeAll(LAYOUT_PARAMETERS);
     }
 }
