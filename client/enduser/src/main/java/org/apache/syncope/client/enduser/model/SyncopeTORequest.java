@@ -32,6 +32,8 @@ public class SyncopeTORequest implements Serializable {
 
     private boolean pwdResetRequiringSecurityQuestions;
 
+    private boolean captchaEnabled;
+
     public SyncopeTORequest() {
     }
 
@@ -45,6 +47,10 @@ public class SyncopeTORequest implements Serializable {
 
     public boolean isPwdResetAllowed() {
         return pwdResetAllowed;
+    }
+
+    public boolean isCaptchaEnabled() {
+        return captchaEnabled;
     }
 
     public boolean isPwdResetRequiringSecurityQuestions() {
@@ -65,6 +71,10 @@ public class SyncopeTORequest implements Serializable {
 
     public void setPwdResetRequiringSecurityQuestions(final boolean pwdResetRequiringSecurityQuestions) {
         this.pwdResetRequiringSecurityQuestions = pwdResetRequiringSecurityQuestions;
+    }
+
+    public void setCaptchaEnabled(final boolean captchaEnabled) {
+        this.captchaEnabled = captchaEnabled;
     }
 
 }

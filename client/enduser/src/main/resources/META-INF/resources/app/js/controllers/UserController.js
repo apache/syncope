@@ -324,63 +324,48 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
     $scope.saveUser = function (user) {
       console.log("Save user: ", user);
-      // validate captcha and then save user
-      CaptchaService.validate($scope.captchaInput).then(function (response) {
-        if (!(response === 'true')) {
-          $scope.showError("Captcha inserted is not valid, please digit the correct captcha", $scope.notification);
-          return;
-        }
+      // setting captcha value while saving user
+      user.captcha = $scope.captchaInput.value;
 
-        if ($scope.createMode) {
+      if ($scope.createMode) {
 
-          UserSelfService.create(user).then(function (response) {
-            console.log("Created user: ", response);
-            $scope.showSuccess("User " + $scope.user.username + " successfully created", $scope.notification);
+        UserSelfService.create(user).then(function (response) {
+          console.log("Created user: ", response);
+          $scope.showSuccess("User " + $scope.user.username + " successfully created", $scope.notification);
+          $location.path('/self');
+        }, function (response) {
+          console.log("Error during user creation: ", response);
+          var errorMessage;
+          // parse error response 
+          if (response !== undefined) {
+            errorMessage = response.split("ErrorMessage{{")[1];
+            errorMessage = errorMessage.split("}}")[0];
+          }
+          $scope.showError("Error: " + (errorMessage || response), $scope.notification);
+        });
+
+      } else {
+
+        UserSelfService.update(user).then(function (response) {
+          console.log("Updated user: ", response);
+          AuthService.logout().then(function (response) {
+            console.log("LOGOUT SUCCESS: ", response);
             $location.path('/self');
-          }, function (response) {
-            console.log("Error during user creation: ", response);
-            var errorMessage;
-            // parse error response 
-            if (response !== undefined) {
-              errorMessage = response.split("ErrorMessage{{")[1];
-              errorMessage = errorMessage.split("}}")[0];
-            }
-            $scope.showError("Error: " + (errorMessage || response), $scope.notification);
+            $scope.showSuccess("User " + $scope.user.username + " successfully updated", $scope.notification);
+          }, function () {
+            console.log("LOGOUT FAILED");
           });
-
-        } else {
-
-          UserSelfService.update(user).then(function (response) {
-            console.log("Updated user: ", response);
-            AuthService.logout().then(function (response) {
-              console.log("LOGOUT SUCCESS: ", response);
-              $location.path('/self');
-              $scope.showSuccess("User " + $scope.user.username + " successfully updated", $scope.notification);
-            }, function () {
-              console.log("LOGOUT FAILED");
-            });
-          }, function (response) {
-            console.log("Error during user update: ", response);
-            var errorMessage;
-            // parse error response 
-            if (response !== undefined) {
-              errorMessage = response.split("ErrorMessage{{")[1];
-              errorMessage = errorMessage.split("}}")[0];
-            }
-            $scope.showError("Error: " + (errorMessage || response), $scope.notification);
-          });
-        }
-      }, function (response) {
-        console.log("Error during validate captcha ", response);
-        var errorMessage;
-        // parse error response 
-        if (response !== undefined) {
-          errorMessage = response.split("ErrorMessage{{")[1];
-          errorMessage = errorMessage.split("}}")[0];
-        }
-        $scope.showError("Error: " + (errorMessage || response), $scope.notification);
-        return;
-      });
+        }, function (response) {
+          console.log("Error during user update: ", response);
+          var errorMessage;
+          // parse error response 
+          if (response !== undefined) {
+            errorMessage = response.split("ErrorMessage{{")[1];
+            errorMessage = errorMessage.split("}}")[0];
+          }
+          $scope.showError("Error: " + (errorMessage || response), $scope.notification);
+        });
+      }
     };
     $scope.retrieveSecurityQuestion = function (user) {
       if ($rootScope.pwdResetRequiringSecurityQuestions) {
@@ -407,34 +392,21 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     $scope.resetPassword = function (user) {
       if (user && user.username) {
         $scope.retrieveSecurityQuestion(user);
-        CaptchaService.validate($scope.captchaInput).then(function (response) {
-          if (!(response === 'true')) {
-            $scope.showError("Captcha inserted is not valid, please digit the correct captcha", $scope.notification);
-            return;
-          }
-          UserSelfService.passwordReset(user).then(function (data) {
-            $scope.showSuccess(data, $scope.notification);
-            $location.path('/self');
-          }, function (response) {
-            var errorMessage;
-            // parse error response 
-            if (response !== undefined) {
-              errorMessage = response.split("ErrorMessage{{")[1];
-              errorMessage = errorMessage.split("}}")[0];
-              $scope.showError("An error occured during password reset: " + errorMessage, $scope.notification);
-              //we need to refresh captcha after a valid request
-              $scope.$broadcast("refreshCaptcha");
-            }
-          });
+        // setting captcha value while saving user
+        user.captcha = $scope.captchaInput.value;
+        UserSelfService.passwordReset(user).then(function (data) {
+          $scope.showSuccess(data, $scope.notification);
+          $location.path('/self');
         }, function (response) {
           var errorMessage;
           // parse error response 
           if (response !== undefined) {
             errorMessage = response.split("ErrorMessage{{")[1];
             errorMessage = errorMessage.split("}}")[0];
+            $scope.showError("An error occured during password reset: " + errorMessage, $scope.notification);
+            //we need to refresh captcha after a valid request
+            $scope.$broadcast("refreshCaptcha");
           }
-          $scope.showError("Error: " + (errorMessage || response), $scope.notification);
-          return;
         });
       } else {
         $scope.showError("You should use a valid and non-empty username", $scope.notification);

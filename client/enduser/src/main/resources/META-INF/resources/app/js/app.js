@@ -283,6 +283,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $rootScope.pwdResetAllowed = false;
       $rootScope.version = "";
       $rootScope.pwdResetRequiringSecurityQuestions = false;
+      $rootScope.captchaEnabled = false;
       //info settings are initialized every time an user open the login page
       InfoService.getInfo().then(
               function (response) {
@@ -290,6 +291,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
                 $rootScope.selfRegAllowed = response.selfRegAllowed;
                 $rootScope.version = response.version;
                 $rootScope.pwdResetRequiringSecurityQuestions = response.pwdResetRequiringSecurityQuestions;
+                $rootScope.captchaEnabled = response.captchaEnabled;
               },
               function (response) {
                 console.log("Something went wrong while accessing info resource", response);

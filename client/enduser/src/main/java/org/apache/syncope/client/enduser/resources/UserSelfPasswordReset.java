@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -53,10 +54,19 @@ public class UserSelfPasswordReset extends AbstractBaseResource {
                 response.setError(Response.Status.BAD_REQUEST.getStatusCode(), "XSRF TOKEN does not match");
                 return response;
             }
+
             Map<String, String[]> parameters = request.getParameterMap();
             if (parameters.get("username") == null || parameters.get("username").length == 0) {
                 throw new Exception("A valid username should be provided");
             }
+
+            if (parameters.get("captcha") == null || parameters.get("captcha").length == 0 || !captchaCheck(parameters.
+                    get("captcha")[0], request.getSession().getAttribute(SyncopeEnduserConstants.CAPTCHA_SESSION_KEY).
+                    toString())) {
+                LOG.error("Entered captcha is not matching");
+                throw new Exception("Entered captcha is not matching");
+            }
+
             if (SyncopeEnduserSession.get().getSyncopeTO().isPwdResetRequiringSecurityQuestions()) {
                 if (parameters.get("securityanswer") == null || parameters.get("securityanswer").length == 0) {
                     throw new Exception("A correct security answer should be provided");

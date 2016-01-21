@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.resources;
 
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -48,9 +49,26 @@ public abstract class AbstractBaseResource extends AbstractResource {
 
     protected final boolean xsrfCheck(final HttpServletRequest request) {
         final String requestXSRFHeader = request.getHeader(SyncopeEnduserConstants.XSRF_HEADER_NAME);
-        return StringUtils.isNotBlank(requestXSRFHeader)
-                && SyncopeEnduserSession.get().getCookieUtils().getCookie(SyncopeEnduserConstants.XSRF_COOKIE).
-                getValue().equals(requestXSRFHeader);
+        if (SyncopeEnduserApplication.get().isXsrfEnabled()) {
+            return StringUtils.isNotBlank(requestXSRFHeader)
+                    && SyncopeEnduserSession.get().getCookieUtils().getCookie(SyncopeEnduserConstants.XSRF_COOKIE).
+                    getValue().equals(requestXSRFHeader);
+        } else {
+            //if xsfr is disabled, we return always true
+            return true;
+        }
     }
 
+    protected final boolean captchaCheck(final String enteredCaptcha, final String currentCaptcha) {
+        if (SyncopeEnduserApplication.get().isCaptchaEnabled()) {
+            if (StringUtils.isBlank(currentCaptcha) || enteredCaptcha == null) {
+                return false;
+            } else {
+                return enteredCaptcha.equals(currentCaptcha);
+            }
+        } else {
+            //if captcha is disabled, we return always true
+            return true;
+        }
+    }
 }

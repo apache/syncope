@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.enduser.adapters;
 
+import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.model.SyncopeTORequest;
 import org.apache.syncope.common.lib.to.SyncopeTO;
 import org.slf4j.Logger;
@@ -34,6 +35,7 @@ public class SyncopeTOAdapter {
         syncopeTORequest.setSelfRegAllowed(syncopeTO.isSelfRegAllowed());
         syncopeTORequest.setPwdResetRequiringSecurityQuestions(syncopeTO.isPwdResetRequiringSecurityQuestions());
         syncopeTORequest.setVersion(syncopeTO.getVersion());
+        syncopeTORequest.setCaptchaEnabled(SyncopeEnduserApplication.get().isCaptchaEnabled());
 
         return syncopeTORequest;
     }

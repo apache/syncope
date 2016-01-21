@@ -35,18 +35,6 @@ angular.module('self')
                       });
             };
 
-            captchaService.validate = function (captcha) {
-              return $http
-                      .post('/syncope-enduser/api/captcha/validate', captcha)
-                      .then(function (response) {
-                        return response.data;
-                      }, function (response) {
-                        console.log("Something went wrong during validation of captcha: , exit with status: ", captcha,
-                                response.statusText);
-                        return $q.reject(response.data || response.statusText);
-                      });
-            };
-
             return captchaService;
 
           }]);

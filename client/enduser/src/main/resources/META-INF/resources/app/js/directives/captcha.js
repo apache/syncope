@@ -25,10 +25,11 @@ angular.module('self')
             templateUrl: 'views/captcha.html',
             scope: {
               input: "=",
+              captchaEnabled : '=enabled'
             },
             controller: function ($scope) {
               $scope.captchaUrl = '';
-              
+                            
               //initialize captcha
               $scope.refreshCaptcha = function () {
                 console.log("REFRESH CAPTCHA")

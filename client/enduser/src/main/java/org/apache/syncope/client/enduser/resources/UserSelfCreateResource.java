@@ -21,6 +21,7 @@ package org.apache.syncope.client.enduser.resources;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.UserTOAdapter;
 import org.apache.syncope.client.enduser.model.UserTORequest;
@@ -60,8 +61,14 @@ public class UserSelfCreateResource extends AbstractBaseResource {
             }
 
             String jsonString = request.getReader().readLine();
-            
+
             final UserTORequest userTORequest = POJOHelper.deserialize(jsonString, UserTORequest.class);
+
+            if (!captchaCheck(userTORequest.getCaptcha(), request.getSession().getAttribute(
+                    SyncopeEnduserConstants.CAPTCHA_SESSION_KEY).toString())) {
+                LOG.error("Entered captcha is not matching");
+                throw new Exception("Entered captcha is not matching");
+            }
 
             if (isSelfRegistrationAllowed() && userTORequest != null) {
                 LOG.debug("Received user self registration request for user: [{}]", userTORequest.getUsername());

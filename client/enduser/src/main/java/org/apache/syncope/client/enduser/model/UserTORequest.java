@@ -57,6 +57,8 @@ public class UserTORequest implements Serializable {
 
     private List<String> auxClasses = new ArrayList<>();
 
+    private String captcha;
+
     public UserTORequest() {
     }
 
@@ -156,6 +158,14 @@ public class UserTORequest implements Serializable {
         this.auxClasses = auxClasses;
     }
 
+    public String getCaptcha() {
+        return captcha;
+    }
+
+    public void setCaptcha(final String captcha) {
+        this.captcha = captcha;
+    }
+
     public UserTORequest key(final Long value) {
         this.key = value;
         return this;
@@ -208,6 +218,11 @@ public class UserTORequest implements Serializable {
 
     public UserTORequest auxClasses(final List<String> value) {
         this.auxClasses = value;
+        return this;
+    }
+
+    public UserTORequest captcha(final String value) {
+        this.captcha = value;
         return this;
     }
 

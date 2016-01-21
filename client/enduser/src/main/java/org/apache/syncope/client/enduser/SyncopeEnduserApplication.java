@@ -28,7 +28,6 @@ import java.util.Locale;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.syncope.client.enduser.resources.CaptchaResource;
-import org.apache.syncope.client.enduser.resources.CaptchaValidateResource;
 import org.apache.syncope.client.enduser.resources.InfoResource;
 import org.apache.syncope.client.enduser.resources.LoginResource;
 import org.apache.syncope.client.enduser.resources.LogoutResource;
@@ -78,6 +77,10 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     private String anonymousKey;
 
+    private boolean captchaEnabled;
+
+    private boolean xsrfEnabled;
+
     private SyncopeClientFactoryBean clientFactory;
 
     @Override
@@ -109,6 +112,12 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         Assert.notNull(anonymousUser, "<anonymousUser> not set");
         anonymousKey = props.getProperty("anonymousKey");
         Assert.notNull(anonymousKey, "<anonymousKey> not set");
+
+        captchaEnabled = Boolean.parseBoolean(props.getProperty("captcha"));
+        Assert.notNull(captchaEnabled, "<captcha> not set");
+
+        xsrfEnabled = Boolean.parseBoolean(props.getProperty("xsrf"));
+        Assert.notNull(xsrfEnabled, "<xsrf> not set");
 
         String scheme = props.getProperty("scheme");
         Assert.notNull(scheme, "<scheme> not set");
@@ -248,17 +257,6 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             }
         });
 
-        // resource to validate current captcha
-        mountResource("/api/captcha/validate", new ResourceReference("captchaValidate") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new CaptchaValidateResource();
-            }
-        });
-
         mountResource("/api/groups", new ResourceReference("groups") {
 
             private static final long serialVersionUID = -128426276529456602L;
@@ -323,6 +321,14 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     public SyncopeClientFactoryBean getClientFactory() {
         return clientFactory;
+    }
+
+    public boolean isCaptchaEnabled() {
+        return captchaEnabled;
+    }
+
+    public boolean isXsrfEnabled() {
+        return xsrfEnabled;
     }
 
 }
