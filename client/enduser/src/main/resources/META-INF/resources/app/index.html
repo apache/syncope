@@ -43,9 +43,10 @@ under the License.
     <span id="notifications" kendo-notification="notifications"></span>
     
     <!--<div ng-view ng-cloak ng-controller="ApplicationController"></div>-->
-    <div ui-view ng-cloak ng-controller="ApplicationController" ng-init="initApplication()">      
-    </div>    
-
+    <treasure-overlay-spinner active='spinner.active'>
+      <div ui-view ng-cloak ng-controller="ApplicationController" ng-init="initApplication()">      
+      </div>    
+    </treasure-overlay-spinner>
     <!--    <footer id="footer" class="hidden-print">
           <ul class="nav pull-right">
               <li>
@@ -73,6 +74,7 @@ under the License.
     <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/kendo.ui.core.min.js"></script>
     <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/kendo.notification.min.js"></script>
     <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/kendo.angular.js"></script>
+    <script src="../webjars/angular-treasure-overlay-spinner/${angular-treasure-overlay-spinner}/dist/treasure-overlay-spinner.min.js"></script>
     <script type="text/javascript" src="../webjars/bootstrap-select/${bootstrap-select.version}/js/bootstrap-select.min.js"></script>
     <script src="../webjars/FileSaver.js/${FileSaver.version}/FileSaver.js" type="text/javascript"></script>
     <!--main angular application-->
@@ -121,6 +123,7 @@ under the License.
     <link href="../webjars/angular-ui-select/${angular-ui-select.version}/select.css" rel="stylesheet" type="text/css"/>
     <link href="../webjars//kendo-ui-core/${kendo-ui-core.version}/styles/web/kendo.common.core.min.css" rel="stylesheet" type="text/css"/>
     <link href="../webjars//kendo-ui-core/${kendo-ui-core.version}/styles/web/kendo.default.min.css" rel="stylesheet" type="text/css"/>
+    <link href="../webjars/angular-treasure-overlay-spinner/${angular-treasure-overlay-spinner}/dist/treasure-overlay-spinner.min.css" rel="stylesheet" type="text/css"/>
     <link href="../webjars/select2/${select2.version}/select2.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" type="text/css" />
     <link href="css/login.css" rel="stylesheet" type="text/css" />

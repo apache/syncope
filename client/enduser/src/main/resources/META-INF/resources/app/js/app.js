@@ -34,6 +34,7 @@ var app = angular.module('SyncopeEnduserApp', [
   'ngAnimate',
   'ngResource',
   'ngCookies',
+  'treasure-overlay-spinner',
   'kendo.directives',
   'home',
   'login',
@@ -196,21 +197,15 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
           if (config.url.indexOf('.html', config.url.length - 5) == -1) {
             $rootScope.$broadcast("xhrStarted");
           }
-          /*numLoadings++;
-           // Show loader
-           if (config.url.indexOf("skipLoader=true") == -1) {
-           $rootScope.$broadcast("loader_show");
-           }*/
+          $rootScope.spinner.on();
           return config || $q.when(config);
         },
-//        'response': function (response) {
-//          if ((--numLoadings) === 0) {
-//            // Hide loader
-//            $rootScope.$broadcast("loader_hide");
-//          }
-//          return response || $q.when(response);
-//        },
+        'response': function (response) {
+          $rootScope.spinner.off();
+          return response || $q.when(response);
+        },
         'responseError': function (response) {
+          $rootScope.spinner.off();
           if (response.config.url.indexOf("acceptError=true") == -1) {
             var status = response.status;
             if (status == 401) {
@@ -270,6 +265,15 @@ app.run(['$rootScope', '$location', '$cookies', '$state',
 //                $location.path('/self');
 //            }
 //        });
+    $rootScope.spinner = {
+      active: false,
+      on: function () {
+        this.active = true;
+      },
+      off: function () {
+        this.active = false;
+      }
+    };
   }]);
 
 app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', function ($scope, $rootScope,
@@ -317,7 +321,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
           component.show(message, "success");
         }
       }
-      $scope.showError = function (message, component) {        
+      $scope.showError = function (message, component) {
         if (!$scope.notificationExists(message)) {
           component.options.autoHideAfter = 0;
           component.show(message, "error");
@@ -370,7 +374,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       });
       //Intercepting xhr start event
       $scope.$on('xhrStarted', function (event, next, current) {
-        $scope.hideNotifications(0);
+        $scope.hideNotifications(0);           
       });
     }
   }]);
