@@ -100,6 +100,8 @@ public class SyncopeEnduserSession extends WebSession {
             // for every  request
             this.bind();
             authenticated = true;
+            //we should clear all the previous services
+            services.clear();
         } catch (Exception e) {
             LOG.error("Authentication failed", e);
         }
