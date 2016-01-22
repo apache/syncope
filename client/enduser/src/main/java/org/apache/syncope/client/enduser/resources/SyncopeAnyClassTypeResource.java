@@ -23,7 +23,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.adapters.GroupTOAdapter;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
@@ -39,10 +38,7 @@ public class SyncopeAnyClassTypeResource extends AbstractBaseResource {
 
     private final AnyTypeClassService anyTypeClassService;
 
-    private final GroupTOAdapter groupTOAdapter;
-
-    public SyncopeAnyClassTypeResource() {
-        groupTOAdapter = new GroupTOAdapter();
+    public SyncopeAnyClassTypeResource() {        
         anyTypeClassService = SyncopeEnduserSession.get().getService(AnyTypeClassService.class);
     }
 

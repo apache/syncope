@@ -56,12 +56,15 @@ public class UserSelfPasswordReset extends AbstractBaseResource {
             }
 
             Map<String, String[]> parameters = request.getParameterMap();
+            String username;
             if (parameters.get("username") == null || parameters.get("username").length == 0) {
                 throw new Exception("A valid username should be provided");
+            } else {
+                username = parameters.get("username")[0];
             }
 
-            if (parameters.get("captcha") == null || parameters.get("captcha").length == 0 || !captchaCheck(parameters.
-                    get("captcha")[0], request.getSession().getAttribute(SyncopeEnduserConstants.CAPTCHA_SESSION_KEY).
+            if (request.getHeader("captcha") == null || !captchaCheck(request.getHeader("captcha"), request.
+                    getSession().getAttribute(SyncopeEnduserConstants.CAPTCHA_SESSION_KEY).
                     toString())) {
                 LOG.error("Entered captcha is not matching");
                 throw new Exception("Entered captcha is not matching");
@@ -71,13 +74,13 @@ public class UserSelfPasswordReset extends AbstractBaseResource {
                 if (parameters.get("securityanswer") == null || parameters.get("securityanswer").length == 0) {
                     throw new Exception("A correct security answer should be provided");
                 }
-                userSelfService.requestPasswordReset(parameters.get("username")[0],
+                userSelfService.requestPasswordReset(username,
                         parameters.get("securityanswer")[0]);
             } else {
-                userSelfService.requestPasswordReset(parameters.get("username")[0], null);
+                userSelfService.requestPasswordReset(username, null);
             }
             final String responseMessage = new StringBuilder().append("Password reset request sent for user ").append(
-                    parameters.get("username")[0]).toString();
+                    username).toString();
 
             response.setWriteCallback(new WriteCallback() {
 

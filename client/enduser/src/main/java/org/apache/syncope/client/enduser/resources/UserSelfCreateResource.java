@@ -23,8 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.adapters.UserTOAdapter;
-import org.apache.syncope.client.enduser.model.UserTORequest;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.slf4j.Logger;
@@ -38,10 +37,7 @@ public class UserSelfCreateResource extends AbstractBaseResource {
 
     private final UserSelfService userSelfService;
 
-    private final UserTOAdapter userTOAdapter;
-
     public UserSelfCreateResource() {
-        userTOAdapter = new UserTOAdapter();
         userSelfService = SyncopeEnduserSession.get().getService(UserSelfService.class);
     }
 
@@ -62,19 +58,19 @@ public class UserSelfCreateResource extends AbstractBaseResource {
 
             String jsonString = request.getReader().readLine();
 
-            final UserTORequest userTORequest = POJOHelper.deserialize(jsonString, UserTORequest.class);
+            final UserTO userTO = POJOHelper.deserialize(jsonString, UserTO.class);
 
-            if (!captchaCheck(userTORequest.getCaptcha(), request.getSession().getAttribute(
+            if (!captchaCheck(request.getHeader("captcha"), request.getSession().getAttribute(
                     SyncopeEnduserConstants.CAPTCHA_SESSION_KEY).toString())) {
                 LOG.error("Entered captcha is not matching");
                 throw new Exception("Entered captcha is not matching");
             }
 
-            if (isSelfRegistrationAllowed() && userTORequest != null) {
-                LOG.debug("Received user self registration request for user: [{}]", userTORequest.getUsername());
-                LOG.trace("Received user self registration request is: [{}]", userTORequest);
+            if (isSelfRegistrationAllowed() && userTO != null) {
+                LOG.debug("Received user self registration request for user: [{}]", userTO.getUsername());
+                LOG.trace("Received user self registration request is: [{}]", userTO);
                 // adapt request and create user
-                final Response res = userSelfService.create(userTOAdapter.fromUserTORequest(userTORequest, null), true);
+                final Response res = userSelfService.create(userTO, true);
 
                 response.setWriteCallback(new WriteCallback() {
 
@@ -82,7 +78,7 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                     public void writeData(final Attributes attributes) throws IOException {
                         attributes.getResponse().write(res.getStatusInfo().getFamily().equals(
                                 Response.Status.Family.SUCCESSFUL)
-                                        ? responseMessage.append("User: ").append(userTORequest.getUsername()).append(
+                                        ? responseMessage.append("User: ").append(userTO.getUsername()).append(
                                                 " successfully created")
                                         : new StringBuilder().append("ErrorMessage{{ ").
                                         append(res.getStatusInfo().getReasonPhrase()).append(" }}"));
@@ -91,7 +87,7 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                 response.setStatusCode(res.getStatus());
             } else {
                 response.setError(Response.Status.FORBIDDEN.getStatusCode(), new StringBuilder().
-                        append("ErrorMessage{{").append(userTORequest == null
+                        append("ErrorMessage{{").append(userTO == null
                                         ? "Request received is not valid }}"
                                         : "Self registration not allowed }}").toString());
             }

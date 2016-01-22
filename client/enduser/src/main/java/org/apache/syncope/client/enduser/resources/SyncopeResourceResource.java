@@ -23,7 +23,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.adapters.ResourceTOAdapter;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
@@ -40,10 +39,7 @@ public class SyncopeResourceResource extends AbstractBaseResource {
 
     private final ResourceService resourceService;
 
-    private final ResourceTOAdapter resourceTOAdapter;
-
     public SyncopeResourceResource() {
-        resourceTOAdapter = new ResourceTOAdapter();
         resourceService = SyncopeEnduserSession.get().getService(ResourceService.class);
     }
 
@@ -69,7 +65,7 @@ public class SyncopeResourceResource extends AbstractBaseResource {
 
                 @Override
                 public void writeData(final IResource.Attributes attributes) throws IOException {
-                    attributes.getResponse().write(POJOHelper.serialize(resourceTOAdapter.fromResourceTO(resourceTOs)));
+                    attributes.getResponse().write(POJOHelper.serialize(resourceTOs));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());

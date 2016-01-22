@@ -23,7 +23,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.adapters.GroupTOAdapter;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
@@ -41,10 +40,7 @@ public class SyncopeGroupResource extends AbstractBaseResource {
 
     private final GroupService groupService;
 
-    private final GroupTOAdapter groupTOAdapter;
-
     public SyncopeGroupResource() {
-        groupTOAdapter = new GroupTOAdapter();
         groupService = SyncopeEnduserSession.get().getService(GroupService.class);
     }
 
@@ -73,7 +69,7 @@ public class SyncopeGroupResource extends AbstractBaseResource {
 
                 @Override
                 public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(POJOHelper.serialize(groupTOAdapter.fromGroupTO(groupTOs)));
+                    attributes.getResponse().write(POJOHelper.serialize(groupTOs));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());

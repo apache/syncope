@@ -21,15 +21,13 @@ package org.apache.syncope.client.enduser.resources;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.adapters.UserTOAdapter;
-import org.apache.syncope.client.enduser.model.UserTORequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
-import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,10 +39,8 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
 
     private final UserSelfService userSelfService;
 
-    private final UserTOAdapter userTOAdapter;
 
     public UserSelfUpdateResource() {
-        userTOAdapter = new UserTOAdapter();
         userSelfService = SyncopeEnduserSession.get().getService(UserSelfService.class);
     }
 
@@ -61,24 +57,26 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
                 return response;
             }
 
-            final UserTORequest userTOResponse = POJOHelper.deserialize(IOUtils.toString(request.getInputStream()),
-                    UserTORequest.class);
+            String jsonString = request.getReader().readLine();
 
-            LOG.trace("userTOResponse: {}", userTOResponse);
+            final UserTO userTO = POJOHelper.deserialize(jsonString, UserTO.class);
 
-            // adapt user, change self password only value passed is not null and has changed
-            UserTO userTO = userTOAdapter.fromUserTORequest(userTOResponse, SyncopeEnduserSession.get().getPassword());
-
+            if (!captchaCheck(request.getHeader("captcha"), request.getSession().getAttribute(
+                    SyncopeEnduserConstants.CAPTCHA_SESSION_KEY).toString())) {
+                LOG.error("Entered captcha is not matching");
+                throw new Exception("Entered captcha is not matching");
+            }
+            
             LOG.debug("User {} id updating himself", userTO.getUsername());
 
             // update user
             Response res = userSelfService.update(userTO);
 
             final String responseMessage = res.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)
-                            ? new StringBuilder().append("User").append(userTO.getUsername()).append(
+                    ? new StringBuilder().append("User").append(userTO.getUsername()).append(
                             " successfully updated").toString()
-                            : new StringBuilder().append("ErrorMessage{{ ").
-                            append(res.getStatusInfo().getReasonPhrase()).append(" }}").toString();
+                    : new StringBuilder().append("ErrorMessage{{ ").
+                    append(res.getStatusInfo().getReasonPhrase()).append(" }}").toString();
 
             response.setWriteCallback(new WriteCallback() {
 

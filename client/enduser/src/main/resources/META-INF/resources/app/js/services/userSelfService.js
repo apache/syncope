@@ -34,9 +34,12 @@ angular.module('login')
                         return $q.reject(response.data || response.statusText);
                       });
             };
-            userSelfService.create = function (user) {
+            userSelfService.create = function (user, captcha) {
               return $http
-                      .post('/syncope-enduser/api/self/create', user)
+                      .post('/syncope-enduser/api/self/create', user,
+                              {
+                                headers: {'captcha': captcha}
+                              })
                       .then(function (response) {
                         console.log("response save: ", response);
                         var username = response;
@@ -45,9 +48,12 @@ angular.module('login')
                         return $q.reject(response.data || response.statusText);
                       });
             };
-            userSelfService.update = function (user) {
+            userSelfService.update = function (user, captcha) {
               return $http
-                      .post('/syncope-enduser/api/self/update', user)
+                      .post('/syncope-enduser/api/self/update', user,
+                              {
+                                headers: {'captcha': captcha}
+                              })
                       .then(function (response) {
                         var username = response;
                       }, function (response) {
@@ -55,11 +61,14 @@ angular.module('login')
                         return $q.reject(response.data || response.statusText);
                       });
             };
-            userSelfService.passwordReset = function (user) {
+            userSelfService.passwordReset = function (user, captcha) {
               return $http
                       .post('/syncope-enduser/api/self/requestPasswordReset', user,
                               {
-                                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
+                                headers: {
+                                  'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+                                  'captcha': captcha
+                                },
                                 transformRequest: function (obj) {
                                   var str = [];
                                   for (var p in obj)

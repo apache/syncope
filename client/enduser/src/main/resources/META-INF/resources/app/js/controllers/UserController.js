@@ -21,9 +21,9 @@
 
 angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', 'AuthService',
   'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService', 'CaptchaService',
-  'GroupService', 'AnyService',
+  'GroupService', 'AnyService', 'UserUtil',
   function ($scope, $rootScope, $location, $compile, AuthService, UserSelfService, SchemaService, RealmService,
-          ResourceService, SecurityQuestionService, CaptchaService, GroupService, AnyService) {
+          ResourceService, SecurityQuestionService, CaptchaService, GroupService, AnyService, UserUtil) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -179,7 +179,9 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
       var initResources = function () {
         ResourceService.getResources().then(function (response) {
-          $scope.dynamicForm.resources = response.resources;
+          for (var i in response) {
+            $scope.dynamicForm.resources.push(response[i].key);
+          }
         });
       };
 
@@ -187,8 +189,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         var realm = $scope.user.realm || "/";
         GroupService.getGroups(realm).then(function (response) {
           $scope.dynamicForm.groups = new Array();
-          for (var key in response.groups) {
-            $scope.dynamicForm.groups.push({"rightKey": key, "groupName": response.groups[key]});
+          for (var i in response) {
+            $scope.dynamicForm.groups.push({"rightKey": response[i].key, "groupName": response[i].name});
           }
         }, function (e) {
           $scope.showError("An error occur during retrieving groups " + e, $scope.notification)
@@ -217,7 +219,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
       var readUser = function () {
         UserSelfService.read().then(function (response) {
-          $scope.user = response;
+          $scope.user = UserUtil.getUnwrappedUser(response);
           $scope.user.password = undefined;
           $scope.initialSecurityQuestion = $scope.user.securityQuestion;
           // initialize already assigned resources
@@ -324,12 +326,12 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
     $scope.saveUser = function (user) {
       console.log("Save user: ", user);
-      // setting captcha value while saving user
-      user.captcha = $scope.captchaInput.value;
+
+      var wrappedUser = UserUtil.getWrappedUser(user);
 
       if ($scope.createMode) {
 
-        UserSelfService.create(user).then(function (response) {
+        UserSelfService.create(wrappedUser, $scope.captchaInput.value).then(function (response) {
           console.log("Created user: ", response);
           $scope.showSuccess("User " + $scope.user.username + " successfully created", $scope.notification);
           $location.path('/self');
@@ -346,7 +348,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
       } else {
 
-        UserSelfService.update(user).then(function (response) {
+        UserSelfService.update(wrappedUser, $scope.captchaInput.value).then(function (response) {
           console.log("Updated user: ", response);
           AuthService.logout().then(function (response) {
             console.log("LOGOUT SUCCESS: ", response);
@@ -392,9 +394,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     $scope.resetPassword = function (user) {
       if (user && user.username) {
         $scope.retrieveSecurityQuestion(user);
-        // setting captcha value while saving user
-        user.captcha = $scope.captchaInput.value;
-        UserSelfService.passwordReset(user).then(function (data) {
+        UserSelfService.passwordReset(user,$scope.captchaInput.value).then(function (data) {
           $scope.showSuccess(data, $scope.notification);
           $location.path('/self');
         }, function (response) {
