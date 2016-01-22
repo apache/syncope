@@ -35,6 +35,7 @@ var app = angular.module('SyncopeEnduserApp', [
   'ngResource',
   'ngCookies',
   'treasure-overlay-spinner',
+  'ngPasswordStrength',
   'kendo.directives',
   'home',
   'login',
