@@ -67,7 +67,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         createSchema(SchemaType.PLAIN, schemaTO);
 
         AnyTypeClassTO typeClass = new AnyTypeClassTO();
-        typeClass.setKey("camelAttribute");
+        typeClass.setKey("camelAttribute" + getUUIDString());
         typeClass.getPlainSchemas().add(schemaTO.getKey());
         anyTypeClassService.create(typeClass);
 

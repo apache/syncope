@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 /**
- * Thrown when something is not found.
+ * Thrown when someone is attempting to create an entity with the same key of another existing entity.
  */
 public class DuplicateException extends RuntimeException {
 

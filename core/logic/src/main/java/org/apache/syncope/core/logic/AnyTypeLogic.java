@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.misc.EntitlementsHolder;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +73,15 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_CREATE + "')")
     public AnyTypeTO create(final AnyTypeTO anyTypeTO) {
+        if (StringUtils.isBlank(anyTypeTO.getKey())) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+            sce.getElements().add(AnyType.class.getSimpleName() + " name");
+            throw sce;
+        }
+        if (anyTypeDAO.find(anyTypeTO.getKey()) != null) {
+            throw new DuplicateException(anyTypeTO.getKey());
+        }
+
         AnyTypeTO result = binder.getAnyTypeTO(anyTypeDAO.save(binder.create(anyTypeTO)));
         EntitlementsHolder.getInstance().addFor(result.getKey());
         return result;

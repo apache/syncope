@@ -134,4 +134,20 @@ public class AnyTypeClassITCase extends AbstractITCase {
         assertNotNull(newClass);
         assertFalse(newClass.getPlainSchemas().contains(newSchema.getKey()));
     }
+
+    @Test
+    public void issueSYNCOPE759() {
+        AnyTypeClassTO minimalGroup = anyTypeClassService.read("minimal group");
+        assertNotNull(minimalGroup);
+
+        AnyTypeClassTO newAnyTypeClass = new AnyTypeClassTO();
+        newAnyTypeClass.setKey(minimalGroup.getKey());
+
+        try {
+            anyTypeClassService.create(newAnyTypeClass);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
+        }
+    }
 }

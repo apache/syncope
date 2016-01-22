@@ -25,10 +25,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
+import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +72,14 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPECLASS_CREATE + "')")
     public AnyTypeClassTO create(final AnyTypeClassTO anyTypeClassTO) {
+        if (StringUtils.isBlank(anyTypeClassTO.getKey())) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+            sce.getElements().add(AnyTypeClass.class.getSimpleName() + " name");
+            throw sce;
+        }
+        if (anyTypeClassDAO.find(anyTypeClassTO.getKey()) != null) {
+            throw new DuplicateException(anyTypeClassTO.getKey());
+        }
         return binder.getAnyTypeClassTO(anyTypeClassDAO.save(binder.create(anyTypeClassTO)));
     }
 
