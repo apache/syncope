@@ -21,13 +21,12 @@ package org.apache.syncope.core.provisioning.api.data;
 import java.util.List;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 
 public interface ConfigurationDataBinder {
 
     AttrTO getAttrTO(CPlainAttr attr);
 
-    List<AttrTO> getConfTO(Conf conf);
+    List<AttrTO> getConfTO();
 
     CPlainAttr getAttribute(AttrTO attributeTO);
 

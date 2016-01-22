@@ -22,10 +22,14 @@ import java.util.ArrayList;
 import org.apache.syncope.core.provisioning.api.data.ConfigurationDataBinder;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
+import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -33,16 +37,19 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.conf.Conf;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implements ConfigurationDataBinder {
 
+    @Autowired
+    private ConfDAO confDAO;
+
     @Override
-    public List<AttrTO> getConfTO(final Conf conf) {
+    public List<AttrTO> getConfTO() {
         final List<AttrTO> attrTOs = new ArrayList<>();
-        for (final CPlainAttr plainAttr : conf.getPlainAttrs()) {
+        for (final CPlainAttr plainAttr : confDAO.get().getPlainAttrs()) {
             final AttrTO attrTO = new AttrTO();
             attrTO.setSchema(plainAttr.getSchema().getKey());
             attrTO.getValues().addAll(plainAttr.getValuesAsStrings());
@@ -72,6 +79,22 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
                 : (values.isEmpty()
                         ? Collections.<String>emptyList()
                         : Collections.singletonList(values.iterator().next()));
+
+        if (valuesProvided.isEmpty()) {
+            JexlContext jexlContext = new MapContext();
+            JexlUtils.addPlainAttrsToContext(confDAO.get().getPlainAttrs(), jexlContext);
+
+            if (!schema.isReadonly()
+                    && Boolean.parseBoolean(JexlUtils.evaluate(schema.getMandatoryCondition(), jexlContext))) {
+
+                LOG.error("Mandatory schema " + schema.getKey() + " not provided with values");
+
+                SyncopeClientException reqValMissing = SyncopeClientException.build(
+                        ClientExceptionType.RequiredValuesMissing);
+                reqValMissing.getElements().add(schema.getKey());
+                throw reqValMissing;
+            }
+        }
 
         for (String value : valuesProvided) {
             if (value == null || value.isEmpty()) {

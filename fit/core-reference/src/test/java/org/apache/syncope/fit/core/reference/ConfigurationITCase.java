@@ -55,10 +55,31 @@ public class ConfigurationITCase extends AbstractITCase {
         testKey.setType(AttrSchemaType.String);
         createSchema(SchemaType.PLAIN, testKey);
 
-        AttrTO conf = new AttrTO();
-        conf.setSchema(testKey.getKey());
-        conf.getValues().add("testValue");
+        AttrTO conf = new AttrTO.Builder().schema(testKey.getKey()).value("testValue").build();
 
+        configurationService.set(conf);
+
+        AttrTO actual = configurationService.get(conf.getSchema());
+        assertEquals(actual, conf);
+    }
+
+    @Test
+    public void createRequired() {
+        PlainSchemaTO testKey = new PlainSchemaTO();
+        testKey.setKey("testKey" + getUUIDString());
+        testKey.setType(AttrSchemaType.String);
+        testKey.setMandatoryCondition("true");
+        createSchema(SchemaType.PLAIN, testKey);
+
+        AttrTO conf = new AttrTO.Builder().schema(testKey.getKey()).build();
+        try {
+            configurationService.set(conf);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
+        }
+
+        conf.getValues().add("testValue");
         configurationService.set(conf);
 
         AttrTO actual = configurationService.get(conf.getSchema());
