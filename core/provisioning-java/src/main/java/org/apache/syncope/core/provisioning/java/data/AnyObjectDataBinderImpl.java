@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
@@ -152,28 +153,39 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     searchDAO.search(SearchCond.getLeafCond(assignableCond), AnyTypeKind.ANY_OBJECT);
 
             for (RelationshipTO relationshipTO : anyObjectTO.getRelationships()) {
-                AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getRightKey());
-                if (otherEnd == null) {
-                    LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
-                } else if (assignableAnyObjects.contains(otherEnd)) {
-                    RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
-                    if (relationshipType == null) {
-                        LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
-                    } else {
-                        ARelationship relationship = entityFactory.newEntity(ARelationship.class);
-                        relationship.setType(relationshipType);
-                        relationship.setRightEnd(anyObject);
-                        relationship.setLeftEnd(anyObject);
+                if (StringUtils.isBlank(relationshipTO.getRightType())
+                        || AnyTypeKind.USER.name().equals(relationshipTO.getRightType())
+                        || AnyTypeKind.GROUP.name().equals(relationshipTO.getRightType())) {
 
-                        anyObject.add(relationship);
-                    }
+                    SyncopeClientException invalidAnyType =
+                            SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
+                    invalidAnyType.getElements().add(AnyType.class.getSimpleName()
+                            + " not allowed for relationship: " + relationshipTO.getRightType());
+                    scce.addException(invalidAnyType);
                 } else {
-                    LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
+                    AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getRightKey());
+                    if (otherEnd == null) {
+                        LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
+                    } else if (assignableAnyObjects.contains(otherEnd)) {
+                        RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
+                        if (relationshipType == null) {
+                            LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
+                        } else {
+                            ARelationship relationship = entityFactory.newEntity(ARelationship.class);
+                            relationship.setType(relationshipType);
+                            relationship.setRightEnd(anyObject);
+                            relationship.setLeftEnd(anyObject);
 
-                    SyncopeClientException unassignabled =
-                            SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                    unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
-                    scce.addException(unassignabled);
+                            anyObject.add(relationship);
+                        }
+                    } else {
+                        LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
+
+                        SyncopeClientException unassignabled =
+                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                        unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
+                        scce.addException(unassignabled);
+                    }
                 }
             }
 
@@ -249,25 +261,36 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     }
 
                     if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                        AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getRightKey());
-                        if (otherEnd == null) {
-                            LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getRightKey());
-                        } else if (assignableAnyObjects.contains(otherEnd)) {
-                            relationship = entityFactory.newEntity(ARelationship.class);
-                            relationship.setType(relationshipType);
-                            relationship.setRightEnd(otherEnd);
-                            relationship.setLeftEnd(anyObject);
+                        if (StringUtils.isBlank(patch.getRelationshipTO().getRightType())
+                                || AnyTypeKind.USER.name().equals(patch.getRelationshipTO().getRightType())
+                                || AnyTypeKind.GROUP.name().equals(patch.getRelationshipTO().getRightType())) {
 
-                            anyObject.add(relationship);
-
-                            toBeProvisioned.addAll(otherEnd.getResourceNames());
+                            SyncopeClientException invalidAnyType =
+                                    SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
+                            invalidAnyType.getElements().add(AnyType.class.getSimpleName()
+                                    + " not allowed for relationship: " + patch.getRelationshipTO().getRightType());
+                            scce.addException(invalidAnyType);
                         } else {
-                            LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
+                            AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getRightKey());
+                            if (otherEnd == null) {
+                                LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getRightKey());
+                            } else if (assignableAnyObjects.contains(otherEnd)) {
+                                relationship = entityFactory.newEntity(ARelationship.class);
+                                relationship.setType(relationshipType);
+                                relationship.setRightEnd(otherEnd);
+                                relationship.setLeftEnd(anyObject);
 
-                            SyncopeClientException unassignabled =
-                                    SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                            unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
-                            scce.addException(unassignabled);
+                                anyObject.add(relationship);
+
+                                toBeProvisioned.addAll(otherEnd.getResourceNames());
+                            } else {
+                                LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
+
+                                SyncopeClientException unassignabled =
+                                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                                unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
+                                scce.addException(unassignabled);
+                            }
                         }
                     }
                 }

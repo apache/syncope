@@ -34,6 +34,8 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.RelationshipTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
@@ -189,6 +191,19 @@ public class AnyObjectITCase extends AbstractITCase {
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE756() {
+        AnyObjectTO anyObjectTO = getSampleTO("issueSYNCOPE756");
+        anyObjectTO.getRelationships().add(new RelationshipTO.Builder().right(AnyTypeKind.USER.name(), 1).build());
+
+        try {
+            createAnyObject(anyObjectTO).getAny();
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidAnyType, e.getType());
         }
     }
 }
