@@ -73,4 +73,10 @@ public class NotificationPanel extends FeedbackPanel {
             }
         }
     }
+
+    @Override
+    protected void onInitialize() {
+        this.remove("feedbackul");
+        super.onInitialize();
+    }
 }
