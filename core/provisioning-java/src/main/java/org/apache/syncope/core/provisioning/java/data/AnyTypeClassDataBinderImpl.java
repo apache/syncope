@@ -19,10 +19,16 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Collections;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -49,6 +55,9 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
     private VirSchemaDAO virSchemaDAO;
 
     @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
     private EntityFactory entityFactory;
 
     @Override
@@ -62,6 +71,20 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
     public void update(final AnyTypeClass anyTypeClass, final AnyTypeClassTO anyTypeClassTO) {
         if (anyTypeClass.getKey() == null) {
             anyTypeClass.setKey(anyTypeClassTO.getKey());
+        }
+
+        if (!CollectionUtils.disjunction(
+                CollectionUtils.collect(anyTypeClass.getTypes(), new Transformer<AnyType, String>() {
+
+                    @Override
+                    public String transform(final AnyType anyType) {
+                        return anyType.getKey();
+                    }
+                }), anyTypeClassTO.getTypes()).isEmpty()) {
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyTypeClass);
+            sce.getElements().add("Cannot update types from classes, do the other way round");
+            throw sce;
         }
 
         for (PlainSchema schema : plainSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass))) {
@@ -115,6 +138,11 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
         AnyTypeClassTO anyTypeClassTO = new AnyTypeClassTO();
 
         anyTypeClassTO.setKey(anyTypeClass.getKey());
+
+        for (AnyType anyType : anyTypeDAO.findByTypeClass(anyTypeClass)) {
+            anyTypeClassTO.getTypes().add(anyType.getKey());
+        }
+
         for (PlainSchema schema : anyTypeClass.getPlainSchemas()) {
             anyTypeClassTO.getPlainSchemas().add(schema.getKey());
         }

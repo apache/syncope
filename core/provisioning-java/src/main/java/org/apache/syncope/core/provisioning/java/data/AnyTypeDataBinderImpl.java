@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -59,7 +60,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
         }
         if (anyType.getKind() != anyTypeTO.getKind()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
-            sce.getElements().add("AnyTypeKind cannot be changed");
+            sce.getElements().add(AnyTypeKind.class.getSimpleName() + " cannot be changed");
             throw sce;
         }
 

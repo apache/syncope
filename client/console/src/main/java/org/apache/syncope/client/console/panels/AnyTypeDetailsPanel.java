@@ -23,15 +23,13 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
-import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -43,11 +41,8 @@ public class AnyTypeDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 8131650329622035501L;
 
-    private final AnyTypeTO anyTypeTO;
-
     public AnyTypeDetailsPanel(final String id, final AnyTypeTO anyTypeTO) {
         super(id);
-        this.anyTypeTO = anyTypeTO;
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
@@ -79,21 +74,12 @@ public class AnyTypeDetailsPanel extends Panel {
     }
 
     private List<String> getAvailableAnyTypeClasses() {
-        final List<String> availableAnyTypeClasses = CollectionUtils.collect(
-                SyncopeConsoleSession.get().getService(AnyTypeClassService.class).list(),
-                new Transformer<AnyTypeClassTO, String>() {
+        return CollectionUtils.collect(new AnyTypeClassRestClient().list(), new Transformer<AnyTypeClassTO, String>() {
 
             @Override
             public String transform(final AnyTypeClassTO input) {
                 return input.getKey();
             }
         }, new ArrayList<String>());
-
-        for (AnyTypeTO itemTO : SyncopeConsoleSession.get().getService(AnyTypeService.class).list()) {
-            if (anyTypeTO.getKey() == null || !anyTypeTO.getKey().equals(itemTO.getKey())) {
-                availableAnyTypeClasses.removeAll(itemTO.getClasses());
-            }
-        }
-        return availableAnyTypeClasses;
     }
 }

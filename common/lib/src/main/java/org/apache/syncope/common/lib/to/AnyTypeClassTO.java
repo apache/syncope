@@ -36,6 +36,8 @@ public class AnyTypeClassTO extends AbstractBaseBean {
 
     private String key;
 
+    private final List<String> types = new ArrayList<>();
+
     private final List<String> plainSchemas = new ArrayList<>();
 
     private final List<String> derSchemas = new ArrayList<>();
@@ -49,6 +51,13 @@ public class AnyTypeClassTO extends AbstractBaseBean {
     @PathParam("key")
     public void setKey(final String key) {
         this.key = key;
+    }
+
+    @XmlElementWrapper(name = "types")
+    @XmlElement(name = "type")
+    @JsonProperty("types")
+    public List<String> getTypes() {
+        return types;
     }
 
     @XmlElementWrapper(name = "plainSchemas")

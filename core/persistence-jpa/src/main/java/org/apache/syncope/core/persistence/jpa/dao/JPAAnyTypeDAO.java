@@ -49,12 +49,11 @@ public class JPAAnyTypeDAO extends AbstractDAO<AnyType, String> implements AnyTy
         return find(AnyTypeKind.GROUP.name());
     }
 
+    @Override
     public List<AnyType> findByTypeClass(final AnyTypeClass anyTypeClass) {
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(JPAAnyType.class.getSimpleName()).
-                append(" e WHERE :anyTypeClass MEMBER OF e.classes");
-
-        TypedQuery<AnyType> query = entityManager().createQuery(queryString.toString(), AnyType.class);
+        TypedQuery<AnyType> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAAnyType.class.getSimpleName() + " e WHERE :anyTypeClass MEMBER OF e.classes",
+                AnyType.class);
         query.setParameter("anyTypeClass", anyTypeClass);
 
         return query.getResultList();

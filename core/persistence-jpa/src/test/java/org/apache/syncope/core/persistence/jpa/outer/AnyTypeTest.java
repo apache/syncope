@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.outer;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -41,21 +42,38 @@ public class AnyTypeTest extends AbstractTest {
     private AnyTypeClassDAO anyTypeClassDAO;
 
     @Test
-    public void delete() {
-        AnyType userType = anyTypeDAO.findUser();
-        assertNotNull(userType);
-
+    public void manyToMany() {
         AnyTypeClass other = anyTypeClassDAO.find("other");
         assertNotNull(other);
-        assertTrue(userType.getClasses().contains(other));
-        int before = userType.getClasses().size();
+
+        AnyType user = anyTypeDAO.findUser();
+        assertTrue(user.getClasses().contains(other));
+
+        AnyType group = anyTypeDAO.findGroup();
+        assertFalse(group.getClasses().contains(other));
+
+        group.add(other);
+        anyTypeDAO.save(group);
+
+        anyTypeDAO.flush();
+
+        user = anyTypeDAO.findUser();
+        assertTrue(user.getClasses().contains(other));
+        int userClassesBefore = user.getClasses().size();
+
+        group = anyTypeDAO.findGroup();
+        assertTrue(group.getClasses().contains(other));
+        int groupClassesBefore = group.getClasses().size();
 
         anyTypeClassDAO.delete("other");
 
         anyTypeDAO.flush();
 
-        userType = anyTypeDAO.findUser();
-        assertNotNull(userType);
-        assertEquals(before, userType.getClasses().size() + 1);
+        user = anyTypeDAO.findUser();
+        assertEquals(userClassesBefore, user.getClasses().size() + 1);
+
+        group = anyTypeDAO.findGroup();
+        assertEquals(groupClassesBefore, group.getClasses().size() + 1);
     }
+
 }

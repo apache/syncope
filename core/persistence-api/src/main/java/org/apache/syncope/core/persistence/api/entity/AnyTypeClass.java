@@ -24,6 +24,8 @@ public interface AnyTypeClass extends Entity<String> {
 
     void setKey(String key);
 
+    List<? extends AnyType> getTypes();
+
     boolean add(PlainSchema schema);
 
     boolean remove(PlainSchema schema);

@@ -165,4 +165,37 @@ public class AnyTypeITCase extends AbstractITCase {
         assertNotNull(other);
         assertFalse(other.getClasses().contains(newClass.getKey()));
     }
+
+    @Test
+    public void issueSYNCOPE754() {
+        AnyTypeClassTO other = anyTypeClassService.read("other");
+        assertNotNull(other);
+
+        AnyTypeTO group = anyTypeService.read(AnyTypeKind.GROUP.name());
+        try {
+            assertFalse(group.getClasses().contains("other"));
+            group.getClasses().add("other");
+
+            anyTypeService.update(group);
+
+            group = anyTypeService.read(AnyTypeKind.GROUP.name());
+            assertTrue(group.getClasses().contains("other"));
+
+            other = anyTypeClassService.read("other");
+            assertEquals(2, other.getTypes().size());
+            assertTrue(other.getTypes().contains(AnyTypeKind.USER.name()));
+            assertTrue(other.getTypes().contains(AnyTypeKind.GROUP.name()));
+
+            other.getTypes().remove(AnyTypeKind.GROUP.name());
+            try {
+                anyTypeClassService.update(other);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.InvalidAnyTypeClass, e.getType());
+            }
+        } finally {
+            group.getClasses().remove("other");
+            anyTypeService.update(group);
+        }
+    }
 }

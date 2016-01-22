@@ -43,6 +43,7 @@ public enum ClientExceptionType {
     InvalidRelationship(Response.Status.BAD_REQUEST),
     InvalidRelationshipType(Response.Status.BAD_REQUEST),
     InvalidAnyType(Response.Status.BAD_REQUEST),
+    InvalidAnyTypeClass(Response.Status.BAD_REQUEST),
     InvalidAnyObject(Response.Status.BAD_REQUEST),
     InvalidGroup(Response.Status.BAD_REQUEST),
     InvalidSchemaDefinition(Response.Status.BAD_REQUEST),
