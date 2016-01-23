@@ -41,7 +41,6 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.util.ListModel;
 
@@ -78,8 +77,6 @@ public abstract class AnySearchResultPanel<T extends AnyTO>
         this.fiql = builder.fiql;
 
         modal.size(Modal.Size.Large);
-
-        add(new Label("name", builder.type));
 
         this.schemaNames = new ArrayList<>();
         for (AnyTypeClassTO anyTypeClassTO : AnySearchResultPanelBuilder.class.cast(builder).getAnyTypeClassTOs()) {
