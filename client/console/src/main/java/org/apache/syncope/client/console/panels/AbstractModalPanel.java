@@ -21,8 +21,6 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.HeaderItem;
@@ -57,16 +55,6 @@ public class AbstractModalPanel<T extends Serializable> extends Panel implements
         super(BaseModal.getContentId());
         this.pageRef = pageRef;
         this.modal = modal;
-    }
-
-    @Override
-    public final MarkupContainer add(final Component... childs) {
-        return super.add(childs);
-    }
-
-    @Override
-    public final MarkupContainer addOrReplace(final Component... childs) {
-        return super.addOrReplace(childs);
     }
 
     @Override

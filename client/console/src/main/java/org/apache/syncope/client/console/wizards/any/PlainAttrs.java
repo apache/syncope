@@ -32,6 +32,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.Mode;
+import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -40,7 +41,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPane
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -83,11 +83,11 @@ public class PlainAttrs extends AbstractAttrs {
                         anyTypeClassRestClient.list(getAllAuxClasses()),
                         new Transformer<AnyTypeClassTO, String>() {
 
-                            @Override
-                            public String transform(final AnyTypeClassTO input) {
-                                return input.getKey();
-                            }
-                        }, new ArrayList<>(Arrays.asList(anyTypeClass))));
+                    @Override
+                    public String transform(final AnyTypeClassTO input) {
+                        return input.getKey();
+                    }
+                }, new ArrayList<>(Arrays.asList(anyTypeClass))));
                 setAttrs();
                 return new ArrayList<>(entityTO.getPlainAttrs());
             }
@@ -98,7 +98,7 @@ public class PlainAttrs extends AbstractAttrs {
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
-            @SuppressWarnings({ "unchecked", "rawtypes" })
+            @SuppressWarnings({"unchecked", "rawtypes"})
             protected void populateItem(final ListItem<AttrTO> item) {
                 final AttrTO attributeTO = (AttrTO) item.getDefaultModelObject();
 
@@ -112,7 +112,7 @@ public class PlainAttrs extends AbstractAttrs {
                     questionMarkJexlHelp.setVisible(false);
                 }
 
-                final FieldPanel panel = getFieldPanel(schemas.get(attributeTO.getSchema()), form, attributeTO);
+                final FieldPanel panel = getFieldPanel(schemas.get(attributeTO.getSchema()));
 
                 if (mode == Mode.TEMPLATE || !schemas.get(attributeTO.getSchema()).isMultivalue()) {
                     item.add(panel);
@@ -120,9 +120,9 @@ public class PlainAttrs extends AbstractAttrs {
                 } else {
                     item.add(new MultiFieldPanel.Builder<>(
                             new PropertyModel<List<String>>(attributeTO, "values")).build(
-                                    "panel",
-                                    attributeTO.getSchema(),
-                                    panel));
+                            "panel",
+                            attributeTO.getSchema(),
+                            panel));
                 }
             }
         });
@@ -132,7 +132,7 @@ public class PlainAttrs extends AbstractAttrs {
 
         AttrTO attrLayout = null;
         final List<PlainSchemaTO> schemaTOs
-                = schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeClasses.toArray(new String[] {}));
+                = schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeClasses.toArray(new String[]{}));
 
         schemas.clear();
 
@@ -189,8 +189,8 @@ public class PlainAttrs extends AbstractAttrs {
         entityTO.getPlainAttrs().addAll(entityData);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private FieldPanel getFieldPanel(final PlainSchemaTO schemaTO, final Form form, final AttrTO attributeTO) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private FieldPanel getFieldPanel(final PlainSchemaTO schemaTO) {
         final boolean required = mode == Mode.TEMPLATE
                 ? false
                 : schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
@@ -212,14 +212,14 @@ public class PlainAttrs extends AbstractAttrs {
                 break;
             case Enum:
                 panel = new AjaxDropDownChoicePanel<>("panel", schemaTO.getKey(), new Model<String>(), false);
-                ((AjaxDropDownChoicePanel<String>) panel).setChoices(getEnumeratedValues(schemaTO));
+                ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(schemaTO));
 
                 if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
                     ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -3724971416312135885L;
 
-                        private final Map<String, String> valueMap = getEnumeratedKeyValues(schemaTO);
+                        private final Map<String, String> valueMap = SchemaUtils.getEnumeratedKeyValues(schemaTO);
 
                         @Override
                         public String getDisplayValue(final String value) {
@@ -263,8 +263,8 @@ public class PlainAttrs extends AbstractAttrs {
             case Binary:
                 panel = new BinaryFieldPanel("panel", schemaTO.getKey(), new Model<String>(),
                         schemas.containsKey(schemaTO.getKey())
-                                ? schemas.get(schemaTO.getKey()).getMimeType()
-                                : null);
+                        ? schemas.get(schemaTO.getKey()).getMimeType()
+                        : null);
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -282,37 +282,5 @@ public class PlainAttrs extends AbstractAttrs {
         panel.setReadOnly(readOnly);
 
         return panel;
-    }
-
-    private Map<String, String> getEnumeratedKeyValues(final PlainSchemaTO schemaTO) {
-        final Map<String, String> res = new HashMap<>();
-
-        final String[] values = StringUtils.isBlank(schemaTO.getEnumerationValues())
-                ? new String[0]
-                : schemaTO.getEnumerationValues().split(SyncopeConstants.ENUM_VALUES_SEPARATOR);
-
-        final String[] keys = StringUtils.isBlank(schemaTO.getEnumerationKeys())
-                ? new String[0]
-                : schemaTO.getEnumerationKeys().split(SyncopeConstants.ENUM_VALUES_SEPARATOR);
-
-        for (int i = 0; i < values.length; i++) {
-            res.put(values[i].trim(), keys.length > i ? keys[i].trim() : null);
-        }
-
-        return res;
-    }
-
-    private List<String> getEnumeratedValues(final PlainSchemaTO schemaTO) {
-        final List<String> res = new ArrayList<>();
-
-        final String[] values = StringUtils.isBlank(schemaTO.getEnumerationValues())
-                ? new String[0]
-                : schemaTO.getEnumerationValues().split(SyncopeConstants.ENUM_VALUES_SEPARATOR);
-
-        for (String value : values) {
-            res.add(value.trim());
-        }
-
-        return res;
     }
 }

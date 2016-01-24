@@ -153,8 +153,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                     modal.header(new StringResourceModel(
                             String.format("any.%s", newItemEvent.getEventDescription()),
                             this,
-                            new Model<T>(modalPanel.getItem())));
-
+                            new Model<>(modalPanel.getItem())));
                     modal.show(true);
                 } else {
                     final Fragment fragment = new Fragment("content", "wizard", WizardMgtPanel.this);

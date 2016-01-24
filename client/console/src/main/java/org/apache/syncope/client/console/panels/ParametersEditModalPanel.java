@@ -21,47 +21,45 @@ package org.apache.syncope.client.console.panels;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.SecurityQuestionTO;
-import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
+import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
 
-public class SecurityQuestionModalPanel extends AbstractModalPanel<SecurityQuestionTO> {
+public class ParametersEditModalPanel extends AbstractModalPanel<AttrTO> {
 
     private static final long serialVersionUID = 4024126489500665435L;
 
-    private final SecurityQuestionTO securityQuestionTO;
+    private final AttrTO attrTO;
 
-    public SecurityQuestionModalPanel(
-            final BaseModal<SecurityQuestionTO> modal,
-            final SecurityQuestionTO securityQuestionTO,
+    private final BaseModal<AttrTO> parametersModal;
+
+    public ParametersEditModalPanel(
+            final BaseModal<AttrTO> modal,
+            final AttrTO attrTO,
             final PageReference pageRef) {
         super(modal, pageRef);
-        this.securityQuestionTO = securityQuestionTO;
-        add(new SecurityQuestionDetailsPanel("securityQuestionDetailsPanel", getItem()));
+        this.attrTO = attrTO;
+        this.parametersModal = modal;
+        add(new ParametersDetailsPanel("parametersDetailsPanel", getItem()));
     }
 
     @Override
-    public final SecurityQuestionTO getItem() {
-        return this.securityQuestionTO;
+    public final AttrTO getItem() {
+        return this.attrTO;
     }
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
-            if (securityQuestionTO.getKey() == 0) {
-                SyncopeConsoleSession.get().getService(SecurityQuestionService.class).create(securityQuestionTO);
-            } else {
-                SyncopeConsoleSession.get().getService(SecurityQuestionService.class).update(securityQuestionTO);
-            }
-
+            SyncopeConsoleSession.get().getService(ConfigurationService.class).set(attrTO);
             info(getString(Constants.OPERATION_SUCCEEDED));
-            modal.close(target);
+            parametersModal.close(target);
         } catch (Exception e) {
-            LOG.error("While creating or updating SecutiryQuestionTO", e);
+            LOG.error("While creating or updating AttrTO", e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getNotificationPanel().refresh(target);
         }
+        parametersModal.getNotificationPanel().refresh(target);
     }
 }

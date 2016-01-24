@@ -141,8 +141,8 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
 
         liContainer = new WebMarkupContainer(getLIContainerId("securityquestions"));
         confULContainer.add(liContainer);
-        BookmarkablePageLink<Page> secuityQuestionsLink =
-                new BookmarkablePageLink<>("securityquestions", SecurityQuestions.class);
+        BookmarkablePageLink<Page> secuityQuestionsLink = new BookmarkablePageLink<>("securityquestions",
+                SecurityQuestions.class);
         liContainer.add(secuityQuestionsLink);
 
         liContainer = new WebMarkupContainer(getLIContainerId("types"));
@@ -169,6 +169,12 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
         confULContainer.add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("notifications", Notifications.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.NOTIFICATION_LIST);
+
+        liContainer = new WebMarkupContainer(getLIContainerId("parameters"));
+        confULContainer.add(liContainer);
+        liContainer.add(new BookmarkablePageLink<>("parameters", Parameters.class));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                liContainer, WebPage.RENDER, StandardEntitlement.CONFIGURATION_LIST);
 
         add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
         add(new BookmarkablePageLink<Page>("logout", Logout.class));
@@ -218,8 +224,8 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
         }
 
         // Extensions
-        ClassPathScanImplementationLookup classPathScanImplementationLookup =
-                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+        ClassPathScanImplementationLookup classPathScanImplementationLookup
+                = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
                 getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         List<Class<? extends AbstractExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
 

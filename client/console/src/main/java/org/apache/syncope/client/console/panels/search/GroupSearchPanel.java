@@ -58,7 +58,7 @@ public final class GroupSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected List<SearchClause.Type> load() {
-                final List<SearchClause.Type> result = new ArrayList<SearchClause.Type>();
+                final List<SearchClause.Type> result = new ArrayList<>();
                 result.add(SearchClause.Type.ATTRIBUTE);
                 result.add(SearchClause.Type.RESOURCE);
                 return result;

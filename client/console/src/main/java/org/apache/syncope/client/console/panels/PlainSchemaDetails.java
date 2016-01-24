@@ -246,8 +246,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         validatorClass.setChoices(validatorsList.getObject());
         schemaForm.add(validatorClass);
 
-        final AutoCompleteTextField<String> mandatoryCondition =
-                new AutoCompleteTextField<String>("mandatoryCondition") {
+        final AutoCompleteTextField<String> mandatoryCondition
+                = new AutoCompleteTextField<String>("mandatoryCondition") {
 
             private static final long serialVersionUID = -2428903969518079100L;
 

@@ -60,6 +60,8 @@ public final class Constants {
 
     public static final String PREF_SECURITY_QUESTIONS_PAGINATOR_ROWS = "security.questions.paginator.rows";
 
+    public static final String PREF_PARAMETERS_PAGINATOR_ROWS = "parameters.paginator.rows";
+
     public static final String PREF_RELATIONSHIPTYPE_PAGINATOR_ROWS = "relationshiptype.painator.rows";
 
     public static final String PREF_GROUP_DETAILS_VIEW = "group.details.view";

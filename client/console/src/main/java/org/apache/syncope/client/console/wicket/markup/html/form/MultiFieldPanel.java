@@ -38,7 +38,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractFi
 
     private static final long serialVersionUID = -6322397761456513324L;
 
-    private ListView<E> view;
+    private final ListView<E> view;
 
     private final FieldPanel<? extends Serializable> panelTemplate;
 
@@ -156,49 +156,10 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractFi
 
         private final IModel<List<E>> model;
 
-        private boolean plusAlwaysAvailable;
-
-        private boolean minusAwaysAvailable;
-
-        private boolean multivalue;
-
         private boolean eventTemplate = false;
 
         public Builder(final IModel<List<E>> model) {
             this.model = model;
-        }
-
-        /**
-         * Show plus button icon to ad more elements.
-         *
-         * @param plusAlwaysAvailable whether plus button must always available
-         * @return this instance, for fluent building
-         */
-        public Builder<E> setPlusAlwaysAvailable(final boolean plusAlwaysAvailable) {
-            this.plusAlwaysAvailable = plusAlwaysAvailable;
-            return this;
-        }
-
-        /**
-         * Show minus button icon to remove elements included the latest one in order to empty the list explicitly.
-         *
-         * @param minusAwaysAvailable whether minus button must always available
-         * @return this instance, for fluent building
-         */
-        public Builder<E> setMinusAwaysAvailable(final boolean minusAwaysAvailable) {
-            this.minusAwaysAvailable = minusAwaysAvailable;
-            return this;
-        }
-
-        /**
-         * Set multivalue field.
-         *
-         * @param multivalue whether this field is multivalue
-         * @return this instance, for fluent building
-         */
-        public Builder<E> setMultivalue(final boolean multivalue) {
-            this.multivalue = multivalue;
-            return this;
         }
 
         /**

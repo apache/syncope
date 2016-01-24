@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.apache.wicket.Component.ENABLE;
+
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -31,23 +33,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
-import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.SecurityQuestionsPanel.SecurityQuestionsProvider;
-import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
+import org.apache.syncope.client.console.panels.ParametersPanel.ParametersProvider;
+import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.common.lib.to.SecurityQuestionTO;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
+import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -56,68 +56,87 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 
-public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
-        SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionsProvider, SecurityQuestionRestClient> {
+public class ParametersPanel extends AbstractSearchResultPanel<
+        AttrTO, AttrTO, ParametersProvider, BaseRestClient> {
 
-    private static final long serialVersionUID = 3323019773236588850L;
+    private static final long serialVersionUID = 2765863608539154422L;
 
-    public SecurityQuestionsPanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionRestClient>(null, pageRef) {
+    private final BaseModal<AttrTO> modalDetails = new BaseModal<AttrTO>("modalDetails") {
+
+        private static final long serialVersionUID = 389935548143327858L;
+
+        @Override
+        protected void onConfigure() {
+            super.onConfigure();
+            setFooterVisible(true);
+        }
+    };
+
+    public ParametersPanel(final String id, final PageReference pageRef) {
+        super(id, new Builder<AttrTO, AttrTO, BaseRestClient>(null, pageRef) {
 
             private static final long serialVersionUID = 8769126634538601689L;
 
             @Override
-            protected WizardMgtPanel<SecurityQuestionTO> newInstance(final String id) {
-                return new SecurityQuestionsPanel(id, this);
+            protected WizardMgtPanel<AttrTO> newInstance(final String id) {
+                return new ParametersPanel(id, this);
             }
-        }.disableCheckBoxes());
+        });
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<SecurityQuestionTO>(
-                BaseModal.CONTENT_ID, new SecurityQuestionTO(), pageRef) {
+        modalDetails.setWindowClosedCallback(new WindowClosedCallback() {
 
-            private static final long serialVersionUID = -6388405037134399367L;
+            private static final long serialVersionUID = 8804221891699487139L;
 
             @Override
-            public ModalPanel<SecurityQuestionTO> build(final int index, final boolean edit) {
-                final SecurityQuestionTO modelObject = newModelObject();
-                return new SecurityQuestionsModalPanel(modal, modelObject, pageRef);
+            public void onClose(final AjaxRequestTarget target) {
+                modal.show(false);
+                target.add(container);
+            }
+        });
+
+        add(modalDetails);
+
+        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AttrTO>(
+                BaseModal.CONTENT_ID, new AttrTO(), pageRef) {
+
+            private static final long serialVersionUID = 1995192603527154740L;
+
+            @Override
+            public ModalPanel<AttrTO> build(final int index, final boolean edit) {
+                return new ParametersCreateModalPanel(modal, newModelObject(), pageRef);
             }
 
             @Override
-            protected void onCancelInternal(final SecurityQuestionTO modelObject) {
+            protected void onCancelInternal(final AttrTO modelObject) {
             }
 
             @Override
-            protected Serializable onApplyInternal(final SecurityQuestionTO modelObject) {
-                // do nothing
+            protected Serializable onApplyInternal(final AttrTO modelObject) {
                 return null;
             }
-        }, true);
 
-        setFooterVisibility(true);
-        modal.addSumbitButton();
-        modal.size(Modal.Size.Large);
+        }, true);
+        modal.size(Modal.Size.Medium);
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.SECURITY_QUESTION_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.CONFIGURATION_SET);
     }
 
-    private SecurityQuestionsPanel(
-            final String id,
-            final Builder<SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionRestClient> builder) {
-
+    public ParametersPanel(
+            final String id, final Builder<AttrTO, AttrTO, BaseRestClient> builder) {
         super(id, builder);
     }
 
     @Override
-    protected SecurityQuestionsProvider dataProvider() {
-        return new SecurityQuestionsProvider(rows);
+    protected ParametersProvider dataProvider() {
+        return new ParametersProvider(rows);
     }
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_SECURITY_QUESTIONS_PAGINATOR_ROWS;
+        return Constants.PREF_PARAMETERS_PAGINATOR_ROWS;
     }
 
     @Override
@@ -126,24 +145,24 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
     }
 
     @Override
-    protected List<IColumn<SecurityQuestionTO, String>> getColumns() {
+    protected List<IColumn<AttrTO, String>> getColumns() {
 
-        final List<IColumn<SecurityQuestionTO, String>> columns = new ArrayList<>();
+        final List<IColumn<AttrTO, String>> columns = new ArrayList<>();
 
-        for (Field field : SecurityQuestionTO.class.getDeclaredFields()) {
+        for (final Field field : AttrTO.class.getDeclaredFields()) {
 
             if (field != null && !Modifier.isStatic(field.getModifiers())) {
                 final String fieldName = field.getName();
                 if (field.getType().isArray()) {
-                    final IColumn<SecurityQuestionTO, String> column = new PropertyColumn<SecurityQuestionTO, String>(
+                    final IColumn<AttrTO, String> column = new PropertyColumn<AttrTO, String>(
                             new ResourceModel(field.getName()), field.getName()) {
 
-                        private static final long serialVersionUID = 3282547854226892169L;
+                        private static final long serialVersionUID = 377850700587306254L;
 
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("key".equals(fieldName)) {
+                            if ("schema".equals(fieldName)) {
                                 css = StringUtils.isBlank(css)
                                         ? "medium_fixedsize"
                                         : css + " medium_fixedsize";
@@ -154,15 +173,15 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
                     columns.add(column);
 
                 } else {
-                    final IColumn<SecurityQuestionTO, String> column = new PropertyColumn<SecurityQuestionTO, String>(
+                    final IColumn<AttrTO, String> column = new PropertyColumn<AttrTO, String>(
                             new ResourceModel(field.getName()), field.getName(), field.getName()) {
 
-                        private static final long serialVersionUID = 3282547854226892169L;
+                        private static final long serialVersionUID = -6902459669035442212L;
 
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("key".equals(fieldName)) {
+                            if ("schema".equals(fieldName)) {
                                 css = StringUtils.isBlank(css)
                                         ? "medium_fixedsize"
                                         : css + " medium_fixedsize";
@@ -175,9 +194,9 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
             }
         }
 
-        columns.add(new AbstractColumn<SecurityQuestionTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new AbstractColumn<AttrTO, String>(new ResourceModel("actions", "")) {
 
-            private static final long serialVersionUID = 2054811145491901166L;
+            private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
             public String getCssClass() {
@@ -185,77 +204,81 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
             }
 
             @Override
-            public void populateItem(final Item<ICellPopulator<SecurityQuestionTO>> item, final String componentId,
-                    final IModel<SecurityQuestionTO> model) {
+            public void populateItem(
+                    final Item<ICellPopulator<AttrTO>> item,
+                    final String componentId,
+                    final IModel<AttrTO> model) {
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.
-                        getPageReference());
+                final AttrTO attrTO = model.getObject();
+
+                final ActionLinksPanel.Builder<Serializable> actionLinks
+                        = ActionLinksPanel.builder(page.getPageReference());
                 actionLinks.setDisableIndicator(true);
-                actionLinks
+                ActionLinksPanel.Builder<Serializable> addWithRoles = actionLinks
                         .addWithRoles(new ActionLink<Serializable>() {
 
-                            private static final long serialVersionUID = -3722207913631435501L;
+                            private static final long serialVersionUID = 3257738274365467945L;
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                                send(SecurityQuestionsPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                                target.add(modalDetails);
+                                modalDetails.addSumbitButton();
+                                modalDetails.header(new StringResourceModel("any.edit"));
+                                modalDetails.setContent(new ParametersEditModalPanel(modalDetails, attrTO, pageRef));
+                                modalDetails.show(true);
                             }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.SECURITY_QUESTION_UPDATE)
+                        }, ActionLink.ActionType.EDIT, StandardEntitlement.CONFIGURATION_SET
+                        )
                         .addWithRoles(new ActionLink<Serializable>() {
 
-                            private static final long serialVersionUID = -3722207913631435501L;
+                            private static final long serialVersionUID = 3257738274365467945L;
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                                 try {
-                                    SyncopeConsoleSession.get().getService(SecurityQuestionService.class
-                                    ).delete(model.getObject().getKey());
+                                    SyncopeConsoleSession.get().getService(
+                                            ConfigurationService.class).delete(attrTO.getSchema());
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
-                                    LOG.error("While deleting SecutiryQuestionTO", e);
+                                    LOG.error("While deleting AttrTO", e);
                                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                                 }
                                 ((BasePage) getPage()).getNotificationPanel().refresh(target);
 
                             }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.SECURITY_QUESTION_DELETE);
+                        }, ActionLink.ActionType.DELETE, StandardEntitlement.CONFIGURATION_DELETE);
 
                 item.add(actionLinks.build(componentId));
             }
-        });
+        }
+        );
 
         return columns;
 
     }
 
-    protected final class SecurityQuestionsProvider extends SearchableDataProvider<SecurityQuestionTO> {
+    protected final class ParametersProvider extends SearchableDataProvider<AttrTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
-        private final SortableDataProviderComparator<SecurityQuestionTO> comparator;
-
-        private SecurityQuestionsProvider(final int paginatorRows) {
+        private ParametersProvider(final int paginatorRows) {
             super(paginatorRows);
-            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
-        public Iterator<SecurityQuestionTO> iterator(final long first, final long count) {
-            final List<SecurityQuestionTO> list = SyncopeConsoleSession.get().getService(SecurityQuestionService.class).
-                    list();
-            Collections.sort(list, comparator);
+        public Iterator<AttrTO> iterator(final long first, final long count) {
+            final List<AttrTO> list = SyncopeConsoleSession.get().getService(ConfigurationService.class).list();
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SyncopeConsoleSession.get().getService(SecurityQuestionService.class).list().size();
+            return SyncopeConsoleSession.get().getService(ConfigurationService.class).list().size();
         }
 
         @Override
-        public IModel<SecurityQuestionTO> model(final SecurityQuestionTO object) {
+        public IModel<AttrTO> model(final AttrTO object) {
             return new CompoundPropertyModel<>(object);
         }
     }
