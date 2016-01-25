@@ -38,6 +38,6 @@ angular.module('self')
                         });
               });
             },
-            replace: true
+            //replace: true
           };
         });

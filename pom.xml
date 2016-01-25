@@ -1484,7 +1484,6 @@ under the License.
             <exclude>**/META-INF/cxf/**</exclude>
             <exclude>**/META-INF/services/**</exclude>
             <exclude>**/META-INF/MANIFEST.MF</exclude>            
-            <exclude>**/META-INF/resources/app/views/**</exclude>            
             <exclude>**/*.csv</exclude>
             <exclude>**/archetype-resources/**</exclude>
             <exclude>**/AdminLTE*/**</exclude>
