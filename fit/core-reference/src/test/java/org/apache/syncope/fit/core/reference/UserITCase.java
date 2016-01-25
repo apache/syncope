@@ -488,7 +488,7 @@ public class UserITCase extends AbstractITCase {
         ProvisioningResult<UserTO> result = deleteUser(key);
         assertNotNull(result);
         userTO = result.getAny();
-        assertEquals(key, userTO.getKey());
+        assertEquals(key, userTO.getKey(), 0);
         assertTrue(userTO.getPlainAttrs().isEmpty());
 
         // check for propagation result
@@ -517,7 +517,7 @@ public class UserITCase extends AbstractITCase {
         ProvisioningResult<UserTO> result = deleteUser(userTO.getKey());
         assertNotNull(result);
         userTO = result.getAny();
-        assertEquals(key, userTO.getKey());
+        assertEquals(key, userTO.getKey(), 0);
         assertTrue(userTO.getPlainAttrs().isEmpty());
 
         // check for propagation result

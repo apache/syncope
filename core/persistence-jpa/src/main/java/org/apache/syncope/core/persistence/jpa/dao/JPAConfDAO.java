@@ -94,7 +94,7 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
         if (old != null && (!attr.getSchema().isUniqueConstraint()
                 || (!attr.getUniqueValue().getStringValue().equals(old.getUniqueValue().getStringValue())))) {
 
-            instance.remove(old);
+            instance.getPlainAttrs().remove(old);
             attrDAO.delete(old.getKey(), CPlainAttr.class);
         }
 
@@ -109,7 +109,7 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
         Conf instance = get();
         CPlainAttr attr = instance.getPlainAttr(key);
         if (attr != null) {
-            instance.remove(attr);
+            instance.getPlainAttrs().remove(attr);
             instance = entityManager().merge(instance);
         }
 

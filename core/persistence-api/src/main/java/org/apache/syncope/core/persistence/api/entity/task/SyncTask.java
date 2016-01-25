@@ -39,8 +39,6 @@ public interface SyncTask extends ProvisioningTask {
 
     boolean add(AnyTemplateSyncTask template);
 
-    boolean remove(AnyTemplateSyncTask template);
-
     AnyTemplateSyncTask getTemplate(AnyType anyType);
 
     List<? extends AnyTemplateSyncTask> getTemplates();

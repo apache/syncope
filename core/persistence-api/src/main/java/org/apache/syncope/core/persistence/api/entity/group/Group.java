@@ -43,9 +43,6 @@ public interface Group extends Any<GPlainAttr> {
     boolean add(GPlainAttr attr);
 
     @Override
-    boolean remove(GPlainAttr attr);
-
-    @Override
     GPlainAttr getPlainAttr(String plainSchemaName);
 
     @Override
@@ -57,15 +54,11 @@ public interface Group extends Any<GPlainAttr> {
 
     boolean add(ADynGroupMembership dynGroupMembership);
 
-    boolean remove(ADynGroupMembership dynGroupMembership);
-
     ADynGroupMembership getADynMembership(AnyType anyType);
 
     List<? extends ADynGroupMembership> getADynMemberships();
 
     boolean add(TypeExtension typeExtension);
-
-    boolean remove(TypeExtension typeExtension);
 
     TypeExtension getTypeExtension(AnyType anyType);
 

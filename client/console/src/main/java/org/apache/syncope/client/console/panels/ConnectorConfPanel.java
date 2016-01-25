@@ -50,7 +50,7 @@ public abstract class ConnectorConfPanel extends AbstractConnectorConfPanel<Conn
     }
 
     /**
-     * Ge available configuration properties.
+     * Get available configuration properties.
      *
      * @param instance connector instance.
      * @return configuration properties.
@@ -62,24 +62,25 @@ public abstract class ConnectorConfPanel extends AbstractConnectorConfPanel<Conn
                 ConnectorModal.getBundle(instance, bundles).getProperties(),
                 new Transformer<ConnConfPropSchema, ConnConfProperty>() {
 
-                    @Override
-                    public ConnConfProperty transform(final ConnConfPropSchema key) {
-                        final ConnConfProperty property = new ConnConfProperty();
-                        property.setSchema(key);
+            @Override
+            public ConnConfProperty transform(final ConnConfPropSchema key) {
+                final ConnConfProperty property = new ConnConfProperty();
+                property.setSchema(key);
 
-                        if (instance.getKey() != 0 && instance.getConfMap().containsKey(key.getName())
+                if (instance.getKey() != null 
+                        && instance.getConfMap().containsKey(key.getName())
                         && instance.getConfMap().get(key.getName()).getValues() != null) {
-                            property.getValues().addAll(instance.getConfMap().get(key.getName()).getValues());
-                            property.setOverridable(instance.getConfMap().get(key.getName()).isOverridable());
-                        }
 
-                        if (property.getValues().isEmpty() && !key.getDefaultValues().isEmpty()) {
-                            property.getValues().addAll(key.getDefaultValues());
-                        }
-                        return property;
-                    }
-                },
-                new ArrayList<ConnConfProperty>());
+                    property.getValues().addAll(instance.getConfMap().get(key.getName()).getValues());
+                    property.setOverridable(instance.getConfMap().get(key.getName()).isOverridable());
+                }
+
+                if (property.getValues().isEmpty() && !key.getDefaultValues().isEmpty()) {
+                    property.getValues().addAll(key.getDefaultValues());
+                }
+                return property;
+            }
+        }, new ArrayList<ConnConfProperty>());
 
         return res;
     }

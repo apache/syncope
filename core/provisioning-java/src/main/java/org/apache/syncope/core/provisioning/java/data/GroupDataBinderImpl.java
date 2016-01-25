@@ -164,7 +164,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 }
 
                 if (typeExt.getAuxClasses().isEmpty()) {
-                    group.remove(typeExt);
+                    group.getTypeExtensions().remove(typeExt);
                     typeExt.setGroup(null);
                 }
             }
@@ -280,7 +280,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
                 // only consider non-empty type extensions
                 if (typeExt.getAuxClasses().isEmpty()) {
-                    group.remove(typeExt);
+                    group.getTypeExtensions().remove(typeExt);
                     typeExt.setGroup(null);
                 }
             }

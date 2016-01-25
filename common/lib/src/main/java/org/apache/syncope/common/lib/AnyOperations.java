@@ -78,7 +78,9 @@ public final class AnyOperations {
             final AnyTO updated, final AnyTO original, final AnyPatch result, final boolean incremental) {
 
         // check same key
-        if (updated.getKey() != original.getKey()) {
+        if (updated.getKey() == null && original.getKey() != null
+                || (updated.getKey() != null && !updated.getKey().equals(original.getKey()))) {
+
             throw new IllegalArgumentException("AnyTO's key must be the same");
         }
         result.setKey(updated.getKey());
@@ -380,7 +382,7 @@ public final class AnyOperations {
 
     private static <T extends AnyTO, K extends AnyPatch> void patch(final T to, final K patch, final T result) {
         // check same key
-        if (to.getKey() != patch.getKey()) {
+        if (to.getKey() == null || to.getKey() != patch.getKey()) {
             throw new IllegalArgumentException(
                     to.getClass().getSimpleName() + " and " + patch.getClass().getSimpleName()
                     + " keys must be the same");

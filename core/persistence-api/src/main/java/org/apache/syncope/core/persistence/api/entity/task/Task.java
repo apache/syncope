@@ -26,9 +26,7 @@ public interface Task extends Entity<Long> {
 
     TaskType getType();
 
-    boolean addExec(TaskExec exec);
-
-    boolean removeExec(TaskExec exec);
+    boolean add(TaskExec exec);
 
     List<? extends TaskExec> getExecs();
 }

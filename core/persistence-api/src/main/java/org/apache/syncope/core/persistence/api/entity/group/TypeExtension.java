@@ -35,7 +35,5 @@ public interface TypeExtension extends Entity<Long> {
 
     boolean add(AnyTypeClass anyTypeClass);
 
-    boolean remove(AnyTypeClass anyTypeClass);
-
     List<? extends AnyTypeClass> getAuxClasses();
 }

@@ -50,8 +50,6 @@ public interface Notification extends Entity<Long> {
 
     boolean add(AnyAbout about);
 
-    boolean remove(AnyAbout about);
-
     AnyAbout getAbout(AnyType anyType);
 
     List<? extends AnyAbout> getAbouts();

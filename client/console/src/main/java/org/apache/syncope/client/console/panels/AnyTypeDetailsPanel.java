@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -74,12 +74,8 @@ public class AnyTypeDetailsPanel extends Panel {
     }
 
     private List<String> getAvailableAnyTypeClasses() {
-        return CollectionUtils.collect(new AnyTypeClassRestClient().list(), new Transformer<AnyTypeClassTO, String>() {
-
-            @Override
-            public String transform(final AnyTypeClassTO input) {
-                return input.getKey();
-            }
-        }, new ArrayList<String>());
+        return CollectionUtils.collect(new AnyTypeClassRestClient().list(),
+                EntityTOUtils.<String, AnyTypeClassTO>keyTransformer(),
+                new ArrayList<String>());
     }
 }

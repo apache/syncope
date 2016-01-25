@@ -164,7 +164,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
     @Transactional(rollbackFor = { Throwable.class })
     public void saveAndAdd(final Long taskId, final TaskExec execution) {
         Task task = taskDAO.find(taskId);
-        task.addExec(execution);
+        task.add(execution);
         taskDAO.save(task);
     }
 
@@ -181,7 +181,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
     @Override
     public void delete(final TaskExec execution) {
         if (execution.getTask() != null) {
-            execution.getTask().removeExec(execution);
+            execution.getTask().getExecs().remove(execution);
         }
 
         entityManager().remove(execution);

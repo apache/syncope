@@ -28,7 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.Mode;
@@ -41,6 +40,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPane
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -79,15 +79,9 @@ public class PlainAttrs extends AbstractAttrs {
 
             @Override
             protected List<AttrTO> load() {
-                setSchemas(CollectionUtils.collect(
-                        anyTypeClassRestClient.list(getAllAuxClasses()),
-                        new Transformer<AnyTypeClassTO, String>() {
-
-                    @Override
-                    public String transform(final AnyTypeClassTO input) {
-                        return input.getKey();
-                    }
-                }, new ArrayList<>(Arrays.asList(anyTypeClass))));
+                setSchemas(CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
+                        EntityTOUtils.<String, AnyTypeClassTO>keyTransformer(),
+                        new ArrayList<>(Arrays.asList(anyTypeClass))));
                 setAttrs();
                 return new ArrayList<>(entityTO.getPlainAttrs());
             }
@@ -98,7 +92,7 @@ public class PlainAttrs extends AbstractAttrs {
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
-            @SuppressWarnings({"unchecked", "rawtypes"})
+            @SuppressWarnings({ "unchecked", "rawtypes" })
             protected void populateItem(final ListItem<AttrTO> item) {
                 final AttrTO attributeTO = (AttrTO) item.getDefaultModelObject();
 
@@ -131,8 +125,8 @@ public class PlainAttrs extends AbstractAttrs {
     private void setSchemas(final List<String> anyTypeClasses) {
 
         AttrTO attrLayout = null;
-        final List<PlainSchemaTO> schemaTOs
-                = schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeClasses.toArray(new String[]{}));
+        final List<PlainSchemaTO> schemaTOs =
+                schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeClasses.toArray(new String[] {}));
 
         schemas.clear();
 
@@ -189,7 +183,7 @@ public class PlainAttrs extends AbstractAttrs {
         entityTO.getPlainAttrs().addAll(entityData);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private FieldPanel getFieldPanel(final PlainSchemaTO schemaTO) {
         final boolean required = mode == Mode.TEMPLATE
                 ? false

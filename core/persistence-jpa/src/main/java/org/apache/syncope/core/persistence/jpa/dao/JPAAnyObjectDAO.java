@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.misc.EntitlementsHolder;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
+import org.apache.syncope.core.misc.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -110,7 +111,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public void delete(final AnyObject any) {
         for (Group group : findDynGroupMemberships(any)) {
-            group.getADynMembership(any.getType()).remove(any);
+            group.getADynMembership(any.getType()).getMembers().remove(any);
         }
 
         entityManager().remove(any);
@@ -144,13 +145,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<Long> findAllGroupKeys(final AnyObject anyObject) {
-        return CollectionUtils.collect(findAllGroups(anyObject), new Transformer<Group, Long>() {
-
-            @Override
-            public Long transform(final Group input) {
-                return input.getKey();
-            }
-        });
+        return CollectionUtils.collect(findAllGroups(anyObject), EntityUtils.<Long, Group>keyTransformer());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -168,13 +163,8 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<String> findAllResourceNames(final AnyObject anyObject) {
-        return CollectionUtils.collect(findAllResources(anyObject), new Transformer<ExternalResource, String>() {
-
-            @Override
-            public String transform(final ExternalResource input) {
-                return input.getKey();
-            }
-        });
+        return CollectionUtils.collect(
+                findAllResources(anyObject), EntityUtils.<String, ExternalResource>keyTransformer());
     }
 
 }

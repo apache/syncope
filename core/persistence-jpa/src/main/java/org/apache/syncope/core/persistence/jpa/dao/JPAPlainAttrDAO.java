@@ -41,12 +41,12 @@ public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>, Long> implements 
         return CPlainAttr.class.isAssignableFrom(reference)
                 ? JPACPlainAttr.class
                 : GPlainAttr.class.isAssignableFrom(reference)
-                        ? JPAGPlainAttr.class
-                        : APlainAttr.class.isAssignableFrom(reference)
-                                ? JPAAPlainAttr.class
-                                : UPlainAttr.class.isAssignableFrom(reference)
-                                        ? JPAUPlainAttr.class
-                                        : null;
+                ? JPAGPlainAttr.class
+                : APlainAttr.class.isAssignableFrom(reference)
+                ? JPAAPlainAttr.class
+                : UPlainAttr.class.isAssignableFrom(reference)
+                ? JPAUPlainAttr.class
+                : null;
     }
 
     @Override
@@ -68,7 +68,7 @@ public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>, Long> implements 
     @SuppressWarnings("unchecked")
     public <T extends PlainAttr<?>> void delete(final T plainAttr) {
         if (plainAttr.getOwner() != null) {
-            ((Any<T>) plainAttr.getOwner()).remove(plainAttr);
+            ((Any<T>) plainAttr.getOwner()).getPlainAttrs().remove(plainAttr);
         }
 
         entityManager().remove(plainAttr);

@@ -41,23 +41,17 @@ public interface Any<P extends PlainAttr<?>> extends AnnotatedEntity<Long> {
 
     boolean add(P attr);
 
-    boolean remove(P attr);
-
     P getPlainAttr(String plainSchemaName);
 
     List<? extends P> getPlainAttrs();
 
     boolean add(ExternalResource resource);
 
-    boolean remove(ExternalResource resource);
-
     List<String> getResourceNames();
 
     List<? extends ExternalResource> getResources();
 
     boolean add(AnyTypeClass auxClass);
-
-    boolean remove(AnyTypeClass auxClass);
 
     List<? extends AnyTypeClass> getAuxClasses();
 }

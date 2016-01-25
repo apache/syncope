@@ -84,7 +84,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
         assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
-        assertEquals(1L, matchingUsers.getResult().iterator().next().getKey());
+        assertEquals(1L, matchingUsers.getResult().iterator().next().getKey(), 0);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(groups);
         assertEquals(1, groups.getResult().size());
         assertEquals("root", groups.getResult().iterator().next().getName());
-        assertEquals(1L, groups.getResult().iterator().next().getKey());
+        assertEquals(1L, groups.getResult().iterator().next().getKey(), 0);
     }
 
     @Test
@@ -240,7 +240,7 @@ public class SearchITCase extends AbstractITCase {
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("userOwner").equalTo(5).query()).build());
         assertNotNull(groups);
         assertEquals(1, groups.getResult().size());
-        assertEquals(6L, groups.getResult().iterator().next().getKey());
+        assertEquals(6L, groups.getResult().iterator().next().getKey(), 0);
     }
 
     @Test

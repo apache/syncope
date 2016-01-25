@@ -34,13 +34,13 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.misc.utils.RealmUtils;
+import org.apache.syncope.core.misc.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -101,13 +101,8 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
             if (realm == null) {
                 LOG.warn("Ignoring invalid realm {}", realmPath);
             } else {
-                CollectionUtils.collect(realmDAO.findDescendants(realm), new Transformer<Realm, Long>() {
-
-                    @Override
-                    public Long transform(final Realm descendant) {
-                        return descendant.getKey();
-                    }
-                }, realmKeys);
+                CollectionUtils.collect(
+                        realmDAO.findDescendants(realm), EntityUtils.<Long, Realm>keyTransformer(), realmKeys);
             }
         }
 

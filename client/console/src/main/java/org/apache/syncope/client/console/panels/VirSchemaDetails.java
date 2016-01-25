@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -58,14 +58,9 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<>(
                 "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource"));
-        resource.setChoices(
-                CollectionUtils.collect(resourceRestClient.getAll(), new Transformer<ResourceTO, String>() {
-
-                    @Override
-                    public String transform(final ResourceTO input) {
-                        return input.getKey();
-                    }
-                }, new ArrayList<String>()));
+        resource.setChoices(CollectionUtils.collect(resourceRestClient.getAll(),
+                EntityTOUtils.<String, ResourceTO>keyTransformer(),
+                new ArrayList<String>()));
 
         resource.setOutputMarkupId(true);
         resource.addRequiredLabel();

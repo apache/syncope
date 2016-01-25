@@ -364,10 +364,10 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public void delete(final User user) {
         for (Role role : findDynRoleMemberships(user)) {
-            role.getDynMembership().remove(user);
+            role.getDynMembership().getMembers().remove(user);
         }
         for (Group group : findDynGroupMemberships(user)) {
-            group.getUDynMembership().remove(user);
+            group.getUDynMembership().getMembers().remove(user);
         }
 
         entityManager().remove(user);

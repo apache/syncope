@@ -29,9 +29,6 @@ public interface Conf extends Any<CPlainAttr> {
     boolean add(CPlainAttr attr);
 
     @Override
-    boolean remove(CPlainAttr attr);
-
-    @Override
     List<? extends CPlainAttr> getPlainAttrs();
 
 }

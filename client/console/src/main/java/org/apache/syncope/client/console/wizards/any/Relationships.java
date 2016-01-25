@@ -48,12 +48,13 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPane
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.RelatableTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
@@ -83,6 +84,7 @@ public class Relationships extends WizardStep {
     private final PageReference pageRef;
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
+
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final AnyTO anyTO;
@@ -170,13 +172,14 @@ public class Relationships extends WizardStep {
     }
 
     private List<RelationshipTO> getCurrentRelationships() {
-        return anyTO instanceof UserTO ? UserTO.class.cast(anyTO).getRelationships() : anyTO instanceof AnyObjectTO
-                ? AnyObjectTO.class.cast(anyTO).getRelationships()
+        return anyTO instanceof RelatableTO
+                ? RelatableTO.class.cast(anyTO).getRelationships()
                 : Collections.<RelationshipTO>emptyList();
     }
 
     private void addRelationship(
             final Map<String, List<RelationshipTO>> relationships, final RelationshipTO... rels) {
+
         for (RelationshipTO relationship : rels) {
             final List<RelationshipTO> listrels;
             if (relationships.containsKey(relationship.getType())) {
@@ -226,15 +229,8 @@ public class Relationships extends WizardStep {
 
             final ArrayList<String> availableRels = CollectionUtils.collect(
                     SyncopeConsoleSession.get().getService(RelationshipTypeService.class).list(),
-                    new SerializableTransformer<RelationshipTypeTO, String>() {
-
-                private static final long serialVersionUID = 5498141517922697858L;
-
-                @Override
-                public String transform(final RelationshipTypeTO input) {
-                    return input.getKey();
-                }
-            }, new ArrayList<String>());
+                    EntityTOUtils.<String, RelationshipTypeTO>keyTransformer(),
+                    new ArrayList<String>());
 
             final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>(
                     "type", "type", new PropertyModel<String>(rel, "type"));
@@ -287,11 +283,11 @@ public class Relationships extends WizardStep {
 
                 @Override
                 public AnyTypeTO getObject(final String id, final IModel<? extends List<? extends AnyTypeTO>> choices) {
-                    return IterableUtils.find(choices.getObject(), new Predicate<Object>() {
+                    return IterableUtils.find(choices.getObject(), new Predicate<AnyTypeTO>() {
 
                         @Override
-                        public boolean evaluate(final Object object) {
-                            return id.equals(AnyTypeTO.class.cast(object).getKey());
+                        public boolean evaluate(final AnyTypeTO object) {
+                            return id.equals(object.getKey());
                         }
                     });
                 }
@@ -358,14 +354,14 @@ public class Relationships extends WizardStep {
         @Override
         public void onEvent(final IEvent<?> event) {
             if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
-                final AjaxRequestTarget target
-                        = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
+                final AjaxRequestTarget target =
+                        SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
                 final String fiql = SearchUtils.buildFIQL(anyObjectSearchPanel.getModel().getObject(),
                         SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectSearchPanel.getBackObjectType()));
                 AnyObjectSearchResultPanel.class.cast(anyObjectSearchResultPanel).search(fiql, target);
             } else if (event.getPayload() instanceof AnySelectionSearchResultPanel.ItemSelection) {
-                final AjaxRequestTarget target
-                        = AnySelectionSearchResultPanel.ItemSelection.class.cast(event.getPayload()).getTarget();
+                final AjaxRequestTarget target =
+                        AnySelectionSearchResultPanel.ItemSelection.class.cast(event.getPayload()).getTarget();
 
                 AnyTO right = AnySelectionSearchResultPanel.ItemSelection.class.cast(event.getPayload()).getSelection();
                 rel.setRightKey(right.getKey());

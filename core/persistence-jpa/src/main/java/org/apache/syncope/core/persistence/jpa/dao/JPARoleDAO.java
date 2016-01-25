@@ -82,7 +82,7 @@ public class JPARoleDAO extends AbstractDAO<Role, String> implements RoleDAO {
         query.setParameter("role", role);
 
         for (User user : query.getResultList()) {
-            user.remove(role);
+            user.getRoles().remove(role);
         }
 
         entityManager().remove(role);
@@ -108,7 +108,7 @@ public class JPARoleDAO extends AbstractDAO<Role, String> implements RoleDAO {
 
                     role.getDynMembership().add(user);
                 } else {
-                    role.getDynMembership().remove(user);
+                    role.getDynMembership().getMembers().remove(user);
                 }
             }
         }

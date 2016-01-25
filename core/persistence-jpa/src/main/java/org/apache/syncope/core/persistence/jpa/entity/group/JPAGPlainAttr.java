@@ -82,12 +82,6 @@ public class JPAGPlainAttr extends AbstractPlainAttr<Group> implements GPlainAtt
     }
 
     @Override
-    public boolean remove(final PlainAttrValue attrValue) {
-        checkType(attrValue, JPAGPlainAttrValue.class);
-        return values.remove((JPAGPlainAttrValue) attrValue);
-    }
-
-    @Override
     public List<? extends GPlainAttrValue> getValues() {
         return values;
     }

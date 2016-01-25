@@ -31,7 +31,5 @@ public interface AnyType extends Entity<String> {
 
     boolean add(AnyTypeClass anyTypeClass);
 
-    boolean remove(AnyTypeClass anyTypeClass);
-
     List<? extends AnyTypeClass> getClasses();
 }

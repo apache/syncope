@@ -170,7 +170,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
         for (Long itemKey : itemKeys) {
             MappingItem item = entityManager().find(JPAMappingItem.class, itemKey);
             if (item != null) {
-                item.getMapping().remove(item);
+                item.getMapping().getItems().remove(item);
                 item.setMapping(null);
 
                 entityManager().remove(item);
@@ -194,16 +194,16 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
         taskDAO.deleteAll(resource, TaskType.PUSH);
 
         for (AnyObject anyObject : anyObjectDAO.findByResource(resource)) {
-            anyObject.remove(resource);
+            anyObject.getResources().remove(resource);
         }
         for (User user : userDAO.findByResource(resource)) {
-            user.remove(resource);
+            user.getResources().remove(resource);
         }
         for (Group group : groupDAO.findByResource(resource)) {
-            group.remove(resource);
+            group.getResources().remove(resource);
         }
         for (AccountPolicy policy : policyDAO.findByResource(resource)) {
-            policy.remove(resource);
+            policy.getResources().remove(resource);
         }
 
         for (Provision provision : resource.getProvisions()) {

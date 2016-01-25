@@ -151,7 +151,7 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
         }
 
         try {
-            if (connInstanceTO.getKey() == 0) {
+            if (connInstanceTO.getKey() == null || connInstanceTO.getKey() == 0) {
                 final ConnInstanceTO actual = connectorRestClient.create(connInstanceTO);
                 send(pageRef.getPage(), Broadcast.BREADTH, new CreateEvent(
                         actual.getKey(),

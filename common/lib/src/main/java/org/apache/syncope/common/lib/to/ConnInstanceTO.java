@@ -37,11 +37,11 @@ import org.apache.syncope.common.lib.types.ConnectorCapability;
 
 @XmlRootElement(name = "connInstance")
 @XmlType
-public class ConnInstanceTO extends AbstractBaseBean {
+public class ConnInstanceTO extends AbstractBaseBean implements EntityTO<Long> {
 
     private static final long serialVersionUID = 2707778645445168671L;
 
-    private long key;
+    private Long key;
 
     private String location;
 
@@ -61,12 +61,14 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     private ConnPoolConfTO poolConf;
 
-    public long getKey() {
+    @Override
+    public Long getKey() {
         return key;
     }
 
     @PathParam("key")
-    public void setKey(final long key) {
+    @Override
+    public void setKey(final Long key) {
         this.key = key;
     }
 

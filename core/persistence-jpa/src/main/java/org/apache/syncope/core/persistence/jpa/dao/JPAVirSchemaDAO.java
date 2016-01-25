@@ -62,11 +62,9 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
 
     @Override
     public List<VirSchema> findByProvision(final Provision provision) {
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(JPAVirSchema.class.getSimpleName()).
-                append(" e WHERE e.provision=:provision");
-
-        TypedQuery<VirSchema> query = entityManager().createQuery(queryString.toString(), VirSchema.class);
+        TypedQuery<VirSchema> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAVirSchema.class.getSimpleName()
+                + " e WHERE e.provision=:provision", VirSchema.class);
         query.setParameter("provision", provision);
 
         return query.getResultList();
@@ -99,7 +97,7 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
         }
 
         if (schema.getAnyTypeClass() != null) {
-            schema.getAnyTypeClass().remove(schema);
+            schema.getAnyTypeClass().getVirSchemas().remove(schema);
         }
 
         entityManager().remove(schema);

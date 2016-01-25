@@ -96,9 +96,6 @@ public interface User extends Any<UPlainAttr> {
     boolean add(UPlainAttr attr);
 
     @Override
-    boolean remove(UPlainAttr attr);
-
-    @Override
     UPlainAttr getPlainAttr(String plainSchemaName);
 
     @Override
@@ -106,13 +103,9 @@ public interface User extends Any<UPlainAttr> {
 
     boolean add(Role role);
 
-    boolean remove(Role role);
-
     List<? extends Role> getRoles();
 
     boolean add(URelationship relationship);
-
-    boolean remove(URelationship relationship);
 
     URelationship getRelationship(RelationshipType relationshipType, Long anyObjectKey);
 
@@ -123,8 +116,6 @@ public interface User extends Any<UPlainAttr> {
     List<? extends URelationship> getRelationships();
 
     boolean add(UMembership membership);
-
-    boolean remove(UMembership membership);
 
     UMembership getMembership(Long groupKey);
 

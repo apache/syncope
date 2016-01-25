@@ -37,6 +37,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.core.misc.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
@@ -130,24 +131,13 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
     }
 
     @Override
-    public boolean remove(final ExternalResource resource) {
-        checkType(resource, JPAExternalResource.class);
-        return resources.remove((JPAExternalResource) resource);
-    }
-
-    @Override
     public Set<? extends ExternalResource> getResources() {
         return resources;
     }
 
     @Override
     public Set<String> getResourceNames() {
-        return CollectionUtils.collect(getResources(), new Transformer<ExternalResource, String>() {
-
-            @Override
-            public String transform(final ExternalResource input) {
-                return input.getKey();
-            }
-        }, new HashSet<String>());
+        return CollectionUtils.collect(
+                getResources(), EntityUtils.<String, ExternalResource>keyTransformer(), new HashSet<String>());
     }
 }

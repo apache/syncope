@@ -91,12 +91,6 @@ public class JPAUPlainAttr extends AbstractPlainAttr<User> implements UPlainAttr
     }
 
     @Override
-    public boolean remove(final PlainAttrValue attrValue) {
-        checkType(attrValue, JPAUPlainAttrValue.class);
-        return values.remove((JPAUPlainAttrValue) attrValue);
-    }
-
-    @Override
     public List<? extends UPlainAttrValue> getValues() {
         return values;
     }

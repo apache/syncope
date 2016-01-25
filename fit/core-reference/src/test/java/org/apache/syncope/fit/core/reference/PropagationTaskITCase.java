@@ -134,12 +134,12 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         // check read
         PropagationTaskTO task = taskService.read(1L, false);
         assertNotNull(task);
-        assertEquals(1L, task.getKey());
+        assertEquals(1L, task.getKey(), 0);
         assertTrue(task.getExecutions().isEmpty());
 
         task = taskService.read(1L, true);
         assertNotNull(task);
-        assertEquals(1L, task.getKey());
+        assertEquals(1L, task.getKey(), 0);
         assertFalse(task.getExecutions().isEmpty());
 
         // check list executions

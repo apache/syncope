@@ -28,9 +28,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.misc.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -125,13 +125,9 @@ public class RoleTest extends AbstractTest {
         // 3. verify that expected users have the created role dynamically assigned
         assertEquals(2, actual.getDynMembership().getMembers().size());
         assertEquals(new HashSet<>(Arrays.asList(4L, newUserKey)),
-                CollectionUtils.collect(actual.getDynMembership().getMembers(), new Transformer<User, Long>() {
-
-                    @Override
-                    public Long transform(final User input) {
-                        return input.getKey();
-                    }
-                }, new HashSet<Long>()));
+                CollectionUtils.collect(actual.getDynMembership().getMembers(),
+                        EntityUtils.<Long, User>keyTransformer(),
+                        new HashSet<Long>()));
 
         user = userDAO.find(4L);
         assertNotNull(user);

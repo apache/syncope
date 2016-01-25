@@ -73,11 +73,9 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
 
     @Override
     public <T extends PlainAttr<?>> List<T> findAttrs(final PlainSchema schema, final Class<T> reference) {
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(((JPAPlainAttrDAO) plainAttrDAO).getJPAEntityReference(reference).getSimpleName()).
-                append(" e WHERE e.schema=:schema");
-
-        TypedQuery<T> query = entityManager().createQuery(queryString.toString(), reference);
+        TypedQuery<T> query = entityManager().createQuery(
+                "SELECT e FROM " + ((JPAPlainAttrDAO) plainAttrDAO).getJPAEntityReference(reference).getSimpleName()
+                + " e WHERE e.schema=:schema", reference);
         query.setParameter("schema", schema);
 
         return query.getResultList();
@@ -107,7 +105,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
         }
 
         if (schema.getAnyTypeClass() != null) {
-            schema.getAnyTypeClass().remove(schema);
+            schema.getAnyTypeClass().getPlainSchemas().remove(schema);
         }
 
         entityManager().remove(schema);

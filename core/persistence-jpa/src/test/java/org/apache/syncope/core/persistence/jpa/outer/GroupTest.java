@@ -30,8 +30,8 @@ import java.util.HashSet;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.misc.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -217,13 +217,9 @@ public class GroupTest extends AbstractTest {
         // 3. verify that expected users have the created group dynamically assigned
         assertEquals(2, actual.getUDynMembership().getMembers().size());
         assertEquals(new HashSet<>(Arrays.asList(4L, newUserKey)),
-                CollectionUtils.collect(actual.getUDynMembership().getMembers(), new Transformer<User, Long>() {
-
-                    @Override
-                    public Long transform(final User input) {
-                        return input.getKey();
-                    }
-                }, new HashSet<Long>()));
+                CollectionUtils.collect(actual.getUDynMembership().getMembers(),
+                        EntityUtils.<Long, User>keyTransformer(),
+                        new HashSet<Long>()));
 
         user = userDAO.find(4L);
         assertNotNull(user);
@@ -312,13 +308,8 @@ public class GroupTest extends AbstractTest {
         assertEquals(2, actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers().size());
         assertEquals(new HashSet<>(Arrays.asList(1L, newAnyObjectKey)),
                 CollectionUtils.collect(actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers(),
-                        new Transformer<AnyObject, Long>() {
-
-                    @Override
-                    public Long transform(final AnyObject input) {
-                        return input.getKey();
-                    }
-                }, new HashSet<Long>()));
+                        EntityUtils.<Long, AnyObject>keyTransformer(),
+                        new HashSet<Long>()));
 
         anyObject = anyObjectDAO.find(1L);
         assertNotNull(anyObject);

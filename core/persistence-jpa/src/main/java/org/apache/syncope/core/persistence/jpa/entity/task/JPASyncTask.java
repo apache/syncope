@@ -121,12 +121,6 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     }
 
     @Override
-    public boolean remove(final AnyTemplateSyncTask template) {
-        checkType(template, JPAAnyTemplateSyncTask.class);
-        return this.templates.remove((JPAAnyTemplateSyncTask) template);
-    }
-
-    @Override
     public AnyTemplateSyncTask getTemplate(final AnyType anyType) {
         return IterableUtils.find(templates, new Predicate<AnyTemplate>() {
 

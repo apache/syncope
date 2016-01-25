@@ -96,12 +96,6 @@ public class JPATypeExtension extends AbstractEntity<Long> implements TypeExtens
     }
 
     @Override
-    public boolean remove(final AnyTypeClass auxClass) {
-        checkType(auxClass, JPAAnyTypeClass.class);
-        return auxClasses.remove((JPAAnyTypeClass) auxClass);
-    }
-
-    @Override
     public List<? extends AnyTypeClass> getAuxClasses() {
         return auxClasses;
     }

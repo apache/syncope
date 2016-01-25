@@ -81,7 +81,7 @@ public class TaskExecTest extends AbstractTest {
         exec.setStatus(PropagationTaskExecStatus.SUCCESS.name());
         exec.setMessage(faultyMessage);
 
-        task.addExec(exec);
+        task.add(exec);
         exec.setTask(task);
 
         exec = taskExecDAO.save(exec);

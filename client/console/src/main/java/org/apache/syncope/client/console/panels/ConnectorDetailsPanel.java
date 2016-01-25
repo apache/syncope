@@ -92,7 +92,7 @@ public class ConnectorDetailsPanel extends Panel {
         bundleName.setRequired(true);
         bundleName.addRequiredLabel();
         bundleName.setOutputMarkupId(true);
-        bundleName.setEnabled(model.getObject().getKey() == 0);
+        bundleName.setEnabled(model.getObject().getKey() == null || model.getObject().getKey() == 0);
         bundleName.getField().setOutputMarkupId(true);
         add(bundleName);
 
@@ -184,14 +184,14 @@ public class ConnectorDetailsPanel extends Panel {
                     @Override
                     public boolean evaluate(final ConnBundleTO object) {
                         return object.getLocation().equals(connInstanceTO.getLocation())
-                        && object.getBundleName().equals(connInstanceTO.getBundleName());
+                                && object.getBundleName().equals(connInstanceTO.getBundleName());
                     }
                 }), new Transformer<ConnBundleTO, String>() {
 
-                    @Override
-                    public String transform(final ConnBundleTO input) {
-                        return input.getVersion();
-                    }
-                }, new HashSet<String>()));
+            @Override
+            public String transform(final ConnBundleTO input) {
+                return input.getVersion();
+            }
+        }, new HashSet<String>()));
     }
 }

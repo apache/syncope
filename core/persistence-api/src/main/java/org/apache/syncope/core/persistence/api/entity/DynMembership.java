@@ -28,7 +28,5 @@ public interface DynMembership<A extends Any<?>> extends Entity<Long> {
 
     boolean add(A any);
 
-    boolean remove(A any);
-
     List<? extends A> getMembers();
 }

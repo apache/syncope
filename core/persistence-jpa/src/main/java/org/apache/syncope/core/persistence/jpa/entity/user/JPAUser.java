@@ -217,12 +217,6 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     }
 
     @Override
-    public boolean remove(final Role role) {
-        checkType(role, JPARole.class);
-        return roles.remove((JPARole) role);
-    }
-
-    @Override
     public List<? extends Role> getRoles() {
         return roles;
     }
@@ -282,12 +276,6 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     public boolean add(final UPlainAttr attr) {
         checkType(attr, JPAUPlainAttr.class);
         return plainAttrs.add((JPAUPlainAttr) attr);
-    }
-
-    @Override
-    public boolean remove(final UPlainAttr attr) {
-        checkType(attr, JPAUPlainAttr.class);
-        return plainAttrs.remove((JPAUPlainAttr) attr);
     }
 
     @Override
@@ -481,12 +469,6 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     }
 
     @Override
-    public boolean remove(final AnyTypeClass auxClass) {
-        checkType(auxClass, JPAAnyTypeClass.class);
-        return this.auxClasses.remove((JPAAnyTypeClass) auxClass);
-    }
-
-    @Override
     public List<? extends AnyTypeClass> getAuxClasses() {
         return auxClasses;
     }
@@ -495,12 +477,6 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     public boolean add(final URelationship relationship) {
         checkType(relationship, JPAURelationship.class);
         return this.relationships.add((JPAURelationship) relationship);
-    }
-
-    @Override
-    public boolean remove(final URelationship relationship) {
-        checkType(relationship, JPAURelationship.class);
-        return this.relationships.remove((JPAURelationship) relationship);
     }
 
     @Override
@@ -547,12 +523,6 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     public boolean add(final UMembership membership) {
         checkType(membership, JPAUMembership.class);
         return this.memberships.add((JPAUMembership) membership);
-    }
-
-    @Override
-    public boolean remove(final UMembership membership) {
-        checkType(membership, JPAUMembership.class);
-        return this.memberships.remove((JPAUMembership) membership);
     }
 
     @Override

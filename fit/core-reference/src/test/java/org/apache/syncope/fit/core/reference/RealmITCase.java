@@ -84,7 +84,7 @@ public class RealmITCase extends AbstractITCase {
         assertNotNull(actual.getKey());
         assertEquals("last", actual.getName());
         assertEquals("/even/two/last", actual.getFullPath());
-        assertEquals(actual.getParent(), getRealm("/even/two").getKey());
+        assertEquals(actual.getParent(), getRealm("/even/two").getKey(), 0);
         assertNull(realm.getAccountPolicy());
         assertNull(realm.getPasswordPolicy());
 

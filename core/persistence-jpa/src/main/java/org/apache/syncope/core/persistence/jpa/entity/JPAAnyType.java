@@ -87,12 +87,6 @@ public class JPAAnyType extends AbstractEntity<String> implements AnyType {
     }
 
     @Override
-    public boolean remove(final AnyTypeClass anyTypeClass) {
-        checkType(anyTypeClass, JPAAnyTypeClass.class);
-        return this.classes.remove((JPAAnyTypeClass) anyTypeClass);
-    }
-
-    @Override
     public List<? extends AnyTypeClass> getClasses() {
         return classes;
     }

@@ -71,12 +71,6 @@ public class JPAConf extends AbstractAnnotatedEntity<Long> implements Conf {
     }
 
     @Override
-    public boolean remove(final CPlainAttr attr) {
-        checkType(attr, JPACPlainAttr.class);
-        return plainAttrs.remove((JPACPlainAttr) attr);
-    }
-
-    @Override
     public CPlainAttr getPlainAttr(final String plainSchemaName) {
         return IterableUtils.find(plainAttrs, new Predicate<CPlainAttr>() {
 
@@ -99,11 +93,6 @@ public class JPAConf extends AbstractAnnotatedEntity<Long> implements Conf {
     }
 
     @Override
-    public boolean remove(final ExternalResource resource) {
-        return false;
-    }
-
-    @Override
     public List<String> getResourceNames() {
         return Collections.emptyList();
     }
@@ -115,11 +104,6 @@ public class JPAConf extends AbstractAnnotatedEntity<Long> implements Conf {
 
     @Override
     public boolean add(final AnyTypeClass auxClass) {
-        return false;
-    }
-
-    @Override
-    public boolean remove(final AnyTypeClass auxClass) {
         return false;
     }
 

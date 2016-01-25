@@ -100,7 +100,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                 merged.setAnyTypeClass(anyTypeClass);
             }
         } else if (schemaTO.getAnyTypeClass() == null && merged.getAnyTypeClass() != null) {
-            merged.getAnyTypeClass().remove(merged);
+            merged.getAnyTypeClass().getPlainSchemas().remove(merged);
             merged.setAnyTypeClass(null);
         }
 
@@ -191,7 +191,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                 merged.setAnyTypeClass(anyTypeClass);
             }
         } else if (schemaTO.getAnyTypeClass() == null && merged.getAnyTypeClass() != null) {
-            merged.getAnyTypeClass().remove(merged);
+            merged.getAnyTypeClass().getDerSchemas().remove(merged);
             merged.setAnyTypeClass(null);
         }
 
@@ -234,7 +234,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                 schema.setAnyTypeClass(anyTypeClass);
             }
         } else if (schemaTO.getAnyTypeClass() == null && schema.getAnyTypeClass() != null) {
-            schema.getAnyTypeClass().remove(schema);
+            schema.getAnyTypeClass().getVirSchemas().remove(schema);
             schema.setAnyTypeClass(null);
         }
 

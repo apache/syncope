@@ -96,12 +96,6 @@ public class JPARole extends AbstractEntity<String> implements Role {
     }
 
     @Override
-    public boolean remove(final Realm realm) {
-        checkType(realm, JPARealm.class);
-        return realms.remove((JPARealm) realm);
-    }
-
-    @Override
     public List<? extends Realm> getRealms() {
         return realms;
     }

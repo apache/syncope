@@ -56,6 +56,7 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.misc.spring.BeanUtils;
+import org.apache.syncope.core.misc.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
@@ -121,11 +122,11 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         String authUsername = AuthContextUtils.getUsername();
         if (anonymousUser.equals(authUsername)) {
             authUserTO = new UserTO();
-            authUserTO.setKey(-2);
+            authUserTO.setKey(-2L);
             authUserTO.setUsername(anonymousUser);
         } else if (adminUser.equals(authUsername)) {
             authUserTO = new UserTO();
-            authUserTO.setKey(-1);
+            authUserTO.setKey(-1L);
             authUserTO.setUsername(adminUser);
         } else {
             User authUser = userDAO.find(authUsername);
@@ -364,7 +365,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                     case DELETE:
                     default:
-                        user.remove(role);
+                        user.getRoles().remove(role);
                 }
             }
         }
@@ -388,7 +389,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     URelationship relationship =
                             user.getRelationship(relationshipType, patch.getRelationshipTO().getRightKey());
                     if (relationship != null) {
-                        user.remove(relationship);
+                        user.getRelationships().remove(relationship);
                         toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceNames());
                     }
 
@@ -426,7 +427,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             if (patch.getMembershipTO() != null) {
                 UMembership membership = user.getMembership(patch.getMembershipTO().getRightKey());
                 if (membership != null) {
-                    user.remove(membership);
+                    user.getMemberships().remove(membership);
                     toBeDeprovisioned.addAll(membership.getRightEnd().getResourceNames());
                 }
 
@@ -516,13 +517,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         if (details) {
             // roles
-            CollectionUtils.collect(user.getRoles(), new Transformer<Role, String>() {
-
-                @Override
-                public String transform(final Role role) {
-                    return role.getKey();
-                }
-            }, userTO.getRoles());
+            CollectionUtils.collect(user.getRoles(),
+                    EntityUtils.<String, Role>keyTransformer(),
+                    userTO.getRoles());
 
             // relationships
             CollectionUtils.collect(user.getRelationships(), new Transformer<URelationship, RelationshipTO>() {
@@ -544,20 +541,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }, userTO.getMemberships());
 
             // dynamic memberships
-            CollectionUtils.collect(userDAO.findDynRoleMemberships(user), new Transformer<Role, String>() {
-
-                @Override
-                public String transform(final Role role) {
-                    return role.getKey();
-                }
-            }, userTO.getDynRoles());
-            CollectionUtils.collect(userDAO.findDynGroupMemberships(user), new Transformer<Group, Long>() {
-
-                @Override
-                public Long transform(final Group group) {
-                    return group.getKey();
-                }
-            }, userTO.getDynGroups());
+            CollectionUtils.collect(userDAO.findDynRoleMemberships(user),
+                    EntityUtils.<String, Role>keyTransformer(),
+                    userTO.getDynRoles());
+            CollectionUtils.collect(userDAO.findDynGroupMemberships(user),
+                    EntityUtils.<Long, Group>keyTransformer(),
+                    userTO.getDynGroups());
         }
 
         return userTO;

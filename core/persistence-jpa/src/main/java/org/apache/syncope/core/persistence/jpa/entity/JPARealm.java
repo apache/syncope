@@ -153,12 +153,6 @@ public class JPARealm extends AbstractEntity<Long> implements Realm {
     }
 
     @Override
-    public boolean remove(final AnyTemplateRealm template) {
-        checkType(template, JPAAnyTemplateRealm.class);
-        return this.templates.remove((JPAAnyTemplateRealm) template);
-    }
-
-    @Override
     public AnyTemplateRealm getTemplate(final AnyType anyType) {
         return IterableUtils.find(templates, new Predicate<AnyTemplate>() {
 

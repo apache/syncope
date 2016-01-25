@@ -33,7 +33,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 @XmlRootElement(name = "anyObject")
 @XmlType
-public class AnyObjectTO extends AnyTO {
+public class AnyObjectTO extends AnyTO implements RelatableTO, GroupableTO {
 
     private static final long serialVersionUID = 8841697496476959639L;
 
@@ -46,11 +46,13 @@ public class AnyObjectTO extends AnyTO {
     @XmlElementWrapper(name = "relationships")
     @XmlElement(name = "relationship")
     @JsonProperty("relationships")
+    @Override
     public List<RelationshipTO> getRelationships() {
         return relationships;
     }
 
     @JsonIgnore
+    @Override
     public Map<Pair<String, Long>, RelationshipTO> getRelationshipMap() {
         Map<Pair<String, Long>, RelationshipTO> result = new HashMap<>(getRelationships().size());
         for (RelationshipTO relationship : getRelationships()) {
@@ -64,11 +66,13 @@ public class AnyObjectTO extends AnyTO {
     @XmlElementWrapper(name = "memberships")
     @XmlElement(name = "membership")
     @JsonProperty("memberships")
+    @Override
     public List<MembershipTO> getMemberships() {
         return memberships;
     }
 
     @JsonIgnore
+    @Override
     public Map<Long, MembershipTO> getMembershipMap() {
         Map<Long, MembershipTO> result = new HashMap<>(getMemberships().size());
         for (MembershipTO membership : getMemberships()) {
@@ -82,6 +86,7 @@ public class AnyObjectTO extends AnyTO {
     @XmlElementWrapper(name = "dynGroups")
     @XmlElement(name = "role")
     @JsonProperty("dynGroups")
+    @Override
     public List<Long> getDynGroups() {
         return dynGroups;
     }

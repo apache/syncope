@@ -184,7 +184,7 @@ public class ReportITCase extends AbstractITCase {
     @Test
     public void executeAndExport() throws IOException {
         ReportTO reportTO = reportService.read(1L);
-        reportTO.setKey(0);
+        reportTO.setKey(0L);
         reportTO.setName("executeAndExport" + getUUIDString());
         reportTO.setActive(false);
         reportTO.getExecutions().clear();
@@ -220,7 +220,7 @@ public class ReportITCase extends AbstractITCase {
         }
 
         ReportTO reportTO = reportService.read(1L);
-        reportTO.setKey(0);
+        reportTO.setKey(0L);
         reportTO.setName("deleteExecutions" + getUUIDString());
         reportTO.getExecutions().clear();
         reportTO = createReport(reportTO);
@@ -274,7 +274,7 @@ public class ReportITCase extends AbstractITCase {
     public void issueSYNCOPE102() throws IOException {
         // Create
         ReportTO reportTO = reportService.read(1L);
-        reportTO.setKey(0);
+        reportTO.setKey(0L);
         reportTO.setName("issueSYNCOPE102" + getUUIDString());
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);

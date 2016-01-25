@@ -51,7 +51,7 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
 
         final ProvisioningResult<AnyObjectTO> actual;
 
-        if (inner.getKey() == 0) {
+        if (inner.getKey() == null || inner.getKey() == 0) {
             actual = anyObjectRestClient.create(AnyObjectTO.class.cast(inner));
         } else {
             final AnyObjectPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);

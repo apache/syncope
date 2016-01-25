@@ -35,11 +35,11 @@ import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlRootElement(name = "realm")
 @XmlType
-public class RealmTO extends AbstractBaseBean {
+public class RealmTO extends AbstractBaseBean implements EntityTO<Long> {
 
     private static final long serialVersionUID = 516330662956254391L;
 
-    private long key;
+    private Long key;
 
     private String name;
 
@@ -57,11 +57,13 @@ public class RealmTO extends AbstractBaseBean {
     @JsonIgnore
     private final Map<String, AnyTO> templates = new HashMap<>();
 
-    public long getKey() {
+    @Override
+    public Long getKey() {
         return key;
     }
 
-    public void setKey(final long key) {
+    @Override
+    public void setKey(final Long key) {
         this.key = key;
     }
 

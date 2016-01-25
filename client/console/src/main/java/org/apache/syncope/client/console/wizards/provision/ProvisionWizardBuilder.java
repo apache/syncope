@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -72,14 +73,9 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
 
             final List<String> res = new ArrayList<>();
 
-            CollectionUtils.filter(
-                    CollectionUtils.collect(new AnyTypeRestClient().list(), new Transformer<AnyTypeTO, String>() {
-
-                        @Override
-                        public String transform(final AnyTypeTO anyTypeTO) {
-                            return anyTypeTO.getKey();
-                        }
-                    }, res), new Predicate<String>() {
+            CollectionUtils.filter(CollectionUtils.collect(new AnyTypeRestClient().list(),
+                            EntityTOUtils.<String, AnyTypeTO>keyTransformer(), res),
+                    new Predicate<String>() {
 
                 @Override
                 public boolean evaluate(final String key) {

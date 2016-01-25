@@ -21,9 +21,9 @@ package org.apache.syncope.client.console.wizards.any;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -38,15 +38,9 @@ public class Roles extends WizardStep {
     public <T extends AnyTO> Roles(final UserTO entityTO) {
         this.setOutputMarkupId(true);
 
-        final ArrayList<String> allRoles = CollectionUtils.collect(
-                new RoleRestClient().getAll(),
-                new Transformer<RoleTO, String>() {
-
-            @Override
-            public String transform(final RoleTO input) {
-                return input.getKey();
-            }
-        }, new ArrayList<String>());
+        final ArrayList<String> allRoles = CollectionUtils.collect(new RoleRestClient().getAll(),
+                EntityTOUtils.<String, RoleTO>keyTransformer(),
+                new ArrayList<String>());
 
         add(new AjaxPalettePanel.Builder<String>().build("roles",
                 new PropertyModel<List<String>>(entityTO, "roles"),

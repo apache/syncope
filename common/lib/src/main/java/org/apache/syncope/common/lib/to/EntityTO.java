@@ -16,26 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.resource;
+package org.apache.syncope.common.lib.to;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import java.io.Serializable;
 
-public interface Mapping extends Entity<Long> {
+public interface EntityTO<KEY> extends Serializable {
 
-    Provision getProvision();
+    KEY getKey();
 
-    void setProvision(Provision provision);
-
-    boolean add(MappingItem item);
-
-    MappingItem getConnObjectKeyItem();
-
-    void setConnObjectKeyItem(MappingItem item);
-
-    String getConnObjectLink();
-
-    void setConnObjectLink(String connObjectLink);
-
-    List<? extends MappingItem> getItems();
+    void setKey(KEY key);
 }

@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 
 @XmlRootElement(name = "mappingItem")
 @XmlType
-public class MappingItemTO extends AbstractBaseBean {
+public class MappingItemTO extends AbstractBaseBean implements EntityTO<Long> {
 
     private static final long serialVersionUID = 2983498836767176862L;
 
@@ -88,10 +88,12 @@ public class MappingItemTO extends AbstractBaseBean {
         this.extAttrName = extAttrName;
     }
 
+    @Override
     public Long getKey() {
         return key;
     }
 
+    @Override
     public void setKey(final Long key) {
         this.key = key;
     }

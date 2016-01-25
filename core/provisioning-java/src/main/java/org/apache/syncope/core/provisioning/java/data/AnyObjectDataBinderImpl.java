@@ -41,6 +41,7 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.spring.BeanUtils;
+import org.apache.syncope.core.misc.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -111,13 +112,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             }, anyObjectTO.getMemberships());
 
             // dynamic memberships
-            CollectionUtils.collect(anyObjectDAO.findDynGroupMemberships(anyObject), new Transformer<Group, Long>() {
-
-                @Override
-                public Long transform(final Group group) {
-                    return group.getKey();
-                }
-            }, anyObjectTO.getDynGroups());
+            CollectionUtils.collect(anyObjectDAO.findDynGroupMemberships(anyObject),
+                    EntityUtils.<Long, Group>keyTransformer(),
+                    anyObjectTO.getDynGroups());
         }
 
         return anyObjectTO;
@@ -256,7 +253,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     ARelationship relationship =
                             anyObject.getRelationship(relationshipType, patch.getRelationshipTO().getRightKey());
                     if (relationship != null) {
-                        anyObject.remove(relationship);
+                        anyObject.getRelationships().remove(relationship);
                         toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceNames());
                     }
 
@@ -305,7 +302,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             if (patch.getMembershipTO() != null) {
                 AMembership membership = anyObject.getMembership(patch.getMembershipTO().getRightKey());
                 if (membership != null) {
-                    anyObject.remove(membership);
+                    anyObject.getMemberships().remove(membership);
                     toBeDeprovisioned.addAll(membership.getRightEnd().getResourceNames());
                 }
 

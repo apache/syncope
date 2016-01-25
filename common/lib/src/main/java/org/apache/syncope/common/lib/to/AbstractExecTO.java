@@ -21,21 +21,23 @@ package org.apache.syncope.common.lib.to;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType
-public class AbstractExecTO extends AbstractStartEndBean {
+public class AbstractExecTO extends AbstractStartEndBean implements EntityTO<Long> {
 
     private static final long serialVersionUID = -4621191979198357081L;
 
-    private long key;
+    private Long key;
 
     private String status;
 
     private String message;
 
-    public long getKey() {
+    @Override
+    public Long getKey() {
         return key;
     }
 
-    public void setKey(final long key) {
+    @Override
+    public void setKey(final Long key) {
         this.key = key;
     }
 

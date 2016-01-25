@@ -83,7 +83,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
         }
 
         if (schema.getAnyTypeClass() != null) {
-            schema.getAnyTypeClass().remove(schema);
+            schema.getAnyTypeClass().getDerSchemas().remove(schema);
         }
 
         entityManager().remove(schema);

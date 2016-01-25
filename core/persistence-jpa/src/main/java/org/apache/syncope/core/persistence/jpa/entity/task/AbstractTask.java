@@ -68,15 +68,9 @@ public abstract class AbstractTask extends AbstractEntity<Long> implements Task 
     }
 
     @Override
-    public boolean addExec(final TaskExec exec) {
+    public boolean add(final TaskExec exec) {
         checkType(exec, JPATaskExec.class);
         return exec != null && !executions.contains((JPATaskExec) exec) && executions.add((JPATaskExec) exec);
-    }
-
-    @Override
-    public boolean removeExec(final TaskExec exec) {
-        checkType(exec, JPATaskExec.class);
-        return exec != null && executions.remove((JPATaskExec) exec);
     }
 
     @Override

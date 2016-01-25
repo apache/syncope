@@ -102,14 +102,14 @@ public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implem
         }
 
         for (AnyType type : anyTypeDAO.findByTypeClass(anyTypeClass)) {
-            type.remove(anyTypeClass);
+            type.getClasses().remove(anyTypeClass);
         }
 
         for (TypeExtension typeExt : groupDAO.findTypeExtensionByAnyTypeClass(anyTypeClass)) {
-            typeExt.remove(anyTypeClass);
+            typeExt.getAuxClasses().remove(anyTypeClass);
 
             if (typeExt.getAuxClasses().isEmpty()) {
-                typeExt.getGroup().remove(typeExt);
+                typeExt.getGroup().getTypeExtensions().remove(typeExt);
                 typeExt.setGroup(null);
             }
         }

@@ -166,12 +166,6 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     }
 
     @Override
-    public boolean remove(final GPlainAttr attr) {
-        checkType(attr, JPAGPlainAttr.class);
-        return plainAttrs.remove((JPAGPlainAttr) attr);
-    }
-
-    @Override
     public List<? extends GPlainAttr> getPlainAttrs() {
         return plainAttrs;
     }
@@ -194,12 +188,6 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     }
 
     @Override
-    public boolean remove(final AnyTypeClass auxClass) {
-        checkType(auxClass, JPAAnyTypeClass.class);
-        return this.auxClasses.remove((JPAAnyTypeClass) auxClass);
-    }
-
-    @Override
     public List<? extends AnyTypeClass> getAuxClasses() {
         return auxClasses;
     }
@@ -208,12 +196,6 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     public boolean add(final ADynGroupMembership dynGroupMembership) {
         checkType(dynGroupMembership, JPAADynGroupMembership.class);
         return this.aDynMemberships.add((JPAADynGroupMembership) dynGroupMembership);
-    }
-
-    @Override
-    public boolean remove(final ADynGroupMembership dynGroupMembership) {
-        checkType(dynGroupMembership, JPAADynGroupMembership.class);
-        return this.aDynMemberships.remove((JPAADynGroupMembership) dynGroupMembership);
     }
 
     @Override
@@ -236,12 +218,6 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     public boolean add(final TypeExtension typeExtension) {
         checkType(typeExtension, JPATypeExtension.class);
         return this.typeExtensions.add((JPATypeExtension) typeExtension);
-    }
-
-    @Override
-    public boolean remove(final TypeExtension typeExtension) {
-        checkType(typeExtension, JPATypeExtension.class);
-        return this.typeExtensions.remove((JPATypeExtension) typeExtension);
     }
 
     @Override

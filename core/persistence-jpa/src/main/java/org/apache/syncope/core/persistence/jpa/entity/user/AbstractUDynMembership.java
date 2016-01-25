@@ -37,12 +37,6 @@ public abstract class AbstractUDynMembership extends AbstractDynMembership<User>
     }
 
     @Override
-    public boolean remove(final User user) {
-        checkType(user, JPAUser.class);
-        return internalGetUsers().remove((JPAUser) user);
-    }
-
-    @Override
     public List<? extends User> getMembers() {
         return internalGetUsers();
     }

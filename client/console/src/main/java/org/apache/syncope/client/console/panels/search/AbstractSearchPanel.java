@@ -22,12 +22,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -163,15 +163,11 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return CollectionUtils.collect(schemaRestClient.getSchemas(SchemaType.PLAIN,
-                        anyTypeRestClient.get(type).getClasses().toArray(new String[] {})),
-                        new Transformer<AbstractSchemaTO, String>() {
-
-                    @Override
-                    public String transform(final AbstractSchemaTO input) {
-                        return input.getKey();
-                    }
-                }, new ArrayList<String>());
+                return CollectionUtils.collect(
+                        schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeRestClient.get(type).getClasses().
+                                toArray(new String[] {})),
+                        EntityTOUtils.<String, AbstractSchemaTO>keyTransformer(),
+                        new ArrayList<String>());
             }
         };
 
@@ -181,13 +177,9 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return CollectionUtils.collect(resourceRestClient.getAll(), new Transformer<ResourceTO, String>() {
-
-                    @Override
-                    public String transform(final ResourceTO input) {
-                        return input.getKey();
-                    }
-                }, new ArrayList<String>());
+                return CollectionUtils.collect(resourceRestClient.getAll(),
+                        EntityTOUtils.<String, ResourceTO>keyTransformer(),
+                        new ArrayList<String>());
             }
         };
     }

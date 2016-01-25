@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "role")
 @XmlType
-public class RoleTO extends AbstractBaseBean {
+public class RoleTO extends AbstractBaseBean implements EntityTO<String> {
 
     private static final long serialVersionUID = 4560822655754800031L;
 
@@ -44,11 +44,13 @@ public class RoleTO extends AbstractBaseBean {
 
     private String dynMembershipCond;
 
+    @Override
     public String getKey() {
         return key;
     }
 
     @PathParam("key")
+    @Override
     public void setKey(final String key) {
         this.key = key;
     }

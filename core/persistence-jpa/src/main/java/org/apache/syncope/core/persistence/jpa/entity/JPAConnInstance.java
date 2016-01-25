@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ConnInstanceCheck;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 
 @Entity
 @Table(name = JPAConnInstance.TABLE)
@@ -208,12 +208,6 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
         checkType(resource, JPAExternalResource.class);
         return this.resources.contains((JPAExternalResource) resource)
                 || this.resources.add((JPAExternalResource) resource);
-    }
-
-    @Override
-    public boolean remove(final ExternalResource resource) {
-        checkType(resource, JPAExternalResource.class);
-        return this.resources.remove((JPAExternalResource) resource);
     }
 
     @Override

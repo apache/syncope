@@ -94,12 +94,6 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
     }
 
     @Override
-    public boolean remove(final AnyObject anyObject) {
-        checkType(anyObject, JPAAnyObject.class);
-        return anyObjects.remove((JPAAnyObject) anyObject);
-    }
-
-    @Override
     public List<? extends AnyObject> getMembers() {
         return anyObjects;
     }

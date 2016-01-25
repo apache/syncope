@@ -111,12 +111,6 @@ public class JPACPlainAttr extends AbstractPlainAttr<Conf> implements CPlainAttr
     }
 
     @Override
-    public boolean remove(final PlainAttrValue attrValue) {
-        checkType(attrValue, JPACPlainAttrValue.class);
-        return values.remove((JPACPlainAttrValue) attrValue);
-    }
-
-    @Override
     public List<? extends CPlainAttrValue> getValues() {
         return values;
     }

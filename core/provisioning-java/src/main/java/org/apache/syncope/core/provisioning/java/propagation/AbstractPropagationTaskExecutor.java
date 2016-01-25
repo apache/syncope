@@ -450,7 +450,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 LOG.debug("Execution to be stored: {}", execution);
 
                 execution.setTask(task);
-                task.addExec(execution);
+                task.add(execution);
 
                 taskDAO.save(task);
                 // needed to generate a value for the execution key

@@ -109,7 +109,7 @@ public class TemplateUtils {
             final List<RelationshipTO> anyRels, final List<RelationshipTO> templateRels) {
 
         for (RelationshipTO memb : templateRels) {
-            if (!anyRelMap.containsKey(memb.getRightKey())) {
+            if (!anyRelMap.containsKey(Pair.of(memb.getRightType(), memb.getRightKey()))) {
                 anyRels.add(memb);
             }
         }

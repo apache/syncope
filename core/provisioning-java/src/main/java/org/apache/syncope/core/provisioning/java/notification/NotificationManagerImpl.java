@@ -408,7 +408,7 @@ public class NotificationManagerImpl implements NotificationManager {
     @Override
     public TaskExec storeExec(final TaskExec execution) {
         NotificationTask task = taskDAO.find(execution.getTask().getKey());
-        task.addExec(execution);
+        task.add(execution);
         task.setExecuted(true);
         taskDAO.save(task);
         // this flush call is needed to generate a value for the execution key

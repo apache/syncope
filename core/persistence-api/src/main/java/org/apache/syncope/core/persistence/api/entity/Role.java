@@ -30,8 +30,6 @@ public interface Role extends Entity<String> {
 
     boolean add(Realm realm);
 
-    boolean remove(Realm realm);
-
     List<? extends Realm> getRealms();
 
     DynRoleMembership getDynMembership();

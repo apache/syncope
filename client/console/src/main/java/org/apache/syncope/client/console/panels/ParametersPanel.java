@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -211,8 +209,8 @@ public class ParametersPanel extends AbstractSearchResultPanel<
 
                 final AttrTO attrTO = model.getObject();
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks
-                        = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<Serializable> actionLinks =
+                        ActionLinksPanel.builder(page.getPageReference());
                 actionLinks.setDisableIndicator(true);
                 ActionLinksPanel.Builder<Serializable> addWithRoles = actionLinks
                         .addWithRoles(new ActionLink<Serializable>() {

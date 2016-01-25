@@ -202,13 +202,13 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public void delete(final Group group) {
         for (AMembership membership : findAMemberships(group)) {
-            membership.getLeftEnd().remove(membership);
+            membership.getLeftEnd().getMemberships().remove(membership);
             anyObjectDAO.save(membership.getLeftEnd());
 
             entityManager().remove(membership);
         }
         for (UMembership membership : findUMemberships(group)) {
-            membership.getLeftEnd().remove(membership);
+            membership.getLeftEnd().getMemberships().remove(membership);
             userDAO.save(membership.getLeftEnd());
 
             entityManager().remove(membership);
@@ -282,7 +282,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
                     memb.add(anyObject);
                 } else {
-                    memb.remove(anyObject);
+                    memb.getMembers().remove(anyObject);
                 }
             }
         }
@@ -300,7 +300,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
                     group.getUDynMembership().add(user);
                 } else {
-                    group.getUDynMembership().remove(user);
+                    group.getUDynMembership().getMembers().remove(user);
                 }
             }
         }

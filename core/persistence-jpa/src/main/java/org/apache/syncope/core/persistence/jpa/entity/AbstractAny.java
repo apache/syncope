@@ -19,25 +19,18 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.core.misc.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.AnyCheck;
@@ -57,15 +50,6 @@ public abstract class AbstractAny<P extends PlainAttr<?>>
 
     @Column(nullable = true)
     private String status;
-
-    @Transient
-    private Set<PlainSchema> allowedPlainSchemas;
-
-    @Transient
-    private Set<DerSchema> allowedDerSchemas;
-
-    @Transient
-    private Set<VirSchema> allowedVirSchemas;
 
     @Override
     public Realm getRealm() {
@@ -119,32 +103,13 @@ public abstract class AbstractAny<P extends PlainAttr<?>>
     }
 
     @Override
-    public boolean remove(final ExternalResource resource) {
-        checkType(resource, JPAExternalResource.class);
-        return internalGetResources().remove((JPAExternalResource) resource);
-    }
-
-    @Override
     public List<String> getResourceNames() {
-        return CollectionUtils.collect(getResources(), new Transformer<ExternalResource, String>() {
-
-            @Override
-            public String transform(final ExternalResource input) {
-                return input.getKey();
-            }
-        }, new ArrayList<String>());
+        return CollectionUtils.collect(
+                getResources(), EntityUtils.<String, ExternalResource>keyTransformer(), new ArrayList<String>());
     }
 
     @Override
     public List<? extends ExternalResource> getResources() {
         return internalGetResources();
-    }
-
-    private void populateAllowedSchemas(final Collection<? extends AnyTypeClass> anyTypeClasses) {
-        for (AnyTypeClass anyTypeClass : anyTypeClasses) {
-            allowedPlainSchemas.addAll(anyTypeClass.getPlainSchemas());
-            allowedDerSchemas.addAll(anyTypeClass.getDerSchemas());
-            allowedVirSchemas.addAll(anyTypeClass.getVirSchemas());
-        }
     }
 }

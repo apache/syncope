@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "anyType")
 @XmlType
-public class AnyTypeTO extends AbstractBaseBean {
+public class AnyTypeTO extends AbstractBaseBean implements EntityTO<String> {
 
     private static final long serialVersionUID = 6771657557616874373L;
 
@@ -41,11 +41,13 @@ public class AnyTypeTO extends AbstractBaseBean {
 
     private final List<String> classes = new ArrayList<>();
 
+    @Override
     public String getKey() {
         return key;
     }
 
     @PathParam("key")
+    @Override
     public void setKey(final String key) {
         this.key = key;
     }

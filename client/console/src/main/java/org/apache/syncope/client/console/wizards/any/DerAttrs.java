@@ -26,6 +26,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -57,15 +58,9 @@ public class DerAttrs extends AbstractAttrs {
 
             @Override
             protected List<AttrTO> load() {
-                final List<String> classes = CollectionUtils.collect(
-                        anyTypeClassRestClient.list(getAllAuxClasses()),
-                        new Transformer<AnyTypeClassTO, String>() {
-
-                    @Override
-                    public String transform(final AnyTypeClassTO input) {
-                        return input.getKey();
-                    }
-                }, new ArrayList<>(Arrays.asList(anyTypeClass)));
+                final List<String> classes = CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
+                        EntityTOUtils.<String, AnyTypeClassTO>keyTransformer(),
+                        new ArrayList<>(Arrays.asList(anyTypeClass)));
 
                 final List<DerSchemaTO> derSchemas =
                         schemaRestClient.getSchemas(SchemaType.DERIVED, classes.toArray(new String[] {}));

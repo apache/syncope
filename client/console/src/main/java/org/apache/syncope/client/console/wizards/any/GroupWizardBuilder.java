@@ -70,7 +70,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
                 ? GroupHandler.class.cast(modelObject).fillDynamicConditions()
                 : modelObject.getInnerObject();
 
-        if (toBeProcessed.getKey() == 0) {
+        if (toBeProcessed.getKey() == null || toBeProcessed.getKey() == 0) {
             actual = groupRestClient.create(toBeProcessed);
         } else {
             final GroupPatch patch = AnyOperations.diff(toBeProcessed, getOriginalItem().getInnerObject(), false);
@@ -92,7 +92,8 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
         wizardModel.add(new GroupDetails(
                 GroupHandler.class.cast(modelObject),
                 new ListModel<>(Collections.<StatusBean>emptyList()),
-                false, pageRef, modelObject.getInnerObject().getKey() > 0));
+                false, pageRef,
+                modelObject.getInnerObject().getKey() != null && modelObject.getInnerObject().getKey() > 0));
         return this;
     }
 }

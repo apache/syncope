@@ -76,13 +76,13 @@ public class JPARelationshipTypeDAO extends AbstractDAO<RelationshipType, String
 
         for (Relationship<?, ?> relationship : findRelationshipsByType(type)) {
             if (relationship instanceof URelationship) {
-                ((URelationship) relationship).getLeftEnd().remove((URelationship) relationship);
+                ((URelationship) relationship).getLeftEnd().getRelationships().remove((URelationship) relationship);
             } else if (relationship instanceof UMembership) {
-                ((UMembership) relationship).getLeftEnd().remove((UMembership) relationship);
+                ((UMembership) relationship).getLeftEnd().getMemberships().remove((UMembership) relationship);
             } else if (relationship instanceof ARelationship) {
-                ((ARelationship) relationship).getLeftEnd().remove((ARelationship) relationship);
+                ((ARelationship) relationship).getLeftEnd().getRelationships().remove((ARelationship) relationship);
             } else if (relationship instanceof AMembership) {
-                ((AMembership) relationship).getLeftEnd().remove((AMembership) relationship);
+                ((AMembership) relationship).getLeftEnd().getMemberships().remove((AMembership) relationship);
             }
 
             relationship.setLeftEnd(null);

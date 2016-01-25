@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "relationshipType")
 @XmlType
-public class RelationshipTypeTO extends AbstractBaseBean {
+public class RelationshipTypeTO extends AbstractBaseBean implements EntityTO<String> {
 
     private static final long serialVersionUID = -1884088415277925817L;
 
@@ -33,11 +33,13 @@ public class RelationshipTypeTO extends AbstractBaseBean {
 
     private String description;
 
+    @Override
     public String getKey() {
         return key;
     }
 
     @Path("{key}")
+    @Override
     public void setKey(final String key) {
         this.key = key;
     }

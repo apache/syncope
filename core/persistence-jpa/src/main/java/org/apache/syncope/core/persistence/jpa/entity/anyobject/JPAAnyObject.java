@@ -114,12 +114,6 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
     }
 
     @Override
-    public boolean remove(final APlainAttr attr) {
-        checkType(attr, JPAAPlainAttr.class);
-        return plainAttrs.remove((JPAAPlainAttr) attr);
-    }
-
-    @Override
     public List<? extends APlainAttr> getPlainAttrs() {
         return plainAttrs;
     }
@@ -136,12 +130,6 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
     }
 
     @Override
-    public boolean remove(final AnyTypeClass auxClass) {
-        checkType(auxClass, JPAAnyTypeClass.class);
-        return this.auxClasses.remove((JPAAnyTypeClass) auxClass);
-    }
-
-    @Override
     public List<? extends AnyTypeClass> getAuxClasses() {
         return auxClasses;
     }
@@ -150,12 +138,6 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
     public boolean add(final ARelationship relationship) {
         checkType(relationship, JPAARelationship.class);
         return this.relationships.add((JPAARelationship) relationship);
-    }
-
-    @Override
-    public boolean remove(final ARelationship relationship) {
-        checkType(relationship, JPAARelationship.class);
-        return this.relationships.remove((JPAARelationship) relationship);
     }
 
     @Override
@@ -202,12 +184,6 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
     public boolean add(final AMembership membership) {
         checkType(membership, JPAAMembership.class);
         return this.memberships.add((JPAAMembership) membership);
-    }
-
-    @Override
-    public boolean remove(final AMembership membership) {
-        checkType(membership, JPAAMembership.class);
-        return this.memberships.remove((JPAAMembership) membership);
     }
 
     @Override

@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "resource")
 @XmlType
-public class ResourceTO extends AbstractAnnotatedBean {
+public class ResourceTO extends AbstractAnnotatedBean implements EntityTO<String> {
 
     private static final long serialVersionUID = -9193551354041698963L;
 
@@ -84,11 +84,13 @@ public class ResourceTO extends AbstractAnnotatedBean {
 
     private final List<String> propagationActionsClassNames = new ArrayList<>();
 
+    @Override
     public String getKey() {
         return key;
     }
 
     @PathParam("key")
+    @Override
     public void setKey(final String key) {
         this.key = key;
     }

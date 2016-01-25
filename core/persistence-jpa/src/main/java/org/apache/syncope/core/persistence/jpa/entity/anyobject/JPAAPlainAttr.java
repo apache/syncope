@@ -82,12 +82,6 @@ public class JPAAPlainAttr extends AbstractPlainAttr<AnyObject> implements APlai
     }
 
     @Override
-    public boolean remove(final PlainAttrValue attrValue) {
-        checkType(attrValue, JPAAPlainAttrValue.class);
-        return values.remove((JPAAPlainAttrValue) attrValue);
-    }
-
-    @Override
     public List<? extends APlainAttrValue> getValues() {
         return values;
     }

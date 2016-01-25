@@ -93,8 +93,6 @@ public interface ExternalResource extends AnnotatedEntity<String> {
 
     boolean add(Provision provision);
 
-    boolean remove(Provision provision);
-
     Provision getProvision(AnyType anyType);
 
     Provision getProvision(ObjectClass objectClass);

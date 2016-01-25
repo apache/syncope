@@ -44,7 +44,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = { "key", "poolConf" };
+    private static final String[] IGNORE_PROPERTIES = { "poolConf" };
 
     @Autowired
     private ConnIdBundleManager connIdBundleManager;
@@ -99,14 +99,14 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     }
 
     @Override
-    public ConnInstance update(final long connInstanceId, final ConnInstanceTO connInstanceTO) {
+    public ConnInstance update(final Long key, final ConnInstanceTO connInstanceTO) {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
-        if (connInstanceId == 0) {
-            sce.getElements().add("connector id");
+        if (key == 0) {
+            sce.getElements().add("connector key");
         }
 
-        ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
+        ConnInstance connInstance = connInstanceDAO.find(key);
         connInstance.getCapabilities().clear();
         connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
 
@@ -180,7 +180,6 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     @Override
     public ConnInstanceTO getConnInstanceTO(final ConnInstance connInstance) {
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setKey(connInstance.getKey() == null ? 0L : connInstance.getKey());
 
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
 
@@ -193,11 +192,11 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             ConnConfProperty property = IterableUtils.find(connInstanceTO.getConf(),
                     new Predicate<ConnConfProperty>() {
 
-                        @Override
-                        public boolean evaluate(final ConnConfProperty candidate) {
-                            return propName.equals(candidate.getSchema().getName());
-                        }
-                    });
+                @Override
+                public boolean evaluate(final ConnConfProperty candidate) {
+                    return propName.equals(candidate.getSchema().getName());
+                }
+            });
             if (property == null) {
                 property = new ConnConfProperty();
                 connInstanceTO.getConf().add(property);

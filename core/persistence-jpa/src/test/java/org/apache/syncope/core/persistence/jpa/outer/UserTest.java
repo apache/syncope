@@ -95,7 +95,7 @@ public class UserTest extends AbstractTest {
         assertEquals(1, user.getMemberships().size());
         assertEquals(7L, user.getMemberships().get(0).getRightEnd().getKey(), 0);
 
-        user.remove(user.getMemberships().get(0));
+        user.getMemberships().remove(0);
 
         UMembership newM = entityFactory.newEntity(UMembership.class);
         newM.setLeftEnd(user);
@@ -112,7 +112,7 @@ public class UserTest extends AbstractTest {
         assertEquals(1, user.getRelationships().size());
         assertEquals(1L, user.getRelationships().get(0).getRightEnd().getKey(), 0);
 
-        user.remove(user.getRelationships().get(0));
+        user.getRelationships().remove(0);
 
         URelationship newR = entityFactory.newEntity(URelationship.class);
         newR.setType(relationshipTypeDAO.find("neighborhood"));

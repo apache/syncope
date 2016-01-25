@@ -54,8 +54,6 @@ public interface ConnInstance extends Entity<Long> {
 
     boolean add(ExternalResource resource);
 
-    boolean remove(ExternalResource resource);
-
     List<? extends ExternalResource> getResources();
 
     void setConf(Set<ConnConfProperty> conf);

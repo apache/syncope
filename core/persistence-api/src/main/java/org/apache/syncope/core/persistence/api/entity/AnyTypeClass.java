@@ -28,19 +28,13 @@ public interface AnyTypeClass extends Entity<String> {
 
     boolean add(PlainSchema schema);
 
-    boolean remove(PlainSchema schema);
-
     List<? extends PlainSchema> getPlainSchemas();
 
     boolean add(DerSchema schema);
 
-    boolean remove(DerSchema schema);
-
     List<? extends DerSchema> getDerSchemas();
 
     boolean add(VirSchema schema);
-
-    boolean remove(VirSchema schema);
 
     List<? extends VirSchema> getVirSchemas();
 }

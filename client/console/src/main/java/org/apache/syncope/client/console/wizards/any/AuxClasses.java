@@ -28,12 +28,11 @@ import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.GroupableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -60,12 +59,9 @@ public class AuxClasses extends WizardStep {
             final List<MembershipTO> memberships;
             final List<Long> dyngroups;
 
-            if (entityTO instanceof UserTO) {
-                memberships = UserTO.class.cast(entityTO).getMemberships();
-                dyngroups = UserTO.class.cast(entityTO).getDynGroups();
-            } else if (entityTO instanceof AnyObjectTO) {
-                memberships = AnyObjectTO.class.cast(entityTO).getMemberships();
-                dyngroups = AnyObjectTO.class.cast(entityTO).getDynGroups();
+            if (entityTO instanceof GroupableTO) {
+                memberships = GroupableTO.class.cast(entityTO).getMemberships();
+                dyngroups = GroupableTO.class.cast(entityTO).getDynGroups();
             } else {
                 memberships = Collections.<MembershipTO>emptyList();
                 dyngroups = Collections.<Long>emptyList();
@@ -74,7 +70,7 @@ public class AuxClasses extends WizardStep {
             final AjaxPalettePanel.Builder<MembershipTO> builder =
                     new AjaxPalettePanel.Builder<MembershipTO>().setRenderer(new IChoiceRenderer<MembershipTO>() {
 
-                        private static final long serialVersionUID = 1L;
+                        private static final long serialVersionUID = -3086661086073628855L;
 
                         @Override
                         public Object getDisplayValue(final MembershipTO object) {

@@ -79,12 +79,6 @@ public class JPAAnyTypeClass extends AbstractEntity<String> implements AnyTypeCl
     }
 
     @Override
-    public boolean remove(final PlainSchema schema) {
-        checkType(schema, JPAPlainSchema.class);
-        return this.plainSchemas.remove((JPAPlainSchema) schema);
-    }
-
-    @Override
     public List<? extends PlainSchema> getPlainSchemas() {
         return plainSchemas;
     }
@@ -96,12 +90,6 @@ public class JPAAnyTypeClass extends AbstractEntity<String> implements AnyTypeCl
     }
 
     @Override
-    public boolean remove(final DerSchema schema) {
-        checkType(schema, JPADerSchema.class);
-        return this.derSchemas.remove((JPADerSchema) schema);
-    }
-
-    @Override
     public List<? extends DerSchema> getDerSchemas() {
         return derSchemas;
     }
@@ -110,12 +98,6 @@ public class JPAAnyTypeClass extends AbstractEntity<String> implements AnyTypeCl
     public boolean add(final VirSchema schema) {
         checkType(schema, JPAVirSchema.class);
         return this.virSchemas.add((JPAVirSchema) schema);
-    }
-
-    @Override
-    public boolean remove(final VirSchema schema) {
-        checkType(schema, JPAVirSchema.class);
-        return this.virSchemas.remove((JPAVirSchema) schema);
     }
 
     @Override

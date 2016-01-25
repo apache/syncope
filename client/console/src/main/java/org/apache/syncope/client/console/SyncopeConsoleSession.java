@@ -29,13 +29,13 @@ import java.util.Set;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.DomainTO;
 import org.apache.syncope.common.lib.to.SyncopeTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -91,13 +91,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         domains = new ArrayList<>();
         domains.add(SyncopeConstants.MASTER_DOMAIN);
         CollectionUtils.collect(anonymousClient.getService(DomainService.class).list(),
-                new Transformer<DomainTO, String>() {
-
-                    @Override
-                    public String transform(final DomainTO domain) {
-                        return domain.getKey();
-                    }
-                }, domains);
+                EntityTOUtils.<String, DomainTO>keyTransformer(),
+                domains);
     }
 
     public SyncopeTO getSyncopeTO() {

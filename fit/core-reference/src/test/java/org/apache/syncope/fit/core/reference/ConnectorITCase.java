@@ -303,7 +303,7 @@ public class ConnectorITCase extends AbstractITCase {
         resourceTO.setKey("newAbout103" + getUUIDString());
 
         // Make it new.
-        connInstanceTO.setKey(0);
+        connInstanceTO.setKey(0L);
         connInstanceTO.setDisplayName("newDisplayName" + getUUIDString());
         // ----------------------------------
 
@@ -695,7 +695,7 @@ public class ConnectorITCase extends AbstractITCase {
 
         ConnInstanceTO conn = connectorService.read(101L, Locale.ENGLISH.getLanguage());
 
-        conn.setKey(0);
+        conn.setKey(0L);
         conn.setDisplayName("forBulk1");
 
         bulkAction.getTargets().add(String.valueOf(getObject(

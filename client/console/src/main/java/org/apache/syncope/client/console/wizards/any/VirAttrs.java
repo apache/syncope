@@ -27,6 +27,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -55,15 +56,9 @@ public class VirAttrs extends AbstractAttrs {
 
             @Override
             protected List<AttrTO> load() {
-                final List<String> classes = CollectionUtils.collect(
-                        anyTypeClassRestClient.list(getAllAuxClasses()),
-                        new Transformer<AnyTypeClassTO, String>() {
-
-                    @Override
-                    public String transform(final AnyTypeClassTO input) {
-                        return input.getKey();
-                    }
-                }, new ArrayList<>(Arrays.asList(anyTypeClass)));
+                final List<String> classes = CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
+                        EntityTOUtils.<String, AnyTypeClassTO>keyTransformer(),
+                        new ArrayList<>(Arrays.asList(anyTypeClass)));
 
                 final List<VirSchemaTO> virSchemas =
                         schemaRestClient.getSchemas(SchemaType.VIRTUAL, classes.toArray(new String[] {}));
@@ -72,7 +67,7 @@ public class VirAttrs extends AbstractAttrs {
                 entityTO.getVirAttrs().clear();
 
                 // This conversion from set to lis is required by the ListView.
-                // Didn't performed by using collect parameter because entityTO change is required.
+                // Not performed by using collect parameter because entityTO change is required.
                 return new ArrayList<>(CollectionUtils.collect(virSchemas, new Transformer<VirSchemaTO, AttrTO>() {
 
                     @Override

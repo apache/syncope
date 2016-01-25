@@ -29,8 +29,6 @@ public interface Report extends Entity<Long> {
 
     boolean add(ReportExec exec);
 
-    boolean remove(ReportExec exec);
-
     List<? extends ReportExec> getExecs();
 
     boolean add(ReportletConf reportletConf);

@@ -73,7 +73,7 @@ public abstract class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilde
 
     @Override
     protected WizardModel buildModelSteps(final AnyHandler<T> modelObject, final WizardModel wizardModel) {
-        final String[] clazzes = anyTypeClasses.toArray(new String[]{});
+        final String[] clazzes = anyTypeClasses.toArray(new String[] {});
         // optional details panel step
         addOptionalDetailsPanel(modelObject, wizardModel);
 
@@ -111,7 +111,7 @@ public abstract class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilde
 
     protected AnyWizardBuilder<T> addOptionalDetailsPanel(
             final AnyHandler<T> modelObject, final WizardModel wizardModel) {
-        if (modelObject.getInnerObject().getKey() > 0) {
+        if (modelObject.getInnerObject().getKey() != null && modelObject.getInnerObject().getKey() > 0) {
             wizardModel.add(new Details<>(
                     modelObject, new ListModel<>(Collections.<StatusBean>emptyList()), pageRef, true));
         }

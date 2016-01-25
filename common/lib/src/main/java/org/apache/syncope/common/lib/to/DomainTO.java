@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 
 @XmlRootElement(name = "domain")
 @XmlType
-public class DomainTO extends AbstractBaseBean {
+public class DomainTO extends AbstractBaseBean implements EntityTO<String> {
 
     private static final long serialVersionUID = -7938075259986084934L;
 
@@ -35,10 +35,12 @@ public class DomainTO extends AbstractBaseBean {
 
     private CipherAlgorithm adminCipherAlgorithm;
 
+    @Override
     public String getKey() {
         return key;
     }
 
+    @Override
     public void setKey(final String key) {
         this.key = key;
     }

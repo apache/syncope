@@ -84,12 +84,6 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
     }
 
     @Override
-    public boolean remove(final MappingItem item) {
-        checkType(item, JPAMappingItem.class);
-        return items.remove((JPAMappingItem) item);
-    }
-
-    @Override
     public List<? extends MappingItem> getItems() {
         return items;
     }

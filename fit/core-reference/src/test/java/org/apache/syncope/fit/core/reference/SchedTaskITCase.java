@@ -75,7 +75,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         assertNotNull(task);
 
         SchedTaskTO taskMod = new SchedTaskTO();
-        taskMod.setKey(5);
+        taskMod.setKey(5L);
         taskMod.setCronExpression(null);
 
         taskService.update(taskMod);
@@ -189,7 +189,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         } while (list.size() < 1 && i < maxit);
 
         assertEquals(1, list.size());
-        assertEquals(task.getKey(), list.get(0).getTask());
+        assertEquals(task.getKey(), list.get(0).getTask(), 0);
 
         taskService.actionJob(task.getKey(), JobAction.STOP);
 

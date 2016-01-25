@@ -62,6 +62,7 @@ import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.misc.utils.ConnObjectUtils;
 import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.misc.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -345,7 +346,7 @@ abstract class AbstractAnyDataBinder {
 
             case DELETE:
             default:
-                any.remove(attr);
+                any.getPlainAttrs().remove(attr);
                 plainAttrDAO.delete(attr.getKey(), anyUtils.plainAttrClass());
         }
 
@@ -382,7 +383,7 @@ abstract class AbstractAnyDataBinder {
 
                     case DELETE:
                     default:
-                        any.remove(auxClass);
+                        any.getAuxClasses().remove(auxClass);
                 }
             }
         }
@@ -402,7 +403,7 @@ abstract class AbstractAnyDataBinder {
                     case DELETE:
                     default:
                         propByRes.add(ResourceOperation.DELETE, resource.getKey());
-                        any.remove(resource);
+                        any.getResources().remove(resource);
                 }
             }
         }
@@ -513,13 +514,7 @@ abstract class AbstractAnyDataBinder {
 
         anyTO.setRealm(realmFullPath);
 
-        CollectionUtils.collect(auxClasses, new Transformer<AnyTypeClass, String>() {
-
-            @Override
-            public String transform(final AnyTypeClass role) {
-                return role.getKey();
-            }
-        }, anyTO.getAuxClasses());
+        CollectionUtils.collect(auxClasses, EntityUtils.<String, AnyTypeClass>keyTransformer(), anyTO.getAuxClasses());
 
         for (PlainAttr<?> plainAttr : plainAttrs) {
             AttrTO attrTO = new AttrTO();

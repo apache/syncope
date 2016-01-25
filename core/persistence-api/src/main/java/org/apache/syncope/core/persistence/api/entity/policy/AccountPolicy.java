@@ -42,8 +42,6 @@ public interface AccountPolicy extends Policy {
 
     boolean add(ExternalResource resource);
 
-    boolean remove(ExternalResource resource);
-
     Set<String> getResourceNames();
 
     Set<? extends ExternalResource> getResources();

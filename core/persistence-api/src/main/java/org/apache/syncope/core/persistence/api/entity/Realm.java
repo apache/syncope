@@ -47,8 +47,6 @@ public interface Realm extends Entity<Long> {
 
     boolean add(AnyTemplateRealm template);
 
-    boolean remove(AnyTemplateRealm template);
-
     AnyTemplateRealm getTemplate(AnyType anyType);
 
     List<? extends AnyTemplateRealm> getTemplates();

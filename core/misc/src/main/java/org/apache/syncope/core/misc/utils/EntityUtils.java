@@ -16,26 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.resource;
+package org.apache.syncope.core.misc.utils;
 
-import java.util.List;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface Mapping extends Entity<Long> {
+public final class EntityUtils {
 
-    Provision getProvision();
+    public static <KEY, E extends Entity<KEY>> Transformer<E, KEY> keyTransformer() {
+        return new Transformer<E, KEY>() {
 
-    void setProvision(Provision provision);
+            @Override
+            public KEY transform(final E input) {
+                return input.getKey();
+            }
+        };
+    }
 
-    boolean add(MappingItem item);
-
-    MappingItem getConnObjectKeyItem();
-
-    void setConnObjectKeyItem(MappingItem item);
-
-    String getConnObjectLink();
-
-    void setConnObjectLink(String connObjectLink);
-
-    List<? extends MappingItem> getItems();
+    /**
+     * Private default constructor, for static-only classes.
+     */
+    private EntityUtils() {
+    }
 }

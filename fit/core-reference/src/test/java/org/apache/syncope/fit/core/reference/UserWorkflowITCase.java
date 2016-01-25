@@ -72,7 +72,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
         assertNotNull(form);
         assertNotNull(form.getUserKey());
-        assertEquals(userTO.getKey(), form.getUserKey());
+        assertEquals(userTO.getKey(), form.getUserKey(), 0);
         assertNotNull(form.getTaskId());
         assertNull(form.getOwner());
 
@@ -230,7 +230,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         // 1. create user with group 9 (and verify that no propagation occurred)
         userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
-        assertNotEquals(0L, userTO.getKey());
+        assertNotEquals(0L, userTO.getKey(), 0);
         assertNotNull(userTO.getCreationDate());
         assertNotNull(userTO.getCreator());
         assertNotNull(userTO.getLastChangeDate());

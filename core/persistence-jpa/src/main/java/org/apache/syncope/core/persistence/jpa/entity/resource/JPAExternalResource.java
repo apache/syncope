@@ -211,12 +211,6 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     }
 
     @Override
-    public boolean remove(final Provision provision) {
-        checkType(provision, JPAProvision.class);
-        return this.provisions.remove((JPAProvision) provision);
-    }
-
-    @Override
     public Provision getProvision(final ObjectClass objectClass) {
         return IterableUtils.find(provisions, new Predicate<Provision>() {
 

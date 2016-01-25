@@ -275,7 +275,7 @@ public class ResourceTest extends AbstractTest {
         }
 
         Provision groupProvision = ldap.getProvision(anyTypeDAO.findGroup());
-        ldap.remove(groupProvision);
+        ldap.getProvisions().remove(groupProvision);
         for (VirSchema schema : virSchemaDAO.findByProvision(groupProvision)) {
             virSchemaDAO.delete(schema.getKey());
         }

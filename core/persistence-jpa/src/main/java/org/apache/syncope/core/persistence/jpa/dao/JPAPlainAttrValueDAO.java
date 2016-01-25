@@ -52,22 +52,22 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue, Long> impl
         return AbstractPlainAttrValue.class.isAssignableFrom(reference)
                 ? (Class<? extends AbstractPlainAttrValue>) reference
                 : reference.equals(CPlainAttrValue.class)
-                        ? JPACPlainAttrValue.class
-                        : reference.equals(CPlainAttrUniqueValue.class)
-                                ? JPACPlainAttrUniqueValue.class
-                                : reference.equals(GPlainAttrValue.class)
-                                        ? JPAGPlainAttrValue.class
-                                        : reference.equals(GPlainAttrUniqueValue.class)
-                                                ? JPAGPlainAttrUniqueValue.class
-                                                : reference.equals(APlainAttrValue.class)
-                                                        ? JPAAPlainAttrValue.class
-                                                        : reference.equals(APlainAttrUniqueValue.class)
-                                                                ? JPAAPlainAttrUniqueValue.class
-                                                                : reference.equals(UPlainAttrValue.class)
-                                                                        ? JPAUPlainAttrValue.class
-                                                                        : reference.equals(UPlainAttrUniqueValue.class)
-                                                                                ? JPAUPlainAttrUniqueValue.class
-                                                                                : null;
+                ? JPACPlainAttrValue.class
+                : reference.equals(CPlainAttrUniqueValue.class)
+                ? JPACPlainAttrUniqueValue.class
+                : reference.equals(GPlainAttrValue.class)
+                ? JPAGPlainAttrValue.class
+                : reference.equals(GPlainAttrUniqueValue.class)
+                ? JPAGPlainAttrUniqueValue.class
+                : reference.equals(APlainAttrValue.class)
+                ? JPAAPlainAttrValue.class
+                : reference.equals(APlainAttrUniqueValue.class)
+                ? JPAAPlainAttrUniqueValue.class
+                : reference.equals(UPlainAttrValue.class)
+                ? JPAUPlainAttrValue.class
+                : reference.equals(UPlainAttrUniqueValue.class)
+                ? JPAUPlainAttrUniqueValue.class
+                : null;
     }
 
     @Override
@@ -103,7 +103,7 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue, Long> impl
             if (attrValue instanceof PlainAttrUniqueValue) {
                 attrValue.getAttr().setUniqueValue(null);
             } else {
-                attrValue.getAttr().remove(attrValue);
+                attrValue.getAttr().getValues().remove(attrValue);
             }
         }
 

@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -174,12 +173,6 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     public boolean add(final AnyAbout about) {
         checkType(about, JPAAnyAbout.class);
         return this.abouts.add((JPAAnyAbout) about);
-    }
-
-    @Override
-    public boolean remove(final AnyAbout about) {
-        checkType(about, JPAAnyAbout.class);
-        return this.abouts.remove((JPAAnyAbout) about);
     }
 
     @Override

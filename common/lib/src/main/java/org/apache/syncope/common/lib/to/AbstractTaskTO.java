@@ -34,22 +34,24 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType
 @XmlSeeAlso({ PropagationTaskTO.class, SchedTaskTO.class, NotificationTaskTO.class })
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public abstract class AbstractTaskTO extends AbstractStartEndBean {
+public abstract class AbstractTaskTO extends AbstractStartEndBean implements EntityTO<Long> {
 
     private static final long serialVersionUID = 386450127003321197L;
 
-    private long key;
+    private Long key;
 
     private String latestExecStatus;
 
     private final List<TaskExecTO> executions = new ArrayList<>();
 
-    public long getKey() {
+    @Override
+    public Long getKey() {
         return key;
     }
 
     @PathParam("key")
-    public void setKey(final long key) {
+    @Override
+    public void setKey(final Long key) {
         this.key = key;
     }
 

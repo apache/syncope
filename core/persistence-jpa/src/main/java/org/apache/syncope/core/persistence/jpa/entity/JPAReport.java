@@ -89,12 +89,6 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
     }
 
     @Override
-    public boolean remove(final ReportExec exec) {
-        checkType(exec, JPAReportExec.class);
-        return exec != null && executions.remove((JPAReportExec) exec);
-    }
-
-    @Override
     public List<? extends ReportExec> getExecs() {
         return executions;
     }

@@ -21,9 +21,9 @@ package org.apache.syncope.client.console.wizards.any;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -52,14 +52,8 @@ public class Resources extends WizardStep {
                 entityTO.getResources().clear();
                 entityTO.getResources().addAll(object);
             }
-        }, new ListModel<>(CollectionUtils.collect(
-                        new ResourceRestClient().getAll(),
-                        new Transformer<ResourceTO, String>() {
-
-                    @Override
-                    public String transform(final ResourceTO input) {
-                        return input.getKey();
-                    }
-                }, new ArrayList<String>()))).hideLabel().setOutputMarkupId(true));
+        }, new ListModel<>(CollectionUtils.collect(new ResourceRestClient().getAll(),
+                        EntityTOUtils.<String, ResourceTO>keyTransformer(),
+                        new ArrayList<String>()))).hideLabel().setOutputMarkupId(true));
     }
 }

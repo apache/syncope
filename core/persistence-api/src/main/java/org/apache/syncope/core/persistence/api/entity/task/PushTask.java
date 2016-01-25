@@ -25,8 +25,6 @@ public interface PushTask extends ProvisioningTask {
 
     boolean add(PushTaskAnyFilter filter);
 
-    boolean remove(PushTaskAnyFilter filter);
-
     PushTaskAnyFilter getFilter(AnyType anyType);
 
     List<? extends PushTaskAnyFilter> getFilters();

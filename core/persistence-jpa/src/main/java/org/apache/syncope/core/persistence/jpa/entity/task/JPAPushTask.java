@@ -73,12 +73,6 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     }
 
     @Override
-    public boolean remove(final PushTaskAnyFilter filter) {
-        checkType(filter, JPAPushTaskAnyFilter.class);
-        return this.filters.remove((JPAPushTaskAnyFilter) filter);
-    }
-
-    @Override
     public PushTaskAnyFilter getFilter(final AnyType anyType) {
         return IterableUtils.find(filters, new Predicate<PushTaskAnyFilter>() {
 

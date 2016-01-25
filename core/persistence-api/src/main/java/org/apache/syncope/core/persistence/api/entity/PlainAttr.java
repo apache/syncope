@@ -34,8 +34,6 @@ public interface PlainAttr<A extends Any<?>> extends Entity<Long> {
 
     void add(String value, PlainAttrValue attrValue);
 
-    boolean remove(PlainAttrValue attrValue);
-
     PlainAttrUniqueValue getUniqueValue();
 
     void setUniqueValue(PlainAttrUniqueValue uniqueValue);

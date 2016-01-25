@@ -127,7 +127,7 @@ public class TaskTest extends AbstractTest {
         execution.setTask(task);
         execution.setStatus(PropagationTaskExecStatus.CREATED.name());
         execution.setStart(new Date());
-        task.addExec(execution);
+        task.add(execution);
 
         taskDAO.save(task);
         taskDAO.flush();
@@ -150,7 +150,7 @@ public class TaskTest extends AbstractTest {
         execution.setTask(task);
         execution.setStart(new Date());
         execution.setMessage("A message");
-        task.addExec(execution);
+        task.add(execution);
 
         taskDAO.save(task);
         taskDAO.flush();
@@ -173,7 +173,7 @@ public class TaskTest extends AbstractTest {
         execution.setTask(task);
         execution.setStart(new Date());
         execution.setMessage("A message");
-        task.addExec(execution);
+        task.add(execution);
 
         taskDAO.save(task);
         taskDAO.flush();
