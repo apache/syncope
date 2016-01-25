@@ -18,14 +18,20 @@
  */
 package org.apache.syncope.fit.console.reference;
 
+import java.lang.reflect.InvocationTargetException;
 import javax.servlet.ServletContext;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.pages.Login;
+import org.apache.wicket.Component;
+import org.apache.wicket.core.util.lang.PropertyResolver;
+import org.apache.wicket.markup.repeater.OddEvenItem;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
+import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +43,8 @@ public abstract class AbstractITCase {
     public static final String ADMIN = "admin";
 
     public static final String PASSWORD = "password";
+    
+    public static final String KEY = "key";
 
     protected WicketTester wicketTester;
 
@@ -69,9 +77,32 @@ public abstract class AbstractITCase {
         wicketTester.startPage(Login.class);
         wicketTester.assertRenderedPage(Login.class);
 
-        final FormTester formTester = wicketTester.newFormTester("login");
+        FormTester formTester = wicketTester.newFormTester("login");
         formTester.setValue("username", user);
         formTester.setValue("password", passwd);
         formTester.submit("submit");
+    }
+
+    protected Component findComponentByProp(final String property, final String searchPath, final String key) {
+        Component component =
+                wicketTester.getComponentFromLastRenderedPage(searchPath);
+
+        Component result = component.getPage().
+                visitChildren(OddEvenItem.class, new IVisitor<OddEvenItem<?>, Component>() {
+
+                    @Override
+                    public void component(final OddEvenItem<?> object, final IVisit<Component> visit) {
+                        
+                        try {
+                            if (PropertyResolver.getPropertyGetter(
+                                    property, object.getModelObject()).invoke(object.getModelObject()).equals(key)) {
+                                visit.stop(object);
+                            }
+                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                            LOG.error("Error invoke method", ex);
+                        }
+                    }
+                });
+        return result;
     }
 }
