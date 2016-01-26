@@ -19,11 +19,7 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Collections;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -71,20 +67,6 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
     public void update(final AnyTypeClass anyTypeClass, final AnyTypeClassTO anyTypeClassTO) {
         if (anyTypeClass.getKey() == null) {
             anyTypeClass.setKey(anyTypeClassTO.getKey());
-        }
-
-        if (!CollectionUtils.disjunction(
-                CollectionUtils.collect(anyTypeClass.getTypes(), new Transformer<AnyType, String>() {
-
-                    @Override
-                    public String transform(final AnyType anyType) {
-                        return anyType.getKey();
-                    }
-                }), anyTypeClassTO.getTypes()).isEmpty()) {
-
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyTypeClass);
-            sce.getElements().add("Cannot update types from classes, do the other way round");
-            throw sce;
         }
 
         for (PlainSchema schema : plainSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass))) {
@@ -140,7 +122,7 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
         anyTypeClassTO.setKey(anyTypeClass.getKey());
 
         for (AnyType anyType : anyTypeDAO.findByTypeClass(anyTypeClass)) {
-            anyTypeClassTO.getTypes().add(anyType.getKey());
+            anyTypeClassTO.getInUseByTypes().add(anyType.getKey());
         }
 
         for (PlainSchema schema : anyTypeClass.getPlainSchemas()) {

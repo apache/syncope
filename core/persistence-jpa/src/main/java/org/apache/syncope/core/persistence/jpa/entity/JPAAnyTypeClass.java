@@ -27,7 +27,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -65,11 +64,6 @@ public class JPAAnyTypeClass extends AbstractEntity<String> implements AnyTypeCl
     @Override
     public void setKey(final String name) {
         this.name = name;
-    }
-
-    @Override
-    public List<? extends AnyType> getTypes() {
-        return types;
     }
 
     @Override
