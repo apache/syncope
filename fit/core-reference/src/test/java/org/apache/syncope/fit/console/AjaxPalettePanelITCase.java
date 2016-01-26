@@ -29,8 +29,11 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePane
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.tester.FormTester;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class AjaxPalettePanelITCase extends AbstractConsoleITCase {
 
     private static final IModel<List<String>> SELECTED = new ListModel<>(new ArrayList<>(Arrays.asList("A", "D")));

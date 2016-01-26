@@ -28,7 +28,10 @@ import org.apache.wicket.validation.validator.StringValidator;
 import org.junit.Test;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class AjaxTextFieldITCase extends AbstractConsoleITCase {
 
     private final IModel<String> textModel = Model.of((String) null);
