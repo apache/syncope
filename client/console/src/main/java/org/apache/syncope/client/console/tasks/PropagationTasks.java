@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import static org.apache.syncope.client.console.panels.MultilevelPanel.FIRST_LEVEL_ID;
-
 import java.io.Serializable;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
@@ -41,7 +39,8 @@ public class PropagationTasks extends Panel implements ModalPanel<Serializable> 
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new PropagationTaskSearchResultPanel(FIRST_LEVEL_ID, pageReference, resource) {
+        mlp.setFirstLevel(
+                new PropagationTaskSearchResultPanel(MultilevelPanel.FIRST_LEVEL_ID, pageReference, resource) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
