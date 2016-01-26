@@ -103,12 +103,7 @@ public abstract class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilde
         wizardModel.add(new Resources(modelObject.getInnerObject()));
         return wizardModel;
     }
-
-    @Override
-    protected void onCancelInternal(final AnyHandler<T> modelObject) {
-        // do nothing
-    }
-
+    
     protected AnyWizardBuilder<T> addOptionalDetailsPanel(
             final AnyHandler<T> modelObject, final WizardModel wizardModel) {
         if (modelObject.getInnerObject().getKey() != null && modelObject.getInnerObject().getKey() > 0) {

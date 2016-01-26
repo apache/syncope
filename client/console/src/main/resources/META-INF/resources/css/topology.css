@@ -126,9 +126,15 @@ div#drawing {
 }
 
 div#zoom {
-  padding : 10px;
   text-align: right;
   width: 100%;
+  border: none;
+  background: none;
+  padding-top: 5px;
+}
+
+div#zoom .btn {
+  padding : 0px;
 }
 
 div#zoom .fa{

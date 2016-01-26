@@ -47,9 +47,13 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
 
     public abstract ModalPanel<T> build(final int index, final boolean edit);
 
-    protected abstract void onCancelInternal(T modelObject);
+    protected void onCancelInternal(final T modelObject) {
+    }
 
-    protected abstract Serializable onApplyInternal(T modelObject);
+    protected Serializable onApplyInternal(final T modelObject) {
+        // do nothing
+        return null;
+    }
 
     protected T getOriginalItem() {
         return item;

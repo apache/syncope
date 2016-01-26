@@ -28,7 +28,6 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.GroupDisplayAttributesModalPage;
-import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -193,13 +192,8 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
 
         private static final long serialVersionUID = 1L;
 
-        public Builder(
-                final List<AnyTypeClassTO> anyTypeClassTOs,
-                final AbstractAnyRestClient<GroupTO> restClient,
-                final String type,
-                final PageReference pageRef) {
-
-            super(anyTypeClassTOs, restClient, type, pageRef);
+        public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
+            super(anyTypeClassTOs, new GroupRestClient(), type, pageRef);
             setShowResultPage(true);
         }
 

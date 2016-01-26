@@ -33,13 +33,11 @@ import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AnyTypePanel.AnyTypeProvider;
-import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -61,20 +59,9 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
 
     private static final long serialVersionUID = 3905038169553185171L;
 
-    public AnyTypePanel(final String id, final Builder<AnyTypeTO, AnyTypeTO, BaseRestClient> builder) {
-        super(id, builder);
-    }
-
     public AnyTypePanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<AnyTypeTO, AnyTypeTO, BaseRestClient>(null, pageRef) {
-
-            private static final long serialVersionUID = 8769126634538601689L;
-
-            @Override
-            protected WizardMgtPanel<AnyTypeTO> newInstance(final String id) {
-                return new AnyTypePanel(id, this);
-            }
-        }.disableCheckBoxes());
+        super(id, pageRef);
+        disableCheckBoxes();
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeTO>(
                 BaseModal.CONTENT_ID, new AnyTypeTO(), pageRef) {
@@ -105,16 +92,6 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
                         modal.getNotificationPanel().refresh(target);
                     }
                 };
-            }
-
-            @Override
-            protected void onCancelInternal(final AnyTypeTO modelObject) {
-            }
-
-            @Override
-            protected Serializable onApplyInternal(final AnyTypeTO modelObject) {
-                // do nothing
-                return null;
             }
         }, true);
 
@@ -200,8 +177,8 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
             public void populateItem(final Item<ICellPopulator<AnyTypeTO>> item, final String componentId,
                     final IModel<AnyTypeTO> model) {
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks =
-                        ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.
+                        getPageReference());
                 actionLinks.setDisableIndicator(true);
                 actionLinks.addWithRoles(new ActionLink<Serializable>() {
 

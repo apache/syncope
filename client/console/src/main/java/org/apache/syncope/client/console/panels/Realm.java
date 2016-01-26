@@ -23,11 +23,8 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
-import org.apache.syncope.client.console.rest.GroupRestClient;
-import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -65,12 +62,6 @@ public abstract class Realm extends Panel {
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
-
-    private final UserRestClient userRestClient = new UserRestClient();
-
-    private final GroupRestClient groupRestClient = new GroupRestClient();
-
-    private final AnyObjectRestClient anyObjectRestClient = new AnyObjectRestClient();
 
     private final PageReference pageRef;
 
@@ -159,7 +150,6 @@ public abstract class Realm extends Panel {
                 userTO.setRealm(realmTO.getFullPath());
                 panel = new UserSearchResultPanel.Builder(
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
-                        userRestClient,
                         anyTypeTO.getKey(),
                         pageReference).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new UserWizardBuilder(
@@ -173,7 +163,6 @@ public abstract class Realm extends Panel {
                 groupTO.setRealm(realmTO.getFullPath());
                 panel = new GroupSearchResultPanel.Builder(
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
-                        groupRestClient,
                         anyTypeTO.getKey(),
                         pageReference).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new GroupWizardBuilder(
@@ -188,7 +177,6 @@ public abstract class Realm extends Panel {
                 anyObjectTO.setType(anyTypeTO.getKey());
                 panel = new AnyObjectSearchResultPanel.Builder(
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
-                        anyObjectRestClient,
                         anyTypeTO.getKey(),
                         pageReference).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new AnyObjectWizardBuilder(

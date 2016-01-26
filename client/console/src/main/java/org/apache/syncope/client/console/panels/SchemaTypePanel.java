@@ -35,14 +35,12 @@ import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
-import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -87,24 +85,9 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
 
     private final SchemaType schemaType;
 
-    public SchemaTypePanel(final String id, final SchemaType schemaType,
-            final AbstractSearchResultPanel.Builder<AbstractSchemaTO, AbstractSchemaTO, BaseRestClient> builder) {
-        super(id, builder);
-
-        this.schemaType = schemaType;
-    }
-
     public SchemaTypePanel(final String id, final SchemaType schemaType, final PageReference pageRef) {
-        super(id, new AbstractSearchResultPanel.Builder<AbstractSchemaTO, AbstractSchemaTO, BaseRestClient>(null,
-                pageRef) {
-
-            private static final long serialVersionUID = 8769126634538601689L;
-
-            @Override
-            protected WizardMgtPanel<AbstractSchemaTO> newInstance(final String id) {
-                return new SchemaTypePanel(id, schemaType, this).setPageRef(pageRef);
-            }
-        }.disableCheckBoxes());
+        super(id, pageRef);
+        disableCheckBoxes();
 
         this.schemaType = schemaType;
 
@@ -140,15 +123,6 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                             modal.getNotificationPanel().refresh(target);
                         }
                     };
-                }
-
-                @Override
-                protected void onCancelInternal(final AbstractSchemaTO modelObject) {
-                }
-
-                @Override
-                protected Serializable onApplyInternal(final AbstractSchemaTO modelObject) {
-                    return null;
                 }
             }, true);
 

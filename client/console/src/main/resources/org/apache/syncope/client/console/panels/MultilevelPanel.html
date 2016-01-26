@@ -19,6 +19,24 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <head><title></title></head>
   <wicket:panel>
-    <span wicket:id="resources">[RESOURCES]</span>
+    <div wicket:id="firstLevelContainer">
+      <span wicket:id="first">[FIRST]</span>
+    </div>
+
+    <div wicket:id="secondLevelContainer">
+      <div class="col-xs-12">
+        <div class="box">
+          <div class="box-header">
+            <a wicket:id="back" href="#" alt="Back icon" title="Back"><i class="glyphicon glyphicon-arrow-left"></i></a>
+            <h3 class="box-title">
+              <span wicket:id="title">[TITLE]</span>
+            </h3>
+          </div>
+          <div class="box-body">
+            <span wicket:id="second">[SECOND]</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </wicket:panel>
 </html>

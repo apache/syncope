@@ -32,6 +32,8 @@ import org.apache.syncope.client.console.commons.status.Status;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.ListViewPanel;
+import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.panels.MultilevelPanel.SecondLevel;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -43,26 +45,21 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StatusPanel extends Panel implements IHeaderContributor {
+public class StatusPanel extends Panel {
+
+    private static final long serialVersionUID = -4013796607157549641L;
 
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(StatusPanel.class);
-
-    private static final long serialVersionUID = -4064294905566247728L;
+    protected static final Logger LOG = LoggerFactory.getLogger(StatusPanel.class);
 
     private final UserRestClient userRestClient = new UserRestClient();
 
@@ -73,10 +70,6 @@ public class StatusPanel extends Panel implements IHeaderContributor {
     private final StatusUtils statusUtils;
 
     private ListViewPanel<?> listViewPanel;
-
-    private TransparentWebMarkupContainer container;
-
-    private Fragment resourceListFragment;
 
     public <T extends AnyTO> StatusPanel(
             final String id,
@@ -116,13 +109,6 @@ public class StatusPanel extends Panel implements IHeaderContributor {
             final List<Pair<ConnObjectTO, ConnObjectWrapper>> connObjects,
             final PageReference pageRef) {
 
-        container = new TransparentWebMarkupContainer("container");
-        container.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
-        add(container);
-
-        resourceListFragment = new Fragment("content", "resources", this);
-        container.addOrReplace(resourceListFragment.setRenderBodyOnly(true));
-
         final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size() + 1);
         initialStatusBeanMap = new LinkedHashMap<>(connObjects.size() + 1);
 
@@ -158,6 +144,9 @@ public class StatusPanel extends Panel implements IHeaderContributor {
             initialStatusBeanMap.put(entry.getResourceName(), statusBean);
             statusBeans.add(statusBean);
         }
+
+        final MultilevelPanel mlp = new MultilevelPanel("resources");
+        add(mlp);
 
         ListViewPanel.Builder<StatusBean> builder = new ListViewPanel.Builder<StatusBean>(StatusBean.class, pageRef) {
 
@@ -216,42 +205,20 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                final Pair<ConnObjectTO, ConnObjectTO> pair =
-                        getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+                final Pair<ConnObjectTO, ConnObjectTO> pair
+                        = getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
 
                 return pair != null && pair.getRight() != null;
             }
 
             @Override
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
-                final Fragment remoteObjectFragment = new Fragment("content", "remoteObject", StatusPanel.this);
-                container.addOrReplace(remoteObjectFragment.setRenderBodyOnly(true));
-
-                remoteObjectFragment.add(new AjaxLink<StatusBean>("back") {
-
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        container.addOrReplace(resourceListFragment.setRenderBodyOnly(true));
-                        target.add(container);
-                    }
-                });
-
-                remoteObjectFragment.add(
-                        new Label("resource", new ResourceModel(bean.getResourceName(), bean.getResourceName())));
-
-                final Pair<ConnObjectTO, ConnObjectTO> res =
-                        getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
-
-                remoteObjectFragment.add(new ConnObjectPanel("remoteObject", res == null ? null : res));
-
-                target.add(container);
+                mlp.next(bean.getResourceName(), new RemoteObjectPanel(bean, connObjects), target);
             }
         }, ActionLink.ActionType.SEARCH, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
 
-        listViewPanel = ListViewPanel.class.cast(builder.build("resources"));
-        resourceListFragment.add(listViewPanel);
+        listViewPanel = ListViewPanel.class.cast(builder.build(MultilevelPanel.FIRST_LEVEL_ID));
+        mlp.setFirstLevel(listViewPanel);
     }
 
     public void setCheckAvailability(final ListViewPanel.CheckAvailability check) {
@@ -274,5 +241,16 @@ public class StatusPanel extends Panel implements IHeaderContributor {
         }
 
         return null;
+    }
+
+    public class RemoteObjectPanel extends SecondLevel {
+
+        private static final long serialVersionUID = 4303365227411467563L;
+
+        public RemoteObjectPanel(final StatusBean bean, final List<Pair<ConnObjectTO, ConnObjectWrapper>> connObjects) {
+            final Pair<ConnObjectTO, ConnObjectTO> res
+                    = getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+            add(new ConnObjectPanel("remoteObject", res == null ? null : res));
+        }
     }
 }

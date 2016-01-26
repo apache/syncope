@@ -94,11 +94,6 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
         return wizardModel;
     }
 
-    @Override
-    protected void onCancelInternal(final RoleHandler modelObject) {
-        // nothing to do
-    }
-
     public static class Details extends WizardStep {
 
         private static final long serialVersionUID = 5514523040031722255L;

@@ -32,13 +32,11 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.RelationshipTypePanel.RelationshipTypeProvider;
-import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
@@ -60,21 +58,9 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
 
     private static final long serialVersionUID = -3731778000138547357L;
 
-    public RelationshipTypePanel(
-            final String id, final Builder<RelationshipTypeTO, RelationshipTypeTO, BaseRestClient> builder) {
-        super(id, builder);
-    }
-
     public RelationshipTypePanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<RelationshipTypeTO, RelationshipTypeTO, BaseRestClient>(null, pageRef) {
-
-            private static final long serialVersionUID = 8769126634538601689L;
-
-            @Override
-            protected WizardMgtPanel<RelationshipTypeTO> newInstance(final String id) {
-                return new RelationshipTypePanel(id, this);
-            }
-        }.disableCheckBoxes());
+        super(id, pageRef);
+        disableCheckBoxes();
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<RelationshipTypeTO>(
                 BaseModal.CONTENT_ID, new RelationshipTypeTO(), pageRef) {
@@ -108,16 +94,6 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
                         }
                     }
                 };
-            }
-
-            @Override
-            protected void onCancelInternal(final RelationshipTypeTO modelObject) {
-            }
-
-            @Override
-            protected Serializable onApplyInternal(final RelationshipTypeTO modelObject) {
-                // do nothing
-                return null;
             }
         }, true);
 

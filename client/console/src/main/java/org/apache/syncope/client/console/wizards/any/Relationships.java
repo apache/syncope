@@ -40,7 +40,6 @@ import org.apache.syncope.client.console.panels.search.AnySelectionSearchResultP
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
-import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -237,14 +236,14 @@ public class Relationships extends WizardStep {
             type.setChoices(availableRels);
             add(type.setRenderBodyOnly(true));
 
-            final List<AnyTypeTO> availableTypes =
-                    ListUtils.select(anyTypeRestClient.list(), new Predicate<AnyTypeTO>() {
+            final List<AnyTypeTO> availableTypes = ListUtils.select(anyTypeRestClient.list(),
+                    new Predicate<AnyTypeTO>() {
 
-                        @Override
-                        public boolean evaluate(final AnyTypeTO object) {
-                            return object.getKind() != AnyTypeKind.GROUP && object.getKind() != AnyTypeKind.USER;
-                        }
-                    });
+                @Override
+                public boolean evaluate(final AnyTypeTO object) {
+                    return object.getKind() != AnyTypeKind.GROUP && object.getKind() != AnyTypeKind.USER;
+                }
+            });
 
             final AjaxDropDownChoicePanel<AnyTypeTO> rightType = new AjaxDropDownChoicePanel<>(
                     "rightType", "rightType", new PropertyModel<AnyTypeTO>(rel, "rightType") {
@@ -338,7 +337,6 @@ public class Relationships extends WizardStep {
 
                         anyObjectSearchResultPanel = new AnyObjectSelectionSearchResultPanel.Builder(
                                 anyTypeClassRestClient.list(anyType.getClasses()),
-                                new AnyObjectRestClient(),
                                 anyType.getKey(),
                                 pageRef).setFiltered(true).
                                 setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
@@ -354,14 +352,14 @@ public class Relationships extends WizardStep {
         @Override
         public void onEvent(final IEvent<?> event) {
             if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
-                final AjaxRequestTarget target =
-                        SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
+                final AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).
+                        getTarget();
                 final String fiql = SearchUtils.buildFIQL(anyObjectSearchPanel.getModel().getObject(),
                         SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectSearchPanel.getBackObjectType()));
                 AnyObjectSearchResultPanel.class.cast(anyObjectSearchResultPanel).search(fiql, target);
             } else if (event.getPayload() instanceof AnySelectionSearchResultPanel.ItemSelection) {
-                final AjaxRequestTarget target =
-                        AnySelectionSearchResultPanel.ItemSelection.class.cast(event.getPayload()).getTarget();
+                final AjaxRequestTarget target = AnySelectionSearchResultPanel.ItemSelection.class.cast(event.
+                        getPayload()).getTarget();
 
                 AnyTO right = AnySelectionSearchResultPanel.ItemSelection.class.cast(event.getPayload()).getSelection();
                 rel.setRightKey(right.getKey());

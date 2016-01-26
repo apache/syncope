@@ -16,23 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.tasks;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
-import org.apache.syncope.client.console.rest.BaseRestClient;
-import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.wicket.PageReference;
+import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.model.Model;
 
-public abstract class AbstractTypesPanel<T extends AbstractBaseBean, DP extends SearchableDataProvider<T>>
-        extends AbstractSearchResultPanel<T, T, DP, BaseRestClient> {
+public class ExecMessage extends MultilevelPanel.SecondLevel {
 
-    private static final long serialVersionUID = 7890071604330629259L;
+    private static final long serialVersionUID = 3163146190501510888L;
 
-    public AbstractTypesPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef);
-        setFooterVisibility(true);
-        modal.addSumbitButton();
-        modal.size(Modal.Size.Large);
+    public ExecMessage(final String message) {
+        super();
+        final Label dialogContent = new Label("message", new Model<String>(message));
+        add(dialogContent.setOutputMarkupId(true));
     }
 }

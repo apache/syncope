@@ -27,7 +27,6 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AnyDisplayAttributesModalPage;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -196,13 +195,8 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
 
         private static final long serialVersionUID = -6828423611982275641L;
 
-        public Builder(
-                final List<AnyTypeClassTO> anyTypeClassTOs,
-                final AbstractAnyRestClient<AnyObjectTO> restClient,
-                final String type,
-                final PageReference pageRef) {
-
-            super(anyTypeClassTOs, restClient, type, pageRef);
+        public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
+            super(anyTypeClassTOs, new AnyObjectRestClient(), type, pageRef);
             setShowResultPage(true);
         }
 

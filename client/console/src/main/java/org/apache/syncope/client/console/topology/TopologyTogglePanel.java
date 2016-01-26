@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.panels.ResourceModal;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.tasks.PropagationTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -295,8 +296,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
+            @SuppressWarnings("unchecked")
             public void onClick(final AjaxRequestTarget target) {
-                target.add(modal);
+                target.add(modal.setContent(new PropagationTasks(pageRef, node.getKey().toString())));
                 modal.header(new ResourceModel("task.propagation.list", "Propagation tasks"));
                 modal.show(true);
             }

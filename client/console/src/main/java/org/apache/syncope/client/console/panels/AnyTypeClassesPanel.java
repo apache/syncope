@@ -32,13 +32,11 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
@@ -60,21 +58,9 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
 
     private static final long serialVersionUID = -2356760296223908382L;
 
-    public AnyTypeClassesPanel(final String id,
-            final AbstractSearchResultPanel.Builder<AnyTypeClassTO, AnyTypeClassTO, BaseRestClient> builder) {
-        super(id, builder);
-    }
-
     public AnyTypeClassesPanel(final String id, final PageReference pageRef) {
-        super(id, new AbstractSearchResultPanel.Builder<AnyTypeClassTO, AnyTypeClassTO, BaseRestClient>(null, pageRef) {
-
-            private static final long serialVersionUID = 8769126634538601689L;
-
-            @Override
-            protected WizardMgtPanel<AnyTypeClassTO> newInstance(final String id) {
-                return new AnyTypeClassesPanel(id, this);
-            }
-        }.disableCheckBoxes());
+        super(id, pageRef);
+        disableCheckBoxes();
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeClassTO>(
                 BaseModal.CONTENT_ID, new AnyTypeClassTO(), pageRef) {
@@ -105,15 +91,6 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
                         modal.getNotificationPanel().refresh(target);
                     }
                 };
-            }
-
-            @Override
-            protected void onCancelInternal(final AnyTypeClassTO modelObject) {
-            }
-
-            @Override
-            protected Serializable onApplyInternal(final AnyTypeClassTO modelObject) {
-                return null;
             }
         }, true);
 

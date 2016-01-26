@@ -29,7 +29,6 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.StatusModal;
 import org.apache.syncope.client.console.pages.UserDisplayAttributesModalPage;
-import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -121,8 +120,8 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel =
-                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                        final IModel<AnyHandler<UserTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(model.
+                                getObject()));
                         modal.setFormModel(formModel);
 
                         target.add(modal.setContent(new StatusModal<>(
@@ -139,8 +138,8 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel =
-                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                        final IModel<AnyHandler<UserTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(model.
+                                getObject()));
                         modal.setFormModel(formModel);
 
                         target.add(modal.setContent(new StatusModal<>(
@@ -233,13 +232,8 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
         private static final long serialVersionUID = 1L;
 
-        public Builder(
-                final List<AnyTypeClassTO> anyTypeClassTOs,
-                final AbstractAnyRestClient<UserTO> restClient,
-                final String type,
-                final PageReference pageRef) {
-
-            super(anyTypeClassTOs, restClient, type, pageRef);
+        public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
+            super(anyTypeClassTOs, new UserRestClient(), type, pageRef);
             setShowResultPage(true);
         }
 

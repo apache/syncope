@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -33,7 +33,7 @@ public final class UserSelectionSearchResultPanel extends AnySelectionSearchResu
 
     public static final String[] USER_DEFAULT_SELECTION = { "key", "username", "status" };
 
-    private UserSelectionSearchResultPanel(final String id, final UserSelectionSearchResultPanel.Builder builder) {
+    private UserSelectionSearchResultPanel(final String id, final Builder builder) {
         super(id, builder);
     }
 
@@ -66,13 +66,8 @@ public final class UserSelectionSearchResultPanel extends AnySelectionSearchResu
 
         private static final long serialVersionUID = 1L;
 
-        public Builder(
-                final List<AnyTypeClassTO> anyTypeClassTOs,
-                final AbstractAnyRestClient<UserTO> restClient,
-                final String type,
-                final PageReference pageRef) {
-
-            super(anyTypeClassTOs, restClient, type, pageRef);
+        public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
+            super(anyTypeClassTOs, new UserRestClient(), type, pageRef);
             this.filtered = true;
             this.checkBoxEnabled = false;
         }

@@ -70,6 +70,7 @@ public class Ownership extends WizardStep {
     private final WebMarkupContainer ownerContainer;
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
+
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final GroupSearchPanel groupSearchPanel;
@@ -162,7 +163,6 @@ public class Ownership extends WizardStep {
 
         groupSearchResultPanel = GroupSelectionSearchResultPanel.class.cast(new GroupSelectionSearchResultPanel.Builder(
                 anyTypeClassRestClient.list(anyTypeTO.getClasses()),
-                groupRestClient,
                 anyTypeTO.getKey(),
                 pageRef).build("searchResult"));
 
@@ -177,7 +177,6 @@ public class Ownership extends WizardStep {
 
         userSearchResultPanel = UserSelectionSearchResultPanel.class.cast(new UserSelectionSearchResultPanel.Builder(
                 anyTypeClassRestClient.list(anyTypeTO.getClasses()),
-                userRestClient,
                 anyTypeTO.getKey(),
                 pageRef).build("searchResult"));
 
@@ -239,36 +238,36 @@ public class Ownership extends WizardStep {
         userSearchFragment.add(userOwnerReset);
 
         final AjaxTextFieldPanel groupOwner = new AjaxTextFieldPanel("groupOwner", "groupOwner",
-                        new PropertyModel<String>(groupHandler.getInnerObject(), "groupOwner") {
+                new PropertyModel<String>(groupHandler.getInnerObject(), "groupOwner") {
 
-                    private static final long serialVersionUID = -3743432456095828573L;
+            private static final long serialVersionUID = -3743432456095828573L;
 
-                    @Override
-                    public String getObject() {
-                        if (groupHandler.getInnerObject().getGroupOwner() == null) {
-                            return StringUtils.EMPTY;
-                        } else {
-                            GroupTO groupTO = groupRestClient.read(groupHandler.getInnerObject().getGroupOwner());
-                            if (groupTO == null) {
-                                return StringUtils.EMPTY;
-                            } else {
-                                return String.format("[%d] %s", groupTO.getKey(), groupTO.getName());
-                            }
-                        }
+            @Override
+            public String getObject() {
+                if (groupHandler.getInnerObject().getGroupOwner() == null) {
+                    return StringUtils.EMPTY;
+                } else {
+                    GroupTO groupTO = groupRestClient.read(groupHandler.getInnerObject().getGroupOwner());
+                    if (groupTO == null) {
+                        return StringUtils.EMPTY;
+                    } else {
+                        return String.format("[%d] %s", groupTO.getKey(), groupTO.getName());
                     }
+                }
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        if (StringUtils.isBlank(object)) {
-                            groupHandler.getInnerObject().setGroupOwner(null);
-                        } else {
-                            final Matcher matcher = owner.matcher(object);
-                            if (matcher.matches()) {
-                                groupHandler.getInnerObject().setGroupOwner(Long.parseLong(matcher.group(1)));
-                            }
-                        }
+            @Override
+            public void setObject(final String object) {
+                if (StringUtils.isBlank(object)) {
+                    groupHandler.getInnerObject().setGroupOwner(null);
+                } else {
+                    final Matcher matcher = owner.matcher(object);
+                    if (matcher.matches()) {
+                        groupHandler.getInnerObject().setGroupOwner(Long.parseLong(matcher.group(1)));
                     }
-                }, false);
+                }
+            }
+        }, false);
         groupOwner.setPlaceholder("groupOwner");
         groupOwner.hideLabel();
         groupOwner.setReadOnly(true).setOutputMarkupId(true);

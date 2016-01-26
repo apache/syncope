@@ -74,7 +74,7 @@ public abstract class AbstractSearchResultPanel<
      */
     protected final boolean filtered;
 
-    private final boolean checkBoxEnabled;
+    private boolean checkBoxEnabled;
 
     /**
      * Result table.
@@ -91,8 +91,35 @@ public abstract class AbstractSearchResultPanel<
      */
     protected final BasePage page;
 
+    /**
+     * Create simple unfiltered search result panel.
+     * Use the available builder for powerfull configuration options.
+     *
+     * @param id panel id.
+     * @param pageRef page reference.
+     */
+    public AbstractSearchResultPanel(final String id, final PageReference pageRef) {
+        this(id, pageRef, true);
+    }
+
+    public AbstractSearchResultPanel(final String id, final PageReference pageRef, final boolean wizardInModal) {
+        this(id, new Builder<T, W, E>(null, pageRef) {
+
+            private static final long serialVersionUID = -8424727765826509309L;
+
+            @Override
+            protected WizardMgtPanel<W> newInstance(final String id) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+        }.setFiltered(false), wizardInModal);
+    }
+
     protected AbstractSearchResultPanel(final String id, final Builder<T, W, E> builder) {
-        super(id, true);
+        this(id, builder, true);
+    }
+
+    protected AbstractSearchResultPanel(final String id, final Builder<T, W, E> builder, final boolean wizardInModal) {
+        super(id, wizardInModal);
 
         setOutputMarkupId(true);
 
@@ -168,6 +195,7 @@ public abstract class AbstractSearchResultPanel<
         final int currentPage = resultTable != null
                 ? (create ? (int) resultTable.getPageCount() - 1 : (int) resultTable.getCurrentPage()) : 0;
 
+        // reworking on bulkactions please, take care of restClient handle: maybe not useful to keep into
         AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<>(
                 dataProvider, page.getPageReference()).
                 setColumns(getColumns()).
@@ -184,6 +212,11 @@ public abstract class AbstractSearchResultPanel<
         resultTable.setCurrentPage(currentPage);
         resultTable.setOutputMarkupId(true);
         container.addOrReplace(resultTable);
+    }
+
+    public AbstractSearchResultPanel<T, W, DP, E> disableCheckBoxes() {
+        this.checkBoxEnabled = false;
+        return this;
     }
 
     @Override

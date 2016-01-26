@@ -30,8 +30,10 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -61,10 +63,25 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      * @param kind of task (propagation, sched, sync).
      * @return number of stored tasks.
      */
-    public int count(final String kind) {
+    public int count(final TaskType kind) {
         return getService(TaskService.class).
-                list(new TaskQuery.Builder().type(TaskType.valueOf(kind)).page(1).size(1).build()).
-                getTotalCount();
+                list(new TaskQuery.Builder().type(kind).page(1).size(1).build()).getTotalCount();
+    }
+
+    public int countExecutions(final Long taskId) {
+        return getService(TaskService.class).
+                listExecutions(new TaskExecQuery.Builder().key(taskId).page(1).size(1).build()).getTotalCount();
+    }
+
+    public List<PropagationTaskTO> listPropagationTasks(
+            final String resource, final int page, final int size, final SortParam<String> sort) {
+
+        return getService(TaskService.class).
+                <PropagationTaskTO>list(new TaskQuery.Builder().type(TaskType.PROPAGATION).
+                        resource(resource).
+                        page(page).size(size).
+                        orderBy(toOrderBy(sort)).build()).
+                getResult();
     }
 
     @SuppressWarnings("unchecked")
@@ -75,6 +92,11 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 list(new TaskQuery.Builder().type(getTaskType(reference)).page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
                 getResult();
+    }
+
+    public List<TaskExecTO> listExecutions(final Long taskId, final int page, final int size) {
+        return getService(TaskService.class).
+                listExecutions(new TaskExecQuery.Builder().key(taskId).page(page).size(size).build()).getResult();
     }
 
     private TaskType getTaskType(final Class<?> reference) {

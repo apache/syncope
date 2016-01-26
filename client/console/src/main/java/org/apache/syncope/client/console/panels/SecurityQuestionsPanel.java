@@ -83,16 +83,6 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
                 final SecurityQuestionTO modelObject = newModelObject();
                 return new SecurityQuestionsModalPanel(modal, modelObject, pageRef);
             }
-
-            @Override
-            protected void onCancelInternal(final SecurityQuestionTO modelObject) {
-            }
-
-            @Override
-            protected Serializable onApplyInternal(final SecurityQuestionTO modelObject) {
-                // do nothing
-                return null;
-            }
         }, true);
 
         setFooterVisibility(true);
@@ -243,8 +233,8 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
 
         @Override
         public Iterator<SecurityQuestionTO> iterator(final long first, final long count) {
-            final List<SecurityQuestionTO> list = SyncopeConsoleSession.get().getService(SecurityQuestionService.class).
-                    list();
+            final List<SecurityQuestionTO> list
+                    = SyncopeConsoleSession.get().getService(SecurityQuestionService.class).list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
