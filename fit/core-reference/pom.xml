@@ -126,12 +126,6 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope.ext.camel</groupId>
-      <artifactId>syncope-ext-camel-rest-cxf</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>          
-    </dependency>
-    <dependency>
       <groupId>org.apache.syncope.client</groupId>
       <artifactId>syncope-client-lib</artifactId>
       <version>${project.version}</version>
@@ -143,6 +137,24 @@ under the License.
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.client</groupId>
+      <artifactId>syncope-client-console</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.camel</groupId>
+      <artifactId>syncope-ext-camel-rest-cxf</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>          
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.camel</groupId>
+      <artifactId>syncope-ext-camel-client-console</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>    
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>

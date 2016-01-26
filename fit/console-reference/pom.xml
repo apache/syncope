@@ -173,20 +173,6 @@ under the License.
       </plugin>
       
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <id>verify</id>
-            <goals>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      
-      <plugin>
         <groupId>org.codehaus.cargo</groupId>
         <artifactId>cargo-maven2-plugin</artifactId>
         <inherited>true</inherited>
@@ -241,27 +227,14 @@ under the License.
                 <context>syncope</context>
               </properties>
             </deployable>
+            <deployable>
+              <location>${project.build.directory}/${project.build.finalName}</location>
+              <properties>
+                <context>syncope-console</context>
+              </properties>
+            </deployable>
           </deployables>
         </configuration>
-        <executions>
-          <execution>
-            <id>start-container</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>start</goal>
-            </goals>
-            <configuration>
-              <wait>false</wait>
-            </configuration>
-          </execution>
-          <execution>
-            <id>stop-container</id>
-            <phase>post-integration-test</phase>
-            <goals>
-              <goal>stop</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       
       <plugin>
@@ -313,38 +286,6 @@ under the License.
                     -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
-              <deployables>
-                <deployable>
-                  <groupId>net.tirasa.connid.bundles.soap</groupId>
-                  <artifactId>wssample</artifactId>
-                  <type>war</type>
-                  <properties>
-                    <context>wssample</context>
-                  </properties>
-                </deployable>
-                <deployable>
-                  <groupId>org.apache.syncope.fit</groupId>
-                  <artifactId>syncope-fit-build-tools</artifactId>
-                  <type>war</type>
-                  <properties>
-                    <context>syncope-fit-build-tools</context>
-                  </properties>
-                </deployable>
-                <deployable>
-                  <location>${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}</location>
-                  <pingURL>http://localhost:${cargo.servlet.port}/syncope/cacheStats.jsp</pingURL>
-                  <pingTimeout>60000</pingTimeout>
-                  <properties>
-                    <context>syncope</context>
-                  </properties>
-                </deployable>
-                <deployable>
-                  <location>${project.build.directory}/${project.build.finalName}</location>
-                  <properties>
-                    <context>syncope-console</context>
-                  </properties>
-                </deployable>
-              </deployables>
             </configuration>
             <executions>
               <execution>
@@ -373,15 +314,6 @@ under the License.
       
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <skipTests>${skipTests}</skipTests>
-            </configuration>
-          </plugin>
-          
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
@@ -422,15 +354,6 @@ under the License.
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <skipTests>true</skipTests>
-            </configuration>
-          </plugin>
-          
           <plugin>
             <groupId>org.zeroturnaround</groupId>
             <artifactId>jrebel-maven-plugin</artifactId>
@@ -557,38 +480,6 @@ under the License.
                     -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
-              <deployables>
-                <deployable>
-                  <groupId>net.tirasa.connid.bundles.soap</groupId>
-                  <artifactId>wssample</artifactId>
-                  <type>war</type>
-                  <properties>
-                    <context>wssample</context>
-                  </properties>
-                </deployable>
-                <deployable>
-                  <groupId>org.apache.syncope.fit</groupId>
-                  <artifactId>syncope-fit-build-tools</artifactId>
-                  <type>war</type>
-                  <properties>
-                    <context>syncope-fit-build-tools</context>
-                  </properties>
-                </deployable>
-                <deployable>
-                  <location>${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}</location>
-                  <pingURL>http://localhost:${cargo.servlet.port}/syncope/cacheStats.jsp</pingURL>
-                  <pingTimeout>60000</pingTimeout>
-                  <properties>
-                    <context>syncope</context>
-                  </properties>
-                </deployable>
-                <deployable>
-                  <location>${project.build.directory}/${project.build.finalName}</location>
-                  <properties>
-                    <context>syncope-console</context>
-                  </properties>
-                </deployable>
-              </deployables>
             </configuration>
             <executions>
               <execution>

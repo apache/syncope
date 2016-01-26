@@ -36,13 +36,13 @@ public class AnyTypeClassTO extends AbstractBaseBean implements EntityTO<String>
 
     private String key;
 
-    private final List<String> inUseByTypes = new ArrayList<>();
-
     private final List<String> plainSchemas = new ArrayList<>();
 
     private final List<String> derSchemas = new ArrayList<>();
 
     private final List<String> virSchemas = new ArrayList<>();
+
+    private final List<String> inUseByTypes = new ArrayList<>();
 
     @Override
     public String getKey() {
@@ -53,13 +53,6 @@ public class AnyTypeClassTO extends AbstractBaseBean implements EntityTO<String>
     @Override
     public void setKey(final String key) {
         this.key = key;
-    }
-
-    @XmlElementWrapper(name = "inUseByTypes")
-    @XmlElement(name = "anyTypeClass")
-    @JsonProperty("inUseByTypes")
-    public List<String> getInUseByTypes() {
-        return inUseByTypes;
     }
 
     @XmlElementWrapper(name = "plainSchemas")
@@ -81,6 +74,13 @@ public class AnyTypeClassTO extends AbstractBaseBean implements EntityTO<String>
     @JsonProperty("virSchemas")
     public List<String> getVirSchemas() {
         return virSchemas;
+    }
+
+    @XmlElementWrapper(name = "inUseByTypes")
+    @XmlElement(name = "anyTypeClass")
+    @JsonProperty("inUseByTypes")
+    public List<String> getInUseByTypes() {
+        return inUseByTypes;
     }
 
 }

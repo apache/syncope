@@ -19,15 +19,19 @@ under the License.
 -->
 <configuration status="WARN" shutdownHook="disable">
   <appenders>
-    <console name="Console" target="SYSTEM_OUT">
+    <console name="main" target="SYSTEM_OUT">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
       </PatternLayout>
     </console>
   </appenders>
   <loggers>
-    <root level="debug">
-      <appenderRef ref="Console" />
+    <asyncLogger name="org.apache.syncope.fit" additivity="false" level="DEBUG">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    
+    <root level="DEBUG">
+      <appenderRef ref="main"/>
     </root>
   </loggers>
 </configuration>
