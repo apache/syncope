@@ -54,6 +54,7 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
 
         final AjaxTextFieldPanel schema = new AjaxTextFieldPanel(
                 "schema", getString("schema"), new PropertyModel<String>(modelObject.getAttrTO(), "schema"));
+        schema.setRequired(true);
         content.add(schema);
 
         final LoadableDetachableModel<List<PlainSchemaTO>> loadableDetachableModel
@@ -75,8 +76,6 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
             @Override
             protected void populateItem(final ListItem<PlainSchemaTO> item) {
                 final Panel panel = getFieldPanel("panel", modelObject.getAttrTO(), item.getModelObject());
-                panel.setEnabled(true);
-                panel.setVisible(true);
                 item.add(panel);
             }
         };

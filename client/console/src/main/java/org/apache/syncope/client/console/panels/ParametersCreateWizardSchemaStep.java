@@ -18,13 +18,23 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.apache.syncope.client.console.commons.PropertyList.getEnumValuesAsString;
+
 import java.util.Arrays;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.PropertyList;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
 public class ParametersCreateWizardSchemaStep extends WizardStep {
@@ -40,6 +50,68 @@ public class ParametersCreateWizardSchemaStep extends WizardStep {
                 "type", getString("type"), new PropertyModel<AttrSchemaType>(modelObject.getPlainSchemaTO(), "type"));
         type.setChoices(Arrays.asList(AttrSchemaType.values()));
         content.add(type);
+
+        final MultiFieldPanel<String> panel = new MultiFieldPanel.Builder<String>(
+                new PropertyModel<List<String>>(modelObject.getPlainSchemaTO(), "enumerationValues") {
+
+            private static final long serialVersionUID = 3985215199105092649L;
+
+            @Override
+            public PropertyList<PlainSchemaTO> getObject() {
+                return new PropertyList<PlainSchemaTO>(modelObject.getPlainSchemaTO()) {
+
+                    @Override
+                    public String getValues() {
+                        System.out.println(">>>>>>>>> getvalues: " + modelObject.getPlainSchemaTO().
+                                getEnumerationValues());
+                        return modelObject.getPlainSchemaTO().getEnumerationValues();
+                    }
+
+                    @Override
+                    public void setValues(final List<String> list) {
+                        System.out.println(">>>>>>>>> setvalues " + list);
+                        modelObject.getPlainSchemaTO().setEnumerationValues(getEnumValuesAsString(list));
+                    }
+                };
+            }
+
+            @Override
+            public void setObject(final List<String> object) {
+                System.out.println(">>>>>>>>> setObject: " + object);
+                modelObject.getPlainSchemaTO().setEnumerationValues(PropertyList.getEnumValuesAsString(object));
+            }
+        }) {
+
+            private static final long serialVersionUID = -8752965211744734798L;
+
+            @Override
+            protected String newModelObject() {
+                return StringUtils.EMPTY;
+            }
+
+        }.build("values", getString("values"), new AjaxTextFieldPanel(
+                "panel", getString("values"), new Model<String>(), false));
+
+        panel.setVisible(false);
+        content.add(panel);
+
+        type.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                if ("enum".equalsIgnoreCase(type.getField().getModelObject().name())) {
+                    panel.setVisible(true);
+                    content.add(panel);
+                    target.add(content);
+                } else {
+                    panel.setVisible(false);
+                    content.add(panel);
+                    target.add(content);
+                }
+            }
+        });
 
         final AjaxTextFieldPanel mandatoryCondition = new AjaxTextFieldPanel(
                 "mandatoryCondition", getString("mandatoryCondition"),

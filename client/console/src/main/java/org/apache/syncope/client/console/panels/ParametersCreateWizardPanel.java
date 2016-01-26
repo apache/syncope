@@ -56,15 +56,11 @@ public class ParametersCreateWizardPanel extends AjaxWizardBuilder<ParametersCre
 
     @Override
     protected Serializable onApplyInternal(final ParametersForm modelObject) {
-        try {
-            final PlainSchemaTO finalpPlainSchemaTO = modelObject.getPlainSchemaTO();
-            finalpPlainSchemaTO.setKey(modelObject.getAttrTO().getSchema());
-            SyncopeConsoleSession.get().getService(SchemaService.class).create(
-                    SchemaType.PLAIN, finalpPlainSchemaTO);
-            SyncopeConsoleSession.get().getService(ConfigurationService.class).set(modelObject.getAttrTO());
-        } catch (Exception e) {
-            LOG.error("While deleting SecutiryQuestionTO", e);
-        }
+        final PlainSchemaTO finalpPlainSchemaTO = modelObject.getPlainSchemaTO();
+        finalpPlainSchemaTO.setKey(modelObject.getAttrTO().getSchema());
+        SyncopeConsoleSession.get().getService(SchemaService.class).create(
+                SchemaType.PLAIN, finalpPlainSchemaTO);
+        SyncopeConsoleSession.get().getService(ConfigurationService.class).set(modelObject.getAttrTO());
         return modelObject.getAttrTO();
     }
 

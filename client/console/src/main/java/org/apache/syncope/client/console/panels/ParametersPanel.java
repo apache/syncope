@@ -116,6 +116,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
             }
 
         }, true);
+        addNotificationPanel((BasePage.class.cast(pageRef.getPage()).getNotificationPanel()));
         modal.size(Modal.Size.Medium);
         initResultTable();
 
