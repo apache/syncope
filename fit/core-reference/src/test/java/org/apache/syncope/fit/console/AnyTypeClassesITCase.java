@@ -84,7 +84,7 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
 
         Component result = findComponentByProp(KEY, DATATABLE_PATH, anyTypeClassTest);
 
-        wicketTester.assertLabel(result.getPageRelativePath() + ":cells:4:cell", "[mderiveddata]");
+        wicketTester.assertLabel(result.getPageRelativePath() + ":cells:3:cell", "[mderiveddata]");
     }
 
     @Test
