@@ -224,8 +224,8 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
         }
 
         // Extensions
-        ClassPathScanImplementationLookup classPathScanImplementationLookup
-                = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+        ClassPathScanImplementationLookup classPathScanImplementationLookup =
+                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
                 getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         List<Class<? extends AbstractExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
 
