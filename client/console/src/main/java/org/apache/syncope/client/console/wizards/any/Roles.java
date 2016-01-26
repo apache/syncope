@@ -50,10 +50,10 @@ public class Roles extends WizardStep {
 
         add(new AjaxPalettePanel.Builder<String>().build("roles",
                 new PropertyModel<List<String>>(entityTO, "roles"),
-                new ListModel<>(allRoles)).setOutputMarkupId(true));
+                new ListModel<>(allRoles)).hideLabel().setOutputMarkupId(true));
 
         add(new AjaxPalettePanel.Builder<String>().build("dynroles",
                 new PropertyModel<List<String>>(entityTO, "dynRoles"),
-                new ListModel<>(allRoles)).setEnabled(false).setOutputMarkupId(true));
+                new ListModel<>(allRoles)).hideLabel().setEnabled(false).setOutputMarkupId(true));
     }
 }

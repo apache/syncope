@@ -186,16 +186,6 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         });
         uploadForm.add(fileUpload);
 
-        IndicatingAjaxLink<Void> uploadLink = new IndicatingAjaxLink<Void>("uploadLink") {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-            }
-        };
-        uploadForm.add(uploadLink);
-
         IndicatingAjaxLink<Void> resetLink = new IndicatingAjaxLink<Void>("resetLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;

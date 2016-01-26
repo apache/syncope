@@ -128,7 +128,7 @@ public class AuxClasses extends WizardStep {
                         }
                     }, new ArrayList<MembershipTO>());
                 }
-            }).setOutputMarkupId(true));
+            }).hideLabel().setOutputMarkupId(true));
 
             final ArrayList<String> dynamics = CollectionUtils.collect(dyngroups,
                     new Transformer<Long, String>() {
@@ -143,7 +143,7 @@ public class AuxClasses extends WizardStep {
             fragment.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build(
                     "dyngroups",
                     new ListModel<>(dynamics),
-                    new ListModel<>(dynamics)).setEnabled(false).setOutputMarkupId(true));
+                    new ListModel<>(dynamics)).hideLabel().setEnabled(false).setOutputMarkupId(true));
         }
         add(fragment);
 
@@ -158,6 +158,6 @@ public class AuxClasses extends WizardStep {
 
         add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("auxClasses",
                 new PropertyModel<List<String>>(entityTO, "auxClasses"),
-                new ListModel<>(choices)).setOutputMarkupId(true));
+                new ListModel<>(choices)).hideLabel().setOutputMarkupId(true));
     }
 }

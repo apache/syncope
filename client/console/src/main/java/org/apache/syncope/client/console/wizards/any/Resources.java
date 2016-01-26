@@ -60,6 +60,6 @@ public class Resources extends WizardStep {
                     public String transform(final ResourceTO input) {
                         return input.getKey();
                     }
-                }, new ArrayList<String>()))).setOutputMarkupId(true));
+                }, new ArrayList<String>()))).hideLabel().setOutputMarkupId(true));
     }
 }
