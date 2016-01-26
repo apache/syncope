@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.commons.PropertyList.getEnumValuesAsString;
-
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -62,14 +60,11 @@ public class ParametersCreateWizardSchemaStep extends WizardStep {
 
                     @Override
                     public String getValues() {
-                        System.out.println(">>>>>>>>> getvalues: " + modelObject.getPlainSchemaTO().
-                                getEnumerationValues());
                         return modelObject.getPlainSchemaTO().getEnumerationValues();
                     }
 
                     @Override
                     public void setValues(final List<String> list) {
-                        System.out.println(">>>>>>>>> setvalues " + list);
                         modelObject.getPlainSchemaTO().setEnumerationValues(getEnumValuesAsString(list));
                     }
                 };
@@ -77,7 +72,6 @@ public class ParametersCreateWizardSchemaStep extends WizardStep {
 
             @Override
             public void setObject(final List<String> object) {
-                System.out.println(">>>>>>>>> setObject: " + object);
                 modelObject.getPlainSchemaTO().setEnumerationValues(PropertyList.getEnumValuesAsString(object));
             }
         }) {
