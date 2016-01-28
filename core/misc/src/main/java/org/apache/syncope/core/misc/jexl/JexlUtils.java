@@ -31,6 +31,7 @@ import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
+import org.apache.commons.jexl3.JxltEngine;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -70,6 +71,10 @@ public final class JexlUtils {
         }
 
         return JEXL_ENGINE;
+    }
+
+    public static JxltEngine newJxltEngine() {
+        return getEngine().createJxltEngine(false);
     }
 
     public static boolean isExpressionValid(final String expression) {

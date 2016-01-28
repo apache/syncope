@@ -85,8 +85,8 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
     @Autowired
     private ImplementationLookup implLookup;
 
-    @Resource(name = "velocityResourceLoader")
-    private ResourceWithFallbackLoader resourceLoader;
+    @Resource(name = "mailTemplateResourceLoader")
+    private ResourceWithFallbackLoader mailTemplateResourceLoader;
 
     @Transactional(readOnly = true)
     public boolean isSelfRegAllowed() {
@@ -150,8 +150,8 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
         Set<String> htmlTemplates = new HashSet<>();
         Set<String> textTemplates = new HashSet<>();
         try {
-            for (org.springframework.core.io.Resource resource : resourceLoader.getResources(
-                    NotificationManagerImpl.MAIL_TEMPLATES + "*.vm")) {
+            for (org.springframework.core.io.Resource resource : mailTemplateResourceLoader.getResources(
+                    NotificationManagerImpl.MAIL_TEMPLATES + "*" + NotificationManagerImpl.MAIL_TEMPLATE_SUFFIX)) {
 
                 String template = resource.getURL().toExternalForm();
                 if (template.endsWith(NotificationManagerImpl.MAIL_TEMPLATE_HTML_SUFFIX)) {

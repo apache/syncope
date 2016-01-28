@@ -160,7 +160,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         clientFactory = new SyncopeClientFactoryBean().setAddress(scheme + "://" + host + ":" + port + "/" + rootPath);
 
         // process page properties
-        synchronized (CONSOLE_PROPERTIES) {
+        synchronized (LOG) {
             if (PAGE_CLASSES == null) {
                 PAGE_CLASSES = new HashMap<>();
                 populatePageClasses(props);

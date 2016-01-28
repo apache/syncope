@@ -763,35 +763,6 @@ under the License.
       </dependency>
       
       <dependency>
-        <groupId>org.apache.velocity</groupId>
-        <artifactId>velocity</artifactId>
-        <version>1.7</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.velocity</groupId>
-        <artifactId>velocity-tools</artifactId>
-        <version>2.0</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>struts-core</artifactId>
-            <groupId>org.apache.struts</groupId>
-          </exclusion>
-          <exclusion>
-            <artifactId>struts-taglib</artifactId>
-            <groupId>org.apache.struts</groupId>
-          </exclusion>
-          <exclusion>
-            <artifactId>struts-tiles</artifactId>
-            <groupId>org.apache.struts</groupId>
-          </exclusion>
-          <exclusion>
-            <artifactId>sslext</artifactId>
-            <groupId>sslext</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      
-      <dependency>
         <groupId>org.apache.cocoon.sax</groupId>
         <artifactId>cocoon-sax</artifactId>
         <version>${cocoon.version}</version>

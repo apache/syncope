@@ -154,7 +154,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
                 taskTO.getTextBody().contains("Your email address is " + recipient + "."));
         assertTrue("Notification mail text doesn't contain expected content.",
                 taskTO.getTextBody().contains("Your email address inside a link: "
-                        + "http://localhost/?email=" + recipient.replaceAll("@", "%40") + " ."));
+                        + "http://localhost/?email=" + recipient.replaceAll("@", "%40")));
     }
 
     @Test

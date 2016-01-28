@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.notification;
 
-import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +27,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import javax.annotation.Resource;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -37,6 +39,7 @@ import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -55,6 +58,7 @@ import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -66,12 +70,8 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
+import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationRecipientsProvider;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.context.Context;
-import org.apache.velocity.exception.VelocityException;
-import org.apache.velocity.tools.ToolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,9 +87,11 @@ public class NotificationManagerImpl implements NotificationManager {
 
     public static final String MAIL_TEMPLATES = "mailTemplates/";
 
-    public static final String MAIL_TEMPLATE_HTML_SUFFIX = ".html.vm";
+    public static final String MAIL_TEMPLATE_SUFFIX = ".jexl3";
 
-    public static final String MAIL_TEMPLATE_TEXT_SUFFIX = ".txt.vm";
+    public static final String MAIL_TEMPLATE_HTML_SUFFIX = ".html.jexl3";
+
+    public static final String MAIL_TEMPLATE_TEXT_SUFFIX = ".txt.jexl3";
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;
@@ -139,17 +141,8 @@ public class NotificationManagerImpl implements NotificationManager {
     @Autowired
     private TaskDAO taskDAO;
 
-    /**
-     * Velocity template engine.
-     */
-    @Autowired
-    private VelocityEngine velocityEngine;
-
-    /**
-     * Velocity tool manager.
-     */
-    @Autowired
-    private ToolManager velocityToolManager;
+    @Resource(name = "mailTemplateResourceLoader")
+    private ResourceWithFallbackLoader mailTemplateResourceLoader;
 
     @Autowired
     private DerAttrHandler derAttrHander;
@@ -177,13 +170,13 @@ public class NotificationManagerImpl implements NotificationManager {
      *
      * @param notification notification to take as model
      * @param any the any object this task is about
-     * @param model Velocity model
+     * @param jexlVars JEXL variables
      * @return notification task, fully populated
      */
     private NotificationTask getNotificationTask(
             final Notification notification,
             final Any<?> any,
-            final Map<String, Object> model) {
+            final Map<String, Object> jexlVars) {
 
         if (any != null) {
             virAttrHander.getValues(any);
@@ -232,9 +225,9 @@ public class NotificationManagerImpl implements NotificationManager {
             }
         }
 
-        model.put("recipients", recipientTOs);
-        model.put("syncopeConf", this.findAllSyncopeConfs());
-        model.put("events", notification.getEvents());
+        jexlVars.put("recipients", recipientTOs);
+        jexlVars.put("syncopeConf", this.findAllSyncopeConfs());
+        jexlVars.put("events", notification.getEvents());
 
         NotificationTask task = entityFactory.newEntity(NotificationTask.class);
         task.setTraceLevel(notification.getTraceLevel());
@@ -242,10 +235,10 @@ public class NotificationManagerImpl implements NotificationManager {
         task.setSender(notification.getSender());
         task.setSubject(notification.getSubject());
 
-        String htmlBody = mergeTemplateIntoString(
-                MAIL_TEMPLATES + notification.getTemplate() + MAIL_TEMPLATE_HTML_SUFFIX, model);
-        String textBody = mergeTemplateIntoString(
-                MAIL_TEMPLATES + notification.getTemplate() + MAIL_TEMPLATE_TEXT_SUFFIX, model);
+        String htmlBody = evaluate(
+                MAIL_TEMPLATES + notification.getTemplate() + MAIL_TEMPLATE_HTML_SUFFIX, jexlVars);
+        String textBody = evaluate(
+                MAIL_TEMPLATES + notification.getTemplate() + MAIL_TEMPLATE_TEXT_SUFFIX, jexlVars);
 
         task.setHtmlBody(htmlBody);
         task.setTextBody(textBody);
@@ -253,32 +246,20 @@ public class NotificationManagerImpl implements NotificationManager {
         return task;
     }
 
-    private String mergeTemplateIntoString(final String templateLocation, final Map<String, Object> model) {
-        StringWriter result = new StringWriter();
+    private String evaluate(final String templateLocation, final Map<String, Object> jexlVars) {
+        org.springframework.core.io.Resource templateResource =
+                mailTemplateResourceLoader.getResource(templateLocation);
+
+        StringWriter writer = new StringWriter();
         try {
-            Context velocityContext = createVelocityContext(model);
-            velocityEngine.mergeTemplate(templateLocation, SyncopeConstants.DEFAULT_ENCODING, velocityContext, result);
-        } catch (VelocityException e) {
-            LOG.error("Could not get mail body", e);
-        } catch (RuntimeException e) {
-            // ensure same behaviour as by using Spring VelocityEngineUtils.mergeTemplateIntoString()
-            throw e;
-        } catch (Exception e) {
-            LOG.error("Could not get mail body", e);
+            JexlUtils.newJxltEngine().
+                    createTemplate(IOUtils.toString(templateResource.getInputStream())).
+                    evaluate(new MapContext(jexlVars), writer);
+        } catch (final IOException e) {
+            LOG.error("Could not get mail body from {}", templateResource, e);
         }
 
-        return result.toString();
-    }
-
-    /**
-     * Create a Velocity Context for the given model, to be passed to the template for merging.
-     *
-     * @param model Velocity model
-     * @return Velocity context
-     */
-    protected Context createVelocityContext(final Map<String, Object> model) {
-        Context toolContext = velocityToolManager.createContext();
-        return new VelocityContext(model, toolContext);
+        return writer.toString();
     }
 
     @Override

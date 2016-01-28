@@ -12,9 +12,9 @@
 /etc/apache-syncope/userRoutes.xml
 /etc/apache-syncope/userWorkflow.bpmn20.xml
 /etc/apache-syncope/workflow.properties
-/etc/apache-syncope/mailTemplates/confirmPasswordReset.html.vm
-/etc/apache-syncope/mailTemplates/confirmPasswordReset.txt.vm
-/etc/apache-syncope/mailTemplates/optin.html.vm
-/etc/apache-syncope/mailTemplates/optin.txt.vm
-/etc/apache-syncope/mailTemplates/requestPasswordReset.html.vm
-/etc/apache-syncope/mailTemplates/requestPasswordReset.txt.vm
+/etc/apache-syncope/mailTemplates/confirmPasswordReset.html.jexl3
+/etc/apache-syncope/mailTemplates/confirmPasswordReset.txt.jexl3
+/etc/apache-syncope/mailTemplates/optin.html.jexl3
+/etc/apache-syncope/mailTemplates/optin.txt.jexl3
+/etc/apache-syncope/mailTemplates/requestPasswordReset.html.jexl3
+/etc/apache-syncope/mailTemplates/requestPasswordReset.txt.jexl3
