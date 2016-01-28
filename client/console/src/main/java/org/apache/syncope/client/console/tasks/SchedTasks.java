@@ -21,28 +21,28 @@ package org.apache.syncope.client.console.tasks;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
-public class PropagationTasks extends AbstractTasks {
+public class SchedTasks extends AbstractTasks {
 
     private static final long serialVersionUID = -4013796607157549641L;
 
-    public <T extends AnyTO> PropagationTasks(final PageReference pageReference, final String resource) {
+    public <T extends AnyTO> SchedTasks(final PageReference pageReference) {
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(
-                new PropagationTaskSearchResultPanel(MultilevelPanel.FIRST_LEVEL_ID, pageReference, resource) {
+        mlp.setFirstLevel(new SchedTaskSearchResultPanel<SchedTaskTO>(
+                MultilevelPanel.FIRST_LEVEL_ID, SchedTaskTO.class, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
-            protected void viewTask(final PropagationTaskTO taskTO, final AjaxRequestTarget target) {
-                mlp.next("task.view", new PropagationTaskDetails(taskTO, pageReference), target);
+            protected void viewTask(final SchedTaskTO taskTO, final AjaxRequestTarget target) {
+                mlp.next("task.view", new SchedTaskDetails(taskTO, pageReference), target);
             }
         });
     }

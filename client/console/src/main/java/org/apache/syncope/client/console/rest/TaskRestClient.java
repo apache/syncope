@@ -94,6 +94,20 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 getResult();
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractTaskTO> List<T> list(
+            final String resource,
+            final Class<T> reference,
+            final int page,
+            final int size,
+            final SortParam<String> sort) {
+
+        return (List<T>) getService(TaskService.class).
+                list(new TaskQuery.Builder().type(getTaskType(reference)).page(page).size(size).resource(resource).
+                        orderBy(toOrderBy(sort)).build()).
+                getResult();
+    }
+
     public List<TaskExecTO> listExecutions(final Long taskId, final int page, final int size) {
         return getService(TaskService.class).
                 listExecutions(new TaskExecQuery.Builder().key(taskId).page(page).size(size).build()).getResult();

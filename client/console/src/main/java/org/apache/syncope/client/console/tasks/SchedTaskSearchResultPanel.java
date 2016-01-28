@@ -1,0 +1,270 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.client.console.tasks;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.TaskDataProvider;
+import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.ModalPanel;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
+
+/**
+ * Tasks page.
+ *
+ * @param <T> Sched task type.
+ */
+public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends TaskSearchResultPanel<T>
+        implements ModalPanel<T> {
+
+    private static final long serialVersionUID = 4984337552918213290L;
+
+    protected final Class<T> reference;
+
+    protected SchedTaskSearchResultPanel(final String id, final Class<T> reference, final PageReference pageRef) {
+        super(id, pageRef);
+        this.reference = reference;
+        initResultTable();
+    }
+
+    protected List<IColumn<T, String>> getFieldColumns() {
+        final List<IColumn<T, String>> columns = new ArrayList<IColumn<T, String>>();
+
+        columns.add(new PropertyColumn<T, String>(
+                new StringResourceModel("key", this, null), "key", "key"));
+
+        columns.add(new PropertyColumn<T, String>(
+                new StringResourceModel("name", this, null), "name", "name"));
+
+        columns.add(new PropertyColumn<T, String>(
+                new StringResourceModel("description", this, null), "description", "description"));
+
+        columns.add(new PropertyColumn<T, String>(new StringResourceModel(
+                "jobDelegateClassName", this, null), "jobDelegateClassName", "jobDelegateClassName") {
+
+            private static final long serialVersionUID = -3223917055078733093L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<T>> item, final String componentId, final IModel<T> rowModel) {
+                final IModel<?> model = getDataModel(rowModel);
+                if (model != null && model.getObject() instanceof String) {
+                    String value = String.class.cast(model.getObject());
+                    if (value.length() > 20) {
+                        item.add(new Label(componentId,
+                                new Model<String>("..." + value.substring(value.length() - 17))));
+                    } else {
+                        item.add(new Label(componentId, getDataModel(rowModel)));
+                    }
+                } else {
+                    super.populateItem(item, componentId, rowModel);
+                }
+            }
+
+        });
+
+        columns.add(new DatePropertyColumn<T>(
+                new StringResourceModel("lastExec", this, null), "lastExec", "lastExec"));
+
+        columns.add(new DatePropertyColumn<T>(
+                new StringResourceModel("nextExec", this, null), "nextExec", "nextExec"));
+
+        columns.add(new PropertyColumn<T, String>(
+                new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
+
+        columns.add(new PropertyColumn<T, String>(
+                new StringResourceModel("active", this, null), "active", "active"));
+
+        return columns;
+    }
+
+    @Override
+    protected final List<IColumn<T, String>> getColumns() {
+        final List<IColumn<T, String>> columns = new ArrayList<IColumn<T, String>>();
+
+        columns.addAll(getFieldColumns());
+
+        columns.add(new ActionColumn<T, String>(new ResourceModel("actions", "")) {
+
+            private static final long serialVersionUID = 2054811145491901166L;
+
+            @Override
+            public String getCssClass() {
+                return "action";
+            }
+
+            @Override
+            public ActionLinksPanel<T> getActions(
+                    final String componentId, final IModel<T> model) {
+
+                final T taskTO = model.getObject();
+
+                final ActionLinksPanel<T> panel = ActionLinksPanel.<T>builder(pageRef).
+                        add(new ActionLink<T>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final T modelObject) {
+                                viewTask(taskTO, target);
+                            }
+                        }, ActionLink.ActionType.EDIT, StandardEntitlement.TASK_READ).
+                        add(new ActionLink<T>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final T modelObject) {
+                                try {
+                                    taskRestClient.startExecution(taskTO.getKey(), new Date());
+                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    target.add(container);
+                                } catch (SyncopeClientException e) {
+                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    LOG.error("While running propagation task {}", taskTO.getKey(), e);
+                                }
+                                ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                            }
+                        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE).
+                        add(new ActionLink<T>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final T modelObject) {
+                                try {
+                                    taskRestClient.startExecution(taskTO.getKey(), new Date(), true);
+                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    target.add(container);
+                                } catch (SyncopeClientException e) {
+                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    LOG.error("While running propagation task {}", taskTO.getKey(), e);
+                                }
+                                ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                            }
+                        }, ActionLink.ActionType.DRYRUN, StandardEntitlement.TASK_EXECUTE).
+                        add(new ActionLink<T>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final T modelObject) {
+                                try {
+                                    taskRestClient.delete(taskTO.getKey(), reference);
+                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    target.add(container);
+                                } catch (SyncopeClientException e) {
+                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    LOG.error("While deleting propagation task {}", taskTO.getKey(), e);
+                                }
+                                ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                            }
+                        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE).build(componentId);
+
+                return panel;
+            }
+
+            @Override
+            public ActionLinksPanel<T> getHeader(final String componentId) {
+                final ActionLinksPanel.Builder<T> panel
+                        = ActionLinksPanel.builder(page.getPageReference());
+
+                return panel.add(new ActionLink<T>() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final T ignore) {
+                        if (target != null) {
+                            target.add(container);
+                        }
+                    }
+                }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);
+            }
+        });
+
+        return columns;
+    }
+
+    @Override
+    protected String paginatorRowsKey() {
+        return Constants.PREF_SCHED_TASKS_PAGINATOR_ROWS;
+    }
+
+    @Override
+    protected Collection<ActionType> getBulkActions() {
+        final List<ActionType> bulkActions = new ArrayList<>();
+        bulkActions.add(ActionType.DELETE);
+        bulkActions.add(ActionType.EXECUTE);
+        bulkActions.add(ActionType.DRYRUN);
+        return bulkActions;
+    }
+
+    @Override
+    protected SchedTasksProvider<T> dataProvider() {
+        return new SchedTasksProvider<T>(reference, rows);
+    }
+
+    public class SchedTasksProvider<T extends SchedTaskTO> extends TaskDataProvider<T> {
+
+        private static final long serialVersionUID = 4725679400450513556L;
+
+        private final Class<T> reference;
+
+        public SchedTasksProvider(final Class<T> reference, final int paginatorRows) {
+            super(paginatorRows, TaskType.SCHEDULED, taskRestClient);
+            this.reference = reference;
+        }
+
+        @Override
+        public Iterator<T> iterator(final long first, final long count) {
+            final int page = ((int) first / paginatorRows);
+
+            final List<T> tasks = taskRestClient.list(
+                    reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
+
+            Collections.sort(tasks, getComparator());
+            return tasks.iterator();
+        }
+    }
+}

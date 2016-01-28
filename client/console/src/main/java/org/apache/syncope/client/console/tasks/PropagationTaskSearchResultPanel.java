@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,30 +25,22 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
-import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
-import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.client.console.tasks.PropagationTaskSearchResultPanel.TasksProvider;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -57,25 +48,16 @@ import org.apache.wicket.model.StringResourceModel;
 /**
  * Tasks page.
  */
-public abstract class PropagationTaskSearchResultPanel extends AbstractSearchResultPanel<
-        PropagationTaskTO, PropagationTaskTO, TasksProvider<PropagationTaskTO>, TaskRestClient>
+public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultPanel<PropagationTaskTO>
         implements ModalPanel<PropagationTaskTO> {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    private final TaskRestClient taskRestClient = new TaskRestClient();
-
     private final String resource;
 
-    protected PropagationTaskSearchResultPanel(
-            final String id,
-            final PageReference pageRef,
-            final String resource) {
-
-        super(id, pageRef, false);
+    protected PropagationTaskSearchResultPanel(final String id, final PageReference pageRef, final String resource) {
+        super(id, pageRef);
         this.resource = resource;
-        setShowResultPage(true);
-        modal.size(Modal.Size.Large);
         initResultTable();
     }
 
@@ -94,9 +76,6 @@ public abstract class PropagationTaskSearchResultPanel extends AbstractSearchRes
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(
                 new StringResourceModel("anyKey", this, null), "anyKey", "anyKey"));
-
-        columns.add(new PropertyColumn<PropagationTaskTO, String>(
-                new StringResourceModel("resource", this, null), "resource", "resource"));
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(
                 new StringResourceModel("connObjectKey", this, null), "connObjectKey", "connObjectKey"));
@@ -203,7 +182,7 @@ public abstract class PropagationTaskSearchResultPanel extends AbstractSearchRes
     }
 
     @Override
-    protected TasksProvider<PropagationTaskTO> dataProvider() {
+    protected PropagationTasksProvider dataProvider() {
         return new PropagationTasksProvider(rows, this.resource);
     }
 
@@ -212,29 +191,14 @@ public abstract class PropagationTaskSearchResultPanel extends AbstractSearchRes
         return Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS;
     }
 
-    @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public PropagationTaskTO getItem() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public class PropagationTasksProvider extends TasksProvider<PropagationTaskTO> {
+    public class PropagationTasksProvider extends TaskDataProvider<PropagationTaskTO> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
         private final String resource;
 
         public PropagationTasksProvider(final int paginatorRows, final String resource) {
-            super(paginatorRows, TaskType.PROPAGATION);
+            super(paginatorRows, TaskType.PROPAGATION, taskRestClient);
             this.resource = resource;
         }
 
@@ -249,39 +213,4 @@ public abstract class PropagationTaskSearchResultPanel extends AbstractSearchRes
             return tasks.iterator();
         }
     }
-
-    public abstract class TasksProvider<T extends AbstractTaskTO> extends SearchableDataProvider<T> {
-
-        private static final long serialVersionUID = -20112718133295756L;
-
-        private final SortableDataProviderComparator<T> comparator;
-
-        private final TaskType id;
-
-        public TasksProvider(final int paginatorRows, final TaskType id) {
-
-            super(paginatorRows);
-
-            //Default sorting
-            setSort("key", SortOrder.DESCENDING);
-            comparator = new SortableDataProviderComparator<T>(this);
-            this.id = id;
-        }
-
-        public SortableDataProviderComparator<T> getComparator() {
-            return comparator;
-        }
-
-        @Override
-        public long size() {
-            return taskRestClient.count(id);
-        }
-
-        @Override
-        public IModel<T> model(final T object) {
-            return new CompoundPropertyModel<>(object);
-        }
-    }
-
-    protected abstract void viewTask(final PropagationTaskTO taskTO, final AjaxRequestTarget target);
 }
