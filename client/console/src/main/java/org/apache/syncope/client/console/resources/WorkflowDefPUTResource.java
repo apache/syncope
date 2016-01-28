@@ -37,9 +37,6 @@ public class WorkflowDefPUTResource extends AbstractResource {
 
     private static final long serialVersionUID = 2964542005207297944L;
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(WorkflowDefPUTResource.class);
 
     @Override

@@ -25,11 +25,16 @@ import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -55,9 +60,13 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.resource.DynamicJQueryResourceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleApplication.class);
 
     private static final String CONSOLE_PROPERTIES = "console.properties";
 
@@ -67,6 +76,29 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
             }));
 
     private static final String ACTIVITI_MODELER_CONTEXT = "activiti-modeler";
+
+    private static Map<String, Class<? extends BasePage>> PAGE_CLASSES;
+
+    @SuppressWarnings("unchecked")
+    private static void populatePageClasses(final Properties props) {
+        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
+        while (propNames.hasMoreElements()) {
+            String name = propNames.nextElement();
+            if (name.startsWith("page.")) {
+                try {
+                    Class<?> clazz = ClassUtils.getClass(props.getProperty(name));
+                    if (BasePage.class.isAssignableFrom(clazz)) {
+                        PAGE_CLASSES.put(
+                                StringUtils.substringAfter("page.", name), (Class<? extends BasePage>) clazz);
+                    } else {
+                        LOG.warn("{} does not extend {}, ignoring...", clazz.getName(), BasePage.class.getName());
+                    }
+                } catch (ClassNotFoundException e) {
+                    LOG.error("While looking for class identified by property '{}'", name, e);
+                }
+            }
+        }
+    }
 
     public static SyncopeConsoleApplication get() {
         return (SyncopeConsoleApplication) WebApplication.get();
@@ -126,6 +158,15 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         Assert.notNull(rootPath, "<rootPath> not set");
 
         clientFactory = new SyncopeClientFactoryBean().setAddress(scheme + "://" + host + ":" + port + "/" + rootPath);
+
+        // process page properties
+        synchronized (CONSOLE_PROPERTIES) {
+            if (PAGE_CLASSES == null) {
+                PAGE_CLASSES = new HashMap<>();
+                populatePageClasses(props);
+                PAGE_CLASSES = Collections.unmodifiableMap(PAGE_CLASSES);
+            }
+        }
 
         // Application settings
         IBootstrapSettings settings = new BootstrapSettings();
@@ -217,6 +258,10 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
                 : Dashboard.class;
     }
 
+    public Class<? extends BasePage> getPageClass(final String key) {
+        return PAGE_CLASSES.get(key);
+    }
+
     public String getVersion() {
         return version;
     }
@@ -248,4 +293,5 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     public MediaType getMediaType() {
         return clientFactory.getContentType().getMediaType();
     }
+
 }

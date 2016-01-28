@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.pages;
 
 import java.util.List;
+import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtPage;
@@ -96,28 +97,28 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
         if (SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_LIST)) {
             todos.setDefaultModelObject(userWorkflowRestClient.getForms().size());
         }
-        MetaDataRoleAuthorizationStrategy.authorize(todosContainer, WebPage.RENDER,
-                StandardEntitlement.WORKFLOW_FORM_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(
+                todosContainer, WebPage.RENDER, StandardEntitlement.WORKFLOW_FORM_LIST);
 
         // menu
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("dashboard"));
         add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("dashboard", Dashboard.class));
+        liContainer.add(BookmarkablePageLinkBuilder.build("dashboard", Dashboard.class));
 
         liContainer = new WebMarkupContainer(getLIContainerId("realms"));
         add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("realms", Realms.class));
+        liContainer.add(BookmarkablePageLinkBuilder.build("realms", Realms.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.REALM_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("topology"));
         add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("topology", Topology.class));
+        liContainer.add(BookmarkablePageLinkBuilder.build("topology", Topology.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER,
                 String.format("%s,%s", StandardEntitlement.CONNECTOR_LIST, StandardEntitlement.RESOURCE_LIST));
 
         liContainer = new WebMarkupContainer(getLIContainerId("reports"));
         add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("reports", Reports.class));
+        liContainer.add(BookmarkablePageLinkBuilder.build("reports", Reports.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.REPORT_LIST);
 
         WebMarkupContainer confLIContainer = new WebMarkupContainer(getLIContainerId("configuration"));
@@ -127,52 +128,52 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
 
         liContainer = new WebMarkupContainer(getLIContainerId("workflow"));
         confULContainer.add(liContainer);
-        BookmarkablePageLink<Page> workflowLink = new BookmarkablePageLink<>("workflow", Workflow.class);
+        BookmarkablePageLink<Page> workflowLink = BookmarkablePageLinkBuilder.build("workflow", Workflow.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 workflowLink, WebPage.ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
         liContainer.add(workflowLink);
 
         liContainer = new WebMarkupContainer(getLIContainerId("logs"));
         confULContainer.add(liContainer);
-        BookmarkablePageLink<Page> logsLink = new BookmarkablePageLink<>("logs", Logs.class);
+        BookmarkablePageLink<Page> logsLink = BookmarkablePageLinkBuilder.build("logs", Logs.class);
         MetaDataRoleAuthorizationStrategy.authorize(logsLink, WebPage.ENABLE, StandardEntitlement.LOG_LIST);
         liContainer.add(logsLink);
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.LOG_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("securityquestions"));
         confULContainer.add(liContainer);
-        BookmarkablePageLink<Page> secuityQuestionsLink = new BookmarkablePageLink<>("securityquestions",
-                SecurityQuestions.class);
+        BookmarkablePageLink<Page> secuityQuestionsLink =
+                BookmarkablePageLinkBuilder.build("securityquestions", SecurityQuestions.class);
         liContainer.add(secuityQuestionsLink);
 
         liContainer = new WebMarkupContainer(getLIContainerId("types"));
         confULContainer.add(liContainer);
-        BookmarkablePageLink<Page> typesLink = new BookmarkablePageLink<>("types", Types.class);
+        BookmarkablePageLink<Page> typesLink = BookmarkablePageLinkBuilder.build("types", Types.class);
         MetaDataRoleAuthorizationStrategy.authorize(typesLink, WebPage.ENABLE, StandardEntitlement.SCHEMA_LIST);
         liContainer.add(typesLink);
 
         liContainer = new WebMarkupContainer(getLIContainerId("roles"));
         confULContainer.add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("roles", Roles.class));
+        liContainer.add(BookmarkablePageLinkBuilder.build("roles", Roles.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.ROLE_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("policies"));
         confULContainer.add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("policies", Policies.class));
+        liContainer.add(BookmarkablePageLinkBuilder.build("policies", Policies.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.POLICY_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("layouts"));
         confULContainer.add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("layouts", Layouts.class));
+        liContainer.add(BookmarkablePageLinkBuilder.build("layouts", Layouts.class));
 
         liContainer = new WebMarkupContainer(getLIContainerId("notifications"));
         confULContainer.add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("notifications", Notifications.class));
+        liContainer.add(BookmarkablePageLinkBuilder.build("notifications", Notifications.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.NOTIFICATION_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("parameters"));
         confULContainer.add(liContainer);
-        liContainer.add(new BookmarkablePageLink<>("parameters", Parameters.class));
+        liContainer.add(BookmarkablePageLinkBuilder.build("parameters", Parameters.class));
         MetaDataRoleAuthorizationStrategy.authorize(
                 liContainer, WebPage.RENDER, StandardEntitlement.CONFIGURATION_LIST);
 
@@ -255,7 +256,7 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
                     });
                 }
 
-                BookmarkablePageLink<?> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
+                BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
                 containingLI.add(link);
 
                 ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);

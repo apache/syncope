@@ -52,9 +52,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private static final long serialVersionUID = 747562246415852166L;
 
-    public static final String AUTHENTICATED = "AUTHENTICATED";
-
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleSession.class);
+
+    public static final String AUTHENTICATED = "AUTHENTICATED";
 
     private final SyncopeTO syncopeTO;
 
