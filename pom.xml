@@ -329,7 +329,7 @@ under the License.
 
     <cxf.version>3.1.5-SNAPSHOT</cxf.version>
 
-    <camel.version>2.16.1</camel.version>	
+    <camel.version>2.16.2</camel.version>	
 
     <!-- Cannot upgrade to 2.7.0 because current swagger-jaxrs relies on
     com.fasterxml.jackson.databind.type.TypeFactory.constructType(Type, Class<?>)
