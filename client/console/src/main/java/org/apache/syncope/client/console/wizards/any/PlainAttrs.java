@@ -199,7 +199,6 @@ public class PlainAttrs extends AbstractAttrs {
                 panel = new AjaxCheckBoxPanel("panel", schemaTO.getKey(), new Model<Boolean>(), false);
                 panel.setRequired(required);
                 break;
-
             case Date:
                 panel = new AjaxDateFieldPanel(
                         "panel", schemaTO.getKey(), new Model<Date>(), schemaTO.getConversionPattern());

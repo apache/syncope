@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -80,6 +81,34 @@ public class ParametersDetailsPanel extends Panel {
                 panel = new AjaxDateFieldPanel(
                         id, valueHeaderName, new Model<Date>(), schemaTO.getConversionPattern());
                 break;
+            case Boolean:
+                panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<String>(), false);
+                ((AjaxDropDownChoicePanel<String>) panel).setChoices(Arrays.asList("true", "false"));
+
+                if (!attrTO.getValues().isEmpty()) {
+                    ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
+
+                        private static final long serialVersionUID = -3724971416312135885L;
+
+                        @Override
+                        public String getDisplayValue(final String value) {
+                            return value;
+                        }
+
+                        @Override
+                        public String getIdValue(final String value, final int i) {
+                            return value;
+                        }
+
+                        @Override
+                        public String getObject(
+                                final String id, final IModel<? extends List<? extends String>> choices) {
+                            return id;
+                        }
+                    });
+                }
+                ((AjaxDropDownChoicePanel<String>) panel).setNullValid(false);
+                break;
             case Enum:
                 panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<String>(), false);
                 ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(schemaTO));
@@ -106,6 +135,8 @@ public class ParametersDetailsPanel extends Panel {
                         }
                     });
                 }
+                ((AjaxDropDownChoicePanel<String>) panel).setNullValid(
+                        "false".equalsIgnoreCase(schemaTO.getMandatoryCondition()));
                 break;
 
             case Long:
@@ -125,9 +156,8 @@ public class ParametersDetailsPanel extends Panel {
         } else {
             panel.setNewModel(attrTO.getValues());
         }
-        if (schemaTO.getMandatoryCondition().equalsIgnoreCase("true")) {
-            panel.setRequired(true);
-        }
+
+        panel.setRequired("true".equalsIgnoreCase(schemaTO.getMandatoryCondition()));
         return panel;
     }
 }

@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ParametersPanel.ParametersProvider;
 import org.apache.syncope.client.console.rest.BaseRestClient;
@@ -47,6 +48,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -210,8 +212,8 @@ public class ParametersPanel extends AbstractSearchResultPanel<
 
                 final AttrTO attrTO = model.getObject();
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks =
-                        ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.
+                        getPageReference());
                 actionLinks.setDisableIndicator(true);
                 ActionLinksPanel.Builder<Serializable> addWithRoles = actionLinks
                         .addWithRoles(new ActionLink<Serializable>() {
@@ -261,13 +263,18 @@ public class ParametersPanel extends AbstractSearchResultPanel<
 
         private static final long serialVersionUID = -185944053385660794L;
 
+        private final SortableDataProviderComparator<AttrTO> comparator;
+
         private ParametersProvider(final int paginatorRows) {
             super(paginatorRows);
+            setSort("schema", SortOrder.DESCENDING);
+            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<AttrTO> iterator(final long first, final long count) {
             final List<AttrTO> list = SyncopeConsoleSession.get().getService(ConfigurationService.class).list();
+            Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
