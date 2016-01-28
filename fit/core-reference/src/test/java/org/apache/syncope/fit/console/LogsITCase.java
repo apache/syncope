@@ -1,0 +1,121 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.fit.console;
+
+import static org.junit.Assert.assertNotNull;
+
+import java.lang.reflect.InvocationTargetException;
+import org.apache.syncope.client.console.pages.Logs;
+import org.apache.syncope.common.lib.to.LoggerTO;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.core.util.lang.PropertyResolver;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
+import org.junit.Before;
+import org.junit.Test;
+
+public class LogsITCase extends AbstractConsoleITCase {
+
+    private final static String CONTAINER_PATH = "content:tabbedPanel:panel:loggerContainer";
+
+    @Before
+    public void login() {
+        doLogin(ADMIN_UNAME, ADMIN_PWD);
+        browsingToLogs();
+    }
+
+    @Test
+    public void readCoreLogs() {
+        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:0:link");
+        wicketTester.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
+
+        assertNotNull(searchLog(KEY, CONTAINER_PATH, "org.apache.camel"));
+    }
+
+    @Test
+    public void updateCoreLogs() {
+        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:0:link");
+        wicketTester.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
+
+        Component result = searchLog(KEY, CONTAINER_PATH, "org.apache.camel");
+        assertNotNull(result);
+
+        wicketTester.getRequest().addParameter(
+                result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "6");
+        wicketTester.assertComponent(
+                result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", DropDownChoice.class);
+        wicketTester.executeAjaxEvent(result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "onchange");
+
+        wicketTester.assertInfoMessages("Operation executed successfully");
+    }
+
+    @Test
+    public void readConsoleLogs() {
+        wicketTester.assertComponent("content:tabbedPanel:tabs-container:tabs:1:link", AjaxFallbackLink.class);
+        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:1:link");
+        wicketTester.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
+
+        assertNotNull(searchLog(KEY, CONTAINER_PATH, "org.apache.syncope.fit"));
+    }
+
+    @Test
+    public void updateConsoleLogs() {
+        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:1:link");
+        wicketTester.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
+
+        Component result = searchLog(KEY, CONTAINER_PATH, "org.apache.syncope.fit");
+        assertNotNull(result);
+
+        wicketTester.getRequest().addParameter(
+                result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "6");
+        wicketTester.executeAjaxEvent(result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "onchange");
+
+        wicketTester.assertInfoMessages("Operation executed successfully");
+    }
+
+    private Component searchLog(final String property, final String searchPath, final String key) {
+        Component component = wicketTester.getComponentFromLastRenderedPage(searchPath);
+
+        Component result = component.getPage().
+                visitChildren(ListItem.class, new IVisitor<ListItem<LoggerTO>, Component>() {
+
+                    @Override
+                    public void component(final ListItem<LoggerTO> object, final IVisit<Component> visit) {
+                        try {
+                            if (object.getModelObject() instanceof LoggerTO && PropertyResolver.getPropertyGetter(
+                                    property, object.getModelObject()).invoke(object.getModelObject()).equals(key)) {
+                                visit.stop(object);
+                            }
+                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                            LOG.error("Error invoke method", ex);
+                        }
+                    }
+                });
+        return result;
+    }
+
+    private void browsingToLogs() {
+        wicketTester.clickLink("configurationLI:configurationUL:logsLI:logs");
+        wicketTester.assertRenderedPage(Logs.class);
+    }
+}
