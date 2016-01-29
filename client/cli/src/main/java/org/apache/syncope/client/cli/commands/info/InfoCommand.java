@@ -67,9 +67,6 @@ public class InfoCommand extends AbstractCommand {
             case LOGIC_ACTIONS:
                 info.logicActions();
                 break;
-            case MAIL_TEMPLATES:
-                info.mailTemplates();
-                break;
             case MAPPING_ITEM_TRANSFORMERS:
                 info.mappingItemTransformers();
                 break;
@@ -133,7 +130,6 @@ public class InfoCommand extends AbstractCommand {
         CONNID_LOCATION("--connid-locations"),
         RECONCILIATION_FILTER_BUILDERS("--reconciliation-filter-builders"),
         LOGIC_ACTIONS("--logic-actions"),
-        MAIL_TEMPLATES("--mail-templates"),
         MAPPING_ITEM_TRANSFORMERS("--mapping-item-transformers"),
         PASSWORD_RULES("--password-rules"),
         PROPAGATION_ACTIONS("--propagation-actions"),

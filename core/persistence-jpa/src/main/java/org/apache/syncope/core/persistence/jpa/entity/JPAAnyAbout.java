@@ -47,7 +47,7 @@ public class JPAAnyAbout extends AbstractEntity<Long> implements AnyAbout {
     private JPAAnyType anyType;
 
     @Lob
-    private String about;
+    private String filter;
 
     @Override
     public Long getKey() {
@@ -78,12 +78,12 @@ public class JPAAnyAbout extends AbstractEntity<Long> implements AnyAbout {
 
     @Override
     public String get() {
-        return about;
+        return filter;
     }
 
     @Override
     public void set(final String filter) {
-        this.about = filter;
+        this.filter = filter;
     }
 
 }

@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import java.util.List;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -41,6 +42,9 @@ public class NotificationTest extends AbstractTest {
 
     @Autowired
     private NotificationDAO notificationDAO;
+
+    @Autowired
+    private MailTemplateDAO mailTemplateDAO;
 
     @Test
     public void find() {
@@ -78,7 +82,7 @@ public class NotificationTest extends AbstractTest {
 
         notification.setSender("syncope@syncope.apache.org");
         notification.setSubject("Test notification");
-        notification.setTemplate("test");
+        notification.setTemplate(mailTemplateDAO.find("test"));
 
         Notification actual = notificationDAO.save(notification);
         assertNotNull(actual);
@@ -111,7 +115,7 @@ public class NotificationTest extends AbstractTest {
 
         notification.setSender("syncope@syncope.apache.org");
         notification.setSubject("Test notification");
-        notification.setTemplate("test");
+        notification.setTemplate(mailTemplateDAO.find("test"));
 
         Notification actual = notificationDAO.save(notification);
         assertNotNull(actual);
@@ -138,7 +142,7 @@ public class NotificationTest extends AbstractTest {
 
         notification.setSender("syncope@syncope.apache.org");
         notification.setSubject("Test notification");
-        notification.setTemplate("test");
+        notification.setTemplate(mailTemplateDAO.find("test"));
 
         Notification actual = notificationDAO.save(notification);
         assertNotNull(actual);

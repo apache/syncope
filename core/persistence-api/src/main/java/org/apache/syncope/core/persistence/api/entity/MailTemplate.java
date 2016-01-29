@@ -16,21 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.MailTemplate;
-import org.apache.syncope.core.persistence.api.entity.Notification;
+public interface MailTemplate extends Entity<String> {
 
-public interface NotificationDAO extends DAO<Notification, Long> {
+    void setKey(String key);
 
-    Notification find(Long key);
+    String getTextTemplate();
 
-    List<Notification> findByTemplate(MailTemplate template);
+    void setTextTemplate(String textTemplate);
 
-    List<Notification> findAll();
+    String getHTMLTemplate();
 
-    Notification save(Notification notification);
-
-    void delete(Long key);
+    void setHTMLTemplate(String htmlTemplate);
 }

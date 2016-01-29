@@ -128,15 +128,6 @@ public class Info {
         }
     }
 
-    public void mailTemplates() {
-        try {
-            infoResultManager.printMailTemplates(syncopeTO.getMailTemplates());
-        } catch (final Exception ex) {
-            LOG.error("Information error", ex);
-            infoResultManager.genericError(ex.getMessage());
-        }
-    }
-
     public void mappingItemTransformers() {
         try {
             infoResultManager.printMappingItemTransformers(syncopeTO.getMappingItemTransformers());

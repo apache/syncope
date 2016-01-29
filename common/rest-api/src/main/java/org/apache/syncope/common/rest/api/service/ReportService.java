@@ -138,7 +138,8 @@ public interface ReportService extends JAXRSService {
     @GET
     @Path("executions/{executionKey}/stream")
     @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response exportExecutionResult(@NotNull @PathParam("executionKey") Long executionKey,
+    Response exportExecutionResult(
+            @NotNull @PathParam("executionKey") Long executionKey,
             @QueryParam("format") ReportExecExportFormat fmt);
 
     /**

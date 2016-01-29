@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Logger;
+import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -170,6 +171,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPAConf();
         } else if (reference.equals(AnyAbout.class)) {
             result = (T) new JPAAnyAbout();
+        } else if (reference.equals(MailTemplate.class)) {
+            result = (T) new JPAMailTemplate();
         } else if (reference.equals(Notification.class)) {
             result = (T) new JPANotification();
         } else if (reference.equals(ExternalResource.class)) {

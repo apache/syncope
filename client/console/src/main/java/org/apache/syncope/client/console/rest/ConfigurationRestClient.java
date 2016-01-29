@@ -19,9 +19,7 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
-import java.util.Set;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AttrLayoutType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -31,7 +29,7 @@ public class ConfigurationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 7692363064029538722L;
 
-    private SchemaRestClient schemaRestClient = new SchemaRestClient();
+    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     public List<AttrTO> list() {
         final List<AttrTO> attrTOs = getService(ConfigurationService.class).list();
@@ -79,10 +77,6 @@ public class ConfigurationRestClient extends BaseRestClient {
 
     public void delete(final String key) {
         getService(ConfigurationService.class).delete(key);
-    }
-
-    public Set<String> getMailTemplates() {
-        return SyncopeConsoleSession.get().getSyncopeTO().getMailTemplates();
     }
 
     public Response dbExport() {

@@ -140,7 +140,6 @@ under the License.
         <includes>
           <include>mail.properties</include>
           <include>connid.properties</include>
-          <include>mailTemplates/*.jexl3</include>
         </includes>
         <targetPath>${project.build.directory}/etc</targetPath>
         <filtering>true</filtering>

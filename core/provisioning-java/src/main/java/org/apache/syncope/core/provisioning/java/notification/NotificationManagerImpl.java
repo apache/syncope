@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.notification;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,9 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Resource;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.jexl3.MapContext;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -58,7 +56,6 @@ import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
-import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -84,14 +81,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class NotificationManagerImpl implements NotificationManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationManager.class);
-
-    public static final String MAIL_TEMPLATES = "mailTemplates/";
-
-    public static final String MAIL_TEMPLATE_SUFFIX = ".jexl3";
-
-    public static final String MAIL_TEMPLATE_HTML_SUFFIX = ".html.jexl3";
-
-    public static final String MAIL_TEMPLATE_TEXT_SUFFIX = ".txt.jexl3";
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;
@@ -140,9 +129,6 @@ public class NotificationManagerImpl implements NotificationManager {
      */
     @Autowired
     private TaskDAO taskDAO;
-
-    @Resource(name = "mailTemplateResourceLoader")
-    private ResourceWithFallbackLoader mailTemplateResourceLoader;
 
     @Autowired
     private DerAttrHandler derAttrHander;
@@ -235,30 +221,21 @@ public class NotificationManagerImpl implements NotificationManager {
         task.setSender(notification.getSender());
         task.setSubject(notification.getSubject());
 
-        String htmlBody = evaluate(
-                MAIL_TEMPLATES + notification.getTemplate() + MAIL_TEMPLATE_HTML_SUFFIX, jexlVars);
-        String textBody = evaluate(
-                MAIL_TEMPLATES + notification.getTemplate() + MAIL_TEMPLATE_TEXT_SUFFIX, jexlVars);
-
-        task.setHtmlBody(htmlBody);
-        task.setTextBody(textBody);
+        if (StringUtils.isNotBlank(notification.getTemplate().getTextTemplate())) {
+            task.setTextBody(evaluate(notification.getTemplate().getTextTemplate(), jexlVars));
+        }
+        if (StringUtils.isNotBlank(notification.getTemplate().getHTMLTemplate())) {
+            task.setHtmlBody(evaluate(notification.getTemplate().getHTMLTemplate(), jexlVars));
+        }
 
         return task;
     }
 
-    private String evaluate(final String templateLocation, final Map<String, Object> jexlVars) {
-        org.springframework.core.io.Resource templateResource =
-                mailTemplateResourceLoader.getResource(templateLocation);
-
+    private String evaluate(final String template, final Map<String, Object> jexlVars) {
         StringWriter writer = new StringWriter();
-        try {
-            JexlUtils.newJxltEngine().
-                    createTemplate(IOUtils.toString(templateResource.getInputStream())).
-                    evaluate(new MapContext(jexlVars), writer);
-        } catch (final IOException e) {
-            LOG.error("Could not get mail body from {}", templateResource, e);
-        }
-
+        JexlUtils.newJxltEngine().
+                createTemplate(template).
+                evaluate(new MapContext(jexlVars), writer);
         return writer.toString();
     }
 

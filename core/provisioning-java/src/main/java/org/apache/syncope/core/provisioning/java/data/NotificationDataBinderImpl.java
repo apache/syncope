@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.slf4j.Logger;
@@ -40,7 +41,10 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationDataBinder.class);
 
-    private static final String[] IGNORE_PROPERTIES = { "key", "abouts" };
+    private static final String[] IGNORE_PROPERTIES = { "key", "template", "abouts" };
+
+    @Autowired
+    private MailTemplateDAO mailTemplateDAO;
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -55,6 +59,8 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         BeanUtils.copyProperties(notification, result, IGNORE_PROPERTIES);
 
         result.setKey(notification.getKey());
+        result.setTemplate(notification.getTemplate().getKey());
+
         for (AnyAbout about : notification.getAbouts()) {
             result.getAbouts().put(about.getAnyType().getKey(), about.get());
         }
@@ -72,6 +78,8 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
     @Override
     public void update(final Notification notification, final NotificationTO notificationTO) {
         BeanUtils.copyProperties(notificationTO, notification, IGNORE_PROPERTIES);
+
+        notification.setTemplate(mailTemplateDAO.find(notificationTO.getTemplate()));
 
         // 1. add or update all (valid) abouts from TO
         for (Map.Entry<String, String> entry : notificationTO.getAbouts().entrySet()) {

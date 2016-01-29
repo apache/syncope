@@ -62,9 +62,9 @@ public interface Notification extends Entity<Long> {
 
     void setSubject(String subject);
 
-    String getTemplate();
+    MailTemplate getTemplate();
 
-    void setTemplate(String template);
+    void setTemplate(MailTemplate template);
 
     TraceLevel getTraceLevel();
 

@@ -116,14 +116,52 @@ under the License.
                validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
   
   <!-- Password reset notifications -->
+  <MailTemplate name="requestPasswordReset"
+                textTemplate="Hi,
+a password reset was request for ${user.getUsername()}.
+
+In order to complete this request, you need to visit this link:
+
+http://localhost:9080/syncope-console/?pwdResetToken=${input.get(0).replaceAll(' ', '%20')}
+
+If you did not request this reset, just ignore the present e-mail.
+
+Best regards."
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi,
+a password reset was request for ${user.getUsername()}.&lt;/p&gt;
+
+&lt;p&gt;In order to complete this request, you need to visit this 
+&lt;a href=&quot;http://localhost:9080/syncope-console/?pwdResetToken=${input.get(0).replaceAll(' ', '%20')}&quot;&gt;link&lt;/a&gt;&lt;/p&gt;.
+
+&lt;p&gt;If you did not request this reset, just ignore the present e-mail.&lt;/p&gt;
+
+&lt;p&gt;Best regards.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+  <MailTemplate name="confirmPasswordReset"
+                textTemplate="Hi,
+we are happy to inform you that the password request was execute successfully for your account.
+
+Best regards."
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi,&lt;/br&gt;
+we are happy to inform you that the password request was execute successfully for your account.&lt;/p&gt;
+
+&lt;p&gt;Best regards.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+
   <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
-                sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 
+                sender="admin@syncope.apache.org" subject="Password Reset request" template_name="requestPasswordReset" 
                 traceLevel="FAILURES"/> 
-  <AnyAbout id="1" anyType_name="USER" notification_id="1" about="token!=$null"/>
+  <AnyAbout id="1" anyType_name="USER" notification_id="1" filter="token!=$null"/>
   <Notification_events Notification_id="1" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   
   <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
-                sender="admin@syncope.apache.org" subject="Password Reset successful" template="confirmPasswordReset" 
+                sender="admin@syncope.apache.org" subject="Password Reset successful" template_name="confirmPasswordReset" 
                 traceLevel="FAILURES"/> 
   <Notification_events Notification_id="2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
 

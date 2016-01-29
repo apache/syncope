@@ -20,17 +20,14 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
-import org.apache.syncope.core.persistence.api.entity.Notification;
 
-public interface NotificationDAO extends DAO<Notification, Long> {
+public interface MailTemplateDAO extends DAO<MailTemplate, String> {
 
-    Notification find(Long key);
+    MailTemplate find(String key);
 
-    List<Notification> findByTemplate(MailTemplate template);
+    List<MailTemplate> findAll();
 
-    List<Notification> findAll();
+    MailTemplate save(MailTemplate notification);
 
-    Notification save(Notification notification);
-
-    void delete(Long key);
+    void delete(String key);
 }

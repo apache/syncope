@@ -1094,22 +1094,120 @@ under the License.
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="0" syncMode="INCREMENTAL"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
 
+  <MailTemplate name="requestPasswordReset"
+                textTemplate="Hi,
+a password reset was request for ${user.getUsername()}.
+
+In order to complete this request, you need to visit this link:
+
+http://localhost:9080/syncope-console/?pwdResetToken=${input.get(0).replaceAll(' ', '%20')}
+
+If you did not request this reset, just ignore the present e-mail.
+
+Best regards."
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi,
+a password reset was request for ${user.getUsername()}.&lt;/p&gt;
+
+&lt;p&gt;In order to complete this request, you need to visit this 
+&lt;a href=&quot;http://localhost:9080/syncope-console/?pwdResetToken=${input.get(0).replaceAll(' ', '%20')}&quot;&gt;link&lt;/a&gt;&lt;/p&gt;.
+
+&lt;p&gt;If you did not request this reset, just ignore the present e-mail.&lt;/p&gt;
+
+&lt;p&gt;Best regards.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+  <MailTemplate name="confirmPasswordReset"
+                textTemplate="Hi,
+we are happy to inform you that the password request was execute successfully for your account.
+
+Best regards."
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi,&lt;/br&gt;
+we are happy to inform you that the password request was execute successfully for your account.&lt;/p&gt;
+
+&lt;p&gt;Best regards.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+  <MailTemplate name="test"/>
+  <MailTemplate name="optin"
+                textTemplate="Hi ${user.plainAttrMap[&quot;firstname&quot;].values[0]} ${user.plainAttrMap[&quot;surname&quot;].values[0]}, welcome to Syncope!
+
+Your username is ${user.username}.
+Your email address is ${user.plainAttrMap[&quot;email&quot;].values[0]}.
+Your email address inside a link: http://localhost/?email=${user.plainAttrMap[&quot;email&quot;].values[0].replace('@', '%40')}
+
+This message was sent to the following recipients:&#10;
+$$ for (recipient: recipients) {&#10;
+  * ${recipient.plainAttrMap[&quot;email&quot;].values[0]}&#10;
+$$ }&#10;
+&#10;
+because one of the following events occurred:&#10;
+$$ for (event: events) {&#10;
+  * ${event}&#10;
+$$ }&#10;
+&#10;
+$$ if (!empty(user.memberships)) {&#10;
+You have been provided with the following groups:&#10;
+$$ for(membership : user.memberships) {&#10;
+  * ${membership.groupName}&#10;
+$$ }&#10;
+$$ }&#10;"
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;h3&gt;Hi ${user.plainAttrMap[&quot;firstname&quot;].values[0]} ${user.plainAttrMap[&quot;surname&quot;].values[0]}, welcome to Syncope!&lt;/h3&gt;
+
+&lt;p&gt;
+   Your username is ${user.username}.&lt;br/&gt;
+   Your email address is ${user.plainAttrMap[&quot;email&quot;].values[0]}.
+   Your email address inside a &lt;a href=&quot;http://localhost/?email=${user.plainAttrMap[&quot;email&quot;].values[0].replace('@', '%40')}&quot;&gt;link&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;p&gt;
+    This message was sent to the following recipients:
+&lt;ul&gt;&#10;
+$$ for (recipient: recipients) {&#10;
+  &lt;li&gt;${recipient.plainAttrMap[&quot;email&quot;].values[0]}&lt;/li&gt;&#10;
+$$ }&#10;
+&lt;/ul&gt;&#10;
+
+because one of the following events occurred:
+&lt;ul&gt;&#10;
+$$ for (event: events) {&#10;
+  &lt;li&gt;${event}&lt;/i&gt;&#10;
+$$ }&#10;
+&lt;/ul&gt;&#10;
+&lt;/p&gt;
+&#10;
+$$ if (!empty(user.memberships)) {&#10;
+You have been provided with the following groups:&#10;
+&lt;ul&gt;&#10;
+$$ for(membership : user.memberships) {&#10;
+  &lt;li&gt;${membership.groupName}&lt;/li&gt;&#10;
+$$ }&#10;
+&lt;/ul&gt;&#10;
+$$ }&#10;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+
   <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
-                sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 
+                sender="admin@syncope.apache.org" subject="Password Reset request" template_name="requestPasswordReset" 
                 traceLevel="FAILURES"/> 
-  <AnyAbout id="1" anyType_name="USER" notification_id="1" about="token!=$null"/>
+  <AnyAbout id="1" anyType_name="USER" notification_id="1" filter="token!=$null"/>
   <Notification_events Notification_id="1" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   
   <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
-                sender="admin@syncope.apache.org" subject="Password Reset successful" template="confirmPasswordReset" 
+                sender="admin@syncope.apache.org" subject="Password Reset successful" template_name="confirmPasswordReset" 
                 traceLevel="FAILURES"/> 
   <Notification_events Notification_id="2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
 
-  <Notification id="10" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" 
+  <Notification id="10" sender="test@syncope.apache.org" subject="Test subject" template_name="test" selfAsRecipient="0" 
                 traceLevel="FAILURES"
                 recipientsFIQL="$groups==7"
                 recipientAttrType="UserPlainSchema" recipientAttrName="email" active="1"/>
-  <AnyAbout id="10" anyType_name="USER" notification_id="10" about="fullname==*o*;fullname==*i*"/>
+  <AnyAbout id="10" anyType_name="USER" notification_id="10" filter="fullname==*o*;fullname==*i*"/>
   <Notification_events Notification_id="10" event="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
   <Notification_events Notification_id="10" event="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
     

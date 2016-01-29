@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.to.NotificationTO;
 public interface NotificationService extends JAXRSService {
 
     /**
-     * Returns notification with matching id.
+     * Returns notification with matching key.
      *
      * @param key key of notification to be read
      * @return notification with matching key

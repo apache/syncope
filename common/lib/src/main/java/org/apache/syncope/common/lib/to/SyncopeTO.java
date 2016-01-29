@@ -89,8 +89,6 @@ public class SyncopeTO extends AbstractBaseBean {
 
     private final Set<String> notificationRecipientsProviders = new HashSet<>();
 
-    private final Set<String> mailTemplates = new HashSet<>();
-
     public String getVersion() {
         return version;
     }
@@ -253,13 +251,6 @@ public class SyncopeTO extends AbstractBaseBean {
     @JsonProperty("notificationRecipientsProviders")
     public Set<String> getNotificationRecipientsProviders() {
         return notificationRecipientsProviders;
-    }
-
-    @XmlElementWrapper(name = "mailTemplates")
-    @XmlElement(name = "mailTemplate")
-    @JsonProperty("mailTemplates")
-    public Set<String> getMailTemplates() {
-        return mailTemplates;
     }
 
     public void setVersion(final String version) {

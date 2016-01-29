@@ -16,21 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.common.lib.to;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.MailTemplate;
-import org.apache.syncope.core.persistence.api.entity.Notification;
+import javax.ws.rs.PathParam;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.AbstractBaseBean;
 
-public interface NotificationDAO extends DAO<Notification, Long> {
+@XmlRootElement(name = "maiLTemplate")
+@XmlType
+public class MailTemplateTO extends AbstractBaseBean implements EntityTO<String> {
 
-    Notification find(Long key);
+    private static final long serialVersionUID = 8389755049666062735L;
 
-    List<Notification> findByTemplate(MailTemplate template);
+    private String key;
 
-    List<Notification> findAll();
+    @Override
+    public String getKey() {
+        return key;
+    }
 
-    Notification save(Notification notification);
-
-    void delete(Long key);
+    @PathParam("key")
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
+    }
 }

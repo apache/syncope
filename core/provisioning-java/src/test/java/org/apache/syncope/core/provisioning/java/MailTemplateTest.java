@@ -30,32 +30,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.annotation.Resource;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
-import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
-import org.apache.syncope.core.provisioning.java.notification.NotificationManagerImpl;
+import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class MailTemplateTest extends AbstractTest {
 
-    @Resource(name = "mailTemplateResourceLoader")
-    private ResourceWithFallbackLoader mailTemplateResourceLoader;
+    @Autowired
+    private MailTemplateDAO mailTemplateDAO;
 
-    private String evaluate(final String templateLocation, final Map<String, Object> jexlVars) throws IOException {
-        org.springframework.core.io.Resource templateResource =
-                mailTemplateResourceLoader.getResource(templateLocation);
-
+    private String evaluate(final String template, final Map<String, Object> jexlVars) {
         StringWriter writer = new StringWriter();
         JexlUtils.newJxltEngine().
-                createTemplate(IOUtils.toString(templateResource.getInputStream())).
+                createTemplate(template).
                 evaluate(new MapContext(jexlVars), writer);
         return writer.toString();
     }
@@ -63,9 +58,7 @@ public class MailTemplateTest extends AbstractTest {
     @Test
     public void confirmPasswordReset() throws IOException {
         String htmlBody = evaluate(
-                NotificationManagerImpl.MAIL_TEMPLATES
-                + "confirmPasswordReset"
-                + NotificationManagerImpl.MAIL_TEMPLATE_HTML_SUFFIX,
+                mailTemplateDAO.find("confirmPasswordReset").getHTMLTemplate(),
                 new HashMap<String, Object>());
 
         assertNotNull(htmlBody);
@@ -86,9 +79,7 @@ public class MailTemplateTest extends AbstractTest {
         ctx.put("input", input);
 
         String htmlBody = evaluate(
-                NotificationManagerImpl.MAIL_TEMPLATES
-                + "requestPasswordReset"
-                + NotificationManagerImpl.MAIL_TEMPLATE_HTML_SUFFIX,
+                mailTemplateDAO.find("requestPasswordReset").getHTMLTemplate(),
                 ctx);
 
         assertNotNull(htmlBody);
@@ -122,12 +113,12 @@ public class MailTemplateTest extends AbstractTest {
         ctx.put("recipients", Collections.singletonList(recipient));
 
         String htmlBody = evaluate(
-                NotificationManagerImpl.MAIL_TEMPLATES
-                + "optin"
-                + NotificationManagerImpl.MAIL_TEMPLATE_HTML_SUFFIX,
+                mailTemplateDAO.find("optin").getHTMLTemplate(),
                 ctx);
 
         assertNotNull(htmlBody);
+        System.out.println("AAAAAAAAAAAAA\n" + htmlBody);
+        
         assertTrue(htmlBody.contains("Hi John Doe,"));
         assertTrue(htmlBody.contains("Your email address is john.doe@syncope.apache.org."));
         assertTrue(htmlBody.contains("<li>another@syncope.apache.org</li>"));

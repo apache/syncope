@@ -20,43 +20,38 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
-import org.apache.syncope.core.persistence.api.entity.Notification;
-import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
+import org.apache.syncope.core.persistence.jpa.entity.JPAMailTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPANotificationDAO extends AbstractDAO<Notification, Long> implements NotificationDAO {
+public class JPAMailTemplateDAO extends AbstractDAO<MailTemplate, String> implements MailTemplateDAO {
 
     @Override
-    public Notification find(final Long key) {
-        return entityManager().find(JPANotification.class, key);
+    public MailTemplate find(final String key) {
+        return entityManager().find(JPAMailTemplate.class, key);
     }
 
     @Override
-    public List<Notification> findByTemplate(final MailTemplate template) {
-        TypedQuery<Notification> query = entityManager().createQuery(
-                "SELECT e FROM " + JPANotification.class.getSimpleName() + " e "
-                + "WHERE e.template=:template", Notification.class);
-        query.setParameter("template", template);
+    public List<MailTemplate> findAll() {
+        TypedQuery<MailTemplate> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAMailTemplate.class.getSimpleName() + " e", MailTemplate.class);
         return query.getResultList();
     }
 
     @Override
-    public List<Notification> findAll() {
-        TypedQuery<Notification> query = entityManager().createQuery(
-                "SELECT e FROM " + JPANotification.class.getSimpleName() + " e", Notification.class);
-        return query.getResultList();
-    }
-
-    @Override
-    public Notification save(final Notification notification) {
+    public MailTemplate save(final MailTemplate notification) {
         return entityManager().merge(notification);
     }
 
     @Override
-    public void delete(final Long key) {
-        entityManager().remove(find(key));
+    public void delete(final String key) {
+        MailTemplate template = find(key);
+        if (template == null) {
+            return;
+        }
+
+        entityManager().remove(template);
     }
 }

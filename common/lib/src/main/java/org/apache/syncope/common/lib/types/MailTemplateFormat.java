@@ -16,21 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.common.lib.types;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.MailTemplate;
-import org.apache.syncope.core.persistence.api.entity.Notification;
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.annotation.XmlEnum;
 
-public interface NotificationDAO extends DAO<Notification, Long> {
+@XmlEnum
+public enum MailTemplateFormat {
 
-    Notification find(Long key);
+    HTML(MediaType.TEXT_HTML_TYPE),
+    TEXT(MediaType.TEXT_PLAIN_TYPE);
 
-    List<Notification> findByTemplate(MailTemplate template);
+    private final MediaType mediaType;
 
-    List<Notification> findAll();
+    MailTemplateFormat(final MediaType mediaType) {
+        this.mediaType = mediaType;
+    }
 
-    Notification save(Notification notification);
+    public MediaType getMediaType() {
+        return mediaType;
+    }
 
-    void delete(Long key);
 }

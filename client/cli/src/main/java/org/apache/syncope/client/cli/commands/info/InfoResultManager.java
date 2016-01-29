@@ -81,12 +81,6 @@ public class InfoResultManager extends CommonsResultManager {
         }
     }
 
-    public void printMailTemplates(final Collection<String> mailTemplates) {
-        for (final String template : mailTemplates) {
-            genericMessage("Mail template: " + template);
-        }
-    }
-
     public void printMappingItemTransformers(final Collection<String> transformers) {
         for (final String tranformer : transformers) {
             genericMessage("Mapping item tranformer: " + tranformer);

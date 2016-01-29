@@ -118,11 +118,6 @@ under the License.
     <constructor-arg value="5000"/>
   </bean>
 
-  <bean id="mailTemplateResourceLoader" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
-    <property name="primary" value="file:${templates.directory}/"/>
-    <property name="fallback" value="classpath:"/>
-  </bean>
-
   <bean id="connIdBundleManager" class="org.apache.syncope.core.provisioning.java.ConnIdBundleManagerImpl">
     <property name="stringLocations" value="${connid.locations}"/>
   </bean>

@@ -19,15 +19,11 @@
 package org.apache.syncope.core.logic;
 
 import org.apache.syncope.core.misc.EntitlementsHolder;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.syncope.common.lib.to.SyncopeTO;
 import org.apache.syncope.core.misc.security.PasswordGenerator;
-import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.ImplementationLookup.Type;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
@@ -36,7 +32,6 @@ import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
-import org.apache.syncope.core.provisioning.java.notification.NotificationManagerImpl;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -84,9 +79,6 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
 
     @Autowired
     private ImplementationLookup implLookup;
-
-    @Resource(name = "mailTemplateResourceLoader")
-    private ResourceWithFallbackLoader mailTemplateResourceLoader;
 
     @Transactional(readOnly = true)
     public boolean isSelfRegAllowed() {
@@ -146,30 +138,6 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
         syncopeTO.getValidators().addAll(implLookup.getClassNames(Type.VALIDATOR));
         syncopeTO.getNotificationRecipientsProviders().
                 addAll(implLookup.getClassNames(Type.NOTIFICATION_RECIPIENTS_PROVIDER));
-
-        Set<String> htmlTemplates = new HashSet<>();
-        Set<String> textTemplates = new HashSet<>();
-        try {
-            for (org.springframework.core.io.Resource resource : mailTemplateResourceLoader.getResources(
-                    NotificationManagerImpl.MAIL_TEMPLATES + "*" + NotificationManagerImpl.MAIL_TEMPLATE_SUFFIX)) {
-
-                String template = resource.getURL().toExternalForm();
-                if (template.endsWith(NotificationManagerImpl.MAIL_TEMPLATE_HTML_SUFFIX)) {
-                    htmlTemplates.add(template.substring(template.indexOf(NotificationManagerImpl.MAIL_TEMPLATES) + 14,
-                            template.indexOf(NotificationManagerImpl.MAIL_TEMPLATE_HTML_SUFFIX)));
-                } else if (template.endsWith(NotificationManagerImpl.MAIL_TEMPLATE_TEXT_SUFFIX)) {
-                    textTemplates.add(template.substring(template.indexOf(NotificationManagerImpl.MAIL_TEMPLATES) + 14,
-                            template.indexOf(NotificationManagerImpl.MAIL_TEMPLATE_TEXT_SUFFIX)));
-                } else {
-                    LOG.warn("Unexpected template found: {}, ignoring...", template);
-                }
-            }
-        } catch (IOException e) {
-            LOG.error("While searching for mail templates", e);
-        }
-        // Only templates available both as HTML and TEXT are considered
-        htmlTemplates.retainAll(textTemplates);
-        syncopeTO.getMailTemplates().addAll(htmlTemplates);
 
         return syncopeTO;
     }

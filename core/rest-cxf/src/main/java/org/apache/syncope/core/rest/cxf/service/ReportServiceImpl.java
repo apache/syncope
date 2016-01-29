@@ -81,10 +81,9 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
                 logic.exportExecutionResult(os, reportExec, format);
             }
         };
-        String disposition = "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().
-                toLowerCase();
         return Response.ok(sout).
-                header(HttpHeaders.CONTENT_DISPOSITION, disposition).
+                header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().toLowerCase()).
                 build();
     }
 

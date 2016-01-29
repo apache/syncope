@@ -31,6 +31,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
@@ -42,6 +43,7 @@ import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.jpa.validation.entity.NotificationCheck;
 
@@ -97,8 +99,9 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     @NotNull
     private String subject;
 
-    @NotNull
-    private String template;
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "template_name")
+    private JPAMailTemplate template;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -228,13 +231,14 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     }
 
     @Override
-    public String getTemplate() {
+    public MailTemplate getTemplate() {
         return template;
     }
 
     @Override
-    public void setTemplate(final String template) {
-        this.template = template;
+    public void setTemplate(final MailTemplate template) {
+        checkType(template, JPAMailTemplate.class);
+        this.template = (JPAMailTemplate) template;
     }
 
     @Override

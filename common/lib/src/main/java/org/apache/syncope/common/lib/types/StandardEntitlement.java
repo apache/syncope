@@ -178,6 +178,16 @@ public final class StandardEntitlement {
 
     public static final String WORKFLOW_FORM_SUBMIT = "WORKFLOW_FORM_SUBMIT";
 
+    public static final String MAIL_TEMPLATE_LIST = "MAIL_TEMPLATE_LIST";
+
+    public static final String MAIL_TEMPLATE_CREATE = "MAIL_TEMPLATE_CREATE";
+
+    public static final String MAIL_TEMPLATE_READ = "MAIL_TEMPLATE_READ";
+
+    public static final String MAIL_TEMPLATE_UPDATE = "MAIL_TEMPLATE_UPDATE";
+
+    public static final String MAIL_TEMPLATE_DELETE = "MAIL_TEMPLATE_DELETE";
+
     public static final String NOTIFICATION_LIST = "NOTIFICATION_LIST";
 
     public static final String NOTIFICATION_CREATE = "NOTIFICATION_CREATE";
