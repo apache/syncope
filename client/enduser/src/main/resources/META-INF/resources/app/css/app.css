@@ -49,7 +49,7 @@ under the License.
   background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */
   color: black;
   margin-left: 5px;
-  //width: 15%;
+  /*width: 15%;*/
 }
 #resetpassword:hover {
   background: #658D5D;
