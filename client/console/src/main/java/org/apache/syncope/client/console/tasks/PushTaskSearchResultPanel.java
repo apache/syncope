@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.wicket.PageReference;
 
 /**
- * Tasks page.
+ * Push Tasks page.
  */
 public abstract class PushTaskSearchResultPanel extends ProvisioningTaskSearchResultPanel<PushTaskTO> {
 

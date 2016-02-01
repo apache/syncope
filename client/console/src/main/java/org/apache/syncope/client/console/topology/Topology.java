@@ -172,7 +172,7 @@ public class Topology extends BasePage {
 
         add(new WebSocketBehavior());
 
-        togglePanel = new TopologyTogglePanel("toggle", getPage().getPageReference());
+        togglePanel = new TopologyTogglePanel("toggle", getPageReference());
         add(togglePanel);
 
         // -----------------------------------------

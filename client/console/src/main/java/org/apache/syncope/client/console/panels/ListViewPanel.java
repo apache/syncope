@@ -104,7 +104,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         this.check = Model.of(check);
 
-        add(new Label("caption", new ResourceModel("listview.caption", StringUtils.EMPTY)));
+        addInnerObject(new Label("caption", new ResourceModel("listview.caption", StringUtils.EMPTY)));
 
         final CheckGroup<T> checkGroup = new CheckGroup<>("group", model);
         checkGroup.setOutputMarkupId(true);
@@ -117,10 +117,10 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                 // ignore
             }
         });
-        add(checkGroup);
+        addInnerObject(checkGroup);
 
         groupSelector = new CheckGroupSelector("groupselector", checkGroup);
-        add(groupSelector.setOutputMarkupId(true)
+        addInnerObject(groupSelector.setOutputMarkupId(true)
                 .setOutputMarkupPlaceholderTag(true)
                 .setVisible(this.check.getObject() == CheckAvailability.AVAILABLE));
 
@@ -149,7 +149,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             }
         }
 
-        add(header(toBeIncluded));
+        addInnerObject(header(toBeIncluded));
 
         final ListView<T> beans = new ListView<T>("beans", listOfItems) {
 

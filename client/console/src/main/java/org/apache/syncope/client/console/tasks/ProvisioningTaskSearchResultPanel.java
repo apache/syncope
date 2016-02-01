@@ -103,7 +103,7 @@ public abstract class ProvisioningTaskSearchResultPanel<T extends AbstractProvis
         public Iterator<T> iterator(final long first, final long count) {
             final int page = ((int) first / paginatorRows);
 
-            final List<T> tasks = taskRestClient.list(
+            final List<T> tasks = restClient.list(
                     resource, reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
 
             Collections.sort(tasks, getComparator());

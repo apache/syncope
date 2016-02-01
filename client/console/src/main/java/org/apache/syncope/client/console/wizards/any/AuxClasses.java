@@ -67,8 +67,8 @@ public class AuxClasses extends WizardStep {
                 dyngroups = Collections.<Long>emptyList();
             }
 
-            final AjaxPalettePanel.Builder<MembershipTO> builder =
-                    new AjaxPalettePanel.Builder<MembershipTO>().setRenderer(new IChoiceRenderer<MembershipTO>() {
+            final AjaxPalettePanel.Builder<MembershipTO> builder = new AjaxPalettePanel.Builder<MembershipTO>().
+                    setRenderer(new IChoiceRenderer<MembershipTO>() {
 
                         private static final long serialVersionUID = -3086661086073628855L;
 
@@ -116,9 +116,9 @@ public class AuxClasses extends WizardStep {
                         public MembershipTO transform(final GroupTO input) {
                             final MembershipTO membershipTO = new MembershipTO();
                             membershipTO.setGroupName(input.getName());
-                            membershipTO.setRightKey(input.getKey());
+                            membershipTO.setRightKey(input.getKey() == null ? 0L : input.getKey());
                             membershipTO.setRightType(input.getType());
-                            membershipTO.setLeftKey(entityTO.getKey());
+                            membershipTO.setLeftKey(entityTO.getKey() == null ? 0L : entityTO.getKey());
                             membershipTO.setLeftType(entityTO.getType());
                             return membershipTO;
                         }

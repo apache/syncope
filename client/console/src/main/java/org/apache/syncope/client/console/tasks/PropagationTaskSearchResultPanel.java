@@ -55,7 +55,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
 
     private final String resource;
 
-    protected PropagationTaskSearchResultPanel(final String id, final PageReference pageRef, final String resource) {
+    protected PropagationTaskSearchResultPanel(final String id, final String resource, final PageReference pageRef) {
         super(id, pageRef);
         this.resource = resource;
         initResultTable();
@@ -113,7 +113,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
                             public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
                                 viewTask(taskTO, target);
                             }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.TASK_READ).
+                        }, ActionLink.ActionType.SEARCH, StandardEntitlement.TASK_READ).
                         add(new ActionLink<PropagationTaskTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -121,7 +121,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
                             @Override
                             public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
                                 try {
-                                    taskRestClient.startExecution(taskTO.getKey(), new Date());
+                                    restClient.startExecution(taskTO.getKey(), new Date());
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
@@ -138,7 +138,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
                             @Override
                             public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
                                 try {
-                                    taskRestClient.delete(taskTO.getKey(), PropagationTaskTO.class);
+                                    restClient.delete(taskTO.getKey(), PropagationTaskTO.class);
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
@@ -198,7 +198,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
         private final String resource;
 
         public PropagationTasksProvider(final int paginatorRows, final String resource) {
-            super(paginatorRows, TaskType.PROPAGATION, taskRestClient);
+            super(paginatorRows, TaskType.PROPAGATION, restClient);
             this.resource = resource;
         }
 
@@ -206,7 +206,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
         public Iterator<PropagationTaskTO> iterator(final long first, final long count) {
             final int page = ((int) first / paginatorRows);
 
-            final List<PropagationTaskTO> tasks = taskRestClient.listPropagationTasks(
+            final List<PropagationTaskTO> tasks = restClient.listPropagationTasks(
                     resource, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
 
             Collections.sort(tasks, getComparator());

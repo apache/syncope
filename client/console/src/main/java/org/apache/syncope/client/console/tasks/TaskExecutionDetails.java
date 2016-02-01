@@ -19,30 +19,35 @@
 package org.apache.syncope.client.console.tasks;
 
 import org.apache.syncope.client.console.panels.MultilevelPanel;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
-public class SchedTasks extends AbstractTasks {
+/**
+ * Modal window with Task form (to stop and start execution).
+ *
+ * @param <T>
+ */
+public class TaskExecutionDetails<T extends AbstractTaskTO> extends MultilevelPanel.SecondLevel {
 
-    private static final long serialVersionUID = -4013796607157549641L;
+    private static final long serialVersionUID = -4110576026663173545L;
 
-    public <T extends AnyTO> SchedTasks(final PageReference pageReference) {
-        super(BaseModal.CONTENT_ID);
+    public TaskExecutionDetails(final T taskTO, final PageReference pageRef) {
+        super();
 
-        final MultilevelPanel mlp = new MultilevelPanel("tasks");
+        final MultilevelPanel mlp = new MultilevelPanel("executions");
         add(mlp);
 
-        mlp.setFirstLevel(new SchedTaskSearchResultPanel<SchedTaskTO>(
-                MultilevelPanel.FIRST_LEVEL_ID, SchedTaskTO.class, pageReference) {
+        mlp.setFirstLevel(new TaskExecutions(MultilevelPanel.FIRST_LEVEL_ID, taskTO, pageRef) {
 
-            private static final long serialVersionUID = -2195387360323687302L;
+            private static final long serialVersionUID = 5691719817252887541L;
 
             @Override
-            protected void viewTask(final SchedTaskTO taskTO, final AjaxRequestTarget target) {
-//                mlp.next("task.view", new SchedTaskDetails(taskTO, pageReference), target);
+            protected void next(
+                    final String title,
+                    final MultilevelPanel.SecondLevel slevel,
+                    final AjaxRequestTarget target) {
+                mlp.next(title, slevel, target);
             }
         });
     }

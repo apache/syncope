@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.wicket.PageReference;
 
 /**
- * Tasks page.
+ * Sync Tasks page.
  */
 public abstract class SyncTaskSearchResultPanel extends ProvisioningTaskSearchResultPanel<SyncTaskTO> {
 
@@ -35,6 +35,6 @@ public abstract class SyncTaskSearchResultPanel extends ProvisioningTaskSearchRe
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_SYNC_TASKS_PAGINATOR_ROWS;
+        return Constants.PREF_PUSH_TASKS_PAGINATOR_ROWS;
     }
 }

@@ -29,7 +29,9 @@ import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.tasks.PropagationTasks;
+import org.apache.syncope.client.console.tasks.PushTasks;
 import org.apache.syncope.client.console.tasks.SchedTasks;
+import org.apache.syncope.client.console.tasks.SyncTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -313,7 +315,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(modal);
+                target.add(modal.setContent(new SyncTasks(pageRef, node.getKey().toString())));
                 modal.header(new ResourceModel("task.synchronization.list", "Synchronization tasks"));
                 modal.show(true);
             }
@@ -327,7 +329,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(modal);
+                target.add(modal.setContent(new PushTasks(pageRef, node.getKey().toString())));
                 modal.header(new ResourceModel("task.push.list", "Push tasks"));
                 modal.show(true);
             }

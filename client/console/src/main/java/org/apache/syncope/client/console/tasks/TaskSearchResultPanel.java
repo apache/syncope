@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
@@ -44,12 +43,10 @@ public abstract class TaskSearchResultPanel<T extends AbstractTaskTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    protected final TaskRestClient taskRestClient = new TaskRestClient();
-
     protected TaskSearchResultPanel(final String id, final PageReference pageRef) {
         super(id, pageRef, false);
+        restClient = new TaskRestClient();
         setShowResultPage(false);
-        modal.size(Modal.Size.Large);
     }
 
     @Override
@@ -91,7 +88,7 @@ public abstract class TaskSearchResultPanel<T extends AbstractTaskTO>
 
         @Override
         public long size() {
-            return taskRestClient.count(id);
+            return restClient.count(id);
         }
 
         @Override

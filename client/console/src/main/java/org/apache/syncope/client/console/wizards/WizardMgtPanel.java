@@ -29,10 +29,10 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSource;
-import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -45,23 +45,23 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     private static final long serialVersionUID = 1L;
 
-    protected PageReference pageRef;
-
     private final WebMarkupContainer container;
 
     private final Fragment initialFragment;
 
+    private final boolean wizardInModal;
+
+    protected PageReference pageRef;
+
     protected final AjaxLink<?> addAjaxLink;
 
-    private AbstractModalPanelBuilder<T> newItemPanelBuilder;
+    protected AbstractModalPanelBuilder<T> newItemPanelBuilder;
 
-    private NotificationPanel notificationPanel;
+    protected NotificationPanel notificationPanel;
 
-    private boolean footerVisibility = false;
+    protected boolean footerVisibility = false;
 
-    private boolean showResultPage = false;
-
-    private final boolean wizardInModal;
+    protected boolean showResultPage = false;
 
     /**
      * Modal window.
@@ -85,13 +85,14 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     protected WizardMgtPanel(final String id, final boolean wizardInModal) {
         super(id);
         setOutputMarkupId(true);
+        
         this.wizardInModal = wizardInModal;
 
-        add(modal);
+        super.add(modal);
 
-        container = new TransparentWebMarkupContainer("container");
+        container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
-        add(container);
+        super.add(container);
 
         initialFragment = new Fragment("content", "default", this);
         container.addOrReplace(initialFragment);
@@ -109,25 +110,6 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         addAjaxLink.setEnabled(false);
         addAjaxLink.setVisible(false);
         initialFragment.add(addAjaxLink);
-    }
-
-    public <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> setPageRef(final PageReference pageRef) {
-        this.pageRef = pageRef;
-        return this;
-    }
-
-    public <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> setShowResultPage(final boolean showResultPage) {
-        this.showResultPage = showResultPage;
-        return this;
-    }
-
-    @Override
-    public final MarkupContainer add(final Component... childs) {
-        return super.add(childs);
-    }
-
-    public void setFooterVisibility(final boolean footerVisibility) {
-        this.footerVisibility = footerVisibility;
     }
 
     @Override
@@ -218,6 +200,25 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         };
     }
 
+    @Override
+    public Component add(final Behavior... behaviors) {
+        return super.add(behaviors);
+    }
+
+    public final MarkupContainer addInnerObject(final Component childs) {
+        return initialFragment.add(childs);
+    }
+
+    public <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> setPageRef(final PageReference pageRef) {
+        this.pageRef = pageRef;
+        return this;
+    }
+
+    public <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> setShowResultPage(final boolean showResultPage) {
+        this.showResultPage = showResultPage;
+        return this;
+    }
+
     protected <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> addNewItemPanelBuilder(
             final B panelBuilder, final boolean newItemDefaultButtonEnabled) {
         this.newItemPanelBuilder = panelBuilder;
@@ -232,6 +233,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     protected WizardMgtPanel<T> addNotificationPanel(final NotificationPanel notificationPanel) {
         this.notificationPanel = notificationPanel;
+        return this;
+    }
+
+    public WizardMgtPanel<T> setFooterVisibility(final boolean footerVisibility) {
+        this.footerVisibility = footerVisibility;
         return this;
     }
 
@@ -268,10 +274,10 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
          */
         public WizardMgtPanel<T> build(final String id) {
             return newInstance(id).
-                    setPageRef(pageRef).
-                    setShowResultPage(showResultPage).
-                    addNewItemPanelBuilder(newItemPanelBuilder, newItemDefaultButtonEnabled).
-                    addNotificationPanel(notificationPanel);
+                    setPageRef(this.pageRef).
+                    setShowResultPage(this.showResultPage).
+                    addNewItemPanelBuilder(this.newItemPanelBuilder, this.newItemDefaultButtonEnabled).
+                    addNotificationPanel(this.notificationPanel);
         }
 
         public void setShowResultPage(final boolean showResultPage) {

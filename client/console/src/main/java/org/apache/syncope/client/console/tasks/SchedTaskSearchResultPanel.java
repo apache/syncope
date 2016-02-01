@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import static org.apache.wicket.Component.ENABLE;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -33,12 +36,15 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -64,6 +70,15 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
     protected SchedTaskSearchResultPanel(final String id, final Class<T> reference, final PageReference pageRef) {
         super(id, pageRef);
         this.reference = reference;
+
+        try {
+            this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<T>(reference.newInstance(), pageRef), true);
+        } catch (InstantiationException | IllegalAccessException e) {
+            LOG.error("Falure instantiating task", e);
+        }
+
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.TASK_CREATE);
+
         initResultTable();
     }
 
@@ -145,8 +160,20 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final T modelObject) {
+                            public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 viewTask(taskTO, target);
+                            }
+                        }, ActionLink.ActionType.SEARCH, StandardEntitlement.TASK_READ).
+                        add(new ActionLink<T>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final T ignore) {
+                                send(SchedTaskSearchResultPanel.this, Broadcast.EXACT,
+                                        new AjaxWizard.EditItemActionEvent<>(
+                                                restClient.readSchedTask(reference, model.getObject().getKey()),
+                                                target));
                             }
                         }, ActionLink.ActionType.EDIT, StandardEntitlement.TASK_READ).
                         add(new ActionLink<T>() {
@@ -154,9 +181,23 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final T modelObject) {
+                            public void onClick(final AjaxRequestTarget target, final T ignore) {
+                                final T clone = SerializationUtils.clone(model.getObject());
+                                clone.setKey(0L);
+                                send(SchedTaskSearchResultPanel.this, Broadcast.EXACT,
+                                        new AjaxWizard.EditItemActionEvent<>(
+                                                restClient.readSchedTask(reference, model.getObject().getKey()),
+                                                target));
+                            }
+                        }, ActionLink.ActionType.CLONE, StandardEntitlement.TASK_READ).
+                        add(new ActionLink<T>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 try {
-                                    taskRestClient.startExecution(taskTO.getKey(), new Date());
+                                    restClient.startExecution(taskTO.getKey(), new Date());
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
@@ -171,9 +212,9 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final T modelObject) {
+                            public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 try {
-                                    taskRestClient.startExecution(taskTO.getKey(), new Date(), true);
+                                    restClient.startExecution(taskTO.getKey(), new Date(), true);
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
@@ -188,9 +229,9 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final T modelObject) {
+                            public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 try {
-                                    taskRestClient.delete(taskTO.getKey(), reference);
+                                    restClient.delete(taskTO.getKey(), reference);
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
@@ -252,7 +293,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
         private final Class<T> reference;
 
         public SchedTasksProvider(final Class<T> reference, final int paginatorRows) {
-            super(paginatorRows, TaskType.SCHEDULED, taskRestClient);
+            super(paginatorRows, TaskType.SCHEDULED, restClient);
             this.reference = reference;
         }
 
@@ -260,7 +301,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
         public Iterator<T> iterator(final long first, final long count) {
             final int page = ((int) first / paginatorRows);
 
-            final List<T> tasks = taskRestClient.list(
+            final List<T> tasks = restClient.list(
                     reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
 
             Collections.sort(tasks, getComparator());

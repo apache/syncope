@@ -22,7 +22,6 @@ import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -52,7 +51,7 @@ public class MultilevelPanel extends Panel implements IHeaderContributor {
     public MultilevelPanel(final String id) {
         super(id);
 
-        firstLevelContainer = new TransparentWebMarkupContainer("firstLevelContainer");
+        firstLevelContainer = new WebMarkupContainer("firstLevelContainer");
         firstLevelContainer.setOutputMarkupPlaceholderTag(true);
         firstLevelContainer.setVisible(true);
         add(firstLevelContainer);

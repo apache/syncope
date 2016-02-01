@@ -1,94 +1,65 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Copyright 2015 The Apache Software Foundation.
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.syncope.client.console.tasks;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.commons.DateFormatROModel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
-import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
-/**
- * Modal window with Task form (to stop and start execution).
- *
- * @param <T>
- */
-public abstract class AbstractSchedTaskDetails<T extends SchedTaskTO> extends TaskDetails<T> {
+public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBuilder<T> {
 
-    private static final long serialVersionUID = 2892005971093059242L;
+    private static final long serialVersionUID = 5945391813567245081L;
 
-    protected CrontabPanel crontab;
-
-    public AbstractSchedTaskDetails(final T taskTO, final PageReference pageRef) {
-        super(taskTO, pageRef);
+    /**
+     * Construct.
+     *
+     * @param taskTO task
+     * @param pageRef Caller page reference.
+     */
+    public SchedTaskWizardBuilder(final T taskTO, final PageReference pageRef) {
+        super("wizard", taskTO, pageRef);
     }
 
     @Override
-    protected List<ITab> buildTabList(final T taskTO, final PageReference pageRef) {
-        final List<ITab> res = new ArrayList<>();
-        res.add(new AbstractTab(new Model<>("profile")) {
-
-            private static final long serialVersionUID = -5861786415855103559L;
-
-            @Override
-            public WebMarkupContainer getPanel(final String panelId) {
-                return new AbstractSchedTaskDetails.Profile(panelId, taskTO);
-            }
-        });
-        res.add(new AbstractTab(new Model<>("schedule")) {
-
-            private static final long serialVersionUID = -5861786415855103559L;
-
-            @Override
-            public WebMarkupContainer getPanel(final String panelId) {
-                return new Schedule(panelId, taskTO);
-            }
-        });
-        return res;
+    protected Serializable onApplyInternal(final SchedTaskTO modelObject) {
+        return null;
     }
 
-    public class Schedule extends Panel {
-
-        private static final long serialVersionUID = -785981096328637758L;
-
-        public Schedule(final String id, final SchedTaskTO taskTO) {
-            super(id);
-            add(new CrontabPanel(
-                    "schedule", new PropertyModel<String>(taskTO, "cronExpression"), taskTO.getCronExpression()));
-        }
-
+    @Override
+    protected WizardModel buildModelSteps(final SchedTaskTO modelObject, final WizardModel wizardModel) {
+        wizardModel.add(new Profile(modelObject));
+        wizardModel.add(new Schedule(modelObject));
+        return wizardModel;
     }
 
-    public class Profile extends Panel {
+    public class Profile extends WizardStep {
 
         private static final long serialVersionUID = -3043839139187792810L;
 
@@ -102,9 +73,7 @@ public abstract class AbstractSchedTaskDetails<T extends SchedTaskTO> extends Ta
             }
         };
 
-        public Profile(final String id, final SchedTaskTO taskTO) {
-            super(id);
-
+        public Profile(final SchedTaskTO taskTO) {
             final AjaxTextFieldPanel name
                     = new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(taskTO, "name"));
             name.setEnabled(true);
@@ -122,7 +91,7 @@ public abstract class AbstractSchedTaskDetails<T extends SchedTaskTO> extends Ta
 
             className.setChoices(classNames.getObject());
             className.addRequiredLabel();
-            className.setEnabled(taskTO.getKey() == 0);
+            className.setEnabled(taskTO.getKey() == null || taskTO.getKey() == 0L);
             className.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
             add(className);
 
@@ -195,5 +164,14 @@ public abstract class AbstractSchedTaskDetails<T extends SchedTaskTO> extends Ta
         }
     }
 
-//    protected abstract void submitAction(SchedTaskTO taskTO);
+    public class Schedule extends WizardStep {
+
+        private static final long serialVersionUID = -785981096328637758L;
+
+        public Schedule(final SchedTaskTO taskTO) {
+            add(new CrontabPanel(
+                    "schedule", new PropertyModel<String>(taskTO, "cronExpression"), taskTO.getCronExpression()));
+        }
+
+    }
 }

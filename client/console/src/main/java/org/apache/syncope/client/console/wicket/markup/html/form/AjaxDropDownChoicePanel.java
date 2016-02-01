@@ -81,10 +81,10 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
     }
 
     public AjaxDropDownChoicePanel<T> setNullValid(final boolean validity) {
-        DropDownChoice.class.cast(field).setNullValid(validity);
+        BootstrapSelect.class.cast(field).setNullValid(validity);
         return this;
     }
-
+    
     @Override
     @SuppressWarnings("unchecked")
     public FieldPanel<T> clone() {

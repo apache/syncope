@@ -19,7 +19,7 @@
 var def = {
   paintStyle: {
     lineWidth: 2,
-    strokeStyle: "rgba(204,204,204, 0.3)",
+    strokeStyle: "rgba(204,204,204, 1)",
     outlineColor: "#666",
     outlineWidth: 1
   },
@@ -86,7 +86,7 @@ var disabledEndpointStyle = {
 
 var enabledConnectorStyle = {
   lineWidth: 2,
-  strokeStyle: "rgba(65, 155, 30, 0.3)",
+  strokeStyle: "rgba(65, 155, 30, 1)",
   outlineColor: "#666",
   outlineWidth: 1
 };

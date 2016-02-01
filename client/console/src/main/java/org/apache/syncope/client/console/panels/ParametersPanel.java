@@ -96,7 +96,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
             }
         });
 
-        add(modalDetails);
+        addInnerObject(modalDetails);
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AttrTO>(
                 BaseModal.CONTENT_ID, new AttrTO(), pageRef) {

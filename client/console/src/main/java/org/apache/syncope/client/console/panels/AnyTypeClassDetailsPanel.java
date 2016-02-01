@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
-import org.apache.wicket.markup.html.TransparentWebMarkupContainer;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -73,7 +73,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
         key.setEnabled(anyTypeClassTO.getKey() == null || this.anyTypeClassTO.getKey().isEmpty());
         antTypeClassForm.add(key);
 
-        final TransparentWebMarkupContainer container = new TransparentWebMarkupContainer("container");
+        final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         antTypeClassForm.add(container);
 

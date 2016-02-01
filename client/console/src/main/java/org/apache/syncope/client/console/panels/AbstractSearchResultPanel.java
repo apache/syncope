@@ -56,7 +56,7 @@ public abstract class AbstractSearchResultPanel<
      */
     protected PreferenceManager prefMan = new PreferenceManager();
 
-    protected final E restClient;
+    protected E restClient;
 
     /**
      * Number of rows per page.
@@ -112,6 +112,7 @@ public abstract class AbstractSearchResultPanel<
                 throw new UnsupportedOperationException("Not supported yet.");
             }
         }.setFiltered(false), wizardInModal);
+        setPageRef(pageRef);
     }
 
     protected AbstractSearchResultPanel(final String id, final Builder<T, W, E> builder) {
@@ -120,7 +121,6 @@ public abstract class AbstractSearchResultPanel<
 
     protected AbstractSearchResultPanel(final String id, final Builder<T, W, E> builder, final boolean wizardInModal) {
         super(id, wizardInModal);
-
         setOutputMarkupId(true);
 
         this.page = (BasePage) builder.getPageRef().getPage();
@@ -133,7 +133,7 @@ public abstract class AbstractSearchResultPanel<
         // Container for user search result
         container = new WebMarkupContainer("searchContainer");
         container.setOutputMarkupId(true);
-        add(container);
+        addInnerObject(container);
 
         rows = prefMan.getPaginatorRows(getRequest(), paginatorRowsKey());
 
@@ -330,7 +330,7 @@ public abstract class AbstractSearchResultPanel<
         }
 
         private PageReference getPageRef() {
-            return pageRef;
+            return this.pageRef;
         }
     }
 }
