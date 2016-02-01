@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
-@XmlRootElement(name = "maiLTemplate")
+@XmlRootElement(name = "mailTemplate")
 @XmlType
 public class MailTemplateTO extends AbstractBaseBean implements EntityTO<String> {
 

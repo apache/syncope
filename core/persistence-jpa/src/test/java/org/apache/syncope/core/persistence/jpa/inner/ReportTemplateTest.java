@@ -18,72 +18,63 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
-import org.apache.syncope.common.lib.report.UserReportletConf;
-import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
-import org.apache.syncope.core.persistence.api.entity.Report;
+import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
-public class ReportTest extends AbstractTest {
-
-    @Autowired
-    private ReportDAO reportDAO;
+public class ReportTemplateTest extends AbstractTest {
 
     @Autowired
     private ReportTemplateDAO reportTemplateDAO;
 
     @Test
     public void find() {
-        Report report = reportDAO.find(1L);
-        assertNotNull(report);
-
-        report = reportDAO.find(10L);
-        assertNull(report);
+        ReportTemplate optin = reportTemplateDAO.find("sample");
+        assertNotNull(optin);
+        assertNotNull(optin.getFOTemplate());
+        assertNotNull(optin.getCSVTemplate());
+        assertNotNull(optin.getHTMLTemplate());
     }
 
     @Test
     public void findAll() {
-        List<Report> reports = reportDAO.findAll();
-        assertNotNull(reports);
-        assertEquals(1, reports.size());
+        List<ReportTemplate> templates = reportTemplateDAO.findAll();
+        assertNotNull(templates);
+        assertFalse(templates.isEmpty());
     }
 
     @Test
     public void save() {
-        int beforeCount = reportDAO.findAll().size();
+        ReportTemplate template = entityFactory.newEntity(ReportTemplate.class);
+        template.setKey("new");
+        template.setCSVTemplate(
+                "<xsl:stylesheet xmlns:xsl='http://www.w3.org/1999/XSL/Transform' version='1.0'></xsl:stylesheet>");
 
-        Report report = entityFactory.newEntity(Report.class);
-        report.setName("new report");
-        report.setActive(true);
-        report.add(new UserReportletConf("first"));
-        report.add(new UserReportletConf("second"));
-        report.setTemplate(reportTemplateDAO.find("sample"));
+        ReportTemplate actual = reportTemplateDAO.save(template);
+        assertNotNull(actual);
+        assertNotNull(actual.getKey());
+        assertNotNull(actual.getCSVTemplate());
+        assertNull(actual.getHTMLTemplate());
 
-        report = reportDAO.save(report);
-        assertNotNull(report);
-        assertNotNull(report.getKey());
-
-        int afterCount = reportDAO.findAll().size();
-        assertEquals(afterCount, beforeCount + 1);
+        actual.setHTMLTemplate(
+                "<xsl:stylesheet xmlns:xsl='http://www.w3.org/1999/XSL/Transform' version='1.0'></xsl:stylesheet>");
+        actual = reportTemplateDAO.save(actual);
+        assertNotNull(actual.getCSVTemplate());
+        assertNotNull(actual.getHTMLTemplate());
     }
 
     @Test
     public void delete() {
-        Report report = reportDAO.find(1L);
-        assertNotNull(report);
-
-        reportDAO.delete(1L);
-
-        report = reportDAO.find(1L);
-        assertNull(report);
+        reportTemplateDAO.delete("sample");
+        assertNull(reportTemplateDAO.find("sample"));
     }
 }

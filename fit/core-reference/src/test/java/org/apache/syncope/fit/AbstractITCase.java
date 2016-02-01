@@ -70,6 +70,7 @@ import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
+import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
@@ -188,6 +189,8 @@ public abstract class AbstractITCase {
 
     protected static LoggerService loggerService;
 
+    protected static ReportTemplateService reportTemplateService;
+
     protected static ReportService reportService;
 
     protected static TaskService taskService;
@@ -257,6 +260,7 @@ public abstract class AbstractITCase {
         configurationService = adminClient.getService(ConfigurationService.class);
         connectorService = adminClient.getService(ConnectorService.class);
         loggerService = adminClient.getService(LoggerService.class);
+        reportTemplateService = adminClient.getService(ReportTemplateService.class);
         reportService = adminClient.getService(ReportService.class);
         taskService = adminClient.getService(TaskService.class);
         policyService = adminClient.getService(PolicyService.class);

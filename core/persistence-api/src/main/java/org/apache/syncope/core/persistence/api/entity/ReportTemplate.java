@@ -18,34 +18,19 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.List;
-import org.apache.syncope.common.lib.report.ReportletConf;
+public interface ReportTemplate extends Entity<String> {
 
-public interface Report extends Entity<Long> {
+    void setKey(String key);
 
-    String getName();
+    String getFOTemplate();
 
-    void setName(String name);
+    void setFOTemplate(String foTemplate);
 
-    boolean add(ReportExec exec);
+    String getCSVTemplate();
 
-    List<? extends ReportExec> getExecs();
+    void setCSVTemplate(String csvTemplate);
 
-    boolean add(ReportletConf reportletConf);
+    String getHTMLTemplate();
 
-    void removeAllReportletConfs();
-
-    List<? extends ReportletConf> getReportletConfs();
-
-    String getCronExpression();
-
-    void setCronExpression(String cronExpression);
-
-    boolean isActive();
-
-    void setActive(boolean active);
-
-    ReportTemplate getTemplate();
-
-    void setTemplate(ReportTemplate template);
+    void setHTMLTemplate(String htmlTemplate);
 }

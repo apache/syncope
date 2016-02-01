@@ -28,6 +28,7 @@ import javax.persistence.EntityExistsException;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
+import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -40,6 +41,9 @@ public class ReportTest extends AbstractTest {
 
     @Autowired
     private ReportDAO reportDAO;
+
+    @Autowired
+    private ReportTemplateDAO reportTemplateDAO;
 
     @Autowired
     private ReportExecDAO reportExecDAO;
@@ -64,6 +68,7 @@ public class ReportTest extends AbstractTest {
         report = entityFactory.newEntity(Report.class);
         report.setName(name);
         report.setActive(true);
+        report.setTemplate(reportTemplateDAO.find("sample"));
 
         reportDAO.save(report);
         reportDAO.flush();

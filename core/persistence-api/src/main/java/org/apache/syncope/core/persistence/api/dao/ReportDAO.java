@@ -20,10 +20,13 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Report;
+import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 
 public interface ReportDAO extends DAO<Report, Long> {
 
     Report find(Long key);
+
+    List<Report> findByTemplate(ReportTemplate template);
 
     List<Report> findAll();
 

@@ -16,36 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.common.lib.types;
 
-import java.util.List;
-import org.apache.syncope.common.lib.report.ReportletConf;
+import javax.xml.bind.annotation.XmlEnum;
 
-public interface Report extends Entity<Long> {
+@XmlEnum
+public enum ReportTemplateFormat {
 
-    String getName();
+    FO,
+    HTML,
+    CSV;
 
-    void setName(String name);
-
-    boolean add(ReportExec exec);
-
-    List<? extends ReportExec> getExecs();
-
-    boolean add(ReportletConf reportletConf);
-
-    void removeAllReportletConfs();
-
-    List<? extends ReportletConf> getReportletConfs();
-
-    String getCronExpression();
-
-    void setCronExpression(String cronExpression);
-
-    boolean isActive();
-
-    void setActive(boolean active);
-
-    ReportTemplate getTemplate();
-
-    void setTemplate(ReportTemplate template);
 }

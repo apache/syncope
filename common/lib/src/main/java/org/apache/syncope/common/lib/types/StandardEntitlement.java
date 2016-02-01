@@ -198,6 +198,16 @@ public final class StandardEntitlement {
 
     public static final String NOTIFICATION_DELETE = "NOTIFICATION_DELETE";
 
+    public static final String REPORT_TEMPLATE_LIST = "REPORT_TEMPLATE_LIST";
+
+    public static final String REPORT_TEMPLATE_CREATE = "REPORT_TEMPLATE_CREATE";
+
+    public static final String REPORT_TEMPLATE_READ = "REPORT_TEMPLATE_READ";
+
+    public static final String REPORT_TEMPLATE_UPDATE = "REPORT_TEMPLATE_UPDATE";
+
+    public static final String REPORT_TEMPLATE_DELETE = "REPORT_TEMPLATE_DELETE";
+
     public static final String REPORT_LIST = "REPORT_LIST";
 
     public static final String REPORT_READ = "REPORT_READ";

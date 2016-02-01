@@ -22,8 +22,10 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
 import org.apache.syncope.common.lib.to.NotificationTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.misc.spring.BeanUtils;
@@ -31,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,11 +58,10 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
     @Override
     public NotificationTO getNotificationTO(final Notification notification) {
         NotificationTO result = new NotificationTO();
-
-        BeanUtils.copyProperties(notification, result, IGNORE_PROPERTIES);
-
         result.setKey(notification.getKey());
         result.setTemplate(notification.getTemplate().getKey());
+
+        BeanUtils.copyProperties(notification, result, IGNORE_PROPERTIES);
 
         for (AnyAbout about : notification.getAbouts()) {
             result.getAbouts().put(about.getAnyType().getKey(), about.get());
@@ -79,6 +81,13 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
     public void update(final Notification notification, final NotificationTO notificationTO) {
         BeanUtils.copyProperties(notificationTO, notification, IGNORE_PROPERTIES);
 
+        MailTemplate template = mailTemplateDAO.find(notificationTO.getTemplate());
+        if (template == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+            sce.getElements().add("template");
+            throw sce;
+        }
+        notification.setTemplate(template);
         notification.setTemplate(mailTemplateDAO.find(notificationTO.getTemplate()));
 
         // 1. add or update all (valid) abouts from TO

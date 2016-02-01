@@ -90,6 +90,7 @@ public class ReportITCase extends AbstractITCase {
         report.setName("testReportForCreate" + getUUIDString());
         report.getReportletConfs().add(new UserReportletConf("first"));
         report.getReportletConfs().add(new UserReportletConf("second"));
+        report.setTemplate("sample");
 
         report = createReport(report);
         assertNotNull(report);
@@ -104,9 +105,9 @@ public class ReportITCase extends AbstractITCase {
     public void update() {
         ReportTO report = new ReportTO();
         report.setName("testReportForUpdate" + getUUIDString());
-
         report.getReportletConfs().add(new UserReportletConf("first"));
         report.getReportletConfs().add(new UserReportletConf("second"));
+        report.setTemplate("sample");
 
         report = createReport(report);
         assertNotNull(report);
@@ -126,6 +127,7 @@ public class ReportITCase extends AbstractITCase {
         report.setName("testReportForDelete" + getUUIDString());
         report.getReportletConfs().add(new UserReportletConf("first"));
         report.getReportletConfs().add(new UserReportletConf("second"));
+        report.setTemplate("sample");
 
         report = createReport(report);
         assertNotNull(report);
@@ -203,13 +205,13 @@ public class ReportITCase extends AbstractITCase {
         reportTO.setActive(true);
         reportService.update(reportTO);
 
-        long execId = execute(reportTO.getKey());
+        long execKey = execute(reportTO.getKey());
 
-        checkExport(execId, ReportExecExportFormat.XML);
-        checkExport(execId, ReportExecExportFormat.HTML);
-        checkExport(execId, ReportExecExportFormat.PDF);
-        checkExport(execId, ReportExecExportFormat.RTF);
-        checkExport(execId, ReportExecExportFormat.CSV);
+        checkExport(execKey, ReportExecExportFormat.XML);
+        checkExport(execKey, ReportExecExportFormat.HTML);
+        checkExport(execKey, ReportExecExportFormat.PDF);
+        checkExport(execKey, ReportExecExportFormat.RTF);
+        checkExport(execKey, ReportExecExportFormat.CSV);
     }
 
     @Test
@@ -250,6 +252,7 @@ public class ReportITCase extends AbstractITCase {
         ReportTO reportTO = new ReportTO();
         reportTO.setName("issueSYNCOPE43" + getUUIDString());
         reportTO.setActive(true);
+        reportTO.setTemplate("sample");
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 

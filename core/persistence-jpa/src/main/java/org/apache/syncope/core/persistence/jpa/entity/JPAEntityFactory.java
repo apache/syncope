@@ -47,6 +47,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -217,6 +218,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPACPlainAttrUniqueValue();
         } else if (reference.equals(Report.class)) {
             result = (T) new JPAReport();
+        } else if (reference.equals(ReportTemplate.class)) {
+            result = (T) new JPAReportTemplate();
         } else if (reference.equals(ReportExec.class)) {
             result = (T) new JPAReportExec();
         } else if (reference.equals(NotificationTask.class)) {

@@ -25,15 +25,18 @@ import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPANotificationDAO extends AbstractDAO<Notification, Long> implements NotificationDAO {
 
+    @Transactional(readOnly = true)
     @Override
     public Notification find(final Long key) {
         return entityManager().find(JPANotification.class, key);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Notification> findByTemplate(final MailTemplate template) {
         TypedQuery<Notification> query = entityManager().createQuery(
@@ -43,6 +46,7 @@ public class JPANotificationDAO extends AbstractDAO<Notification, Long> implemen
         return query.getResultList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Notification> findAll() {
         TypedQuery<Notification> query = entityManager().createQuery(

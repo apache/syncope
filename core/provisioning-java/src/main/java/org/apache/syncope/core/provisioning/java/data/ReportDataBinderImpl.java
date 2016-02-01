@@ -19,16 +19,20 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.report.AbstractReportletConf;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.misc.spring.BeanUtils;
+import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
+import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -44,9 +48,12 @@ public class ReportDataBinderImpl implements ReportDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportDataBinder.class);
 
-    private static final String[] IGNORE_REPORT_PROPERTIES = { "key", "reportlets", "executions" };
+    private static final String[] IGNORE_REPORT_PROPERTIES = { "key", "template", "reportlets", "executions" };
 
     private static final String[] IGNORE_REPORT_EXECUTION_PROPERTIES = { "key", "report", "execResult" };
+
+    @Autowired
+    private ReportTemplateDAO reportTemplateDAO;
 
     @Autowired
     private ReportExecDAO reportExecDAO;
@@ -58,6 +65,14 @@ public class ReportDataBinderImpl implements ReportDataBinder {
     public void getReport(final Report report, final ReportTO reportTO) {
         BeanUtils.copyProperties(reportTO, report, IGNORE_REPORT_PROPERTIES);
 
+        ReportTemplate template = reportTemplateDAO.find(reportTO.getTemplate());
+        if (template == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+            sce.getElements().add("template");
+            throw sce;
+        }
+        report.setTemplate(template);
+
         report.removeAllReportletConfs();
         for (ReportletConf conf : reportTO.getReportletConfs()) {
             report.add(conf);
@@ -68,6 +83,8 @@ public class ReportDataBinderImpl implements ReportDataBinder {
     public ReportTO getReportTO(final Report report) {
         ReportTO reportTO = new ReportTO();
         reportTO.setKey(report.getKey());
+        reportTO.setTemplate(report.getTemplate().getKey());
+
         BeanUtils.copyProperties(report, reportTO, IGNORE_REPORT_PROPERTIES);
 
         reportTO.getReportletConfs().clear();

@@ -16,36 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 
-public interface Report extends Entity<Long> {
+public interface ReportTemplateDAO extends DAO<ReportTemplate, String> {
 
-    String getName();
+    ReportTemplate find(String key);
 
-    void setName(String name);
+    List<ReportTemplate> findAll();
 
-    boolean add(ReportExec exec);
+    ReportTemplate save(ReportTemplate template);
 
-    List<? extends ReportExec> getExecs();
-
-    boolean add(ReportletConf reportletConf);
-
-    void removeAllReportletConfs();
-
-    List<? extends ReportletConf> getReportletConfs();
-
-    String getCronExpression();
-
-    void setCronExpression(String cronExpression);
-
-    boolean isActive();
-
-    void setActive(boolean active);
-
-    ReportTemplate getTemplate();
-
-    void setTemplate(ReportTemplate template);
+    void delete(String key);
 }

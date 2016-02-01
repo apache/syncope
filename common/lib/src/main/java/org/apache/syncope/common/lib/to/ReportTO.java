@@ -53,6 +53,8 @@ public class ReportTO extends AbstractStartEndBean implements EntityTO<Long> {
 
     private boolean active;
 
+    private String template;
+
     @Override
     public Long getKey() {
         return key;
@@ -124,6 +126,14 @@ public class ReportTO extends AbstractStartEndBean implements EntityTO<Long> {
 
     public void setActive(final boolean active) {
         this.active = active;
+    }
+
+    public String getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(final String template) {
+        this.template = template;
     }
 
 }

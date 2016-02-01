@@ -16,36 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.common.lib.to;
 
-import java.util.List;
-import org.apache.syncope.common.lib.report.ReportletConf;
+import javax.ws.rs.PathParam;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.AbstractBaseBean;
 
-public interface Report extends Entity<Long> {
+@XmlRootElement(name = "reportTemplate")
+@XmlType
+public class ReportTemplateTO extends AbstractBaseBean implements EntityTO<String> {
 
-    String getName();
+    private static final long serialVersionUID = 7776679004906244896L;
 
-    void setName(String name);
+    private String key;
 
-    boolean add(ReportExec exec);
+    @Override
+    public String getKey() {
+        return key;
+    }
 
-    List<? extends ReportExec> getExecs();
-
-    boolean add(ReportletConf reportletConf);
-
-    void removeAllReportletConfs();
-
-    List<? extends ReportletConf> getReportletConfs();
-
-    String getCronExpression();
-
-    void setCronExpression(String cronExpression);
-
-    boolean isActive();
-
-    void setActive(boolean active);
-
-    ReportTemplate getTemplate();
-
-    void setTemplate(ReportTemplate template);
+    @PathParam("key")
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
+    }
 }

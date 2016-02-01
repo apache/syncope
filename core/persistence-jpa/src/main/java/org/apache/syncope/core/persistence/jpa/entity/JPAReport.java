@@ -26,6 +26,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
@@ -36,6 +38,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ReportCheck;
 
 @Entity
@@ -66,6 +69,10 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
     @Min(0)
     @Max(1)
     private Integer active;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "template_name")
+    private JPAReportTemplate template;
 
     @Override
     public Long getKey() {
@@ -140,5 +147,16 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
     @Override
     public void setActive(final boolean active) {
         this.active = getBooleanAsInteger(active);
+    }
+
+    @Override
+    public ReportTemplate getTemplate() {
+        return template;
+    }
+
+    @Override
+    public void setTemplate(final ReportTemplate template) {
+        checkType(template, JPAReportTemplate.class);
+        this.template = (JPAReportTemplate) template;
     }
 }

@@ -73,7 +73,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     @Override
     public Response exportExecutionResult(final Long executionKey, final ReportExecExportFormat fmt) {
         final ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
-        final ReportExec reportExec = logic.getAndCheckReportExec(executionKey);
+        final ReportExec reportExec = logic.getReportExec(executionKey);
         StreamingOutput sout = new StreamingOutput() {
 
             @Override

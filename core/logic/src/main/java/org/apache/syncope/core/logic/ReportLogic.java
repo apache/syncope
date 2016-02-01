@@ -27,13 +27,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
+import javax.xml.transform.stream.StreamSource;
 import org.apache.cocoon.optional.pipeline.components.sax.fop.FopSerializer;
 import org.apache.cocoon.pipeline.NonCachingPipeline;
 import org.apache.cocoon.pipeline.Pipeline;
 import org.apache.cocoon.sax.SAXPipelineComponent;
 import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
-import org.apache.cocoon.sax.component.XSLTTransformer;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
@@ -59,6 +59,7 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.logic.report.XSLTTransformer;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -147,88 +148,6 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         return binder.getReportTO(report);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
-    public void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
-            final ReportExecExportFormat format) {
-
-        // streaming SAX handler from a compressed byte array stream
-        ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
-        ZipInputStream zis = new ZipInputStream(bais);
-        try {
-            // a single ZipEntry in the ZipInputStream (see ReportJob)
-            zis.getNextEntry();
-
-            Pipeline<SAXPipelineComponent> pipeline = new NonCachingPipeline<>();
-            pipeline.addComponent(new XMLGenerator(zis));
-
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put("status", reportExec.getStatus());
-            parameters.put("message", reportExec.getMessage());
-            parameters.put("start", reportExec.getStart());
-            parameters.put("end", reportExec.getEnd());
-
-            switch (format) {
-                case HTML:
-                    XSLTTransformer xsl2html = new XSLTTransformer(getClass().getResource("/report/report2html.xsl"));
-                    xsl2html.setParameters(parameters);
-                    pipeline.addComponent(xsl2html);
-                    pipeline.addComponent(XMLSerializer.createXHTMLSerializer());
-                    break;
-
-                case PDF:
-                    XSLTTransformer xsl2pdf = new XSLTTransformer(getClass().getResource("/report/report2fo.xsl"));
-                    xsl2pdf.setParameters(parameters);
-                    pipeline.addComponent(xsl2pdf);
-                    pipeline.addComponent(new FopSerializer(MimeConstants.MIME_PDF));
-                    break;
-
-                case RTF:
-                    XSLTTransformer xsl2rtf = new XSLTTransformer(getClass().getResource("/report/report2fo.xsl"));
-                    xsl2rtf.setParameters(parameters);
-                    pipeline.addComponent(xsl2rtf);
-                    pipeline.addComponent(new FopSerializer(MimeConstants.MIME_RTF));
-                    break;
-
-                case CSV:
-                    XSLTTransformer xsl2csv = new XSLTTransformer(getClass().getResource("/report/report2csv.xsl"));
-                    xsl2csv.setParameters(parameters);
-                    pipeline.addComponent(xsl2csv);
-                    pipeline.addComponent(new TextSerializer());
-                    break;
-
-                case XML:
-                default:
-                    pipeline.addComponent(XMLSerializer.createXMLSerializer());
-            }
-
-            pipeline.setup(os);
-            pipeline.execute();
-
-            LOG.debug("Result of {} successfully exported as {}", reportExec, format);
-        } catch (Exception e) {
-            LOG.error("While exporting content", e);
-        } finally {
-            IOUtils.closeQuietly(zis);
-            IOUtils.closeQuietly(bais);
-        }
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
-    public ReportExec getAndCheckReportExec(final Long executionKey) {
-        ReportExec reportExec = reportExecDAO.find(executionKey);
-        if (reportExec == null) {
-            throw new NotFoundException("Report execution " + executionKey);
-        }
-        if (!ReportExecStatus.SUCCESS.name().equals(reportExec.getStatus()) || reportExec.getExecResult() == null) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidReportExec);
-            sce.getElements().add(reportExec.getExecResult() == null
-                    ? "No report data produced"
-                    : "Report did not run successfully");
-            throw sce;
-        }
-        return reportExec;
-    }
-
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
     public ReportExecTO execute(final Long key, final Date startAt) {
         Report report = reportDAO.find(key);
@@ -261,6 +180,92 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         result.setMessage("Job fired; waiting for results...");
 
         return result;
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
+    public ReportExec getReportExec(final Long executionKey) {
+        ReportExec reportExec = reportExecDAO.find(executionKey);
+        if (reportExec == null) {
+            throw new NotFoundException("Report execution " + executionKey);
+        }
+        if (!ReportExecStatus.SUCCESS.name().equals(reportExec.getStatus()) || reportExec.getExecResult() == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidReportExec);
+            sce.getElements().add(reportExec.getExecResult() == null
+                    ? "No report data produced"
+                    : "Report did not run successfully");
+            throw sce;
+        }
+        return reportExec;
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
+    public void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
+            final ReportExecExportFormat format) {
+
+        // streaming SAX handler from a compressed byte array stream
+        ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
+        ZipInputStream zis = new ZipInputStream(bais);
+        try {
+            // a single ZipEntry in the ZipInputStream (see ReportJob)
+            zis.getNextEntry();
+
+            Pipeline<SAXPipelineComponent> pipeline = new NonCachingPipeline<>();
+            pipeline.addComponent(new XMLGenerator(zis));
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("status", reportExec.getStatus());
+            parameters.put("message", reportExec.getMessage());
+            parameters.put("start", reportExec.getStart());
+            parameters.put("end", reportExec.getEnd());
+
+            switch (format) {
+                case HTML:
+                    XSLTTransformer xsl2html = new XSLTTransformer(new StreamSource(
+                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getHTMLTemplate())));
+                    xsl2html.setParameters(parameters);
+                    pipeline.addComponent(xsl2html);
+                    pipeline.addComponent(XMLSerializer.createXHTMLSerializer());
+                    break;
+
+                case PDF:
+                    XSLTTransformer xsl2pdf = new XSLTTransformer(new StreamSource(
+                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getFOTemplate())));
+                    xsl2pdf.setParameters(parameters);
+                    pipeline.addComponent(xsl2pdf);
+                    pipeline.addComponent(new FopSerializer(MimeConstants.MIME_PDF));
+                    break;
+
+                case RTF:
+                    XSLTTransformer xsl2rtf = new XSLTTransformer(new StreamSource(
+                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getFOTemplate())));
+                    xsl2rtf.setParameters(parameters);
+                    pipeline.addComponent(xsl2rtf);
+                    pipeline.addComponent(new FopSerializer(MimeConstants.MIME_RTF));
+                    break;
+
+                case CSV:
+                    XSLTTransformer xsl2csv = new XSLTTransformer(new StreamSource(
+                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getCSVTemplate())));
+                    xsl2csv.setParameters(parameters);
+                    pipeline.addComponent(xsl2csv);
+                    pipeline.addComponent(new TextSerializer());
+                    break;
+
+                case XML:
+                default:
+                    pipeline.addComponent(XMLSerializer.createXMLSerializer());
+            }
+
+            pipeline.setup(os);
+            pipeline.execute();
+
+            LOG.debug("Result of {} successfully exported as {}", reportExec, format);
+        } catch (Exception e) {
+            LOG.error("While exporting content", e);
+        } finally {
+            IOUtils.closeQuietly(zis);
+            IOUtils.closeQuietly(bais);
+        }
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")

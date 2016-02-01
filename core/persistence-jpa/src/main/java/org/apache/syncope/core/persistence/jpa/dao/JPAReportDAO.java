@@ -22,6 +22,7 @@ import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.entity.Report;
+import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReport;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,16 @@ public class JPAReportDAO extends AbstractDAO<Report, Long> implements ReportDAO
     @Override
     public Report find(final Long key) {
         return entityManager().find(JPAReport.class, key);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Report> findByTemplate(final ReportTemplate template) {
+        TypedQuery<Report> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAReport.class.getSimpleName() + " e "
+                + "WHERE e.template=:template", Report.class);
+        query.setParameter("template", template);
+        return query.getResultList();
     }
 
     @Transactional(readOnly = true)

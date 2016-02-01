@@ -27,7 +27,7 @@ public interface MailTemplateDAO extends DAO<MailTemplate, String> {
 
     List<MailTemplate> findAll();
 
-    MailTemplate save(MailTemplate notification);
+    MailTemplate save(MailTemplate template);
 
     void delete(String key);
 }
