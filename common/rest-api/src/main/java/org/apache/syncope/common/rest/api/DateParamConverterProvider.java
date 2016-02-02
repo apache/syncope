@@ -21,30 +21,22 @@ package org.apache.syncope.common.rest.api;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.ws.rs.ext.ParamConverter;
 import javax.ws.rs.ext.ParamConverterProvider;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.common.lib.SyncopeConstants;
 
 public class DateParamConverterProvider implements ParamConverterProvider {
 
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
-
-        @Override
-        protected SimpleDateFormat initialValue() {
-            SimpleDateFormat sdf = new SimpleDateFormat();
-            sdf.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
-            return sdf;
-        }
-    };
+    private static final FastDateFormat DATE_FORMAT = FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN);
 
     private static class DateParamConverter implements ParamConverter<Date> {
 
         @Override
         public Date fromString(final String value) {
             try {
-                return DATE_FORMAT.get().parse(value);
+                return DATE_FORMAT.parse(value);
             } catch (final ParseException e) {
                 throw new IllegalArgumentException("Unparsable date: " + value, e);
             }
@@ -52,7 +44,7 @@ public class DateParamConverterProvider implements ParamConverterProvider {
 
         @Override
         public String toString(final Date value) {
-            return DATE_FORMAT.get().format(value);
+            return DATE_FORMAT.format(value);
         }
     }
 

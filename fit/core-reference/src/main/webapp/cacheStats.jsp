@@ -16,13 +16,13 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 --%>
-<%@page import="org.springframework.beans.factory.support.DefaultListableBeanFactory"%>
-<%@page import="org.apache.syncope.common.lib.SyncopeConstants"%>
-<%@page import="org.apache.syncope.core.misc.spring.ApplicationContextProvider"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="org.springframework.beans.factory.support.DefaultListableBeanFactory"%>
+<%@page import="org.apache.syncope.common.lib.SyncopeConstants"%>
+<%@page import="org.apache.syncope.core.misc.spring.ApplicationContextProvider"%>
+<%@page import="org.apache.commons.lang3.time.FastDateFormat"%>
 <%@page import="java.util.Date"%>
 <%@page import="org.apache.openjpa.datacache.CacheStatisticsImpl"%>
 <%@page import="javax.persistence.EntityManagerFactory"%>
@@ -98,7 +98,7 @@ under the License.
             info.append("Statistics cleared\n");
         }
 
-        SimpleDateFormat sdf = new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN);
+        FastDateFormat sdf = FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN);
         if (info.length() > 0) {
     %>
     <p/><div class="success">

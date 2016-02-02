@@ -27,11 +27,11 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIc
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -53,46 +53,37 @@ public class AjaxDateFieldPanel extends FieldPanel<Date> {
         this.datePattern = pattern == null ? SyncopeConstants.DEFAULT_DATE_PATTERN : pattern;
 
         if (this.datePattern.contains("H")) {
-            field = new DatetimePicker("date", model, new DatetimePickerConfig()
-                    .withFormat(this.datePattern.replaceAll("'", ""))
-                    .setShowToday(true)
-                    .useSideBySide(true)
-                    .with(new DatetimePickerIconConfig()
+            field = new DatetimePicker("date", model, new DatetimePickerConfig().
+                    withFormat(this.datePattern.replaceAll("'", "")).
+                    setShowToday(true).
+                    useSideBySide(true).
+                    with(new DatetimePickerIconConfig()
                             .useDateIcon(FontAwesomeIconType.calendar)
                             .useTimeIcon(FontAwesomeIconType.clock_o)
                             .useUpIcon(FontAwesomeIconType.arrow_up)
                             .useDownIcon(FontAwesomeIconType.arrow_down)
                     )) {
 
-                        private static final long serialVersionUID = 1L;
+                private static final long serialVersionUID = -6308790460702853262L;
 
-                        // T0DO: trying to resolve issue 730.
+                // T0DO: trying to fix SYNCOPE-730
+                // Check if SimpleDateFormat can be replaced by FastDateFormat (see usage below)
+                @Override
+                @SuppressWarnings("unchecked")
+                public <C> IConverter<C> getConverter(final Class<C> type) {
+                    return (IConverter<C>) new DateConverter() {
+
+                        private static final long serialVersionUID = 8025900377461981157L;
+
                         @Override
-                        @SuppressWarnings("unchecked")
-                        public <C> IConverter<C> getConverter(final Class<C> type) {
-                            return (IConverter<C>) new DateConverter() {
-
-                                private static final long serialVersionUID = 1L;
-
-                                @Override
-                                public DateFormat getDateFormat(final Locale locale) {
-                                    return new SimpleDateFormat(
-                                            datePattern,
-                                            locale == null ? SyncopeConsoleSession.get().getLocale() : locale) {
-
-                                                private static final long serialVersionUID = 1L;
-
-                                                @Override
-                                                public Date parse(final String text, final ParsePosition pos) {
-                                                    return super.parse(text, pos);
-                                                }
-
-                                            };
-                                }
-                            };
+                        public DateFormat getDateFormat(final Locale locale) {
+                            return new SimpleDateFormat(
+                                    datePattern,
+                                    locale == null ? SyncopeConsoleSession.get().getLocale() : locale);
                         }
-
                     };
+                }
+            };
         } else {
             field = new DateTextField("date", model, new DateTextFieldConfig()
                     .withFormat(this.datePattern)
@@ -154,9 +145,11 @@ public class AjaxDateFieldPanel extends FieldPanel<Date> {
     @SuppressWarnings("rawtypes")
     @Override
     public FieldPanel<Date> setNewModel(final ListItem item) {
-        final SimpleDateFormat formatter = datePattern == null
-                ? new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN, Locale.getDefault())
-                : new SimpleDateFormat(datePattern, Locale.getDefault());
+        final FastDateFormat formatter = datePattern == null
+                ? FastDateFormat.getInstance(
+                        SyncopeConstants.DEFAULT_DATE_PATTERN, SyncopeConsoleSession.get().getLocale())
+                : FastDateFormat.getInstance(
+                        datePattern, SyncopeConsoleSession.get().getLocale());
 
         IModel<Date> model = new Model<Date>() {
 

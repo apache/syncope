@@ -30,7 +30,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.security.AccessControlException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -44,6 +43,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
@@ -111,15 +112,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @FixMethodOrder(MethodSorters.JVM)
 public class UserITCase extends AbstractITCase {
 
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
-
-        @Override
-        protected SimpleDateFormat initialValue() {
-            SimpleDateFormat sdf = new SimpleDateFormat();
-            sdf.applyPattern("yyyy-MM-dd");
-            return sdf;
-        }
-    };
+    private static final FastDateFormat DATE_FORMAT = DateFormatUtils.ISO_DATE_FORMAT;
 
     private boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
         return Boolean.parseBoolean(connObjectTO.getPlainAttrMap().get(attrName).getValues().get(0));
@@ -141,7 +134,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("type", "a type"));
         userTO.getPlainAttrs().add(attrTO("userId", email));
         userTO.getPlainAttrs().add(attrTO("email", email));
-        userTO.getPlainAttrs().add(attrTO("loginDate", DATE_FORMAT.get().format(new Date())));
+        userTO.getPlainAttrs().add(attrTO("loginDate", DATE_FORMAT.format(new Date())));
         userTO.getDerAttrs().add(attrTO("cn", null));
         return userTO;
     }
