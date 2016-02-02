@@ -218,6 +218,14 @@ under the License.
   border-left: 10px solid #adadad;
 }
 
+.btn-breadcrumb .btn.btn-default.active:not(:last-child):after {
+  border-left: 10px solid #e6e6e6;
+}
+
+.btn-breadcrumb .btn.btn-default.active {
+  box-shadow: 0 0px 0px rgba(0, 0, 0, 0.125)
+}
+
 .breadcrumb-disabled-link {
   pointer-events: none;
   cursor: default;

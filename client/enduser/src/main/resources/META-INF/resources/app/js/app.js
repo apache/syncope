@@ -202,6 +202,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
           return config || $q.when(config);
         },
         'response': function (response) {
+          //$http.pendingRequests.length
           $rootScope.spinner.off();
           return response || $q.when(response);
         },
@@ -259,6 +260,9 @@ app.run(['$rootScope', '$location', '$cookies', '$state',
       } else if (toState.name === 'update') {
         $state.go('update.credentials');
       }
+      else {
+        $state.go(toState);
+      }
     });
 //        $rootScope.$on('$locationChangeStart', function (event, next, current) {
 //            // redirect to login page if not logged in
@@ -289,6 +293,8 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $rootScope.version = "";
       $rootScope.pwdResetRequiringSecurityQuestions = false;
       $rootScope.captchaEnabled = false;
+      //setting default validation
+      $rootScope.validationEnabled = true;
       //info settings are initialized every time an user open the login page
       InfoService.getInfo().then(
               function (response) {
@@ -375,7 +381,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       });
       //Intercepting xhr start event
       $scope.$on('xhrStarted', function (event, next, current) {
-        $scope.hideNotifications(0);           
+        $scope.hideNotifications(0);
       });
     }
   }]);

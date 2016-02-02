@@ -19,13 +19,33 @@
 'use strict';
 
 angular.module('self')
-        .directive('navigationButtons', function () {
-          return {
-            restrict: 'E',
-            templateUrl: 'views/navigationButtons.html',
-            scope: {
-              next: "@",
-              previous: "@"
+        .directive('navigationButtons', ['$state','GenericUtil', 'PolicyValidator', function ($state, GenericUtil, PolicyValidator) {
+            return {
+              restrict: 'E',
+              templateUrl: 'views/navigationButtons.html',
+              scope: {
+                next: "@",
+                previous: "@",
+              },
+              controller: function ($scope) {
+
+                $scope.validateAndNext = function (event, state) {
+                  //getting the enclosing form in order to access to its name                
+                  var currentForm = GenericUtil.getEnclosingForm(event.target);
+                  if (currentForm != null) {
+                    if (PolicyValidator.validate(currentForm, $scope.$parent)) {
+                      $scope.nextTab(state);
+                    }
+                  }
+
+                };
+
+                $scope.nextTab = function (state) {
+                  //change route through parent event
+                  $state.go(state);
+                };
+              }
+
             }
-          };
-        });
+            ;
+          }]);

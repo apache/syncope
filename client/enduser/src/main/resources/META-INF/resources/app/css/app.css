@@ -58,3 +58,16 @@ under the License.
   display: block;
   margin: 0 auto;
 }
+
+.disable-link{
+  pointer-events: none;
+  cursor: default;
+}
+
+.treasure-overlay-spinner-container{
+  z-index : 3;
+}
+
+treasure-overlay-spinner.treasure-overlay-spinner-active-remove{
+  transition: all 150ms ease-in 0s
+}

@@ -20,6 +20,7 @@ under the License.
   <label for="plainSchema.key">{{plainSchema.key}} <span ng-if="plainSchema.mandatoryCondition === 'true'">*</span></label>
   <div ng-if="!plainSchema.multivalue">
     <dynamic-plain-attribute schema="plainSchema" user="user" index="0"></dynamic-plain-attribute>
+    <validation-message name="{{plainSchema.key}}"/>
   </div>
 
   <div ng-if="plainSchema.multivalue">

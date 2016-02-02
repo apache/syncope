@@ -36,20 +36,20 @@ under the License.
             <div id="status-buttons" class="btn-group btn-breadcrumb">
               <a href="#/self" class="btn btn-default"><i class="glyphicon glyphicon-home"></i></a>
               <!--add class breadcrumb-disabled-link to buttons to prevent click-->
-              <a ui-sref-active="active" ui-sref=".credentials" class="btn btn-default">Credentials</a>
-              <a ui-sref-active="active" ui-sref=".groups" class="btn btn-default">Groups</a>
-              <a ui-sref-active="active" ui-sref=".plainSchemas" class="btn btn-default">Plain Schemas</a>
-              <a ui-sref-active="active" ui-sref=".derivedSchemas" class="btn btn-default">Derived Schemas</a>
-              <a ui-sref-active="active" ui-sref=".virtualSchemas" class="btn btn-default">Virtual Schemas</a>              
-              <a ui-sref-active="active" ui-sref=".resources" class="btn btn-default">Resources</a>
-              <a ui-sref-active="active" ui-sref=".finish" class="btn btn-default">Finish</a>
+              <a ui-sref-active="active" ui-sref=".credentials" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Credentials</a>
+              <a ui-sref-active="active" ui-sref=".groups" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Groups</a>
+              <a ui-sref-active="active" ui-sref=".plainSchemas" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Plain Schemas</a>
+              <a ui-sref-active="active" ui-sref=".derivedSchemas" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Derived Schemas</a>
+              <a ui-sref-active="active" ui-sref=".virtualSchemas" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Virtual Schemas</a>              
+              <a ui-sref-active="active" ui-sref=".resources" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Resources</a>
+              <a ui-sref-active="active" ui-sref=".finish" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Finish</a>
             </div>
           </div>
         </div>
         <form class="signup-form" name="userForm" ng-submit="saveUser(user)" novalidate>
 
           <div id="form-views" ui-view>
-
+            
             <!--            <div class="form-group row">
                           <div class="col-xs-6 col-xs-offset-3">
                             <a id="next" ui-sref="create.credentials" class="btn btn-block btn-signin">

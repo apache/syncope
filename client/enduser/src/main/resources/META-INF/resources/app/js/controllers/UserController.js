@@ -302,14 +302,14 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       initRealms();
       //retrieve security available questions
       initSecurityQuestions();
+      //initialize available groups
+      initGroups();
       //initialize available auxiliary classes
       initAuxClasses();
       // initialize user attributes starting from any object schemas
       initUserSchemas();
       // initialize available resources
       initResources();
-      //initialize available groups
-      initGroups();
 
       //Event management
       $scope.$on('auxClassAdded', function (event, auxClass) {
@@ -394,7 +394,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     $scope.resetPassword = function (user) {
       if (user && user.username) {
         $scope.retrieveSecurityQuestion(user);
-        UserSelfService.passwordReset(user,$scope.captchaInput.value).then(function (data) {
+        UserSelfService.passwordReset(user, $scope.captchaInput.value).then(function (data) {
           $scope.showSuccess(data, $scope.notification);
           $location.path('/self');
         }, function (response) {
@@ -411,5 +411,5 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       } else {
         $scope.showError("You should use a valid and non-empty username", $scope.notification);
       }
-    };
+    };    
   }]);
