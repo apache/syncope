@@ -17,18 +17,27 @@ package org.apache.syncope.client.console.tasks;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DateFormatROModel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.SyncMode;
+import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
@@ -36,6 +45,8 @@ import org.apache.wicket.model.PropertyModel;
 public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBuilder<T> {
 
     private static final long serialVersionUID = 5945391813567245081L;
+
+    private final TaskRestClient taskRestClient = new TaskRestClient();
 
     /**
      * Construct.
@@ -49,7 +60,12 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
     @Override
     protected Serializable onApplyInternal(final SchedTaskTO modelObject) {
-        return null;
+        if (modelObject.getKey() == null || modelObject.getKey() == 0L) {
+            taskRestClient.create(modelObject);
+        } else {
+            taskRestClient.update(modelObject);
+        }
+        return modelObject;
     }
 
     @Override
@@ -75,19 +91,60 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
         public Profile(final SchedTaskTO taskTO) {
             final AjaxTextFieldPanel name
-                    = new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(taskTO, "name"));
+                    = new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(taskTO, "name"), false);
             name.setEnabled(true);
             add(name);
 
             final AjaxTextFieldPanel description = new AjaxTextFieldPanel("description", "description",
-                    new PropertyModel<String>(taskTO, "description"));
+                    new PropertyModel<String>(taskTO, "description"), false);
             description.setEnabled(true);
             add(description);
+
+            final AjaxCheckBoxPanel active = new AjaxCheckBoxPanel("active", "active",
+                    new PropertyModel<Boolean>(taskTO, "active"), false);
+            add(active);
+
+            final WebMarkupContainer syncTaskSpecifics = new WebMarkupContainer("syncTaskSpecifics");
+            add(syncTaskSpecifics.setRenderBodyOnly(true));
+
+            boolean isFiltered = false;
+
+            if (taskTO instanceof SyncTaskTO) {
+                isFiltered = SyncTaskTO.class.cast(taskTO).getSyncMode() == SyncMode.FILTERED_RECONCILIATION;
+            } else {
+                syncTaskSpecifics.setEnabled(false).setVisible(false);
+            }
+
+            final AjaxDropDownChoicePanel<SyncMode> syncMode = new AjaxDropDownChoicePanel<>("syncMode", "syncMode",
+                    new PropertyModel<SyncMode>(taskTO, "syncMode"), false);
+            syncTaskSpecifics.add(syncMode);
+            syncMode.setChoices(Arrays.asList(SyncMode.values()));
+
+            final AjaxTextFieldPanel filter = new AjaxTextFieldPanel(
+                    "reconciliationFilterBuilderClassName", "reconciliationFilterBuilderClassName",
+                    new PropertyModel<String>(taskTO, "reconciliationFilterBuilderClassName"), false);
+            syncTaskSpecifics.add(filter);
+            filter.setEnabled(isFiltered);
+
+            syncMode.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                private static final long serialVersionUID = -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(final AjaxRequestTarget target) {
+                    filter.setEnabled(syncMode.getModelObject() == SyncMode.FILTERED_RECONCILIATION);
+                    target.add(filter);
+                }
+            });
+
+            final AjaxTextFieldPanel destinationRealm = new AjaxTextFieldPanel("destinationRealm", "destinationRealm",
+                    new PropertyModel<String>(taskTO, "destinationRealm"), false);
+            syncTaskSpecifics.add(destinationRealm);
 
             final AjaxDropDownChoicePanel<String> className = new AjaxDropDownChoicePanel<String>(
                     "jobDelegateClassName",
                     getString("jobDelegateClassName"),
-                    new PropertyModel<String>(taskTO, "jobDelegateClassName"));
+                    new PropertyModel<String>(taskTO, "jobDelegateClassName"), false);
 
             className.setChoices(classNames.getObject());
             className.addRequiredLabel();
@@ -95,19 +152,52 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             className.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
             add(className);
 
-            if (taskTO instanceof SyncTaskTO || taskTO instanceof PushTaskTO) {
+            final WebMarkupContainer provisioningTaskSpecifics = new WebMarkupContainer("provisioningTaskSpecifics");
+            add(provisioningTaskSpecifics.setRenderBodyOnly(true));
+
+            final AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
+                    "matchingRule", "matchingRule", new PropertyModel<MatchingRule>(taskTO, "matchingRule"), false);
+            provisioningTaskSpecifics.add(matchingRule);
+            matchingRule.setChoices(Arrays.asList(MatchingRule.values()));
+
+            final AjaxDropDownChoicePanel<UnmatchingRule> unmatchingRule = new AjaxDropDownChoicePanel<>(
+                    "unmatchingRule", "unmatchingRule", new PropertyModel<UnmatchingRule>(taskTO, "unmatchingRule"),
+                    false);
+            provisioningTaskSpecifics.add(unmatchingRule);
+            unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
+
+            final AjaxCheckBoxPanel performCreate = new AjaxCheckBoxPanel(
+                    "performCreate", "performCreate", new PropertyModel<Boolean>(taskTO, "performCreate"), false);
+            provisioningTaskSpecifics.add(performCreate);
+
+            final AjaxCheckBoxPanel performUpdate = new AjaxCheckBoxPanel(
+                    "performUpdate", "performUpdate", new PropertyModel<Boolean>(taskTO, "performUpdate"), false);
+            provisioningTaskSpecifics.add(performUpdate);
+
+            final AjaxCheckBoxPanel performDelete = new AjaxCheckBoxPanel(
+                    "performDelete", "performDelete", new PropertyModel<Boolean>(taskTO, "performDelete"), false);
+            provisioningTaskSpecifics.add(performDelete);
+
+            final AjaxCheckBoxPanel syncStatus = new AjaxCheckBoxPanel(
+                    "syncStatus", "syncStatus", new PropertyModel<Boolean>(taskTO, "syncStatus"), false);
+            provisioningTaskSpecifics.add(syncStatus);
+
+            if (taskTO instanceof AbstractProvisioningTaskTO) {
                 className.setEnabled(false).setVisible(false);
+            } else {
+                provisioningTaskSpecifics.setEnabled(false).setVisible(false);
             }
 
-            final AjaxTextFieldPanel lastExec = new AjaxTextFieldPanel("lastExec", getString("lastExec"),
+            final AjaxTextFieldPanel lastExec = new AjaxTextFieldPanel("lastExec", "lastExec",
                     new DateFormatROModel(new PropertyModel<String>(taskTO, "lastExec")));
             lastExec.setEnabled(false);
             add(lastExec);
 
-            final AjaxTextFieldPanel nextExec = new AjaxTextFieldPanel("nextExec", getString("nextExec"),
+            final AjaxTextFieldPanel nextExec = new AjaxTextFieldPanel("nextExec", "nextExec",
                     new DateFormatROModel(new PropertyModel<String>(taskTO, "nextExec")));
             nextExec.setEnabled(false);
             add(nextExec);
+
 //
 //            final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(APPLY)) {
 //

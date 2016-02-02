@@ -68,6 +68,11 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 list(new TaskQuery.Builder().type(kind).page(1).size(1).build()).getTotalCount();
     }
 
+    public int count(final String resource, final TaskType kind) {
+        return getService(TaskService.class).
+                list(new TaskQuery.Builder().resource(resource).type(kind).page(1).size(1).build()).getTotalCount();
+    }
+
     public int countExecutions(final Long taskId) {
         return getService(TaskService.class).
                 listExecutions(new TaskExecQuery.Builder().key(taskId).page(1).size(1).build()).getTotalCount();
@@ -160,19 +165,11 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         getService(TaskService.class).deleteExecution(taskExecId);
     }
 
-    public void createSyncTask(final SyncTaskTO taskTO) {
+    public void create(final SchedTaskTO taskTO) {
         getService(TaskService.class).create(taskTO);
     }
 
-    public void createSchedTask(final SchedTaskTO taskTO) {
-        getService(TaskService.class).create(taskTO);
-    }
-
-    public void updateSchedTask(final SchedTaskTO taskTO) {
-        getService(TaskService.class).update(taskTO);
-    }
-
-    public void updateSyncTask(final SyncTaskTO taskTO) {
+    public void update(final SchedTaskTO taskTO) {
         getService(TaskService.class).update(taskTO);
     }
 

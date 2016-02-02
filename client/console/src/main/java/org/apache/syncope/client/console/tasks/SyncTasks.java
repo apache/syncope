@@ -26,6 +26,8 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 
 public class SyncTasks extends AbstractTasks {
 
@@ -43,7 +45,9 @@ public class SyncTasks extends AbstractTasks {
 
             @Override
             protected void viewTask(final SyncTaskTO taskTO, final AjaxRequestTarget target) {
-                mlp.next("task.view", new TaskExecutionDetails<SyncTaskTO>(taskTO, pageReference), target);
+                mlp.next(
+                        new StringResourceModel("task.view", this, new Model<>(taskTO)).getObject(),
+                        new TaskExecutionDetails<SyncTaskTO>(taskTO, pageReference), target);
             }
         });
     }

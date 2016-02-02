@@ -23,7 +23,6 @@ import static org.apache.wicket.Component.ENABLE;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
@@ -67,15 +66,19 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
     protected final Class<T> reference;
 
+    protected T schedTaskTO;
+
     protected SchedTaskSearchResultPanel(final String id, final Class<T> reference, final PageReference pageRef) {
         super(id, pageRef);
         this.reference = reference;
 
         try {
-            this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<T>(reference.newInstance(), pageRef), true);
+            schedTaskTO = reference.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             LOG.error("Falure instantiating task", e);
         }
+
+        this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<T>(schedTaskTO, pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.TASK_CREATE);
 
@@ -185,9 +188,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                                 final T clone = SerializationUtils.clone(model.getObject());
                                 clone.setKey(0L);
                                 send(SchedTaskSearchResultPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(
-                                                restClient.readSchedTask(reference, model.getObject().getKey()),
-                                                target));
+                                        new AjaxWizard.EditItemActionEvent<>(clone, target));
                             }
                         }, ActionLink.ActionType.CLONE, StandardEntitlement.TASK_READ).
                         add(new ActionLink<T>() {
@@ -197,7 +198,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 try {
-                                    restClient.startExecution(taskTO.getKey(), new Date());
+                                    restClient.startExecution(taskTO.getKey(), null);
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
@@ -214,7 +215,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 try {
-                                    restClient.startExecution(taskTO.getKey(), new Date(), true);
+                                    restClient.startExecution(taskTO.getKey(), null, true);
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
@@ -283,7 +284,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
     @Override
     protected SchedTasksProvider<T> dataProvider() {
-        return new SchedTasksProvider<T>(reference, rows);
+        return new SchedTasksProvider<T>(reference, TaskType.SCHEDULED, rows);
     }
 
     public class SchedTasksProvider<T extends SchedTaskTO> extends TaskDataProvider<T> {
@@ -292,8 +293,8 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
         private final Class<T> reference;
 
-        public SchedTasksProvider(final Class<T> reference, final int paginatorRows) {
-            super(paginatorRows, TaskType.SCHEDULED, restClient);
+        public SchedTasksProvider(final Class<T> reference, final TaskType id, final int paginatorRows) {
+            super(paginatorRows, id, restClient);
             this.reference = reference;
         }
 

@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.tasks;
 
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
 
 /**
@@ -36,5 +37,10 @@ public abstract class PushTaskSearchResultPanel extends ProvisioningTaskSearchRe
     @Override
     protected String paginatorRowsKey() {
         return Constants.PREF_PUSH_TASKS_PAGINATOR_ROWS;
+    }
+
+    @Override
+    protected ProvisioningTasksProvider<PushTaskTO> dataProvider() {
+        return new ProvisioningTasksProvider<PushTaskTO>(reference, TaskType.PUSH, rows);
     }
 }

@@ -31,7 +31,7 @@ public abstract class TaskDataProvider<T extends AbstractTaskTO> extends Searcha
 
     private final SortableDataProviderComparator<T> comparator;
 
-    private final TaskType id;
+    protected final TaskType id;
 
     private final TaskRestClient taskRestClient;
 

@@ -42,12 +42,12 @@ import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 
 public abstract class TaskExecutions
         extends AbstractSearchResultPanel<TaskExecTO, TaskExecTO, TaskExecProvider, TaskRestClient> {
@@ -71,8 +71,6 @@ public abstract class TaskExecutions
     @Override
     protected List<IColumn<TaskExecTO, String>> getColumns() {
         final List<IColumn<TaskExecTO, String>> columns = new ArrayList<IColumn<TaskExecTO, String>>();
-
-        final int paginatorRows = 10;
 
         columns.add(new PropertyColumn<TaskExecTO, String>(new ResourceModel("key"), "key", "key"));
 
@@ -101,7 +99,7 @@ public abstract class TaskExecutions
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final TaskExecTO ignore) {
-                                next("execution.view",
+                                next(new StringResourceModel("execution.view", TaskExecutions.this, model).getObject(),
                                         new ExecMessage(model.getObject().getMessage()), target);
                             }
                         }, ActionLink.ActionType.SEARCH, StandardEntitlement.TASK_READ).
@@ -138,15 +136,7 @@ public abstract class TaskExecutions
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         if (target != null) {
-                            final AjaxFallbackDefaultDataTable<TaskExecTO, String> currentTable
-                                    = new AjaxFallbackDefaultDataTable<TaskExecTO, String>(
-                                            "executionsTable",
-                                            columns,
-                                            new TaskExecProvider(taskTO.getKey(), paginatorRows),
-                                            paginatorRows);
-                            currentTable.setOutputMarkupId(true);
-                            target.add(currentTable);
-                            addOrReplace(currentTable);
+                            target.add(container);
                         }
                     }
                 }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);

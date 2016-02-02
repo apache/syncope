@@ -24,6 +24,8 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 
 public class SchedTasks extends AbstractTasks {
 
@@ -42,7 +44,9 @@ public class SchedTasks extends AbstractTasks {
 
             @Override
             protected void viewTask(final SchedTaskTO taskTO, final AjaxRequestTarget target) {
-//                mlp.next("task.view", new SchedTaskDetails(taskTO, pageReference), target);
+                mlp.next(
+                        new StringResourceModel("task.view", this, new Model<>(taskTO)).getObject(),
+                        new TaskExecutionDetails<SchedTaskTO>(taskTO, pageReference), target);
             }
         });
     }
