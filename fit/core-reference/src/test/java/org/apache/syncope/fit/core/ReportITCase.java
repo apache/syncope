@@ -277,6 +277,9 @@ public class ReportITCase extends AbstractITCase {
 
             long execKey = execute(report.getKey());
             checkExport(execKey, ReportExecExportFormat.XML);
+
+            report = reportService.read(report.getKey());
+            assertNotNull(report.getLastExec());
         } finally {
             loggerService.delete(LoggerType.AUDIT, auditLoggerName.toLoggerName());
         }

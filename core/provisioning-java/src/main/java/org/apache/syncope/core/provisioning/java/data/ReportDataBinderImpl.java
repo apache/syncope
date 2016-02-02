@@ -93,35 +93,30 @@ public class ReportDataBinderImpl implements ReportDataBinder {
         }
 
         ReportExec latestExec = reportExecDAO.findLatestStarted(report);
-        reportTO.setLatestExecStatus(latestExec == null
-                ? StringUtils.EMPTY
-                : latestExec.getStatus());
+        if (latestExec == null) {
+            reportTO.setLatestExecStatus(StringUtils.EMPTY);
+        } else {
+            reportTO.setLatestExecStatus(latestExec.getStatus());
+            reportTO.setStart(latestExec.getStart());
+            reportTO.setEnd(latestExec.getEnd());
 
-        reportTO.setStart(latestExec == null
-                ? null
-                : latestExec.getStart());
-
-        reportTO.setEnd(latestExec == null
-                ? null
-                : latestExec.getEnd());
+            reportTO.setLastExec(reportTO.getStart());
+        }
 
         for (ReportExec reportExec : report.getExecs()) {
             reportTO.getExecutions().add(getReportExecTO(reportExec));
         }
 
         String triggerName = JobNamer.getTriggerName(JobNamer.getJobName(report));
-
-        Trigger trigger;
         try {
-            trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
+            Trigger trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
+
+            if (trigger != null) {
+                reportTO.setLastExec(trigger.getPreviousFireTime());
+                reportTO.setNextExec(trigger.getNextFireTime());
+            }
         } catch (SchedulerException e) {
             LOG.warn("While trying to get to " + triggerName, e);
-            trigger = null;
-        }
-
-        if (trigger != null) {
-            reportTO.setLastExec(trigger.getPreviousFireTime());
-            reportTO.setNextExec(trigger.getNextFireTime());
         }
 
         return reportTO;

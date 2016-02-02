@@ -266,18 +266,18 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     }
 
     private void setExecTime(final SchedTaskTO taskTO, final Task task) {
-        String triggerName = JobNamer.getTriggerName(JobNamer.getJobName(task));
+        taskTO.setLastExec(taskTO.getStart());
 
-        Trigger trigger = null;
+        String triggerName = JobNamer.getTriggerName(JobNamer.getJobName(task));
         try {
-            trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
+            Trigger trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
+
+            if (trigger != null) {
+                taskTO.setLastExec(trigger.getPreviousFireTime());
+                taskTO.setNextExec(trigger.getNextFireTime());
+            }
         } catch (SchedulerException e) {
             LOG.warn("While trying to get to " + triggerName, e);
-        }
-
-        if (trigger != null) {
-            taskTO.setLastExec(trigger.getPreviousFireTime());
-            taskTO.setNextExec(trigger.getNextFireTime());
         }
     }
 
@@ -287,9 +287,13 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
 
         TaskExec latestExec = taskExecDAO.findLatestStarted(task);
-        taskTO.setLatestExecStatus(latestExec == null ? StringUtils.EMPTY : latestExec.getStatus());
-        taskTO.setStart(latestExec == null ? null : latestExec.getStart());
-        taskTO.setEnd(latestExec == null ? null : latestExec.getEnd());
+        if (latestExec == null) {
+            taskTO.setLatestExecStatus(StringUtils.EMPTY);
+        } else {
+            taskTO.setLatestExecStatus(latestExec.getStatus());
+            taskTO.setStart(latestExec.getStart());
+            taskTO.setEnd(latestExec.getEnd());
+        }
 
         if (details) {
             for (TaskExec execution : task.getExecs()) {
