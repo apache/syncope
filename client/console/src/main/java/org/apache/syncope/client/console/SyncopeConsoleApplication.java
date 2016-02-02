@@ -77,29 +77,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     private static final String ACTIVITI_MODELER_CONTEXT = "activiti-modeler";
 
-    private static Map<String, Class<? extends BasePage>> PAGE_CLASSES;
-
-    @SuppressWarnings("unchecked")
-    private static void populatePageClasses(final Properties props) {
-        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
-        while (propNames.hasMoreElements()) {
-            String name = propNames.nextElement();
-            if (name.startsWith("page.")) {
-                try {
-                    Class<?> clazz = ClassUtils.getClass(props.getProperty(name));
-                    if (BasePage.class.isAssignableFrom(clazz)) {
-                        PAGE_CLASSES.put(
-                                StringUtils.substringAfter("page.", name), (Class<? extends BasePage>) clazz);
-                    } else {
-                        LOG.warn("{} does not extend {}, ignoring...", clazz.getName(), BasePage.class.getName());
-                    }
-                } catch (ClassNotFoundException e) {
-                    LOG.error("While looking for class identified by property '{}'", name, e);
-                }
-            }
-        }
-    }
-
     public static SyncopeConsoleApplication get() {
         return (SyncopeConsoleApplication) WebApplication.get();
     }
@@ -117,6 +94,29 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     private String activitiModelerDirectory;
 
     private SyncopeClientFactoryBean clientFactory;
+
+    private Map<String, Class<? extends BasePage>> pageClasses;
+
+    @SuppressWarnings("unchecked")
+    protected void populatePageClasses(final Properties props) {
+        Enumeration<String> propNames = (Enumeration<String>) props.<String>propertyNames();
+        while (propNames.hasMoreElements()) {
+            String name = propNames.nextElement();
+            if (name.startsWith("page.")) {
+                try {
+                    Class<?> clazz = ClassUtils.getClass(props.getProperty(name));
+                    if (BasePage.class.isAssignableFrom(clazz)) {
+                        pageClasses.put(
+                                StringUtils.substringAfter("page.", name), (Class<? extends BasePage>) clazz);
+                    } else {
+                        LOG.warn("{} does not extend {}, ignoring...", clazz.getName(), BasePage.class.getName());
+                    }
+                } catch (ClassNotFoundException e) {
+                    LOG.error("While looking for class identified by property '{}'", name, e);
+                }
+            }
+        }
+    }
 
     @Override
     protected void init() {
@@ -160,13 +160,9 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         clientFactory = new SyncopeClientFactoryBean().setAddress(scheme + "://" + host + ":" + port + "/" + rootPath);
 
         // process page properties
-        synchronized (LOG) {
-            if (PAGE_CLASSES == null) {
-                PAGE_CLASSES = new HashMap<>();
-                populatePageClasses(props);
-                PAGE_CLASSES = Collections.unmodifiableMap(PAGE_CLASSES);
-            }
-        }
+        pageClasses = new HashMap<>();
+        populatePageClasses(props);
+        pageClasses = Collections.unmodifiableMap(pageClasses);
 
         // Application settings
         IBootstrapSettings settings = new BootstrapSettings();
@@ -264,7 +260,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     }
 
     public Class<? extends BasePage> getPageClass(final String key) {
-        return PAGE_CLASSES.get(key);
+        return pageClasses.get(key);
     }
 
     public String getVersion() {
