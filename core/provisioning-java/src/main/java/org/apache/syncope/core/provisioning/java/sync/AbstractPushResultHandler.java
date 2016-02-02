@@ -370,8 +370,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                         profile.getTask().getResource().getKey(),
                         operation,
                         resultStatus,
-                        beforeObj,
-                        output,
+                        connObjectUtils.getConnObjectTO(beforeObj),
+                        output instanceof ConnectorObject
+                                ? connObjectUtils.getConnObjectTO((ConnectorObject) output) : output,
                         any);
             }
         }

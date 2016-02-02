@@ -18,28 +18,22 @@
  */
 package org.apache.syncope.core.misc;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
-import org.apache.syncope.core.misc.security.SyncopeAuthenticationDetails;
+import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class AuditManager {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AuditManager.class);
 
     @Autowired
     private LoggerDAO loggerDAO;
@@ -59,66 +53,26 @@ public class AuditManager {
             final Object output,
             final Object... input) {
 
-        StringBuilder message = new StringBuilder(32);
-
-        message.append("BEFORE:\n").
-                append('\t').append(before == null ? "unknown" : before).append('\n');
-
-        message.append("INPUT:\n");
-
-        if (ArrayUtils.isNotEmpty(input)) {
-            for (Object obj : input) {
-                message.append('\t').append(obj == null ? null : obj.toString()).append('\n');
-            }
-        } else {
-            message.append('\t').append("none").append('\n');
-        }
-
-        message.append("OUTPUT:\n");
-
-        Throwable throwable;
+        Throwable throwable = null;
         if (output instanceof Throwable) {
             throwable = (Throwable) output;
-            message.append('\t').append(throwable.getMessage());
-        } else {
-            throwable = null;
-            message.append('\t').append(output == null ? "none" : output.toString());
         }
 
-        AuditLoggerName auditLoggerName = null;
-        try {
-            auditLoggerName = new AuditLoggerName(type, category, subcategory, event, result);
-        } catch (IllegalArgumentException e) {
-            LOG.error("Invalid audit parameters, aborting...", e);
-        }
+        AuditEntry auditEntry = new AuditEntry(
+                AuthContextUtils.getUsername(),
+                new AuditLoggerName(type, category, subcategory, event, result),
+                before,
+                throwable == null ? output : throwable.getMessage(),
+                input);
 
-        if (auditLoggerName != null) {
-            org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
-                    loggerDAO.find(auditLoggerName.toLoggerName());
-            if (syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG) {
-                StringBuilder auditMessage = new StringBuilder();
-
-                SecurityContext ctx = SecurityContextHolder.getContext();
-                if (ctx != null && ctx.getAuthentication() != null) {
-                    auditMessage.append('[').append(ctx.getAuthentication().getName()).append("] ");
-                }
-                auditMessage.append(message);
-
-                String domain = AuthContextUtils.getDomain();
-                if (input != null && input.length > 0 && input[0] instanceof UsernamePasswordAuthenticationToken) {
-                    UsernamePasswordAuthenticationToken token =
-                            UsernamePasswordAuthenticationToken.class.cast(input[0]);
-                    if (token.getDetails() instanceof SyncopeAuthenticationDetails) {
-                        domain = SyncopeAuthenticationDetails.class.cast(token.getDetails()).getDomain();
-                    }
-                }
-
-                Logger logger = LoggerFactory.getLogger(getDomainAuditLoggerName(domain));
-                if (throwable == null) {
-                    logger.debug(auditMessage.toString());
-                } else {
-                    logger.debug(auditMessage.toString(), throwable);
-                }
+        org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
+                loggerDAO.find(auditEntry.getLogger().toLoggerName());
+        if (syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG) {
+            Logger logger = LoggerFactory.getLogger(getDomainAuditLoggerName(AuthContextUtils.getDomain()));
+            if (throwable == null) {
+                logger.debug(POJOHelper.serialize(auditEntry));
+            } else {
+                logger.debug(POJOHelper.serialize(auditEntry), throwable);
             }
         }
     }

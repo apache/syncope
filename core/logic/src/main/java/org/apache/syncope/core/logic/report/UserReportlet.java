@@ -283,8 +283,7 @@ public class UserReportlet extends AbstractReportlet {
 
                     atts.addAttribute("", "", "groupKey",
                             ReportXMLConst.XSD_LONG, String.valueOf(memb.getRightKey()));
-                    atts.addAttribute("", "", "groupName", ReportXMLConst.XSD_STRING, String.
-                            valueOf(memb.getGroupName()));
+                    atts.addAttribute("", "", "groupName", ReportXMLConst.XSD_STRING, memb.getGroupName());
                     handler.startElement("", "", "membership", atts);
 
                     if (conf.getFeatures().contains(Feature.resources)) {

@@ -34,11 +34,17 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.LoggerLevel;
+import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
@@ -245,6 +251,35 @@ public class ReportITCase extends AbstractITCase {
         assertEquals(1, result.getResults().size());
         assertEquals(execId.toString(), result.getResults().keySet().iterator().next());
         assertEquals(BulkActionResult.Status.SUCCESS, result.getResults().entrySet().iterator().next().getValue());
+    }
+
+    @Test
+    public void auditReport() throws IOException {
+        AuditLoggerName auditLoggerName = new AuditLoggerName(
+                AuditElements.EventCategoryType.REST,
+                "UserLogic",
+                null,
+                "readSelf",
+                AuditElements.Result.SUCCESS);
+
+        try {
+            LoggerTO loggerTO = new LoggerTO();
+            loggerTO.setKey(auditLoggerName.toLoggerName());
+            loggerTO.setLevel(LoggerLevel.DEBUG);
+            loggerService.update(LoggerType.AUDIT, loggerTO);
+
+            ReportTO report = new ReportTO();
+            report.setName("auditReport" + getUUIDString());
+            report.setActive(true);
+            report.getReportletConfs().add(new AuditReportletConf("auditReportlet" + getUUIDString()));
+            report.setTemplate("sample");
+            report = createReport(report);
+
+            long execKey = execute(report.getKey());
+            checkExport(execKey, ReportExecExportFormat.XML);
+        } finally {
+            loggerService.delete(LoggerType.AUDIT, auditLoggerName.toLoggerName());
+        }
     }
 
     @Test

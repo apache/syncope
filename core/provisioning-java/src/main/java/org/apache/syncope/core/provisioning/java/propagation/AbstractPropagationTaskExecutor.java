@@ -483,8 +483,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 task.getResource().getKey(),
                 task.getOperation().name().toLowerCase(),
                 result,
-                beforeObj, // searching for before object is too much expensive ... 
-                new Object[] { execution, afterObj },
+                connObjectUtils.getConnObjectTO(beforeObj), // searching for before object is too much expensive ... 
+                new Object[] { execution, connObjectUtils.getConnObjectTO(afterObj) },
                 task);
 
         return execution;

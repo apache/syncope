@@ -32,7 +32,6 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -187,20 +186,27 @@ public class ConnObjectUtils {
         AnyTO updated = getAnyTOFromConnObject(obj, syncTask, provision, anyUtils);
         updated.setKey(key);
 
-        if (AnyTypeKind.USER == anyUtils.getAnyTypeKind()) {
-            // update password if and only if password is really changed
-            User user = userDAO.authFind(key);
-            if (StringUtils.isBlank(((UserTO) updated).getPassword())
-                    || ENCRYPTOR.verify(((UserTO) updated).getPassword(),
-                            user.getCipherAlgorithm(), user.getPassword())) {
+        if (null != anyUtils.getAnyTypeKind()) {
+            switch (anyUtils.getAnyTypeKind()) {
+                case USER:
+                    // update password if and only if password is really changed
+                    User user = userDAO.authFind(key);
+                    if (StringUtils.isBlank(((UserTO) updated).getPassword())
+                            || ENCRYPTOR.verify(((UserTO) updated).getPassword(),
+                                    user.getCipherAlgorithm(), user.getPassword())) {
 
-                ((UserTO) updated).setPassword(null);
+                        ((UserTO) updated).setPassword(null);
+                    }
+                    return (T) AnyOperations.diff(((UserTO) updated), ((UserTO) original), true);
+
+                case GROUP:
+                    return (T) AnyOperations.diff(((GroupTO) updated), ((GroupTO) original), true);
+
+                case ANY_OBJECT:
+                    return (T) AnyOperations.diff(((AnyObjectTO) updated), ((AnyObjectTO) original), true);
+
+                default:
             }
-            return (T) AnyOperations.diff(((UserTO) updated), ((UserTO) original), true);
-        } else if (AnyTypeKind.GROUP == anyUtils.getAnyTypeKind()) {
-            return (T) AnyOperations.diff(((GroupTO) updated), ((GroupTO) original), true);
-        } else if (AnyTypeKind.ANY_OBJECT == anyUtils.getAnyTypeKind()) {
-            return (T) AnyOperations.diff(((AnyObjectTO) updated), ((AnyObjectTO) original), true);
         }
 
         return null;
@@ -233,25 +239,27 @@ public class ConnObjectUtils {
     public ConnObjectTO getConnObjectTO(final ConnectorObject connObject) {
         final ConnObjectTO connObjectTO = new ConnObjectTO();
 
-        for (Attribute attr : connObject.getAttributes()) {
-            AttrTO attrTO = new AttrTO();
-            attrTO.setSchema(attr.getName());
+        if (connObject != null) {
+            for (Attribute attr : connObject.getAttributes()) {
+                AttrTO attrTO = new AttrTO();
+                attrTO.setSchema(attr.getName());
 
-            if (attr.getValue() != null) {
-                for (Object value : attr.getValue()) {
-                    if (value != null) {
-                        if (value instanceof GuardedString || value instanceof GuardedByteArray) {
-                            attrTO.getValues().add(getPassword(value));
-                        } else if (value instanceof byte[]) {
-                            attrTO.getValues().add(Base64.encode((byte[]) value));
-                        } else {
-                            attrTO.getValues().add(value.toString());
+                if (attr.getValue() != null) {
+                    for (Object value : attr.getValue()) {
+                        if (value != null) {
+                            if (value instanceof GuardedString || value instanceof GuardedByteArray) {
+                                attrTO.getValues().add(getPassword(value));
+                            } else if (value instanceof byte[]) {
+                                attrTO.getValues().add(Base64.encode((byte[]) value));
+                            } else {
+                                attrTO.getValues().add(value.toString());
+                            }
                         }
                     }
                 }
-            }
 
-            connObjectTO.getPlainAttrs().add(attrTO);
+                connObjectTO.getPlainAttrs().add(attrTO);
+            }
         }
 
         return connObjectTO;
