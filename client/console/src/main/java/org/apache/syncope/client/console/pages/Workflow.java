@@ -42,16 +42,10 @@ public class Workflow extends BasePage {
         noActivitiEnabledForUsers.setOutputMarkupPlaceholderTag(true);
         add(noActivitiEnabledForUsers);
 
-        final WebMarkupContainer workflowDef = new WebMarkupContainer("workflowDefContainer");
+        WebMarkupContainer workflowDef = new WebMarkupContainer("workflowDefContainer");
         workflowDef.setOutputMarkupPlaceholderTag(true);
 
-        if (wfRestClient.isActivitiEnabledForUsers()) {
-            noActivitiEnabledForUsers.setVisible(false);
-        } else {
-            workflowDef.setVisible(false);
-        }
-
-        final Image workflowDefDiagram = new Image("workflowDefDiagram", new Model<IResource>()) {
+        Image workflowDefDiagram = new Image("workflowDefDiagram", new Model<IResource>()) {
 
             private static final long serialVersionUID = -8457850449086490660L;
 
@@ -73,7 +67,16 @@ public class Workflow extends BasePage {
         workflowDefDiagram.setOutputMarkupId(true);
         workflowDef.add(workflowDefDiagram);
 
-        add(new WorkflowTogglePanel("togglePanel", getPageReference(), workflowDefDiagram));
+        WorkflowTogglePanel togglePanel =
+                new WorkflowTogglePanel("togglePanel", getPageReference(), workflowDefDiagram);
+        togglePanel.setOutputMarkupId(true);
+        workflowDef.add(togglePanel);
+
+        if (wfRestClient.isActivitiEnabledForUsers()) {
+            noActivitiEnabledForUsers.setVisible(false);
+        } else {
+            workflowDef.setVisible(false);
+        }
 
         MetaDataRoleAuthorizationStrategy.authorize(workflowDef, ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
         add(workflowDef);
