@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.to.AbstractExecTO;
 import org.apache.syncope.common.lib.to.ReportExecTO;
@@ -163,7 +164,7 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
                                     i++) {
                                 JobExecutionContext jec = scheduler.getScheduler().getCurrentlyExecutingJobs().get(i);
                                 Long execJobKey = getKeyFromJobName(jec.getJobDetail().getKey());
-                                if (execJobKey == currentKey) {
+                                if (Objects.equals(execJobKey, currentKey)) {
                                     found = true;
                                 }
                             }
