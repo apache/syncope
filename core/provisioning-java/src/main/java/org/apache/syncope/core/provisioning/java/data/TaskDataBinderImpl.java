@@ -23,6 +23,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -193,8 +194,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtils taskUtils) {
         Class<? extends AbstractTaskTO> taskTOClass = taskUtils.taskTOClass();
         if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
-            throw new IllegalArgumentException(
-                    String.format("taskUtils is type %s but task is not: %s", taskTOClass, taskTO.getClass()));
+            throw new IllegalArgumentException(String.format("Expected %s, found %s", taskTOClass, taskTO.getClass()));
         }
 
         SchedTask task = taskUtils.newTask();
@@ -223,26 +223,20 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
     @Override
     public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtils taskUtils) {
-        Class<? extends Task> taskClass = taskUtils.taskClass();
         Class<? extends AbstractTaskTO> taskTOClass = taskUtils.taskTOClass();
-
-        if (taskClass == null || !taskClass.isAssignableFrom(task.getClass())) {
-            throw new IllegalArgumentException(
-                    String.format("taskUtils is type %s but task is not: %s", taskClass, task.getClass()));
-        }
-
         if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
-            throw new IllegalArgumentException(
-                    String.format("taskUtils is type %s but task is not: %s", taskTOClass, taskTO.getClass()));
+            throw new IllegalArgumentException(String.format("Expected %s, found %s", taskTOClass, taskTO.getClass()));
         }
 
+        if (StringUtils.isBlank(taskTO.getName())) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+            sce.getElements().add("name");
+            throw sce;
+        }
+        task.setName(taskTO.getName());
+        task.setDescription(taskTO.getDescription());
         task.setCronExpression(taskTO.getCronExpression());
-        if (StringUtils.isNotBlank(taskTO.getName())) {
-            task.setName(taskTO.getName());
-        }
-        if (StringUtils.isNotBlank(taskTO.getDescription())) {
-            task.setDescription(taskTO.getDescription());
-        }
+        task.setActive(taskTO.isActive());
 
         if (task instanceof ProvisioningTask) {
             fill((ProvisioningTask) task, (AbstractProvisioningTaskTO) taskTO);

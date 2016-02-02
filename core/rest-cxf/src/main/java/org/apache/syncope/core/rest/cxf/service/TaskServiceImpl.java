@@ -102,10 +102,8 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
 
     @Override
     public void update(final AbstractTaskTO taskTO) {
-        if (taskTO instanceof SyncTaskTO) {
-            logic.updateSync((SyncTaskTO) taskTO);
-        } else if (taskTO instanceof SchedTaskTO) {
-            logic.updateSched((SchedTaskTO) taskTO);
+        if (taskTO instanceof SchedTaskTO) {
+            logic.updateSchedTask((SchedTaskTO) taskTO);
         } else {
             throw new BadRequestException();
         }

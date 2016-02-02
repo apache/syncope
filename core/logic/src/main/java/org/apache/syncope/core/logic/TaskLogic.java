@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.to.AbstractExecTO;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -119,12 +118,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_UPDATE + "')")
-    public SyncTaskTO updateSync(final SyncTaskTO taskTO) {
-        return updateSched(taskTO);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_UPDATE + "')")
-    public <T extends SchedTaskTO> T updateSched(final SchedTaskTO taskTO) {
+    public <T extends SchedTaskTO> T updateSchedTask(final SchedTaskTO taskTO) {
         SchedTask task = taskDAO.find(taskTO.getKey());
         if (task == null) {
             throw new NotFoundException("Task " + taskTO.getKey());

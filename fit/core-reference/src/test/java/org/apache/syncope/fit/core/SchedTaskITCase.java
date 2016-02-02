@@ -76,7 +76,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         assertNotNull(task);
 
         SchedTaskTO taskMod = new SchedTaskTO();
-        taskMod.setKey(5L);
+        taskMod.setKey(SCHED_TASK_ID);
+        taskMod.setName(task.getName());
         taskMod.setCronExpression(null);
 
         taskService.update(taskMod);
