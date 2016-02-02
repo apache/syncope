@@ -238,6 +238,11 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
                 return new WorkflowDefPUTResource();
             }
         });
+
+        // enable component path
+        if (getDebugSettings().isAjaxDebugModeEnabled()) {
+            getDebugSettings().setComponentPathAttributeName("syncope-path");
+        }
     }
 
     @Override

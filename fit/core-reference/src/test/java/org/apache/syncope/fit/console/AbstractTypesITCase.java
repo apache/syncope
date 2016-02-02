@@ -27,10 +27,10 @@ import org.junit.Before;
 public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
 
     protected static final String PLAIN_DATATABLE_PATH = "content:tabbedPanel:panel:"
-            + "collapsePanel:tabs:0:body:content:searchContainer:resultTable";
+            + "collapsePanel:tabs:0:body:content:container:content:searchContainer:resultTable";
 
     protected static final String DATATABLE_PATH =
-            "content:tabbedPanel:panel:searchContainer:resultTable";
+            "content:tabbedPanel:panel:container:content:searchContainer:resultTable";
 
     @Before
     public void login() {

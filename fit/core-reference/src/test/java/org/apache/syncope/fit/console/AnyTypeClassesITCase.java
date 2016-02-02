@@ -102,8 +102,7 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
                 DATATABLE_PATH
                 + ":tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:6:cell:panelEdit:editLink");
 
-        final FormTester formTester =
-                wicketTester.newFormTester("content:tabbedPanel:panel:modal:form");
+        final FormTester formTester = wicketTester.newFormTester("content:tabbedPanel:panel:modal:form");
         formTester.setValue(
                 "content:anyTypeClassDetailsPanel:form:container:plainSchemas:paletteField:recorder", plainSchema);
 
