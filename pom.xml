@@ -342,7 +342,7 @@ under the License.
 
     <openjpa.version>2.4.0</openjpa.version>
     <commons-dbcp.version>2.1.1</commons-dbcp.version>
-    <hibernate-validator.version>5.2.3.Final</hibernate-validator.version>
+    <bval.version>1.1.1-SNAPSHOT</bval.version>
 
     <jasypt.version>1.9.2</jasypt.version>
 
@@ -596,9 +596,9 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-validator</artifactId>
-        <version>${hibernate-validator.version}</version>
+        <groupId>org.apache.bval</groupId>
+        <artifactId>bval-jsr</artifactId>
+        <version>${bval.version}</version>
       </dependency>
             
       <dependency>

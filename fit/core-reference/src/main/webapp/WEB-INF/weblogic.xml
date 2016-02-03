@@ -28,7 +28,6 @@ under the License.
     <prefer-application-packages>
       <package-name>javax.ws.rs.*</package-name>
       <package-name>javax.validation.*</package-name>
-      <package-name>org.hibernate.validator.*</package-name>
       <package-name>org.apache.cxf.*</package-name>
       <package-name>org.apache.commons.*</package-name>
       <package-name>org.apache.openjpa.*</package-name>
