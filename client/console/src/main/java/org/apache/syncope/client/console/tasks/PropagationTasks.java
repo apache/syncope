@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import static org.apache.syncope.client.console.panels.MultilevelPanel.FIRST_LEVEL_ID;
-
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -37,13 +35,14 @@ public class PropagationTasks extends AbstractTasks {
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new PropagationTaskSearchResultPanel(FIRST_LEVEL_ID, resource, pageReference) {
+        mlp.setFirstLevel(
+                new PropagationTaskSearchResultPanel(MultilevelPanel.FIRST_LEVEL_ID, resource, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
             protected void viewTask(final PropagationTaskTO taskTO, final AjaxRequestTarget target) {
-                mlp.next("task.view", new TaskExecutionDetails<PropagationTaskTO>(taskTO, pageReference), target);
+                mlp.next("task.view", new TaskExecutionDetails<>(taskTO, pageReference), target);
             }
         });
     }

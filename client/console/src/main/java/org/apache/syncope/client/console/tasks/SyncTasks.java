@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import static org.apache.syncope.client.console.panels.MultilevelPanel.FIRST_LEVEL_ID;
-
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -39,7 +37,7 @@ public class SyncTasks extends AbstractTasks {
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new SyncTaskSearchResultPanel(FIRST_LEVEL_ID, resource, pageReference) {
+        mlp.setFirstLevel(new SyncTaskSearchResultPanel(MultilevelPanel.FIRST_LEVEL_ID, resource, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
@@ -47,7 +45,7 @@ public class SyncTasks extends AbstractTasks {
             protected void viewTask(final SyncTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
                         new StringResourceModel("task.view", this, new Model<>(taskTO)).getObject(),
-                        new TaskExecutionDetails<SyncTaskTO>(taskTO, pageReference), target);
+                        new TaskExecutionDetails<>(taskTO, pageReference), target);
             }
         });
     }

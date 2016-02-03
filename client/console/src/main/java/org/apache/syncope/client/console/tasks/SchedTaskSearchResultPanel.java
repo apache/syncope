@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -78,7 +76,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
             LOG.error("Falure instantiating task", e);
         }
 
-        this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<T>(schedTaskTO, pageRef), true);
+        this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(schedTaskTO, pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.TASK_CREATE);
 
@@ -86,7 +84,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
     }
 
     protected List<IColumn<T, String>> getFieldColumns() {
-        final List<IColumn<T, String>> columns = new ArrayList<IColumn<T, String>>();
+        final List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<T, String>(
                 new StringResourceModel("key", this, null), "key", "key"));
@@ -109,8 +107,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                 if (model != null && model.getObject() instanceof String) {
                     String value = String.class.cast(model.getObject());
                     if (value.length() > 20) {
-                        item.add(new Label(componentId,
-                                new Model<String>("..." + value.substring(value.length() - 17))));
+                        item.add(new Label(componentId, new Model<>("..." + value.substring(value.length() - 17))));
                     } else {
                         item.add(new Label(componentId, getDataModel(rowModel)));
                     }
@@ -138,7 +135,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
     @Override
     protected final List<IColumn<T, String>> getColumns() {
-        final List<IColumn<T, String>> columns = new ArrayList<IColumn<T, String>>();
+        final List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.addAll(getFieldColumns());
 
@@ -248,8 +245,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
             @Override
             public ActionLinksPanel<T> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<T> panel
-                        = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.builder(page.getPageReference());
 
                 return panel.add(new ActionLink<T>() {
 
@@ -284,7 +280,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
     @Override
     protected SchedTasksProvider<T> dataProvider() {
-        return new SchedTasksProvider<T>(reference, TaskType.SCHEDULED, rows);
+        return new SchedTasksProvider<>(reference, TaskType.SCHEDULED, rows);
     }
 
     public class SchedTasksProvider<T extends SchedTaskTO> extends TaskDataProvider<T> {
