@@ -19,13 +19,12 @@
 
 'use strict';
 angular.module('SyncopeEnduserApp')
-        .factory('PolicyValidator', ['GenericUtil',
+        .factory('ValidationExecutor', ['GenericUtil',
           function (GenericUtil) {
 
-            var policyValidator = {};
-
-            //scope parameter must contain the policy object, including the ones defined in the policy.js
-            policyValidator.validate = function (form, scope) {              
+            var validationExecutor = {};
+            
+            validationExecutor.validate = function (form, scope) {              
               if(scope.validationEnabled){
                 var currentForm = scope[form.name];              
                 angular.forEach(currentForm.$error, function (field) {
@@ -38,5 +37,5 @@ angular.module('SyncopeEnduserApp')
               }
               else return true;
             };
-            return policyValidator;
+            return validationExecutor;
           }]);

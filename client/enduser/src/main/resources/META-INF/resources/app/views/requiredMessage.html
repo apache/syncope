@@ -17,6 +17,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<p class="text-validation-error" ng-repeat="(validationKey, value) in errors.errors" custom-message="template" 
-   field-name="name" key="validationKey">
-</p>
+<div ng-switch-when="required">
+{{fieldName}} is required 
+</div>

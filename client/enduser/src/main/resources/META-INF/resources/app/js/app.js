@@ -212,20 +212,11 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
             var status = response.status;
             if (status == 401) {
               console.log("ERROR " + status);
-//              $location.path("/self");
             }
             if (status == 403) {
               console.log("UNAUTHORIZED " + status);
-//              $location.path("/self");
             }
             if (status == 400 || status == 404 || status == 412 || status == 500) {
-//              if (response.data.validationErrors != undefined) {
-//                for (var i in response.data.validationErrors) {
-//                  $rootScope.$broadcast('growlMessage', {text: response.data.validationErrors[i] || '', severity: 'error'});
-//                }
-//              } else if (response.data.message != undefined) {
-//                $rootScope.$broadcast('growlMessage', {text: response.data.message || '', severity: 'error'})
-//              }
               console.log("GENERIC ERROR " + status);
             }
           }
@@ -242,17 +233,12 @@ app.run(['$rootScope', '$location', '$cookies', '$state',
     // keep user logged in after page refresh
     // check if user is logged or not
     $rootScope.currentUser = $cookies.get('currentUser') || null;
-//If the route change failed due to authentication error, redirect them out
+    //If the route change failed due to authentication error, redirect them out
     $rootScope.$on('$routeChangeError', function (event, current, previous, rejection) {
       if (rejection === 'Not Authenticated') {
         $location.path('/self');
       }
     });
-
-//    $rootScope.$on('success', function (event, args) {
-//      console.log("IN CONFIG EVENTO: ", event);
-//      $rootScope.$broadcast("error", "success");
-//    });
 
     $rootScope.$on('$stateChangeSuccess', function (event, toState) {
       if (toState.name === 'create') {
@@ -264,12 +250,7 @@ app.run(['$rootScope', '$location', '$cookies', '$state',
         $state.go(toState);
       }
     });
-//        $rootScope.$on('$locationChangeStart', function (event, next, current) {
-//            // redirect to login page if not logged in
-//            if ($location.path() !== '/self' && !$rootScope.globals.currentUser) {
-//                $location.path('/self');
-//            }
-//        });
+    
     $rootScope.spinner = {
       active: false,
       on: function () {
@@ -283,11 +264,8 @@ app.run(['$rootScope', '$location', '$cookies', '$state',
 
 app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', function ($scope, $rootScope,
           InfoService) {
-// DO NOTHING
-
-// get syncope info and set cookie, first call
+    // get syncope info and set cookie, first call
     $scope.initApplication = function () {
-// call info service
       $rootScope.selfRegAllowed = false;
       $rootScope.pwdResetAllowed = false;
       $rootScope.version = "";
@@ -295,7 +273,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $rootScope.captchaEnabled = false;
       //setting default validation
       $rootScope.validationEnabled = true;
-      //info settings are initialized every time an user open the login page
+      // call info service (info settings are initialized every time an user reload the login page)
       InfoService.getInfo().then(
               function (response) {
                 $rootScope.pwdResetAllowed = response.pwdResetAllowed;

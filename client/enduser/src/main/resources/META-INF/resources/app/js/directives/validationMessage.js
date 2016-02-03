@@ -20,17 +20,53 @@
 'use strict';
 
 angular.module('SyncopeEnduserApp').
-        directive('validationMessage', function () {
+        directive('validationMessage', function ($templateRequest, $compile) {
           return {
             templateUrl: 'views/validationMessage.html',
             scope: {
-              "name": "@"
+              "name": "@",
+              "template": "@"
             },
-            link: function (scope, el, attrs) {              
+            replace: false,
+            link: function (scope, el, attrs) {
               //listener
               scope.$on(attrs.name, function (el, errors) {
-                scope.errors = errors;               
+                scope.errors = errors;
               });
+            }
+          };
+        });
+
+
+angular.module('SyncopeEnduserApp').
+        directive('customMessage', function ($templateRequest, $compile) {
+          return {
+            scope: {
+              "customMessage": "=",
+              "fieldName": "=",
+              "key": "="
+            },
+            replace: false,
+            link: function (scope, el, attrs) {
+              var ngswitch = $compile("<div ng-switch='key'></div>")(scope);
+              if (scope.customMessage) {
+                var templates = scope.customMessage.split(","), default_path = "views/";
+                for (var i = 0; i < templates.length; i++) {
+                  var templateUrl = default_path + templates[i] + ".html";
+                  $templateRequest(templateUrl).then(function (html) {
+                    // Convert the html to an actual DOM node                                       
+                    ngswitch.prepend(html);
+                    //defining default message
+                    ngswitch.append("<div ng-switch-default>{{key}} validation rule is not satisfied</div>")
+                    $compile(ngswitch)(scope);
+                  });
+                }
+              }
+              else{
+                ngswitch.append("<div ng-switch-default>{{key}} validation rule is not satisfied</div>")
+              }
+              $compile(ngswitch)(scope);
+              el.append(ngswitch)
             }
           };
         });

@@ -34,7 +34,6 @@ under the License.
     <!--<script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>-->
   </head>
   <body ng-cloak >
-    <!--<button ng-click=""-->
 
     <!--[if lt IE 7]>
         <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
@@ -47,17 +46,6 @@ under the License.
       <div ui-view ng-cloak ng-controller="ApplicationController" ng-init="initApplication()">      
       </div>    
     </treasure-overlay-spinner>
-    <!--    <footer id="footer" class="hidden-print">
-          <ul class="nav pull-right">
-              <li>
-                Copyright &copy; 2015, Apache Syncope
-              </li>
-          </ul>
-        </footer>-->
-
-    <!--    <div class="hidden-print" id="initialLoaderDiv">
-          <img src="img/ajax-loader.gif" class="ajax-loader"/>
-        </div>-->
 
     <!-- In production use:
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
@@ -112,9 +100,9 @@ under the License.
     <script src="js/directives/auxClasses.js"></script>
     <script src="js/directives/validate.js"></script>
     <script src="js/directives/validationMessage.js"></script>
-    <!--policy-->
-    <script src="js/policy/policy.js"></script>
-    <script src="js/policy/policyValidator.js"></script>
+    <!--validator-->
+    <script src="js/validator/validationRules.js"></script>
+    <script src="js/validator/validationExecutor.js"></script>
     <!--filters-->
     <script src="js/filters/propsFilter.js"></script>
     <!--util-->

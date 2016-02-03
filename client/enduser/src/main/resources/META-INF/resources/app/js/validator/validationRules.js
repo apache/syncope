@@ -29,7 +29,7 @@ angular.module('SyncopeEnduserApp').
               //For DOM -> model validation
               ngModel.$parsers.unshift(function (value) {
                 var valid = (typeof value) === expectedType;
-                ngModel.$setValidity('checktype', valid);
+                ngModel.$setValidity('checktype', valid);                
                 return valid ? value : undefined;
               });
 
