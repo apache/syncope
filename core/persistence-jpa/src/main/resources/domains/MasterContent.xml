@@ -165,4 +165,10 @@ we are happy to inform you that the password request was execute successfully fo
                 traceLevel="FAILURES"/> 
   <Notification_events Notification_id="2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
 
+  <ReportTemplate name="empty"/>  
+
+  <Report id="1" name="reconciliation" active="1" template_name="empty"/>
+  <ReportletConfInstance id="1" Report_id="1" 
+                         serializedInstance='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
+
 </dataset>

@@ -247,10 +247,10 @@ public class CLIITCase extends AbstractITCase {
             PROCESS_BUILDER.command(getCommand(
                     new ReportCommand().getClass().getAnnotation(Command.class).name(),
                     ReportCommand.ReportOptions.READ.getOptionName(),
-                    "2"));
+                    "72"));
             final Process process = PROCESS_BUILDER.start();
             final String result = IOUtils.toString(process.getInputStream());
-            assertTrue(result.contains("- Report 2 doesn't exist"));
+            assertTrue(result.contains("- Report 72 doesn't exist"));
 
             process.destroy();
         } catch (IOException e) {

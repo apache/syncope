@@ -54,7 +54,7 @@ public class ReportTest extends AbstractTest {
     public void findAll() {
         List<Report> reports = reportDAO.findAll();
         assertNotNull(reports);
-        assertEquals(1, reports.size());
+        assertEquals(2, reports.size());
     }
 
     @Test

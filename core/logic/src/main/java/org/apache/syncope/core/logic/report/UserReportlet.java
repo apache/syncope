@@ -373,7 +373,6 @@ public class UserReportlet extends AbstractReportlet {
                         page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), AnyTypeKind.USER);
                 doExtract(handler, users);
             }
-
         }
     }
 }

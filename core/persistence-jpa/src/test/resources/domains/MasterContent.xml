@@ -1212,7 +1212,8 @@ $$ }&#10;
   <Notification_events Notification_id="10" event="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
     
   <NotificationTask_recipients notificationtask_id="8" address="recipient@prova.org"/>  
-  
+
+  <ReportTemplate name="empty"/>  
   <ReportTemplate name="sample"
                   htmlTemplate="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;
 &lt;xsl:stylesheet xmlns:xsl=&quot;http://www.w3.org/1999/XSL/Transform&quot;&#10;
@@ -2312,6 +2313,10 @@ $$ }&#10;
   <ReportletConfInstance id="1" Report_id="1" 
                          serializedInstance='{"@class":"org.apache.syncope.common.lib.report.UserReportletConf","name":"testUserReportlet","matchingCond":null,"plainAttrs":["fullname","gender"],"derAttrs":["cn"],"virAttrs":["virtualdata"],"features":["key","username","workflowId","status","creationDate","lastLoginDate","changePwdDate","passwordHistorySize","failedLoginCount","memberships","resources"]}'/>
   <ReportExec Report_id="1" id="1" status="SUCCESS" start="2012-02-26 15:40:04" end="2012-02-26 15:41:04"/>
+
+  <Report id="2" name="reconciliation" active="1" template_name="empty"/>
+  <ReportletConfInstance id="2" Report_id="2" 
+                         serializedInstance='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
   
   <SyncopeLogger logName="syncope.audit.[REST]:[EntitlementLogic]:[]:[getOwn]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
   
