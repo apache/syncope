@@ -24,6 +24,7 @@ import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.pages.ActivitiModelerPopupPage;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.PrimaryModalButton;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.link.VeilPopupSettings;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -35,27 +36,27 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.ResourceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WorkflowTogglePanel extends TogglePanel<String> {
 
     private static final long serialVersionUID = -2025535531121434056L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(WorkflowTogglePanel.class);
-
     private final WebMarkupContainer container;
+
+    protected final BaseModal<String> modal;
 
     public WorkflowTogglePanel(final String id, final PageReference pageRef, final Image workflowDefDiagram) {
         super(id);
+        modal = new BaseModal<>("outher");
+        addOutherObject(modal);
         modal.size(Modal.Size.Large);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true);
-        add(container);
+        addInnerObject(container);
 
-        BookmarkablePageLink<Void> activitiModeler =
-                new BookmarkablePageLink<>("activitiModeler", ActivitiModelerPopupPage.class);
+        BookmarkablePageLink<Void> activitiModeler = new BookmarkablePageLink<>("activitiModeler",
+                ActivitiModelerPopupPage.class);
         activitiModeler.setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
         MetaDataRoleAuthorizationStrategy.authorize(activitiModeler, ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
         container.add(activitiModeler);

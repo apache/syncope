@@ -66,6 +66,8 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
     protected T schedTaskTO;
 
+    private final StartAtTogglePanel startAt;
+
     protected SchedTaskSearchResultPanel(final String id, final Class<T> reference, final PageReference pageRef) {
         super(id, pageRef);
         this.reference = reference;
@@ -81,6 +83,9 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.TASK_CREATE);
 
         initResultTable();
+
+        startAt = new StartAtTogglePanel(container);
+        addInnerObject(startAt);
     }
 
     protected List<IColumn<T, String>> getFieldColumns() {
@@ -175,7 +180,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                                                 restClient.readSchedTask(reference, model.getObject().getKey()),
                                                 target));
                             }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.TASK_READ).
+                        }, ActionLink.ActionType.EDIT, StandardEntitlement.TASK_UPDATE).
                         add(new ActionLink<T>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -187,22 +192,15 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                                 send(SchedTaskSearchResultPanel.this, Broadcast.EXACT,
                                         new AjaxWizard.EditItemActionEvent<>(clone, target));
                             }
-                        }, ActionLink.ActionType.CLONE, StandardEntitlement.TASK_READ).
+                        }, ActionLink.ActionType.CLONE, StandardEntitlement.TASK_CREATE).
                         add(new ActionLink<T>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
-                                try {
-                                    restClient.startExecution(taskTO.getKey(), null);
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (SyncopeClientException e) {
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                                    LOG.error("While running propagation task {}", taskTO.getKey(), e);
-                                }
-                                ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                                startAt.setTaskTO(target, model.getObject());
+                                startAt.toggle(target, true);
                             }
                         }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE).
                         add(new ActionLink<T>() {

@@ -20,20 +20,6 @@ under the License.
   <head><title>toggle menu</title></head>
   <body>
     <wicket:head>
-      <script type="text/javascript">
-        $(document).ready(function () {
-          $("div.defaultTogglePanel").click(function () {
-            $("div.inactive-topology-menu").toggle("slow");
-            $("div.inactive-topology-menu").attr("class", "topology-menu active-topology-menu");
-
-            $("div.active-topology-menu div a#close").click(function () {
-              $("div.active-topology-menu").toggle("slow");
-              $("div.active-topology-menu").attr("class", "topology-menu inactive-topology-menu");
-            });
-          });
-        });
-      </script>
-
       <style type="text/css">
         div.topology-menu {
           display: none;
@@ -102,18 +88,22 @@ under the License.
       </style>
     </wicket:head>
     <wicket:panel>
-      <div class="topology-menu inactive-topology-menu">
+      <div wicket:id="togglePanelContainer" class="topology-menu inactive-topology-menu">
         <div class="header">
           <div class="label">
             <label wicket:id="label"/>
           </div>
           <div class="close">
-            <a wicket:id="close" id="close" href="#"><i class="glyphicon glyphicon-remove"></i></a>
+            <a wicket:id="close" href="#"><i class="glyphicon glyphicon-remove"></i></a>
           </div>
         </div>
         <wicket:child/>
       </div>
-      <div wicket:id="resource-modal">[modal]</div>
+
+      <span wicket:id="outherObjectsRepeater">
+        <div wicket:id="outher"/>
+      </span>
+
     </wicket:panel>
   </body>
 </html>

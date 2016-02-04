@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.tasks.PushTasks;
 import org.apache.syncope.client.console.tasks.SchedTasks;
 import org.apache.syncope.client.console.tasks.SyncTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -48,14 +49,10 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -2025535531121434056L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(TopologyTogglePanel.class);
 
     private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
@@ -65,15 +62,26 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     private final PageReference pageRef;
 
+    protected final BaseModal<Serializable> resourceModal;
+
+    protected final BaseModal<Serializable> taskModal;
+
     public TopologyTogglePanel(final String id, final PageReference pageRef) {
         super(id);
         this.pageRef = pageRef;
 
-        modal.size(Modal.Size.Large);
+        resourceModal = new BaseModal<>("outher");
+        resourceModal.addSumbitButton();
+        resourceModal.size(Modal.Size.Large);
+        addOutherObject(resourceModal);
+
+        taskModal = new BaseModal<>("outher");
+        taskModal.size(Modal.Size.Large);
+        addOutherObject(taskModal);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true);
-        add(container);
+        addInnerObject(container);
 
         container.add(getEmptyFragment());
     }
@@ -119,9 +127,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(modal.setContent(new SchedTasks(pageRef)));
-                modal.header(new ResourceModel("task.generic.list", "Scheduled tasks"));
-                modal.show(true);
+                target.add(taskModal.setContent(new SchedTasks(pageRef)));
+                taskModal.header(new ResourceModel("task.generic.list", "Scheduled tasks"));
+                taskModal.show(true);
             }
         };
         fragment.add(tasks);
@@ -144,16 +152,16 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modelObject.setLocation(node.getKey().toString());
 
                 final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(modelObject);
-                modal.setFormModel(model);
+                resourceModal.setFormModel(model);
 
-                target.add(modal.setContent(new ConnectorModal(modal, pageRef, model)));
+                target.add(resourceModal.setContent(new ConnectorModal(resourceModal, pageRef, model)));
 
-                modal.header(new Model<>(MessageFormat.format(getString("connector.new"), node.getKey())));
+                resourceModal.header(new Model<>(MessageFormat.format(getString("connector.new"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.addSumbitButton(), ENABLE, StandardEntitlement.CONNECTOR_CREATE);
+                        authorize(resourceModal.addSumbitButton(), ENABLE, StandardEntitlement.CONNECTOR_CREATE);
 
-                modal.show(true);
+                resourceModal.show(true);
             }
         };
         fragment.add(create);
@@ -200,16 +208,16 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modelObject.setConnectorDisplayName(node.getDisplayName());
 
                 final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
-                modal.setFormModel(model);
+                resourceModal.setFormModel(model);
 
-                target.add(modal.setContent(new ResourceModal<>(modal, pageRef, model, true)));
+                target.add(resourceModal.setContent(new ResourceModal<>(resourceModal, pageRef, model, true)));
 
-                modal.header(new Model<>(MessageFormat.format(getString("resource.new"), node.getKey())));
+                resourceModal.header(new Model<>(MessageFormat.format(getString("resource.new"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.addSumbitButton(), ENABLE, StandardEntitlement.RESOURCE_CREATE);
+                        authorize(resourceModal.addSumbitButton(), ENABLE, StandardEntitlement.RESOURCE_CREATE);
 
-                modal.show(true);
+                resourceModal.show(true);
             }
         };
         fragment.add(create);
@@ -225,16 +233,16 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 final ConnInstanceTO modelObject = connectorRestClient.read(Long.class.cast(node.getKey()));
 
                 final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(modelObject);
-                modal.setFormModel(model);
+                resourceModal.setFormModel(model);
 
-                target.add(modal.setContent(new ConnectorModal(modal, pageRef, model)));
+                target.add(resourceModal.setContent(new ConnectorModal(resourceModal, pageRef, model)));
 
-                modal.header(new Model<>(MessageFormat.format(getString("connector.edit"), node.getKey())));
+                resourceModal.header(new Model<>(MessageFormat.format(getString("connector.edit"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.addSumbitButton(), ENABLE, StandardEntitlement.CONNECTOR_UPDATE);
+                        authorize(resourceModal.addSumbitButton(), ENABLE, StandardEntitlement.CONNECTOR_UPDATE);
 
-                modal.show(true);
+                resourceModal.show(true);
             }
         };
         fragment.add(edit);
@@ -279,16 +287,16 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 final ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
 
                 final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
-                modal.setFormModel(model);
+                resourceModal.setFormModel(model);
 
-                target.add(modal.setContent(new ResourceModal<>(modal, pageRef, model, false)));
+                target.add(resourceModal.setContent(new ResourceModal<>(resourceModal, pageRef, model, false)));
 
-                modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
+                resourceModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.addSumbitButton(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+                        authorize(resourceModal.addSumbitButton(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
 
-                modal.show(true);
+                resourceModal.show(true);
             }
         };
         fragment.add(edit);
@@ -301,9 +309,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             @SuppressWarnings("unchecked")
             public void onClick(final AjaxRequestTarget target) {
-                target.add(modal.setContent(new PropagationTasks(pageRef, node.getKey().toString())));
-                modal.header(new ResourceModel("task.propagation.list", "Propagation tasks"));
-                modal.show(true);
+                target.add(taskModal.setContent(new PropagationTasks(pageRef, node.getKey().toString())));
+                taskModal.header(new ResourceModel("task.propagation.list", "Propagation tasks"));
+                taskModal.show(true);
             }
         };
         fragment.add(propagation);
@@ -315,9 +323,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(modal.setContent(new SyncTasks(pageRef, node.getKey().toString())));
-                modal.header(new ResourceModel("task.synchronization.list", "Synchronization tasks"));
-                modal.show(true);
+                target.add(taskModal.setContent(new SyncTasks(pageRef, node.getKey().toString())));
+                taskModal.header(new ResourceModel("task.synchronization.list", "Synchronization tasks"));
+                taskModal.show(true);
             }
         };
         fragment.add(synchronization);
@@ -329,9 +337,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(modal.setContent(new PushTasks(pageRef, node.getKey().toString())));
-                modal.header(new ResourceModel("task.push.list", "Push tasks"));
-                modal.show(true);
+                target.add(taskModal.setContent(new PushTasks(pageRef, node.getKey().toString())));
+                taskModal.header(new ResourceModel("task.push.list", "Push tasks"));
+                taskModal.show(true);
             }
         };
         fragment.add(push);

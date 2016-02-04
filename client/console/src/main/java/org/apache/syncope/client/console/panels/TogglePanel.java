@@ -19,12 +19,22 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Toggle panel.
@@ -35,40 +45,93 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
 
     private static final long serialVersionUID = -2025535531121434056L;
 
+    protected static final Logger LOG = LoggerFactory.getLogger(TogglePanel.class);
+
     private enum Status {
         INACTIVE,
         ACTIVE
 
     }
 
-    protected final BaseModal<T> modal;
+    private final WebMarkupContainer container;
 
     private Status status = Status.INACTIVE;
 
     private final Label header;
+
+    private List<Component> outherObjects = new ArrayList<>();
 
     public TogglePanel(final String id) {
         super(id);
         setRenderBodyOnly(true);
         setOutputMarkupId(true);
 
-        this.modal = new BaseModal<>("resource-modal");
-        add(modal);
+        container = new WebMarkupContainer("togglePanelContainer");
+        add(container.setMarkupId(id));
 
         header = new Label("label", StringUtils.EMPTY);
         header.setOutputMarkupId(true);
-        add(header);
+        container.add(header);
 
-        add(new AjaxLink<Void>("close") {
+        container.add(new AjaxLink<Void>("close") {
 
             private static final long serialVersionUID = 5538299138211283825L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                TogglePanel.this.toggle(target, false);
+                toggle(target, false);
             }
 
-        }.setMarkupId("close"));
+        }.add(new AjaxEventBehavior(Constants.ON_CLICK) {
+
+            private static final long serialVersionUID = -9027652037484739586L;
+
+            @Override
+            protected String findIndicatorId() {
+                return StringUtils.EMPTY;
+            }
+
+            @Override
+            protected void onEvent(final AjaxRequestTarget target) {
+                // do nothing
+            }
+        }));
+
+        add(new ListView<Component>("outherObjectsRepeater", outherObjects) {
+
+            private static final long serialVersionUID = -9180479401817023838L;
+
+            @Override
+            protected void populateItem(final ListItem<Component> item) {
+                item.add(item.getModelObject());
+            }
+
+        });
+
+    }
+
+    /**
+     * Add object outside the main container.
+     * Use this method just to be not influenced by specific inner object css'.
+     * Be sure to provide <tt>outher</tt> as id.
+     *
+     * @param childs components to be added.
+     * @return the current panel instance.
+     */
+    public TogglePanel<T> addOutherObject(final Component... childs) {
+        outherObjects.addAll(Arrays.asList(childs));
+        return this;
+    }
+
+    /**
+     * Add object inside the main container.
+     *
+     * @param childs components to be added.
+     * @return the current panel instance.
+     */
+    public TogglePanel<T> addInnerObject(final Component... childs) {
+        container.addOrReplace(childs);
+        return this;
     }
 
     protected void setHeader(final AjaxRequestTarget target, final String header) {
@@ -83,15 +146,18 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
      * @param toggle toggle action.
      */
     public void toggle(final AjaxRequestTarget target, final boolean toggle) {
+        final String selector = String.format("$(\"div#%s\")", getId());
         if (toggle) {
             if (status == Status.INACTIVE) {
-                target.appendJavaScript("$(\"div.inactive-topology-menu\").toggle(\"slow\");"
-                        + "$(\"div.inactive-topology-menu\").attr(\"class\", \"topology-menu active-topology-menu\");");
+                target.appendJavaScript(
+                        selector + ".toggle(\"slow\");"
+                        + selector + ".attr(\"class\", \"topology-menu active-topology-menu\");");
                 status = Status.ACTIVE;
             }
         } else if (status == Status.ACTIVE) {
-            target.appendJavaScript("$(\"div.active-topology-menu\").toggle(\"slow\");"
-                    + "$(\"div.active-topology-menu\").attr(\"class\", \"topology-menu inactive-topology-menu\");");
+            target.appendJavaScript(
+                    selector + ".toggle(\"slow\");"
+                    + selector + ".attr(\"class\", \"topology-menu inactive-topology-menu\");");
             status = Status.INACTIVE;
         }
     }

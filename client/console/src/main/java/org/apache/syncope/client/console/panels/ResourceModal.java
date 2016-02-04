@@ -68,7 +68,6 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
             final boolean createFlag) {
 
         super(modal, pageRef);
-
         this.createFlag = createFlag;
 
         //--------------------------------
