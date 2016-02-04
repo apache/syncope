@@ -25,6 +25,8 @@ install: mvn --show-version --quiet -P all,skipTests
 script:
   #invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
   - mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
+after_failure:
+  - cat fit/core-reference/target/log/*
 notifications:
   email:
     - dev@syncope.apache.org
