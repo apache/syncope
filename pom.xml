@@ -391,21 +391,16 @@ under the License.
     <wicket.version>7.1.0</wicket.version>
     <wicket-jqueryui.version>7.1.0</wicket-jqueryui.version>
     
-    <angular.version>1.4.8</angular.version>
-    <angular-route.version>1.4.8</angular-route.version>
-    <angular-resource.version>1.4.8</angular-resource.version>
-    <angular-cookies.version>1.4.8</angular-cookies.version>
-    <angular-animate.version>1.4.8</angular-animate.version>
+    <angular.version>1.4.9</angular.version>
     <angular-ui-router.version>0.2.17</angular-ui-router.version>
     <angular-ui-bootstrap.version>1.1.1-1</angular-ui-bootstrap.version>
     <angular-ui-select.version>0.13.1</angular-ui-select.version>
-    <angular-sanitize.version>1.4.8</angular-sanitize.version>
     <angular-treasure-overlay-spinner.version>1.1.0</angular-treasure-overlay-spinner.version>
-    <ng-password-strength>0.2.1</ng-password-strength>
-    <lodash>4.0.0</lodash>
+    <ng-password-strength.version>0.2.1</ng-password-strength.version>
+    <lodash.version>4.0.0</lodash.version>
     <kendo-ui-core.version>2014.2.716</kendo-ui-core.version>
     <select2.version>3.4.8</select2.version>
-    <FileSaver.version>0.0.2</FileSaver.version>
+    <fileSaver.version>0.0.2</fileSaver.version>
     
     <izpack.version>5.0.6</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
@@ -1039,17 +1034,17 @@ under the License.
       <dependency>
         <groupId>org.webjars.bower</groupId>
         <artifactId>angular-route</artifactId>
-        <version>${angular-route.version}</version>
+        <version>${angular.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars.bower</groupId>
         <artifactId>angular-resource</artifactId>
-        <version>${angular-resource.version}</version>
+        <version>${angular.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars.bower</groupId>
         <artifactId>angular-cookies</artifactId>
-        <version>${angular-cookies.version}</version>
+        <version>${angular.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
@@ -1059,7 +1054,7 @@ under the License.
       <dependency>
         <groupId>org.webjars.bower</groupId>
         <artifactId>angular-animate</artifactId>
-        <version>${angular-animate.version}</version>
+        <version>${angular.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
@@ -1074,7 +1069,7 @@ under the License.
       <dependency>
         <groupId>org.webjars.bower</groupId>
         <artifactId>angular-sanitize</artifactId>
-        <version>${angular-sanitize.version}</version>
+        <version>${angular.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars.bower</groupId>
@@ -1084,12 +1079,12 @@ under the License.
       <dependency>
         <groupId>org.webjars.bower</groupId>
         <artifactId>ng-password-strength</artifactId>
-        <version>${ng-password-strength}</version>
+        <version>${ng-password-strength.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
         <artifactId>lodash</artifactId>
-        <version>${lodash}</version>
+        <version>${lodash.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
@@ -1110,13 +1105,13 @@ under the License.
       <dependency>
         <groupId>org.webjars.bower</groupId>
         <artifactId>FileSaver.js</artifactId>
-        <version>${FileSaver.version}</version>
+        <version>${fileSaver.version}</version>
       </dependency>
 
       <dependency>
         <groupId>com.beust</groupId>
         <artifactId>jcommander</artifactId>
-        <version>1.47</version>
+        <version>1.48</version>
       </dependency>
       
       <dependency>
