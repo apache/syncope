@@ -96,7 +96,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void getSyncActionsClasses() {
-        Set<String> actions = syncopeService.info().getSyncActions();
+        Set<String> actions = syncopeService.syncope().getSyncActions();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }

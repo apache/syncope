@@ -67,7 +67,7 @@ public final class SyncopeServices {
         }
         final SyncopeClient syncopeClient = new SyncopeClientFactoryBean()
                 .setAddress(properties.getProperty("syncope.rest.services")).create(username, password);
-        syncopeClient.getService(SyncopeService.class).info();
+        syncopeClient.getService(SyncopeService.class).syncope();
     }
 
     private SyncopeServices() {

@@ -23,14 +23,14 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 public class CamelDetector {
 
     public static boolean isCamelEnabledForUsers(final SyncopeService syncopeService) {
-        return syncopeService.info().getUserProvisioningManager().contains("Camel");
+        return syncopeService.syncope().getUserProvisioningManager().contains("Camel");
     }
 
     public static boolean isCamelEnabledForGroups(final SyncopeService syncopeService) {
-        return syncopeService.info().getGroupProvisioningManager().contains("Camel");
+        return syncopeService.syncope().getGroupProvisioningManager().contains("Camel");
     }
 
     public static boolean isCamelEnabledForAnyObjects(final SyncopeService syncopeService) {
-        return syncopeService.info().getAnyObjectProvisioningManager().contains("Camel");
+        return syncopeService.syncope().getAnyObjectProvisioningManager().contains("Camel");
     }
 }

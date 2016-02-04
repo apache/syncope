@@ -117,7 +117,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 3. as admin
         self = adminClient.self();
-        assertEquals(syncopeService.info().getEntitlements().size(), self.getKey().size());
+        assertEquals(syncopeService.syncope().getEntitlements().size(), self.getKey().size());
         assertFalse(self.getKey().keySet().contains(StandardEntitlement.ANONYMOUS));
         assertEquals(ADMIN_UNAME, self.getValue().getUsername());
 
@@ -402,7 +402,7 @@ public class AuthenticationITCase extends AbstractITCase {
         final String anyTypeKey = "FOLDER " + getUUIDString();
 
         // 1. no entitlement exists (yet) for the any type to be created
-        assertFalse(IterableUtils.matchesAny(syncopeService.info().getEntitlements(), new Predicate<String>() {
+        assertFalse(IterableUtils.matchesAny(syncopeService.syncope().getEntitlements(), new Predicate<String>() {
 
             @Override
             public boolean evaluate(final String entitlement) {
@@ -428,7 +428,7 @@ public class AuthenticationITCase extends AbstractITCase {
         anyTypeService.create(anyTypeTO);
 
         // 2. now entitlement exists for the any type just created
-        assertTrue(IterableUtils.matchesAny(syncopeService.info().getEntitlements(), new Predicate<String>() {
+        assertTrue(IterableUtils.matchesAny(syncopeService.syncope().getEntitlements(), new Predicate<String>() {
 
             @Override
             public boolean evaluate(final String entitlement) {

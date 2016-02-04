@@ -59,6 +59,6 @@ public class RoleRestClient extends BaseRestClient {
     }
 
     public List<String> getAllAvailableEntitlements() {
-        return new ArrayList<>(getSyncopeService().info().getEntitlements());
+        return new ArrayList<>(getSyncopeService().syncope().getEntitlements());
     }
 }

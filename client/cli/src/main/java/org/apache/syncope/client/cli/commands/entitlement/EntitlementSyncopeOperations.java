@@ -31,7 +31,7 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 
 public class EntitlementSyncopeOperations {
 
-    private final SyncopeTO syncopeTO = SyncopeServices.get(SyncopeService.class).info();
+    private final SyncopeTO syncopeTO = SyncopeServices.get(SyncopeService.class).syncope();
 
     private final UserSyncopeOperations userSyncopeOperations = new UserSyncopeOperations();
 

@@ -23,14 +23,14 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 public class ActivitiDetector {
 
     public static boolean isActivitiEnabledForUsers(final SyncopeService syncopeService) {
-        return syncopeService.info().getUserWorkflowAdapter().contains("Activiti");
+        return syncopeService.syncope().getUserWorkflowAdapter().contains("Activiti");
     }
 
     public static boolean isActivitiEnabledForGroups(final SyncopeService syncopeService) {
-        return syncopeService.info().getGroupWorkflowAdapter().contains("Activiti");
+        return syncopeService.syncope().getGroupWorkflowAdapter().contains("Activiti");
     }
 
     public static boolean isActivitiEnabledForAnyObjects(final SyncopeService syncopeService) {
-        return syncopeService.info().getAnyObjectWorkflowAdapter().contains("Activiti");
+        return syncopeService.syncope().getAnyObjectWorkflowAdapter().contains("Activiti");
     }
 }

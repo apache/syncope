@@ -66,7 +66,7 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void getReportletClasses() {
-        Set<String> reportlets = syncopeService.info().getReportlets();
+        Set<String> reportlets = syncopeService.syncope().getReportlets();
         assertNotNull(reportlets);
         assertFalse(reportlets.isEmpty());
     }

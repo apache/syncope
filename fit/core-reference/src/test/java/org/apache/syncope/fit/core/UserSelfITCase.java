@@ -65,7 +65,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void selfRegistrationAllowed() {
-        assertTrue(syncopeService.info().isSelfRegAllowed());
+        assertTrue(syncopeService.syncope().isSelfRegAllowed());
     }
 
     @Test

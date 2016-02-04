@@ -18,10 +18,14 @@
  */
 package org.apache.syncope.core.logic;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
 import org.apache.syncope.core.misc.EntitlementsHolder;
 import java.lang.reflect.Method;
 import java.net.URI;
 import javax.annotation.Resource;
+import org.apache.syncope.common.lib.to.PlatformTO;
 import org.apache.syncope.common.lib.to.SyncopeTO;
 import org.apache.syncope.core.misc.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
@@ -43,6 +47,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
+
+    private static final int MB = 1024 * 1024;
+
+    private static final SyncopeTO SYNCOPE_TO = new SyncopeTO();
+
+    private static final PlatformTO PLATFORM_TO = new PlatformTO();
 
     @Autowired
     private ConfDAO confDAO;
@@ -98,48 +108,81 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public SyncopeTO info() {
-        SyncopeTO syncopeTO = new SyncopeTO();
-        syncopeTO.setVersion(version);
+        synchronized (SYNCOPE_TO) {
+            SYNCOPE_TO.setVersion(version);
 
-        syncopeTO.setSelfRegAllowed(isSelfRegAllowed());
-        syncopeTO.setPwdResetAllowed(isPwdResetAllowed());
-        syncopeTO.setPwdResetRequiringSecurityQuestions(isPwdResetRequiringSecurityQuestions());
+            SYNCOPE_TO.setSelfRegAllowed(isSelfRegAllowed());
+            SYNCOPE_TO.setPwdResetAllowed(isPwdResetAllowed());
+            SYNCOPE_TO.setPwdResetRequiringSecurityQuestions(isPwdResetRequiringSecurityQuestions());
 
-        if (bundleManager.getLocations() != null) {
-            for (URI location : bundleManager.getLocations()) {
-                syncopeTO.getConnIdLocations().add(location.toASCIIString());
+            if (bundleManager.getLocations() != null) {
+                for (URI location : bundleManager.getLocations()) {
+                    SYNCOPE_TO.getConnIdLocations().add(location.toASCIIString());
+                }
             }
+
+            SYNCOPE_TO.setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
+            SYNCOPE_TO.setUserWorkflowAdapter(AopUtils.getTargetClass(uwfAdapter).getName());
+            SYNCOPE_TO.setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
+
+            SYNCOPE_TO.setAnyObjectProvisioningManager(aProvisioningManager.getClass().getName());
+            SYNCOPE_TO.setUserProvisioningManager(uProvisioningManager.getClass().getName());
+            SYNCOPE_TO.setGroupProvisioningManager(gProvisioningManager.getClass().getName());
+            SYNCOPE_TO.setVirAttrCache(virAttrCache.getClass().getName());
+            SYNCOPE_TO.setPasswordGenerator(passwordGenerator.getClass().getName());
+
+            SYNCOPE_TO.getEntitlements().addAll(EntitlementsHolder.getInstance().getValues());
+
+            SYNCOPE_TO.getReportlets().addAll(implLookup.getClassNames(Type.REPORTLET));
+            SYNCOPE_TO.getAccountRules().addAll(implLookup.getClassNames(Type.ACCOUNT_RULE));
+            SYNCOPE_TO.getPasswordRules().addAll(implLookup.getClassNames(Type.PASSWORD_RULE));
+            SYNCOPE_TO.getMappingItemTransformers().addAll(implLookup.getClassNames(Type.MAPPING_ITEM_TRANSFORMER));
+            SYNCOPE_TO.getTaskJobs().addAll(implLookup.getClassNames(Type.TASKJOBDELEGATE));
+            SYNCOPE_TO.getReconciliationFilterBuilders().
+                    addAll(implLookup.getClassNames(Type.RECONCILIATION_FILTER_BUILDER));
+            SYNCOPE_TO.getLogicActions().addAll(implLookup.getClassNames(Type.LOGIC_ACTIONS));
+            SYNCOPE_TO.getPropagationActions().addAll(implLookup.getClassNames(Type.PROPAGATION_ACTIONS));
+            SYNCOPE_TO.getSyncActions().addAll(implLookup.getClassNames(Type.SYNC_ACTIONS));
+            SYNCOPE_TO.getPushActions().addAll(implLookup.getClassNames(Type.PUSH_ACTIONS));
+            SYNCOPE_TO.getSyncCorrelationRules().addAll(implLookup.getClassNames(Type.SYNC_CORRELATION_RULE));
+            SYNCOPE_TO.getValidators().addAll(implLookup.getClassNames(Type.VALIDATOR));
+            SYNCOPE_TO.getNotificationRecipientsProviders().
+                    addAll(implLookup.getClassNames(Type.NOTIFICATION_RECIPIENTS_PROVIDER));
         }
 
-        syncopeTO.setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
-        syncopeTO.setUserWorkflowAdapter(AopUtils.getTargetClass(uwfAdapter).getName());
-        syncopeTO.setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
+        return SYNCOPE_TO;
+    }
 
-        syncopeTO.setAnyObjectProvisioningManager(aProvisioningManager.getClass().getName());
-        syncopeTO.setUserProvisioningManager(uProvisioningManager.getClass().getName());
-        syncopeTO.setGroupProvisioningManager(gProvisioningManager.getClass().getName());
-        syncopeTO.setVirAttrCache(virAttrCache.getClass().getName());
-        syncopeTO.setPasswordGenerator(passwordGenerator.getClass().getName());
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
+    public PlatformTO platform() {
 
-        syncopeTO.getEntitlements().addAll(EntitlementsHolder.getInstance().getValues());
+        synchronized (PLATFORM_TO) {
+            PlatformTO.PlatformLoad instant = new PlatformTO.PlatformLoad();
 
-        syncopeTO.getReportlets().addAll(implLookup.getClassNames(Type.REPORTLET));
-        syncopeTO.getAccountRules().addAll(implLookup.getClassNames(Type.ACCOUNT_RULE));
-        syncopeTO.getPasswordRules().addAll(implLookup.getClassNames(Type.PASSWORD_RULE));
-        syncopeTO.getMappingItemTransformers().addAll(implLookup.getClassNames(Type.MAPPING_ITEM_TRANSFORMER));
-        syncopeTO.getTaskJobs().addAll(implLookup.getClassNames(Type.TASKJOBDELEGATE));
-        syncopeTO.getReconciliationFilterBuilders().
-                addAll(implLookup.getClassNames(Type.RECONCILIATION_FILTER_BUILDER));
-        syncopeTO.getLogicActions().addAll(implLookup.getClassNames(Type.LOGIC_ACTIONS));
-        syncopeTO.getPropagationActions().addAll(implLookup.getClassNames(Type.PROPAGATION_ACTIONS));
-        syncopeTO.getSyncActions().addAll(implLookup.getClassNames(Type.SYNC_ACTIONS));
-        syncopeTO.getPushActions().addAll(implLookup.getClassNames(Type.PUSH_ACTIONS));
-        syncopeTO.getSyncCorrelationRules().addAll(implLookup.getClassNames(Type.SYNC_CORRELATION_RULE));
-        syncopeTO.getValidators().addAll(implLookup.getClassNames(Type.VALIDATOR));
-        syncopeTO.getNotificationRecipientsProviders().
-                addAll(implLookup.getClassNames(Type.NOTIFICATION_RECIPIENTS_PROVIDER));
+            OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+            PLATFORM_TO.setOs(operatingSystemMXBean.getName()
+                    + " " + operatingSystemMXBean.getVersion()
+                    + " " + operatingSystemMXBean.getArch());
+            PLATFORM_TO.setAvailableProcessors(operatingSystemMXBean.getAvailableProcessors());
+            instant.setSystemLoadAverage(operatingSystemMXBean.getSystemLoadAverage());
 
-        return syncopeTO;
+            RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+            PLATFORM_TO.setJvm(
+                    runtimeMXBean.getVmName()
+                    + " " + System.getProperty("java.version")
+                    + " " + runtimeMXBean.getVmVendor());
+            instant.setUptime(runtimeMXBean.getUptime());
+
+            Runtime runtime = Runtime.getRuntime();
+            instant.setTotalMemory(runtime.totalMemory() / MB);
+            instant.setMaxMemory(runtime.maxMemory() / MB);
+            instant.setFreeMemory(runtime.freeMemory() / MB);
+
+            PLATFORM_TO.getLoad().add(instant);
+        }
+
+        return PLATFORM_TO;
     }
 
     @Override

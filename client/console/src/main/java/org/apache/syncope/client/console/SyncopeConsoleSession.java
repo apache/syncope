@@ -87,7 +87,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
                 SyncopeConsoleApplication.get().getAnonymousUser(),
                 SyncopeConsoleApplication.get().getAnonymousKey());
 
-        syncopeTO = anonymousClient.getService(SyncopeService.class).info();
+        syncopeTO = anonymousClient.getService(SyncopeService.class).syncope();
         domains = new ArrayList<>();
         domains.add(SyncopeConstants.MASTER_DOMAIN);
         CollectionUtils.collect(anonymousClient.getService(DomainService.class).list(),

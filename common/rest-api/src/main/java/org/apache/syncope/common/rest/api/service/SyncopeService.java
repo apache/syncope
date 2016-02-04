@@ -22,6 +22,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.lib.to.PlatformTO;
 import org.apache.syncope.common.lib.to.SyncopeTO;
 
 /**
@@ -37,5 +38,15 @@ public interface SyncopeService extends JAXRSService {
      */
     @GET
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    SyncopeTO info();
+    SyncopeTO syncope();
+
+    /**
+     * Provides information about the underlying platform (Operating System, CPU / memory usage, ...).
+     *
+     * @return information about the underlying platform (Operating System, CPU / memory usage, ...)
+     */
+    @GET
+    @Path("/platform")
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PlatformTO platform();
 }

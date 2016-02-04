@@ -80,7 +80,7 @@ public class SyncopeEnduserSession extends WebSession {
         anonymousClient = SyncopeEnduserApplication.get().getClientFactory().create(
                 SyncopeEnduserApplication.get().getAnonymousUser(),
                 SyncopeEnduserApplication.get().getAnonymousKey());
-        syncopeTO = anonymousClient.getService(SyncopeService.class).info();
+        syncopeTO = anonymousClient.getService(SyncopeService.class).syncope();
 
     }
 

@@ -167,7 +167,7 @@ public class InstallSetup {
 
         try {
             final SyncopeService syncopeService = SyncopeServices.get(SyncopeService.class);
-            final String syncopeVersion = syncopeService.info().getVersion();
+            final String syncopeVersion = syncopeService.syncope().getVersion();
             installResultManager.installationSuccessful(syncopeVersion);
         } catch (final ProcessingException ex) {
             LOG.error("Error installing CLI", ex);

@@ -28,7 +28,7 @@ public class Info {
 
     private static final Logger LOG = LoggerFactory.getLogger(Info.class);
 
-    private final SyncopeTO syncopeTO = SyncopeServices.get(SyncopeService.class).info();
+    private final SyncopeTO syncopeTO = SyncopeServices.get(SyncopeService.class).syncope();
 
     private final InfoResultManager infoResultManager = new InfoResultManager();
 
