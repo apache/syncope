@@ -595,6 +595,16 @@ under the License.
         <groupId>org.apache.bval</groupId>
         <artifactId>bval-jsr</artifactId>
         <version>${bval.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
             
       <dependency>
