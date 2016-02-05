@@ -56,6 +56,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     public static final String AUTHENTICATED = "AUTHENTICATED";
 
+    public static final String MENU_COLLAPSE = "MENU_COLLAPSE";
+
     private final SyncopeTO syncopeTO;
 
     private final List<String> domains;

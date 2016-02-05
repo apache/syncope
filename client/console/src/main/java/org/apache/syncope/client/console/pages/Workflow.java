@@ -40,7 +40,7 @@ public class Workflow extends BasePage {
 
         WebMarkupContainer noActivitiEnabledForUsers = new WebMarkupContainer("noActivitiEnabledForUsers");
         noActivitiEnabledForUsers.setOutputMarkupPlaceholderTag(true);
-        add(noActivitiEnabledForUsers);
+        body.add(noActivitiEnabledForUsers);
 
         WebMarkupContainer workflowDef = new WebMarkupContainer("workflowDefContainer");
         workflowDef.setOutputMarkupPlaceholderTag(true);
@@ -79,7 +79,7 @@ public class Workflow extends BasePage {
         }
 
         MetaDataRoleAuthorizationStrategy.authorize(workflowDef, ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
-        add(workflowDef);
+        body.add(workflowDef);
     }
 
 }

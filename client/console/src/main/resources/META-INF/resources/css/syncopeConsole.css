@@ -53,6 +53,7 @@ pre {
   padding-top: 90px !important; 
   padding-bottom: 50px !important; 
   position: fixed !important;
+  width: 245px !important;
 }
 
 .inner-control-sidebar {
@@ -171,10 +172,6 @@ a.help span {
 a.help span a {
   color: #463;
   text-decoration: none;
-}
-
-div.basepage-content{
-  margin-top: 55px;
 }
 
 .modal-open .modal {

@@ -94,8 +94,8 @@ public class Topology extends BasePage {
         }
     };
 
-    private final LoadableDetachableModel<Map<String, List<ConnInstanceTO>>> connModel
-            = new LoadableDetachableModel<Map<String, List<ConnInstanceTO>>>() {
+    private final LoadableDetachableModel<Map<String, List<ConnInstanceTO>>> connModel =
+            new LoadableDetachableModel<Map<String, List<ConnInstanceTO>>>() {
 
         private static final long serialVersionUID = 5275935387613157432L;
 
@@ -118,8 +118,8 @@ public class Topology extends BasePage {
         }
     };
 
-    private final LoadableDetachableModel<Pair<List<URI>, List<URI>>> csModel
-            = new LoadableDetachableModel<Pair<List<URI>, List<URI>>>() {
+    private final LoadableDetachableModel<Pair<List<URI>, List<URI>>> csModel =
+            new LoadableDetachableModel<Pair<List<URI>, List<URI>>>() {
 
         private static final long serialVersionUID = 5275935387613157433L;
 
@@ -158,7 +158,7 @@ public class Topology extends BasePage {
                 return Topology.this.notificationPanel;
             }
         };
-        add(modal.size(Modal.Size.Large));
+        body.add(modal.size(Modal.Size.Large));
 
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -170,10 +170,10 @@ public class Topology extends BasePage {
             }
         });
 
-        add(new WebSocketBehavior());
+        body.add(new WebSocketBehavior());
 
         togglePanel = new TopologyTogglePanel("toggle", getPageReference());
-        add(togglePanel);
+        body.add(togglePanel);
 
         // -----------------------------------------
         // Add Zoom panel
@@ -199,7 +199,7 @@ public class Topology extends BasePage {
             }
         }, ActionLink.ActionType.ZOOM_OUT, StandardEntitlement.RESOURCE_LIST);
 
-        add(zoomActionPanel.build("zoom"));
+        body.add(zoomActionPanel.build("zoom"));
         // -----------------------------------------
 
         // -----------------------------------------
@@ -213,7 +213,7 @@ public class Topology extends BasePage {
         syncopeTopologyNode.setHost(uri.getHost());
         syncopeTopologyNode.setPort(uri.getPort());
 
-        add(topologyNodePanel("syncope", syncopeTopologyNode));
+        body.add(topologyNodePanel("syncope", syncopeTopologyNode));
 
         final Map<Serializable, Map<Serializable, TopologyNode>> connections = new HashMap<>();
         final Map<Serializable, TopologyNode> syncopeConnections = new HashMap<>();
@@ -260,7 +260,7 @@ public class Topology extends BasePage {
         };
 
         connectorServers.setOutputMarkupId(true);
-        add(connectorServers);
+        body.add(connectorServers);
         // -----------------------------------------
 
         // -----------------------------------------
@@ -299,7 +299,7 @@ public class Topology extends BasePage {
         };
 
         filePaths.setOutputMarkupId(true);
-        add(filePaths);
+        body.add(filePaths);
         // -----------------------------------------
 
         // -----------------------------------------
@@ -371,7 +371,7 @@ public class Topology extends BasePage {
         };
 
         conns.setOutputMarkupId(true);
-        add(conns);
+        body.add(conns);
         // -----------------------------------------
 
         // -----------------------------------------
@@ -447,7 +447,7 @@ public class Topology extends BasePage {
         };
 
         resources.setOutputMarkupId(true);
-        add(resources);
+        body.add(resources);
         // -----------------------------------------
 
         // -----------------------------------------
@@ -455,7 +455,7 @@ public class Topology extends BasePage {
         // -----------------------------------------
         final WebMarkupContainer jsPlace = new WebMarkupContainerNoVeil("jsPlace");
         jsPlace.setOutputMarkupId(true);
-        add(jsPlace);
+        body.add(jsPlace);
 
         jsPlace.add(new Behavior() {
 
@@ -501,7 +501,7 @@ public class Topology extends BasePage {
 
         newlyCreatedContainer = new WebMarkupContainer("newlyCreatedContainer");
         newlyCreatedContainer.setOutputMarkupId(true);
-        add(newlyCreatedContainer);
+        body.add(newlyCreatedContainer);
 
         newlyCreated = new ListView<TopologyNode>("newlyCreated", new ArrayList<TopologyNode>()) {
 

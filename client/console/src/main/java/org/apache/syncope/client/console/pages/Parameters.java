@@ -26,16 +26,16 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 public class Parameters extends BasePage {
 
     private static final long serialVersionUID = 4116733316105009166L;
-    
+
     private final ParametersPanel parametersPanel;
 
     public Parameters(final PageParameters parameters) {
         super(parameters);
-        
-        final WebMarkupContainer content = new WebMarkupContainer("content");
+
+        WebMarkupContainer content = new WebMarkupContainer("content");
         content.add(new Label("header", getString("header_title")));
         content.setOutputMarkupId(true);
-        add(content);
+        body.add(content);
 
         parametersPanel = new ParametersPanel("parametersPanel", getPageReference());
         parametersPanel.setOutputMarkupId(true);

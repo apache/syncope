@@ -30,10 +30,10 @@ public class SecurityQuestions extends BasePage {
     public SecurityQuestions(final PageParameters parameters) {
         super(parameters);
 
-        final WebMarkupContainer content = new WebMarkupContainer("content");
+        WebMarkupContainer content = new WebMarkupContainer("content");
         content.add(new Label("header", getString("header_title")));
         content.setOutputMarkupId(true);
-        add(content);
+        body.add(content);
 
         SecurityQuestionsPanel securityQuestionsPanel =
                 new SecurityQuestionsPanel("securityQuestionPanel", getPageReference());

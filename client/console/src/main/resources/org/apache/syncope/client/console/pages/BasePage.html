@@ -20,31 +20,32 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <head>
     <meta charset="UTF-8"/>
-    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'/>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
 
     <title>Apache Syncope</title>
 
     <link rel="shortcut icon" href="img/favicon.png" type="image/png"/>
-    <link href="webjars/font-awesome/${font-awesome.version}/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-    <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="webjars/font-awesome/${font-awesome.version}/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
 
-    <link href="css/AdminLTE_plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
-    <link href="css/AdminLTE_skins/skin-green.css" rel="stylesheet" type="text/css" />
-    <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css" />
+    <link href="css/AdminLTE_plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="css/AdminLTE_skins/skin-green.css" rel="stylesheet" type="text/css"/>
+    <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css"/>
 
     <script type="text/javascript" src="webjars/bootbox/${bootbox.version}/bootbox.js"></script>
   </head>
-  <body class="skin-green">
+  <body class="skin-green hold-transition sidebar-mini" wicket:id="body">
 
     <div class="wrapper">
       <span wicket:id="feedback"></span>
-      <header class="main-header block-header">
-        <div class="logo logo-pos">
-          <img src="img/logo.png"/>
-        </div>
+      <header class="main-header">
+        <a href="#" class="logo logo-pos">
+          <span class="logo-mini"><img src="img/logo-mini.png"/></span>
+          <span class="logo-lg"><img src="img/logo.png"/></span>
+        </a>                
 
         <nav class="navbar navbar-static-top" role="navigation">
-          <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+          <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button" wicket:id="collapse">
             <span class="sr-only">Toggle navigation</span>
           </a>
           <ul class="nav navbar-nav">
@@ -89,13 +90,18 @@ under the License.
         </nav>
       </header>
 
-      <aside class="main-sidebar block-sidebar">
+      <aside class="main-sidebar">
         <section class="sidebar">
+          <div class="user-panel">
+            <div class="pull-left image">&nbsp;</div>
+            <div class="pull-left info"></div>
+          </div>
+
           <ul class="sidebar-menu">
-            <li wicket:id="dashboardLI"><a href="#" wicket:id="dashboard"><i class="fa fa-dashboard"></i><wicket:message key="dashboard"/></a></li>
-            <li wicket:id="realmsLI"><a href="#" wicket:id="realms"><i class="fa fa-folder-o"></i><wicket:message key="realms"/></a></li>
-            <li wicket:id="topologyLI"><a href="#" wicket:id="topology"><i class="fa fa-plug"></i><wicket:message key="topology"/></a></li>
-            <li wicket:id="reportsLI"><a href="#" wicket:id="reports"><i class="fa fa-pie-chart"></i><wicket:message key="reports"/></a></li>
+            <li wicket:id="dashboardLI"><a href="#" wicket:id="dashboard"><i class="fa fa-dashboard"></i><span><wicket:message key="dashboard"/></span></a></li>
+            <li wicket:id="realmsLI"><a href="#" wicket:id="realms"><i class="fa fa-folder-o"></i><span><wicket:message key="realms"/></span></a></li>
+            <li wicket:id="topologyLI"><a href="#" wicket:id="topology"><i class="fa fa-plug"></i><span><wicket:message key="topology"/></span></a></li>
+            <li wicket:id="reportsLI"><a href="#" wicket:id="reports"><i class="fa fa-pie-chart"></i><span><wicket:message key="reports"/></span></a></li>
             <li wicket:id="configurationLI" class="treeview">
               <a href="#"><i class="fa fa-edit"></i><span><wicket:message key="configuration"/></span> <i class="fa fa-angle-left pull-right"></i></a>
               <ul wicket:id="configurationUL" class="treeview-menu">
@@ -122,12 +128,16 @@ under the License.
         </section>
       </aside>
 
-      <div id="main-content" class="content-wrapper basepage-content">
-        <wicket:child />
+      <div class="content-wrapper">
+        <section class="content">
+          <wicket:child/>
+        </section>
       </div>
 
-      <footer class="main-footer block-footer">
-        Apache Syncope <label wicket:id="version"/> -
+      <footer class="main-footer">
+        <div class="pull-right hidden-xs">
+          <b>Version</b> <label wicket:id="version"/>
+        </div>
         <strong>Copyright &copy; 2010–<span id="spanYear"></span> 
           <a href="http://www.apache.org/" target="_blank">The Apache Software Foundation</a>.</strong>
         All rights reserved.

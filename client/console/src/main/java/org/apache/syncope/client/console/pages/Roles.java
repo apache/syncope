@@ -36,10 +36,10 @@ public class Roles extends BasePage {
     public Roles(final PageParameters parameters) {
         super(parameters);
 
-        final WebMarkupContainer content = new WebMarkupContainer("content");
+        WebMarkupContainer content = new WebMarkupContainer("content");
         content.add(new Label("header", getString("header_title", new Model<>(), "Roles")));
         content.setOutputMarkupId(true);
-        add(content);
+        body.add(content);
 
         WizardMgtPanel<RoleHandler> roleSearchResultPanel =
                 new RoleSearchResultPanel.Builder(getPageReference()) {

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
@@ -38,7 +39,9 @@ import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
@@ -71,9 +74,9 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
 
     protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
-    protected NotificationPanel notificationPanel;
+    protected final WebMarkupContainer body;
 
-    private final UserWorkflowRestClient userWorkflowRestClient = new UserWorkflowRestClient();
+    protected NotificationPanel notificationPanel;
 
     public BasePage() {
         this(null);
@@ -82,47 +85,55 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
     public BasePage(final PageParameters parameters) {
         super(parameters);
 
+        body = new WebMarkupContainer("body");
+        Serializable leftMenuCollapse =
+                SyncopeConsoleSession.get().getAttribute(SyncopeConsoleSession.MENU_COLLAPSE);
+        if ((leftMenuCollapse instanceof Boolean) && ((Boolean) leftMenuCollapse)) {
+            body.add(new AttributeAppender("class", " sidebar-collapse"));
+        }
+        add(body);
+
         notificationPanel = new NotificationPanel(Constants.FEEDBACK);
         notificationPanel.setOutputMarkupId(true);
-        addOrReplace(notificationPanel);
+        body.addOrReplace(notificationPanel);
 
         // header, footer
-        add(new Label("version", SyncopeConsoleApplication.get().getVersion()));
-        add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
+        body.add(new Label("version", SyncopeConsoleApplication.get().getVersion()));
+        body.add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
 
         WebMarkupContainer todosContainer = new WebMarkupContainer("todosContainer");
-        add(todosContainer);
+        body.add(todosContainer);
         Label todos = new Label("todos", "0");
         todosContainer.add(todos);
         if (SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_LIST)) {
-            todos.setDefaultModelObject(userWorkflowRestClient.getForms().size());
+            todos.setDefaultModelObject(new UserWorkflowRestClient().getForms().size());
         }
         MetaDataRoleAuthorizationStrategy.authorize(
                 todosContainer, WebPage.RENDER, StandardEntitlement.WORKFLOW_FORM_LIST);
 
         // menu
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("dashboard"));
-        add(liContainer);
+        body.add(liContainer);
         liContainer.add(BookmarkablePageLinkBuilder.build("dashboard", Dashboard.class));
 
         liContainer = new WebMarkupContainer(getLIContainerId("realms"));
-        add(liContainer);
+        body.add(liContainer);
         liContainer.add(BookmarkablePageLinkBuilder.build("realms", Realms.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.REALM_LIST);
 
         liContainer = new WebMarkupContainer(getLIContainerId("topology"));
-        add(liContainer);
+        body.add(liContainer);
         liContainer.add(BookmarkablePageLinkBuilder.build("topology", Topology.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER,
                 String.format("%s,%s", StandardEntitlement.CONNECTOR_LIST, StandardEntitlement.RESOURCE_LIST));
 
         liContainer = new WebMarkupContainer(getLIContainerId("reports"));
-        add(liContainer);
+        body.add(liContainer);
         liContainer.add(BookmarkablePageLinkBuilder.build("reports", Reports.class));
         MetaDataRoleAuthorizationStrategy.authorize(liContainer, WebPage.RENDER, StandardEntitlement.REPORT_LIST);
 
         WebMarkupContainer confLIContainer = new WebMarkupContainer(getLIContainerId("configuration"));
-        add(confLIContainer);
+        body.add(confLIContainer);
         WebMarkupContainer confULContainer = new WebMarkupContainer(getULContainerId("configuration"));
         confLIContainer.add(confULContainer);
 
@@ -177,8 +188,20 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
         MetaDataRoleAuthorizationStrategy.authorize(
                 liContainer, WebPage.RENDER, StandardEntitlement.CONFIGURATION_LIST);
 
-        add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
-        add(new BookmarkablePageLink<Page>("logout", Logout.class));
+        body.add(new AjaxLink<Void>("collapse") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                SyncopeConsoleSession.get().setAttribute(SyncopeConsoleSession.MENU_COLLAPSE,
+                        SyncopeConsoleSession.get().getAttribute(SyncopeConsoleSession.MENU_COLLAPSE) == null
+                        ? true
+                        : !(Boolean) SyncopeConsoleSession.get().getAttribute(SyncopeConsoleSession.MENU_COLLAPSE));
+            }
+        });
+        body.add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
+        body.add(new BookmarkablePageLink<Page>("logout", Logout.class));
 
         // set 'active' menu item for everything but extensions
         // 1. check if current class is set to top-level menu
@@ -233,7 +256,7 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
         WebMarkupContainer extensionsLI = new WebMarkupContainer(getLIContainerId("extensions"));
         extensionsLI.setOutputMarkupPlaceholderTag(true);
         extensionsLI.setVisible(!extPageClasses.isEmpty());
-        add(extensionsLI);
+        body.add(extensionsLI);
 
         ListView<Class<? extends AbstractExtPage>> extPages = new ListView<Class<? extends AbstractExtPage>>(
                 "extPages", extPageClasses) {

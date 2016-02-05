@@ -54,13 +54,13 @@ public class Realms extends BasePage {
         realmSidebarPanel = new RealmSidebarPanel("realmSidebarPanel", getPageReference());
         realmSidebarPanel.setMarkupId("sidebar");
         realmSidebarPanel.setOutputMarkupId(true);
-        add(realmSidebarPanel);
+        body.add(realmSidebarPanel);
 
         content = new WebMarkupContainer("content");
         content.add(new Label("header", "Root realm"));
         content.add(new Label("body", "Root realm"));
         content.setOutputMarkupId(true);
-        add(content);
+        body.add(content);
 
         modal = new BaseModal<>("modal");
         content.add(modal);

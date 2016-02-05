@@ -54,7 +54,7 @@ public class CamelRoutesPage extends AbstractExtPage {
         content.add(tabbedPanel);
 
         MetaDataRoleAuthorizationStrategy.authorize(content, ENABLE, CamelEntitlement.ROUTE_LIST);
-        add(content);
+        body.add(content);
     }
 
     private List<ITab> buildTabList() {

@@ -50,12 +50,12 @@ public class Types extends BasePage {
     public Types(final PageParameters parameters) {
         super(parameters);
 
-        final WebMarkupContainer content = new WebMarkupContainer("content");
+        WebMarkupContainer content = new WebMarkupContainer("content");
         content.add(new Label("header", "Types"));
         content.setOutputMarkupId(true);
         tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
         content.add(tabbedPanel);
-        add(content);
+        body.add(content);
     }
 
     private List<ITab> buildTabList() {
