@@ -197,60 +197,6 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
                     new DateFormatROModel(new PropertyModel<String>(taskTO, "nextExec")));
             nextExec.setEnabled(false);
             add(nextExec);
-
-//
-//            final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(APPLY)) {
-//
-//                private static final long serialVersionUID = -958724007591692537L;
-//
-//                @Override
-//                protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-//                    SchedTaskTO taskTO = (SchedTaskTO) form.getModelObject();
-//                    taskTO.setCronExpression(StringUtils.hasText(taskTO.getCronExpression())
-//                            ? crontab.getCronExpression()
-//                            : null);
-//
-//                    try {
-//                        submitAction(taskTO);
-//
-//                        ((BasePage) pageRef.getPage()).setModalResult(true);
-//
-//                        window.close(target);
-//                    } catch (SyncopeClientException e) {
-//                        LOG.error("While creating or updating task", e);
-//                        error(getString(Constants.ERROR) + ": " + e.getMessage());
-//                        feedbackPanel.refresh(target);
-//                    }
-//                }
-//
-//                @Override
-//                protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-//                    feedbackPanel.refresh(target);
-//                }
-//            };
-//
-//            final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
-//
-//                private static final long serialVersionUID = -958724007591692537L;
-//
-//                @Override
-//                protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-//                    window.close(target);
-//                }
-//            };
-//
-//            cancel.setDefaultFormProcessing(false);
-//
-//            if (taskTO.getId() > 0) {
-//                MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getEntitlement(TASKS,
-//                        "update"));
-//            } else {
-//                MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getEntitlement(TASKS,
-//                        "create"));
-//            }
-//
-//            form.add(submit);
-//            form.add(cancel);
         }
     }
 
