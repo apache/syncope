@@ -54,7 +54,7 @@ public class SchemasITCase extends AbstractTypesITCase {
                 + "body:rows:1:cells:7:cell:panelEdit:editLink");
 
         wicketTester.assertComponent(
-                "content:tabbedPanel:"
+                "body:content:tabbedPanel:"
                 + "panel:collapsePanel:tabs:0:body:content:modal:"
                 + "form:content:kindForm:kind:dropDownChoiceField", DropDownChoice.class);
     }
@@ -62,17 +62,18 @@ public class SchemasITCase extends AbstractTypesITCase {
     @Test
     public void createPlainSchema() {
         browsingToPlainSchemas();
-        wicketTester.clickLink("content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:container:content:add");
+        wicketTester.clickLink(
+                "body:content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:container:content:add");
 
         wicketTester.assertComponent(
-                "content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:modal", Modal.class);
+                "body:content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:modal", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("content:tabbedPanel:panel:"
+        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:"
                 + "collapsePanel:tabs:0:body:content:modal:form");
         formTester.setValue("content:details:form:key:textField", "zBoolean");
         formTester.setValue("content:details:form:type:dropDownChoiceField", "3");
 
-        wicketTester.clickLink("content:tabbedPanel:panel:"
+        wicketTester.clickLink("body:content:tabbedPanel:panel:"
                 + "collapsePanel:tabs:0:body:content:modal:dialog:footer:inputs:0:submit");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
@@ -94,15 +95,15 @@ public class SchemasITCase extends AbstractTypesITCase {
                 result.getPageRelativePath() + ":cells:7:cell:panelEdit:editLink");
 
         wicketTester.assertComponent(
-                "content:tabbedPanel:"
+                "body:content:tabbedPanel:"
                 + "panel:collapsePanel:tabs:0:body:content:modal:"
                 + "form:content:kindForm:kind:dropDownChoiceField", DropDownChoice.class);
 
-        final FormTester formTester =
-                wicketTester.newFormTester("content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:modal:form");
+        FormTester formTester = wicketTester.newFormTester(
+                "body:content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:modal:form");
         formTester.setValue("content:details:form:multivalue:checkboxField", "true");
 
-        wicketTester.clickLink("content:tabbedPanel:panel:"
+        wicketTester.clickLink("body:content:tabbedPanel:panel:"
                 + "collapsePanel:tabs:0:body:content:modal:dialog:footer:inputs:0:submit", true);
 
         wicketTester.assertInfoMessages("Operation executed successfully");
@@ -113,17 +114,17 @@ public class SchemasITCase extends AbstractTypesITCase {
         browsingToPlainSchemas();
         //create new Plain Schema
         final String schemaName = "zStringDelete";
-        wicketTester.clickLink("content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:container:content:add");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:container:content:add");
 
         wicketTester.assertComponent(
-                "content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:modal", Modal.class);
+                "body:content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:modal", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("content:tabbedPanel:panel:"
+        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:"
                 + "collapsePanel:tabs:0:body:content:modal:form");
         formTester.setValue("content:details:form:key:textField", schemaName);
         formTester.setValue("content:details:form:type:dropDownChoiceField", "0");
 
-        wicketTester.clickLink("content:tabbedPanel:panel:"
+        wicketTester.clickLink("body:content:tabbedPanel:panel:"
                 + "collapsePanel:tabs:0:body:content:modal:dialog:footer:inputs:0:submit");
 
         wicketTester.assertInfoMessages("Operation executed successfully");;

@@ -36,7 +36,7 @@ import org.junit.Test;
 
 public class LogsITCase extends AbstractConsoleITCase {
 
-    private final static String CONTAINER_PATH = "content:tabbedPanel:panel:loggerContainer";
+    private final static String CONTAINER_PATH = "body:content:tabbedPanel:panel:loggerContainer";
 
     @Before
     public void login() {
@@ -46,7 +46,7 @@ public class LogsITCase extends AbstractConsoleITCase {
 
     @Test
     public void readCoreLogs() {
-        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:0:link");
+        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         wicketTester.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
         assertNotNull(searchLog(KEY, CONTAINER_PATH, "org.apache.camel"));
@@ -54,7 +54,7 @@ public class LogsITCase extends AbstractConsoleITCase {
 
     @Test
     public void updateCoreLogs() {
-        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:0:link");
+        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         wicketTester.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
         Component result = searchLog(KEY, CONTAINER_PATH, "org.apache.camel");
@@ -71,8 +71,8 @@ public class LogsITCase extends AbstractConsoleITCase {
 
     @Test
     public void readConsoleLogs() {
-        wicketTester.assertComponent("content:tabbedPanel:tabs-container:tabs:1:link", AjaxFallbackLink.class);
-        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:1:link");
+        wicketTester.assertComponent("body:content:tabbedPanel:tabs-container:tabs:1:link", AjaxFallbackLink.class);
+        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         wicketTester.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
         assertNotNull(searchLog(KEY, CONTAINER_PATH, "org.apache.syncope.fit"));
@@ -80,7 +80,7 @@ public class LogsITCase extends AbstractConsoleITCase {
 
     @Test
     public void updateConsoleLogs() {
-        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:1:link");
+        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         wicketTester.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
         Component result = searchLog(KEY, CONTAINER_PATH, "org.apache.syncope.fit");
@@ -115,7 +115,7 @@ public class LogsITCase extends AbstractConsoleITCase {
     }
 
     private void browsingToLogs() {
-        wicketTester.clickLink("configurationLI:configurationUL:logsLI:logs");
+        wicketTester.clickLink("body:configurationLI:configurationUL:logsLI:logs");
         wicketTester.assertRenderedPage(Logs.class);
     }
 }

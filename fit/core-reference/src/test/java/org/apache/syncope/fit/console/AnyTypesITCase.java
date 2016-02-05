@@ -54,7 +54,7 @@ public class AnyTypesITCase extends AbstractTypesITCase {
                 result.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
 
         wicketTester.assertComponent(
-                "content:tabbedPanel:panel:modal", BaseModal.class);
+                "body:content:tabbedPanel:panel:modal", BaseModal.class);
     }
 
     @Test
@@ -62,23 +62,23 @@ public class AnyTypesITCase extends AbstractTypesITCase {
         browsingToAnyTypes();
         final String anyTypeTest = "anyTypeTest2";
 
-        wicketTester.clickLink("content:tabbedPanel:panel:container:content:add");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
         wicketTester.assertComponent(
-                "content:tabbedPanel:panel:modal", Modal.class);
+                "body:content:tabbedPanel:panel:modal", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("content:tabbedPanel:panel:modal:form");
+        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
         formTester.setValue("content:anyTypeDetailsPanel:container:form:key:textField", anyTypeTest);
         formTester.setValue(
                 "content:anyTypeDetailsPanel:container:form:classes:paletteField:recorder", "csv");
 
-        wicketTester.clickLink("content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.clearFeedbackMessages();
         wicketTester.assertRenderedPage(Types.class);
 
-        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:1:link");
+        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         wicketTester.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
 
         Component result = findComponentByProp(KEY, DATATABLE_PATH, anyTypeTest);
@@ -103,11 +103,11 @@ public class AnyTypesITCase extends AbstractTypesITCase {
                 + ":tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:4:cell:panelEdit:editLink");
 
         final FormTester formTester =
-                wicketTester.newFormTester("content:tabbedPanel:panel:modal:form");
+                wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
         formTester.setValue(
                 "content:anyTypeDetailsPanel:container:form:classes:paletteField:recorder", name + ",minimal group");
 
-        wicketTester.clickLink("content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
     }
 

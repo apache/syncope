@@ -61,37 +61,37 @@ public class BaseITCase extends AbstractConsoleITCase {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
         wicketTester.assertRenderedPage(Dashboard.class);
 
-        wicketTester.clickLink("realmsLI:realms");
+        wicketTester.clickLink("body:realmsLI:realms");
         wicketTester.assertRenderedPage(Realms.class);
 
-        wicketTester.clickLink("topologyLI:topology");
+        wicketTester.clickLink("body:topologyLI:topology");
         wicketTester.assertRenderedPage(Topology.class);
 
-        wicketTester.clickLink("reportsLI:reports");
+        wicketTester.clickLink("body:reportsLI:reports");
         wicketTester.assertRenderedPage(Reports.class);
 
-        wicketTester.clickLink("configurationLI:configurationUL:workflowLI:workflow");
+        wicketTester.clickLink("body:configurationLI:configurationUL:workflowLI:workflow");
         wicketTester.assertRenderedPage(Workflow.class);
 
-        wicketTester.clickLink("configurationLI:configurationUL:logsLI:logs");
+        wicketTester.clickLink("body:configurationLI:configurationUL:logsLI:logs");
         wicketTester.assertRenderedPage(Logs.class);
 
-        wicketTester.clickLink("configurationLI:configurationUL:securityquestionsLI:securityquestions");
+        wicketTester.clickLink("body:configurationLI:configurationUL:securityquestionsLI:securityquestions");
         wicketTester.assertRenderedPage(SecurityQuestions.class);
 
-        wicketTester.clickLink("configurationLI:configurationUL:typesLI:types");
+        wicketTester.clickLink("body:configurationLI:configurationUL:typesLI:types");
         wicketTester.assertRenderedPage(Types.class);
 
-        wicketTester.clickLink("configurationLI:configurationUL:rolesLI:roles");
+        wicketTester.clickLink("body:configurationLI:configurationUL:rolesLI:roles");
         wicketTester.assertRenderedPage(Roles.class);
 
-        wicketTester.clickLink("configurationLI:configurationUL:policiesLI:policies");
+        wicketTester.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
         wicketTester.assertRenderedPage(Policies.class);
 
-        wicketTester.clickLink("configurationLI:configurationUL:layoutsLI:layouts");
+        wicketTester.clickLink("body:configurationLI:configurationUL:layoutsLI:layouts");
         wicketTester.assertRenderedPage(Layouts.class);
 
-        wicketTester.clickLink("configurationLI:configurationUL:notificationsLI:notifications");
+        wicketTester.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
         wicketTester.assertRenderedPage(Notifications.class);
     }
 }

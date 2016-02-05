@@ -51,7 +51,7 @@ public class RelationshipTypeITCase extends AbstractTypesITCase {
                 result.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink");
 
         wicketTester.assertComponent(
-                "content:tabbedPanel:panel:modal", BaseModal.class);
+                "body:content:tabbedPanel:panel:modal", BaseModal.class);
     }
 
     @Test
@@ -84,11 +84,11 @@ public class RelationshipTypeITCase extends AbstractTypesITCase {
                 + ":tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:3:cell:panelEdit:editLink");
 
         final FormTester formTester =
-                wicketTester.newFormTester("content:tabbedPanel:panel:modal:form");
+                wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
         formTester.setValue(
                 "content:relationshipTypeDetails:container:form:description:textField", "new description");
 
-        wicketTester.clickLink("content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
     }
 

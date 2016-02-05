@@ -52,7 +52,7 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
                 result.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink");
 
         wicketTester.assertComponent(
-                "content:tabbedPanel:panel:modal", BaseModal.class);
+                "body:content:tabbedPanel:panel:modal", BaseModal.class);
     }
 
     @Test
@@ -60,23 +60,23 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
         browsingToAnyTypeClasses();
         final String anyTypeClassTest = "anyTypeClassTest";
 
-        wicketTester.clickLink("content:tabbedPanel:panel:container:content:add");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
         wicketTester.assertComponent(
-                "content:tabbedPanel:panel:modal", Modal.class);
+                "body:content:tabbedPanel:panel:modal", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("content:tabbedPanel:panel:modal:form");
+        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
         formTester.setValue("content:anyTypeClassDetailsPanel:form:key:textField", anyTypeClassTest);
         formTester.setValue(
                 "content:anyTypeClassDetailsPanel:form:container:derSchemas:paletteField:recorder", "mderiveddata");
 
-        wicketTester.clickLink("content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.clearFeedbackMessages();
         wicketTester.assertRenderedPage(Types.class);
 
-        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:2:link");
+        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
         wicketTester.assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
                 AjaxFallbackDataTable.class);
 
@@ -102,11 +102,11 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
                 DATATABLE_PATH
                 + ":tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:6:cell:panelEdit:editLink");
 
-        final FormTester formTester = wicketTester.newFormTester("content:tabbedPanel:panel:modal:form");
+        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
         formTester.setValue(
                 "content:anyTypeClassDetailsPanel:form:container:plainSchemas:paletteField:recorder", plainSchema);
 
-        wicketTester.clickLink("content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
     }
 

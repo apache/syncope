@@ -26,11 +26,11 @@ import org.junit.Before;
 
 public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
 
-    protected static final String PLAIN_DATATABLE_PATH = "content:tabbedPanel:panel:"
+    protected static final String PLAIN_DATATABLE_PATH = "body:content:tabbedPanel:panel:"
             + "collapsePanel:tabs:0:body:content:container:content:searchContainer:resultTable";
 
     protected static final String DATATABLE_PATH =
-            "content:tabbedPanel:panel:container:content:searchContainer:resultTable";
+            "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable";
 
     @Before
     public void login() {
@@ -38,58 +38,55 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     }
 
     protected void browsingToRelationshipType() {
-
-        wicketTester.clickLink("configurationLI:configurationUL:typesLI:types");
+        wicketTester.clickLink("body:configurationLI:configurationUL:typesLI:types");
         wicketTester.assertRenderedPage(Types.class);
 
-        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:0:link");
+        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         wicketTester.assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
                 AjaxFallbackDataTable.class);
     }
 
     protected void browsingToAnyTypes() {
-
-        wicketTester.clickLink("configurationLI:configurationUL:typesLI:types");
+        wicketTester.clickLink("body:configurationLI:configurationUL:typesLI:types");
         wicketTester.assertRenderedPage(Types.class);
 
-        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:1:link");
+        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         wicketTester.assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
                 AjaxFallbackDataTable.class);
     }
 
     protected void browsingToAnyTypeClasses() {
-
-        wicketTester.clickLink("configurationLI:configurationUL:typesLI:types");
+        wicketTester.clickLink("body:configurationLI:configurationUL:typesLI:types");
         wicketTester.assertRenderedPage(Types.class);
 
-        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:2:link");
+        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
         wicketTester.assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
                 AjaxFallbackDataTable.class);
     }
 
     protected void browsingToPlainSchemas() {
-
-        wicketTester.clickLink("configurationLI:configurationUL:typesLI:types");
+        wicketTester.clickLink("body:configurationLI:configurationUL:typesLI:types");
         wicketTester.assertRenderedPage(Types.class);
 
-        wicketTester.clickLink("content:tabbedPanel:tabs-container:tabs:3:link");
+        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
         wicketTester.assertComponent(PLAIN_DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
                 AjaxFallbackDataTable.class);
     }
 
     protected void createPlainSchema(final String key) {
         browsingToPlainSchemas();
-        wicketTester.clickLink("content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:container:content:add");
+        wicketTester.clickLink(
+                "body:content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:container:content:add");
 
         wicketTester.assertComponent(
-                "content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:modal", Modal.class);
+                "body:content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:modal", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("content:tabbedPanel:panel:"
+        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:"
                 + "collapsePanel:tabs:0:body:content:modal:form");
         formTester.setValue("content:details:form:key:textField", key);
         formTester.setValue("content:details:form:type:dropDownChoiceField", "3");
 
-        wicketTester.clickLink("content:tabbedPanel:panel:"
+        wicketTester.clickLink("body:content:tabbedPanel:panel:"
                 + "collapsePanel:tabs:0:body:content:modal:dialog:footer:inputs:0:submit");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
@@ -100,14 +97,14 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     protected void createAnyTypeClassWithoutSchema(final String name) {
         browsingToAnyTypeClasses();
 
-        wicketTester.clickLink("content:tabbedPanel:panel:container:content:add");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
         wicketTester.assertComponent(
-                "content:tabbedPanel:panel:modal", Modal.class);
+                "body:content:tabbedPanel:panel:modal", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("content:tabbedPanel:panel:modal:form");
+        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
         formTester.setValue("content:anyTypeClassDetailsPanel:form:key:textField", name);
 
-        wicketTester.clickLink("content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.clearFeedbackMessages();
@@ -116,14 +113,14 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     protected void createAnyType(final String name) {
         browsingToAnyTypes();
 
-        wicketTester.clickLink("content:tabbedPanel:panel:container:content:add");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
         wicketTester.assertComponent(
-                "content:tabbedPanel:panel:modal", Modal.class);
+                "body:content:tabbedPanel:panel:modal", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("content:tabbedPanel:panel:modal:form");
+        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
         formTester.setValue("content:anyTypeDetailsPanel:container:form:key:textField", name);
 
-        wicketTester.clickLink("content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.clearFeedbackMessages();
@@ -132,17 +129,17 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     protected void createRelationshipType(final String name) {
         browsingToRelationshipType();
 
-        wicketTester.clickLink("content:tabbedPanel:panel:container:content:add");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
         wicketTester.assertComponent(
-                "content:tabbedPanel:panel:modal", Modal.class);
+                "body:content:tabbedPanel:panel:modal", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("content:tabbedPanel:panel:modal:form");
+        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
         formTester.setValue("content:relationshipTypeDetails:container:form:key:textField", name);
         formTester.setValue(
                 "content:relationshipTypeDetails:container:form:description:textField", "test relationshipType");
 
-        wicketTester.clickLink("content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.clearFeedbackMessages();
