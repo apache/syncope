@@ -35,79 +35,85 @@ public class TopologyITCase extends AbstractConsoleITCase {
 
     @Test
     public void showTopology() {
-        wicketTester.clickLink("topologyLI:topology");
-        wicketTester.assertComponent("syncope", WebMarkupContainer.class);
-        wicketTester.assertComponent("resources:1", WebMarkupContainer.class);
-        wicketTester.assertComponent("resources:2:resources:0", WebMarkupContainer.class);
+        wicketTester.clickLink("body:topologyLI:topology");
+        wicketTester.assertComponent("body:syncope", WebMarkupContainer.class);
+        wicketTester.assertComponent("body:resources:1", WebMarkupContainer.class);
+        wicketTester.assertComponent("body:resources:2:resources:0", WebMarkupContainer.class);
     }
 
     @Test
     public void showTopologyToggleMenu() {
-        wicketTester.clickLink("topologyLI:topology");
-        wicketTester.executeAjaxEvent("resources:2:resources:0:res", Constants.ON_CLICK);
-        wicketTester.assertComponent("toggle:togglePanelContainer:container:actions:delete", AjaxLink.class);
-        wicketTester.assertComponent("toggle:togglePanelContainer:container:actions:edit", AjaxLink.class);
-        wicketTester.assertComponent("toggle:togglePanelContainer:container:actions:propagation", AjaxLink.class);
-        wicketTester.assertComponent("toggle:togglePanelContainer:container:actions:synchronization", AjaxLink.class);
-        wicketTester.assertComponent("toggle:togglePanelContainer:container:actions:push", AjaxLink.class);
-        wicketTester.executeAjaxEvent("syncope", Constants.ON_CLICK);
-        wicketTester.assertComponent("toggle:togglePanelContainer:container:actions:tasks", AjaxLink.class);
-        wicketTester.executeAjaxEvent("conns:0:conns:4:conn", Constants.ON_CLICK);
-        wicketTester.assertComponent("toggle:togglePanelContainer:container:actions:create", AjaxLink.class);
-        wicketTester.assertComponent("toggle:togglePanelContainer:container:actions:delete", AjaxLink.class);
-        wicketTester.assertComponent("toggle:togglePanelContainer:container:actions:edit", AjaxLink.class);
+        wicketTester.clickLink("body:topologyLI:topology");
+        wicketTester.executeAjaxEvent("body:resources:2:resources:0:res", Constants.ON_CLICK);
+        wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:delete", AjaxLink.class);
+        wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:edit", AjaxLink.class);
+        wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:propagation", AjaxLink.class);
+        wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:synchronization",
+                AjaxLink.class);
+        wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:push", AjaxLink.class);
+        wicketTester.executeAjaxEvent("body:syncope", Constants.ON_CLICK);
+        wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:tasks", AjaxLink.class);
+        wicketTester.executeAjaxEvent("body:conns:0:conns:4:conn", Constants.ON_CLICK);
+        wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:create", AjaxLink.class);
+        wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:delete", AjaxLink.class);
+        wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:edit", AjaxLink.class);
     }
 
     @Test
     public void executeSyncTask() {
-        wicketTester.clickLink("topologyLI:topology");
-        wicketTester.executeAjaxEvent("resources:2:resources:0:res", Constants.ON_CLICK);
-        wicketTester.clickLink("toggle:togglePanelContainer:container:actions:synchronization");
-        wicketTester.clickLink("toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
+        wicketTester.clickLink("body:topologyLI:topology");
+        wicketTester.executeAjaxEvent("body:resources:2:resources:0:res", Constants.ON_CLICK);
+        wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:synchronization");
+        wicketTester.clickLink("body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
                 + "body:rows:1:cells:10:cell:panelExecute:executeLink");
-        wicketTester.clickLink("toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
+        wicketTester.clickLink(
+                "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:startAt:togglePanelContainer:startAtForm:startAt");
         wicketTester.assertInfoMessages("Operation executed successfully");
     }
 
     @Test
     public void editPushTask() {
-        wicketTester.clickLink("topologyLI:topology");
-        wicketTester.executeAjaxEvent("resources:5:resources:0:res", Constants.ON_CLICK);
-        wicketTester.clickLink("toggle:togglePanelContainer:container:actions:push");
-        wicketTester.clickLink("toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
+        wicketTester.clickLink("body:topologyLI:topology");
+        wicketTester.executeAjaxEvent("body:resources:5:resources:0:res", Constants.ON_CLICK);
+        wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:push");
+        wicketTester.clickLink("body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
                 + "body:rows:1:cells:9:cell:panelEdit:editLink");
 
-        final FormTester formTester = wicketTester.newFormTester("toggle:outherObjectsRepeater:1:outher:form:content:"
+        final FormTester formTester = wicketTester.newFormTester(
+                "body:toggle:outherObjectsRepeater:1:outher:form:content:"
                 + "tasks:firstLevelContainer:first:container:content:wizard:form");
 
         formTester.setValue("view:description:textField", "test");
         formTester.submit("buttons:finish");
 
-        wicketTester.assertLabel("toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
+        wicketTester.assertLabel(
+                "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:body:rows:"
                 + "2:cells:4:cell", "test");
     }
 
     @Test
     public void createSchedTask() {
-        wicketTester.clickLink("topologyLI:topology");
-        wicketTester.executeAjaxEvent("syncope", Constants.ON_CLICK);
-        wicketTester.clickLink("toggle:togglePanelContainer:container:actions:tasks");
-        wicketTester.clickLink("toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
+        wicketTester.clickLink("body:topologyLI:topology");
+        wicketTester.executeAjaxEvent("body:syncope", Constants.ON_CLICK);
+        wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:tasks");
+        wicketTester.clickLink(
+                "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:add");
 
         final FormTester formTester = wicketTester.newFormTester(
-                "toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
+                "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:wizard:form");
         formTester.setValue("view:name:textField", "test");
         formTester.select("view:jobDelegateClassName:dropDownChoiceField", 0);
-        
+
         formTester.submit("buttons:next");
 
-        wicketTester.assertComponent("toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
+        wicketTester.assertComponent(
+                "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:wizard:form:view:schedule:seconds:textField", TextField.class);
 
         formTester.submit("buttons:finish");
