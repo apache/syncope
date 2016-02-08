@@ -28,6 +28,11 @@ under the License.
 
   <body>
     
+    <section name="Looking for ideas?">
+      <div style="width: 700px;" type="helpwanted" project="syncope" description="Apache Syncope"></div>
+      <script src="https://helpwanted.apache.org/widget.js" type="text/javascript"></script>
+    </section>
+    
     <section name="How to contribute?">
       <p>
         The Apache Syncope™ project is actively seeking new contributors to work on all aspects of the project. 
