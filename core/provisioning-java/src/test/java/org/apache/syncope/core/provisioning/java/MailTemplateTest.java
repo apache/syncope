@@ -85,9 +85,9 @@ public class MailTemplateTest extends AbstractTest {
         assertNotNull(htmlBody);
         assertTrue(htmlBody.contains("a password reset was request for " + username + "."));
         assertFalse(htmlBody.contains(
-                "http://localhost:9080/syncope-console/?pwdResetToken=" + token));
+                "http://localhost:9080/syncope-enduser/app/#/confirmpasswordreset?token=" + token));
         assertTrue(htmlBody.contains(
-                "http://localhost:9080/syncope-console/?pwdResetToken=" + token.replaceAll(" ", "%20")));
+                "http://localhost:9080/syncope-enduser/app/#/confirmpasswordreset?token=" + token.replaceAll(" ", "%20")));
     }
 
     @Test
