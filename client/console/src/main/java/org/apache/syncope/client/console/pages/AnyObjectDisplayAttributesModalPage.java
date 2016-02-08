@@ -23,23 +23,23 @@ import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 
 /**
  * Modal window with Display user attributes form.
  *
- * @param <T> anyTO
+ * @param <T> can be {@link org.apache.syncope.common.lib.to.AnyTO} or
+ * {@link org.apache.syncope.client.console.wizards.any.AnyHandler}
  */
-public class AnyDisplayAttributesModalPage<T extends Serializable> extends DisplayAttributesModalPage<T> {
+public class AnyObjectDisplayAttributesModalPage<T extends Serializable> extends DisplayAttributesModalPage<T> {
 
     private static final long serialVersionUID = 5194630813773543054L;
 
-    public static final String[] ANY_DEFAULT_SELECTION = { "key" };
+    public static final String[] ANY_OBJECT_DEFAULT_SELECTION = { "key" };
 
     private final String type;
 
-    public AnyDisplayAttributesModalPage(
+    public AnyObjectDisplayAttributesModalPage(
             final BaseModal<T> modal,
             final PageReference pageRef,
             final List<String> schemaNames,
@@ -52,21 +52,21 @@ public class AnyDisplayAttributesModalPage<T extends Serializable> extends Displ
 
     @Override
     public String getPrefDetailView() {
-        return String.format(Constants.PREF_ANY_DETAILS_VIEW, type);
+        return String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type);
     }
 
     @Override
     public String getPrefAttributeView() {
-        return String.format(Constants.PREF_ANY_ATTRIBUTES_VIEW, type);
+        return String.format(Constants.PREF_ANY_OBJECT_PLAIN_ATTRS_VIEW, type);
     }
 
     @Override
     public String getPrefDerivedAttributeView() {
-        return String.format(Constants.PREF_ANY_DERIVED_ATTRIBUTES_VIEW, type);
+        return String.format(Constants.PREF_ANY_OBJECT_DER_ATTRS_VIEW, type);
     }
 
     @Override
-    public Class<? extends AnyTO> getTOClass() {
+    public Class<AnyObjectTO> getTOClass() {
         return AnyObjectTO.class;
     }
 }

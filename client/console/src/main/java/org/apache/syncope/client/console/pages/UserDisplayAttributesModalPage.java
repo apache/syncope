@@ -22,14 +22,14 @@ import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 
 /**
  * Modal window with Display user attributes form.
  *
- * @param <T>
+ * @param <T> can be {@link org.apache.syncope.common.lib.to.AnyTO} or
+ * {@link org.apache.syncope.client.console.wizards.any.AnyHandler}
  */
 public class UserDisplayAttributesModalPage<T extends Serializable> extends DisplayAttributesModalPage<T> {
 
@@ -52,16 +52,16 @@ public class UserDisplayAttributesModalPage<T extends Serializable> extends Disp
 
     @Override
     public String getPrefAttributeView() {
-        return Constants.PREF_USERS_ATTRIBUTES_VIEW;
+        return Constants.PREF_USERS_PLAIN_ATTRS_VIEW;
     }
 
     @Override
     public String getPrefDerivedAttributeView() {
-        return Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW;
+        return Constants.PREF_USERS_DER_ATTRS_VIEW;
     }
 
     @Override
-    public Class<? extends AnyTO> getTOClass() {
+    public Class<UserTO> getTOClass() {
         return UserTO.class;
     }
 

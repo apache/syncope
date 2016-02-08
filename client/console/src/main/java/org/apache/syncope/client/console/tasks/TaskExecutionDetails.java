@@ -26,7 +26,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 /**
  * Modal window with Task form (to stop and start execution).
  *
- * @param <T>
+ * @param <T> actual type of task
  */
 public class TaskExecutionDetails<T extends AbstractTaskTO> extends MultilevelPanel.SecondLevel {
 

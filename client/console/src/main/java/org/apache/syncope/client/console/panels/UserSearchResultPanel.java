@@ -83,13 +83,13 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
             }
         }
 
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
-            if (schemaNames.contains(name)) {
+        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_PLAIN_ATTRS_VIEW)) {
+            if (pSchemaNames.contains(name)) {
                 columns.add(new AttrColumn<UserTO>(name, SchemaType.PLAIN));
             }
         }
 
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW)) {
+        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DER_ATTRS_VIEW)) {
             if (dSchemaNames.contains(name)) {
                 columns.add(new AttrColumn<UserTO>(name, SchemaType.DERIVED));
             }
@@ -205,7 +205,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         target.add(modal.setContent(new UserDisplayAttributesModalPage<>(
-                                modal, page.getPageReference(), schemaNames, dSchemaNames)));
+                                modal, page.getPageReference(), pSchemaNames, dSchemaNames)));
 
                         modal.header(new ResourceModel("any.attr.display", ""));
                         modal.show(true);

@@ -93,6 +93,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
         });
     }
 
+    @Override
     public GroupTO read(final Long key) {
         return getService(GroupService.class).read(key);
     }

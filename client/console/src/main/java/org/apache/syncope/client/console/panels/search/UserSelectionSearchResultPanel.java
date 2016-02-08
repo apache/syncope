@@ -54,12 +54,12 @@ public final class UserSelectionSearchResultPanel extends AnySelectionSearchResu
 
     @Override
     protected String getPrefAttributesView() {
-        return Constants.PREF_USERS_ATTRIBUTES_VIEW;
+        return Constants.PREF_USERS_PLAIN_ATTRS_VIEW;
     }
 
     @Override
     protected String getPrefDerivedAttributesView() {
-        return Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW;
+        return Constants.PREF_USERS_DER_ATTRS_VIEW;
     }
 
     public static final class Builder extends AnySelectionSearchResultPanel.Builder<UserTO> {

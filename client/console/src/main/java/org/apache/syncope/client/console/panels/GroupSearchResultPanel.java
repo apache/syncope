@@ -80,13 +80,13 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
             }
         }
 
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_ATTRIBUTES_VIEW)) {
-            if (schemaNames.contains(name)) {
+        for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_PLAIN_ATTRS_VIEW)) {
+            if (pSchemaNames.contains(name)) {
                 columns.add(new AttrColumn<GroupTO>(name, SchemaType.PLAIN));
             }
         }
 
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_DERIVED_ATTRIBUTES_VIEW)) {
+        for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_DER_ATTRS_VIEW)) {
             if (dSchemaNames.contains(name)) {
                 columns.add(new AttrColumn<GroupTO>(name, SchemaType.DERIVED));
             }
@@ -164,7 +164,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         target.add(modal.setContent(new GroupDisplayAttributesModalPage<>(
-                                modal, page.getPageReference(), schemaNames, dSchemaNames)));
+                                modal, page.getPageReference(), pSchemaNames, dSchemaNames)));
 
                         modal.header(new ResourceModel("any.attr.display", ""));
                         modal.show(true);

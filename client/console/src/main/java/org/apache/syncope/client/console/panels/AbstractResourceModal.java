@@ -46,7 +46,7 @@ public abstract class AbstractResourceModal<T extends Serializable> extends Abst
         super(modal, pageRef);
 
         this.tabs = new ArrayList<>();
-        add(new AjaxBootstrapTabbedPanel<ITab>("tabbedPanel", tabs));
+        add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", tabs));
     }
 
     private class AjaxBootstrapTabbedPanel<T extends ITab>
@@ -62,7 +62,7 @@ public abstract class AbstractResourceModal<T extends Serializable> extends Abst
         protected WebMarkupContainer newLink(final String linkId, final int index) {
             return new AjaxSubmitLink(linkId) {
 
-                private static final long serialVersionUID = 1L;
+                private static final long serialVersionUID = 530608535790823587L;
 
                 @Override
                 protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {

@@ -44,9 +44,9 @@ public final class Constants {
 
     public static final String PREF_USERS_DETAILS_VIEW = "users.details.view";
 
-    public static final String PREF_USERS_ATTRIBUTES_VIEW = "users.attributes.view";
+    public static final String PREF_USERS_PLAIN_ATTRS_VIEW = "users.plain.attrs.view";
 
-    public static final String PREF_USERS_DERIVED_ATTRIBUTES_VIEW = "users.derived.attributes.view";
+    public static final String PREF_USERS_DER_ATTRS_VIEW = "users.der.attrs.view";
 
     public static final String PREF_CONF_SCHEMA_PAGINATOR_ROWS = "conf.schema.paginator.rows";
 
@@ -66,9 +66,9 @@ public final class Constants {
 
     public static final String PREF_GROUP_DETAILS_VIEW = "group.details.view";
 
-    public static final String PREF_GROUP_ATTRIBUTES_VIEW = "group.attributes.view";
+    public static final String PREF_GROUP_PLAIN_ATTRS_VIEW = "group.plain.attrs.view";
 
-    public static final String PREF_GROUP_DERIVED_ATTRIBUTES_VIEW = "group.derived.attributes.view";
+    public static final String PREF_GROUP_DER_ATTRS_VIEW = "group.der.attrs.view";
 
     public static final String PREF_GROUP_PLAIN_SCHEMA_PAGINATOR_ROWS = "group.schema.paginator.rows";
 
@@ -118,11 +118,11 @@ public final class Constants {
 
     public static final String PREF_POLICY_PAGINATOR_ROWS = "policy.paginator.rows";
 
-    public static final String PREF_ANY_DETAILS_VIEW = "any.%s.details.view";
+    public static final String PREF_ANY_OBJECT_DETAILS_VIEW = "anyobject.%s.details.view";
 
-    public static final String PREF_ANY_ATTRIBUTES_VIEW = "any.%s.attributes.view";
+    public static final String PREF_ANY_OBJECT_PLAIN_ATTRS_VIEW = "anyobject.%s.plain.attrs.view";
 
-    public static final String PREF_ANY_DERIVED_ATTRIBUTES_VIEW = "any.%s.derived.attributes.view";
+    public static final String PREF_ANY_OBJECT_DER_ATTRS_VIEW = "anyobject.%s.der.attrs.view";
 
     public static final String SUSPENDED_ICON = "glyphicon glyphicon-ban-circle";
 
@@ -131,8 +131,6 @@ public final class Constants {
     public static final String UNDEFINED_ICON = "glyphicon glyphicon-question-sign";
 
     public static final String NOT_FOUND_ICON = "glyphicon glyphicon-remove-circle";
-
-    ;
 
     /**
      * ConnId's GuardedString is not in the classpath.

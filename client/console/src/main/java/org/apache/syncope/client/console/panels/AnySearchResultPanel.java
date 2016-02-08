@@ -51,7 +51,7 @@ public abstract class AnySearchResultPanel<T extends AnyTO>
 
     protected final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
-    protected final List<String> schemaNames;
+    protected final List<String> pSchemaNames;
 
     protected final List<String> dSchemaNames;
 
@@ -78,9 +78,9 @@ public abstract class AnySearchResultPanel<T extends AnyTO>
 
         modal.size(Modal.Size.Large);
 
-        this.schemaNames = new ArrayList<>();
+        this.pSchemaNames = new ArrayList<>();
         for (AnyTypeClassTO anyTypeClassTO : AnySearchResultPanelBuilder.class.cast(builder).getAnyTypeClassTOs()) {
-            this.schemaNames.addAll(anyTypeClassTO.getPlainSchemas());
+            this.pSchemaNames.addAll(anyTypeClassTO.getPlainSchemas());
         }
         this.dSchemaNames = new ArrayList<>();
         for (AnyTypeClassTO anyTypeClassTO : AnySearchResultPanelBuilder.class.cast(builder).getAnyTypeClassTOs()) {

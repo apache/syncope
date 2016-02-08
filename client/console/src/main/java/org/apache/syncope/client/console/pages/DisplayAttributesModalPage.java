@@ -48,7 +48,7 @@ import org.apache.wicket.model.ResourceModel;
 /**
  * Modal window with Display attributes form.
  *
- * @param <T> anyTO
+ * @param <T> can be {@link AnyTO} or {@link org.apache.syncope.client.console.wizards.any.AnyHandler}
  */
 public abstract class DisplayAttributesModalPage<T extends Serializable> extends AbstractModalPanel<T> {
 
@@ -114,8 +114,8 @@ public abstract class DisplayAttributesModalPage<T extends Serializable> extends
 
         selectedDerSchemas = prefMan.getList(getRequest(), getPrefDerivedAttributeView());
 
-        final CheckGroup<String> dgroup
-                = new CheckGroup<>("dCheckGroup", new PropertyModel<List<String>>(this, "selectedDetails"));
+        final CheckGroup<String> dgroup =
+                new CheckGroup<>("dCheckGroup", new PropertyModel<List<String>>(this, "selectedDetails"));
         form.add(dgroup);
 
         final ListView<String> details = new ListView<String>("details", fnames) {
@@ -139,8 +139,8 @@ public abstract class DisplayAttributesModalPage<T extends Serializable> extends
             final Fragment fragment = new Fragment("plainSchemas", "sfragment", form);
             form.add(fragment);
 
-            final CheckGroup<String> sgroup
-                    = new CheckGroup<>("psCheckGroup", new PropertyModel<List<String>>(this, "selectedPlainSchemas"));
+            final CheckGroup<String> sgroup =
+                    new CheckGroup<>("psCheckGroup", new PropertyModel<List<String>>(this, "selectedPlainSchemas"));
             fragment.add(sgroup);
 
             final ListView<String> schemas = new ListView<String>("plainSchemas", names) {
@@ -165,8 +165,8 @@ public abstract class DisplayAttributesModalPage<T extends Serializable> extends
             final Fragment fragment = new Fragment("dschemas", "dsfragment", form);
             form.add(fragment);
 
-            final CheckGroup<String> dsgroup
-                    = new CheckGroup<>("dsCheckGroup", new PropertyModel<List<String>>(this, "selectedDerSchemas"));
+            final CheckGroup<String> dsgroup =
+                    new CheckGroup<>("dsCheckGroup", new PropertyModel<List<String>>(this, "selectedDerSchemas"));
             fragment.add(dsgroup);
 
             final ListView<String> derSchemas = new ListView<String>("derSchemas", dsnames) {

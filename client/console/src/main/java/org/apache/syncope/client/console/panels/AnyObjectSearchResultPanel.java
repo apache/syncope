@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.AnyDisplayAttributesModalPage;
+import org.apache.syncope.client.console.pages.AnyObjectDisplayAttributesModalPage;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -67,7 +67,9 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
     protected List<IColumn<AnyObjectTO, String>> getColumns() {
         final List<IColumn<AnyObjectTO, String>> columns = new ArrayList<>();
 
-        for (String name : prefMan.getList(getRequest(), String.format(Constants.PREF_ANY_DETAILS_VIEW, type))) {
+        for (String name : prefMan.getList(
+                getRequest(), String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type))) {
+
             final Field field = ReflectionUtils.findField(AnyObjectTO.class, name);
 
             if ("token".equalsIgnoreCase(name)) {
@@ -79,14 +81,17 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
             }
         }
 
-        for (String name : prefMan.getList(getRequest(), String.format(Constants.PREF_ANY_ATTRIBUTES_VIEW, type))) {
-            if (schemaNames.contains(name)) {
+        for (String name : prefMan.getList(
+                getRequest(), String.format(Constants.PREF_ANY_OBJECT_PLAIN_ATTRS_VIEW, type))) {
+
+            if (pSchemaNames.contains(name)) {
                 columns.add(new AttrColumn<AnyObjectTO>(name, SchemaType.PLAIN));
             }
         }
 
-        for (String name
-                : prefMan.getList(getRequest(), String.format(Constants.PREF_ANY_DERIVED_ATTRIBUTES_VIEW, type))) {
+        for (String name : prefMan.getList(
+                getRequest(), String.format(Constants.PREF_ANY_OBJECT_DER_ATTRS_VIEW, type))) {
+
             if (dSchemaNames.contains(name)) {
                 columns.add(new AttrColumn<AnyObjectTO>(name, SchemaType.DERIVED));
             }
@@ -94,7 +99,7 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
 
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
-            for (String name : AnyDisplayAttributesModalPage.ANY_DEFAULT_SELECTION) {
+            for (String name : AnyObjectDisplayAttributesModalPage.ANY_OBJECT_DEFAULT_SELECTION) {
                 columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
             }
 
@@ -115,9 +120,8 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                         send(AnyObjectSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<AnyHandler<AnyObjectTO>>(
-                                        new AnyHandler<AnyObjectTO>(new AnyObjectRestClient().<AnyObjectTO>read(
-                                                model.getObject().getKey())),
+                                new AjaxWizard.EditItemActionEvent<>(
+                                        new AnyHandler<>(new AnyObjectRestClient().read(model.getObject().getKey())),
                                         target));
                     }
                 }, ActionLink.ActionType.EDIT, String.format("%s_%s", type, AnyEntitlement.READ)).add(
@@ -130,8 +134,7 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
                         final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(0L);
                         send(AnyObjectSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<AnyHandler<AnyObjectTO>>(new AnyHandler<AnyObjectTO>(
-                                        clone), target));
+                                new AjaxWizard.NewItemActionEvent<>(new AnyHandler<>(clone), target));
                     }
                 }, ActionLink.ActionType.CLONE, StandardEntitlement.USER_CREATE).add(new ActionLink<AnyObjectTO>() {
 
@@ -165,8 +168,8 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         // still missing content
-                        target.add(modal.setContent(new AnyDisplayAttributesModalPage<>(
-                                modal, page.getPageReference(), schemaNames, dSchemaNames, type)));
+                        target.add(modal.setContent(new AnyObjectDisplayAttributesModalPage<>(
+                                modal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
 
                         modal.header(new ResourceModel("any.attr.display", ""));
                         modal.show(true);

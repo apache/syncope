@@ -21,10 +21,8 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -88,15 +86,9 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends AnyTO> T read(final long id) {
-        T anyObjectTO = null;
-        try {
-            anyObjectTO = (T) getService(AnyObjectService.class).read(id);
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading any object", e);
-        }
-        return anyObjectTO;
+    @Override
+    public AnyObjectTO read(final Long key) {
+        return getService(AnyObjectService.class).read(key);
     }
 
     public ProvisioningResult<AnyObjectTO> create(final AnyObjectTO anyObjectTO) {

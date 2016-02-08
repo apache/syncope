@@ -23,7 +23,6 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -89,14 +88,9 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         return delete(UserService.class, UserTO.class, etag, key);
     }
 
-    public UserTO read(final Long id) {
-        UserTO userTO = null;
-        try {
-            userTO = getService(UserService.class).read(id);
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading a user", e);
-        }
-        return userTO;
+    @Override
+    public UserTO read(final Long key) {
+        return getService(UserService.class).read(key);
     }
 
     @Override

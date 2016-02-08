@@ -49,17 +49,17 @@ public final class AnyObjectSelectionSearchResultPanel extends AnySelectionSearc
 
     @Override
     public String getPrefDetailsView() {
-        return String.format(Constants.PREF_ANY_DETAILS_VIEW, type);
+        return String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type);
     }
 
     @Override
     public String getPrefAttributesView() {
-        return String.format(Constants.PREF_ANY_ATTRIBUTES_VIEW, type);
+        return String.format(Constants.PREF_ANY_OBJECT_PLAIN_ATTRS_VIEW, type);
     }
 
     @Override
     public String getPrefDerivedAttributesView() {
-        return String.format(Constants.PREF_ANY_DERIVED_ATTRIBUTES_VIEW, type);
+        return String.format(Constants.PREF_ANY_OBJECT_DER_ATTRS_VIEW, type);
     }
 
     public static final class Builder extends AnySelectionSearchResultPanel.Builder<AnyObjectTO> {

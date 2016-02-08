@@ -54,12 +54,12 @@ public final class GroupSelectionSearchResultPanel extends AnySelectionSearchRes
 
     @Override
     public String getPrefAttributesView() {
-        return Constants.PREF_GROUP_ATTRIBUTES_VIEW;
+        return Constants.PREF_GROUP_PLAIN_ATTRS_VIEW;
     }
 
     @Override
     public String getPrefDerivedAttributesView() {
-        return Constants.PREF_GROUP_DERIVED_ATTRIBUTES_VIEW;
+        return Constants.PREF_GROUP_DER_ATTRS_VIEW;
     }
 
     public static final class Builder extends AnySelectionSearchResultPanel.Builder<GroupTO> {

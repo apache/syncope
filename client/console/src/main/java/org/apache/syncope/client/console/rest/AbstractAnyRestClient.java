@@ -50,6 +50,8 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
 
     public abstract ConnObjectTO readConnObject(String resourceName, Long key);
 
+    public abstract T read(final Long key);
+
     public abstract ProvisioningResult<T> delete(String etag, Long key);
 
     protected <E extends AnyService<T, ?>> ProvisioningResult<T> delete(
