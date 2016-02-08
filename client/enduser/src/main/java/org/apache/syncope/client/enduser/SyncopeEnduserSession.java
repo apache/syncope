@@ -63,9 +63,9 @@ public class SyncopeEnduserSession extends WebSession {
     private UserTO selfTO;
 
     private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<Class<?>, Object>());
-    
+
     private final CookieUtils cookieUtils;
-    
+
     private boolean xsrfTokenGenerated = false;
 
     public static SyncopeEnduserSession get() {
@@ -120,7 +120,8 @@ public class SyncopeEnduserSession extends WebSession {
         if (services.containsKey(serviceClass)) {
             service = (T) services.get(serviceClass);
         } else {
-            service = client == null ? anonymousClient.getService(serviceClass) : client.getService(serviceClass);
+            service = (client == null || !isAuthenticated()) ? anonymousClient.getService(serviceClass) : client.
+                    getService(serviceClass);
             services.put(serviceClass, service);
         }
 
