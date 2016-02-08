@@ -48,13 +48,7 @@ under the License.
           <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button" wicket:id="collapse">
             <span class="sr-only">Toggle navigation</span>
           </a>
-          <ul class="nav navbar-nav">
-            <li>
-              <a href="#" class="dropdown-toggle">
-                <span class="hidden-xs"><label wicket:id="domain"/></span>
-              </a>
-            </li>
-          </ul>
+
           <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
 
@@ -76,6 +70,13 @@ under the License.
                   <span class="hidden-xs"><label wicket:id="username"/></span>
                 </a>
                 <ul class="dropdown-menu">
+                  <li class="user-header">
+                    <div class="row">
+                      <div class="col-xs-12 text-right">
+                        <wicket:message key="domain"/>: <label wicket:id="domain"/>
+                      </div>
+                    </div>
+                  </li>
                   <li class="user-footer">
                     <div class="pull-left">
                     </div>

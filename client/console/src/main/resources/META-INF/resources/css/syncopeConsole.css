@@ -242,11 +242,11 @@ div.realms div.summarize {
 }
 
 .navbar .footer a {
-  height: 40px
+  height: 34px
 }
 
 .navbar .user-footer a {
-  height: 40px
+  height: 34px
 }
 
 span.overridable div.checkbox {
@@ -475,7 +475,7 @@ END - DataTable
 */
 
 /**
-START - Resukt page
+START - Result page
 */
 .attribute {
   padding: 0px 4px 0px 4px; 
@@ -490,5 +490,11 @@ span.highlight .attribute label {
   color : red;
 }
 /**
-END - Resukt page
+END - Result page
 */
+
+.navbar-nav > .user-menu > .dropdown-menu > li.user-header {
+    height: auto !important;
+    padding: 10px;
+    text-align: center;
+}
