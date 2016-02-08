@@ -21,9 +21,10 @@
 
 angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', 'AuthService',
   'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService', 'CaptchaService',
-  'GroupService', 'AnyService', 'UserUtil',
+  'GroupService', 'AnyService', 'UserUtil', 'GenericUtil', "ValidationExecutor",
   function ($scope, $rootScope, $location, $compile, AuthService, UserSelfService, SchemaService, RealmService,
-          ResourceService, SecurityQuestionService, CaptchaService, GroupService, AnyService, UserUtil) {
+          ResourceService, SecurityQuestionService, CaptchaService, GroupService, AnyService, UserUtil, GenericUtil,
+          ValidationExecutor) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -411,5 +412,33 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       } else {
         $scope.showError("You should use a valid and non-empty username", $scope.notification);
       }
-    };    
+    };
+
+    $scope.confirmPasswordReset = function (user, event) {
+
+      //getting the enclosing form in order to access to its controller                
+      var currentForm = GenericUtil.getEnclosingFormController(event.target, $scope);
+      if (currentForm != null) {
+        //check if password and confirmPassword are equals using angular built-in validation
+        if (ValidationExecutor.validate(currentForm, $scope)) {          
+          var token = $location.search().token;
+          if (user && user.password && token) {
+            UserSelfService.confirmPasswordReset({"newPassword": user.password, "token": token}).then(function (data) {
+              $scope.showSuccess(data, $scope.notification);
+              $location.path('/self');
+            }, function (response) {
+              var errorMessage;
+              // parse error response 
+              if (response !== undefined) {
+                errorMessage = response.split("ErrorMessage{{")[1];
+                errorMessage = errorMessage.split("}}")[0];
+                $scope.showError("An error occured during password reset: " + errorMessage, $scope.notification);                
+              }
+            });
+          } else {
+            $scope.showError("You should use a valid and non-empty password", $scope.notification);
+          }
+        }
+      }
+    };
   }]);

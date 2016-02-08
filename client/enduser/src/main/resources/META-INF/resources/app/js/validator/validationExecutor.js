@@ -26,7 +26,7 @@ angular.module('SyncopeEnduserApp')
             
             validationExecutor.validate = function (form, scope) {              
               if(scope.validationEnabled){
-                var currentForm = scope[form.name];              
+                var currentForm = scope[form.name] || scope[form.$name];              
                 angular.forEach(currentForm.$error, function (field) {
                   for (var i in field) {                  
                     scope.$root.$broadcast(field[i].$name, {errors: field[i].$error});

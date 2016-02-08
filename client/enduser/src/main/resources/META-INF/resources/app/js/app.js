@@ -179,6 +179,10 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
             .state('passwordreset', {
               url: '/passwordreset',
               templateUrl: 'views/passwordreset.html'
+            })
+            .state('confirmpasswordreset', {
+              url: '/confirmpasswordreset?token',
+              templateUrl: 'views/confirmpasswordreset.html'
             });
 
     // catch all other routes
@@ -309,7 +313,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $scope.showError = function (message, component) {
         if (!$scope.notificationExists(message)) {
           component.options.autoHideAfter = 0;
-          component.show(message, "error");
+          component.show(message, "error");          
         }
       }
       $scope.notificationExists = function (message) {
