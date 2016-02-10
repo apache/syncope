@@ -205,7 +205,7 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
 
         // set 'active' menu item for everything but extensions
         // 1. check if current class is set to top-level menu
-        Component containingLI = get(getLIContainerId(getClass().getSimpleName().toLowerCase()));
+        Component containingLI = body.get(getLIContainerId(getClass().getSimpleName().toLowerCase()));
         // 2. if not, check if it is under 'Configuration'
         if (containingLI == null) {
             containingLI = confULContainer.get(getLIContainerId(getClass().getSimpleName().toLowerCase()));
