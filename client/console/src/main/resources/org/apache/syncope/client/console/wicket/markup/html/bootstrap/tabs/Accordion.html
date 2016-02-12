@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -17,25 +18,16 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
-  <body>
-    <wicket:extend>
-      <div class="form-group">
-        <span wicket:id="username"/>
-        <a class="tooltips" wicket:id="usernameQuestionMarkJexlHelp" href="#" alt="Click to help" title="Click to help">
-          <img src="img/help.png"/>
-          <span wicket:id="usernameJexlHelp" class="tooltips">
-            <wicket:message key="jexl_info"/>
-            <ul>
-              <li><wicket:message key="jexl_ex1"/></li>
-              <li><wicket:message key="jexl_ex2"/></li>
-            </ul>
-            <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
-          </span>
-        </a>
+  <wicket:panel>
+    <div class="panel box box-primary" wicket:id="tabs">
+      <div class="box-header with-border">
+        <h4  class="box-title">
+          <a wicket:id="title" class="accordion-toggle" data-toggle="collapse" >Title</a>
+        </h4>
       </div>
-
-      <div wicket:id="accordionPanel"></div>
-    </wicket:extend>
-  </body>
+      <div wicket:id="body" class="panel-collapse collapse">
+        <div class="box-body" wicket:id="content">Content</div>
+      </div>
+    </div>
+  </wicket:panel>
 </html>

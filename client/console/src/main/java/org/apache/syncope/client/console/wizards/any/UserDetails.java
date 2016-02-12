@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.Collapsible;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.ListViewPanel;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -81,7 +81,7 @@ public class UserDetails extends Details<UserTO> {
         // ------------------------
         final Model<Integer> model = Model.of(-1);
 
-        final Collapsible collapsible = new Collapsible("collapsePanel", Collections.<ITab>singletonList(
+        final Accordion accordion = new Accordion("accordionPanel", Collections.<ITab>singletonList(
                 new AbstractTab(new ResourceModel("password.change", "Change password")) {
 
             private static final long serialVersionUID = 1037272333056449378L;
@@ -98,7 +98,7 @@ public class UserDetails extends Details<UserTO> {
             private static final long serialVersionUID = 1L;
 
             @Override
-            protected Component newTitle(final String markupId, final ITab tab, final Collapsible.State state) {
+            protected Component newTitle(final String markupId, final ITab tab, final Accordion.State state) {
                 return new AjaxLink<Integer>(markupId) {
 
                     private static final long serialVersionUID = 1L;
@@ -127,8 +127,8 @@ public class UserDetails extends Details<UserTO> {
             }
         };
 
-        collapsible.setOutputMarkupId(true);
-        add(collapsible);
+        accordion.setOutputMarkupId(true);
+        add(accordion);
         // ------------------------        
     }
 

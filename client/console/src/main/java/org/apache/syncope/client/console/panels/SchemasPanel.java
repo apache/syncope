@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.Collapsible;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -39,9 +39,9 @@ public class SchemasPanel extends Panel {
 
         this.pageReference = pageRef;
 
-        final Collapsible collapsible = new Collapsible("collapsePanel", buildTabList());
-        collapsible.setOutputMarkupId(true);
-        add(collapsible);
+        final Accordion accordion = new Accordion("accordionPanel", buildTabList());
+        accordion.setOutputMarkupId(true);
+        add(accordion);
     }
 
     private List<ITab> buildTabList() {

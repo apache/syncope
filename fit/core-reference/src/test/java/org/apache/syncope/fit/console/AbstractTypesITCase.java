@@ -27,7 +27,7 @@ import org.junit.Before;
 public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
 
     protected static final String PLAIN_DATATABLE_PATH = "body:content:tabbedPanel:panel:"
-            + "collapsePanel:tabs:0:body:content:container:content:searchContainer:resultTable";
+            + "accordionPanel:tabs:0:body:content:container:content:searchContainer:resultTable";
 
     protected static final String DATATABLE_PATH =
             "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable";
@@ -76,18 +76,18 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     protected void createPlainSchema(final String key) {
         browsingToPlainSchemas();
         wicketTester.clickLink(
-                "body:content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:container:content:add");
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:container:content:add");
 
         wicketTester.assertComponent(
-                "body:content:tabbedPanel:panel:collapsePanel:tabs:0:body:content:modal", Modal.class);
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:modal", Modal.class);
 
         final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:"
-                + "collapsePanel:tabs:0:body:content:modal:form");
+                + "accordionPanel:tabs:0:body:content:modal:form");
         formTester.setValue("content:details:form:key:textField", key);
         formTester.setValue("content:details:form:type:dropDownChoiceField", "3");
 
         wicketTester.clickLink("body:content:tabbedPanel:panel:"
-                + "collapsePanel:tabs:0:body:content:modal:dialog:footer:inputs:0:submit");
+                + "accordionPanel:tabs:0:body:content:modal:dialog:footer:inputs:0:submit");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
 

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.Collapsible;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +41,7 @@ import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -107,7 +107,7 @@ public class Relationships extends WizardStep {
         final Fragment viewFragment = new Fragment("relationships", "viewFragment", this);
         viewFragment.setOutputMarkupId(true);
 
-        viewFragment.add(new Collapsible("relationships",
+        viewFragment.add(new Accordion("relationships",
                 CollectionUtils.collect(relationships.keySet(), new SerializableTransformer<String, ITab>() {
 
                     private static final long serialVersionUID = 3514912643300593122L;

@@ -15,7 +15,6 @@
  */
 package org.apache.syncope.client.console.wizards.role;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.Collapsible;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +26,7 @@ import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
@@ -105,7 +105,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
             // ------------------------
             // dynMembershipCond
             // ------------------------
-            add(new Collapsible("dynMembershipCond", Collections.<ITab>singletonList(
+            add(new Accordion("dynMembershipCond", Collections.<ITab>singletonList(
                     new AbstractTab(new ResourceModel("dynMembershipCond", "Dynamic USER Membership Conditions")) {
 
                 private static final long serialVersionUID = 1037272333056449378L;

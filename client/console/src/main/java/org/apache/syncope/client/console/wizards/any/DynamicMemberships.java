@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.Collapsible;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +29,7 @@ import org.apache.syncope.client.console.panels.search.MapOfListModel;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -72,7 +72,7 @@ public class DynamicMemberships extends WizardStep {
         // ------------------------
         // uDynMembershipCond
         // ------------------------
-        add(new Collapsible("uDynMembershipCond", Collections.<ITab>singletonList(
+        add(new Accordion("uDynMembershipCond", Collections.<ITab>singletonList(
                 new AbstractTab(new ResourceModel("uDynMembershipCond", "Dynamic USER Membership Conditions")) {
 
             private static final long serialVersionUID = 1037272333056449378L;
@@ -95,7 +95,7 @@ public class DynamicMemberships extends WizardStep {
             @Override
             protected void populateItem(final ListItem<AnyTypeTO> item) {
                 final String key = item.getModelObject().getKey();
-                item.add(new Collapsible("aDynMembershipCond", Collections.<ITab>singletonList(
+                item.add(new Accordion("aDynMembershipCond", Collections.<ITab>singletonList(
                         new AbstractTab(new StringResourceModel(
                                 "aDynMembershipCond", this, new Model<AnyTypeTO>(item.getModelObject()))) {
 
