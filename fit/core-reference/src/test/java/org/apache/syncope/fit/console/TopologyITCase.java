@@ -81,14 +81,16 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
                 + "body:rows:1:cells:9:cell:panelEdit:editLink");
-
+        
         final FormTester formTester = wicketTester.newFormTester(
                 "body:toggle:outherObjectsRepeater:1:outher:form:content:"
                 + "tasks:firstLevelContainer:first:container:content:wizard:form");
 
         formTester.setValue("view:description:textField", "test");
         formTester.submit("buttons:finish");
-
+        
+        wicketTester.cleanupFeedbackMessages();
+        
         wicketTester.assertLabel(
                 "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:body:rows:"
@@ -104,18 +106,24 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:add");
 
-        final FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = wicketTester.newFormTester(
                 "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:wizard:form");
         formTester.setValue("view:name:textField", "test");
         formTester.select("view:jobDelegateClassName:dropDownChoiceField", 0);
-
+        
         formTester.submit("buttons:next");
-
+        wicketTester.cleanupFeedbackMessages();
+        
+        formTester = wicketTester.newFormTester(
+                "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
+                + "container:content:wizard:form");
+        
         wicketTester.assertComponent(
                 "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:wizard:form:view:schedule:seconds:textField", TextField.class);
 
         formTester.submit("buttons:finish");
+        wicketTester.cleanupFeedbackMessages();
     }
 }
