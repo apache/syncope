@@ -23,19 +23,26 @@ angular.module('SyncopeEnduserApp')
           function (GenericUtil) {
 
             var validationExecutor = {};
-            
-            validationExecutor.validate = function (form, scope) {              
-              if(scope.validationEnabled){
-                var currentForm = scope[form.name] || scope[form.$name];              
+
+            validationExecutor.validate = function (form, scope) {
+              if (scope.validationEnabled) {
+                var currentForm = scope[form.name] || scope[form.$name];
                 angular.forEach(currentForm.$error, function (field) {
-                  for (var i in field) {                  
+                  for (var i in field) {
                     scope.$root.$broadcast(field[i].$name, {errors: field[i].$error});
                   }
                 });
                 currentForm.$setSubmitted();
-                return $.isEmptyObject(currentForm.$error);
+                if ($.isEmptyObject(currentForm.$error)) {
+                  return true
+                }
+                else {
+                  scope.showError("Data are invalid: please correct accordingly", scope.notification);
+                  return false;
+                }
               }
-              else return true;
+              else
+                return true;
             };
             return validationExecutor;
           }]);

@@ -254,7 +254,7 @@ app.run(['$rootScope', '$location', '$cookies', '$state',
         $state.go(toState);
       }
     });
-    
+
     $rootScope.spinner = {
       active: false,
       on: function () {
@@ -306,14 +306,25 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $scope.notification.options.position["top"] = 20;
       $scope.showSuccess = function (message, component) {
         if (!$scope.notificationExists(message)) {
+          //forcing scrollTo since kendo doesn't disable scrollTop if pinned is true
+          window.scrollTo(0, 0);
           component.options.autoHideAfter = 3000;
           component.show(message, "success");
         }
       }
       $scope.showError = function (message, component) {
         if (!$scope.notificationExists(message)) {
+          //forcing scrollTo since kendo doesn't disable scrollTop if pinned is true
+          window.scrollTo(0, 0);
           component.options.autoHideAfter = 0;
-          component.show(message, "error");          
+          component.show(message, "error");
+        }
+      }
+      $scope.hideError = function (message, component) {
+        var popup;
+        if (popup = $scope.notificationExists(message)) {
+          popup.hide = true;
+          popup.close();
         }
       }
       $scope.notificationExists = function (message) {
@@ -323,7 +334,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
           pendingNotifications.each(function (idx, element) {
             var popup = $(element).data("kendoPopup");
             if (!popup.hide && popup.wrapper.html().indexOf(message) > -1) {
-              result = true;
+              result = popup;
               return false; //breaking the each and storing the real result
             }
           });
@@ -364,6 +375,10 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       //Intercepting xhr start event
       $scope.$on('xhrStarted', function (event, next, current) {
         $scope.hideNotifications(0);
+      });
+      //Intercepting hide popup errors event
+      $scope.$on('hideErrorMessage', function (event, popupMessage) {
+        $scope.hideError(popupMessage, $scope.notification);
       });
     }
   }]);

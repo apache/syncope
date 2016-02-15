@@ -20,18 +20,24 @@
 'use strict';
 
 angular.module('SyncopeEnduserApp').
-        directive('validationMessage', function ($templateRequest, $compile) {
+        directive('validationMessage', function () {
           return {
             templateUrl: 'views/validationMessage.html',
             scope: {
               "name": "@",
               "template": "@"
             },
+            require: '^form',
             replace: false,
-            link: function (scope, el, attrs) {
+            link: function (scope, el, attrs, formCtrl) {
+              var popupMessage = "Data are invalid: please correct accordingly";
               //listener
               scope.$on(attrs.name, function (el, errors) {
                 scope.errors = errors;
+                //hide popup error message if there aren't errors
+                if ($.isEmptyObject(formCtrl.$error)) {
+                  scope.$emit("hideErrorMessage", popupMessage);
+                }
               });
             }
           };
@@ -62,7 +68,7 @@ angular.module('SyncopeEnduserApp').
                   });
                 }
               }
-              else{
+              else {
                 ngswitch.append("<div ng-switch-default>{{key}} validation rule is not satisfied</div>")
               }
               $compile(ngswitch)(scope);

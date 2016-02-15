@@ -44,7 +44,7 @@ angular.module('SyncopeEnduserApp')
               return null;
             };
 
-            genericUtil.getEnclosingForm = function (element, scope) {
+            genericUtil.getEnclosingForm = function (element) {
               var form = $(element).closest('form');
               if (form.length) {
                 return form[0];

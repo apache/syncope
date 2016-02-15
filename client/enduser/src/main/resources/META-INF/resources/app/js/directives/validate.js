@@ -25,9 +25,10 @@ angular.module('SyncopeEnduserApp').
           return {
             require: 'ngModel',
             link: function (scope, elem, attrs, ngModel) {
-              scope.$watch(attrs.ngModel, function (value) {                
+              scope.$watch(attrs.ngModel, function (value) {
                 //trigger the live validation only if user interacts with the input
-                if (scope.validationEnabled && !ngModel.$pristine) {
+                var validationEnabled = scope.validationEnabled || scope.$root.validationEnabled;
+                if (validationEnabled && !ngModel.$pristine) {
                   //broadcasting from root scope element validity
                   scope.$root.$broadcast(attrs.name, {errors: ngModel.$error});
                 }
