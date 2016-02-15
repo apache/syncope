@@ -38,8 +38,9 @@ public class Logs extends BasePage {
     public Logs(final PageParameters parameters) {
         super(parameters);
 
+        body.add(new Label("header", getString("header_title")));
+
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.add(new Label("header", getString("header_title")));
         content.setOutputMarkupId(true);
         AjaxBootstrapTabbedPanel<ITab> tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
         content.add(tabbedPanel);

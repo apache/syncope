@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -147,34 +148,18 @@ public class ParametersPanel extends AbstractSearchResultPanel<
 
     @Override
     protected List<IColumn<AttrTO, String>> getColumns() {
-
         final List<IColumn<AttrTO, String>> columns = new ArrayList<>();
 
         for (final Field field : AttrTO.class.getDeclaredFields()) {
-
             if (field != null && !Modifier.isStatic(field.getModifiers())) {
-                final String fieldName = field.getName();
-                if (field.getType().isArray()) {
-                    final IColumn<AttrTO, String> column = new PropertyColumn<AttrTO, String>(
-                            new ResourceModel(field.getName()), field.getName()) {
+                if (field.getType().isArray()
+                        || Collection.class.isAssignableFrom(field.getType())
+                        || Map.class.isAssignableFrom(field.getType())) {
 
-                        private static final long serialVersionUID = 377850700587306254L;
-
-                        @Override
-                        public String getCssClass() {
-                            String css = super.getCssClass();
-                            if ("schema".equals(fieldName)) {
-                                css = StringUtils.isBlank(css)
-                                        ? "medium_fixedsize"
-                                        : css + " medium_fixedsize";
-                            }
-                            return css;
-                        }
-                    };
-                    columns.add(column);
-
+                    columns.add(new PropertyColumn<AttrTO, String>(
+                            new ResourceModel(field.getName()), field.getName()));
                 } else {
-                    final IColumn<AttrTO, String> column = new PropertyColumn<AttrTO, String>(
+                    columns.add(new PropertyColumn<AttrTO, String>(
                             new ResourceModel(field.getName()), field.getName(), field.getName()) {
 
                         private static final long serialVersionUID = -6902459669035442212L;
@@ -182,15 +167,14 @@ public class ParametersPanel extends AbstractSearchResultPanel<
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("schema".equals(fieldName)) {
+                            if ("key".equals(field.getName())) {
                                 css = StringUtils.isBlank(css)
                                         ? "medium_fixedsize"
                                         : css + " medium_fixedsize";
                             }
                             return css;
                         }
-                    };
-                    columns.add(column);
+                    });
                 }
             }
         }

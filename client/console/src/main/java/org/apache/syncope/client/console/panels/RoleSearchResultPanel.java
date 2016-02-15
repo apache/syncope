@@ -75,11 +75,11 @@ public class RoleSearchResultPanel
     protected List<IColumn<RoleTO, String>> getColumns() {
         final List<IColumn<RoleTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<RoleTO, String>(new ResourceModel("key", "key"), "key", "key"));
+        columns.add(new PropertyColumn<RoleTO, String>(new ResourceModel("key"), "key", "key"));
         columns.add(new PropertyColumn<RoleTO, String>(
-                new ResourceModel("entitlements", "entitlements"), "entitlements", "entitlements"));
+                new ResourceModel("entitlements", "Entitlements"), null, "entitlements"));
         columns.add(new PropertyColumn<RoleTO, String>(
-                new ResourceModel("realms", "realms"), "realms", "realms"));
+                new ResourceModel("realms"), null, "realms"));
 
         columns.add(new ActionColumn<RoleTO, String>(new ResourceModel("actions", "")) {
 

@@ -30,17 +30,10 @@ import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class DataTablePanel<T extends Serializable, S> extends Panel {
 
     private static final long serialVersionUID = -7264400471578272966L;
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(DataTablePanel.class);
 
     protected CheckGroup<T> group;
 

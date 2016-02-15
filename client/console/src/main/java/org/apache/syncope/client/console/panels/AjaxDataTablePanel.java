@@ -141,7 +141,6 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
     }
 
     private AjaxDataTablePanel(final String id, final Builder<T, S> builder) {
-
         super(id);
 
         final BaseModal<T> bulkModalWin = new BaseModal<>("bulkModal");

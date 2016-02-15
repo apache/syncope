@@ -26,13 +26,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.AnyTypePanel.AnyTypeProvider;
+import org.apache.syncope.client.console.panels.AnyTypesPanel.AnyTypeProvider;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -55,11 +56,11 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider> {
+public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider> {
 
     private static final long serialVersionUID = 3905038169553185171L;
 
-    public AnyTypePanel(final String id, final PageReference pageRef) {
+    public AnyTypesPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);
         disableCheckBoxes();
 
@@ -119,47 +120,31 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
 
         final List<IColumn<AnyTypeTO, String>> columns = new ArrayList<>();
 
-        for (Field field : AnyTypeTO.class.getDeclaredFields()) {
-
+        for (final Field field : AnyTypeTO.class.getDeclaredFields()) {
             if (field != null && !Modifier.isStatic(field.getModifiers())) {
-                final String fieldName = field.getName();
-                if (field.getType().isArray()) {
-                    final IColumn<AnyTypeTO, String> column = new PropertyColumn<AnyTypeTO, String>(
-                            new ResourceModel(field.getName()), field.getName()) {
+                if (field.getType().isArray()
+                        || Collection.class.isAssignableFrom(field.getType())
+                        || Map.class.isAssignableFrom(field.getType())) {
 
-                        private static final long serialVersionUID = 3282547854226892169L;
-
-                        @Override
-                        public String getCssClass() {
-                            String css = super.getCssClass();
-                            if ("key".equals(fieldName)) {
-                                css = StringUtils.isBlank(css)
-                                        ? "medium_fixedsize"
-                                        : css + " medium_fixedsize";
-                            }
-                            return css;
-                        }
-                    };
-                    columns.add(column);
-
+                    columns.add(new PropertyColumn<AnyTypeTO, String>(
+                            new ResourceModel(field.getName()), field.getName()));
                 } else {
-                    final IColumn<AnyTypeTO, String> column = new PropertyColumn<AnyTypeTO, String>(
+                    columns.add(new PropertyColumn<AnyTypeTO, String>(
                             new ResourceModel(field.getName()), field.getName(), field.getName()) {
 
-                        private static final long serialVersionUID = 3282547854226892169L;
+                        private static final long serialVersionUID = -6902459669035442212L;
 
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("key".equals(fieldName)) {
+                            if ("key".equals(field.getName())) {
                                 css = StringUtils.isBlank(css)
                                         ? "medium_fixedsize"
                                         : css + " medium_fixedsize";
                             }
                             return css;
                         }
-                    };
-                    columns.add(column);
+                    });
                 }
             }
         }
@@ -186,7 +171,7 @@ public class AnyTypePanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider>
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        send(AnyTypePanel.this, Broadcast.EXACT,
+                        send(AnyTypesPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                     }
                 }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPE_UPDATE).addWithRoles(

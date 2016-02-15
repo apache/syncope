@@ -36,8 +36,9 @@ public class Roles extends BasePage {
     public Roles(final PageParameters parameters) {
         super(parameters);
 
+        body.add(new Label("header", getString("header_title", new Model<>(), "Roles")));
+
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.add(new Label("header", getString("header_title", new Model<>(), "Roles")));
         content.setOutputMarkupId(true);
         body.add(content);
 

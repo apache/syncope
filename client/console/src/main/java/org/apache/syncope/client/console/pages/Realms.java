@@ -93,7 +93,7 @@ public class Realms extends BasePage {
     }
 
     private WebMarkupContainer updateRealmContent(final RealmTO realmTO) {
-        content.addOrReplace(new Label("header", realmTO.getName()));
+        content.addOrReplace(new Label("header", realmTO.getFullPath()));
         content.addOrReplace(new Realm("body", realmTO, getPageReference()) {
 
             private static final long serialVersionUID = 8221398624379357183L;

@@ -157,10 +157,8 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
             final Field clazzField = ReflectionUtils.findField(schemaType.getToClass(), field);
 
             if (clazzField != null) {
-                if (clazzField.getType().equals(Boolean.class
-                ) || clazzField.getType().equals(boolean.class
-                )) {
-                    columns.add(new AbstractColumn<AbstractSchemaTO, String>(new ResourceModel(field)) {
+                if (clazzField.getType().equals(Boolean.class) || clazzField.getType().equals(boolean.class)) {
+                    columns.add(new AbstractColumn<AbstractSchemaTO, String>(new ResourceModel(field), field) {
 
                         private static final long serialVersionUID = 8263694778917279290L;
 

@@ -19,15 +19,16 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <span wicket:id="span">
-      <div class="row">
-        <div class="col-sm-5">
-          <div class="dataTables_info"><span wicket:id="navigatorLabel">[navigatorLabel]</span></div>
+    <tr class="navigation">
+      <td wicket:id="span">
+        <div class="row">
+          <div class="col-sm-5">
+            <div class="dataTables_info"><span wicket:id="navigatorLabel">[navigatorLabel]</span></div>
+          </div>
+          <div class="col-sm-7">
+            <div class="dataTables_paginate paging_simple_numbers"><ul wicket:id="navigator">[navigator]</ul></div>
+          </div>
         </div>
-        <div class="col-sm-7">
-          <div class="dataTables_paginate paging_simple_numbers"><ul wicket:id="navigator">[navigator]</ul></div>
-        </div>
-      </div>
-    </span>
+      </td></tr>
   </wicket:panel>
 </html>

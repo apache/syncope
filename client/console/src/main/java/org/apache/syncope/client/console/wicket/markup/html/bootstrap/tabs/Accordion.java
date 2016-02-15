@@ -39,6 +39,8 @@ public class Accordion extends Collapsible {
 
     @Override
     protected void onComponentTag(final ComponentTag tag) {
+        super.onComponentTag(tag);
+
         checkComponentTag(tag, "div");
         Attributes.addClass(tag, "box-group");
     }

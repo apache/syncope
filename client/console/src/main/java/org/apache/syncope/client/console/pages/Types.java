@@ -22,7 +22,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.panels.AnyTypeClassesPanel;
-import org.apache.syncope.client.console.panels.AnyTypePanel;
+import org.apache.syncope.client.console.panels.AnyTypesPanel;
 import org.apache.syncope.client.console.panels.RelationshipTypePanel;
 import org.apache.syncope.client.console.panels.SchemasPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -50,8 +50,9 @@ public class Types extends BasePage {
     public Types(final PageParameters parameters) {
         super(parameters);
 
+        body.add(new Label("header", "Types"));
+
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.add(new Label("header", "Types"));
         content.setOutputMarkupId(true);
         tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
         content.add(tabbedPanel);
@@ -78,7 +79,7 @@ public class Types extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new AnyTypePanel(panelId, getPageReference());
+                return new AnyTypesPanel(panelId, getPageReference());
             }
         });
 

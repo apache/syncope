@@ -465,11 +465,6 @@ START - DataTable
 .dataTable {
   clear: both;
 }
-
-.rowsChooser {
-  padding: 5px 0px 15px 0px;
-  text-align: right;
-}
 /**
 END - DataTable
 */
@@ -494,7 +489,7 @@ END - Result page
 */
 
 .navbar-nav > .user-menu > .dropdown-menu > li.user-header {
-    height: auto !important;
-    padding: 10px;
-    text-align: center;
+  height: auto !important;
+  padding: 10px;
+  text-align: center;
 }

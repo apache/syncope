@@ -47,9 +47,10 @@ public class CamelRoutesPage extends AbstractExtPage {
     public CamelRoutesPage(final PageParameters parameters) {
         super(parameters);
 
+        body.add(new Label("header", getString("header_title")));
+
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
-        content.add(new Label("header", getString("header_title")));
         AjaxBootstrapTabbedPanel<ITab> tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
         content.add(tabbedPanel);
 

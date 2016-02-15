@@ -42,7 +42,7 @@ public class AjaxFallbackDataTable<T, S> extends DataTable<T, S> {
         super(id, columns, dataProvider, rowsPerPage);
         setOutputMarkupId(true);
         setVersioned(false);
-        addTopToolbar(new AjaxDataNavigationToolbar(this, container));
+
         addTopToolbar(new AjaxFallbackHeadersToolbar<S>(this, dataProvider) {
 
             private static final long serialVersionUID = 7406306172424359609L;
@@ -50,7 +50,7 @@ public class AjaxFallbackDataTable<T, S> extends DataTable<T, S> {
             @Override
             protected WebMarkupContainer newSortableHeader(
                     final String borderId, final S property, final ISortStateLocator<S> locator) {
-                return new AjaxFallbackOrderByBorder<S>(borderId, property, locator, getAjaxCallListener()) {
+                return new AjaxFallbackOrderByBorder<S>(borderId, property, locator) {
 
                     private static final long serialVersionUID = 1L;
 
@@ -64,6 +64,29 @@ public class AjaxFallbackDataTable<T, S> extends DataTable<T, S> {
             }
 
         });
+
+        addBottomToolbar(new AjaxFallbackHeadersToolbar<S>(this, dataProvider) {
+
+            private static final long serialVersionUID = 7406306172424359609L;
+
+            @Override
+            protected WebMarkupContainer newSortableHeader(
+                    final String borderId, final S property, final ISortStateLocator<S> locator) {
+                return new AjaxFallbackOrderByBorder<S>(borderId, property, locator) {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    protected void onAjaxClick(final AjaxRequestTarget target) {
+                        if (container != null) {
+                            target.add(container);
+                        }
+                    }
+                };
+            }
+
+        });
+        addBottomToolbar(new AjaxDataNavigationToolbar(this, container));
         addBottomToolbar(new NoRecordsToolbar(this));
     }
 

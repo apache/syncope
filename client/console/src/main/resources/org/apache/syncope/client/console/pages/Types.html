@@ -19,23 +19,16 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
-    <div class="wrapper">
-      <div class="admin-content-page" wicket:id="content">
-        <div class="box box-solid box-primary">
-          <div class="box-header with-border">
-            <h3 class="box-title">
-              <span wicket:id="header"></span>
-            </h3>
-            <div class="box-tools pull-right">
-            </div>
-          </div>
-          <div class="box-body">
-            <div class="realms">
-              <div wicket:id="tabbedPanel"></div>
-            </div>
-          </div>
-        </div>
+    <section class="content-header">
+      <h1>
+        <span wicket:id="header"></span>
+      </h1>
+    </section>
+
+    <section class="content" wicket:id="content">
+      <div class="box">
+        <div class="box-body" wicket:id="tabbedPanel"/>
       </div>
-    </div>
+    </section>
   </wicket:extend>
 </html>

@@ -32,8 +32,9 @@ public class Parameters extends BasePage {
     public Parameters(final PageParameters parameters) {
         super(parameters);
 
+        body.add(new Label("header", getString("header_title")));
+
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.add(new Label("header", getString("header_title")));
         content.setOutputMarkupId(true);
         body.add(content);
 
