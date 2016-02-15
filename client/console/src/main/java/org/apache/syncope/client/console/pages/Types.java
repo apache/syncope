@@ -63,7 +63,7 @@ public class Types extends BasePage {
 
         final List<ITab> tabs = new ArrayList<>();
 
-        tabs.add(new AbstractTab(new Model<>("RelationshipType")) {
+        tabs.add(new AbstractTab(new Model<>("RelationshipTypes")) {
 
             private static final long serialVersionUID = -6815067322125799251L;
 

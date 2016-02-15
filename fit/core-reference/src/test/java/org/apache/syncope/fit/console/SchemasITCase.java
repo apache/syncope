@@ -114,7 +114,8 @@ public class SchemasITCase extends AbstractTypesITCase {
         browsingToPlainSchemas();
         //create new Plain Schema
         final String schemaName = "zStringDelete";
-        wicketTester.clickLink("body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:container:content:add");
+        wicketTester.clickLink(
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:container:content:add");
 
         wicketTester.assertComponent(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:modal", Modal.class);
@@ -134,8 +135,7 @@ public class SchemasITCase extends AbstractTypesITCase {
         //delete plain schema
         wicketTester.clickLink(
                 PLAIN_DATATABLE_PATH
-                + ":tablePanel:groupForm:checkgroup:"
-                + "dataTable:topToolbars:toolbars:1:span:navigator:last");
+                + ":tablePanel:groupForm:checkgroup:dataTable:bottomToolbars:toolbars:3:span:navigator:last");
 
         wicketTester.assertComponent(PLAIN_DATATABLE_PATH, AjaxDataTablePanel.class);
 

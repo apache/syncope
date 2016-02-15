@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.widgets.NumberWidget;
+import org.apache.syncope.common.lib.info.NumbersInfo;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Dashboard extends BasePage {
@@ -26,5 +30,37 @@ public class Dashboard extends BasePage {
 
     public Dashboard(final PageParameters parameters) {
         super(parameters);
+
+        NumbersInfo numbers = SyncopeConsoleSession.get().getService(SyncopeService.class).numbers();
+
+        body.add(new NumberWidget(
+                "totalUsers", "bg-yellow", numbers.getTotalUsers(), getString("users"), "ion ion-person"));
+        body.add(new NumberWidget(
+                "totalGroups", "bg-red", numbers.getTotalGroups(), getString("groups"), "ion ion-person-stalker"));
+
+        int number;
+        String label;
+        String icon;
+        if (numbers.getAnyType1() == null) {
+            number = numbers.getTotalRoles();
+            label = getString("roles");
+            icon = "fa fa-users";
+        } else {
+            number = numbers.getTotalAny1();
+            label = numbers.getAnyType1();
+            icon = "ion ion-gear-a";
+        }
+        body.add(new NumberWidget("totalAny1OrRoles", "bg-green", number, label, icon));
+
+        if (numbers.getAnyType2() == null) {
+            number = numbers.getTotalResources();
+            label = getString("resources");
+            icon = "fa fa-database";
+        } else {
+            number = numbers.getTotalAny2();
+            label = numbers.getAnyType2();
+            icon = "ion ion-gear-a";
+        }
+        body.add(new NumberWidget("totalAny1OrResources", "bg-aqua", number, label, icon));
     }
 }

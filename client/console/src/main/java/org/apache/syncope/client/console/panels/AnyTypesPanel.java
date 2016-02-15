@@ -117,11 +117,11 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
 
     @Override
     protected List<IColumn<AnyTypeTO, String>> getColumns() {
-
         final List<IColumn<AnyTypeTO, String>> columns = new ArrayList<>();
 
-        for (final Field field : AnyTypeTO.class.getDeclaredFields()) {
+        for (Field field : AnyTypeTO.class.getDeclaredFields()) {
             if (field != null && !Modifier.isStatic(field.getModifiers())) {
+                final String fieldName = field.getName();
                 if (field.getType().isArray()
                         || Collection.class.isAssignableFrom(field.getType())
                         || Map.class.isAssignableFrom(field.getType())) {
@@ -137,7 +137,7 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("key".equals(field.getName())) {
+                            if ("key".equals(fieldName)) {
                                 css = StringUtils.isBlank(css)
                                         ? "medium_fixedsize"
                                         : css + " medium_fixedsize";

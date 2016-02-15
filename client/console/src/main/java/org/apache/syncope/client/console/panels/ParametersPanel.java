@@ -150,8 +150,9 @@ public class ParametersPanel extends AbstractSearchResultPanel<
     protected List<IColumn<AttrTO, String>> getColumns() {
         final List<IColumn<AttrTO, String>> columns = new ArrayList<>();
 
-        for (final Field field : AttrTO.class.getDeclaredFields()) {
+        for (Field field : AttrTO.class.getDeclaredFields()) {
             if (field != null && !Modifier.isStatic(field.getModifiers())) {
+                final String fieldName = field.getName();
                 if (field.getType().isArray()
                         || Collection.class.isAssignableFrom(field.getType())
                         || Map.class.isAssignableFrom(field.getType())) {
@@ -167,7 +168,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("key".equals(field.getName())) {
+                            if ("key".equals(fieldName)) {
                                 css = StringUtils.isBlank(css)
                                         ? "medium_fixedsize"
                                         : css + " medium_fixedsize";

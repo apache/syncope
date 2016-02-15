@@ -28,7 +28,7 @@ import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.CamelRoutesPage;
+import org.apache.syncope.client.console.pages.CamelRoutes;
 import org.apache.syncope.client.console.panels.CamelRoutesPanel.CamelRoutesProvider;
 import org.apache.syncope.client.console.rest.CamelRoutesRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -133,7 +133,7 @@ public class CamelRoutesPanel extends AbstractSearchResultPanel<
 
     @Override
     protected String paginatorRowsKey() {
-        return CamelRoutesPage.PREF_CAMEL_ROUTES_PAGINATOR_ROWS;
+        return CamelRoutes.PREF_CAMEL_ROUTES_PAGINATOR_ROWS;
     }
 
     @Override

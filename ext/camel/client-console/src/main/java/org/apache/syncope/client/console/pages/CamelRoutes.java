@@ -36,7 +36,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 @ExtPage(label = "Camel Routes", icon = "fa-road", priority = 100)
-public class CamelRoutesPage extends AbstractExtPage {
+public class CamelRoutes extends AbstractExtPage {
 
     private static final long serialVersionUID = 1965360932245590233L;
 
@@ -44,7 +44,7 @@ public class CamelRoutesPage extends AbstractExtPage {
 
     private final CamelRoutesRestClient restClient = new CamelRoutesRestClient();
 
-    public CamelRoutesPage(final PageParameters parameters) {
+    public CamelRoutes(final PageParameters parameters) {
         super(parameters);
 
         body.add(new Label("header", getString("header_title")));

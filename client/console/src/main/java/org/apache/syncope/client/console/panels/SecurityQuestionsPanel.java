@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -117,37 +118,22 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
 
     @Override
     protected List<IColumn<SecurityQuestionTO, String>> getColumns() {
-
         final List<IColumn<SecurityQuestionTO, String>> columns = new ArrayList<>();
 
         for (Field field : SecurityQuestionTO.class.getDeclaredFields()) {
-
             if (field != null && !Modifier.isStatic(field.getModifiers())) {
                 final String fieldName = field.getName();
-                if (field.getType().isArray()) {
-                    final IColumn<SecurityQuestionTO, String> column = new PropertyColumn<SecurityQuestionTO, String>(
-                            new ResourceModel(field.getName()), field.getName()) {
+                if (field.getType().isArray()
+                        || Collection.class.isAssignableFrom(field.getType())
+                        || Map.class.isAssignableFrom(field.getType())) {
 
-                        private static final long serialVersionUID = 3282547854226892169L;
-
-                        @Override
-                        public String getCssClass() {
-                            String css = super.getCssClass();
-                            if ("key".equals(fieldName)) {
-                                css = StringUtils.isBlank(css)
-                                        ? "medium_fixedsize"
-                                        : css + " medium_fixedsize";
-                            }
-                            return css;
-                        }
-                    };
-                    columns.add(column);
-
+                    columns.add(new PropertyColumn<SecurityQuestionTO, String>(
+                            new ResourceModel(field.getName()), field.getName()));
                 } else {
-                    final IColumn<SecurityQuestionTO, String> column = new PropertyColumn<SecurityQuestionTO, String>(
+                    columns.add(new PropertyColumn<SecurityQuestionTO, String>(
                             new ResourceModel(field.getName()), field.getName(), field.getName()) {
 
-                        private static final long serialVersionUID = 3282547854226892169L;
+                        private static final long serialVersionUID = -6902459669035442212L;
 
                         @Override
                         public String getCssClass() {
@@ -159,8 +145,7 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
                             }
                             return css;
                         }
-                    };
-                    columns.add(column);
+                    });
                 }
             }
         }
@@ -233,8 +218,8 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
 
         @Override
         public Iterator<SecurityQuestionTO> iterator(final long first, final long count) {
-            final List<SecurityQuestionTO> list
-                    = SyncopeConsoleSession.get().getService(SecurityQuestionService.class).list();
+            final List<SecurityQuestionTO> list =
+                    SyncopeConsoleSession.get().getService(SecurityQuestionService.class).list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
