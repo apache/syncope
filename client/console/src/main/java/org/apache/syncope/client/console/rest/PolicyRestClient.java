@@ -72,7 +72,7 @@ public class PolicyRestClient extends BaseRestClient {
         Set<String> rules = null;
 
         try {
-            rules = SyncopeConsoleSession.get().getSyncopeTO().getSyncCorrelationRules();
+            rules = SyncopeConsoleSession.get().getPlatformInfo().getSyncCorrelationRules();
         } catch (Exception e) {
             LOG.error("While getting all correlation rule classes", e);
         }

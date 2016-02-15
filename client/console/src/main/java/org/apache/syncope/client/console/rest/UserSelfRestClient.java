@@ -31,7 +31,7 @@ public class UserSelfRestClient extends BaseRestClient {
     public boolean isSelfRegistrationAllowed() {
         Boolean result = null;
         try {
-            result = SyncopeConsoleSession.get().getSyncopeTO().isSelfRegAllowed();
+            result = SyncopeConsoleSession.get().getPlatformInfo().isSelfRegAllowed();
         } catch (SyncopeClientException e) {
             LOG.error("While seeking if self registration is allowed", e);
         }
@@ -60,7 +60,7 @@ public class UserSelfRestClient extends BaseRestClient {
     public boolean isPasswordResetAllowed() {
         Boolean result = null;
         try {
-            result = SyncopeConsoleSession.get().getSyncopeTO().isPwdResetAllowed();
+            result = SyncopeConsoleSession.get().getPlatformInfo().isPwdResetAllowed();
         } catch (SyncopeClientException e) {
             LOG.error("While seeking if password reset is allowed", e);
         }
@@ -73,7 +73,7 @@ public class UserSelfRestClient extends BaseRestClient {
     public boolean isPwdResetRequiringSecurityQuestions() {
         Boolean result = null;
         try {
-            result = SyncopeConsoleSession.get().getSyncopeTO().isPwdResetRequiringSecurityQuestions();
+            result = SyncopeConsoleSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions();
         } catch (SyncopeClientException e) {
             LOG.error("While seeking if password reset requires security question", e);
         }

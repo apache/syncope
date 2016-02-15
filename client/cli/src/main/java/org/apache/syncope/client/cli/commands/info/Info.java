@@ -19,7 +19,7 @@
 package org.apache.syncope.client.cli.commands.info;
 
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.lib.to.SyncopeTO;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +28,13 @@ public class Info {
 
     private static final Logger LOG = LoggerFactory.getLogger(Info.class);
 
-    private final SyncopeTO syncopeTO = SyncopeServices.get(SyncopeService.class).syncope();
+    private final PlatformInfo platformInfo = SyncopeServices.get(SyncopeService.class).platform();
 
     private final InfoResultManager infoResultManager = new InfoResultManager();
 
     public void version() {
         try {
-            infoResultManager.printVersion(syncopeTO.getVersion());
+            infoResultManager.printVersion(platformInfo.getVersion());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -43,7 +43,7 @@ public class Info {
 
     public void pwdResetAllowed() {
         try {
-            infoResultManager.printPwdResetAllowed(syncopeTO.isPwdResetAllowed());
+            infoResultManager.printPwdResetAllowed(platformInfo.isPwdResetAllowed());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -52,7 +52,8 @@ public class Info {
 
     public void resetWithSecurityQuestion() {
         try {
-            infoResultManager.printPwdResetRequiringSecurityQuestions(syncopeTO.isPwdResetRequiringSecurityQuestions());
+            infoResultManager.printPwdResetRequiringSecurityQuestions(
+                    platformInfo.isPwdResetRequiringSecurityQuestions());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -61,7 +62,7 @@ public class Info {
 
     public void selfRegistrationAllowed() {
         try {
-            infoResultManager.printSelfRegistrationAllowed(syncopeTO.isSelfRegAllowed());
+            infoResultManager.printSelfRegistrationAllowed(platformInfo.isSelfRegAllowed());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -71,9 +72,9 @@ public class Info {
     public void provisioningManager() {
         try {
             infoResultManager.printProvisioningManager(
-                    syncopeTO.getAnyObjectProvisioningManager(),
-                    syncopeTO.getUserProvisioningManager(),
-                    syncopeTO.getGroupProvisioningManager());
+                    platformInfo.getAnyObjectProvisioningManager(),
+                    platformInfo.getUserProvisioningManager(),
+                    platformInfo.getGroupProvisioningManager());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -83,9 +84,9 @@ public class Info {
     public void workflowAdapter() {
         try {
             infoResultManager.printWorkflowAdapter(
-                    syncopeTO.getAnyObjectWorkflowAdapter(),
-                    syncopeTO.getUserWorkflowAdapter(),
-                    syncopeTO.getGroupWorkflowAdapter());
+                    platformInfo.getAnyObjectWorkflowAdapter(),
+                    platformInfo.getUserWorkflowAdapter(),
+                    platformInfo.getGroupWorkflowAdapter());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -94,7 +95,7 @@ public class Info {
 
     public void accountRules() {
         try {
-            infoResultManager.printAccountRules(syncopeTO.getAccountRules());
+            infoResultManager.printAccountRules(platformInfo.getAccountRules());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -103,7 +104,7 @@ public class Info {
 
     public void connidLocations() {
         try {
-            infoResultManager.printConnidLocations(syncopeTO.getConnIdLocations());
+            infoResultManager.printConnidLocations(platformInfo.getConnIdLocations());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -112,7 +113,7 @@ public class Info {
 
     public void reconciliationFilterBuilders() {
         try {
-            infoResultManager.printReconciliationFilterBuilders(syncopeTO.getReconciliationFilterBuilders());
+            infoResultManager.printReconciliationFilterBuilders(platformInfo.getReconciliationFilterBuilders());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -121,7 +122,7 @@ public class Info {
 
     public void logicActions() {
         try {
-            infoResultManager.printLogicActions(syncopeTO.getLogicActions());
+            infoResultManager.printLogicActions(platformInfo.getLogicActions());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -130,7 +131,7 @@ public class Info {
 
     public void mappingItemTransformers() {
         try {
-            infoResultManager.printMappingItemTransformers(syncopeTO.getMappingItemTransformers());
+            infoResultManager.printMappingItemTransformers(platformInfo.getMappingItemTransformers());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -139,7 +140,7 @@ public class Info {
 
     public void passwordRules() {
         try {
-            infoResultManager.printPasswordRules(syncopeTO.getPasswordRules());
+            infoResultManager.printPasswordRules(platformInfo.getPasswordRules());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -148,7 +149,7 @@ public class Info {
 
     public void propagationActions() {
         try {
-            infoResultManager.printPropagationActions(syncopeTO.getPropagationActions());
+            infoResultManager.printPropagationActions(platformInfo.getPropagationActions());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -157,7 +158,7 @@ public class Info {
 
     public void pushActions() {
         try {
-            infoResultManager.printPushActions(syncopeTO.getPushActions());
+            infoResultManager.printPushActions(platformInfo.getPushActions());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -166,7 +167,7 @@ public class Info {
 
     public void pushCorrelationActions() {
         try {
-            infoResultManager.printCorrelationActions(syncopeTO.getPushCorrelationRules());
+            infoResultManager.printCorrelationActions(platformInfo.getPushCorrelationRules());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -175,7 +176,7 @@ public class Info {
 
     public void reportlets() {
         try {
-            infoResultManager.printReportlets(syncopeTO.getReportlets());
+            infoResultManager.printReportlets(platformInfo.getReportlets());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -184,7 +185,7 @@ public class Info {
 
     public void syncActions() {
         try {
-            infoResultManager.printSyncActions(syncopeTO.getSyncActions());
+            infoResultManager.printSyncActions(platformInfo.getSyncActions());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -193,7 +194,7 @@ public class Info {
 
     public void syncCorrelationRules() {
         try {
-            infoResultManager.printCorrelationRules(syncopeTO.getSyncCorrelationRules());
+            infoResultManager.printCorrelationRules(platformInfo.getSyncCorrelationRules());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -202,7 +203,7 @@ public class Info {
 
     public void taskJobs() {
         try {
-            infoResultManager.printJobs(syncopeTO.getTaskJobs());
+            infoResultManager.printJobs(platformInfo.getTaskJobs());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -211,7 +212,7 @@ public class Info {
 
     public void validators() {
         try {
-            infoResultManager.printValidators(syncopeTO.getValidators());
+            infoResultManager.printValidators(platformInfo.getValidators());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -220,7 +221,7 @@ public class Info {
 
     public void passwordGenerators() {
         try {
-            infoResultManager.printPasswordGenerator(syncopeTO.getPasswordGenerator());
+            infoResultManager.printPasswordGenerator(platformInfo.getPasswordGenerator());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
@@ -229,7 +230,7 @@ public class Info {
 
     public void virAttrCache() {
         try {
-            infoResultManager.printVirtualAttributeCacheClass(syncopeTO.getVirAttrCache());
+            infoResultManager.printVirtualAttributeCacheClass(platformInfo.getVirAttrCache());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());

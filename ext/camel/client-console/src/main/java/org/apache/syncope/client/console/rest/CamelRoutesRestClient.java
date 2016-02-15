@@ -43,10 +43,12 @@ public class CamelRoutesRestClient extends BaseRestClient {
 
     public boolean isCamelEnabledFor(final AnyTypeKind anyTypeKind) {
         return anyTypeKind == AnyTypeKind.USER
-                ? SyncopeConsoleSession.get().getSyncopeTO().getUserProvisioningManager().contains("Camel")
+                ? SyncopeConsoleSession.get().getPlatformInfo().getUserProvisioningManager().contains("Camel")
                 : anyTypeKind == AnyTypeKind.ANY_OBJECT
-                        ? SyncopeConsoleSession.get().getSyncopeTO().getAnyObjectProvisioningManager().contains("Camel")
-                        : SyncopeConsoleSession.get().getSyncopeTO().getGroupProvisioningManager().contains("Camel");
+                        ? SyncopeConsoleSession.get().getPlatformInfo().
+                        getAnyObjectProvisioningManager().contains("Camel")
+                        : SyncopeConsoleSession.get().getPlatformInfo().
+                        getGroupProvisioningManager().contains("Camel");
 
     }
 }

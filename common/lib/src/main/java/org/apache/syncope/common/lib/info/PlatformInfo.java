@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to;
+package org.apache.syncope.common.lib.info;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
@@ -27,9 +27,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
-@XmlRootElement(name = "syncope")
+@XmlRootElement(name = "platformInfo")
 @XmlType
-public class SyncopeTO extends AbstractBaseBean {
+public class PlatformInfo extends AbstractBaseBean {
 
     private static final long serialVersionUID = -7941853999417673827L;
 

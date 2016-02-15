@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -74,6 +75,13 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
 
     @Autowired
     private ConnectorRegistry connRegistry;
+
+    @Override
+    public int count() {
+        Query query = entityManager().createQuery(
+                "SELECT COUNT(e) FROM  " + JPAExternalResource.class.getSimpleName() + " e");
+        return ((Number) query.getSingleResult()).intValue();
+    }
 
     @Override
     public ExternalResource find(final String name) {

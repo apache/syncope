@@ -25,6 +25,8 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface RoleDAO extends DAO<Role, String> {
 
+    int count();
+
     Role find(String key);
 
     List<Role> findByRealm(Realm realm);

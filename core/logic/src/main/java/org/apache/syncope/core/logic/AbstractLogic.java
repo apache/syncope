@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Superclass for all controllers.
+ * Superclass for all business logic modules.
  *
  * @param <T> transfer object used for input / output
  */

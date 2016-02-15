@@ -46,15 +46,15 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     private static final long serialVersionUID = 6284485820911028843L;
 
     public Set<String> getJobClasses() {
-        return SyncopeConsoleSession.get().getSyncopeTO().getTaskJobs();
+        return SyncopeConsoleSession.get().getPlatformInfo().getTaskJobs();
     }
 
     public Set<String> getSyncActionsClasses() {
-        return SyncopeConsoleSession.get().getSyncopeTO().getSyncActions();
+        return SyncopeConsoleSession.get().getPlatformInfo().getSyncActions();
     }
 
     public Set<String> getPushActionsClasses() {
-        return SyncopeConsoleSession.get().getSyncopeTO().getPushActions();
+        return SyncopeConsoleSession.get().getPlatformInfo().getPushActions();
     }
 
     /**

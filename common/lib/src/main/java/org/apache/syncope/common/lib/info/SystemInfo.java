@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to;
+package org.apache.syncope.common.lib.info;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.xml.bind.annotation.XmlElement;
@@ -26,9 +26,9 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
-@XmlRootElement(name = "platform")
+@XmlRootElement(name = "systemInfo")
 @XmlType
-public class PlatformTO extends AbstractBaseBean {
+public class SystemInfo extends AbstractBaseBean {
 
     private static final long serialVersionUID = -352727968865892499L;
 
@@ -38,7 +38,7 @@ public class PlatformTO extends AbstractBaseBean {
 
     private int availableProcessors;
 
-    private final CircularFifoQueue<PlatformLoad> load = new CircularFifoQueue<>(5);
+    private final CircularFifoQueue<PlatformLoad> load = new CircularFifoQueue<>(10);
 
     public String getOs() {
         return os;

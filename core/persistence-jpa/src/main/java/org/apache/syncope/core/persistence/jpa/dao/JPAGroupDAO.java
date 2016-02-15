@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
@@ -73,6 +74,28 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     protected AnyUtils init() {
         return new JPAAnyUtilsFactory().getInstance(AnyTypeKind.GROUP);
+    }
+
+    @Override
+    public int count() {
+        Query query = entityManager().createQuery(
+                "SELECT COUNT(e) FROM  " + JPAGroup.class.getSimpleName() + " e");
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    @Override
+    public Map<String, Integer> countByRealm() {
+        Query query = entityManager().createQuery(
+                "SELECT e.realm, COUNT(e) FROM  " + JPAGroup.class.getSimpleName() + " e GROUP BY e.realm");
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        Map<String, Integer> countByRealm = new HashMap<>(results.size());
+        for (Object[] result : results) {
+            countByRealm.put(((Realm) result[0]).getFullPath(), ((Number) result[1]).intValue());
+        }
+
+        return Collections.unmodifiableMap(countByRealm);
     }
 
     @Override

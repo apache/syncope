@@ -27,6 +27,8 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 
 public interface ExternalResourceDAO extends DAO<ExternalResource, String> {
 
+    int count();
+
     ExternalResource find(String key);
 
     Provision findProvision(Long key);

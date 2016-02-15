@@ -161,7 +161,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getCorrelationRules() {
-        assertEquals(2, syncopeService.syncope().getSyncCorrelationRules().size());
+        assertEquals(2, syncopeService.platform().getSyncCorrelationRules().size());
     }
 
     @Test

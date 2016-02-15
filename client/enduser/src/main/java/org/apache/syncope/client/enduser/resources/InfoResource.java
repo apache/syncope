@@ -23,7 +23,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.adapters.SyncopeTOAdapter;
+import org.apache.syncope.client.enduser.adapters.PlatformInfoAdapter;
 import org.apache.syncope.client.enduser.util.SaltGenerator;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.wicket.request.resource.IResource;
@@ -37,15 +37,8 @@ public class InfoResource extends AbstractBaseResource {
 
     private static final long serialVersionUID = 6453101466981543020L;
 
-    private final SyncopeTOAdapter syncopeTOAdapter;
-
-    public InfoResource() {
-        syncopeTOAdapter = new SyncopeTOAdapter();
-    }
-
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-
         ResourceResponse response = new ResourceResponse();
 
         try {
@@ -63,8 +56,10 @@ public class InfoResource extends AbstractBaseResource {
 
                 @Override
                 public void writeData(final IResource.Attributes attributes) throws IOException {
-                    attributes.getResponse().write(POJOHelper.serialize(syncopeTOAdapter.toSyncopeTORequest(
-                            SyncopeEnduserSession.get().getSyncopeTO())));
+                    attributes.getResponse().write(
+                            POJOHelper.serialize(
+                                    PlatformInfoAdapter.toPlatformInfoRequest(
+                                    SyncopeEnduserSession.get().getPlatformInfo())));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());

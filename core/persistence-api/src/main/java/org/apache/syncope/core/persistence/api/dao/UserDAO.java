@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -28,6 +29,12 @@ import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface UserDAO extends AnyDAO<User> {
+
+    int count();
+
+    Map<String, Integer> countByRealm();
+
+    Map<String, Integer> countByStatus();
 
     User authFind(String username);
 

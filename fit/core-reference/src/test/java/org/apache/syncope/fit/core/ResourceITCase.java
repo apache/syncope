@@ -103,7 +103,7 @@ public class ResourceITCase extends AbstractITCase {
 
     @Test
     public void getPropagationActionsClasses() {
-        Set<String> actions = syncopeService.syncope().getPropagationActions();
+        Set<String> actions = syncopeService.platform().getPropagationActions();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }

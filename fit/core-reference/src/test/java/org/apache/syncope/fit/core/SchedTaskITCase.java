@@ -53,7 +53,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void getJobClasses() {
-        Set<String> jobClasses = syncopeService.syncope().getTaskJobs();
+        Set<String> jobClasses = syncopeService.platform().getTaskJobs();
         assertNotNull(jobClasses);
         assertFalse(jobClasses.isEmpty());
     }

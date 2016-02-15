@@ -25,20 +25,20 @@ import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.commands.role.RoleSyncopeOperations;
 import org.apache.syncope.client.cli.commands.user.UserSyncopeOperations;
 import org.apache.syncope.common.lib.to.RoleTO;
-import org.apache.syncope.common.lib.to.SyncopeTO;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 
 public class EntitlementSyncopeOperations {
 
-    private final SyncopeTO syncopeTO = SyncopeServices.get(SyncopeService.class).syncope();
+    private final PlatformInfo platformInfo = SyncopeServices.get(SyncopeService.class).platform();
 
     private final UserSyncopeOperations userSyncopeOperations = new UserSyncopeOperations();
 
     private final RoleSyncopeOperations roleSyncopeOperations = new RoleSyncopeOperations();
 
     public Set<String> list() {
-        return syncopeTO.getEntitlements();
+        return platformInfo.getEntitlements();
     }
 
     public boolean exists(final String entitlement) {

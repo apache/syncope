@@ -31,7 +31,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.SyncopeTO;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Session;
@@ -58,7 +58,7 @@ public class SyncopeEnduserSession extends WebSession {
 
     private String password;
 
-    private final SyncopeTO syncopeTO;
+    private final PlatformInfo platformInfo;
 
     private UserTO selfTO;
 
@@ -80,8 +80,7 @@ public class SyncopeEnduserSession extends WebSession {
         anonymousClient = SyncopeEnduserApplication.get().getClientFactory().create(
                 SyncopeEnduserApplication.get().getAnonymousUser(),
                 SyncopeEnduserApplication.get().getAnonymousKey());
-        syncopeTO = anonymousClient.getService(SyncopeService.class).syncope();
-
+        platformInfo = anonymousClient.getService(SyncopeService.class).platform();
     }
 
     public boolean authenticate(final String username, final String password) {
@@ -165,8 +164,8 @@ public class SyncopeEnduserSession extends WebSession {
         return password;
     }
 
-    public SyncopeTO getSyncopeTO() {
-        return syncopeTO;
+    public PlatformInfo getPlatformInfo() {
+        return platformInfo;
     }
 
     public UserTO getSelfTO() {

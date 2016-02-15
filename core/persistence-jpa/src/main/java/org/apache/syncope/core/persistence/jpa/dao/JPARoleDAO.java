@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
@@ -38,6 +39,13 @@ public class JPARoleDAO extends AbstractDAO<Role, String> implements RoleDAO {
 
     @Autowired
     private AnySearchDAO searchDAO;
+
+    @Override
+    public int count() {
+        Query query = entityManager().createQuery(
+                "SELECT COUNT(e) FROM  " + JPARole.class.getSimpleName() + " e");
+        return ((Number) query.getSingleResult()).intValue();
+    }
 
     @Override
     public Role find(final String key) {

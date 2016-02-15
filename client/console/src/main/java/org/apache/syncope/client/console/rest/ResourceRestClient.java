@@ -38,7 +38,7 @@ public class ResourceRestClient extends BaseRestClient {
     private static final long serialVersionUID = -6898907679835668987L;
 
     public List<String> getPropagationActionsClasses() {
-        return new ArrayList<>(SyncopeConsoleSession.get().getSyncopeTO().getPropagationActions());
+        return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPropagationActions());
     }
 
     public List<ResourceTO> getAll() {

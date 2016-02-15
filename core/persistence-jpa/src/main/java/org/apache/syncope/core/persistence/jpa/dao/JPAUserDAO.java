@@ -20,11 +20,15 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
@@ -95,6 +99,43 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     protected AnyUtils init() {
         return new JPAAnyUtilsFactory().getInstance(AnyTypeKind.USER);
+    }
+
+    @Override
+    public int count() {
+        Query query = entityManager().createQuery(
+                "SELECT COUNT(e) FROM  " + JPAUser.class.getSimpleName() + " e");
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    @Override
+    public Map<String, Integer> countByRealm() {
+        Query query = entityManager().createQuery(
+                "SELECT e.realm, COUNT(e) FROM  " + JPAUser.class.getSimpleName() + " e GROUP BY e.realm");
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        Map<String, Integer> countByRealm = new HashMap<>(results.size());
+        for (Object[] result : results) {
+            countByRealm.put(((Realm) result[0]).getFullPath(), ((Number) result[1]).intValue());
+        }
+
+        return Collections.unmodifiableMap(countByRealm);
+    }
+
+    @Override
+    public Map<String, Integer> countByStatus() {
+        Query query = entityManager().createQuery(
+                "SELECT e.status, COUNT(e) FROM  " + JPAUser.class.getSimpleName() + " e GROUP BY e.status");
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        Map<String, Integer> countByStatus = new HashMap<>(results.size());
+        for (Object[] result : results) {
+            countByStatus.put(((String) result[0]), ((Number) result[1]).intValue());
+        }
+
+        return Collections.unmodifiableMap(countByStatus);
     }
 
     @Override

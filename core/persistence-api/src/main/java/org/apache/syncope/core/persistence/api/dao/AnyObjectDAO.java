@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -27,6 +29,16 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 
 public interface AnyObjectDAO extends AnyDAO<AnyObject> {
+
+    /**
+     * Counts the number of instances for each type.
+     * The returned map is expected to be sorted on values.
+     *
+     * @return the number of instances for each type
+     */
+    Map<AnyType, Integer> countByType();
+
+    Map<String, Integer> countByRealm(AnyType anyType);
 
     List<Group> findDynGroupMemberships(AnyObject anyObject);
 

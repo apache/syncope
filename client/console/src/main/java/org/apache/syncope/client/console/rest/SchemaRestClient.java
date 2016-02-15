@@ -166,7 +166,7 @@ public class SchemaRestClient extends BaseRestClient {
         List<String> response = null;
 
         try {
-            response = new ArrayList<>(SyncopeConsoleSession.get().getSyncopeTO().getValidators());
+            response = new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getValidators());
         } catch (SyncopeClientException e) {
             LOG.error("While getting all validators", e);
         }

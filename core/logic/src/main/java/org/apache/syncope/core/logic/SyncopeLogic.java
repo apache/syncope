@@ -24,13 +24,23 @@ import java.lang.management.RuntimeMXBean;
 import org.apache.syncope.core.misc.EntitlementsHolder;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.Iterator;
+import java.util.Map;
 import javax.annotation.Resource;
-import org.apache.syncope.common.lib.to.PlatformTO;
-import org.apache.syncope.common.lib.to.SyncopeTO;
+import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.info.NumbersInfo;
+import org.apache.syncope.common.lib.info.SystemInfo;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.core.misc.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.ImplementationLookup.Type;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
@@ -45,14 +55,30 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @Component
-public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
+public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
 
     private static final int MB = 1024 * 1024;
 
-    private static final SyncopeTO SYNCOPE_TO = new SyncopeTO();
+    private static PlatformInfo PLATFORM_INFO;
 
-    private static final PlatformTO PLATFORM_TO = new PlatformTO();
+    private static SystemInfo SYSTEM_INFO;
+
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private GroupDAO groupDAO;
+
+    @Autowired
+    private AnyObjectDAO anyObjectDAO;
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Autowired
     private ConfDAO confDAO;
@@ -90,88 +116,92 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
     @Autowired
     private ImplementationLookup implLookup;
 
-    @Transactional(readOnly = true)
     public boolean isSelfRegAllowed() {
         return confDAO.find("selfRegistration.allowed", "false").getValues().get(0).getBooleanValue();
     }
 
-    @Transactional(readOnly = true)
     public boolean isPwdResetAllowed() {
         return confDAO.find("passwordReset.allowed", "false").getValues().get(0).getBooleanValue();
     }
 
-    @Transactional(readOnly = true)
     public boolean isPwdResetRequiringSecurityQuestions() {
         return confDAO.find("passwordReset.securityQuestion", "true").getValues().get(0).getBooleanValue();
     }
 
     @PreAuthorize("isAuthenticated()")
-    @Transactional(readOnly = true)
-    public SyncopeTO info() {
-        synchronized (SYNCOPE_TO) {
-            SYNCOPE_TO.setVersion(version);
+    public PlatformInfo platform() {
+        synchronized (this) {
+            if (PLATFORM_INFO == null) {
+                PLATFORM_INFO = new PlatformInfo();
+                PLATFORM_INFO.setVersion(version);
 
-            SYNCOPE_TO.setSelfRegAllowed(isSelfRegAllowed());
-            SYNCOPE_TO.setPwdResetAllowed(isPwdResetAllowed());
-            SYNCOPE_TO.setPwdResetRequiringSecurityQuestions(isPwdResetRequiringSecurityQuestions());
-
-            if (bundleManager.getLocations() != null) {
-                for (URI location : bundleManager.getLocations()) {
-                    SYNCOPE_TO.getConnIdLocations().add(location.toASCIIString());
+                if (bundleManager.getLocations() != null) {
+                    for (URI location : bundleManager.getLocations()) {
+                        PLATFORM_INFO.getConnIdLocations().add(location.toASCIIString());
+                    }
                 }
+
+                PLATFORM_INFO.setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
+                PLATFORM_INFO.setUserWorkflowAdapter(AopUtils.getTargetClass(uwfAdapter).getName());
+                PLATFORM_INFO.setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
+
+                PLATFORM_INFO.setAnyObjectProvisioningManager(aProvisioningManager.getClass().getName());
+                PLATFORM_INFO.setUserProvisioningManager(uProvisioningManager.getClass().getName());
+                PLATFORM_INFO.setGroupProvisioningManager(gProvisioningManager.getClass().getName());
+                PLATFORM_INFO.setVirAttrCache(virAttrCache.getClass().getName());
+                PLATFORM_INFO.setPasswordGenerator(passwordGenerator.getClass().getName());
+
+                PLATFORM_INFO.getReportlets().addAll(implLookup.getClassNames(Type.REPORTLET));
+                PLATFORM_INFO.getAccountRules().addAll(implLookup.getClassNames(Type.ACCOUNT_RULE));
+                PLATFORM_INFO.getPasswordRules().addAll(implLookup.getClassNames(Type.PASSWORD_RULE));
+                PLATFORM_INFO.getMappingItemTransformers().addAll(
+                        implLookup.getClassNames(Type.MAPPING_ITEM_TRANSFORMER));
+                PLATFORM_INFO.getTaskJobs().addAll(implLookup.getClassNames(Type.TASKJOBDELEGATE));
+                PLATFORM_INFO.getReconciliationFilterBuilders().
+                        addAll(implLookup.getClassNames(Type.RECONCILIATION_FILTER_BUILDER));
+                PLATFORM_INFO.getLogicActions().addAll(implLookup.getClassNames(Type.LOGIC_ACTIONS));
+                PLATFORM_INFO.getPropagationActions().addAll(implLookup.getClassNames(Type.PROPAGATION_ACTIONS));
+                PLATFORM_INFO.getSyncActions().addAll(implLookup.getClassNames(Type.SYNC_ACTIONS));
+                PLATFORM_INFO.getPushActions().addAll(implLookup.getClassNames(Type.PUSH_ACTIONS));
+                PLATFORM_INFO.getSyncCorrelationRules().addAll(implLookup.getClassNames(Type.SYNC_CORRELATION_RULE));
+                PLATFORM_INFO.getValidators().addAll(implLookup.getClassNames(Type.VALIDATOR));
+                PLATFORM_INFO.getNotificationRecipientsProviders().
+                        addAll(implLookup.getClassNames(Type.NOTIFICATION_RECIPIENTS_PROVIDER));
             }
 
-            SYNCOPE_TO.setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
-            SYNCOPE_TO.setUserWorkflowAdapter(AopUtils.getTargetClass(uwfAdapter).getName());
-            SYNCOPE_TO.setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
+            PLATFORM_INFO.setSelfRegAllowed(isSelfRegAllowed());
+            PLATFORM_INFO.setPwdResetAllowed(isPwdResetAllowed());
+            PLATFORM_INFO.setPwdResetRequiringSecurityQuestions(isPwdResetRequiringSecurityQuestions());
 
-            SYNCOPE_TO.setAnyObjectProvisioningManager(aProvisioningManager.getClass().getName());
-            SYNCOPE_TO.setUserProvisioningManager(uProvisioningManager.getClass().getName());
-            SYNCOPE_TO.setGroupProvisioningManager(gProvisioningManager.getClass().getName());
-            SYNCOPE_TO.setVirAttrCache(virAttrCache.getClass().getName());
-            SYNCOPE_TO.setPasswordGenerator(passwordGenerator.getClass().getName());
-
-            SYNCOPE_TO.getEntitlements().addAll(EntitlementsHolder.getInstance().getValues());
-
-            SYNCOPE_TO.getReportlets().addAll(implLookup.getClassNames(Type.REPORTLET));
-            SYNCOPE_TO.getAccountRules().addAll(implLookup.getClassNames(Type.ACCOUNT_RULE));
-            SYNCOPE_TO.getPasswordRules().addAll(implLookup.getClassNames(Type.PASSWORD_RULE));
-            SYNCOPE_TO.getMappingItemTransformers().addAll(implLookup.getClassNames(Type.MAPPING_ITEM_TRANSFORMER));
-            SYNCOPE_TO.getTaskJobs().addAll(implLookup.getClassNames(Type.TASKJOBDELEGATE));
-            SYNCOPE_TO.getReconciliationFilterBuilders().
-                    addAll(implLookup.getClassNames(Type.RECONCILIATION_FILTER_BUILDER));
-            SYNCOPE_TO.getLogicActions().addAll(implLookup.getClassNames(Type.LOGIC_ACTIONS));
-            SYNCOPE_TO.getPropagationActions().addAll(implLookup.getClassNames(Type.PROPAGATION_ACTIONS));
-            SYNCOPE_TO.getSyncActions().addAll(implLookup.getClassNames(Type.SYNC_ACTIONS));
-            SYNCOPE_TO.getPushActions().addAll(implLookup.getClassNames(Type.PUSH_ACTIONS));
-            SYNCOPE_TO.getSyncCorrelationRules().addAll(implLookup.getClassNames(Type.SYNC_CORRELATION_RULE));
-            SYNCOPE_TO.getValidators().addAll(implLookup.getClassNames(Type.VALIDATOR));
-            SYNCOPE_TO.getNotificationRecipientsProviders().
-                    addAll(implLookup.getClassNames(Type.NOTIFICATION_RECIPIENTS_PROVIDER));
+            PLATFORM_INFO.getEntitlements().clear();
+            PLATFORM_INFO.getEntitlements().addAll(EntitlementsHolder.getInstance().getValues());
         }
 
-        return SYNCOPE_TO;
+        return PLATFORM_INFO;
     }
 
     @PreAuthorize("isAuthenticated()")
-    @Transactional(readOnly = true)
-    public PlatformTO platform() {
-
-        synchronized (PLATFORM_TO) {
-            PlatformTO.PlatformLoad instant = new PlatformTO.PlatformLoad();
-
+    public SystemInfo system() {
+        synchronized (this) {
             OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
-            PLATFORM_TO.setOs(operatingSystemMXBean.getName()
-                    + " " + operatingSystemMXBean.getVersion()
-                    + " " + operatingSystemMXBean.getArch());
-            PLATFORM_TO.setAvailableProcessors(operatingSystemMXBean.getAvailableProcessors());
+            RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+
+            if (SYSTEM_INFO == null) {
+                SYSTEM_INFO = new SystemInfo();
+                SYSTEM_INFO.setOs(operatingSystemMXBean.getName()
+                        + " " + operatingSystemMXBean.getVersion()
+                        + " " + operatingSystemMXBean.getArch());
+                SYSTEM_INFO.setAvailableProcessors(operatingSystemMXBean.getAvailableProcessors());
+                SYSTEM_INFO.setJvm(
+                        runtimeMXBean.getVmName()
+                        + " " + System.getProperty("java.version")
+                        + " " + runtimeMXBean.getVmVendor());
+            }
+
+            SystemInfo.PlatformLoad instant = new SystemInfo.PlatformLoad();
+
             instant.setSystemLoadAverage(operatingSystemMXBean.getSystemLoadAverage());
 
-            RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-            PLATFORM_TO.setJvm(
-                    runtimeMXBean.getVmName()
-                    + " " + System.getProperty("java.version")
-                    + " " + runtimeMXBean.getVmVendor());
             instant.setUptime(runtimeMXBean.getUptime());
 
             Runtime runtime = Runtime.getRuntime();
@@ -179,14 +209,49 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
             instant.setMaxMemory(runtime.maxMemory() / MB);
             instant.setFreeMemory(runtime.freeMemory() / MB);
 
-            PLATFORM_TO.getLoad().add(instant);
+            SYSTEM_INFO.getLoad().add(instant);
         }
 
-        return PLATFORM_TO;
+        return SYSTEM_INFO;
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public NumbersInfo numbers() {
+        NumbersInfo numbersInfo = new NumbersInfo();
+
+        numbersInfo.setTotalUsers(userDAO.count());
+        numbersInfo.getUsersByRealm().putAll(userDAO.countByRealm());
+        numbersInfo.getUsersByStatus().putAll(userDAO.countByStatus());
+
+        numbersInfo.setTotalGroups(groupDAO.count());
+        numbersInfo.getGroupsByRealm().putAll(groupDAO.countByRealm());
+
+        Map<AnyType, Integer> anyObjectNumbers = anyObjectDAO.countByType();
+        int i = 0;
+        for (Iterator<Map.Entry<AnyType, Integer>> itor = anyObjectNumbers.entrySet().iterator();
+                i < 2 && itor.hasNext(); i++) {
+
+            Map.Entry<AnyType, Integer> entry = itor.next();
+            if (i == 0) {
+                numbersInfo.setAnyType1(entry.getKey().getKey());
+                numbersInfo.setTotalAny1(entry.getValue());
+                numbersInfo.getAny1ByRealm().putAll(anyObjectDAO.countByRealm(entry.getKey()));
+            } else if (i == 1) {
+                numbersInfo.setAnyType2(entry.getKey().getKey());
+                numbersInfo.setTotalAny2(entry.getValue());
+                numbersInfo.getAny2ByRealm().putAll(anyObjectDAO.countByRealm(entry.getKey()));
+            }
+        }
+
+        numbersInfo.setTotalResources(resourceDAO.count());
+
+        numbersInfo.setTotalRoles(roleDAO.count());
+
+        return numbersInfo;
     }
 
     @Override
-    protected SyncopeTO resolveReference(final Method method, final Object... args)
+    protected AbstractBaseBean resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();

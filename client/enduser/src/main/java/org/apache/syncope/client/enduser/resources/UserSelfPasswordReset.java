@@ -70,7 +70,7 @@ public class UserSelfPasswordReset extends AbstractBaseResource {
                 throw new Exception("Entered captcha is not matching");
             }
 
-            if (SyncopeEnduserSession.get().getSyncopeTO().isPwdResetRequiringSecurityQuestions()) {
+            if (SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions()) {
                 if (parameters.get("securityanswer") == null || parameters.get("securityanswer").length == 0) {
                     throw new Exception("A correct security answer should be provided");
                 }

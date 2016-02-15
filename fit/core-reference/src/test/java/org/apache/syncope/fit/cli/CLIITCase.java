@@ -137,7 +137,7 @@ public class CLIITCase extends AbstractITCase {
                     return line.startsWith("-");
                 }
             });
-            assertEquals(syncopeService.syncope().getEntitlements().size(), entitlements);
+            assertEquals(syncopeService.platform().getEntitlements().size(), entitlements);
 
             process.destroy();
         } catch (IOException e) {

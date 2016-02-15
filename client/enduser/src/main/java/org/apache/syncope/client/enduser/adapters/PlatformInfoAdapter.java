@@ -19,25 +19,23 @@
 package org.apache.syncope.client.enduser.adapters;
 
 import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
-import org.apache.syncope.client.enduser.model.SyncopeTORequest;
-import org.apache.syncope.common.lib.to.SyncopeTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.syncope.client.enduser.model.PlatformInfoRequest;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 
-public class SyncopeTOAdapter {
+public final class PlatformInfoAdapter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeTOAdapter.class);
+    public static PlatformInfoRequest toPlatformInfoRequest(final PlatformInfo platformInfo) {
+        PlatformInfoRequest request = new PlatformInfoRequest();
+        request.setPwdResetAllowed(platformInfo.isPwdResetAllowed());
+        request.setSelfRegAllowed(platformInfo.isSelfRegAllowed());
+        request.setPwdResetRequiringSecurityQuestions(platformInfo.isPwdResetRequiringSecurityQuestions());
+        request.setVersion(platformInfo.getVersion());
+        request.setCaptchaEnabled(SyncopeEnduserApplication.get().isCaptchaEnabled());
 
-    public SyncopeTORequest toSyncopeTORequest(final SyncopeTO syncopeTO) {
-
-        final SyncopeTORequest syncopeTORequest = new SyncopeTORequest();
-        syncopeTORequest.setPwdResetAllowed(syncopeTO.isPwdResetAllowed());
-        syncopeTORequest.setSelfRegAllowed(syncopeTO.isSelfRegAllowed());
-        syncopeTORequest.setPwdResetRequiringSecurityQuestions(syncopeTO.isPwdResetRequiringSecurityQuestions());
-        syncopeTORequest.setVersion(syncopeTO.getVersion());
-        syncopeTORequest.setCaptchaEnabled(SyncopeEnduserApplication.get().isCaptchaEnabled());
-
-        return syncopeTORequest;
+        return request;
     }
 
+    private PlatformInfoAdapter() {
+        // private constructor for static utility class
+    }
 }

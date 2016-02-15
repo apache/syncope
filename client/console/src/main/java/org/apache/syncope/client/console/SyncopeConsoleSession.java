@@ -37,7 +37,7 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.DomainTO;
-import org.apache.syncope.common.lib.to.SyncopeTO;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -58,7 +58,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     public static final String MENU_COLLAPSE = "MENU_COLLAPSE";
 
-    private final SyncopeTO syncopeTO;
+    private final PlatformInfo platformInfo;
 
     private final List<String> domains;
 
@@ -89,7 +89,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
                 SyncopeConsoleApplication.get().getAnonymousUser(),
                 SyncopeConsoleApplication.get().getAnonymousKey());
 
-        syncopeTO = anonymousClient.getService(SyncopeService.class).syncope();
+        platformInfo = anonymousClient.getService(SyncopeService.class).platform();
         domains = new ArrayList<>();
         domains.add(SyncopeConstants.MASTER_DOMAIN);
         CollectionUtils.collect(anonymousClient.getService(DomainService.class).list(),
@@ -97,8 +97,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
                 domains);
     }
 
-    public SyncopeTO getSyncopeTO() {
-        return syncopeTO;
+    public PlatformInfo getPlatformInfo() {
+        return platformInfo;
     }
 
     public List<String> getDomains() {

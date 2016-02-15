@@ -22,8 +22,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.to.PlatformTO;
-import org.apache.syncope.common.lib.to.SyncopeTO;
+import org.apache.syncope.common.lib.info.NumbersInfo;
+import org.apache.syncope.common.lib.info.SystemInfo;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 
 /**
  * General info about this Apache Syncope deployment.
@@ -32,21 +33,34 @@ import org.apache.syncope.common.lib.to.SyncopeTO;
 public interface SyncopeService extends JAXRSService {
 
     /**
-     * Provides information summary about this Apache Syncope deployment's configuration.
+     * Provides information summary about platform configuration (workflow adapters, provisioning managers, validators,
+     * actions, correlation rules, reportlets, ...).
      *
-     * @return information summary about this Apache Syncope deployment's configuration
-     */
-    @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    SyncopeTO syncope();
-
-    /**
-     * Provides information about the underlying platform (Operating System, CPU / memory usage, ...).
-     *
-     * @return information about the underlying platform (Operating System, CPU / memory usage, ...)
+     * @return information summary about platform configuration (workflow adapters, provisioning managers, validators,
+     * actions, correlation rules, reportlets, ...)
      */
     @GET
     @Path("/platform")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PlatformTO platform();
+    PlatformInfo platform();
+
+    /**
+     * Provides information about the underlying system (Operating System, CPU / memory usage, ...).
+     *
+     * @return information about the underlying system (Operating System, CPU / memory usage, ...)
+     */
+    @GET
+    @Path("/system")
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    SystemInfo system();
+
+    /** *
+     * Provides some numbers about the managed entities (users, groups, any objects...).
+     *
+     * @return some numbers about the managed entities (users, groups, any objects...)
+     */
+    @GET
+    @Path("/numbers")
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    NumbersInfo numbers();
 }

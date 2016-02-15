@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import org.apache.syncope.common.lib.to.PlatformTO;
-import org.apache.syncope.common.lib.to.SyncopeTO;
+import org.apache.syncope.common.lib.info.NumbersInfo;
+import org.apache.syncope.common.lib.info.SystemInfo;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.logic.SyncopeLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +33,18 @@ public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeSe
     private SyncopeLogic logic;
 
     @Override
-    public SyncopeTO syncope() {
-        return logic.info();
+    public PlatformInfo platform() {
+        return logic.platform();
     }
 
     @Override
-    public PlatformTO platform() {
-        return logic.platform();
+    public SystemInfo system() {
+        return logic.system();
+    }
+
+    @Override
+    public NumbersInfo numbers() {
+        return logic.numbers();
     }
 
 }

@@ -37,7 +37,7 @@ public abstract class AbstractBaseResource extends AbstractResource {
     protected final boolean isSelfRegistrationAllowed() {
         Boolean result = null;
         try {
-            result = SyncopeEnduserSession.get().getSyncopeTO().isSelfRegAllowed();
+            result = SyncopeEnduserSession.get().getPlatformInfo().isSelfRegAllowed();
         } catch (SyncopeClientException e) {
             LOG.error("While seeking if self registration is allowed", e);
         }

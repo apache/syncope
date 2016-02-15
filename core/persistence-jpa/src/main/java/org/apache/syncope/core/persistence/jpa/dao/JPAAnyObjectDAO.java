@@ -20,9 +20,14 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
@@ -36,7 +41,9 @@ import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.misc.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -46,6 +53,7 @@ import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -57,6 +65,39 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Autowired
     private GroupDAO groupDAO;
+
+    @Override
+    public Map<AnyType, Integer> countByType() {
+        Query query = entityManager().createQuery(
+                "SELECT e.type, COUNT(e) AS countByType FROM  " + JPAAnyObject.class.getSimpleName() + " e "
+                + "GROUP BY e.type ORDER BY countByType DESC");
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        Map<AnyType, Integer> countByRealm = new LinkedHashMap<>(results.size());
+        for (Object[] result : results) {
+            countByRealm.put((AnyType) result[0], ((Number) result[1]).intValue());
+        }
+
+        return Collections.unmodifiableMap(countByRealm);
+    }
+
+    @Override
+    public Map<String, Integer> countByRealm(final AnyType anyType) {
+        Query query = entityManager().createQuery(
+                "SELECT e.realm, COUNT(e) FROM  " + JPAAnyObject.class.getSimpleName() + " e "
+                + "WHERE e.type=:type GROUP BY e.realm");
+        query.setParameter("type", anyType);
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        Map<String, Integer> countByRealm = new HashMap<>(results.size());
+        for (Object[] result : results) {
+            countByRealm.put(((Realm) result[0]).getFullPath(), ((Number) result[1]).intValue());
+        }
+
+        return Collections.unmodifiableMap(countByRealm);
+    }
 
     @Override
     protected AnyUtils init() {

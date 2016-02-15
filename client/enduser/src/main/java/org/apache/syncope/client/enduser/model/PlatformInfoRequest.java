@@ -20,7 +20,7 @@ package org.apache.syncope.client.enduser.model;
 
 import java.io.Serializable;
 
-public class SyncopeTORequest implements Serializable {
+public class PlatformInfoRequest implements Serializable {
 
     private static final long serialVersionUID = -6763020920564016374L;
 
@@ -34,7 +34,7 @@ public class SyncopeTORequest implements Serializable {
 
     private boolean captchaEnabled;
 
-    public SyncopeTORequest() {
+    public PlatformInfoRequest() {
     }
 
     public String getVersion() {

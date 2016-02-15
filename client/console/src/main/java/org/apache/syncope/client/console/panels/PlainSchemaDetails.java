@@ -236,7 +236,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             @Override
             protected List<String> load() {
-                return new ArrayList<>(SyncopeConsoleSession.get().getSyncopeTO().getValidators());
+                return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getValidators());
             }
         };
 
