@@ -38,15 +38,15 @@ public class Roles extends BasePage {
         content.setOutputMarkupId(true);
         body.add(content);
 
-        WizardMgtPanel<RoleHandler> roleSearchResultPanel =
+        WizardMgtPanel<RoleHandler> rolesPanel =
                 new RoleSearchResultPanel.Builder(getPageReference()) {
 
             private static final long serialVersionUID = -5960765294082359003L;
 
         }.disableCheckBoxes().addNewItemPanelBuilder(
                         new RoleWizardBuilder(BaseModal.CONTENT_ID, new RoleTO(), getPageReference()), true).
-                build("roles");
+                build("rolesPanel");
 
-        content.add(roleSearchResultPanel);
+        content.add(rolesPanel);
     }
 }
