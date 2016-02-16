@@ -19,7 +19,7 @@
 package org.apache.syncope.core.policy;
 
 import java.util.regex.Pattern;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.syncope.common.types.AccountPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -34,9 +34,6 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
     @Autowired(required = false)
     private UserSuspender userSuspender;
 
-    /* (non-Javadoc)
-     * @see AccountPolicyEnforcer#enforce(AccountPolicySpec, PolicyType, SyncopeUser)
-     */
     @Override
     public void enforce(final AccountPolicySpec policy, final PolicyType type, final SyncopeUser user)
             throws AccountPolicyException, PolicyEnforceException {
@@ -61,7 +58,7 @@ public class AccountPolicyEnforcer extends PolicyEnforcer<AccountPolicySpec, Syn
 
         // check words not permitted
         for (String word : policy.getWordsNotPermitted()) {
-            if (user.getUsername().contains(word)) {
+            if (StringUtils.containsIgnoreCase(user.getUsername(), word)) {
                 throw new AccountPolicyException("Used word(s) not permitted");
             }
         }
