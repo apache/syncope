@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.core.misc.policy.AccountPolicyException;
@@ -72,7 +73,7 @@ public class DefaultAccountRule implements AccountRule {
 
         // check words not permitted
         for (String word : this.conf.getWordsNotPermitted()) {
-            if (user.getUsername().contains(word)) {
+            if (StringUtils.containsIgnoreCase(user.getUsername(), word)) {
                 throw new AccountPolicyException("Used word(s) not permitted");
             }
         }

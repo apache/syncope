@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.core.misc.policy.PasswordPolicyException;
@@ -69,7 +70,7 @@ public class DefaultPasswordRule implements PasswordRule {
 
             // check words not permitted
             for (String word : this.conf.getWordsNotPermitted()) {
-                if (clearPassword.contains(word)) {
+                if (StringUtils.containsIgnoreCase(clearPassword, word)) {
                     throw new PasswordPolicyException("Used word(s) not permitted");
                 }
             }
