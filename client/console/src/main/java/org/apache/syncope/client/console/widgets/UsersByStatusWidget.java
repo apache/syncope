@@ -18,18 +18,29 @@
  */
 package org.apache.syncope.client.console.widgets;
 
-import org.apache.wicket.markup.html.panel.Panel;
+import com.pingunaut.wicket.chartjs.chart.impl.Doughnut;
+import com.pingunaut.wicket.chartjs.core.panel.DoughnutChartPanel;
+import java.util.Map;
+import org.apache.wicket.model.Model;
 
-public abstract class AbstractWidget extends Panel {
+public class UsersByStatusWidget extends AbstractWidget {
 
-    private static final long serialVersionUID = -4186604985011430091L;
+    private static final long serialVersionUID = -816175678514035085L;
 
-    protected static final int MEDIUM_WIDTH = 451;
+    private static final String[] COLORS = { "green", "orange", "aqua", "red", "gray" };
 
-    protected static final int MEDIUM_HEIGHT = 227;
-
-    public AbstractWidget(final String id) {
+    public UsersByStatusWidget(final String id, final Map<String, Integer> usersByStatus) {
         super(id);
+
+        Doughnut doughnut = new Doughnut();
+
+        int i = 0;
+        for (Map.Entry<String, Integer> entry : usersByStatus.entrySet()) {
+            doughnut.getData().add(new LabeledDoughnutChartData(entry.getValue(), COLORS[i % 5], entry.getKey()));
+            i++;
+        }
+
+        add(new DoughnutChartPanel("chart", Model.of(doughnut), MEDIUM_WIDTH, MEDIUM_HEIGHT));
     }
 
 }

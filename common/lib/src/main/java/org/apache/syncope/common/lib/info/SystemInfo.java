@@ -38,6 +38,8 @@ public class SystemInfo extends AbstractBaseBean {
 
     private int availableProcessors;
 
+    private long startTime;
+
     private final CircularFifoQueue<PlatformLoad> load = new CircularFifoQueue<>(10);
 
     public String getOs() {
@@ -62,6 +64,14 @@ public class SystemInfo extends AbstractBaseBean {
 
     public void setAvailableProcessors(final int availableProcessors) {
         this.availableProcessors = availableProcessors;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(final long startTime) {
+        this.startTime = startTime;
     }
 
     @XmlElementWrapper(name = "load")

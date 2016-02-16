@@ -20,6 +20,9 @@ package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.widgets.NumberWidget;
+import org.apache.syncope.client.console.widgets.AnyByRealmWidget;
+import org.apache.syncope.client.console.widgets.LoadWidget;
+import org.apache.syncope.client.console.widgets.UsersByStatusWidget;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -62,5 +65,17 @@ public class Dashboard extends BasePage {
             icon = "ion ion-gear-a";
         }
         body.add(new NumberWidget("totalAny1OrResources", "bg-aqua", number, label, icon));
+
+        body.add(new UsersByStatusWidget("usersByStatus", numbers.getUsersByStatus()));
+        body.add(new AnyByRealmWidget(
+                "anyByRealm",
+                numbers.getUsersByRealm(),
+                numbers.getGroupsByRealm(),
+                numbers.getAnyType1(),
+                numbers.getAny1ByRealm(),
+                numbers.getAnyType2(),
+                numbers.getAny2ByRealm()));
+
+        body.add(new LoadWidget("load", SyncopeConsoleSession.get().getService(SyncopeService.class).system()));
     }
 }

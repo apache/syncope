@@ -90,6 +90,10 @@ under the License.
       <groupId>de.agilecoders.wicket</groupId>
       <artifactId>wicket-bootstrap-extensions</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.pingunaut</groupId>
+      <artifactId>wicket-chartjs</artifactId>
+    </dependency>	
       
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>

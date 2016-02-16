@@ -372,16 +372,15 @@ under the License.
     <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
 
     <swagger-core.version>1.5.7</swagger-core.version>    
-    <swagger-ui.version>2.1.4</swagger-ui.version>    
+    <swagger-ui.version>2.1.4</swagger-ui.version>
+        
     <jquery.version>2.2.0</jquery.version>
     <jquery-ui.version>1.11.4</jquery-ui.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
+    
     <bootstrap.version>3.3.6</bootstrap.version>
     <bootstrap-select.version>1.7.3</bootstrap-select.version>
-
-    <wicket-bootstrap.version>0.10.6</wicket-bootstrap.version>
     <bootbox.version>4.4.0</bootbox.version>
-
     <font-awesome.version>4.5.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>8.7</highlightjs.version>
@@ -390,7 +389,9 @@ under the License.
     
     <wicket.version>7.2.0</wicket.version>
     <wicket-jqueryui.version>7.2.0</wicket-jqueryui.version>
-    
+    <wicket-bootstrap.version>0.10.6</wicket-bootstrap.version>
+    <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
+
     <angular.version>1.5.0</angular.version>
     <angular-ui-router.version>0.2.17</angular-ui-router.version>
     <angular-ui-bootstrap.version>1.1.1-1</angular-ui-bootstrap.version>
@@ -921,6 +922,21 @@ under the License.
         <artifactId>wicket-bootstrap-extensions</artifactId>
         <version>${wicket-bootstrap.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.pingunaut</groupId>
+        <artifactId>wicket-chartjs</artifactId>
+        <version>${wicket-chartjs.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>			
       <!-- /Wicket -->
       
       <dependency>

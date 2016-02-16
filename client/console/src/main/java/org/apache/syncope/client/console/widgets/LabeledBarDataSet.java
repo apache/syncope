@@ -18,18 +18,25 @@
  */
 package org.apache.syncope.client.console.widgets;
 
-import org.apache.wicket.markup.html.panel.Panel;
+import com.pingunaut.wicket.chartjs.data.sets.BarDataSet;
+import java.util.List;
 
-public abstract class AbstractWidget extends Panel {
+public class LabeledBarDataSet extends BarDataSet {
 
-    private static final long serialVersionUID = -4186604985011430091L;
+    private static final long serialVersionUID = -6571823370630502272L;
 
-    protected static final int MEDIUM_WIDTH = 451;
+    private String label;
 
-    protected static final int MEDIUM_HEIGHT = 227;
+    public LabeledBarDataSet(final List<? extends Number> values) {
+        super(values);
+    }
 
-    public AbstractWidget(final String id) {
-        super(id);
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(final String label) {
+        this.label = label;
     }
 
 }

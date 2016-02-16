@@ -196,6 +196,7 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                         runtimeMXBean.getVmName()
                         + " " + System.getProperty("java.version")
                         + " " + runtimeMXBean.getVmVendor());
+                SYSTEM_INFO.setStartTime(runtimeMXBean.getStartTime());
             }
 
             SystemInfo.PlatformLoad instant = new SystemInfo.PlatformLoad();
