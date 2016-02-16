@@ -25,8 +25,6 @@ import org.apache.syncope.client.console.wizards.role.RoleHandler;
 import org.apache.syncope.client.console.wizards.role.RoleWizardBuilder;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Roles extends BasePage {
@@ -35,8 +33,6 @@ public class Roles extends BasePage {
 
     public Roles(final PageParameters parameters) {
         super(parameters);
-
-        body.add(new Label("header", getString("header_title", new Model<>(), "Roles")));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);

@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 public @interface ExtPage {
 
     /**
-     * @return the label shown under the "Extensions" menu item, on the left pane
+     * @return the i18n key for the label shown under the "Extensions" menu item, on the left pane
      */
     String label();
 

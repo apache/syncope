@@ -28,7 +28,6 @@ import org.apache.syncope.client.console.panels.SchemasPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -49,8 +48,6 @@ public class Types extends BasePage {
 
     public Types(final PageParameters parameters) {
         super(parameters);
-
-        body.add(new Label("header", "Types"));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);

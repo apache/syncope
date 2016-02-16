@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class SecurityQuestions extends BasePage {
@@ -29,8 +28,6 @@ public class SecurityQuestions extends BasePage {
 
     public SecurityQuestions(final PageParameters parameters) {
         super(parameters);
-
-        body.add(new Label("header", getString("header_title")));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);

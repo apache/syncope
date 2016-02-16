@@ -20,13 +20,13 @@ package org.apache.syncope.client.console.commons;
 
 public final class Constants {
 
-    public static final String ON_CLICK = "onclick";
+    public static final String ON_CLICK = "click";
 
-    public static final String ON_CHANGE = "onchange";
+    public static final String ON_CHANGE = "change";
 
-    public static final String ON_KEYUP = "onkeyup";
+    public static final String ON_KEYUP = "keyup";
 
-    public static final String ON_BLUR = "onblur";
+    public static final String ON_BLUR = "blur";
 
     public static final String PNG_EXT = ".png";
 
