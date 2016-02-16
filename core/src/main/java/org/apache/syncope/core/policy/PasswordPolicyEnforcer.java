@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.policy;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.PasswordPolicySpec;
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
@@ -26,11 +27,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class PasswordPolicyEnforcer extends PolicyEnforcer<PasswordPolicySpec, SyncopeUser> {
 
-    /* (non-Javadoc)
-     * @see
-     * org.apache.syncope.core.policy.PasswordPolicyEnforcer#enforce(org.apache.syncope.common.types.PasswordPolicySpec,
-     * org.apache.syncope.common.types.PolicyType, java.lang.String)
-     */
     @Override
     public void enforce(final PasswordPolicySpec policy, final PolicyType type, final SyncopeUser user)
             throws PasswordPolicyException, PolicyEnforceException {
@@ -56,7 +52,7 @@ public class PasswordPolicyEnforcer extends PolicyEnforcer<PasswordPolicySpec, S
 
             // check words not permitted
             for (String word : policy.getWordsNotPermitted()) {
-                if (clearPassword.contains(word)) {
+                if (StringUtils.containsIgnoreCase(clearPassword, word)) {
                     throw new PasswordPolicyException("Used word(s) not permitted");
                 }
             }
