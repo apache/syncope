@@ -47,10 +47,14 @@ public class LoadWidget extends AbstractWidget {
         }
 
         Line line = new Line();
-        line.getData().setLabels(labels);
+        line.getOptions().setPointDot(false);
         line.getOptions().setDatasetFill(false);
+        line.getOptions().setResponsive(true);
+        line.getOptions().setMaintainAspectRatio(true);
         line.getOptions().setShowScale(false);
         line.getOptions().setMultiTooltipTemplate("<%= datasetLabel %>");
+
+        line.getData().setLabels(labels);
 
         List<LineDataSet> datasets = new ArrayList<>();
         LineDataSet cpuDataSet = new LineDataSet(cpuValues);
@@ -58,6 +62,7 @@ public class LoadWidget extends AbstractWidget {
         cpuDataSet.setPointColor("purple");
         cpuDataSet.setStrokeColor("purple");
         datasets.add(cpuDataSet);
+
         LineDataSet memDataSet = new LineDataSet(memValues);
         memDataSet.setLabel("MEM");
         memDataSet.setPointColor("grey");
@@ -65,7 +70,7 @@ public class LoadWidget extends AbstractWidget {
         datasets.add(memDataSet);
         line.getData().setDatasets(datasets);
 
-        add(new LineChartPanel("chart", Model.of(line), MEDIUM_WIDTH, MEDIUM_HEIGHT));
+        add(new LineChartPanel("chart", Model.of(line)));
     }
 
 }

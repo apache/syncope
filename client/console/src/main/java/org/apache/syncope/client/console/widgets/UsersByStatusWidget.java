@@ -33,6 +33,8 @@ public class UsersByStatusWidget extends AbstractWidget {
         super(id);
 
         Doughnut doughnut = new Doughnut();
+        doughnut.getOptions().setResponsive(true);
+        doughnut.getOptions().setMaintainAspectRatio(true);
 
         int i = 0;
         for (Map.Entry<String, Integer> entry : usersByStatus.entrySet()) {
@@ -40,7 +42,7 @@ public class UsersByStatusWidget extends AbstractWidget {
             i++;
         }
 
-        add(new DoughnutChartPanel("chart", Model.of(doughnut), MEDIUM_WIDTH, MEDIUM_HEIGHT));
+        add(new DoughnutChartPanel("chart", Model.of(doughnut)));
     }
 
 }

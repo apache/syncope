@@ -24,10 +24,6 @@ public abstract class AbstractWidget extends Panel {
 
     private static final long serialVersionUID = -4186604985011430091L;
 
-    protected static final int MEDIUM_WIDTH = 451;
-
-    protected static final int MEDIUM_HEIGHT = 227;
-
     public AbstractWidget(final String id) {
         super(id);
     }

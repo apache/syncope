@@ -70,8 +70,18 @@ public class AnyByRealmWidget extends AbstractWidget {
         }
 
         Bar bar = new Bar();
-        bar.getData().setLabels(labels);
+        bar.getOptions().setScaleBeginAtZero(true);
+        bar.getOptions().setScaleShowGridLines(true);
+        bar.getOptions().setScaleGridLineWidth(1);
+        bar.getOptions().setBarShowStroke(true);
+        bar.getOptions().setBarStrokeWidth(2);
+        bar.getOptions().setBarValueSpacing(5);
+        bar.getOptions().setBarDatasetSpacing(1);
+        bar.getOptions().setResponsive(true);
+        bar.getOptions().setMaintainAspectRatio(true);
         bar.getOptions().setMultiTooltipTemplate("<%= datasetLabel %> - <%= value %>");
+
+        bar.getData().setLabels(labels);
 
         List<BarDataSet> datasets = new ArrayList<>();
         LabeledBarDataSet userDataSet = new LabeledBarDataSet(userValues);
@@ -96,7 +106,7 @@ public class AnyByRealmWidget extends AbstractWidget {
         }
         bar.getData().setDatasets(datasets);
 
-        add(new BarChartPanel("chart", Model.of(bar), MEDIUM_WIDTH, MEDIUM_HEIGHT));
+        add(new BarChartPanel("chart", Model.of(bar)));
     }
 
 }
