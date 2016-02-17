@@ -23,7 +23,9 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import org.apache.syncope.core.misc.EntitlementsHolder;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Map;
 import javax.annotation.Resource;
@@ -59,7 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
 
-    private static final int MB = 1024 * 1024;
+    private static final Object MONITOR = new Object();
 
     private static PlatformInfo PLATFORM_INFO;
 
@@ -130,7 +132,7 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
 
     @PreAuthorize("isAuthenticated()")
     public PlatformInfo platform() {
-        synchronized (this) {
+        synchronized (MONITOR) {
             if (PLATFORM_INFO == null) {
                 PLATFORM_INFO = new PlatformInfo();
                 PLATFORM_INFO.setVersion(version);
@@ -180,37 +182,41 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
         return PLATFORM_INFO;
     }
 
-    @PreAuthorize("isAuthenticated()")
-    public SystemInfo system() {
-        synchronized (this) {
+    private void initSystemInfo() {
+        if (SYSTEM_INFO == null) {
             OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
             RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
 
-            if (SYSTEM_INFO == null) {
-                SYSTEM_INFO = new SystemInfo();
-                SYSTEM_INFO.setOs(operatingSystemMXBean.getName()
-                        + " " + operatingSystemMXBean.getVersion()
-                        + " " + operatingSystemMXBean.getArch());
-                SYSTEM_INFO.setAvailableProcessors(operatingSystemMXBean.getAvailableProcessors());
-                SYSTEM_INFO.setJvm(
-                        runtimeMXBean.getVmName()
-                        + " " + System.getProperty("java.version")
-                        + " " + runtimeMXBean.getVmVendor());
-                SYSTEM_INFO.setStartTime(runtimeMXBean.getStartTime());
+            SYSTEM_INFO = new SystemInfo();
+            try {
+                SYSTEM_INFO.setHostname(InetAddress.getLocalHost().getHostName());
+            } catch (UnknownHostException e) {
+                LOG.error("Could not get host name", e);
             }
 
-            SystemInfo.PlatformLoad instant = new SystemInfo.PlatformLoad();
+            SYSTEM_INFO.setOs(operatingSystemMXBean.getName()
+                    + " " + operatingSystemMXBean.getVersion()
+                    + " " + operatingSystemMXBean.getArch());
+            SYSTEM_INFO.setAvailableProcessors(operatingSystemMXBean.getAvailableProcessors());
+            SYSTEM_INFO.setJvm(
+                    runtimeMXBean.getVmName()
+                    + " " + System.getProperty("java.version")
+                    + " " + runtimeMXBean.getVmVendor());
+            SYSTEM_INFO.setStartTime(runtimeMXBean.getStartTime());
+        }
+    }
 
-            instant.setSystemLoadAverage(operatingSystemMXBean.getSystemLoadAverage());
-
-            instant.setUptime(runtimeMXBean.getUptime());
-
-            Runtime runtime = Runtime.getRuntime();
-            instant.setTotalMemory(runtime.totalMemory() / MB);
-            instant.setMaxMemory(runtime.maxMemory() / MB);
-            instant.setFreeMemory(runtime.freeMemory() / MB);
-
+    public void addLoadInstant(final SystemInfo.LoadInstant instant) {
+        synchronized (MONITOR) {
+            initSystemInfo();
             SYSTEM_INFO.getLoad().add(instant);
+        }
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public SystemInfo system() {
+        synchronized (MONITOR) {
+            initSystemInfo();
         }
 
         return SYSTEM_INFO;

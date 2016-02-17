@@ -32,6 +32,8 @@ public class SystemInfo extends AbstractBaseBean {
 
     private static final long serialVersionUID = -352727968865892499L;
 
+    private String hostname;
+
     private String os;
 
     private String jvm;
@@ -40,7 +42,15 @@ public class SystemInfo extends AbstractBaseBean {
 
     private long startTime;
 
-    private final CircularFifoQueue<PlatformLoad> load = new CircularFifoQueue<>(10);
+    private final CircularFifoQueue<LoadInstant> load = new CircularFifoQueue<>(10);
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(final String hostname) {
+        this.hostname = hostname;
+    }
 
     public String getOs() {
         return os;
@@ -77,13 +87,13 @@ public class SystemInfo extends AbstractBaseBean {
     @XmlElementWrapper(name = "load")
     @XmlElement(name = "instant")
     @JsonProperty("load")
-    public CircularFifoQueue<PlatformLoad> getLoad() {
+    public CircularFifoQueue<LoadInstant> getLoad() {
         return load;
     }
 
-    @XmlRootElement(name = "platformLoad")
+    @XmlRootElement(name = "loadInstant")
     @XmlType
-    public static class PlatformLoad extends AbstractBaseBean {
+    public static class LoadInstant extends AbstractBaseBean {
 
         private static final long serialVersionUID = 1700788373758716478L;
 

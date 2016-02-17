@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.common.lib.info.SystemInfo;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 
 public class LoadWidget extends AbstractWidget {
@@ -34,12 +35,16 @@ public class LoadWidget extends AbstractWidget {
     public LoadWidget(final String id, final SystemInfo systeminfo) {
         super(id);
 
+        add(new Label("hostname", systeminfo.getHostname()));
+        add(new Label("os", systeminfo.getOs()));
+        add(new Label("jvm", systeminfo.getJvm()));
+
         List<String> labels = new ArrayList<>();
 
         List<Double> cpuValues = new ArrayList<>();
         List<Long> memValues = new ArrayList<>();
 
-        for (SystemInfo.PlatformLoad instant : systeminfo.getLoad()) {
+        for (SystemInfo.LoadInstant instant : systeminfo.getLoad()) {
             labels.add(DateFormatUtils.ISO_DATETIME_FORMAT.format(systeminfo.getStartTime() + instant.getUptime()));
 
             cpuValues.add(instant.getSystemLoadAverage() * 1000);

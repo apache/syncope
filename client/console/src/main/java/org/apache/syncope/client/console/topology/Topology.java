@@ -89,8 +89,7 @@ public class Topology extends BasePage {
 
         @Override
         protected List<ResourceTO> load() {
-            final List<ResourceTO> result = resourceRestClient.getAll();
-            return result;
+            return resourceRestClient.getAll();
         }
     };
 
@@ -170,7 +169,7 @@ public class Topology extends BasePage {
             }
         });
 
-        body.add(new WebSocketBehavior());
+        body.add(new TopologyWebSocketBehavior());
 
         togglePanel = new TopologyTogglePanel("toggle", getPageReference());
         body.add(togglePanel);

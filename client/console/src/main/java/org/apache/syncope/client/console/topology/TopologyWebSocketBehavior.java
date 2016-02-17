@@ -34,14 +34,15 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.Application;
 import org.apache.wicket.Session;
 import org.apache.wicket.ThreadContext;
+import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.protocol.ws.api.message.TextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WebSocketBehavior extends org.apache.wicket.protocol.ws.api.WebSocketBehavior {
+public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(WebSocketBehavior.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(TopologyWebSocketBehavior.class);
 
     private static final long serialVersionUID = -1653665542635275551L;
 
@@ -149,7 +150,7 @@ public class WebSocketBehavior extends org.apache.wicket.protocol.ws.api.WebSock
                     final ConnInstanceTO connector = connectorRestClient.read(key);
                     res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
                             connectorRestClient.check(connector)
-                                    ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
+                            ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
                 } catch (Exception e) {
                     LOG.warn("Error checking connection for {}", key, e);
                     res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.FAILURE, key);
@@ -190,7 +191,7 @@ public class WebSocketBehavior extends org.apache.wicket.protocol.ws.api.WebSock
                     final ResourceTO resource = resourceRestClient.read(key);
                     res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
                             connectorRestClient.check(resource)
-                                    ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
+                            ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
                 } catch (Exception e) {
                     LOG.warn("Error checking connection for {}", key, e);
                     res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.FAILURE, key);

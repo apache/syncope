@@ -30,6 +30,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.logic.SystemLoadReporterJob;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
@@ -214,12 +215,6 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
         registerJob(JobNamer.getJobName(report), job, report.getCronExpression(), startAt, jobMap);
     }
 
-    private void registerNotificationJob(final String cronExpression) throws SchedulerException, ParseException {
-        NotificationJob job = createSpringBean(NotificationJob.class);
-
-        registerJob("taskNotificationJob", job, cronExpression, null, Collections.<String, Object>emptyMap());
-    }
-
     private void unregisterJob(final String jobName) {
         try {
             scheduler.getScheduler().unscheduleJob(new TriggerKey(jobName, Scheduler.DEFAULT_GROUP));
@@ -304,16 +299,37 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
 
         // 3. NotificationJob
         if (StringUtils.isBlank(notificationConf.getLeft())) {
-            LOG.debug("Empty value provided for NotificationJob's cron, not registering anything on Quartz");
+            LOG.debug("Empty value provided for {}'s cron, not registering anything on Quartz",
+                    NotificationJob.class.getSimpleName());
         } else {
-            LOG.debug("NotificationJob's cron expression: {} - registering Quartz job and trigger",
-                    notificationConf.getLeft());
+            LOG.debug("{}'s cron expression: {} - registering Quartz job and trigger",
+                    NotificationJob.class.getSimpleName(), notificationConf.getLeft());
 
             try {
-                registerNotificationJob(notificationConf.getLeft());
+                NotificationJob job = createSpringBean(NotificationJob.class);
+                registerJob(
+                        "taskNotificationJob",
+                        job,
+                        notificationConf.getLeft(),
+                        null,
+                        Collections.<String, Object>emptyMap());
             } catch (Exception e) {
-                LOG.error("While loading NotificationJob instance", e);
+                LOG.error("While loading {} instance", NotificationJob.class.getSimpleName(), e);
             }
+        }
+
+        // 4. SystemLoadReporterJob (fixed schedule, every minute)
+        LOG.debug("Registering {}", SystemLoadReporterJob.class);
+        try {
+            SystemLoadReporterJob job = createSpringBean(SystemLoadReporterJob.class);
+            registerJob(
+                    "taskSystemLoadReporterJob",
+                    job,
+                    "0 * * * * ?",
+                    null,
+                    Collections.<String, Object>emptyMap());
+        } catch (Exception e) {
+            LOG.error("While loading {} instance", SystemLoadReporterJob.class.getSimpleName(), e);
         }
     }
 }
