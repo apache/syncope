@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.pages;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.widgets.NumberWidget;
 import org.apache.syncope.client.console.widgets.AnyByRealmWidget;
+import org.apache.syncope.client.console.widgets.CompletenessWidget;
 import org.apache.syncope.client.console.widgets.LoadWidget;
 import org.apache.syncope.client.console.widgets.UsersByStatusWidget;
 import org.apache.syncope.common.lib.info.NumbersInfo;
@@ -67,6 +68,7 @@ public class Dashboard extends BasePage {
         body.add(new NumberWidget("totalAny1OrResources", "bg-aqua", number, label, icon));
 
         body.add(new UsersByStatusWidget("usersByStatus", numbers.getUsersByStatus()));
+        body.add(new CompletenessWidget("completeness", numbers.getConfCompleteness()));
         body.add(new AnyByRealmWidget(
                 "anyByRealm",
                 numbers.getUsersByRealm(),

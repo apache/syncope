@@ -33,6 +33,8 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
+import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.misc.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.ImplementationLookup.Type;
@@ -40,8 +42,13 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
+import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -80,7 +87,22 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
     private ExternalResourceDAO resourceDAO;
 
     @Autowired
+    private PolicyDAO policyDAO;
+
+    @Autowired
+    private NotificationDAO notificationDAO;
+
+    @Autowired
+    private TaskDAO taskDAO;
+
+    @Autowired
+    private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private SecurityQuestionDAO securityQuestionDAO;
 
     @Autowired
     private ConfDAO confDAO;
@@ -253,6 +275,25 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
         numbersInfo.setTotalResources(resourceDAO.count());
 
         numbersInfo.setTotalRoles(roleDAO.count());
+
+        numbersInfo.getConfCompleteness().put(
+                NumbersInfo.ConfItem.RESOURCE, numbersInfo.getTotalResources() > 0);
+        numbersInfo.getConfCompleteness().put(
+                NumbersInfo.ConfItem.ACCOUNT_POLICY, !policyDAO.find(PolicyType.ACCOUNT).isEmpty());
+        numbersInfo.getConfCompleteness().put(
+                NumbersInfo.ConfItem.PASSWORD_POLICY, !policyDAO.find(PolicyType.PASSWORD).isEmpty());
+        numbersInfo.getConfCompleteness().put(
+                NumbersInfo.ConfItem.NOTIFICATION, !notificationDAO.findAll().isEmpty());
+        numbersInfo.getConfCompleteness().put(
+                NumbersInfo.ConfItem.SYNC_TASK, !taskDAO.findAll(TaskType.SYNCHRONIZATION).isEmpty());
+        numbersInfo.getConfCompleteness().put(
+                NumbersInfo.ConfItem.VIR_SCHEMA, !virSchemaDAO.findAll().isEmpty());
+        numbersInfo.getConfCompleteness().put(
+                NumbersInfo.ConfItem.ANY_TYPE, !anyObjectNumbers.isEmpty());
+        numbersInfo.getConfCompleteness().put(
+                NumbersInfo.ConfItem.SECURITY_QUESTION, !securityQuestionDAO.findAll().isEmpty());
+        numbersInfo.getConfCompleteness().put(
+                NumbersInfo.ConfItem.ROLE, numbersInfo.getTotalRoles() > 0);
 
         return numbersInfo;
     }

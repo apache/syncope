@@ -20,8 +20,21 @@ under the License.
   <wicket:panel>
     <div class="box">
       <div class="box-header with-border">
-        <h3 class="box-title"><wicket:message key="usersGroupsAndAnyObjectsDistribution"/></h3>
+        <h3 class="box-title"><wicket:message key="configurationStatus"/></h3>
         <div class="box-tools pull-right">
+          <div class="btn-group">
+            <button class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+              <i class="fa fa-wrench"></i>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#" wicket:id="topology"><wicket:message key="createResourceOrSyncTask"/></a></li>
+              <li><a href="#" wicket:id="policies"><wicket:message key="createPolicy"/></a></li>
+              <li><a href="#" wicket:id="notifications"><wicket:message key="createNotification"/></a></li>
+              <li><a href="#" wicket:id="types"><wicket:message key="createVirSchemaOrAnyType"/></a></li>
+              <li><a href="#" wicket:id="securityquestions"><wicket:message key="createSecurityQuestion"/></a></li>
+              <li><a href="#" wicket:id="roles"><wicket:message key="createRole"/></a></li>
+            </ul>
+          </div>
           <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
         </div>
       </div>

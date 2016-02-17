@@ -41,6 +41,11 @@ public @interface ExtPage {
     String icon() default "fa-circle-o";
 
     /**
+     * @return the entitlement required to access this extension page
+     */
+    String listEntitlement();
+
+    /**
      * @return the priority used to determine the display order under the "Extensions" menu item, on the left pane; the
      * higher value, the higher rank
      */

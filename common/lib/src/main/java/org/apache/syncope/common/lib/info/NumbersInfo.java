@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -33,6 +34,32 @@ import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 public class NumbersInfo extends AbstractBaseBean {
 
     private static final long serialVersionUID = 7691187370598649583L;
+
+    @XmlEnum
+    @XmlType(name = "confItem")
+    public enum ConfItem {
+
+        RESOURCE(20),
+        ACCOUNT_POLICY(10),
+        PASSWORD_POLICY(10),
+        NOTIFICATION(8),
+        SYNC_TASK(10),
+        VIR_SCHEMA(10),
+        ANY_TYPE(5),
+        SECURITY_QUESTION(12),
+        ROLE(15);
+
+        private final int score;
+
+        ConfItem(final int score) {
+            this.score = score;
+        }
+
+        public int getScore() {
+            return score;
+        }
+
+    }
 
     private int totalUsers;
 
@@ -69,6 +96,10 @@ public class NumbersInfo extends AbstractBaseBean {
     private int totalResources;
 
     private int totalRoles;
+
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    @JsonIgnore
+    private final Map<ConfItem, Boolean> confCompleteness = new HashMap<>();
 
     public int getTotalUsers() {
         return totalUsers;
@@ -157,6 +188,11 @@ public class NumbersInfo extends AbstractBaseBean {
     @JsonProperty
     public Map<String, Integer> getAny2ByRealm() {
         return any2ByRealm;
+    }
+
+    @JsonProperty
+    public Map<ConfItem, Boolean> getConfCompleteness() {
+        return confCompleteness;
     }
 
 }

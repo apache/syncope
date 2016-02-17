@@ -34,12 +34,21 @@ under the License.
       </div>
 
       <div class="row">
-        <span wicket:id="usersByStatus"/>
-        <span wicket:id="anyByRealm"/>
+        <div class="col-md-4">
+          <span wicket:id="usersByStatus"/>
+        </div>
+        <div class="col-md-4">
+          <span wicket:id="completeness"/>
+        </div>
+        <div class="col-md-4">
+          <span wicket:id="load"/>
+        </div>
       </div>
 
       <div class="row">
-        <span wicket:id="load"/>
+        <div class="col-md-6">
+          <span wicket:id="anyByRealm"/>
+        </div>
       </div>
     </section>
   </wicket:extend>
