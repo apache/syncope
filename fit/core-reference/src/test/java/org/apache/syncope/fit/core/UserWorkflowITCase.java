@@ -21,7 +21,6 @@ package org.apache.syncope.fit.core;
 import org.apache.syncope.fit.ActivitiDetector;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -247,7 +246,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
         assertNotNull(form);
 
-        // 3. first claim ny bellini ....
+        // 3. first claim by bellini ....
         UserWorkflowService userService3 = clientFactory.create("bellini", ADMIN_PWD).
                 getService(UserWorkflowService.class);
         form = userService3.claimForm(form.getTaskId());
@@ -271,39 +270,9 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertEquals(preForms, userWorkflowService.getForms().size());
         assertNull(userWorkflowService.getFormForUser(userTO.getKey()));
 
-        // 7. search approval into the history as well
-        forms = userWorkflowService.getFormsByName(userTO.getKey(), "Create approval");
-        assertFalse(forms.isEmpty());
-
-        int count = 0;
-        for (WorkflowFormTO hform : forms) {
-            if (form.getTaskId().equals(hform.getTaskId())) {
-                count++;
-
-                assertEquals("createApproval", hform.getKey());
-                assertNotNull(hform.getCreateTime());
-                assertNotNull(hform.getDueDate());
-                assertTrue(Boolean.parseBoolean(hform.getPropertyMap().get("approve").getValue()));
-                assertNull(hform.getPropertyMap().get("rejectReason").getValue());
-            }
-        }
-        assertEquals(1, count);
-
-        userService.delete(userTO.getKey());
-
-        try {
-            userService.read(userTO.getKey());
-            fail();
-        } catch (Exception ignore) {
-            assertNotNull(ignore);
-        }
-
-        try {
-            userWorkflowService.getFormsByName(userTO.getKey(), "Create approval");
-            fail();
-        } catch (Exception ignore) {
-            assertNotNull(ignore);
-        }
+        // 7.check that no more forms are still to be processed
+        forms = userWorkflowService.getForms();
+        assertEquals(preForms, forms.size());
     }
 
 }

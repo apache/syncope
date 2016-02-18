@@ -47,19 +47,6 @@ public interface UserWorkflowService extends JAXRSService {
     List<WorkflowFormTO> getForms();
 
     /**
-     * Returns a list of all available workflow forms with matching name, for the given user key.
-     *
-     * @param userKey user key
-     * @param name form name
-     * @return list of all available workflow forms with matching name, fir the given user key.
-     */
-    @GET
-    @Path("forms/{userKey}/{name}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<WorkflowFormTO> getFormsByName(
-            @NotNull @PathParam("userKey") final Long userKey, @NotNull @PathParam("name") final String name);
-
-    /**
      * Returns a list of available forms for the given user key.
      *
      * @param userKey user key

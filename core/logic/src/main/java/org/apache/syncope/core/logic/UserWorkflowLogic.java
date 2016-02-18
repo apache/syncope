@@ -95,14 +95,6 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
         return uwfAdapter.getForms();
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_FORM_READ + "') and hasRole('"
-            + StandardEntitlement.USER_READ + "')")
-    @Transactional(rollbackFor = { Throwable.class })
-    public List<WorkflowFormTO> getForms(final Long key, final String formName) {
-        User user = userDAO.authFind(key);
-        return uwfAdapter.getForms(user.getWorkflowId(), formName);
-    }
-
     @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_FORM_SUBMIT + "')")
     @Transactional(rollbackFor = { Throwable.class })
     public UserTO submitForm(final WorkflowFormTO form) {

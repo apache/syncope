@@ -56,9 +56,4 @@ public class UserWorkflowServiceImpl implements UserWorkflowService {
     public UserTO submitForm(final WorkflowFormTO form) {
         return lofic.submitForm(form);
     }
-
-    @Override
-    public List<WorkflowFormTO> getFormsByName(final Long userKey, final String taskName) {
-        return lofic.getForms(userKey, taskName);
-    }
 }

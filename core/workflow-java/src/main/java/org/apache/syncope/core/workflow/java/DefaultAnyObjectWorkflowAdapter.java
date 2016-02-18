@@ -90,11 +90,6 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
-    public List<WorkflowFormTO> getForms(final String workflowId, final String name) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public WorkflowFormTO getForm(final String workflowId) {
         return null;
     }
