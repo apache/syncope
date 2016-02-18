@@ -69,7 +69,6 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntit
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.activiti.spring.DomainProcessEngine;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.api.WorkflowException;
@@ -130,9 +129,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Autowired
     protected DomainProcessEngine engine;
-
-    @Autowired
-    protected UserDataBinder userDataBinder;
 
     @Override
     public String getPrefix() {
@@ -414,7 +410,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     protected void doRequestPasswordReset(final User user) {
         Map<String, Object> variables = new HashMap<>(2);
-        variables.put(USER_TO, userDataBinder.getUserTO(user, true));
+        variables.put(USER_TO, dataBinder.getUserTO(user, true));
         variables.put(EVENT, "requestPasswordReset");
 
         doExecuteTask(user, "requestPasswordReset", variables);
@@ -428,7 +424,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Map<String, Object> variables = new HashMap<>(4);
         variables.put(TOKEN, token);
         variables.put(PASSWORD, password);
-        variables.put(USER_TO, userDataBinder.getUserTO(user, true));
+        variables.put(USER_TO, dataBinder.getUserTO(user, true));
         variables.put(EVENT, "confirmPasswordReset");
 
         Set<String> tasks = doExecuteTask(user, "confirmPasswordReset", variables);
