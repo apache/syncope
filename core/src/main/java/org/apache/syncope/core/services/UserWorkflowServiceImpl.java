@@ -57,9 +57,4 @@ public class UserWorkflowServiceImpl implements UserWorkflowService {
     public UserTO submitForm(final WorkflowFormTO form) {
         return controller.submitForm(form);
     }
-
-    @Override
-    public List<WorkflowFormTO> getFormsByName(final Long userId, final String taskName) {
-        return controller.getForms(userId, taskName);
-    }
 }

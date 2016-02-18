@@ -46,6 +46,7 @@ under the License.
     <property name="jpaHandleTransaction" value="true"/>
     <property name="jpaCloseEntityManager" value="false"/>
 
+    <property name="history" value="${historyLevel}"/>
     <property name="jobExecutorActivate" value="${jobExecutorActivate}"/>
 
     <property name="customSessionFactories">

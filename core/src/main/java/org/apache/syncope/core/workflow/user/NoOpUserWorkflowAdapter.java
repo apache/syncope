@@ -208,11 +208,6 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public List<WorkflowFormTO> getForms(final String workflowId, final String name) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public WorkflowFormTO getForm(final String workflowId)
             throws NotFoundException, WorkflowException {
 

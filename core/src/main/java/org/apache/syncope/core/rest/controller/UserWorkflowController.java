@@ -89,13 +89,6 @@ public class UserWorkflowController extends AbstractTransactionalController<Work
         return uwfAdapter.getForms();
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
-    @Transactional(rollbackFor = { Throwable.class })
-    public List<WorkflowFormTO> getForms(final Long userId, final String formName) {
-        SyncopeUser user = binder.getUserFromId(userId);
-        return uwfAdapter.getForms(user.getWorkflowId(), formName);
-    }
-
     @PreAuthorize("hasRole('WORKFLOW_FORM_SUBMIT')")
     @Transactional(rollbackFor = { Throwable.class })
     public UserTO submitForm(final WorkflowFormTO form) {

@@ -82,7 +82,6 @@ import org.apache.syncope.core.workflow.user.AbstractUserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -218,45 +217,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
-    protected void cleanupHistory(final SyncopeUser user) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-        List<String> taskIds = jdbcTemplate.queryForList(
-                "SELECT TASK_ID_ FROM ACT_HI_VARINST WHERE NAME_='" + TASK_IS_FORM
-                + "' AND LONG_=1 AND PROC_INST_ID_='" + user.getWorkflowId() + "'", String.class);
-
-        StringBuilder update = new StringBuilder();
-
-        update.append("DELETE FROM ACT_HI_VARINST WHERE PROC_INST_ID_='").append(user.getWorkflowId()).append("' ");
-        for (String taskId : taskIds) {
-            update.append("AND TASK_ID_<>'").append(taskId).append("' ");
-        }
-        jdbcTemplate.execute(update.toString());
-
-        update.setLength(0);
-        update.append("DELETE FROM ACT_HI_TASKINST WHERE PROC_INST_ID_='").append(user.getWorkflowId()).append("' ");
-        for (String taskId : taskIds) {
-            update.append("AND ID_<>'").append(taskId).append("' ");
-        }
-        jdbcTemplate.execute(update.toString());
-
-        update.setLength(0);
-        update.append("DELETE FROM ACT_HI_ACTINST WHERE PROC_INST_ID_='").append(user.getWorkflowId()).append("' ");
-        for (String taskId : taskIds) {
-            update.append("AND TASK_ID_<>'").append(taskId).append("' ");
-        }
-        jdbcTemplate.execute(update.toString());
-
-        List<String> byteArrayIds = jdbcTemplate.queryForList(
-                "SELECT BYTEARRAY_ID_ FROM ACT_HI_VARINST WHERE BYTEARRAY_ID_ IS NOT NULL", String.class);
-        update.setLength(0);
-        update.append("DELETE FROM ACT_GE_BYTEARRAY WHERE NAME_ LIKE 'hist.%' ");
-        for (String byteArrayId : byteArrayIds) {
-            update.append("AND ID_<>'").append(byteArrayId).append("' ");
-        }
-        jdbcTemplate.execute(update.toString());
-    }
-
     /**
      * Saves resources to be propagated and password for later - after form submission - propagation.
      */
@@ -332,8 +292,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         Set<String> tasks = getPerformedTasks(user);
 
-        cleanupHistory(user);
-
         return new WorkflowResult<Map.Entry<Long, Boolean>>(
                 new SimpleEntry<Long, Boolean>(user.getId(), propagateEnable), propByRes, tasks);
     }
@@ -374,8 +332,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Set<String> postTasks = getPerformedTasks(user);
         postTasks.removeAll(preTasks);
         postTasks.add(task);
-
-        cleanupHistory(user);
 
         return postTasks;
     }
@@ -774,18 +730,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return forms;
     }
 
-    @Override
-    public List<WorkflowFormTO> getForms(final String workflowId, final String name) {
-        List<WorkflowFormTO> forms = getForms(
-                taskService.createTaskQuery().processInstanceId(workflowId).
-                taskName(name).taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE));
-
-        forms.addAll(getForms(historyService.createHistoricTaskInstanceQuery().processInstanceId(workflowId).
-                taskName(name).taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
-
-        return forms;
-    }
-
     protected <T extends Query<?, ?>, U extends Object> List<WorkflowFormTO> getForms(final Query<T, U> query) {
         List<WorkflowFormTO> forms = new ArrayList<WorkflowFormTO>();
 
@@ -952,8 +896,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 }
             }
         }
-
-        cleanupHistory(user);
 
         return new WorkflowResult<UserMod>(userMod, propByRes, postTasks);
     }
