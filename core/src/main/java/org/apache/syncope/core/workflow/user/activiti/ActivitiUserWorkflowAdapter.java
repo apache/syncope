@@ -73,7 +73,6 @@ import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidatio
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
-import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.WorkflowException;
@@ -91,9 +90,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(ActivitiUserWorkflowAdapter.class);
 
     protected static final String[] PROPERTY_IGNORE_PROPS = { "type" };
@@ -158,9 +154,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Autowired
     protected ActivitiImportUtils importUtils;
-
-    @Autowired
-    protected UserDataBinder userDataBinder;
 
     @Autowired
     protected DataSource dataSource;
@@ -444,7 +437,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     protected void doRequestPasswordReset(final SyncopeUser user) throws WorkflowException {
         Map<String, Object> variables = new HashMap<String, Object>(2);
-        variables.put(USER_TO, userDataBinder.getUserTO(user, true));
+        variables.put(USER_TO, dataBinder.getUserTO(user, true));
         variables.put(EVENT, "requestPasswordReset");
 
         doExecuteTask(user, "requestPasswordReset", variables);
@@ -458,7 +451,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Map<String, Object> variables = new HashMap<String, Object>(4);
         variables.put(TOKEN, token);
         variables.put(PASSWORD, password);
-        variables.put(USER_TO, userDataBinder.getUserTO(user, true));
+        variables.put(USER_TO, dataBinder.getUserTO(user, true));
         variables.put(EVENT, "confirmPasswordReset");
 
         Set<String> tasks = doExecuteTask(user, "confirmPasswordReset", variables);
