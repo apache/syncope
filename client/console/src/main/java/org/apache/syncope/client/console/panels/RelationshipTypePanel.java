@@ -84,14 +84,13 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
                                 SyncopeConsoleSession.get().
                                         getService(RelationshipTypeService.class).update(modelObject);
                             }
-
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             modal.close(target);
                         } catch (Exception e) {
                             LOG.error("While creating or updating RelationshipTypeTO", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            modal.getNotificationPanel().refresh(target);
                         }
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
                 };
             }
@@ -189,7 +188,7 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
                             LOG.error("While deleting RelationshipType", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
-                        modal.getNotificationPanel().refresh(target);
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RELATIONSHIPTYPE_DELETE);
 

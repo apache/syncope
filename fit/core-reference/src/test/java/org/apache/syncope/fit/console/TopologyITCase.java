@@ -53,7 +53,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:push", AjaxLink.class);
         wicketTester.executeAjaxEvent("body:syncope", Constants.ON_CLICK);
         wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:tasks", AjaxLink.class);
-        wicketTester.executeAjaxEvent("body:conns:0:conns:4:conn", Constants.ON_CLICK);
+        wicketTester.executeAjaxEvent("body:conns:0:conns:3:conn", Constants.ON_CLICK);
         wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:create", AjaxLink.class);
         wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:delete", AjaxLink.class);
         wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:edit", AjaxLink.class);
@@ -81,20 +81,16 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
                 + "body:rows:1:cells:9:cell:panelEdit:editLink");
-        
+
         final FormTester formTester = wicketTester.newFormTester(
                 "body:toggle:outherObjectsRepeater:1:outher:form:content:"
                 + "tasks:firstLevelContainer:first:container:content:wizard:form");
 
         formTester.setValue("view:description:textField", "test");
         formTester.submit("buttons:finish");
-        
+
+        wicketTester.assertInfoMessages("Operation executed successfully");
         wicketTester.cleanupFeedbackMessages();
-        
-        wicketTester.assertLabel(
-                "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
-                + "container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:body:rows:"
-                + "2:cells:4:cell", "test");
     }
 
     @Test
@@ -111,14 +107,14 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 + "container:content:wizard:form");
         formTester.setValue("view:name:textField", "test");
         formTester.select("view:jobDelegateClassName:dropDownChoiceField", 0);
-        
+
         formTester.submit("buttons:next");
         wicketTester.cleanupFeedbackMessages();
-        
+
         formTester = wicketTester.newFormTester(
                 "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:wizard:form");
-        
+
         wicketTester.assertComponent(
                 "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:wizard:form:view:schedule:seconds:textField", TextField.class);

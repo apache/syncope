@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.wicket.ajax.markup.html;
 
-import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -31,8 +29,6 @@ public abstract class ClearIndicatingAjaxButton extends IndicatingAjaxButton {
     private static final long serialVersionUID = 7206379812788748287L;
 
     private final PageReference pageRef;
-
-    private boolean reloadFeebackPanel = true;
 
     public ClearIndicatingAjaxButton(final String id, final PageReference pageRef) {
         super(id);
@@ -59,18 +55,12 @@ public abstract class ClearIndicatingAjaxButton extends IndicatingAjaxButton {
     protected abstract void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form);
 
     public ClearIndicatingAjaxButton feedbackPanelAutomaticReload(final boolean reloadFeedbackPanel) {
-        this.reloadFeebackPanel = reloadFeedbackPanel;
         return this;
     }
 
     @Override
     protected final void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         super.onSubmit(target, form);
-
-        Page page = pageRef.getPage();
-        if (reloadFeebackPanel && page instanceof BasePage) {
-            target.add(((BasePage) page).getNotificationPanel());
-        }
         onSubmitInternal(target, form);
     }
 }

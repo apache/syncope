@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.Realm;
 import org.apache.syncope.client.console.panels.RealmModalPanel;
@@ -147,13 +148,13 @@ public class Realms extends BasePage {
                     realmRestClient.delete(realmTO.getFullPath());
                     target.add(realmSidebarPanel.reloadRealmTree());
                     target.add(updateRealmContent(realmSidebarPanel.getCurrentRealm()));
-                    getSession().info(getString(Constants.OPERATION_SUCCEEDED));
+                    info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While deleting realm", e);
                     // Excape line breaks
-                    getSession().error(getString(Constants.ERROR) + ": " + e.getMessage().replace("\n", " "));
+                    error(getString(Constants.ERROR) + ": " + e.getMessage().replace("\n", " "));
                 }
-                getNotificationPanel().refresh(target);
+                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
         });
         return content;

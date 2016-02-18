@@ -20,24 +20,26 @@ package org.apache.syncope.client.console.panels;
 
 import com.googlecode.wicket.jquery.core.Options;
 import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
+import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.StyledNotificationBehavior;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.IGenericComponent;
+import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
 import org.apache.wicket.feedback.FeedbackMessage;
+import org.apache.wicket.feedback.FeedbackMessagesModel;
+import org.apache.wicket.feedback.IFeedback;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 
-public class NotificationPanel extends FeedbackPanel {
+public class NotificationPanel extends Panel implements IFeedback, IGenericComponent<List<FeedbackMessage>> {
 
     private static final long serialVersionUID = 5895940553202128621L;
 
     private final Notification notification;
 
-    private StyledNotificationBehavior behavior;
-
     public NotificationPanel(final String id) {
         super(id);
 
-        //element.kendoNotification.widget.fn.options.autoHideAfter
         final Options options = new Options();
         options.set("position", "{ pinned: true }");
         options.set("templates",
@@ -52,31 +54,48 @@ public class NotificationPanel extends FeedbackPanel {
 
             @Override
             public StyledNotificationBehavior newWidgetBehavior(final String selector) {
-                behavior = new StyledNotificationBehavior(selector, options);
-                return behavior;
+                return new StyledNotificationBehavior(selector, options);
             }
         };
 
         add(notification);
     }
 
-    public void refresh(final AjaxRequestTarget target) {
-        if (anyMessage()) {
-            for (FeedbackMessage message : getCurrentMessages()) {
-                if (message.isError()) {
-                    notification.error(target, message.getMessage());
-                } else if (message.isSuccess() || message.isInfo()) {
-                    notification.success(target, message.getMessage());
-                } else {
-                    notification.warn(target, message.getMessage());
-                }
+    public final void refresh(final IPartialPageRequestHandler handler) {
+        for (FeedbackMessage message : this.getModelObject()) {
+            if (message.isError()) {
+                this.notification.error(handler, message.getMessage());
+            } else if (message.isSuccess() || message.isInfo()) {
+                this.notification.success(handler, message.getMessage());
+            } else {
+                this.notification.warn(handler, message.getMessage());
             }
+            message.markRendered();
         }
     }
 
     @Override
-    protected void onInitialize() {
-        this.remove("feedbackul");
-        super.onInitialize();
+    protected IModel<?> initModel() {
+        return new FeedbackMessagesModel(this);
+    }
+
+    @Override
+    public IModel<List<FeedbackMessage>> getModel() {
+        return (IModel<List<FeedbackMessage>>) this.getDefaultModel();
+    }
+
+    @Override
+    public void setModel(final IModel<List<FeedbackMessage>> model) {
+        this.setDefaultModel(model);
+    }
+
+    @Override
+    public void setModelObject(final List<FeedbackMessage> object) {
+        this.setDefaultModelObject(object);
+    }
+
+    @Override
+    public List<FeedbackMessage> getModelObject() {
+        return (List<FeedbackMessage>) this.getDefaultModelObject();
     }
 }

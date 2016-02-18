@@ -36,7 +36,7 @@ public class ParametersCreateWizardPanel extends AjaxWizardBuilder<ParametersCre
     private static final long serialVersionUID = -2868592590785581481L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ParametersCreateWizardPanel.class);
-
+    
     public ParametersCreateWizardPanel(final String id, final ParametersForm defaultItem, final PageReference pageRef) {
         super(id, defaultItem, pageRef);
 
@@ -56,10 +56,11 @@ public class ParametersCreateWizardPanel extends AjaxWizardBuilder<ParametersCre
 
     @Override
     protected Serializable onApplyInternal(final ParametersForm modelObject) {
-        final PlainSchemaTO finalpPlainSchemaTO = modelObject.getPlainSchemaTO();
-        finalpPlainSchemaTO.setKey(modelObject.getAttrTO().getSchema());
+        final PlainSchemaTO plainSchemaTO = modelObject.getPlainSchemaTO();
+        plainSchemaTO.setKey(modelObject.getAttrTO().getSchema());
+        
         SyncopeConsoleSession.get().getService(SchemaService.class).create(
-                SchemaType.PLAIN, finalpPlainSchemaTO);
+                SchemaType.PLAIN, plainSchemaTO);
         SyncopeConsoleSession.get().getService(ConfigurationService.class).set(modelObject.getAttrTO());
         return modelObject.getAttrTO();
     }

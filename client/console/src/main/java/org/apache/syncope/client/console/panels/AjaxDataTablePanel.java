@@ -159,7 +159,6 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                 send(builder.pageRef.getPage(), Broadcast.BREADTH, data);
 
                 final BasePage page = (BasePage) builder.pageRef.getPage();
-                ((BasePage) getPage()).getNotificationPanel().refresh(target);
             }
         });
 

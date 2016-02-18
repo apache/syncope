@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.ModalEvent;
@@ -75,7 +76,7 @@ public abstract class AbstractResourceModal<T extends Serializable> extends Abst
 
                 @Override
                 protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                    modal.getNotificationPanel().refresh(target);
+                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                 }
             };
         }

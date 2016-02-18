@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
@@ -97,11 +98,11 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
                     @Override
                     protected void check(final AjaxRequestTarget target) {
                         if (connectorRestClient.check(model.getObject())) {
-                            info(getString("success_connection"));
+                            info(getString(Constants.OPERATION_SUCCEEDED));
                         } else {
                             error(getString("error_connection"));
                         }
-                        modal.getNotificationPanel().refresh(target);
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
 
                 };
@@ -126,7 +127,7 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
 
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        modal.getNotificationPanel().refresh(target);
+        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 
     @Override
@@ -162,13 +163,13 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
             } else {
                 connectorRestClient.update(connInstanceTO);
             }
-            info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
+            info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
             LOG.error("Failure managing resource {}", connInstanceTO, e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());
-            modal.getNotificationPanel().refresh(target);
         }
+        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 
     protected static ConnBundleTO getBundle(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {

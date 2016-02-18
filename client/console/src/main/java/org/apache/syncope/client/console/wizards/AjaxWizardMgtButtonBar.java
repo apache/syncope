@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards;
 
-import org.apache.syncope.client.console.panels.NotificationPanel;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -37,7 +37,7 @@ public class AjaxWizardMgtButtonBar extends WizardButtonBar {
     private static final long serialVersionUID = 7453943437344127136L;
 
     private final boolean edit;
-    
+
     private final AjaxWizard wizard;
 
     public AjaxWizardMgtButtonBar(final String id, final AjaxWizard wizard, final boolean edit) {
@@ -90,12 +90,11 @@ public class AjaxWizardMgtButtonBar extends WizardButtonBar {
             protected void onError(final AjaxRequestTarget target) {
                 target.add(findParent(Wizard.class));
                 button.onError();
-                NotificationPanel.class.cast(wizard.getFeedbackPanel()).refresh(target);
+                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
 
             @Override
             protected void onComponentTag(final ComponentTag tag) {
-                // WICKET-5644 prevent non-Ajax submit (similar to AjaxButton WICKET-5594)
                 tag.put("type", "button");
             }
         });
@@ -113,7 +112,7 @@ public class AjaxWizardMgtButtonBar extends WizardButtonBar {
             public final boolean isEnabled() {
                 if (edit) {
                     return true;
-                } else { 
+                } else {
                     final IWizardStep activeStep = getWizardModel().getActiveStep();
                     return (activeStep != null) && getWizardModel().isLastStep(activeStep) && super.isEnabled();
                 }

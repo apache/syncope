@@ -20,8 +20,8 @@ package org.apache.syncope.client.console.panels;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -75,13 +75,13 @@ public abstract class AbstractLogsPanel<T extends AbstractBaseBean> extends Pane
                             try {
                                 loggerTO.setLevel(loggerTOs.getModelObject());
                                 update(loggerTO);
-                                target.add(loggerTOs);
                                 info(getString(Constants.OPERATION_SUCCEEDED));
+                                target.add(loggerTOs);
                             } catch (SyncopeClientException e) {
                                 LOG.error("Error updating the logger level", e);
-                                error(getString(Constants.OPERATION_ERROR + e.getMessage()));
+                                error(getString(Constants.ERROR) + ": " + e.getMessage());
                             }
-                            ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                         }
                     });
                     return loggerTOs;

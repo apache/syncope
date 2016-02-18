@@ -25,8 +25,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.GroupDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -146,7 +146,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
                         }
-                        ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.GROUP_DELETE);
 

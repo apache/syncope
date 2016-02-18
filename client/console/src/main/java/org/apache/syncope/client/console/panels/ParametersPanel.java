@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ParametersPanel.ParametersProvider;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -92,7 +91,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
-                modal.show(false);
+                modalDetails.show(false);
                 target.add(container);
             }
         });
@@ -119,7 +118,6 @@ public class ParametersPanel extends AbstractSearchResultPanel<
             }
 
         }, true);
-        addNotificationPanel((BasePage.class.cast(pageRef.getPage()).getNotificationPanel()));
         modal.size(Modal.Size.Medium);
         initResultTable();
 
@@ -230,8 +228,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
                                     LOG.error("While deleting AttrTO", e);
                                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                                 }
-                                ((BasePage) getPage()).getNotificationPanel().refresh(target);
-
+                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.CONFIGURATION_DELETE);
 

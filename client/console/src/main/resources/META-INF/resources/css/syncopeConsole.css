@@ -366,6 +366,12 @@ div.searchResult{
 /**
 START - Notifications
 */
+
+/*Temporany fix diagonal stacking*/
+.k-popup.k-notification {
+  box-shadow: none;
+}
+
 .k-notification-error.k-group {
   background: rgba(100% , 0% , 0% , .7);
   color: red;

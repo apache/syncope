@@ -53,8 +53,6 @@ import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSessio
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.feedback.DefaultCleanupFeedbackMessageFilter;
-import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
@@ -191,16 +189,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         getMarkupSettings().setCompressWhitespace(true);
 
         getRequestCycleListeners().add(new SyncopeConsoleRequestCycleListener());
-
-        getApplicationSettings().setFeedbackMessageCleanupFilter(new DefaultCleanupFeedbackMessageFilter() {
-
-            private static final long serialVersionUID = 4419535854770831722L;
-
-            @Override
-            public boolean accept(final FeedbackMessage message) {
-                return true;
-            }
-        });
 
         mountPage("/login", getSignInPageClass());
 

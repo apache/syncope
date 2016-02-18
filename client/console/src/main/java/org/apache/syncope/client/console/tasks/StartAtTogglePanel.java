@@ -20,8 +20,8 @@ package org.apache.syncope.client.console.tasks;
 
 import java.io.Serializable;
 import java.util.Date;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -86,12 +86,12 @@ public class StartAtTogglePanel extends TogglePanel<Serializable> {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                     LOG.error("While running propagation task {}", taskTO.getKey(), e);
                 }
-                ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
 
         });

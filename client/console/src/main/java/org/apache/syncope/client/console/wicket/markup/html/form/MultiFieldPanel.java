@@ -119,7 +119,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractFi
         };
 
         final Fragment fragment = new Fragment("panelPlus", "fragmentPlus", MultiFieldPanel.this);
-        fragment.add(plus);
+        fragment.addOrReplace(plus);
         fragment.setRenderBodyOnly(true);
 
         return fragment;

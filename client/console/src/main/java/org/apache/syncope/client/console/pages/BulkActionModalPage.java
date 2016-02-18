@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
@@ -139,7 +140,7 @@ public class BulkActionModalPage<T extends Serializable, S> extends AbstractModa
                             | IllegalArgumentException | InvocationTargetException e) {
                         error(getString(Constants.ERROR)
                                 + ": Operation " + bulkAction.getType() + " not supported");
-                        modal.getNotificationPanel().refresh(target);
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
 
                 }

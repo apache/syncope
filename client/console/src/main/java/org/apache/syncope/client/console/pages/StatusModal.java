@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.AbstractStatusBeanProvider;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
@@ -275,8 +276,8 @@ public class StatusModal<T extends Serializable> extends AbstractStatusModalPage
                     } catch (Exception e) {
                         LOG.error("Error enabling resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        modal.getNotificationPanel().refresh(target);
                     }
+                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                 }
             }, ActionLink.ActionType.REACTIVATE, pageId);
 
@@ -297,8 +298,8 @@ public class StatusModal<T extends Serializable> extends AbstractStatusModalPage
                     } catch (Exception e) {
                         LOG.error("Error disabling resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        modal.getNotificationPanel().refresh(target);
                     }
+                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                 }
             }, ActionLink.ActionType.SUSPEND, pageId);
         } else {
@@ -326,8 +327,8 @@ public class StatusModal<T extends Serializable> extends AbstractStatusModalPage
                     } catch (Exception e) {
                         LOG.error("Error unlinking resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        modal.getNotificationPanel().refresh(target);
                     }
+                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                 }
             }, ActionLink.ActionType.UNLINK, pageId);
 
@@ -355,7 +356,7 @@ public class StatusModal<T extends Serializable> extends AbstractStatusModalPage
                     } catch (Exception e) {
                         LOG.error("Error linking resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        modal.getNotificationPanel().refresh(target);
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.LINK, pageId);
@@ -385,8 +386,9 @@ public class StatusModal<T extends Serializable> extends AbstractStatusModalPage
                     } catch (Exception e) {
                         LOG.error("Error de-provisioning user", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        modal.getNotificationPanel().refresh(target);
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
+
                 }
             }, ActionLink.ActionType.DEPROVISION, pageId);
 
@@ -412,7 +414,7 @@ public class StatusModal<T extends Serializable> extends AbstractStatusModalPage
                         } catch (Exception e) {
                             LOG.error("Error provisioning user", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            modal.getNotificationPanel().refresh(target);
+                            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                         }
                     }
                 }
@@ -443,7 +445,7 @@ public class StatusModal<T extends Serializable> extends AbstractStatusModalPage
                     } catch (Exception e) {
                         LOG.error("Error unassigning resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        modal.getNotificationPanel().refresh(target);
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.UNASSIGN, pageId);
@@ -469,7 +471,7 @@ public class StatusModal<T extends Serializable> extends AbstractStatusModalPage
                         } catch (Exception e) {
                             LOG.error("Error assigning resources", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            modal.getNotificationPanel().refresh(target);
+                            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                         }
                     }
                 }
@@ -547,8 +549,8 @@ public class StatusModal<T extends Serializable> extends AbstractStatusModalPage
             final ResourceAssociationAction type,
             final Collection<StatusBean> selection) {
 
-        final IndicatingAjaxButton goon
-                = new IndicatingAjaxButton("continue", new ResourceModel("continue", "Continue")) {
+        final IndicatingAjaxButton goon =
+                new IndicatingAjaxButton("continue", new ResourceModel("continue", "Continue")) {
 
             private static final long serialVersionUID = -2341391430136818027L;
 
@@ -586,13 +588,13 @@ public class StatusModal<T extends Serializable> extends AbstractStatusModalPage
                     if (bulkActionResult != null) {
                         loadBulkActionResultPage(target, selection, bulkActionResult);
                     } else {
-                        modal.getNotificationPanel().refresh(target);
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                         modal.close(target);
                     }
                 } catch (Exception e) {
                     LOG.error("Error provisioning resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    modal.getNotificationPanel().refresh(target);
+                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                 }
             }
         };

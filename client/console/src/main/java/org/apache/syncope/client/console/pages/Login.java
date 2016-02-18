@@ -45,7 +45,7 @@ public class Login extends WebPage {
 
     private static final long serialVersionUID = 5889157642852559004L;
 
-    private final NotificationPanel feedbackPanel;
+    private final NotificationPanel notificationPanel;
 
     private final StatelessForm<Void> form;
 
@@ -61,8 +61,8 @@ public class Login extends WebPage {
         super(parameters);
         setStatelessHint(true);
 
-        feedbackPanel = new NotificationPanel(Constants.FEEDBACK);
-        add(feedbackPanel);
+        notificationPanel = new NotificationPanel(Constants.FEEDBACK);
+        add(notificationPanel);
 
         form = new StatelessForm<>("login");
 
@@ -102,7 +102,7 @@ public class Login extends WebPage {
                     setResponsePage(getApplication().getHomePage());
                 } else {
                     error(getString("login-error"));
-                    feedbackPanel.refresh(target);
+                    notificationPanel.refresh(target);
                 }
                 strategy.remove();
             }

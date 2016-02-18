@@ -249,7 +249,6 @@ public abstract class AbstractSearchResultPanel<
                 data.setRows(rows);
 
                 send(getParent(), Broadcast.BREADTH, data);
-                page.getNotificationPanel().refresh(target);
             }
         });
     }

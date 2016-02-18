@@ -19,11 +19,12 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.ModalPanel;
-import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.extensions.wizard.IWizardModel;
 import org.apache.wicket.extensions.wizard.Wizard;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.markup.html.form.Form;
@@ -41,8 +42,6 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
     private T item;
 
     private final boolean edit;
-
-    private NotificationPanel feedbackPanel;
 
     /**
      * Construct.
@@ -62,20 +61,14 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
     }
 
     @Override
-    protected Component newButtonBar(final String id) {
-        return new AjaxWizardMgtButtonBar(id, this, edit);
+    protected void init(final IWizardModel wizardModel) {
+        super.init(wizardModel);
+        getForm().remove(FEEDBACK_ID);
     }
 
     @Override
-    protected Component newFeedbackPanel(final String id) {
-        if (feedbackPanel == null) {
-            feedbackPanel = new NotificationPanel(id);
-        }
-        return feedbackPanel;
-    }
-
-    public NotificationPanel getFeedbackPanel() {
-        return feedbackPanel;
+    protected Component newButtonBar(final String id) {
+        return new AjaxWizardMgtButtonBar(id, this, edit);
     }
 
     protected abstract void onCancelInternal();
@@ -239,6 +232,6 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
 
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        feedbackPanel.refresh(target);
+        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 }

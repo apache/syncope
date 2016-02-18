@@ -22,7 +22,6 @@ import com.googlecode.wicket.jquery.core.panel.LabelPanel;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -153,9 +152,7 @@ public abstract class Realm extends Panel {
                         anyTypeTO.getKey(),
                         pageReference).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new UserWizardBuilder(
-                                BaseModal.CONTENT_ID, userTO, anyTypeTO.getClasses(), pageRef)).
-                        addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getNotificationPanel()).
-                        build(id);
+                                BaseModal.CONTENT_ID, userTO, anyTypeTO.getClasses(), pageRef)).build(id);
                 MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER, StandardEntitlement.USER_LIST);
                 break;
             case GROUP:
@@ -166,9 +163,7 @@ public abstract class Realm extends Panel {
                         anyTypeTO.getKey(),
                         pageReference).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new GroupWizardBuilder(
-                                BaseModal.CONTENT_ID, groupTO, anyTypeTO.getClasses(), pageRef)).
-                        addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getNotificationPanel()).
-                        build(id);
+                                BaseModal.CONTENT_ID, groupTO, anyTypeTO.getClasses(), pageRef)).build(id);
                 // list of group is available to all authenticated users
                 break;
             case ANY_OBJECT:
@@ -180,9 +175,7 @@ public abstract class Realm extends Panel {
                         anyTypeTO.getKey(),
                         pageReference).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new AnyObjectWizardBuilder(
-                                BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).
-                        addNotificationPanel(BasePage.class.cast(this.pageRef.getPage()).getNotificationPanel()).
-                        build(id);
+                                BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).build(id);
                 MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER,
                         String.format("%s_%s", anyObjectTO.getType(), AnyEntitlement.LIST));
                 break;

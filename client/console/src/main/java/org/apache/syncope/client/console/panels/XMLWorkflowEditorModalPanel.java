@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.io.IOException;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -76,10 +77,10 @@ public class XMLWorkflowEditorModalPanel extends AbstractModalPanel<String> {
 
             modal.show(false);
             modal.close(target);
-        } catch (SyncopeClientException scee) {
-            error(getString(Constants.ERROR) + ": " + scee.getMessage());
+        } catch (SyncopeClientException e) {
+            error(getString(Constants.ERROR) + ": " + e.getMessage());
         }
-        modal.getNotificationPanel().refresh(target);
+        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 
     @Override

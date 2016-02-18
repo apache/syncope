@@ -24,10 +24,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel.SecondLevel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
@@ -116,9 +116,8 @@ public abstract class TaskExecutions
                                 } catch (SyncopeClientException scce) {
                                     error(scce.getMessage());
                                 }
-
-                                BasePage.class.cast(pageRef.getPage()).getNotificationPanel().refresh(target);
                                 target.add(TaskExecutions.this);
+                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE);
 

@@ -25,8 +25,6 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Resizable
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.NotificationAwareComponent;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
@@ -47,7 +45,7 @@ import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BaseModal<T extends Serializable> extends Modal<T> implements NotificationAwareComponent {
+public class BaseModal<T extends Serializable> extends Modal<T> {
 
     private static final long serialVersionUID = -6142277554912316095L;
 
@@ -85,10 +83,6 @@ public class BaseModal<T extends Serializable> extends Modal<T> implements Notif
 
         };
 
-        notificationPanel = new NotificationPanel(Constants.FEEDBACK);
-        notificationPanel.setOutputMarkupId(true);
-        addOrReplace(notificationPanel);
-
         content.setOutputMarkupId(true);
 
         form.add(content);
@@ -106,11 +100,6 @@ public class BaseModal<T extends Serializable> extends Modal<T> implements Notif
         addButton(new DefaultModalCloseButton());
         setUseKeyboard(true);
         setFadeIn(true);
-    }
-
-    @Override
-    public NotificationPanel getNotificationPanel() {
-        return notificationPanel;
     }
 
     public Form<T> getForm() {

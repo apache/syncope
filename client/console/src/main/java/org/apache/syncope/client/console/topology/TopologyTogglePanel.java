@@ -21,8 +21,8 @@ package org.apache.syncope.client.console.topology;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.text.MessageFormat;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ConnectorModal;
 import org.apache.syncope.client.console.panels.ResourceModal;
 import org.apache.syncope.client.console.panels.TogglePanel;
@@ -188,7 +188,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
                 }
-                ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
         };
 
@@ -269,7 +269,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
                 }
-                ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
         };
         fragment.add(delete);

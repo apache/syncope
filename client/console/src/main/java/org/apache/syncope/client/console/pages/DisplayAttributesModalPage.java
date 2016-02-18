@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.console.PreferenceManager;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -197,22 +198,18 @@ public abstract class DisplayAttributesModalPage<T extends Serializable> extends
                     final Map<String, List<String>> prefs = new HashMap<>();
 
                     prefs.put(getPrefDetailView(), selectedDetails);
-
                     prefs.put(getPrefAttributeView(), selectedPlainSchemas);
-
                     prefs.put(getPrefDerivedAttributeView(), selectedDerSchemas);
-
                     prefMan.setList(getRequest(), getResponse(), prefs);
 
                     info(getString(Constants.OPERATION_SUCCEEDED));
-
                     modal.close(target);
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                modal.getNotificationPanel().refresh(target);
+                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
         };
 

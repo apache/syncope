@@ -32,6 +32,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -77,6 +79,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     private Map<String, Set<String>> auth;
 
     private Roles roles;
+
+    private NotificationPanel notificationPanel;
 
     public static SyncopeConsoleSession get() {
         return (SyncopeConsoleSession) Session.get();
@@ -205,5 +209,13 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public DateFormat getDateFormat() {
         Locale locale = getLocale() == null ? Locale.ENGLISH : getLocale();
         return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+    }
+
+    public NotificationPanel getNotificationPanel() {
+        if (notificationPanel == null) {
+            notificationPanel = new NotificationPanel(Constants.FEEDBACK);
+            notificationPanel.setOutputMarkupId(true);
+        }
+        return notificationPanel;
     }
 }

@@ -54,12 +54,12 @@ public class ParametersEditModalPanel extends AbstractModalPanel<AttrTO> {
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
             SyncopeConsoleSession.get().getService(ConfigurationService.class).set(attrTO);
-            info(getString(Constants.OPERATION_SUCCEEDED));
             parametersModal.close(target);
+            info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
             LOG.error("While creating or updating AttrTO", e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());
         }
-        parametersModal.getNotificationPanel().refresh(target);
+        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 }

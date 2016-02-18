@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
@@ -147,7 +148,6 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_DELETE);
 
         builder.addNewItemPanelBuilder(new ProvisionWizardBuilder("wizard", model.getObject(), pageRef));
-        builder.addNotificationPanel(modal.getNotificationPanel());
 
         tabs.add(new AbstractTab(new ResourceModel("provisions", "provisions")) {
 
@@ -176,11 +176,11 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
                     @Override
                     protected void check(final AjaxRequestTarget target) {
                         if (connectorRestClient.check(model.getObject())) {
-                            info(getString("success_connection"));
+                            info(getString(Constants.OPERATION_SUCCEEDED));
                         } else {
                             error(getString("error_connection"));
                         }
-                        modal.getNotificationPanel().refresh(target);
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
                 };
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE, StandardEntitlement.CONNECTOR_READ);
@@ -206,7 +206,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
 
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        modal.getNotificationPanel().refresh(target);
+        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 
     @Override
@@ -259,6 +259,6 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
                 error(getString(Constants.ERROR) + ": " + e.getMessage());
             }
         }
-        modal.getNotificationPanel().refresh(target);
+        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 }

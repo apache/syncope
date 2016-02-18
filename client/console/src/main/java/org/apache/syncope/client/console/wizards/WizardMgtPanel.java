@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
@@ -85,7 +86,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     protected WizardMgtPanel(final String id, final boolean wizardInModal) {
         super(id);
         setOutputMarkupId(true);
-        
+
         this.wizardInModal = wizardInModal;
 
         super.add(modal);
@@ -109,7 +110,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
         addAjaxLink.setEnabled(false);
         addAjaxLink.setVisible(false);
-        initialFragment.add(addAjaxLink);
+        initialFragment.addOrReplace(addAjaxLink);
     }
 
     @Override
@@ -150,10 +151,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                     container.addOrReplace(initialFragment);
                 }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                if (notificationPanel != null) {
-                    getSession().info(getString(Constants.OPERATION_SUCCEEDED));
-                    notificationPanel.refresh(target);
-                }
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
 
                 if (wizardInModal && showResultPage) {
                     modal.setContent(new ResultPage<T>(
@@ -232,7 +231,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     }
 
     protected WizardMgtPanel<T> addNotificationPanel(final NotificationPanel notificationPanel) {
-        this.notificationPanel = notificationPanel;
+        this.notificationPanel = SyncopeConsoleSession.get().getNotificationPanel();
         return this;
     }
 

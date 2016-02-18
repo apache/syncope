@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
@@ -100,7 +101,7 @@ public class CamelRoutesPanel extends AbstractSearchResultPanel<
                             LOG.error("While creating or updating CamelRouteTO", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
-                        modal.getNotificationPanel().refresh(target);
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
                 };
             }

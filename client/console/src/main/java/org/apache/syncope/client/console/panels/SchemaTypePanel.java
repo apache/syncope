@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -114,13 +113,14 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                                     SyncopeConsoleSession.get().getService(
                                             SchemaService.class).update(schemaType, modelObject);
                                 }
+                                
                                 info(getString(Constants.OPERATION_SUCCEEDED));
                                 modal.close(target);
                             } catch (Exception e) {
                                 LOG.error("While creating or updating schema", e);
                                 error(getString(Constants.ERROR) + ": " + e.getMessage());
                             }
-                            modal.getNotificationPanel().refresh(target);
+                            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                         }
                     };
                 }
@@ -256,9 +256,10 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         } catch (Exception e) {
+                            LOG.error(getString(Constants.ERROR) + ": " + e.getMessage());
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
-                        BasePage.class.cast(page).getNotificationPanel().refresh(target);
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.SCHEMA_DELETE);
 

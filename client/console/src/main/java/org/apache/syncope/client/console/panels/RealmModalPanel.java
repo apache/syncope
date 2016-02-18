@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -79,13 +78,12 @@ public class RealmModalPanel extends AbstractModalPanel<RealmTO> {
             } else {
                 realmRestClient.update(updatedRealmTO);
             }
-
             info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating realm", e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());
         }
-        BasePage.class.cast(pageRef.getPage()).getNotificationPanel().refresh(target);
+        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 }

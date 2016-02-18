@@ -24,8 +24,6 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtPage;
-import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.NotificationAwareComponent;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.panels.NotificationPanel;
@@ -58,7 +56,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BasePage extends WebPage implements NotificationAwareComponent, IAjaxIndicatorAware {
+public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = 1571997737305598502L;
 
@@ -93,9 +91,7 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
         }
         add(body);
 
-        notificationPanel = new NotificationPanel(Constants.FEEDBACK);
-        notificationPanel.setOutputMarkupId(true);
-        body.addOrReplace(notificationPanel);
+        body.addOrReplace(SyncopeConsoleSession.get().getNotificationPanel());
 
         // header, footer
         body.add(new Label("version", SyncopeConsoleApplication.get().getVersion()));
@@ -327,11 +323,6 @@ public class BasePage extends WebPage implements NotificationAwareComponent, IAj
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
         response.render(new PriorityHeaderItem(meta));
-    }
-
-    @Override
-    public NotificationPanel getNotificationPanel() {
-        return notificationPanel;
     }
 
     private String getLIContainerId(final String linkId) {

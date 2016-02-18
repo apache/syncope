@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
@@ -47,7 +48,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -65,7 +65,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
     private final WebMarkupContainer container;
 
-    private final Link<Void> downloadLink;
+    private final AjaxLink<Void> downloadLink;
 
     private final Form<?> uploadForm;
 
@@ -124,12 +124,12 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
         uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : "(" + mimeType + ")"));
 
-        downloadLink = new Link<Void>("downloadLink") {
+        downloadLink = new AjaxLink<Void>("downloadLink") {
 
             private static final long serialVersionUID = -4331619903296515985L;
 
             @Override
-            public void onClick() {
+            public void onClick(final AjaxRequestTarget target) {
                 try {
                     HttpResourceStream stream = new HttpResourceStream(buildResponse());
 

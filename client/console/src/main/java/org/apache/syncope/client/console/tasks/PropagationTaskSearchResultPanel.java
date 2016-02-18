@@ -24,9 +24,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -128,7 +128,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
                                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                                     LOG.error("While running propagation task {}", taskTO.getKey(), e);
                                 }
-                                ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE).
                         add(new ActionLink<PropagationTaskTO>() {
@@ -145,7 +145,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
                                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                                     LOG.error("While deleting propagation task {}", taskTO.getKey(), e);
                                 }
-                                ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE).build(componentId);
 
@@ -154,8 +154,8 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
 
             @Override
             public ActionLinksPanel<PropagationTaskTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<PropagationTaskTO> panel
-                        = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<PropagationTaskTO> panel =
+                        ActionLinksPanel.builder(page.getPageReference());
 
                 return panel.add(new ActionLink<PropagationTaskTO>() {
 

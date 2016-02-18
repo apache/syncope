@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel.SecurityQuestionsProvider;
 import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -184,16 +183,15 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
                             @Override
                             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                                 try {
-                                    SyncopeConsoleSession.get().getService(SecurityQuestionService.class
-                                    ).delete(model.getObject().getKey());
+                                    SyncopeConsoleSession.get().getService(
+                                            SecurityQuestionService.class).delete(model.getObject().getKey());
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting SecutiryQuestionTO", e);
                                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                                 }
-                                ((BasePage) getPage()).getNotificationPanel().refresh(target);
-
+                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.SECURITY_QUESTION_DELETE);
 

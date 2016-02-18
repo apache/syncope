@@ -62,6 +62,6 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
             LOG.error("While creating or updating SecutiryQuestionTO", e);
             error(getString(Constants.ERROR) + ": " + e.getMessage());
         }
-        modal.getNotificationPanel().refresh(target);
+        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 }

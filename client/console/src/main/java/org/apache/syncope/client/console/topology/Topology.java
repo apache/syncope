@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractResourceModal.CreateEvent;
-import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
@@ -148,17 +147,9 @@ public class Topology extends BasePage {
     }
 
     public Topology() {
-        modal = new BaseModal<Serializable>("resource-modal") {
 
-            private static final long serialVersionUID = -5912673052161214766L;
-
-            @Override
-            public NotificationPanel getNotificationPanel() {
-                return Topology.this.notificationPanel;
-            }
-        };
+        modal = new BaseModal<Serializable>("resource-modal");
         body.add(modal.size(Modal.Size.Large));
-
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
