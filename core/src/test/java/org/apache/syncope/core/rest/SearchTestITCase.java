@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.reqres.PagedResult;
@@ -190,10 +191,15 @@ public class SearchTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE768() {
+        final List<UserTO> usersWithType = userService.search(
+                SyncopeClient.getUserSearchConditionBuilder().is("type").notNullValue().query()).getResult();
+
+        assertFalse(usersWithType.isEmpty());
+
         final PagedResult<UserTO> matchedUsers = userService.search(
                 SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query(),
                 SyncopeClient.getOrderByClauseBuilder().asc("type").build());
 
-        assertTrue(matchedUsers.getResult().size() >= 5);
+        assertTrue(matchedUsers.getResult().size() > usersWithType.size());
     }
 }

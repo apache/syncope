@@ -35,10 +35,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.SubjectType;
-import org.apache.syncope.common.types.SubjectType;
-import org.apache.syncope.common.types.SubjectType;
-import org.apache.syncope.common.types.SubjectType;
-import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.AbstractSubject;
@@ -245,7 +241,7 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
             where.append(',');
             if (searchView.name.equals(svs.attr().name)) {
                 where.append(" (SELECT * FROM ").append(searchView.name).append(" UNION ").
-                        append("SELECT * FROM ").append(svs.nullAttr().name).append(")");
+                        append("SELECT * FROM ").append(svs.nullAttr().name).append(')');
             } else {
                 where.append(searchView.name);
             }
