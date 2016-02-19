@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
+import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
@@ -394,5 +395,22 @@ public class SearchITCase extends AbstractITCase {
         for (UserTO user : matchingUsers.getResult()) {
             assertNotNull(user);
         }
+    }
+
+    @Test
+    public void issueSYNCOPE768() {
+        final List<UserTO> usersWithType = userService.search(
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").notNullValue().query()).build()).
+                getResult();
+
+        assertFalse(usersWithType.isEmpty());
+        
+        final PagedResult<UserTO> matchedUsers = userService.search(
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query()).
+                orderBy(SyncopeClient.getOrderByClauseBuilder().asc("ctype").build()).build());
+
+        assertTrue(matchedUsers.getResult().size() > usersWithType.size());
     }
 }

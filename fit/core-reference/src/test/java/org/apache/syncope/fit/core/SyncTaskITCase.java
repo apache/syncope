@@ -157,7 +157,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         inUserTO.setUsername(userName);
         inUserTO.getPlainAttrs().add(attrTO("firstname", "nome9"));
         inUserTO.getPlainAttrs().add(attrTO("surname", "cognome"));
-        inUserTO.getPlainAttrs().add(attrTO("type", "a type"));
+        inUserTO.getPlainAttrs().add(attrTO("ctype", "a type"));
         inUserTO.getPlainAttrs().add(attrTO("fullname", "nome cognome"));
         inUserTO.getPlainAttrs().add(attrTO("userId", "puccini@syncope.apache.org"));
         inUserTO.getPlainAttrs().add(attrTO("email", "puccini@syncope.apache.org"));
@@ -196,7 +196,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             // check for user template
             userTO = readUser("test7");
             assertNotNull(userTO);
-            assertEquals("TYPE_OTHER", userTO.getPlainAttrMap().get("type").getValues().get(0));
+            assertEquals("TYPE_OTHER", userTO.getPlainAttrMap().get("ctype").getValues().get(0));
             assertEquals(3, userTO.getResources().size());
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_WS2));
@@ -215,7 +215,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
             userTO = readUser("test8");
             assertNotNull(userTO);
-            assertEquals("TYPE_8", userTO.getPlainAttrMap().get("type").getValues().get(0));
+            assertEquals("TYPE_8", userTO.getPlainAttrMap().get("ctype").getValues().get(0));
 
             // Check for ignored user - SYNCOPE-663
             try {
@@ -513,7 +513,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         userTO.getPlainAttrs().add(attrTO("firstname", "testuser2"));
         userTO.getPlainAttrs().add(attrTO("surname", "testuser2"));
-        userTO.getPlainAttrs().add(attrTO("type", "a type"));
+        userTO.getPlainAttrs().add(attrTO("ctype", "a type"));
         userTO.getPlainAttrs().add(attrTO("fullname", "a type"));
         userTO.getPlainAttrs().add(attrTO("userId", "testuser2@syncope.apache.org"));
         userTO.getPlainAttrs().add(attrTO("email", "testuser2@syncope.apache.org"));

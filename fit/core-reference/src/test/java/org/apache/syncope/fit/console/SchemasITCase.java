@@ -86,10 +86,10 @@ public class SchemasITCase extends AbstractTypesITCase {
     public void updatePlainSchema() {
         browsingToPlainSchemas();
 
-        Component result = findComponentByProp(KEY, PLAIN_DATATABLE_PATH, "firstname");
+        Component result = findComponentByProp(KEY, PLAIN_DATATABLE_PATH, "ctype");
 
         wicketTester.assertLabel(
-                result.getPageRelativePath() + ":cells:1:cell", "firstname");
+                result.getPageRelativePath() + ":cells:1:cell", "ctype");
 
         wicketTester.clickLink(
                 result.getPageRelativePath() + ":cells:7:cell:panelEdit:editLink");

@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -28,30 +29,37 @@ public class PlainSchemaValidator extends AbstractValidator<PlainSchemaCheck, Pl
 
     @Override
     public boolean isValid(final PlainSchema schema, final ConstraintValidatorContext context) {
-        boolean isValid = schema.getType() != AttrSchemaType.Enum
-                || StringUtils.isNotBlank(schema.getEnumerationValues());
+        boolean isValid = schema.getKey() != null && !EntityTOUtils.ANY_FIELDS.contains(schema.getKey());
         if (!isValid) {
-            context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidSchemaEnum, "Enumeration values missing")).
-                    addPropertyNode("enumerationValues").addConstraintViolation();
+                    getTemplate(EntityViolationType.InvalidName, "Invalid PlainSchema name")).
+                    addPropertyNode("name").addConstraintViolation();
         } else {
-            isValid = schema.getType() != AttrSchemaType.Encrypted
-                    || (schema.getSecretKey() != null && schema.getCipherAlgorithm() != null);
+            isValid = schema.getType() != AttrSchemaType.Enum
+                    || StringUtils.isNotBlank(schema.getEnumerationValues());
             if (!isValid) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidSchemaEncrypted,
-                                "SecretKey or CipherAlgorithm missing")).
-                        addPropertyNode("secretKey").addPropertyNode("cipherAlgorithm").addConstraintViolation();
+                        getTemplate(EntityViolationType.InvalidSchemaEnum, "Enumeration values missing")).
+                        addPropertyNode("enumerationValues").addConstraintViolation();
             } else {
-                isValid = !schema.isMultivalue() || !schema.isUniqueConstraint();
+                isValid = schema.getType() != AttrSchemaType.Encrypted
+                        || (schema.getSecretKey() != null && schema.getCipherAlgorithm() != null);
                 if (!isValid) {
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate(
-                            getTemplate(EntityViolationType.InvalidSchemaMultivalueUnique,
-                                    "Cannot contemporary be multivalue and have unique constraint")).
-                            addPropertyNode("multiValue").addConstraintViolation();
+                            getTemplate(EntityViolationType.InvalidSchemaEncrypted,
+                                    "SecretKey or CipherAlgorithm missing")).
+                            addPropertyNode("secretKey").addPropertyNode("cipherAlgorithm").addConstraintViolation();
+                } else {
+                    isValid = !schema.isMultivalue() || !schema.isUniqueConstraint();
+                    if (!isValid) {
+                        context.disableDefaultConstraintViolation();
+                        context.buildConstraintViolationWithTemplate(
+                                getTemplate(EntityViolationType.InvalidSchemaMultivalueUnique,
+                                        "Cannot contemporary be multivalue and have unique constraint")).
+                                addPropertyNode("multiValue").addConstraintViolation();
+                    }
                 }
             }
         }

@@ -260,10 +260,18 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
         return select;
     }
 
-    private StringBuilder buildWhere(final OrderBySupport orderBySupport) {
+    private StringBuilder buildWhere(final OrderBySupport orderBySupport, final AnyTypeKind typeKind) {
+        SearchSupport svs = new SearchSupport(typeKind);
         final StringBuilder where = new StringBuilder(" u");
         for (SearchSupport.SearchView searchView : orderBySupport.views) {
-            where.append(',').append(searchView.name).append(' ').append(searchView.alias);
+            where.append(',');
+            if (searchView.name.equals(svs.attr().name)) {
+                where.append(" (SELECT * FROM ").append(searchView.name).append(" UNION ").
+                        append("SELECT * FROM ").append(svs.nullAttr().name).append(')');
+            } else {
+                where.append(searchView.name);
+            }
+            where.append(' ').append(searchView.alias);
         }
         where.append(" WHERE ");
         for (SearchSupport.SearchView searchView : orderBySupport.views) {
@@ -366,10 +374,10 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>, Long> implements AnySea
         OrderBySupport orderBySupport = parseOrderBy(typeKind, svs, orderBy);
         if (queryString.charAt(0) == '(') {
             queryString.insert(0, buildSelect(orderBySupport));
-            queryString.append(buildWhere(orderBySupport));
+            queryString.append(buildWhere(orderBySupport, typeKind));
         } else {
             queryString.insert(0, buildSelect(orderBySupport).append('('));
-            queryString.append(')').append(buildWhere(orderBySupport));
+            queryString.append(')').append(buildWhere(orderBySupport, typeKind));
         }
         queryString.
                 append(getAdminRealmsFilter(adminRealms, svs)).append(')').

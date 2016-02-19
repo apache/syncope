@@ -86,7 +86,13 @@ public class PlainSchemaITCase extends AbstractITCase {
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
-            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
+            boolean entityViolationTypeCheck = false;
+            for (String element : e.getElements()) {
+                if (!entityViolationTypeCheck) {
+                    entityViolationTypeCheck = element.contains(EntityViolationType.InvalidName.name());
+                }
+            }
+            assertTrue(entityViolationTypeCheck);
         }
     }
 

@@ -102,35 +102,33 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
     }
 
     protected Component findSuccessNotification(final Page page, final String searchPath, final String key) {
-        Component result =
-                page.visitChildren(NotificationPanel.class, new IVisitor<NotificationPanel, Component>() {
+        Component result = page.visitChildren(NotificationPanel.class, new IVisitor<NotificationPanel, Component>() {
 
-                    @Override
-                    public void component(final NotificationPanel object, final IVisit<Component> visit) {
+            @Override
+            public void component(final NotificationPanel object, final IVisit<Component> visit) {
 
-                        if (object.getDefaultModelObjectAsString().equals(Constants.OPERATION_SUCCEEDED)) {
-                            wicketTester.clickLink(object.getPageRelativePath());
-                            visit.stop(object);
-                        }
-                    }
-                });
+                if (object.getDefaultModelObjectAsString().equals(Constants.OPERATION_SUCCEEDED)) {
+                    wicketTester.clickLink(object.getPageRelativePath());
+                    visit.stop(object);
+                }
+            }
+        });
         return result;
     }
 
     protected Component findErrorNotification(final Page page, final String searchPath, final String key) {
-        Component result =
-                page.visitChildren(NotificationPanel.class, new IVisitor<NotificationPanel, Component>() {
+        Component result = page.visitChildren(NotificationPanel.class, new IVisitor<NotificationPanel, Component>() {
 
-                    @Override
-                    public void component(final NotificationPanel object, final IVisit<Component> visit) {
+            @Override
+            public void component(final NotificationPanel object, final IVisit<Component> visit) {
 
-                        if (!object.getDefaultModelObjectAsString().equals(Constants.OPERATION_SUCCEEDED)) {
-                            wicketTester.clickLink(object.getPageRelativePath());
-                            visit.stop(object);
-                        }
+                if (!object.getDefaultModelObjectAsString().equals(Constants.OPERATION_SUCCEEDED)) {
+                    wicketTester.clickLink(object.getPageRelativePath());
+                    visit.stop(object);
+                }
 
-                    }
-                });
+            }
+        });
         return result;
     }
 }

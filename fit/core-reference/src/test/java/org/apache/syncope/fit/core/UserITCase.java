@@ -131,7 +131,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("fullname", email));
         userTO.getPlainAttrs().add(attrTO("firstname", email));
         userTO.getPlainAttrs().add(attrTO("surname", "surname"));
-        userTO.getPlainAttrs().add(attrTO("type", "a type"));
+        userTO.getPlainAttrs().add(attrTO("ctype", "a type"));
         userTO.getPlainAttrs().add(attrTO("userId", email));
         userTO.getPlainAttrs().add(attrTO("email", email));
         userTO.getPlainAttrs().add(attrTO("loginDate", DATE_FORMAT.format(new Date())));
@@ -235,7 +235,7 @@ public class UserITCase extends AbstractITCase {
 
         AttrTO type = null;
         for (AttrTO attr : userTO.getPlainAttrs()) {
-            if ("type".equals(attr.getSchema())) {
+            if ("ctype".equals(attr.getSchema())) {
                 type = attr;
             }
         }
@@ -440,7 +440,7 @@ public class UserITCase extends AbstractITCase {
     public void createWithRequiredValueMissing() {
         UserTO userTO = getUniqueSampleTO("a.b@c.it");
 
-        AttrTO type = userTO.getPlainAttrMap().get("type");
+        AttrTO type = userTO.getPlainAttrMap().get("ctype");
         userTO.getPlainAttrs().remove(type);
 
         userTO.getMemberships().add(new MembershipTO.Builder().group(8L).build());
@@ -453,7 +453,7 @@ public class UserITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
 
-        userTO.getPlainAttrs().add(attrTO("type", "F"));
+        userTO.getPlainAttrs().add(attrTO("ctype", "F"));
 
         AttrTO surname = userTO.getPlainAttrMap().get("surname");
         userTO.getPlainAttrs().remove(surname);
@@ -594,14 +594,14 @@ public class UserITCase extends AbstractITCase {
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.getPlainAttrs().add(new AttrPatch.Builder().operation(PatchOperation.DELETE).
-                attrTO(new AttrTO.Builder().schema("type").build()).
+                attrTO(new AttrTO.Builder().schema("ctype").build()).
                 build());
 
         userTO = updateUser(userPatch).getAny();
 
         assertNotNull(userTO);
         assertNotNull(userTO.getDerAttrMap());
-        assertFalse(userTO.getPlainAttrMap().containsKey("type"));
+        assertFalse(userTO.getPlainAttrMap().containsKey("ctype"));
     }
 
     @Test(expected = SyncopeClientException.class)
@@ -1551,11 +1551,11 @@ public class UserITCase extends AbstractITCase {
             UserPatch userPatch = new UserPatch();
             userPatch.setKey(key);
 
-            userPatch.getPlainAttrs().add(attrAddReplacePatch("type", "a type"));
+            userPatch.getPlainAttrs().add(attrAddReplacePatch("ctype", "a type"));
 
             UserTO userTO = updateUser(userPatch).getAny();
 
-            assertEquals("a type", userTO.getPlainAttrMap().get("type").getValues().get(0));
+            assertEquals("a type", userTO.getPlainAttrMap().get("ctype").getValues().get(0));
         }
     }
 
