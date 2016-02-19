@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.Model;
@@ -65,9 +66,16 @@ public class CompletenessWidget extends AbstractWidget {
 
         add(new DoughnutChartPanel("chart", Model.of(doughnut)));
 
+        WebMarkupContainer actions = new WebMarkupContainer("actions");
+        actions.setOutputMarkupPlaceholderTag(true);
+        if (todo == 0) {
+            actions.setVisible(false);
+        }
+        add(actions);
+
         BookmarkablePageLink<Page> link = BookmarkablePageLinkBuilder.build("topology", Topology.class);
         link.setOutputMarkupPlaceholderTag(true);
-        add(link);
+        actions.add(link);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE,
                 String.format("%s,%s", StandardEntitlement.CONNECTOR_LIST, StandardEntitlement.RESOURCE_LIST));
         if (confCompleteness.get(NumbersInfo.ConfItem.RESOURCE)
@@ -79,7 +87,7 @@ public class CompletenessWidget extends AbstractWidget {
         link = BookmarkablePageLinkBuilder.build("policies", Policies.class);
         link.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, StandardEntitlement.POLICY_LIST);
-        add(link);
+        actions.add(link);
         if (confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY)
                 || confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY)) {
 
@@ -89,7 +97,7 @@ public class CompletenessWidget extends AbstractWidget {
         link = BookmarkablePageLinkBuilder.build("notifications", Notifications.class);
         link.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, StandardEntitlement.NOTIFICATION_LIST);
-        add(link);
+        actions.add(link);
         if (confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION)) {
             link.setVisible(false);
         }
@@ -97,7 +105,7 @@ public class CompletenessWidget extends AbstractWidget {
         link = BookmarkablePageLinkBuilder.build("types", Types.class);
         link.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, StandardEntitlement.SCHEMA_LIST);
-        add(link);
+        actions.add(link);
         if (confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA)
                 || confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE)) {
 
@@ -106,7 +114,7 @@ public class CompletenessWidget extends AbstractWidget {
 
         link = BookmarkablePageLinkBuilder.build("securityquestions", SecurityQuestions.class);
         link.setOutputMarkupPlaceholderTag(true);
-        add(link);
+        actions.add(link);
         if (confCompleteness.get(NumbersInfo.ConfItem.SECURITY_QUESTION)) {
             link.setVisible(false);
         }
@@ -114,7 +122,7 @@ public class CompletenessWidget extends AbstractWidget {
         link = BookmarkablePageLinkBuilder.build("roles", Roles.class);
         link.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, StandardEntitlement.ROLE_LIST);
-        add(link);
+        actions.add(link);
         if (confCompleteness.get(NumbersInfo.ConfItem.ROLE)) {
             link.setVisible(false);
         }
