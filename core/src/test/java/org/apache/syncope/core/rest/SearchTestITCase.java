@@ -187,4 +187,13 @@ public class SearchTestITCase extends AbstractTest {
         assertNotNull(matchingRoles);
         assertFalse(matchingRoles.getResult().isEmpty());
     }
+
+    @Test
+    public void issueSYNCOPE768() {
+        final PagedResult<UserTO> matchedUsers = userService.search(
+                SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query(),
+                SyncopeClient.getOrderByClauseBuilder().asc("type").build());
+
+        assertTrue(matchedUsers.getResult().size() >= 5);
+    }
 }

@@ -35,6 +35,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.SubjectType;
+import org.apache.syncope.common.types.SubjectType;
+import org.apache.syncope.common.types.SubjectType;
+import org.apache.syncope.common.types.SubjectType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
 import org.apache.syncope.core.persistence.beans.AbstractSubject;
@@ -235,9 +239,17 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
     }
 
     private StringBuilder buildWhere(final OrderBySupport orderBySupport, final SubjectType type) {
+        SearchSupport svs = new SearchSupport(type);
         final StringBuilder where = new StringBuilder(" u");
         for (SearchSupport.SearchView searchView : orderBySupport.views) {
-            where.append(',').append(searchView.name).append(' ').append(searchView.alias);
+            where.append(',');
+            if (searchView.name.equals(svs.attr().name)) {
+                where.append(" (SELECT * FROM ").append(searchView.name).append(" UNION ").
+                        append("SELECT * FROM ").append(svs.nullAttr().name).append(")");
+            } else {
+                where.append(searchView.name);
+            }
+            where.append(' ').append(searchView.alias);
         }
         where.append(" WHERE ");
         for (SearchSupport.SearchView searchView : orderBySupport.views) {
@@ -378,10 +390,8 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
             if (subject == null) {
                 LOG.error("Could not find {} with id {}, even though returned by the native query",
                         type, subjectId);
-            } else {
-                if (!result.contains(subject)) {
-                    result.add(subject);
-                }
+            } else if (!result.contains(subject)) {
+                result.add(subject);
             }
         }
 
@@ -623,20 +633,18 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
                     append(" WHERE subject_id NOT IN (SELECT subject_id FROM ").
                     append(svs.nullAttr().name).
                     append(" WHERE schema_name='").append(schema.getName()).append("')");
+        } else if (cond.getType() == AttributeCond.Type.ISNULL) {
+            query.append(svs.nullAttr().name).
+                    append(" WHERE schema_name='").append(schema.getName()).append("'");
         } else {
-            if (cond.getType() == AttributeCond.Type.ISNULL) {
-                query.append(svs.nullAttr().name).
-                        append(" WHERE schema_name='").append(schema.getName()).append("'");
+            if (schema.isUniqueConstraint()) {
+                query.append(svs.uniqueAttr().name);
             } else {
-                if (schema.isUniqueConstraint()) {
-                    query.append(svs.uniqueAttr().name);
-                } else {
-                    query.append(svs.attr().name);
-                }
-                query.append(" WHERE schema_name='").append(schema.getName());
-
-                fillAttributeQuery(query, attrValue, schema, cond, not, parameters, svs);
+                query.append(svs.attr().name);
             }
+            query.append(" WHERE schema_name='").append(schema.getName());
+
+            fillAttributeQuery(query, attrValue, schema, cond, not, parameters, svs);
         }
 
         return query.toString();
