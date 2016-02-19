@@ -31,8 +31,8 @@ under the License.
   <context:component-scan base-package="org.apache.syncope.core.provisioning.java"/>
 
   <!-- Used by AsyncConnectorFacade -->
-  <task:annotation-driven executor="AsyncConnectorFacadeExecutor"/>
-  <task:executor id="AsyncConnectorFacadeExecutor"
+  <task:annotation-driven executor="asyncConnectorFacadeExecutor"/>
+  <task:executor id="asyncConnectorFacadeExecutor"
                  pool-size="${asyncConnectorFacadeExecutor.poolSize}"/>
 
   <!-- Used by PriorityPropagationTaskExecutor -->
