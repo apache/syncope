@@ -22,8 +22,8 @@ under the License.
     <captcha input="captchaInput" enabled="captchaEnabled"></captcha>
   </div>
   <button id="save" type="submit" class="btn btn-default pull-right">Save</button>
-  <navigation-buttons ng-show="createMode" next="none" previous="create.resources"></navigation-buttons>
-  <navigation-buttons ng-show="!createMode" next="none" previous="update.resources"></navigation-buttons>
+  <navigation-buttons ng-show="createMode" base="create" current="finish" wizard="{{wizard}}"></navigation-buttons>
+  <navigation-buttons ng-show="!createMode" base="update" current="finish" wizard="{{wizard}}"></navigation-buttons>
   <div class="pull-left">
     <a id="cancel" href="#/self" class="btn btn-danger">Cancel</a>
   </div>

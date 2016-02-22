@@ -34,8 +34,8 @@ under the License.
   <auxiliary form="dynamicForm" user="user"></auxiliary>
 </div>
 <div id="attribute" class="form-group row">
-  <navigation-buttons ng-show="createMode" next="create.plainSchemas" previous="create.credentials"></navigation-buttons>
-  <navigation-buttons ng-show="!createMode" next="update.plainSchemas" previous="update.credentials"></navigation-buttons>
+  <navigation-buttons ng-show="createMode" base="create" current="groups" wizard="{{wizard}}"></navigation-buttons>
+  <navigation-buttons ng-show="!createMode" base="update" current="groups" wizard="{{wizard}}"></navigation-buttons>
   <div class="pull-left">
     <a id="cancel" href="#/self" class="btn btn-danger pull-left">Cancel</a>
   </div>

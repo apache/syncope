@@ -395,7 +395,7 @@ under the License.
     <angular.version>1.5.0</angular.version>
     <angular-ui-router.version>0.2.17</angular-ui-router.version>
     <angular-ui-bootstrap.version>1.1.1-1</angular-ui-bootstrap.version>
-    <angular-ui-select.version>0.13.1</angular-ui-select.version>
+    <angular-ui-select.version>0.14.8</angular-ui-select.version>
     <angular-treasure-overlay-spinner.version>1.1.0</angular-treasure-overlay-spinner.version>
     <ng-password-strength.version>0.2.1</ng-password-strength.version>
     <lodash.version>4.0.0</lodash.version>

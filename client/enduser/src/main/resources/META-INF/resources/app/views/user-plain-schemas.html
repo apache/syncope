@@ -21,8 +21,8 @@ under the License.
 </div>
 
 <div id="attribute" class="form-group row">
-  <navigation-buttons ng-show="createMode" next="create.derivedSchemas" previous="create.groups"></navigation-buttons>
-  <navigation-buttons ng-show="!createMode" next="update.derivedSchemas" previous="update.groups"></navigation-buttons>
+  <navigation-buttons ng-show="createMode" base="create" current="plainSchemas" wizard="{{wizard}}"></navigation-buttons>
+  <navigation-buttons ng-show="!createMode" base="update" current="plainSchemas" wizard="{{wizard}}"></navigation-buttons>
   <div class="pull-left">
     <a id="cancel" href="#/self" class="btn btn-danger pull-left">Cancel</a>
   </div>

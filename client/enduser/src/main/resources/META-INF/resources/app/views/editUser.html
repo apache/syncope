@@ -35,14 +35,9 @@ under the License.
             <div growl reference="2" inline="true"></div>
             <div id="status-buttons" class="btn-group btn-breadcrumb">
               <a href="#/self" class="btn btn-default"><i class="glyphicon glyphicon-home"></i></a>
-              <!--add class breadcrumb-disabled-link to buttons to prevent click-->
-              <a ui-sref-active="active" ui-sref=".credentials" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Credentials</a>
-              <a ui-sref-active="active" ui-sref=".groups" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Groups</a>
-              <a ui-sref-active="active" ui-sref=".plainSchemas" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Plain Schemas</a>
-              <a ui-sref-active="active" ui-sref=".derivedSchemas" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Derived Schemas</a>
-              <a ui-sref-active="active" ui-sref=".virtualSchemas" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Virtual Schemas</a>              
-              <a ui-sref-active="active" ui-sref=".resources" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Resources</a>
-              <a ui-sref-active="active" ui-sref=".finish" class="btn btn-default" ng-class="createMode ? 'disable-link' : ''">Finish</a>
+              <!--add class breadcrumb-disabled-link to buttons to prevent click-->              
+              <a ng-repeat="(key, value) in wizard" ui-sref-active="active" ui-sref=".{{key}}" class="btn btn-default" 
+                 ng-class="createMode ? 'disable-link' : ''">{{key}}</a>       
             </div>
           </div>
         </div>
