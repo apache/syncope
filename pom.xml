@@ -336,7 +336,7 @@ under the License.
     <spring.version>4.2.4.RELEASE</spring.version>
     <spring-security.version>4.0.3.RELEASE</spring-security.version>
 
-    <openjpa.version>2.4.0</openjpa.version>
+    <openjpa.version>2.4.1</openjpa.version>
     <commons-dbcp.version>2.1.1</commons-dbcp.version>
     <bval.version>1.1.1</bval.version>
 
