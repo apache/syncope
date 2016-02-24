@@ -19,6 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.collections4.ComparatorUtils;
@@ -115,7 +116,7 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
             LOG.debug("Problems while retrieving scheduled jobs", e);
         }
 
-        jobTOs.sort(CHAINED_COMPARATOR);
+        Collections.sort(jobTOs, CHAINED_COMPARATOR);
         return jobTOs.size() > max ? jobTOs.subList(0, max) : jobTOs;
     }
 
