@@ -49,7 +49,7 @@ public class TaskExecute extends AbstractTaskCommand {
                 } else {
                     taskResultManager.notBooleanDeletedError("dry run", input.secondParameter());
                 }
-                taskResultManager.printTaskExecTO(Arrays.asList(
+                taskResultManager.printTaskExecTOs(Arrays.asList(
                         taskSyncopeOperations.execute(input.firstParameter(), dryRun)));
             } catch (final WebServiceException | SyncopeClientException ex) {
                 LOG.error("Error executing task", ex);

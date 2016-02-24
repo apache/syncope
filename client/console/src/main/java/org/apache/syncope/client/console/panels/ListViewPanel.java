@@ -53,9 +53,6 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(ListViewPanel.class);
 
     public enum CheckAvailability {
@@ -217,7 +214,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
      */
     public static class Builder<T extends Serializable> extends WizardMgtPanel.Builder<T> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -3643771352897992172L;
 
         private IModel<? extends Collection<T>> model = new Model<>();
 

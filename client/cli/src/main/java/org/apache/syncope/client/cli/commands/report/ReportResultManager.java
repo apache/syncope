@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.report.AbstractReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 
@@ -47,7 +48,7 @@ public class ReportResultManager extends CommonsResultManager {
             printReportletConf(reportletConf);
         }
         System.out.println("    EXECUTIONS:");
-        printReportExecution(reportTO.getExecutions());
+        printReportExecutions(reportTO.getExecutions());
         System.out.println("");
     }
 
@@ -63,7 +64,7 @@ public class ReportResultManager extends CommonsResultManager {
         }
     }
 
-    public void printReportExecution(final List<ReportExecTO> reportExecTOs) {
+    public void printReportExecutions(final List<ReportExecTO> reportExecTOs) {
         for (final ReportExecTO reportExecTO : reportExecTOs) {
             System.out.println("       REPORT EXEC ID: " + reportExecTO.getKey());
             System.out.println("       status: " + reportExecTO.getStatus());
@@ -73,7 +74,17 @@ public class ReportResultManager extends CommonsResultManager {
             System.out.println("       report id: " + reportExecTO.getReport());
         }
     }
-    
+
+    public void printJobs(final List<JobTO> jobTOs) {
+        for (final JobTO jobTO : jobTOs) {
+            System.out.println("       REPORT ID/NAME: " + jobTO.getReferenceKey() + "/" + jobTO.getReferenceName());
+            System.out.println("       status: " + jobTO.getStatus());
+            System.out.println("       start date: " + jobTO.getStart());
+            System.out.println("       running: " + jobTO.isRunning());
+            System.out.println("       scheduled: " + jobTO.isScheduled());
+        }
+    }
+
     public void printDetails(final Map<String, String> details) {
         printDetails("reports details", details);
     }

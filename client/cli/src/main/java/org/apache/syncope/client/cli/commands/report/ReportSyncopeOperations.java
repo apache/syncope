@@ -25,9 +25,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.util.XMLUtils;
-import org.apache.syncope.common.lib.to.ReportExecTO;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
@@ -41,8 +40,8 @@ public class ReportSyncopeOperations {
         return reportService.read(Long.valueOf(reportKey));
     }
 
-    public List<ReportExecTO> listJobs(final String jobStatusType) {
-        return reportService.listJobs(JobStatusType.valueOf(jobStatusType));
+    public List<JobTO> listJobs() {
+        return reportService.listJobs(10);
     }
 
     public List<ReportTO> list() {

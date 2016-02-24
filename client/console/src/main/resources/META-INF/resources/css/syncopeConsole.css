@@ -499,3 +499,7 @@ END - Result page
   padding: 10px;
   text-align: center;
 }
+
+.nav-tabs-custom > .nav-tabs > li.active {
+    border-top-color: #d2d6de !important;
+}

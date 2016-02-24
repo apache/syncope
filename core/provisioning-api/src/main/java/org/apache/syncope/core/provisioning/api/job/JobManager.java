@@ -18,26 +18,33 @@
  */
 package org.apache.syncope.core.provisioning.api.job;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 
-public interface JobInstanceLoader {
+public interface JobManager {
 
-    String DOMAIN = "domain";
+    String DOMAIN_KEY = "domain";
 
-    Map<String, Object> registerJob(final SchedTask task, final Date startAt, final long interruptMaxRetries)
-            throws SchedulerException, ParseException;
+    String INTERRUPT_MAX_RETRIES_KEY = "interruptMaxRetries";
 
-    void registerJob(final Report report, final Date startAt)
-            throws SchedulerException, ParseException;
+    JobKey NOTIFICATION_JOB = new JobKey("notificationJob", Scheduler.DEFAULT_GROUP);
 
-    void unregisterJob(Task task);
+    boolean isRunning(JobKey jobKey) throws SchedulerException;
 
-    void unregisterJob(Report report);
+    Map<String, Object> register(SchedTask task, Date startAt, long interruptMaxRetries)
+            throws SchedulerException;
+
+    void register(Report report, Date startAt, long interruptMaxRetries)
+            throws SchedulerException;
+
+    void unregister(Task task);
+
+    void unregister(Report report);
 
 }

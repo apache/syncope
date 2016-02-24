@@ -21,8 +21,8 @@ package org.apache.syncope.client.cli.commands.task;
 import java.util.List;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
-import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
@@ -32,12 +32,8 @@ public class TaskSyncopeOperations {
 
     private final TaskService taskService = SyncopeServices.get(TaskService.class);
 
-    public List<TaskExecTO> listScheduledJobs() {
-        return taskService.listJobs(JobStatusType.SCHEDULED);
-    }
-
-    public List<TaskExecTO> listRunningJobs() {
-        return taskService.listJobs(JobStatusType.RUNNING);
+    public List<JobTO> listJobs() {
+        return taskService.listJobs(10);
     }
 
     public <T extends AbstractTaskTO> T read(final String taskKey) {

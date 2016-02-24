@@ -107,7 +107,7 @@ public class ReportDataBinderImpl implements ReportDataBinder {
             reportTO.getExecutions().add(getReportExecTO(reportExec));
         }
 
-        String triggerName = JobNamer.getTriggerName(JobNamer.getJobName(report));
+        String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(report).getName());
         try {
             Trigger trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
 

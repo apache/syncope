@@ -16,94 +16,91 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://xmlns.jcp.org/jsf/composite">
-  <head><title>toggle menu</title></head>
-  <body>
-    <wicket:head>
-      <style type="text/css">
-        div.topology-menu {
-          display: none;
-          border-radius: 5px;
-          background-color: rgba(0, 0, 0, 0.45);
-          color: #fff;
-          position: absolute;
-          right: 5px;
-          top: 130px;
-          width: auto;
-          min-width: 250px;
-          z-index: 999;
-        }
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:head>
+    <style type="text/css">
+      div.topology-menu {
+        display: none;
+        border-radius: 5px;
+        background-color: rgba(0, 0, 0, 0.45);
+        color: #fff;
+        position: absolute;
+        right: 5px;
+        top: 130px;
+        width: auto;
+        min-width: 250px;
+        z-index: 999;
+      }
 
-        div.topology-menu ul.menu {
-          list-style: outside none none;
-          margin: 0;
-          padding: 0;
-          list-style: outside none none;
-        }
+      div.topology-menu ul.menu {
+        list-style: outside none none;
+        margin: 0;
+        padding: 0;
+        list-style: outside none none;
+      }
 
-        div.topology-menu ul.menu li {
-          display: block;
-          line-height: 2em;
-          vertical-align: middle;
-          padding: 5px 10px;
-        }
+      div.topology-menu ul.menu li {
+        display: block;
+        line-height: 2em;
+        vertical-align: middle;
+        padding: 5px 10px;
+      }
 
-        div.topology-menu ul.menu li a {
-          position: relative;
-          padding: 12px 5px 12px 15px;
-        }
+      div.topology-menu ul.menu li a {
+        position: relative;
+        padding: 12px 5px 12px 15px;
+      }
 
-        div.topology-menu div.header a:active,
-        div.topology-menu div.header a:link,
-        div.topology-menu div.header a:visited,
-        div.topology-menu ul a:active,
-        div.topology-menu ul a:link,
-        div.topology-menu ul a:visited{
-          color: #fff;
-        }
+      div.topology-menu div.header a:active,
+      div.topology-menu div.header a:link,
+      div.topology-menu div.header a:visited,
+      div.topology-menu ul a:active,
+      div.topology-menu ul a:link,
+      div.topology-menu ul a:visited{
+        color: #fff;
+      }
 
-        div.topology-menu ul li:hover {
-          color: #fff;
-          background-color: rgba(0, 0, 0, 0.2);
-          z-index: 1000;
-          font-weight: bold;
-        }
+      div.topology-menu ul li:hover {
+        color: #fff;
+        background-color: rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        font-weight: bold;
+      }
 
-        div.topology-menu div.header {
-          background-color: rgba(0, 0, 0, 0);
-          position: relative;
-          font-size: 1.5em;
-          padding-bottom: 5px;
-          border-bottom: 1px solid #aaa;
-        }
+      div.topology-menu div.header {
+        background-color: rgba(0, 0, 0, 0);
+        position: relative;
+        font-size: 1.5em;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #aaa;
+      }
 
-        div.topology-menu div.header a {
-          display: inline-table;
-          padding: 6px 2px 0px 0px;
-        }
+      div.topology-menu div.header a {
+        display: inline-table;
+        padding: 6px 2px 0px 0px;
+      }
 
-        div.topology-menu div.header .close {
-          text-align: right;
-        }
-      </style>
-    </wicket:head>
-    <wicket:panel>
-      <div wicket:id="togglePanelContainer" class="topology-menu inactive-topology-menu">
-        <div class="header">
-          <div class="label">
-            <label wicket:id="label"/>
-          </div>
-          <div class="close">
-            <a wicket:id="close" href="#"><i class="glyphicon glyphicon-remove"></i></a>
-          </div>
+      div.topology-menu div.header .close {
+        text-align: right;
+      }
+    </style>
+  </wicket:head>
+  <wicket:panel>
+    <div wicket:id="togglePanelContainer" class="topology-menu inactive-topology-menu">
+      <div class="header">
+        <div class="label">
+          <label wicket:id="label"/>
         </div>
-        <wicket:child/>
+        <div class="close">
+          <a wicket:id="close" href="#"><i class="glyphicon glyphicon-remove"></i></a>
+        </div>
       </div>
+      <wicket:child/>
+    </div>
 
-      <span wicket:id="outherObjectsRepeater">
-        <div wicket:id="outher"/>
-      </span>
+    <span wicket:id="outherObjectsRepeater">
+      <div wicket:id="outher"/>
+    </span>
 
-    </wicket:panel>
-  </body>
+  </wicket:panel>
 </html>

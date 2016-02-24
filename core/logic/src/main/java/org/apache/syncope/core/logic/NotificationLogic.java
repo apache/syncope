@@ -24,18 +24,23 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
+import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.quartz.JobKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NotificationLogic extends AbstractTransactionalLogic<NotificationTO> {
+public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
 
     @Autowired
     private NotificationDAO notificationDAO;
@@ -97,6 +102,20 @@ public class NotificationLogic extends AbstractTransactionalLogic<NotificationTO
         NotificationTO deleted = binder.getNotificationTO(notification);
         notificationDAO.delete(key);
         return deleted;
+    }
+
+    @Override
+    protected Pair<Long, String> getReference(final JobKey jobKey) {
+        return JobManager.NOTIFICATION_JOB.equals(jobKey) ? Pair.of(0L, jobKey.getName()) : null;
+    }
+
+    public JobTO getJob() {
+        List<JobTO> jobs = super.listJobs(1);
+        return jobs.isEmpty() ? null : jobs.get(0);
+    }
+
+    public void actionJob(final JobAction action) {
+        super.actionJob(JobManager.NOTIFICATION_JOB, action);
     }
 
     @Override

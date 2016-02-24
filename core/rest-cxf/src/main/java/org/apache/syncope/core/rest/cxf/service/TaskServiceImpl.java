@@ -25,13 +25,13 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
-import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -123,6 +123,11 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
+    public List<TaskExecTO> listRecentExecutions(final int max) {
+        return logic.listRecentExecutions(max);
+    }
+
+    @Override
     public void deleteExecution(final Long executionKey) {
         logic.deleteExecution(executionKey);
     }
@@ -186,8 +191,8 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public List<TaskExecTO> listJobs(final JobStatusType type) {
-        return logic.listJobs(type, TaskExecTO.class);
+    public List<JobTO> listJobs(final int max) {
+        return logic.listJobs(max);
     }
 
     @Override

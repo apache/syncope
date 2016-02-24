@@ -28,6 +28,8 @@ public interface TaskExecDAO extends DAO<TaskExec, Long> {
 
     TaskExec find(Long key);
 
+    List<TaskExec> findRecent(int max);
+
     <T extends Task> TaskExec findLatestStarted(T task);
 
     <T extends Task> TaskExec findLatestEnded(T task);

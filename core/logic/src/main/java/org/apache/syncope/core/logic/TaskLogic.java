@@ -26,16 +26,16 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractExecTO;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.JobAction;
-import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -52,14 +52,12 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.core.logic.notification.NotificationJobDelegate;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
-import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -89,9 +87,6 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     private NotificationJobDelegate notificationJobDelegate;
 
     @Autowired
-    private JobInstanceLoader jobInstanceLoader;
-
-    @Autowired
     private TaskUtilsFactory taskUtilsFactory;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_CREATE + "')")
@@ -102,7 +97,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         task = taskDAO.save(task);
 
         try {
-            jobInstanceLoader.registerJob(
+            jobManager.register(
                     task,
                     task.getStartAt(),
                     confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
@@ -130,7 +125,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         task = taskDAO.save(task);
 
         try {
-            jobInstanceLoader.registerJob(
+            jobManager.register(
                     task,
                     task.getStartAt(),
                     confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
@@ -210,7 +205,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
                 }
 
                 try {
-                    Map<String, Object> jobDataMap = jobInstanceLoader.registerJob(
+                    Map<String, Object> jobDataMap = jobManager.register(
                             (SchedTask) task,
                             startAt,
                             confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
@@ -219,7 +214,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
 
                     if (startAt == null) {
                         scheduler.getScheduler().triggerJob(
-                                new JobKey(JobNamer.getJobName(task), Scheduler.DEFAULT_GROUP),
+                                JobNamer.getJobKey(task),
                                 new JobDataMap(jobDataMap));
                     }
                 } catch (Exception e) {
@@ -257,7 +252,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
                 || TaskType.SYNCHRONIZATION == taskUtils.getType()
                 || TaskType.PUSH == taskUtils.getType()) {
 
-            jobInstanceLoader.unregisterJob(task);
+            jobManager.unregister(task);
         }
 
         taskDAO.delete(task);
@@ -280,6 +275,17 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
 
         return CollectionUtils.collect(taskExecDAO.findAll(task, page, size, orderByClauses),
                 new Transformer<TaskExec, TaskExecTO>() {
+
+            @Override
+            public TaskExecTO transform(final TaskExec taskExec) {
+                return binder.getTaskExecTO(taskExec);
+            }
+        }, new ArrayList<TaskExecTO>());
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
+    public List<TaskExecTO> listRecentExecutions(final int max) {
+        return CollectionUtils.collect(taskExecDAO.findRecent(max), new Transformer<TaskExec, TaskExecTO>() {
 
             @Override
             public TaskExecTO transform(final TaskExec taskExec) {
@@ -326,24 +332,27 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @Override
-    protected Long getKeyFromJobName(final JobKey jobKey) {
-        return JobNamer.getTaskKeyFromJobName(jobKey.getName());
+    protected Pair<Long, String> getReference(final JobKey jobKey) {
+        Long key = JobNamer.getTaskKeyFromJobName(jobKey.getName());
+
+        Task task = taskDAO.find(key);
+        return task == null || !(task instanceof SchedTask) ? null : Pair.of(key, ((SchedTask) task).getName());
     }
 
     @Override
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
-    public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, final Class<E> reference) {
-        return super.listJobs(type, reference);
+    public List<JobTO> listJobs(final int max) {
+        return super.listJobs(max);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
-    public void actionJob(final Long taskKey, final JobAction action) {
-        Task task = taskDAO.find(taskKey);
+    public void actionJob(final Long key, final JobAction action) {
+        Task task = taskDAO.find(key);
         if (task == null) {
-            throw new NotFoundException("Task " + taskKey);
+            throw new NotFoundException("Task " + key);
         }
-        String jobName = JobNamer.getJobName(task);
-        actionJob(jobName, action);
+
+        actionJob(JobNamer.getJobKey(task), action);
     }
 
     @Override

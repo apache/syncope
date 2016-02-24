@@ -38,6 +38,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -52,17 +53,15 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
-import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.core.logic.report.TextSerializer;
-import org.apache.syncope.common.lib.to.AbstractExecTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
-import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.logic.report.XSLTTransformer;
+import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
-import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -71,13 +70,13 @@ import org.springframework.stereotype.Component;
 public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
     @Autowired
+    private ConfDAO confDAO;
+
+    @Autowired
     private ReportDAO reportDAO;
 
     @Autowired
     private ReportExecDAO reportExecDAO;
-
-    @Autowired
-    private JobInstanceLoader jobInstanceLoader;
 
     @Autowired
     private ReportDataBinder binder;
@@ -92,7 +91,10 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         report = reportDAO.save(report);
 
         try {
-            jobInstanceLoader.registerJob(report, null);
+            jobManager.register(
+                    report,
+                    null,
+                    confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -115,7 +117,10 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         report = reportDAO.save(report);
 
         try {
-            jobInstanceLoader.registerJob(report, null);
+            jobManager.register(
+                    report,
+                    null,
+                    confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -162,9 +167,12 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         }
 
         try {
-            jobInstanceLoader.registerJob(report, startAt);
+            jobManager.register(
+                    report,
+                    startAt,
+                    confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
 
-            scheduler.getScheduler().triggerJob(new JobKey(JobNamer.getJobName(report), Scheduler.DEFAULT_GROUP));
+            scheduler.getScheduler().triggerJob(JobNamer.getJobKey(report));
         } catch (Exception e) {
             LOG.error("While executing report {}", report, e);
 
@@ -276,9 +284,20 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         }
 
         ReportTO deletedReport = binder.getReportTO(report);
-        jobInstanceLoader.unregisterJob(report);
+        jobManager.unregister(report);
         reportDAO.delete(report);
         return deletedReport;
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
+    public List<ReportExecTO> listRecentExecutions(final int max) {
+        return CollectionUtils.collect(reportExecDAO.findRecent(max), new Transformer<ReportExec, ReportExecTO>() {
+
+            @Override
+            public ReportExecTO transform(final ReportExec reportExec) {
+                return binder.getReportExecTO(reportExec);
+            }
+        }, new ArrayList<ReportExecTO>());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
@@ -319,14 +338,17 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @Override
-    protected Long getKeyFromJobName(final JobKey jobKey) {
-        return JobNamer.getReportKeyFromJobName(jobKey.getName());
+    protected Pair<Long, String> getReference(final JobKey jobKey) {
+        Long key = JobNamer.getReportKeyFromJobName(jobKey.getName());
+
+        Report report = reportDAO.find(key);
+        return report == null ? null : Pair.of(key, report.getName());
     }
 
     @Override
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
-    public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, final Class<E> reference) {
-        return super.listJobs(type, reference);
+    public List<JobTO> listJobs(final int max) {
+        return super.listJobs(max);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
@@ -335,8 +357,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         if (report == null) {
             throw new NotFoundException("Report " + key);
         }
-        String jobName = JobNamer.getJobName(report);
-        actionJob(jobName, action);
+
+        actionJob(JobNamer.getJobKey(report), action);
     }
 
     @Override

@@ -26,10 +26,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.JobAction;
-import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
@@ -98,6 +98,11 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
+    public List<ReportExecTO> listRecentExecutions(final int size) {
+        return logic.listRecentExecutions(size);
+    }
+
+    @Override
     public void deleteExecution(final Long executionKey) {
         logic.deleteExecution(executionKey);
     }
@@ -113,8 +118,8 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public List<ReportExecTO> listJobs(final JobStatusType type) {
-        return logic.listJobs(type, ReportExecTO.class);
+    public List<JobTO> listJobs(final int max) {
+        return logic.listJobs(max);
     }
 
     @Override

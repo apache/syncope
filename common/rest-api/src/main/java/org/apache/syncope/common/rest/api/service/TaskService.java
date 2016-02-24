@@ -19,13 +19,13 @@
 package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -37,11 +37,11 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
-import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
@@ -120,6 +120,17 @@ public interface TaskService extends JAXRSService {
     PagedResult<TaskExecTO> listExecutions(@BeanParam TaskExecQuery query);
 
     /**
+     * Returns the list of recently completed task executions, ordered by end date descendent.
+     *
+     * @param max the maximum number of executions to return
+     * @return list of recently completed task executions, ordered by end date descendent
+     */
+    @GET
+    @Path("executions/recent")
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    List<TaskExecTO> listRecentExecutions(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
+
+    /**
      * Deletes the task execution matching the provided key.
      *
      * @param executionKey key of task execution to be deleted
@@ -163,15 +174,15 @@ public interface TaskService extends JAXRSService {
     BulkActionResult bulk(@NotNull BulkAction bulkAction);
 
     /**
-     * List task jobs of the given type.
+     * List task jobs (running and / or scheduled).
      *
-     * @param type of task job
-     * @return list task jobs of the given type
+     * @param max the maximum number of jobs to return
+     * @return task jobs (running and / or scheduled)
      */
     @GET
     @Path("jobs")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<TaskExecTO> listJobs(@NotNull @MatrixParam("type") JobStatusType type);
+    List<JobTO> listJobs(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
 
     /**
      * Executes an action on an existing task's job.
@@ -180,6 +191,6 @@ public interface TaskService extends JAXRSService {
      * @param action action to execute
      */
     @POST
-    @Path("{key}")
-    void actionJob(@PathParam("key") Long key, @QueryParam("action") JobAction action);
+    @Path("/job/{key}")
+    void actionJob(@NotNull @PathParam("key") Long key, @QueryParam("action") JobAction action);
 }

@@ -48,14 +48,14 @@ public abstract class AbstractLogsPanel<T extends AbstractBaseBean> extends Pane
             final String id,
             final PageReference pageRef,
             final List<LoggerTO> loggerTOs) {
+        
         super(id);
 
-        final WebMarkupContainer container = new WebMarkupContainer("loggerContainer");
+        WebMarkupContainer container = new WebMarkupContainer("loggerContainer");
         container.setOutputMarkupId(true);
         add(container);
 
-        final ListViewPanel.Builder<LoggerTO> builder = new ListViewPanel.Builder<LoggerTO>(
-                LoggerTO.class, pageRef) {
+        ListViewPanel.Builder<LoggerTO> builder = new ListViewPanel.Builder<LoggerTO>(LoggerTO.class, pageRef) {
 
             private static final long serialVersionUID = 6957788356709885298L;
 
@@ -91,11 +91,12 @@ public abstract class AbstractLogsPanel<T extends AbstractBaseBean> extends Pane
             }
         };
 
-        builder.setItems(loggerTOs);
-        builder.setModel(new ListModel<>(loggerTOs));
-        builder.includes("key", "level");
-        builder.withChecks(ListViewPanel.CheckAvailability.NONE);
-        builder.setReuseItem(false);
+        builder.setItems(loggerTOs).
+                setModel(new ListModel<>(loggerTOs)).
+                includes("key", "level").
+                withChecks(ListViewPanel.CheckAvailability.NONE).
+                setReuseItem(false);
+
         container.add(builder.build("logger"));
     }
 

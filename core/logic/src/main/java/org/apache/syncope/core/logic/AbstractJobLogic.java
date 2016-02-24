@@ -19,15 +19,14 @@
 package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+import org.apache.commons.collections4.ComparatorUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.to.AbstractExecTO;
-import org.apache.syncope.common.lib.to.ReportExecTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
-import org.apache.syncope.common.lib.types.JobStatusType;
-import org.quartz.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -38,151 +37,107 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTransactionalLogic<T> {
 
+    private static final Comparator<Boolean> BOOLEAN_COMPARATOR = ComparatorUtils.booleanComparator(true);
+
+    @SuppressWarnings("unchecked")
+    private static final Comparator<JobTO> CHAINED_COMPARATOR = ComparatorUtils.chainedComparator(
+            new Comparator<JobTO>() {
+
+        @Override
+        public int compare(final JobTO job1, final JobTO job2) {
+            return BOOLEAN_COMPARATOR.compare(job1.isRunning(), job2.isRunning());
+        }
+    },
+            new Comparator<JobTO>() {
+
+        @Override
+        public int compare(final JobTO job1, final JobTO job2) {
+            return BOOLEAN_COMPARATOR.compare(job1.isScheduled(), job2.isScheduled());
+        }
+    },
+            new Comparator<JobTO>() {
+
+        @Override
+        public int compare(final JobTO job1, final JobTO job2) {
+            int result;
+
+            if (job1.getStart() == null && job2.getStart() == null) {
+                result = 0;
+            } else if (job1.getStart() == null) {
+                result = -1;
+            } else if (job2.getStart() == null) {
+                result = 1;
+            } else {
+                result = job1.getStart().compareTo(job2.getStart());
+            }
+
+            return result;
+        }
+    });
+
+    @Autowired
+    protected JobManager jobManager;
+
     @Autowired
     protected SchedulerFactoryBean scheduler;
 
-    protected abstract Long getKeyFromJobName(final JobKey jobKey);
+    protected abstract Pair<Long, String> getReference(final JobKey jobKey);
 
-    private <E extends AbstractExecTO> void setTaskOrReportKey(final E jobExecTO, final Long taskOrReportKey) {
-        if (jobExecTO instanceof TaskExecTO) {
-            ((TaskExecTO) jobExecTO).setTask(taskOrReportKey);
-        } else if (jobExecTO instanceof ReportExecTO) {
-            ((ReportExecTO) jobExecTO).setReport(taskOrReportKey);
-        }
-    }
+    protected List<JobTO> listJobs(final int max) {
+        List<JobTO> jobTOs = new ArrayList<>();
 
-    public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, final Class<E> reference) {
-        List<E> jobExecTOs = new ArrayList<>();
+        try {
+            for (JobKey jobKey : scheduler.getScheduler().
+                    getJobKeys(GroupMatcher.jobGroupEquals(Scheduler.DEFAULT_GROUP))) {
 
-        switch (type) {
-            case ALL:
-                try {
-                    for (String groupName : scheduler.getScheduler().getJobGroupNames()) {
-                        for (JobKey jobKey
-                                : scheduler.getScheduler().getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+                JobTO jobTO = new JobTO();
 
-                            Long key = getKeyFromJobName(jobKey);
-                            if (key != null) {
-                                List<? extends Trigger> jobTriggers = scheduler.getScheduler().getTriggersOfJob(jobKey);
-                                if (jobTriggers.isEmpty()) {
-                                    E jobExecTO = reference.newInstance();
-                                    setTaskOrReportKey(jobExecTO, key);
-                                    jobExecTO.setStatus("Not Scheduled");
+                Pair<Long, String> reference = getReference(jobKey);
+                if (reference != null) {
+                    jobTOs.add(jobTO);
 
-                                    jobExecTOs.add(jobExecTO);
-                                } else {
-                                    for (Trigger t : jobTriggers) {
-                                        E jobExecTO = reference.newInstance();
-                                        jobExecTO.setKey(key);
-                                        jobExecTO.
-                                                setStatus(scheduler.getScheduler().getTriggerState(t.getKey()).name());
-                                        jobExecTO.setStart(t.getStartTime());
+                    jobTO.setReferenceKey(reference.getLeft());
+                    jobTO.setReferenceName(reference.getRight());
 
-                                        jobExecTOs.add(jobExecTO);
-                                    }
-                                }
-                            }
-                        }
+                    List<? extends Trigger> jobTriggers = scheduler.getScheduler().getTriggersOfJob(jobKey);
+                    if (jobTriggers.isEmpty()) {
+                        jobTO.setScheduled(false);
+                    } else {
+                        jobTO.setScheduled(true);
+                        jobTO.setStart(jobTriggers.get(0).getStartTime());
+                        jobTO.setStatus(scheduler.getScheduler().getTriggerState(jobTriggers.get(0).getKey()).name());
                     }
-                } catch (SchedulerException e) {
-                    LOG.debug("Problems while retrieving all scheduled jobs", e);
-                } catch (InstantiationException e) {
-                    LOG.debug("Problems while instantiating {}", reference, e);
-                } catch (IllegalAccessException e) {
-                    LOG.debug("Problems while accessing {}", reference, e);
+
+                    jobTO.setRunning(jobManager.isRunning(jobKey));
                 }
-                break;
-
-            case RUNNING:
-                try {
-                    for (JobExecutionContext jec : scheduler.getScheduler().getCurrentlyExecutingJobs()) {
-                        Long key = getKeyFromJobName(jec.getJobDetail().getKey());
-                        if (key != null) {
-                            E jobExecTO = reference.newInstance();
-                            setTaskOrReportKey(jobExecTO, key);
-                            jobExecTO.setStatus(
-                                    scheduler.getScheduler().getTriggerState(jec.getTrigger().getKey()).name());
-                            jobExecTO.setStart(jec.getFireTime());
-
-                            jobExecTOs.add(jobExecTO);
-                        }
-                    }
-                } catch (SchedulerException e) {
-                    LOG.debug("Problems while retrieving all currently executing jobs", e);
-                } catch (InstantiationException e) {
-                    LOG.debug("Problems while instantiating {}", reference, e);
-                } catch (IllegalAccessException e) {
-                    LOG.debug("Problems while accessing {}", reference, e);
-                }
-                break;
-
-            case SCHEDULED:
-                try {
-                    for (String groupName : scheduler.getScheduler().getJobGroupNames()) {
-                        for (JobKey jobKey
-                                : scheduler.getScheduler().getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
-
-                            Long key = getKeyFromJobName(jobKey);
-                            if (key != null) {
-                                List<? extends Trigger> jobTriggers = scheduler.getScheduler().getTriggersOfJob(jobKey);
-                                for (Trigger t : jobTriggers) {
-                                    E jobExecTO = reference.newInstance();
-                                    setTaskOrReportKey(jobExecTO, key);
-                                    jobExecTO.setStatus(scheduler.getScheduler().getTriggerState(t.getKey()).name());
-                                    jobExecTO.setStart(t.getStartTime());
-
-                                    jobExecTOs.add(jobExecTO);
-                                }
-                            }
-                        }
-                    }
-                } catch (SchedulerException e) {
-                    LOG.debug("Problems while retrieving all scheduled jobs", e);
-                } catch (InstantiationException e) {
-                    LOG.debug("Problems while instantiating {}", reference, e);
-                } catch (IllegalAccessException e) {
-                    LOG.debug("Problems while accessing {}", reference, e);
-                }
-                break;
-
-            default:
-        }
-        return jobExecTOs;
-    }
-
-    protected void actionJob(final String jobName, final JobAction action) {
-        if (jobName != null) {
-            JobKey jobKey = new JobKey(jobName, Scheduler.DEFAULT_GROUP);
-            try {
-                if (scheduler.getScheduler().checkExists(jobKey)) {
-                    switch (action) {
-                        case START:
-                            Long currentKey = getKeyFromJobName(jobKey);
-                            boolean found = false;
-                            //Two or more equals jobs cannot be executed concurrently
-                            for (int i = 0; i < scheduler.getScheduler().getCurrentlyExecutingJobs().size() && !found;
-                                    i++) {
-                                JobExecutionContext jec = scheduler.getScheduler().getCurrentlyExecutingJobs().get(i);
-                                Long execJobKey = getKeyFromJobName(jec.getJobDetail().getKey());
-                                if (Objects.equals(execJobKey, currentKey)) {
-                                    found = true;
-                                }
-                            }
-                            if (!found) {
-                                scheduler.getScheduler().triggerJob(jobKey);
-                            }
-                            break;
-
-                        case STOP:
-                            scheduler.getScheduler().interrupt(jobKey);
-                            break;
-
-                        default:
-                    }
-                }
-            } catch (SchedulerException e) {
-                LOG.debug("Problems during {} operation on job {}", action.toString(), jobName, e);
             }
+        } catch (SchedulerException e) {
+            LOG.debug("Problems while retrieving scheduled jobs", e);
+        }
+
+        jobTOs.sort(CHAINED_COMPARATOR);
+        return jobTOs.size() > max ? jobTOs.subList(0, max) : jobTOs;
+    }
+
+    protected void actionJob(final JobKey jobKey, final JobAction action) {
+        try {
+            if (scheduler.getScheduler().checkExists(jobKey)) {
+                switch (action) {
+                    case START:
+                        scheduler.getScheduler().triggerJob(jobKey);
+                        break;
+
+                    case STOP:
+                        scheduler.getScheduler().interrupt(jobKey);
+                        break;
+
+                    default:
+                }
+            } else {
+                LOG.warn("Could not find job {}", jobKey);
+            }
+        } catch (SchedulerException e) {
+            LOG.debug("Problems during {} operation on job {}", action.toString(), jobKey, e);
         }
     }
 }

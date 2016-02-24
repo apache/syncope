@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -17,23 +16,20 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://xmlns.jcp.org/jsf/composite">
-  <head><title></title></head>
-  <body>
-    <wicket:panel>
-      <div wicket:id="container" class="summarize">
-        <span wicket:id="name">[name]</span>
-        <span wicket:id="fullPath">[fullPath]</span>
-        <span wicket:id="accountPolicy">[accountPolicy]</span>
-        <span wicket:id="passwordPolicy">[passwordPolicy]</span>
-      </div>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
+    <div wicket:id="container" class="summarize">
+      <span wicket:id="name">[name]</span>
+      <span wicket:id="fullPath">[fullPath]</span>
+      <span wicket:id="accountPolicy">[accountPolicy]</span>
+      <span wicket:id="passwordPolicy">[passwordPolicy]</span>
+    </div>
 
-      <span wicket:id="actions"></span>
+    <span wicket:id="actions"></span>
 
-      <wicket:fragment wicket:id="emptyFragment"></wicket:fragment>
-      <wicket:fragment wicket:id="actionsFragment">
-        <div wicket:id="actions" class="modal-footer circular-actions"/>
-      </wicket:fragment>
-    </wicket:panel>
-  </body>
+    <wicket:fragment wicket:id="emptyFragment"></wicket:fragment>
+    <wicket:fragment wicket:id="actionsFragment">
+      <div wicket:id="actions" class="modal-footer circular-actions"/>
+    </wicket:fragment>
+  </wicket:panel>
 </html>

@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.client.cli.commands.report;
 
+import java.util.List;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.JobStatusType;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +40,11 @@ public class ReportListJobs extends AbstractReportCommand {
     public void list() {
         if (input.parameterNumber() == 0) {
             try {
-                for (final JobStatusType jobStatusType : JobStatusType.values()) {
-                    reportResultManager.printReportExecution(reportSyncopeOperations.listJobs(jobStatusType.name()));
+                List<JobTO> jobs = reportSyncopeOperations.listJobs();
+                if (jobs.isEmpty()) {
+                    reportResultManager.genericMessage("There are NO jobs available");
+                } else {
+                    reportResultManager.printJobs(jobs);
                 }
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error listing report", ex);

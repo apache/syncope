@@ -25,12 +25,12 @@ import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.SyncMode;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.slf4j.Logger;
@@ -58,8 +58,7 @@ public class TaskDetails extends AbstractTaskCommand {
                 final List<AbstractTaskTO> pushTaskTOs = taskSyncopeOperations.list(TaskType.PUSH.name());
                 final List<AbstractTaskTO> scheduledTaskTOs = taskSyncopeOperations.list(TaskType.SCHEDULED.name());
                 final List<AbstractTaskTO> syncTaskTOs = taskSyncopeOperations.list(TaskType.SYNCHRONIZATION.name());
-                final List<TaskExecTO> runningTOs = taskSyncopeOperations.listRunningJobs();
-                final List<TaskExecTO> scheduledTOs = taskSyncopeOperations.listScheduledJobs();
+                final List<JobTO> jobTOs = taskSyncopeOperations.listJobs();
                 final int notificationTaskSize = notificationTaskTOs.size();
                 int notificationNotExecuted = 0;
                 final int propagationTaskSize = propagationTaskTOs.size();
@@ -71,8 +70,7 @@ public class TaskDetails extends AbstractTaskCommand {
                 final int syncTaskSize = syncTaskTOs.size();
                 int syncNotExecuted = 0;
                 int syncFull = 0;
-                final int runningJobsSize = runningTOs.size();
-                final int scheduledJobsSize = scheduledTOs.size();
+                final int jobsSize = jobTOs.size();
 
                 for (final AbstractTaskTO notificationTaskTO : notificationTaskTOs) {
                     if (!((NotificationTaskTO) notificationTaskTO).isExecuted()) {
@@ -127,8 +125,7 @@ public class TaskDetails extends AbstractTaskCommand {
                 details.put("synchronization tasks", String.valueOf(syncTaskSize));
                 details.put("synchronization tasks not executed", String.valueOf(syncNotExecuted));
                 details.put("synchronization tasks with full reconciliation", String.valueOf(syncFull));
-                details.put("running jobs", String.valueOf(runningJobsSize));
-                details.put("scheduled jobs", String.valueOf(scheduledJobsSize));
+                details.put("jobs", String.valueOf(jobsSize));
                 taskResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error reading details about task", ex);

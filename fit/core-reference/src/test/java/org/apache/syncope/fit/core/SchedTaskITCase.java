@@ -29,15 +29,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
-import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
@@ -159,8 +161,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE660() {
-        List<TaskExecTO> list = taskService.listJobs(JobStatusType.ALL);
-        int old_size = list.size();
+        List<JobTO> jobs = taskService.listJobs(50);
+        int old_size = jobs.size();
 
         SchedTaskTO task = new SchedTaskTO();
         task.setName("issueSYNCOPE660");
@@ -170,8 +172,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         Response response = taskService.create(task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
 
-        list = taskService.listJobs(JobStatusType.ALL);
-        assertEquals(old_size + 1, list.size());
+        jobs = taskService.listJobs(50);
+        assertEquals(old_size + 1, jobs.size());
 
         taskService.actionJob(task.getKey(), JobAction.START);
 
@@ -184,14 +186,19 @@ public class SchedTaskITCase extends AbstractTaskITCase {
                 // ignore
             }
 
-            list = taskService.listJobs(JobStatusType.RUNNING);
+            jobs = taskService.listJobs(50);
+            CollectionUtils.filter(jobs, new Predicate<JobTO>() {
 
-            assertNotNull(list);
+                @Override
+                public boolean evaluate(final JobTO job) {
+                    return job.isRunning();
+                }
+            });
             i++;
-        } while (list.size() < 1 && i < maxit);
+        } while (jobs.size() < 1 && i < maxit);
 
-        assertEquals(1, list.size());
-        assertEquals(task.getKey(), list.get(0).getTask(), 0);
+        assertEquals(1, jobs.size());
+        assertEquals(task.getKey(), jobs.get(0).getReferenceKey(), 0);
 
         taskService.actionJob(task.getKey(), JobAction.STOP);
 
@@ -204,12 +211,17 @@ public class SchedTaskITCase extends AbstractTaskITCase {
                 // ignore
             }
 
-            list = taskService.listJobs(JobStatusType.RUNNING);
+            jobs = taskService.listJobs(50);
+            CollectionUtils.filter(jobs, new Predicate<JobTO>() {
 
-            assertNotNull(list);
+                @Override
+                public boolean evaluate(final JobTO job) {
+                    return job.isRunning();
+                }
+            });
             i++;
-        } while (list.size() >= 1 && i < maxit);
+        } while (jobs.size() >= 1 && i < maxit);
 
-        assertTrue(list.isEmpty());
+        assertTrue(jobs.isEmpty());
     }
 }

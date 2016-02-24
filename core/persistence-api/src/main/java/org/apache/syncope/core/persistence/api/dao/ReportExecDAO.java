@@ -27,6 +27,8 @@ public interface ReportExecDAO extends DAO<ReportExec, Long> {
 
     ReportExec find(Long key);
 
+    List<ReportExec> findRecent(int max);
+
     ReportExec findLatestStarted(Report report);
 
     ReportExec findLatestEnded(Report report);

@@ -44,11 +44,20 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
         return entityManager().find(JPATaskExec.class, key);
     }
 
+    @Override
+    public List<TaskExec> findRecent(final int max) {
+        TypedQuery<TaskExec> query = entityManager().createQuery(
+                "SELECT e FROM " + JPATaskExec.class.getSimpleName() + " e "
+                + "WHERE e.end IS NOT NULL ORDER BY e.end DESC", TaskExec.class);
+        query.setMaxResults(max);
+
+        return query.getResultList();
+    }
+
     private <T extends Task> TaskExec findLatest(final T task, final String field) {
         TypedQuery<TaskExec> query = entityManager().createQuery(
                 "SELECT e FROM " + JPATaskExec.class.getSimpleName() + " e "
-                + "WHERE e.task=:task "
-                + "ORDER BY e." + field + " DESC", TaskExec.class);
+                + "WHERE e.task=:task ORDER BY e." + field + " DESC", TaskExec.class);
         query.setParameter("task", task);
         query.setMaxResults(1);
 

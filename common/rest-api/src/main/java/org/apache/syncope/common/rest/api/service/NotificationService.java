@@ -28,9 +28,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
+import org.apache.syncope.common.lib.types.JobAction;
 
 /**
  * REST operations for notifications.
@@ -86,4 +89,21 @@ public interface NotificationService extends JAXRSService {
     @DELETE
     @Path("{key}")
     void delete(@NotNull @PathParam("key") Long key);
+
+    /**
+     * Returns details about notification job.
+     *
+     * @return details about notification job
+     */
+    @GET
+    @Path("job")
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    JobTO getJob();
+
+    /**
+     * Executes an action on the notification job.
+     *
+     * @param action action to execute
+     */
+    void actionJob(@QueryParam("action") JobAction action);
 }

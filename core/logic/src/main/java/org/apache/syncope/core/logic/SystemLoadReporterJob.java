@@ -20,8 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.management.ManagementFactory;
 import org.apache.syncope.common.lib.info.SystemInfo;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
+import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +30,7 @@ import org.springframework.stereotype.Component;
  * Reports about system load.
  */
 @Component
-@DisallowConcurrentExecution
-public class SystemLoadReporterJob implements Job {
+public class SystemLoadReporterJob extends AbstractInterruptableJob {
 
     private static final Integer MB = 1024 * 1024;
 
@@ -41,6 +39,8 @@ public class SystemLoadReporterJob implements Job {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
+        super.execute(context);
+
         SystemInfo.LoadInstant instant = new SystemInfo.LoadInstant();
 
         instant.setSystemLoadAverage(ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());
@@ -54,5 +54,4 @@ public class SystemLoadReporterJob implements Job {
 
         logic.addLoadInstant(instant);
     }
-
 }

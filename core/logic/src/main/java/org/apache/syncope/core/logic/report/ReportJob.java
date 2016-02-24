@@ -19,18 +19,16 @@
 package org.apache.syncope.core.logic.report;
 
 import org.apache.syncope.core.misc.security.AuthContextUtils;
-import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
+import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
 
 /**
  * Quartz job for executing a given report.
  */
-@DisallowConcurrentExecution
-public class ReportJob implements Job {
+public class ReportJob extends AbstractInterruptableJob {
 
     /**
      * Key, set by the caller, for identifying the report to be executed.
@@ -51,23 +49,26 @@ public class ReportJob implements Job {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
+        super.execute(context);
+
         try {
-            AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobInstanceLoader.DOMAIN),
+            AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
                     new AuthContextUtils.Executable<Void>() {
 
-                        @Override
-                        public Void exec() {
-                            try {
-                                delegate.execute(reportKey);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
+                @Override
+                public Void exec() {
+                    try {
+                        delegate.execute(reportKey);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
 
-                            return null;
-                        }
-                    });
+                    return null;
+                }
+            });
         } catch (RuntimeException e) {
             throw new JobExecutionException(e.getCause());
         }
     }
+
 }

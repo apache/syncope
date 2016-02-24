@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -91,13 +92,12 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     subjetc: " + notificationTaskTO.getSubject());
         System.out.println("     text body: " + notificationTaskTO.getTextBody());
         System.out.println("     html body: " + notificationTaskTO.getHtmlBody());
-        System.out.println("     latest execution status: "
-                + notificationTaskTO.getLatestExecStatus());
+        System.out.println("     latest execution status: " + notificationTaskTO.getLatestExecStatus());
         System.out.println("     start date: " + notificationTaskTO.getStart());
         System.out.println("     end date: " + notificationTaskTO.getEnd());
         System.out.println("     recipients: " + notificationTaskTO.getRecipients());
         System.out.println("     trace level: " + notificationTaskTO.getTraceLevel());
-        printTaskExecTO(notificationTaskTO.getExecutions());
+        printTaskExecTOs(notificationTaskTO.getExecutions());
         System.out.println("");
     }
 
@@ -106,18 +106,15 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     resource: " + propagationTaskTO.getResource());
         System.out.println("     any key: " + propagationTaskTO.getAnyKey());
         System.out.println("     any type kind: " + propagationTaskTO.getAnyTypeKind());
-        System.out.println("     connector object key: "
-                + propagationTaskTO.getConnObjectKey());
-        System.out.println("     old connector object key: "
-                + propagationTaskTO.getOldConnObjectKey());
-        System.out.println("     latest execution status: "
-                + propagationTaskTO.getLatestExecStatus());
+        System.out.println("     connector object key: " + propagationTaskTO.getConnObjectKey());
+        System.out.println("     old connector object key: " + propagationTaskTO.getOldConnObjectKey());
+        System.out.println("     latest execution status: " + propagationTaskTO.getLatestExecStatus());
         System.out.println("     class name: " + propagationTaskTO.getObjectClassName());
         System.out.println("     attributes: " + propagationTaskTO.getAttributes());
         System.out.println("     start date: " + propagationTaskTO.getStart());
         System.out.println("     end date: " + propagationTaskTO.getEnd());
         System.out.println("     operation: " + propagationTaskTO.getOperation());
-        printTaskExecTO(propagationTaskTO.getExecutions());
+        printTaskExecTOs(propagationTaskTO.getExecutions());
         System.out.println("");
     }
 
@@ -135,14 +132,13 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     end date: " + pushTaskTO.getEnd());
         System.out.println("     last execution: " + pushTaskTO.getLastExec());
         System.out.println("     next execution: " + pushTaskTO.getNextExec());
-        System.out.println("     latest execution status: "
-                + pushTaskTO.getLatestExecStatus());
+        System.out.println("     latest execution status: " + pushTaskTO.getLatestExecStatus());
         System.out.println("     filters: " + pushTaskTO.getFilters());
         System.out.println("     delegate class: " + pushTaskTO.getJobDelegateClassName());
         System.out.println("     action class: " + pushTaskTO.getActionsClassNames());
         System.out.println("     matching rule: " + pushTaskTO.getMatchingRule());
         System.out.println("     not matching rule: " + pushTaskTO.getUnmatchingRule());
-        printTaskExecTO(pushTaskTO.getExecutions());
+        printTaskExecTOs(pushTaskTO.getExecutions());
         System.out.println("");
     }
 
@@ -155,11 +151,9 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     end date: " + schedTaskTO.getEnd());
         System.out.println("     last execution: " + schedTaskTO.getLastExec());
         System.out.println("     next execution: " + schedTaskTO.getNextExec());
-        System.out.println("     latest execution status: "
-                + schedTaskTO.getLatestExecStatus());
-        System.out.println("     job delegate class: "
-                + schedTaskTO.getJobDelegateClassName());
-        printTaskExecTO(schedTaskTO.getExecutions());
+        System.out.println("     latest execution status: " + schedTaskTO.getLatestExecStatus());
+        System.out.println("     job delegate class: " + schedTaskTO.getJobDelegateClassName());
+        printTaskExecTOs(schedTaskTO.getExecutions());
         System.out.println("");
     }
 
@@ -181,14 +175,12 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     end date: " + syncTaskTO.getEnd());
         System.out.println("     next execution: " + syncTaskTO.getNextExec());
         System.out.println("     last execution: " + syncTaskTO.getLastExec());
-        System.out.println("     latest execution status: "
-                + syncTaskTO.getLatestExecStatus());
-        System.out.println("     job delegate class: "
-                + syncTaskTO.getJobDelegateClassName());
+        System.out.println("     latest execution status: " + syncTaskTO.getLatestExecStatus());
+        System.out.println("     job delegate class: " + syncTaskTO.getJobDelegateClassName());
         System.out.println("     action class name: " + syncTaskTO.getActionsClassNames());
         System.out.println("     matching rule: " + syncTaskTO.getMatchingRule());
         System.out.println("     unmatching rule: " + syncTaskTO.getUnmatchingRule());
-        printTaskExecTO(syncTaskTO.getExecutions());
+        printTaskExecTOs(syncTaskTO.getExecutions());
         System.out.println("");
     }
 
@@ -203,7 +195,7 @@ public class TaskResultManager extends CommonsResultManager {
         }
     }
 
-    public void printTaskExecTO(final List<TaskExecTO> taskExecTOs) {
+    public void printTaskExecTOs(final List<TaskExecTO> taskExecTOs) {
         for (final TaskExecTO taskExecTO : taskExecTOs) {
             System.out.println("     EXECUTIONS: ");
             System.out.println("     - task execution key: " + taskExecTO.getKey());
@@ -216,6 +208,16 @@ public class TaskResultManager extends CommonsResultManager {
             System.out.println("       start date: " + taskExecTO.getStart());
             System.out.println("       end date: " + taskExecTO.getEnd());
             System.out.println("");
+        }
+    }
+
+    public void printJobs(final List<JobTO> jobTOs) {
+        for (final JobTO jobTO : jobTOs) {
+            System.out.println("       TASK ID/NAME: " + jobTO.getReferenceKey() + "/" + jobTO.getReferenceName());
+            System.out.println("       status: " + jobTO.getStatus());
+            System.out.println("       start date: " + jobTO.getStart());
+            System.out.println("       running: " + jobTO.isRunning());
+            System.out.println("       scheduled: " + jobTO.isScheduled());
         }
     }
 

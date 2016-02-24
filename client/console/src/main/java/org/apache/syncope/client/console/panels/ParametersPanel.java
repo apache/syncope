@@ -195,11 +195,10 @@ public class ParametersPanel extends AbstractSearchResultPanel<
 
                 final AttrTO attrTO = model.getObject();
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.
-                        getPageReference());
+                ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.getPageReference());
                 actionLinks.setDisableIndicator(true);
-                ActionLinksPanel.Builder<Serializable> addWithRoles = actionLinks
-                        .addWithRoles(new ActionLink<Serializable>() {
+                actionLinks.
+                        addWithRoles(new ActionLink<Serializable>() {
 
                             private static final long serialVersionUID = 3257738274365467945L;
 
@@ -211,9 +210,8 @@ public class ParametersPanel extends AbstractSearchResultPanel<
                                 modalDetails.setContent(new ParametersEditModalPanel(modalDetails, attrTO, pageRef));
                                 modalDetails.show(true);
                             }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.CONFIGURATION_SET
-                        )
-                        .addWithRoles(new ActionLink<Serializable>() {
+                        }, ActionLink.ActionType.EDIT, StandardEntitlement.CONFIGURATION_SET).
+                        addWithRoles(new ActionLink<Serializable>() {
 
                             private static final long serialVersionUID = 3257738274365467945L;
 
@@ -234,11 +232,9 @@ public class ParametersPanel extends AbstractSearchResultPanel<
 
                 item.add(actionLinks.build(componentId));
             }
-        }
-        );
+        });
 
         return columns;
-
     }
 
     protected final class ParametersProvider extends SearchableDataProvider<AttrTO> {

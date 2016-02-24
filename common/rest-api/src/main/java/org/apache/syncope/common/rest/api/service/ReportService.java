@@ -19,12 +19,13 @@
 package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -34,10 +35,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.JobAction;
-import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -98,6 +99,17 @@ public interface ReportService extends JAXRSService {
     void delete(@NotNull @PathParam("key") Long key);
 
     /**
+     * Returns the list of recently completed report executions, ordered by end date descendent.
+     *
+     * @param max the maximum number of executions to return
+     * @return list of recently completed report executions, ordered by end date descendent
+     */
+    @GET
+    @Path("executions/recent")
+    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    List<ReportExecTO> listRecentExecutions(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
+
+    /**
      * Deletes report execution with matching key.
      *
      * @param executionKey key of execution report to be deleted
@@ -143,15 +155,15 @@ public interface ReportService extends JAXRSService {
             @QueryParam("format") ReportExecExportFormat fmt);
 
     /**
-     * List report jobs of the given type.
+     * List report jobs (running and / or scheduled).
      *
-     * @param type of report job
-     * @return list of report jobs of the given type
+     * @param max the maximum number of jobs to return
+     * @return report jobs (running and / or scheduled)
      */
     @GET
     @Path("jobs")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ReportExecTO> listJobs(@MatrixParam("type") JobStatusType type);
+    List<JobTO> listJobs(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
 
     /**
      * Executes an action on an existing report's job.
@@ -160,6 +172,6 @@ public interface ReportService extends JAXRSService {
      * @param action action to execute
      */
     @POST
-    @Path("{key}")
-    void actionJob(@PathParam("key") Long key, @QueryParam("action") JobAction action);
+    @Path("/job/{key}")
+    void actionJob(@NotNull @PathParam("key") Long key, @QueryParam("action") JobAction action);
 }

@@ -20,8 +20,7 @@ package org.apache.syncope.core.logic.notification;
 
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
+import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -35,8 +34,7 @@ import org.springframework.stereotype.Component;
  * @see org.apache.syncope.core.persistence.api.entity.task.NotificationTask
  */
 @Component
-@DisallowConcurrentExecution
-public class NotificationJob implements Job {
+public class NotificationJob extends AbstractInterruptableJob {
 
     public enum Status {
 
@@ -57,6 +55,8 @@ public class NotificationJob implements Job {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
+        super.execute(context);
+
         LOG.debug("Waking up...");
 
         for (String domain : domainsHolder.getDomains().keySet()) {
@@ -81,5 +81,4 @@ public class NotificationJob implements Job {
 
         LOG.debug("Sleeping again...");
     }
-
 }

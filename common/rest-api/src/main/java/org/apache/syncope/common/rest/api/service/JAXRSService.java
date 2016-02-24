@@ -42,4 +42,6 @@ public interface JAXRSService {
 
     String PARAM_CONNID_PAGED_RESULTS_COOKIE = "connIdPagedResultsCookie";
 
+    String PARAM_MAX = "max";
+
 }

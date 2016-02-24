@@ -36,6 +36,16 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
         return entityManager().find(JPAReportExec.class, key);
     }
 
+    @Override
+    public List<ReportExec> findRecent(final int max) {
+        TypedQuery<ReportExec> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAReportExec.class.getSimpleName() + " e "
+                + "WHERE e.end IS NOT NULL ORDER BY e.end DESC", ReportExec.class);
+        query.setMaxResults(max);
+
+        return query.getResultList();
+    }
+
     private ReportExec findLatest(final Report report, final String field) {
         TypedQuery<ReportExec> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAReportExec.class.getSimpleName() + " e "

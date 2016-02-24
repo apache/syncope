@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.types.TaskType;
 
 @XmlRootElement(name = "taskExec")
 @XmlType
@@ -29,6 +30,8 @@ public class TaskExecTO extends AbstractExecTO {
 
     private long task;
 
+    private TaskType type;
+
     public long getTask() {
         return task;
     }
@@ -36,4 +39,13 @@ public class TaskExecTO extends AbstractExecTO {
     public void setTask(final long task) {
         this.task = task;
     }
+
+    public TaskType getType() {
+        return type;
+    }
+
+    public void setType(final TaskType type) {
+        this.type = type;
+    }
+
 }

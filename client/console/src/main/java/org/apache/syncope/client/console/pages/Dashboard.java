@@ -22,6 +22,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.widgets.NumberWidget;
 import org.apache.syncope.client.console.widgets.AnyByRealmWidget;
 import org.apache.syncope.client.console.widgets.CompletenessWidget;
+import org.apache.syncope.client.console.widgets.JobWidget;
 import org.apache.syncope.client.console.widgets.LoadWidget;
 import org.apache.syncope.client.console.widgets.UsersByStatusWidget;
 import org.apache.syncope.common.lib.info.NumbersInfo;
@@ -79,5 +80,7 @@ public class Dashboard extends BasePage {
                 numbers.getAny2ByRealm()));
 
         body.add(new LoadWidget("load", SyncopeConsoleSession.get().getService(SyncopeService.class).system()));
+
+        body.add(new JobWidget("job", getPageReference()));
     }
 }

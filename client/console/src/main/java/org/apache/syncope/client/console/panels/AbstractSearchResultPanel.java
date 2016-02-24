@@ -157,6 +157,7 @@ public abstract class AbstractSearchResultPanel<
         // Rows-per-page selector
         // ---------------------------
         final Form<?> paginatorForm = new Form<>("paginator");
+        paginatorForm.setOutputMarkupPlaceholderTag(true);
         container.add(paginatorForm);
 
         final DropDownChoice<Integer> rowsChooser = new DropDownChoice<>(

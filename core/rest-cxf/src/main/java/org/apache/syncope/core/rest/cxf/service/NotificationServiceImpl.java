@@ -21,7 +21,9 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
+import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.core.logic.NotificationLogic;
@@ -61,5 +63,15 @@ public class NotificationServiceImpl extends AbstractServiceImpl implements Noti
     @Override
     public void delete(final Long key) {
         logic.delete(key);
+    }
+
+    @Override
+    public JobTO getJob() {
+        return logic.getJob();
+    }
+
+    @Override
+    public void actionJob(final JobAction action) {
+        logic.actionJob(action);
     }
 }

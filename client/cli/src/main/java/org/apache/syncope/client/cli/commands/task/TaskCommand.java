@@ -43,11 +43,8 @@ public class TaskCommand extends AbstractCommand {
             case LIST:
                 new TaskList(input).list();
                 break;
-            case LIST_RUNNING_JOBS:
-                new TaskListRunningJobs(input).list();
-                break;
-            case LIST_SCHEDULED_JOBS:
-                new TaskListScheduledJobs(input).list();
+            case LIST_JOBS:
+                new TaskListJobs(input).list();
                 break;
             case READ:
                 new TaskRead(input).read();
@@ -82,8 +79,7 @@ public class TaskCommand extends AbstractCommand {
         HELP("--help"),
         DETAILS("--details"),
         LIST("--list"),
-        LIST_RUNNING_JOBS("--list-running-jobs"),
-        LIST_SCHEDULED_JOBS("--list-scheduled-jobs"),
+        LIST_JOBS("--list-jobs"),
         READ("--read"),
         DELETE("--delete"),
         DELETE_PROP_TASK("--delete-all-prop"),

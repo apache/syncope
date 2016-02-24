@@ -70,6 +70,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 
 @Component
 public class TaskDataBinderImpl implements TaskDataBinder {
@@ -101,6 +102,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
     @Autowired
     private SchedulerFactoryBean scheduler;
+
+    @Autowired
+    private TaskUtilsFactory taskUtilsFactory;
 
     private void fill(final ProvisioningTask task, final AbstractProvisioningTaskTO taskTO) {
         if (task instanceof PushTask && taskTO instanceof PushTaskTO) {
@@ -254,6 +258,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
         if (execution.getTask() != null && execution.getTask().getKey() != null) {
             executionTO.setTask(execution.getTask().getKey());
+            executionTO.setType(taskUtilsFactory.getInstance(execution.getTask()).getType());
         }
 
         return executionTO;
@@ -262,7 +267,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     private void setExecTime(final SchedTaskTO taskTO, final Task task) {
         taskTO.setLastExec(taskTO.getStart());
 
-        String triggerName = JobNamer.getTriggerName(JobNamer.getJobName(task));
+        String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(task).getName());
         try {
             Trigger trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
 
