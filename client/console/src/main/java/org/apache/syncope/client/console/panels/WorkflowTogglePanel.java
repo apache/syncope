@@ -47,8 +47,8 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
 
     public WorkflowTogglePanel(final String id, final PageReference pageRef, final Image workflowDefDiagram) {
         super(id);
-        modal = new BaseModal<>("outher");
-        addOutherObject(modal);
+        modal = new BaseModal<>("outer");
+        addOuterObject(modal);
         modal.size(Modal.Size.Large);
 
         container = new WebMarkupContainer("container");

@@ -35,8 +35,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
-import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
@@ -107,7 +107,7 @@ public interface ReportService extends JAXRSService {
     @GET
     @Path("executions/recent")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ReportExecTO> listRecentExecutions(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
+    List<ExecTO> listRecentExecutions(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
 
     /**
      * Deletes report execution with matching key.
@@ -138,7 +138,7 @@ public interface ReportService extends JAXRSService {
     @POST
     @Path("{key}/execute")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ReportExecTO execute(@BeanParam ExecuteQuery query);
+    ExecTO execute(@BeanParam ExecuteQuery query);
 
     /**
      * Exports the report execution with matching key in the requested format.

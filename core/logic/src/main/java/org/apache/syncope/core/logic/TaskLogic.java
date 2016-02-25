@@ -26,13 +26,12 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.JobAction;
@@ -176,23 +175,23 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
-    public TaskExecTO execute(final Long taskKey, final Date startAt, final boolean dryRun) {
+    public ExecTO execute(final Long taskKey, final Date startAt, final boolean dryRun) {
         Task task = taskDAO.find(taskKey);
         if (task == null) {
             throw new NotFoundException("Task " + taskKey);
         }
         TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
 
-        TaskExecTO result = null;
+        ExecTO result = null;
         switch (taskUtils.getType()) {
             case PROPAGATION:
                 TaskExec propExec = taskExecutor.execute((PropagationTask) task);
-                result = binder.getTaskExecTO(propExec);
+                result = binder.getExecTO(propExec);
                 break;
 
             case NOTIFICATION:
                 TaskExec notExec = notificationJobDelegate.executeSingle((NotificationTask) task);
-                result = binder.getTaskExecTO(notExec);
+                result = binder.getExecTO(notExec);
                 break;
 
             case SCHEDULED:
@@ -225,8 +224,8 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
                     throw sce;
                 }
 
-                result = new TaskExecTO();
-                result.setTask(taskKey);
+                result = new ExecTO();
+                result.setReference(binder.buildReference(task));
                 result.setStart(new Date());
                 result.setStatus("JOB_FIRED");
                 result.setMessage("Job fired; waiting for results...");
@@ -265,7 +264,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
-    public List<TaskExecTO> listExecutions(
+    public List<ExecTO> listExecutions(
             final Long taskKey, final int page, final int size, final List<OrderByClause> orderByClauses) {
 
         Task task = taskDAO.find(taskKey);
@@ -274,34 +273,34 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         }
 
         return CollectionUtils.collect(taskExecDAO.findAll(task, page, size, orderByClauses),
-                new Transformer<TaskExec, TaskExecTO>() {
+                new Transformer<TaskExec, ExecTO>() {
 
             @Override
-            public TaskExecTO transform(final TaskExec taskExec) {
-                return binder.getTaskExecTO(taskExec);
+            public ExecTO transform(final TaskExec taskExec) {
+                return binder.getExecTO(taskExec);
             }
-        }, new ArrayList<TaskExecTO>());
+        }, new ArrayList<ExecTO>());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
-    public List<TaskExecTO> listRecentExecutions(final int max) {
-        return CollectionUtils.collect(taskExecDAO.findRecent(max), new Transformer<TaskExec, TaskExecTO>() {
+    public List<ExecTO> listRecentExecutions(final int max) {
+        return CollectionUtils.collect(taskExecDAO.findRecent(max), new Transformer<TaskExec, ExecTO>() {
 
             @Override
-            public TaskExecTO transform(final TaskExec taskExec) {
-                return binder.getTaskExecTO(taskExec);
+            public ExecTO transform(final TaskExec taskExec) {
+                return binder.getExecTO(taskExec);
             }
-        }, new ArrayList<TaskExecTO>());
+        }, new ArrayList<ExecTO>());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
-    public TaskExecTO deleteExecution(final Long execKey) {
+    public ExecTO deleteExecution(final Long execKey) {
         TaskExec taskExec = taskExecDAO.find(execKey);
         if (taskExec == null) {
             throw new NotFoundException("Task execution " + execKey);
         }
 
-        TaskExecTO taskExecutionToDelete = binder.getTaskExecTO(taskExec);
+        ExecTO taskExecutionToDelete = binder.getExecTO(taskExec);
         taskExecDAO.delete(taskExec);
         return taskExecutionToDelete;
     }
@@ -332,11 +331,11 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @Override
-    protected Pair<Long, String> getReference(final JobKey jobKey) {
+    protected String getReference(final JobKey jobKey) {
         Long key = JobNamer.getTaskKeyFromJobName(jobKey.getName());
 
         Task task = taskDAO.find(key);
-        return task == null || !(task instanceof SchedTask) ? null : Pair.of(key, ((SchedTask) task).getName());
+        return task == null || !(task instanceof SchedTask) ? null : binder.buildReference(task);
     }
 
     @Override

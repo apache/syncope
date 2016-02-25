@@ -43,7 +43,7 @@ public class ReportTO extends AbstractStartEndBean implements EntityTO<Long> {
 
     private String cronExpression;
 
-    private final List<ReportExecTO> executions = new ArrayList<>();
+    private final List<ExecTO> executions = new ArrayList<>();
 
     private String latestExecStatus;
 
@@ -92,7 +92,7 @@ public class ReportTO extends AbstractStartEndBean implements EntityTO<Long> {
     @XmlElementWrapper(name = "executions")
     @XmlElement(name = "execution")
     @JsonProperty("executions")
-    public List<ReportExecTO> getExecutions() {
+    public List<ExecTO> getExecutions() {
         return executions;
     }
 

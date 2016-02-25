@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
@@ -69,7 +69,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public TaskExecTO execute(final ExecuteQuery query) {
+    public ExecTO execute(final ExecuteQuery query) {
         return logic.execute(query.getKey(), query.getStartAt(), query.getDryRun());
     }
 
@@ -110,7 +110,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public PagedResult<TaskExecTO> listExecutions(final TaskExecQuery query) {
+    public PagedResult<ExecTO> listExecutions(final TaskExecQuery query) {
         return buildPagedResult(
                 logic.listExecutions(
                         query.getKey(),
@@ -123,7 +123,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public List<TaskExecTO> listRecentExecutions(final int max) {
+    public List<ExecTO> listRecentExecutions(final int max) {
         return logic.listRecentExecutions(max);
     }
 

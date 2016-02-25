@@ -20,32 +20,52 @@ package org.apache.syncope.common.lib.to;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.types.TaskType;
 
-@XmlRootElement(name = "taskExec")
-@XmlType
-public class TaskExecTO extends AbstractExecTO {
+@XmlRootElement(name = "exec")
+@XmlType()
+public class ExecTO extends AbstractStartEndBean implements EntityTO<Long> {
 
-    private static final long serialVersionUID = -5401795154606268973L;
+    private static final long serialVersionUID = -4621191979198357081L;
 
-    private long task;
+    private Long key;
 
-    private TaskType type;
+    private String reference;
 
-    public long getTask() {
-        return task;
+    private String status;
+
+    private String message;
+
+    @Override
+    public Long getKey() {
+        return key;
     }
 
-    public void setTask(final long task) {
-        this.task = task;
+    @Override
+    public void setKey(final Long key) {
+        this.key = key;
     }
 
-    public TaskType getType() {
-        return type;
+    public String getReference() {
+        return reference;
     }
 
-    public void setType(final TaskType type) {
-        this.type = type;
+    public void setReference(final String reference) {
+        this.reference = reference;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(final String message) {
+        this.message = message;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(final String status) {
+        this.status = status;
+    }
 }

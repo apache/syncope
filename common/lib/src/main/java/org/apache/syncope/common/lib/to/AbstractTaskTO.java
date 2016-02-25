@@ -42,7 +42,7 @@ public abstract class AbstractTaskTO extends AbstractStartEndBean implements Ent
 
     private String latestExecStatus;
 
-    private final List<TaskExecTO> executions = new ArrayList<>();
+    private final List<ExecTO> executions = new ArrayList<>();
 
     @Override
     public Long getKey() {
@@ -66,7 +66,7 @@ public abstract class AbstractTaskTO extends AbstractStartEndBean implements Ent
     @XmlElementWrapper(name = "executions")
     @XmlElement(name = "execution")
     @JsonProperty("executions")
-    public List<TaskExecTO> getExecutions() {
+    public List<ExecTO> getExecutions() {
         return executions;
     }
 }

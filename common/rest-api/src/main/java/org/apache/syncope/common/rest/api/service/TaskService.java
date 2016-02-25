@@ -37,10 +37,10 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -117,7 +117,7 @@ public interface TaskService extends JAXRSService {
     @GET
     @Path("{key}/executions")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<TaskExecTO> listExecutions(@BeanParam TaskExecQuery query);
+    PagedResult<ExecTO> listExecutions(@BeanParam TaskExecQuery query);
 
     /**
      * Returns the list of recently completed task executions, ordered by end date descendent.
@@ -128,7 +128,7 @@ public interface TaskService extends JAXRSService {
     @GET
     @Path("executions/recent")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<TaskExecTO> listRecentExecutions(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
+    List<ExecTO> listRecentExecutions(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
 
     /**
      * Deletes the task execution matching the provided key.
@@ -159,7 +159,7 @@ public interface TaskService extends JAXRSService {
     @POST
     @Path("{key}/execute")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    TaskExecTO execute(@BeanParam ExecuteQuery query);
+    ExecTO execute(@BeanParam ExecuteQuery query);
 
     /**
      * Executes the provided bulk action.

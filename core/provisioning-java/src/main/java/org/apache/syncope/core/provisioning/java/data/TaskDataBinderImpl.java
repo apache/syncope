@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -248,20 +248,33 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     }
 
     @Override
-    public TaskExecTO getTaskExecTO(final TaskExec execution) {
-        TaskExecTO executionTO = new TaskExecTO();
-        BeanUtils.copyProperties(execution, executionTO, IGNORE_TASK_EXECUTION_PROPERTIES);
+    public String buildReference(final Task task) {
+        return taskUtilsFactory.getInstance(task).getType().name() + " "
+                + "Task "
+                + task.getKey() + " "
+                + (task instanceof SchedTask
+                        ? SchedTask.class.cast(task).getName() == null
+                        ? StringUtils.EMPTY
+                        : SchedTask.class.cast(task).getName()
+                        : task instanceof PropagationTask
+                                ? PropagationTask.class.cast(task).getConnObjectKey()
+                                : StringUtils.EMPTY);
+    }
+
+    @Override
+    public ExecTO getExecTO(final TaskExec execution) {
+        ExecTO execTO = new ExecTO();
+        BeanUtils.copyProperties(execution, execTO, IGNORE_TASK_EXECUTION_PROPERTIES);
 
         if (execution.getKey() != null) {
-            executionTO.setKey(execution.getKey());
+            execTO.setKey(execution.getKey());
         }
 
         if (execution.getTask() != null && execution.getTask().getKey() != null) {
-            executionTO.setTask(execution.getTask().getKey());
-            executionTO.setType(taskUtilsFactory.getInstance(execution.getTask()).getType());
+            execTO.setReference(buildReference(execution.getTask()));
         }
 
-        return executionTO;
+        return execTO;
     }
 
     private void setExecTime(final SchedTaskTO taskTO, final Task task) {
@@ -297,7 +310,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         if (details) {
             for (TaskExec execution : task.getExecs()) {
                 if (execution != null) {
-                    taskTO.getExecutions().add(getTaskExecTO(execution));
+                    taskTO.getExecutions().add(getExecTO(execution));
                 }
             }
         }

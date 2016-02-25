@@ -43,7 +43,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -197,7 +197,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
             assertNotNull(taskTO);
             assertFalse(taskTO.isExecuted());
             assertFalse(taskTO.getExecutions().isEmpty());
-            for (TaskExecTO exec : taskTO.getExecutions()) {
+            for (ExecTO exec : taskTO.getExecutions()) {
                 assertEquals(NotificationJob.Status.NOT_SENT.name(), exec.getStatus());
             }
         } finally {

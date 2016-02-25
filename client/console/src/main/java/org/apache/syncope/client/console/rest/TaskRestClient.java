@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
@@ -113,7 +113,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 getResult();
     }
 
-    public List<TaskExecTO> listExecutions(final Long taskId, final int page, final int size) {
+    public List<ExecTO> listExecutions(final Long taskId, final int page, final int size) {
         return getService(TaskService.class).
                 listExecutions(new TaskExecQuery.Builder().key(taskId).page(page).size(size).build()).getResult();
     }

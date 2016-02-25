@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -204,7 +204,7 @@ public class MultitenancyITCase extends AbstractITCase {
         assertNotNull(resource);
 
         // synchronize
-        TaskExecTO execution = AbstractTaskITCase.execProvisioningTask(
+        ExecTO execution = AbstractTaskITCase.execProvisioningTask(
                 adminClient.getService(TaskService.class), task.getKey(), 50, false);
 
         // verify execution status

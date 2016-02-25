@@ -64,11 +64,11 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:topologyLI:topology");
         wicketTester.executeAjaxEvent("body:resources:2:resources:0:res", Constants.ON_CLICK);
         wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:synchronization");
-        wicketTester.clickLink("body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
+        wicketTester.clickLink("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
                 + "body:rows:1:cells:10:cell:panelExecute:executeLink");
         wicketTester.clickLink(
-                "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
+                "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:startAt:togglePanelContainer:startAtForm:startAt");
         wicketTester.assertInfoMessages("Operation executed successfully");
     }
@@ -78,12 +78,12 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:topologyLI:topology");
         wicketTester.executeAjaxEvent("body:resources:5:resources:0:res", Constants.ON_CLICK);
         wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:push");
-        wicketTester.clickLink("body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
+        wicketTester.clickLink("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
                 + "body:rows:1:cells:9:cell:panelEdit:editLink");
 
         final FormTester formTester = wicketTester.newFormTester(
-                "body:toggle:outherObjectsRepeater:1:outher:form:content:"
+                "body:toggle:outerObjectsRepeater:1:outer:form:content:"
                 + "tasks:firstLevelContainer:first:container:content:wizard:form");
 
         formTester.setValue("view:description:textField", "test");
@@ -99,11 +99,11 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.executeAjaxEvent("body:syncope", Constants.ON_CLICK);
         wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:tasks");
         wicketTester.clickLink(
-                "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
+                "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:add");
 
         FormTester formTester = wicketTester.newFormTester(
-                "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
+                "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:wizard:form");
         formTester.setValue("view:name:textField", "test");
         formTester.select("view:jobDelegateClassName:dropDownChoiceField", 0);
@@ -112,11 +112,11 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.cleanupFeedbackMessages();
 
         formTester = wicketTester.newFormTester(
-                "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:first:"
+                "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:wizard:form");
 
         wicketTester.assertComponent(
-                "body:toggle:outherObjectsRepeater:1:outher:form:content:tasks:firstLevelContainer:"
+                "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:wizard:form:view:schedule:seconds:textField", TextField.class);
 
         formTester.submit("buttons:finish");

@@ -18,22 +18,24 @@
  */
 package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table;
 
-import java.util.Date;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 
 /**
- * Format column's value as date string.
+ * Format column's value as boolean.
  */
-public class DatePropertyColumn<T> extends PropertyColumn<T, String> {
+public class BooleanPropertyColumn<T> extends PropertyColumn<T, String> {
 
     private static final long serialVersionUID = 3527840552172947705L;
 
-    public DatePropertyColumn(final IModel<String> displayModel, final String sortProperty,
+    public BooleanPropertyColumn(final IModel<String> displayModel, final String sortProperty,
             final String propertyExpression) {
 
         super(displayModel, sortProperty, propertyExpression);
@@ -41,12 +43,14 @@ public class DatePropertyColumn<T> extends PropertyColumn<T, String> {
 
     @Override
     public void populateItem(final Item<ICellPopulator<T>> item, final String componentId, final IModel<T> rowModel) {
-        IModel<?> date = getDataModel(rowModel);
 
-        String convertedDate = "";
-        if (date.getObject() instanceof Date) {
-            convertedDate = SyncopeConsoleSession.get().getDateFormat().format(date.getObject());
+        BeanWrapper bwi = new BeanWrapperImpl(rowModel.getObject());
+        Object obj = bwi.getPropertyValue(getPropertyExpression());
+
+        item.add(new Label(componentId, StringUtils.EMPTY));
+        if (Boolean.valueOf(obj.toString())) {
+            item.add(new AttributeModifier("class", "glyphicon glyphicon-ok"));
+            item.add(new AttributeModifier("style", "display: table-cell; text-align: center;"));
         }
-        item.add(new Label(componentId, convertedDate));
     }
 }

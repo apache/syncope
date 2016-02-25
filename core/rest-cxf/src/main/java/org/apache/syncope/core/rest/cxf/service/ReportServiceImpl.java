@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.JobTO;
-import org.apache.syncope.common.lib.to.ReportExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
@@ -88,7 +88,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public ReportExecTO execute(final ExecuteQuery query) {
+    public ExecTO execute(final ExecuteQuery query) {
         return logic.execute(query.getKey(), query.getStartAt());
     }
 
@@ -98,7 +98,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public List<ReportExecTO> listRecentExecutions(final int size) {
+    public List<ExecTO> listRecentExecutions(final int size) {
         return logic.listRecentExecutions(size);
     }
 

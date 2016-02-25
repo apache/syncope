@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.collections4.ComparatorUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
@@ -82,7 +81,7 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
     @Autowired
     protected SchedulerFactoryBean scheduler;
 
-    protected abstract Pair<Long, String> getReference(final JobKey jobKey);
+    protected abstract String getReference(final JobKey jobKey);
 
     protected List<JobTO> listJobs(final int max) {
         List<JobTO> jobTOs = new ArrayList<>();
@@ -93,12 +92,11 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
 
                 JobTO jobTO = new JobTO();
 
-                Pair<Long, String> reference = getReference(jobKey);
+                String reference = getReference(jobKey);
                 if (reference != null) {
                     jobTOs.add(jobTO);
 
-                    jobTO.setReferenceKey(reference.getLeft());
-                    jobTO.setReferenceName(reference.getRight());
+                    jobTO.setReference(reference);
 
                     List<? extends Trigger> jobTriggers = scheduler.getScheduler().getTriggersOfJob(jobKey);
                     if (jobTriggers.isEmpty()) {

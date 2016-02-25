@@ -30,6 +30,7 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.commons.Constants;
@@ -206,9 +207,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         WebClient.client(serviceInstance).reset();
     }
 
-    public DateFormat getDateFormat() {
+    public FastDateFormat getDateFormat() {
         Locale locale = getLocale() == null ? Locale.ENGLISH : getLocale();
-        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+        return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
     }
 
     public NotificationPanel getNotificationPanel() {

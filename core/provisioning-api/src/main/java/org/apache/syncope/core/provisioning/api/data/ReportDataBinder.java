@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.to.ReportExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -27,7 +27,9 @@ public interface ReportDataBinder {
 
     void getReport(Report report, ReportTO reportTO);
 
-    ReportExecTO getReportExecTO(ReportExec execution);
+    String buildReference(Report report);
+
+    ExecTO getExecTO(ReportExec execution);
 
     ReportTO getReportTO(Report report);
 

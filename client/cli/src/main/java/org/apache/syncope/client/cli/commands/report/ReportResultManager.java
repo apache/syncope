@@ -24,7 +24,7 @@ import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.report.AbstractReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.JobTO;
-import org.apache.syncope.common.lib.to.ReportExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 
 public class ReportResultManager extends CommonsResultManager {
@@ -64,20 +64,20 @@ public class ReportResultManager extends CommonsResultManager {
         }
     }
 
-    public void printReportExecutions(final List<ReportExecTO> reportExecTOs) {
-        for (final ReportExecTO reportExecTO : reportExecTOs) {
+    public void printReportExecutions(final List<ExecTO> reportExecTOs) {
+        for (final ExecTO reportExecTO : reportExecTOs) {
             System.out.println("       REPORT EXEC ID: " + reportExecTO.getKey());
             System.out.println("       status: " + reportExecTO.getStatus());
             System.out.println("       message: " + reportExecTO.getMessage());
             System.out.println("       start date: " + reportExecTO.getStart());
             System.out.println("       end date: " + reportExecTO.getEnd());
-            System.out.println("       report id: " + reportExecTO.getReport());
+            System.out.println("       report: " + reportExecTO.getReference());
         }
     }
 
     public void printJobs(final List<JobTO> jobTOs) {
         for (final JobTO jobTO : jobTOs) {
-            System.out.println("       REPORT ID/NAME: " + jobTO.getReferenceKey() + "/" + jobTO.getReferenceName());
+            System.out.println("       REPORT: " + jobTO.getReference());
             System.out.println("       status: " + jobTO.getStatus());
             System.out.println("       start date: " + jobTO.getStart());
             System.out.println("       running: " + jobTO.isRunning());

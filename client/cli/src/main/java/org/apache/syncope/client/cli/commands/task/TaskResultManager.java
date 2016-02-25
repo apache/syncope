@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.TaskType;
 
 public class TaskResultManager extends CommonsResultManager {
@@ -195,11 +195,11 @@ public class TaskResultManager extends CommonsResultManager {
         }
     }
 
-    public void printTaskExecTOs(final List<TaskExecTO> taskExecTOs) {
-        for (final TaskExecTO taskExecTO : taskExecTOs) {
+    public void printTaskExecTOs(final List<ExecTO> taskExecTOs) {
+        for (final ExecTO taskExecTO : taskExecTOs) {
             System.out.println("     EXECUTIONS: ");
             System.out.println("     - task execution key: " + taskExecTO.getKey());
-            System.out.println("       task: " + taskExecTO.getTask());
+            System.out.println("       task: " + taskExecTO.getReference());
             System.out.println("       message: ");
             System.out.println("       ###############     <BEGIN MESSAGE>     ###############");
             System.out.println("       message: " + taskExecTO.getMessage());
@@ -213,7 +213,7 @@ public class TaskResultManager extends CommonsResultManager {
 
     public void printJobs(final List<JobTO> jobTOs) {
         for (final JobTO jobTO : jobTOs) {
-            System.out.println("       TASK ID/NAME: " + jobTO.getReferenceKey() + "/" + jobTO.getReferenceName());
+            System.out.println("       TASK: " + jobTO.getReference());
             System.out.println("       status: " + jobTO.getStatus());
             System.out.println("       start date: " + jobTO.getStart());
             System.out.println("       running: " + jobTO.isRunning());

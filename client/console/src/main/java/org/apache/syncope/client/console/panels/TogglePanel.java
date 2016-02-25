@@ -59,7 +59,7 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
 
     private final Label header;
 
-    private List<Component> outherObjects = new ArrayList<>();
+    private List<Component> outerObjects = new ArrayList<>();
 
     public TogglePanel(final String id) {
         super(id);
@@ -97,7 +97,7 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
             }
         }));
 
-        add(new ListView<Component>("outherObjectsRepeater", outherObjects) {
+        add(new ListView<Component>("outerObjectsRepeater", outerObjects) {
 
             private static final long serialVersionUID = -9180479401817023838L;
 
@@ -113,13 +113,13 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
     /**
      * Add object outside the main container.
      * Use this method just to be not influenced by specific inner object css'.
-     * Be sure to provide <tt>outher</tt> as id.
+     * Be sure to provide <tt>outer</tt> as id.
      *
      * @param childs components to be added.
      * @return the current panel instance.
      */
-    public TogglePanel<T> addOutherObject(final Component... childs) {
-        outherObjects.addAll(Arrays.asList(childs));
+    public TogglePanel<T> addOuterObject(final Component... childs) {
+        outerObjects.addAll(Arrays.asList(childs));
         return this;
     }
 

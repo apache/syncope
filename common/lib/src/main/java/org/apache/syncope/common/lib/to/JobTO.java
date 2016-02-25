@@ -29,9 +29,7 @@ public class JobTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -7254450981751326711L;
 
-    private Long referenceKey;
-
-    private String referenceName;
+    private String reference;
 
     private boolean running;
 
@@ -41,20 +39,12 @@ public class JobTO extends AbstractBaseBean {
 
     private Date start;
 
-    public Long getReferenceKey() {
-        return referenceKey;
+    public String getReference() {
+        return reference;
     }
 
-    public void setReferenceKey(final Long referenceKey) {
-        this.referenceKey = referenceKey;
-    }
-
-    public String getReferenceName() {
-        return referenceName;
-    }
-
-    public void setReferenceName(final String referenceName) {
-        this.referenceName = referenceName;
+    public void setReference(final String reference) {
+        this.reference = reference;
     }
 
     public boolean isRunning() {

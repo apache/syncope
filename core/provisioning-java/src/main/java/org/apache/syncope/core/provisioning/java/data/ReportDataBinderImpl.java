@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.report.AbstractReportletConf;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.common.lib.to.ReportExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
@@ -104,7 +104,7 @@ public class ReportDataBinderImpl implements ReportDataBinder {
         }
 
         for (ReportExec reportExec : report.getExecs()) {
-            reportTO.getExecutions().add(getReportExecTO(reportExec));
+            reportTO.getExecutions().add(getExecTO(reportExec));
         }
 
         String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(report).getName());
@@ -123,15 +123,22 @@ public class ReportDataBinderImpl implements ReportDataBinder {
     }
 
     @Override
-    public ReportExecTO getReportExecTO(final ReportExec execution) {
-        ReportExecTO executionTO = new ReportExecTO();
-        executionTO.setKey(execution.getKey());
-        BeanUtils.copyProperties(execution, executionTO, IGNORE_REPORT_EXECUTION_PROPERTIES);
-        if (execution.getKey() != null) {
-            executionTO.setKey(execution.getKey());
-        }
-        executionTO.setReport(execution.getReport().getKey());
+    public String buildReference(final Report report) {
+        return "Report "
+                + report.getKey() + " "
+                + report.getName();
+    }
 
-        return executionTO;
+    @Override
+    public ExecTO getExecTO(final ReportExec execution) {
+        ExecTO execTO = new ExecTO();
+        execTO.setKey(execution.getKey());
+        BeanUtils.copyProperties(execution, execTO, IGNORE_REPORT_EXECUTION_PROPERTIES);
+        if (execution.getKey() != null) {
+            execTO.setKey(execution.getKey());
+        }
+        execTO.setReference(buildReference(execution.getReport()));
+
+        return execTO;
     }
 }

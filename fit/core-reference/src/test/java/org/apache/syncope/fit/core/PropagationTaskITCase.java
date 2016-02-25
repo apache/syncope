@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -143,7 +143,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertFalse(task.getExecutions().isEmpty());
 
         // check list executions
-        PagedResult<TaskExecTO> execs = taskService.listExecutions(
+        PagedResult<ExecTO> execs = taskService.listExecutions(
                 new TaskExecQuery.Builder().key(1L).page(1).size(2).build());
         assertTrue(execs.getTotalCount() >= execs.getResult().size());
     }

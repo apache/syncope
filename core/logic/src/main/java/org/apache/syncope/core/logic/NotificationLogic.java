@@ -24,11 +24,11 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.logic.notification.NotificationJob;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -105,8 +105,8 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     }
 
     @Override
-    protected Pair<Long, String> getReference(final JobKey jobKey) {
-        return JobManager.NOTIFICATION_JOB.equals(jobKey) ? Pair.of(0L, jobKey.getName()) : null;
+    protected String getReference(final JobKey jobKey) {
+        return JobManager.NOTIFICATION_JOB.equals(jobKey) ? NotificationJob.class.getSimpleName() : null;
     }
 
     public JobTO getJob() {

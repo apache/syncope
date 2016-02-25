@@ -38,9 +38,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ReportExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
@@ -154,7 +153,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
-    public ReportExecTO execute(final Long key, final Date startAt) {
+    public ExecTO execute(final Long key, final Date startAt) {
         Report report = reportDAO.find(key);
         if (report == null) {
             throw new NotFoundException("Report " + key);
@@ -181,8 +180,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
             throw sce;
         }
 
-        ReportExecTO result = new ReportExecTO();
-        result.setReport(key);
+        ExecTO result = new ExecTO();
+        result.setReference(binder.buildReference(report));
         result.setStart(new Date());
         result.setStatus(ReportExecStatus.STARTED.name());
         result.setMessage("Job fired; waiting for results...");
@@ -290,24 +289,24 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
-    public List<ReportExecTO> listRecentExecutions(final int max) {
-        return CollectionUtils.collect(reportExecDAO.findRecent(max), new Transformer<ReportExec, ReportExecTO>() {
+    public List<ExecTO> listRecentExecutions(final int max) {
+        return CollectionUtils.collect(reportExecDAO.findRecent(max), new Transformer<ReportExec, ExecTO>() {
 
             @Override
-            public ReportExecTO transform(final ReportExec reportExec) {
-                return binder.getReportExecTO(reportExec);
+            public ExecTO transform(final ReportExec reportExec) {
+                return binder.getExecTO(reportExec);
             }
-        }, new ArrayList<ReportExecTO>());
+        }, new ArrayList<ExecTO>());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
-    public ReportExecTO deleteExecution(final Long executionKey) {
+    public ExecTO deleteExecution(final Long executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionKey);
         }
 
-        ReportExecTO reportExecToDelete = binder.getReportExecTO(reportExec);
+        ExecTO reportExecToDelete = binder.getExecTO(reportExec);
         reportExecDAO.delete(reportExec);
         return reportExecToDelete;
     }
@@ -338,11 +337,11 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @Override
-    protected Pair<Long, String> getReference(final JobKey jobKey) {
+    protected String getReference(final JobKey jobKey) {
         Long key = JobNamer.getReportKeyFromJobName(jobKey.getName());
 
         Report report = reportDAO.find(key);
-        return report == null ? null : Pair.of(key, report.getName());
+        return report == null ? null : binder.buildReference(report);
     }
 
     @Override

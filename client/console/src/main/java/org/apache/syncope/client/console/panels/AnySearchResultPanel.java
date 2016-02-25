@@ -168,7 +168,7 @@ public abstract class AnySearchResultPanel<T extends AnyTO>
         return new StatusPanel(
                 panelId,
                 ((ProvisioningResult<T>) result).getAny(),
-                new ListModel<StatusBean>(new ArrayList<StatusBean>()),
+                new ListModel<>(new ArrayList<StatusBean>()),
                 CollectionUtils.collect(
                         ((ProvisioningResult<T>) result).getPropagationStatuses(),
                         new SerializableTransformer<PropagationStatus, Pair<ConnObjectTO, ConnObjectWrapper>>() {

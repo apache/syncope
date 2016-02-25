@@ -70,14 +70,14 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         super(id);
         this.pageRef = pageRef;
 
-        resourceModal = new BaseModal<>("outher");
+        resourceModal = new BaseModal<>("outer");
         resourceModal.addSumbitButton();
         resourceModal.size(Modal.Size.Large);
-        addOutherObject(resourceModal);
+        addOuterObject(resourceModal);
 
-        taskModal = new BaseModal<>("outher");
+        taskModal = new BaseModal<>("outer");
         taskModal.size(Modal.Size.Large);
-        addOutherObject(taskModal);
+        addOuterObject(taskModal);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true);

@@ -21,8 +21,8 @@ package org.apache.syncope.client.cli.commands.task;
 import java.util.List;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
@@ -56,7 +56,7 @@ public class TaskSyncopeOperations {
         taskService.deleteExecution(Long.valueOf(executionKey));
     }
 
-    public TaskExecTO execute(final String executionKey, final boolean dryRun) {
+    public ExecTO execute(final String executionKey, final boolean dryRun) {
         return taskService.execute(new ExecuteQuery.Builder().key(Long.valueOf(executionKey)).dryRun(dryRun).build());
     }
 }

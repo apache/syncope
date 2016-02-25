@@ -56,7 +56,7 @@ import org.apache.syncope.common.lib.policy.SyncPolicyTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -258,9 +258,9 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void dryRun() {
-        TaskExecTO execution = execProvisioningTask(taskService, SYNC_TASK_ID, 50, true);
+        ExecTO execution = execProvisioningTask(taskService, SYNC_TASK_ID, 50, true);
         assertEquals(
-                "Execution of task " + execution.getTask() + " failed with message " + execution.getMessage(),
+                "Execution of " + execution.getReference() + " failed with message " + execution.getMessage(),
                 "SUCCESS", execution.getStatus());
     }
 
@@ -269,7 +269,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         UserTO userTO = null;
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         try {
-            TaskExecTO execution = execProvisioningTask(taskService, 7L, 50, false);
+            ExecTO execution = execProvisioningTask(taskService, 7L, 50, false);
             assertNotNull(execution.getStatus());
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
@@ -337,7 +337,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         ldapCleanup();
 
         // 0. synchronize
-        TaskExecTO execution = execProvisioningTask(taskService, 11L, 50, false);
+        ExecTO execution = execProvisioningTask(taskService, 11L, 50, false);
 
         // 1. verify execution status
         assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
@@ -475,7 +475,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
                     task.getReconciliationFilterBuilderClassName());
 
             // 3. exec task
-            TaskExecTO execution = execProvisioningTask(taskService, task.getKey(), 50, false);
+            ExecTO execution = execProvisioningTask(taskService, task.getKey(), 50, false);
             assertNotNull(execution.getStatus());
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
@@ -554,7 +554,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertFalse(actual.getTemplates().get(AnyTypeKind.USER.name()).getResources().isEmpty());
             assertFalse(((UserTO) actual.getTemplates().get(AnyTypeKind.USER.name())).getMemberships().isEmpty());
 
-            TaskExecTO execution = execProvisioningTask(taskService, actual.getKey(), 50, false);
+            ExecTO execution = execProvisioningTask(taskService, actual.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             userTO = readUser("testuser2");
@@ -661,7 +661,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertEquals(1, result.getPropagationStatuses().size());
             assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
-            TaskExecTO taskExecTO = execProvisioningTask(taskService, 24L, 50, false);
+            ExecTO taskExecTO = execProvisioningTask(taskService, 24L, 50, false);
 
             assertNotNull(taskExecTO.getStatus());
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(taskExecTO.getStatus()));
@@ -768,7 +768,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals(actual.getKey(), syncTask.getKey());
         assertEquals(actual.getJobDelegateClassName(), syncTask.getJobDelegateClassName());
 
-        TaskExecTO execution = execProvisioningTask(taskService, syncTask.getKey(), 50, false);
+        ExecTO execution = execProvisioningTask(taskService, syncTask.getKey(), 50, false);
         assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 5. Test the sync'd user
@@ -837,7 +837,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         syncTask = getObject(taskResponse.getLocation(), TaskService.class, SyncTaskTO.class);
         assertNotNull(syncTask);
 
-        TaskExecTO execution = execProvisioningTask(taskService, syncTask.getKey(), 50, false);
+        ExecTO execution = execProvisioningTask(taskService, syncTask.getKey(), 50, false);
         assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 7. Test the sync'd user

@@ -368,64 +368,6 @@ under the License.
                   <resource>
                     <directory>${basedir}/../../common/rest-api/target/classes</directory>
                   </resource>
-
-                  <resource>
-                    <directory>${basedir}/../../core/logic/target/classes</directory>
-                    <excludes>
-                      <exclude>logicContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/rest-cxf/target/classes</directory>
-                    <excludes>
-                      <exclude>restCXFContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/misc/target/classes</directory>
-                    <excludes>
-                      <exclude>securityContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/persistence-api/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/persistence-jpa/target/classes</directory>
-                    <excludes>
-                      <exclude>persistenceContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/provisioning-api/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/provisioning-java/target/classes</directory>
-                    <excludes>
-                      <exclude>provisioningContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/workflow-api/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/workflow-java/target/classes</directory>
-                    <excludes>
-                      <exclude>workflowContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/workflow-activiti/target/classes</directory>
-                    <excludes>
-                      <exclude>workflowActivitiContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../ext/camel/provisioning-camel/target/classes</directory>
-                    <excludes>
-                      <exclude>provisioningCamelContext.xml</exclude>
-                    </excludes>
-                  </resource>
                   
                   <resource>
                     <directory>${basedir}/../../client/console/target/classes</directory>

@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.LoggerTO;
-import org.apache.syncope.common.lib.to.ReportExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
@@ -149,7 +149,7 @@ public class ReportITCase extends AbstractITCase {
     }
 
     private Long execute(final Long reportKey) {
-        ReportExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
+        ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
         assertNotNull(execution);
 
         int i = 0;
@@ -294,7 +294,7 @@ public class ReportITCase extends AbstractITCase {
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 
-        ReportExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
+        ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
         assertNotNull(execution);
 
         int maxit = 50;
@@ -323,7 +323,7 @@ public class ReportITCase extends AbstractITCase {
 
         // Execute (multiple requests)
         for (int i = 0; i < 10; i++) {
-            ReportExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
+            ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
             assertNotNull(execution);
         }
 

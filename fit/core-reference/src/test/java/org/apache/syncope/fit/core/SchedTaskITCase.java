@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -123,7 +123,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
             i++;
         } while (task.getExecutions().isEmpty() && i < maxit);
 
-        PagedResult<TaskExecTO> execs =
+        PagedResult<ExecTO> execs =
                 taskService.listExecutions(new TaskExecQuery.Builder().key(task.getKey()).build());
         assertEquals(1, execs.getTotalCount());
         assertTrue(execs.getResult().get(0).getStart().after(initial));
@@ -198,7 +198,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         } while (jobs.size() < 1 && i < maxit);
 
         assertEquals(1, jobs.size());
-        assertEquals(task.getKey(), jobs.get(0).getReferenceKey(), 0);
+        assertEquals("SCHEDULED Task " + task.getKey() + " " + task.getName(), jobs.get(0).getReference());
 
         taskService.actionJob(task.getKey(), JobAction.STOP);
 

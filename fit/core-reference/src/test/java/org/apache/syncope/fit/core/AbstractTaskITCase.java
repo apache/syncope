@@ -24,9 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -36,9 +34,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -53,7 +51,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
     protected static final Long SCHED_TASK_ID = 5L;
 
-    protected static class ThreadExec implements Callable<TaskExecTO> {
+    protected static class ThreadExec implements Callable<ExecTO> {
 
         private final TaskService taskService;
 
@@ -73,7 +71,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         }
 
         @Override
-        public TaskExecTO call() throws Exception {
+        public ExecTO call() throws Exception {
             return execProvisioningTask(taskService, taskKey, maxWaitSeconds, dryRun);
         }
     }
@@ -93,7 +91,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         }
     }
 
-    protected static TaskExecTO execTask(final TaskService taskService, final Long taskKey, final String initialStatus,
+    protected static ExecTO execTask(final TaskService taskService, final Long taskKey, final String initialStatus,
             final int maxWaitSeconds, final boolean dryRun) {
 
         AbstractTaskTO taskTO = taskService.read(taskKey, true);
@@ -101,7 +99,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         assertNotNull(taskTO.getExecutions());
 
         int preSyncSize = taskTO.getExecutions().size();
-        TaskExecTO execution = taskService.execute(
+        ExecTO execution = taskService.execute(
                 new ExecuteQuery.Builder().key(taskTO.getKey()).dryRun(dryRun).build());
         assertEquals(initialStatus, execution.getStatus());
 
@@ -128,23 +126,23 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         return taskTO.getExecutions().get(taskTO.getExecutions().size() - 1);
     }
 
-    public static TaskExecTO execProvisioningTask(
+    public static ExecTO execProvisioningTask(
             final TaskService taskService, final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
 
         return execTask(taskService, taskKey, "JOB_FIRED", maxWaitSeconds, dryRun);
     }
 
-    protected static TaskExecTO execNotificationTask(
+    protected static ExecTO execNotificationTask(
             final TaskService taskService, final Long taskKey, final int maxWaitSeconds) {
 
         return execTask(taskService, taskKey, NotificationJob.Status.SENT.name(), maxWaitSeconds, false);
     }
 
-    protected Map<Long, TaskExecTO> execProvisioningTasks(final TaskService taskService,
+    protected void execProvisioningTasks(final TaskService taskService,
             final Set<Long> taskKeys, final int maxWaitSeconds, final boolean dryRun) throws Exception {
 
         ExecutorService service = Executors.newFixedThreadPool(taskKeys.size());
-        List<Future<TaskExecTO>> futures = new ArrayList<>();
+        List<Future<ExecTO>> futures = new ArrayList<>();
 
         for (Long key : taskKeys) {
             futures.add(service.submit(new ThreadExec(taskService, key, maxWaitSeconds, dryRun)));
@@ -155,16 +153,11 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             }
         }
 
-        Map<Long, TaskExecTO> res = new HashMap<>();
-
-        for (Future<TaskExecTO> future : futures) {
-            TaskExecTO taskExecTO = future.get(100, TimeUnit.SECONDS);
-            res.put(taskExecTO.getTask(), taskExecTO);
+        for (Future<ExecTO> future : futures) {
+            future.get(100, TimeUnit.SECONDS);
         }
 
         service.shutdownNow();
-
-        return res;
     }
 
     protected NotificationTaskTO findNotificationTaskBySender(final String sender) {

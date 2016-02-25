@@ -76,6 +76,8 @@ public abstract class AbstractSearchResultPanel<
 
     private boolean checkBoxEnabled;
 
+    private boolean showPaginator;
+
     /**
      * Result table.
      */
@@ -127,6 +129,7 @@ public abstract class AbstractSearchResultPanel<
 
         this.filtered = builder.filtered;
         this.checkBoxEnabled = builder.checkBoxEnabled;
+        this.showPaginator = builder.showPaginator;
 
         this.restClient = builder.restClient;
 
@@ -158,6 +161,7 @@ public abstract class AbstractSearchResultPanel<
         // ---------------------------
         final Form<?> paginatorForm = new Form<>("paginator");
         paginatorForm.setOutputMarkupPlaceholderTag(true);
+        paginatorForm.setVisible(showPaginator);
         container.add(paginatorForm);
 
         final DropDownChoice<Integer> rowsChooser = new DropDownChoice<>(
@@ -302,6 +306,8 @@ public abstract class AbstractSearchResultPanel<
 
         protected boolean checkBoxEnabled = true;
 
+        protected boolean showPaginator = true;
+
         /**
          * Filter used in case of filtered search.
          */
@@ -321,6 +327,11 @@ public abstract class AbstractSearchResultPanel<
 
         public Builder<T, W, E> disableCheckBoxes() {
             this.checkBoxEnabled = false;
+            return this;
+        }
+
+        public Builder<T, W, E> hidePaginator() {
+            this.showPaginator = false;
             return this;
         }
 

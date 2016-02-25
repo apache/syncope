@@ -38,7 +38,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -50,7 +50,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public abstract class TaskExecutions
-        extends AbstractSearchResultPanel<TaskExecTO, TaskExecTO, TaskExecProvider, TaskRestClient> {
+        extends AbstractSearchResultPanel<ExecTO, ExecTO, TaskExecProvider, TaskRestClient> {
 
     private static final long serialVersionUID = 2039393934721149162L;
 
@@ -69,46 +69,46 @@ public abstract class TaskExecutions
     protected abstract void next(final String title, final SecondLevel secondLevel, final AjaxRequestTarget target);
 
     @Override
-    protected List<IColumn<TaskExecTO, String>> getColumns() {
-        final List<IColumn<TaskExecTO, String>> columns = new ArrayList<IColumn<TaskExecTO, String>>();
+    protected List<IColumn<ExecTO, String>> getColumns() {
+        final List<IColumn<ExecTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<TaskExecTO, String>(new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn<ExecTO, String>(new ResourceModel("key"), "key", "key"));
 
-        columns.add(new DatePropertyColumn<TaskExecTO>(new ResourceModel("start"), "start", "start"));
+        columns.add(new DatePropertyColumn<ExecTO>(new ResourceModel("start"), "start", "start"));
 
-        columns.add(new DatePropertyColumn<TaskExecTO>(new ResourceModel("end"), "end", "end"));
+        columns.add(new DatePropertyColumn<ExecTO>(new ResourceModel("end"), "end", "end"));
 
-        columns.add(new PropertyColumn<TaskExecTO, String>(new ResourceModel("status"), "status", "status"));
+        columns.add(new PropertyColumn<ExecTO, String>(new ResourceModel("status"), "status", "status"));
 
-        columns.add(new ActionColumn<TaskExecTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<ExecTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
-            public ActionLinksPanel<TaskExecTO> getActions(
-                    final String componentId, final IModel<TaskExecTO> model) {
+            public ActionLinksPanel<ExecTO> getActions(
+                    final String componentId, final IModel<ExecTO> model) {
 
-                final TaskExecTO taskExecutionTO = model.getObject();
+                final ExecTO taskExecutionTO = model.getObject();
 
-                final ActionLinksPanel.Builder<TaskExecTO> panel = ActionLinksPanel.builder(pageRef);
+                final ActionLinksPanel.Builder<ExecTO> panel = ActionLinksPanel.builder(pageRef);
 
                 panel.
-                        add(new ActionLink<TaskExecTO>() {
+                        add(new ActionLink<ExecTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final TaskExecTO ignore) {
+                            public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                                 next(new StringResourceModel("execution.view", TaskExecutions.this, model).getObject(),
                                         new ExecMessage(model.getObject().getMessage()), target);
                             }
                         }, ActionLink.ActionType.SEARCH, StandardEntitlement.TASK_READ).
-                        add(new ActionLink<TaskExecTO>() {
+                        add(new ActionLink<ExecTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final TaskExecTO ignore) {
+                            public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                                 try {
                                     restClient.deleteExecution(taskExecutionTO.getKey());
                                     taskTO.getExecutions().remove(taskExecutionTO);
@@ -162,28 +162,28 @@ public abstract class TaskExecutions
         return bulkActions;
     }
 
-    protected class TaskExecProvider extends SearchableDataProvider<TaskExecTO> {
+    protected class TaskExecProvider extends SearchableDataProvider<ExecTO> {
 
         private static final long serialVersionUID = 8943636537120648961L;
 
-        private final SortableDataProviderComparator<TaskExecTO> comparator;
+        private final SortableDataProviderComparator<ExecTO> comparator;
 
         private final Long taskId;
 
         public TaskExecProvider(final Long taskId, final int paginatorRows) {
             super(paginatorRows);
             this.taskId = taskId;
-            comparator = new SortableDataProviderComparator<TaskExecTO>(this);
+            comparator = new SortableDataProviderComparator<>(this);
         }
 
-        public SortableDataProviderComparator<TaskExecTO> getComparator() {
+        public SortableDataProviderComparator<ExecTO> getComparator() {
             return comparator;
         }
 
         @Override
-        public Iterator<TaskExecTO> iterator(final long first, final long count) {
+        public Iterator<ExecTO> iterator(final long first, final long count) {
             final int page = ((int) first / paginatorRows);
-            List<TaskExecTO> list = taskRestClient.listExecutions(taskId, (page < 0 ? 0 : page) + 1, paginatorRows);
+            List<ExecTO> list = taskRestClient.listExecutions(taskId, (page < 0 ? 0 : page) + 1, paginatorRows);
             Collections.sort(list, comparator);
             return list.iterator();
         }
@@ -194,14 +194,14 @@ public abstract class TaskExecutions
         }
 
         @Override
-        public IModel<TaskExecTO> model(final TaskExecTO taskExecution) {
+        public IModel<ExecTO> model(final ExecTO taskExecution) {
 
-            return new AbstractReadOnlyModel<TaskExecTO>() {
+            return new AbstractReadOnlyModel<ExecTO>() {
 
                 private static final long serialVersionUID = 7485475149862342421L;
 
                 @Override
-                public TaskExecTO getObject() {
+                public ExecTO getObject() {
                     return taskExecution;
                 }
             };

@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
-import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -327,7 +327,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             assertNotNull(push);
 
             // execute the new task
-            TaskExecTO pushExec = execProvisioningTask(taskService, push.getKey(), 50, false);
+            ExecTO pushExec = execProvisioningTask(taskService, push.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(pushExec.getStatus()));
         } finally {
             groupService.delete(groupTO.getKey());

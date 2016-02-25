@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -44,7 +45,6 @@ import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.SchemaService;
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -54,14 +54,11 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.util.ReflectionUtils;
 
 public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, SchemaProvider> {
@@ -113,7 +110,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                                     SyncopeConsoleSession.get().getService(
                                             SchemaService.class).update(schemaType, modelObject);
                                 }
-                                
+
                                 info(getString(Constants.OPERATION_SUCCEEDED));
                                 modal.close(target);
                             } catch (Exception e) {
@@ -158,29 +155,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
 
             if (clazzField != null) {
                 if (clazzField.getType().equals(Boolean.class) || clazzField.getType().equals(boolean.class)) {
-                    columns.add(new AbstractColumn<AbstractSchemaTO, String>(new ResourceModel(field), field) {
-
-                        private static final long serialVersionUID = 8263694778917279290L;
-
-                        @Override
-                        public void populateItem(final Item<ICellPopulator<AbstractSchemaTO>> item,
-                                final String componentId, final IModel<AbstractSchemaTO> model) {
-
-                            BeanWrapper bwi = new BeanWrapperImpl(model.getObject());
-                            Object obj = bwi.getPropertyValue(field);
-
-                            item.add(new Label(componentId, StringUtils.EMPTY));
-                            if (Boolean.valueOf(obj.toString())) {
-                                item.add(new AttributeModifier("class", "glyphicon glyphicon-ok"));
-                                item.add(new AttributeModifier("style", "display: table-cell; text-align: center;"));
-                            }
-                        }
-
-                        @Override
-                        public String getCssClass() {
-                            return "short_fixedsize";
-                        }
-                    });
+                    columns.add(new BooleanPropertyColumn<AbstractSchemaTO>(new ResourceModel(field), field, field));
                 } else {
                     final IColumn<AbstractSchemaTO, String> column = new PropertyColumn<AbstractSchemaTO, String>(
                             new ResourceModel(field), field, field) {
