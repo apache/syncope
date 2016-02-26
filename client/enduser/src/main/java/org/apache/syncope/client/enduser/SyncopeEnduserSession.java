@@ -19,8 +19,6 @@
 package org.apache.syncope.client.enduser;
 
 import java.text.DateFormat;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -62,8 +60,6 @@ public class SyncopeEnduserSession extends WebSession {
 
     private UserTO selfTO;
 
-    private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<Class<?>, Object>());
-
     private final CookieUtils cookieUtils;
 
     private boolean xsrfTokenGenerated = false;
@@ -99,8 +95,6 @@ public class SyncopeEnduserSession extends WebSession {
             // for every  request
             this.bind();
             authenticated = true;
-            //we should clear all the previous services
-            services.clear();
         } catch (Exception e) {
             LOG.error("Authentication failed", e);
         }
@@ -109,30 +103,17 @@ public class SyncopeEnduserSession extends WebSession {
     }
 
     public <T> void resetClient(final Class<T> service) {
-        T serviceInstance = getCachedService(service);
+        T serviceInstance = getService(service);
         WebClient.client(serviceInstance).reset();
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T getCachedService(final Class<T> serviceClass) {
-        T service;
-        if (services.containsKey(serviceClass)) {
-            service = (T) services.get(serviceClass);
-        } else {
-            service = (client == null || !isAuthenticated()) ? anonymousClient.getService(serviceClass) : client.
-                    getService(serviceClass);
-            services.put(serviceClass, service);
-        }
-
-        return service;
-    }
-
     public <T> T getService(final Class<T> serviceClass) {
-        return getCachedService(serviceClass);
+        return (client == null || !isAuthenticated()) ? anonymousClient.getService(serviceClass) : client.
+                getService(serviceClass);
     }
 
     public <T> T getService(final String etag, final Class<T> serviceClass) {
-        T serviceInstance = getCachedService(serviceClass);
+        T serviceInstance = getService(serviceClass);
         WebClient.client(serviceInstance).match(new EntityTag(etag), false).
                 type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
