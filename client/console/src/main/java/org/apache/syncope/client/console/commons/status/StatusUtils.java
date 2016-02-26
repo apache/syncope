@@ -24,20 +24,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.ImagePanel;
+import org.apache.syncope.client.console.panels.LabelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.wicket.Component;
-import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.request.resource.ContextRelativeResource;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -178,105 +177,69 @@ public class StatusUtils implements Serializable {
         return statusPatch;
     }
 
-    public Image getStatusImage(final String componentId, final Status status) {
-        final String alt, title, statusName;
-
-        switch (status) {
-
-            case NOT_YET_SUBMITTED:
-                statusName = Status.UNDEFINED.toString();
-                alt = "undefined icon";
-                title = "Not yet submitted";
-                break;
-
-            case ACTIVE:
-                statusName = Status.ACTIVE.toString();
-                alt = "active icon";
-                title = "Enabled";
-                break;
-
-            case UNDEFINED:
-                statusName = Status.UNDEFINED.toString();
-                alt = "undefined icon";
-                title = "Undefined status";
-                break;
-
-            case OBJECT_NOT_FOUND:
-                statusName = Status.OBJECT_NOT_FOUND.toString();
-                alt = "notfound icon";
-                title = "Not found";
-                break;
-
-            default:
-                statusName = Status.SUSPENDED.toString();
-                alt = "inactive icon";
-                title = "Disabled";
-        }
-
-        final Image img = new Image(componentId,
-                new ContextRelativeResource(IMG_PREFIX + statusName + Constants.PNG_EXT));
-        img.add(new Behavior() {
-
-            private static final long serialVersionUID = 1469628524240283489L;
-
-            @Override
-            public void onComponentTag(final Component component, final ComponentTag tag) {
-                tag.put("alt", alt);
-                tag.put("title", title);
-            }
-        });
-
-        return img;
+    public static Panel getStatusImagePanel(final String componentId, final Status status) {
+        return new LabelPanel(componentId, getStatusImage("label", status));
     }
 
-    public ImagePanel getStatusImagePanel(final String componentId, final Status status) {
-        final String alt, title, statusName;
+    public static Label getStatusImage(final String componentId, final Status status) {
+        final String alt, title, clazz;
 
         switch (status) {
 
             case NOT_YET_SUBMITTED:
-                statusName = Status.UNDEFINED.toString();
                 alt = "undefined icon";
                 title = "Not yet submitted";
+                clazz = Constants.UNDEFINED_ICON;
                 break;
 
             case ACTIVE:
-                statusName = Status.ACTIVE.toString();
                 alt = "active icon";
                 title = "Enabled";
+                clazz = Constants.ACTIVE_ICON;
                 break;
 
             case UNDEFINED:
-                statusName = Status.UNDEFINED.toString();
                 alt = "undefined icon";
                 title = "Undefined status";
+                clazz = Constants.UNDEFINED_ICON;
                 break;
 
             case OBJECT_NOT_FOUND:
-                statusName = Status.OBJECT_NOT_FOUND.toString();
                 alt = "notfound icon";
                 title = "Not found";
+                clazz = Constants.NOT_FOUND_ICON;
+                break;
+
+            case CREATED:
+                alt = "created icon";
+                title = "Created";
+                clazz = Constants.UNDEFINED_ICON;
+                break;
+
+            case SUSPENDED:
+                alt = "inactive icon";
+                title = "Disabled";
+                clazz = Constants.SUSPENDED_ICON;
                 break;
 
             default:
-                statusName = Status.SUSPENDED.toString();
-                alt = "inactive icon";
-                title = "Disabled";
+                alt = StringUtils.EMPTY;
+                title = StringUtils.EMPTY;
+                clazz = StringUtils.EMPTY;
+                break;
         }
 
-        final ImagePanel imagePanel = new ImagePanel(componentId,
-                new ContextRelativeResource(IMG_PREFIX + statusName + Constants.PNG_EXT));
-        imagePanel.add(new Behavior() {
+        return new Label(componentId, StringUtils.EMPTY) {
 
-            private static final long serialVersionUID = 1469628524240283489L;
+            private static final long serialVersionUID = 4755868673082976208L;
 
             @Override
-            public void onComponentTag(final Component component, final ComponentTag tag) {
+            protected void onComponentTag(final ComponentTag tag) {
+                super.onComponentTag(tag);
                 tag.put("alt", alt);
                 tag.put("title", title);
+                tag.put("class", clazz);
             }
-        });
-
-        return imagePanel;
+        };
     }
 }

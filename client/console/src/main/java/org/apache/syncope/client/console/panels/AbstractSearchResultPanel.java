@@ -93,6 +93,8 @@ public abstract class AbstractSearchResultPanel<
      */
     protected final BasePage page;
 
+    protected String itemKeyFieldName = "key";
+
     /**
      * Create simple unfiltered search result panel.
      * Use the available builder for powerfull configuration options.
@@ -200,23 +202,33 @@ public abstract class AbstractSearchResultPanel<
         final int currentPage = resultTable != null
                 ? (create ? (int) resultTable.getPageCount() - 1 : (int) resultTable.getCurrentPage()) : 0;
 
-        // reworking on bulkactions please, take care of restClient handle: maybe not useful to keep into
+        // take care of restClient handle: maybe not useful to keep into
         AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<>(
                 dataProvider, page.getPageReference()).
                 setColumns(getColumns()).
                 setRowsPerPage(rows).
-                setBulkActions(getBulkActions(), restClient, "key").
+                setBulkActions(getBulkActions(), restClient, itemKeyFieldName).
                 setContainer(container);
 
         if (!checkBoxEnabled) {
             resultTableBuilder.disableCheckBoxes();
         }
 
+        resultTableCustomChanges(resultTableBuilder);
         resultTable = resultTableBuilder.build("resultTable");
 
         resultTable.setCurrentPage(currentPage);
         resultTable.setOutputMarkupId(true);
         container.addOrReplace(resultTable);
+    }
+
+    /**
+     * Caled before build. Override it to customize result table.
+     *
+     * @param resultTableBuilder result table builder.
+     */
+    protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<T, String> resultTableBuilder) {
+
     }
 
     public AbstractSearchResultPanel<T, W, DP, E> disableCheckBoxes() {

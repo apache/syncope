@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.panels.ModalPanel;
+import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -68,8 +69,9 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
     private final StartAtTogglePanel startAt;
 
-    protected SchedTaskSearchResultPanel(final String id, final Class<T> reference, final PageReference pageRef) {
-        super(id, pageRef);
+    protected SchedTaskSearchResultPanel(
+            final MultilevelPanel multiLevelPanelRef, final Class<T> reference, final PageReference pageRef) {
+        super(multiLevelPanelRef, pageRef);
         this.reference = reference;
 
         try {

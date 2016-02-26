@@ -29,6 +29,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.GroupDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -47,7 +48,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
@@ -110,45 +113,67 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
             public ActionLinksPanel<GroupTO> getActions(final String componentId, final IModel<GroupTO> model) {
                 final ActionLinksPanel.Builder<GroupTO> panel = ActionLinksPanel.builder(page.getPageReference());
 
-                panel.add(new ActionLink<GroupTO>() {
+                panel.
+                        add(new ActionLink<GroupTO>() {
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+                            private static final long serialVersionUID = -7978723352517770645L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                        send(GroupSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(
-                                        new GroupHandler(new GroupRestClient().read(model.getObject().getKey())),
-                                        target));
-                    }
-                }, ActionLink.ActionType.EDIT, StandardEntitlement.GROUP_READ).add(new ActionLink<GroupTO>() {
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                                final IModel<AnyHandler<GroupTO>> formModel
+                                        = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                                alternativeDefaultModal.setFormModel(formModel);
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+                                target.add(alternativeDefaultModal.setContent(new StatusModal<GroupTO>(
+                                        pageRef, formModel.getObject().getInnerObject(), false)));
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                        final GroupTO clone = SerializationUtils.clone(model.getObject());
-                        clone.setKey(0L);
-                        send(GroupSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<>(new GroupHandler(clone), target));
-                    }
-                }, ActionLink.ActionType.CLONE, StandardEntitlement.GROUP_CREATE).add(new ActionLink<GroupTO>() {
+                                alternativeDefaultModal.header(new Model<>(
+                                        getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+                                alternativeDefaultModal.show(true);
+                            }
+                        }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).
+                        add(new ActionLink<GroupTO>() {
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                        try {
-                            restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (SyncopeClientException e) {
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                        }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
-                    }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.GROUP_DELETE);
+                            private static final long serialVersionUID = -7978723352517770644L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                                send(GroupSearchResultPanel.this, Broadcast.EXACT,
+                                        new AjaxWizard.EditItemActionEvent<>(
+                                                new GroupHandler(new GroupRestClient().read(model.getObject().
+                                                        getKey())), target));
+                            }
+                        }, ActionLink.ActionType.EDIT, StandardEntitlement.GROUP_READ).
+                        add(new ActionLink<GroupTO>() {
+
+                            private static final long serialVersionUID = -7978723352517770644L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                                final GroupTO clone = SerializationUtils.clone(model.getObject());
+                                clone.setKey(0L);
+                                send(GroupSearchResultPanel.this, Broadcast.EXACT,
+                                        new AjaxWizard.NewItemActionEvent<>(new GroupHandler(clone), target));
+                            }
+                        }, ActionLink.ActionType.CLONE, StandardEntitlement.GROUP_CREATE).
+                        add(new ActionLink<GroupTO>() {
+
+                            private static final long serialVersionUID = -7978723352517770644L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                                try {
+                                    restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
+                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    target.add(container);
+                                } catch (SyncopeClientException e) {
+                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                                }
+                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                            }
+                        }, ActionLink.ActionType.DELETE, StandardEntitlement.GROUP_DELETE);
 
                 return panel.build(componentId);
             }

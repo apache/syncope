@@ -70,7 +70,8 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
 
     protected abstract Class<? extends AnyService<?, ?>> getAnyServiceClass();
 
-    public void unlink(final String etag, final long key, final List<StatusBean> statuses) {
+    public BulkActionResult unlink(final String etag, final long key, final List<StatusBean> statuses) {
+        BulkActionResult result;
         synchronized (this) {
             AnyService<?, ?> service = getService(etag, getAnyServiceClass());
 
@@ -79,13 +80,15 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
             deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
             deassociationPatch.getResources().addAll(StatusUtils.buildStatusPatch(statuses).getResources());
 
-            service.deassociate(deassociationPatch);
+            result = service.deassociate(deassociationPatch).readEntity(BulkActionResult.class);
 
             resetClient(getAnyServiceClass());
         }
+        return result;
     }
 
-    public void link(final String etag, final long key, final List<StatusBean> statuses) {
+    public BulkActionResult link(final String etag, final long key, final List<StatusBean> statuses) {
+        BulkActionResult result;
         synchronized (this) {
             AnyService<?, ?> service = getService(etag, getAnyServiceClass());
 
@@ -97,10 +100,11 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
             associationPatch.setOnSyncope(statusPatch.isOnSyncope());
             associationPatch.getResources().addAll(statusPatch.getResources());
 
-            service.associate(associationPatch);
+            result = service.associate(associationPatch).readEntity(BulkActionResult.class);
 
             resetClient(getAnyServiceClass());
         }
+        return result;
     }
 
     public BulkActionResult deprovision(final String etag, final long key, final List<StatusBean> statuses) {

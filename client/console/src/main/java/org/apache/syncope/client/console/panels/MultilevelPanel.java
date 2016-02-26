@@ -118,8 +118,11 @@ public class MultilevelPanel extends Panel implements IHeaderContributor {
         private static final long serialVersionUID = 5685291231060035528L;
 
         public SecondLevel() {
-            super(SECOND_LEVEL_ID);
+            this(SECOND_LEVEL_ID);
         }
 
+        public SecondLevel(final String id) {
+            super(id);
+        }
     }
 }

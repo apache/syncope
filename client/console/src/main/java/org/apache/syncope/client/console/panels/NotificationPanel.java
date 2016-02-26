@@ -80,6 +80,7 @@ public class NotificationPanel extends Panel implements IFeedback, IGenericCompo
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public IModel<List<FeedbackMessage>> getModel() {
         return (IModel<List<FeedbackMessage>>) this.getDefaultModel();
     }
@@ -95,6 +96,7 @@ public class NotificationPanel extends Panel implements IFeedback, IGenericCompo
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<FeedbackMessage> getModelObject() {
         return (List<FeedbackMessage>) this.getDefaultModelObject();
     }

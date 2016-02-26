@@ -70,6 +70,8 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     private final Form<T> form;
 
+    private DefaultModalCloseButton defaultModalCloseButton;
+
     public BaseModal(final String id) {
         super(id);
 
@@ -97,7 +99,8 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         // Note: not adding this would imply adding of WebjarsJavaScriptResourceReference about JQuery draggable
         add(new Draggable(new DraggableConfig().withHandle(".modal-header").withCursor("move")));
 
-        addButton(new DefaultModalCloseButton());
+        defaultModalCloseButton = new DefaultModalCloseButton();
+        addButton(defaultModalCloseButton);
         setUseKeyboard(true);
         setFadeIn(true);
     }
@@ -132,7 +135,18 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
             return setInternalContent(Panel.class.cast(component));
         }
         throw new IllegalArgumentException("Panel instance is required");
+    }
 
+    public BaseModal<T> setContent(final ModalPanel<T> component, final AjaxRequestTarget target) {
+        setContent(component);
+        target.add(content);
+        return this;
+    }
+
+    public BaseModal<T> changeCloseButtonLabel(final String label, final AjaxRequestTarget target) {
+        defaultModalCloseButton.getModel().setObject(label);
+        target.add(defaultModalCloseButton);
+        return this;
     }
 
     private BaseModal<T> setInternalContent(final Panel component) {

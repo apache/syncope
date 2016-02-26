@@ -40,60 +40,19 @@ div.bulkActionCell{
 
 .pageRowElement{
   display: inline-table;
-  width: 95%;
-}
-
-div#selectedObjects{
-  text-align: center;
-  margin-top: 10px;
+  width: 100%;
 }
 
 div#selectedObjects table {
-  margin: 1em 0;
   border-collapse: collapse;
 }
 
 div#selectedObjects table td, div#selectedObjects table th {
   border: 1px solid #eee;
-  padding: .6em 10px;
+  padding: .5em 10px;
 }
 
-div#actionRow{
-  height: 30px;
-  overflow: hidden;
-  text-align: left;
-  margin-top: 10px;
-}
-
-div#actions{
-  display: inline-table;
-  height: 30px;
-  overflow: hidden;
-}
-
-div#actions div#actionPanel{
-  display: table-cell;
-  height: 30px;
-  overflow: hidden;
-  cursor: auto;
-  background: none;
-  padding: 0px 10px;
-  vertical-align: middle;
-}
-
-div#actions div#cancelBtmForm{
-  display: table-cell;
-  height: 30px;
-  overflow: hidden;
-  vertical-align: middle;
-  padding-left: 3px;
-}
-
-div#actions div#cancelBtmForm form{
-  padding: 0px;
-  margin: 0px;
-}
-
-div#actions div#cancelBtmForm form input#cancel{
-  padding: 0.6em 1em;
+div#selectedObjects .circular-actions {
+  padding: 3px;
+  margin: 10px 0px 5px 0px;
 }

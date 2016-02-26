@@ -124,6 +124,8 @@ public final class Constants {
 
     public static final String PREF_ANY_OBJECT_DER_ATTRS_VIEW = "anyobject.%s.der.attrs.view";
 
+    public static final String CREATED_ICON = "glyphicon glyphicon-ok-circle";
+
     public static final String SUSPENDED_ICON = "glyphicon glyphicon-ban-circle";
 
     public static final String ACTIVE_ICON = "glyphicon glyphicon-ok-circle";

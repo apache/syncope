@@ -17,12 +17,19 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head>
-    <title>Image  panel</title>
-  </head>
+  <head><title></title></head>
   <body>
+    <wicket:head>
+      <link rel="stylesheet" type="text/css" href="css/bulk.css" media="all"/>
+    </wicket:head>
     <wicket:panel>
-      <img wicket:id="img" />
+      <div wicket:id="container" id="selectedObjects" class="dataTable">
+        <table class="ui-widget ui-widget-content table-hover pageRowElement" wicket:id="selectedObjects">[DataTable]</table>
+
+        <div class="circular-actions">
+          <span wicket:id="actions">[Actions]</span>
+        </div>
+      </div>
     </wicket:panel>
   </body>
 </html>

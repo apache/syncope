@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.tasks;
 
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
@@ -30,8 +31,9 @@ public abstract class PushTaskSearchResultPanel extends ProvisioningTaskSearchRe
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    protected PushTaskSearchResultPanel(final String id, final String resource, final PageReference pageRef) {
-        super(id, PushTaskTO.class, resource, pageRef);
+    protected PushTaskSearchResultPanel(
+            final MultilevelPanel multiLevelPanelRef, final String resource, final PageReference pageRef) {
+        super(multiLevelPanelRef, PushTaskTO.class, resource, pageRef);
     }
 
     @Override

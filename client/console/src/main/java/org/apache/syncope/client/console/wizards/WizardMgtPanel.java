@@ -79,6 +79,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     };
 
+    /**
+     * Modal window.
+     */
+    protected final BaseModal<T> alternativeDefaultModal = new BaseModal<T>("alternativeDefaultModal");
+
     protected WizardMgtPanel(final String id) {
         this(id, false);
     }
@@ -90,6 +95,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         this.wizardInModal = wizardInModal;
 
         super.add(modal);
+        super.add(alternativeDefaultModal);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
@@ -151,8 +157,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                     container.addOrReplace(initialFragment);
                 }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                info(getString(Constants.OPERATION_SUCCEEDED));
+                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
 
                 if (wizardInModal && showResultPage) {
                     modal.setContent(new ResultPage<T>(

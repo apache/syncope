@@ -18,29 +18,15 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.wicket.Component;
-import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.request.resource.ContextRelativeResource;
 
-public class ImagePanel extends Panel {
+public class LabelPanel extends Panel {
 
     private static final long serialVersionUID = 5564818820574092960L;
 
-    private static final String IMG = "img";
-
-    private final Image img;
-
-    public ImagePanel(final String id, final ContextRelativeResource img) {
+    public LabelPanel(final String id, final Label label) {
         super(id);
-        this.img = new Image(IMG, img);
-        add(this.img);
-    }
-
-    @Override
-    public Component add(final Behavior... behaviors) {
-        this.img.add(behaviors);
-        return this;
+        add(label);
     }
 }

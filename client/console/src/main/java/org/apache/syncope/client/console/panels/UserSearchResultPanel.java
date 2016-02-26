@@ -27,9 +27,9 @@ import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.StatusModal;
 import org.apache.syncope.client.console.pages.UserDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -120,17 +120,18 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(model.
-                                getObject()));
-                        modal.setFormModel(formModel);
 
-                        target.add(modal.setContent(new StatusModal<>(
-                                modal, page.getPageReference(), formModel.getObject().getInnerObject())));
+                        final IModel<AnyHandler<UserTO>> formModel
+                                = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                        alternativeDefaultModal.setFormModel(formModel);
 
-                        modal.header(new Model<>(
+                        target.add(alternativeDefaultModal.setContent(
+                                new StatusModal<UserTO>(pageRef, formModel.getObject().getInnerObject(), false)));
+
+                        alternativeDefaultModal.header(new Model<>(
                                 getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
 
-                        modal.show(true);
+                        alternativeDefaultModal.show(true);
                     }
                 }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
 
@@ -138,17 +139,17 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(model.
-                                getObject()));
-                        modal.setFormModel(formModel);
+                        final IModel<AnyHandler<UserTO>> formModel
+                                = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                        alternativeDefaultModal.setFormModel(formModel);
 
-                        target.add(modal.setContent(new StatusModal<>(
-                                modal, page.getPageReference(), formModel.getObject().getInnerObject(), true)));
+                        target.add(alternativeDefaultModal.setContent(
+                                new StatusModal<UserTO>(pageRef, formModel.getObject().getInnerObject(), true)));
 
-                        modal.header(new Model<>(
+                        alternativeDefaultModal.header(new Model<>(
                                 getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
 
-                        modal.show(true);
+                        alternativeDefaultModal.show(true);
                     }
                 }, ActionLink.ActionType.ENABLE, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
 

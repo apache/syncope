@@ -22,12 +22,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel.EventDataWrapper;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
-import org.apache.syncope.client.console.pages.BulkActionModalPage;
+import org.apache.syncope.client.console.bulk.BulkActionModal;
+import org.apache.syncope.client.console.bulk.BulkContent;
+import org.apache.syncope.client.console.panels.AbstractSearchResultPanel.EventDataWrapper;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -43,6 +44,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.model.ResourceModel;
 
 public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTablePanel<T, S> {
 
@@ -69,6 +71,8 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
         private final PageReference pageRef;
 
         private WebMarkupContainer container;
+
+        private MultilevelPanel multiLevelPanel;
 
         public Builder(final ISortableDataProvider<T, S> provider, final PageReference pageRef) {
             this.dataProvider = provider;
@@ -138,27 +142,32 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
         private boolean isBulkEnabled() {
             return checkBoxEnabled && bulkActionExecutor != null && !bulkActions.isEmpty();
         }
+
+        public void setMultiLevelPanel(final MultilevelPanel multiLevelPanel) {
+            this.multiLevelPanel = multiLevelPanel;
+        }
     }
 
     private AjaxDataTablePanel(final String id, final Builder<T, S> builder) {
         super(id);
 
-        final BaseModal<T> bulkModalWin = new BaseModal<>("bulkModal");
-        add(bulkModalWin);
+        final BaseModal<T> bulkModal = new BaseModal<>("bulkModal");
+        add(bulkModal);
 
-        bulkModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        bulkModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487149L;
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
+                bulkModal.show(false);
+
                 final EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
                 data.setRows(builder.rowsPerPage);
 
                 send(builder.pageRef.getPage(), Broadcast.BREADTH, data);
-
-                final BasePage page = (BasePage) builder.pageRef.getPage();
+                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
         });
 
@@ -195,16 +204,29 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                bulkModalWin.setContent(new BulkActionModalPage<>(
-                        bulkModalWin,
-                        builder.pageRef,
-                        group.getModelObject(),
-                        builder.columns,
-                        builder.bulkActions,
-                        builder.bulkActionExecutor,
-                        builder.itemKeyField));
+                if (builder.multiLevelPanel == null) {
+                    bulkModal.header(new ResourceModel("bulk.action", "Bulk action"));
+                    bulkModal.changeCloseButtonLabel(getString("cancel", null, "Cancel"), target);
 
-                bulkModalWin.show(target);
+                    target.add(bulkModal.setContent(new BulkActionModal<>(
+                            bulkModal,
+                            builder.pageRef,
+                            group.getModelObject(),
+                            builder.columns.subList(1, builder.columns.size() - 1),
+                            builder.bulkActions,
+                            builder.bulkActionExecutor,
+                            builder.itemKeyField)));
+
+                    bulkModal.show(true);
+                } else {
+                    builder.multiLevelPanel.next("bulk.action", new BulkContent<T, S>(
+                            builder.pageRef,
+                            group.getModelObject(),
+                            builder.columns.subList(1, builder.columns.size() - 1),
+                            builder.bulkActions,
+                            builder.bulkActionExecutor,
+                            builder.itemKeyField), target);
+                }
             }
         }.setEnabled(builder.isBulkEnabled()).setVisible(builder.isBulkEnabled()));
     }

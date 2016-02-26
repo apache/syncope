@@ -28,7 +28,7 @@ public class DefaultModalCloseButton extends ModalCloseButton {
 
     public DefaultModalCloseButton() {
         super(new ResourceModel("cancel", "Cancel"));
-
         add(new AttributeAppender("class", " pull-left"));
+        setOutputMarkupId(true);
     }
 }

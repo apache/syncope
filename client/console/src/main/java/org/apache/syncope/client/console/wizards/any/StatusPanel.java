@@ -23,9 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SerializableTransformer;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.Status;
@@ -45,8 +43,6 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
@@ -155,38 +151,7 @@ public class StatusPanel extends Panel {
             @Override
             protected Component getValueComponent(final String key, final StatusBean bean) {
                 if ("status".equalsIgnoreCase(key)) {
-                    return new Label("field", StringUtils.EMPTY) {
-
-                        private static final long serialVersionUID = 4755868673082976208L;
-
-                        @Override
-                        protected void onComponentTag(final ComponentTag tag) {
-                            super.onComponentTag(tag);
-                            if (null != bean.getStatus()) {
-                                switch (bean.getStatus()) {
-                                    case OBJECT_NOT_FOUND:
-                                        tag.put("class", Constants.NOT_FOUND_ICON);
-                                        break;
-                                    case UNDEFINED:
-                                    case CREATED:
-                                    case NOT_YET_SUBMITTED:
-                                        tag.put("class", Constants.UNDEFINED_ICON);
-                                        break;
-                                    case SUSPENDED:
-                                        tag.put("class", Constants.SUSPENDED_ICON);
-                                        break;
-                                    case ACTIVE:
-                                        tag.put("class", Constants.ACTIVE_ICON);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-
-                            tag.put("alt", "status icon");
-                            tag.put("title", bean.getStatus().toString());
-                        }
-                    };
+                    return StatusUtils.getStatusImagePanel("field", bean.getStatus());
                 } else {
                     return super.getValueComponent(key, bean);
                 }

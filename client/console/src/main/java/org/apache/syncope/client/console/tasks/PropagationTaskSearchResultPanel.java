@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.panels.ModalPanel;
+import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -55,8 +56,9 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
 
     private final String resource;
 
-    protected PropagationTaskSearchResultPanel(final String id, final String resource, final PageReference pageRef) {
-        super(id, pageRef);
+    protected PropagationTaskSearchResultPanel(
+            final MultilevelPanel multiLevelPanelRef, final String resource, final PageReference pageRef) {
+        super(multiLevelPanelRef, pageRef);
         this.resource = resource;
         initResultTable();
     }
@@ -154,8 +156,8 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
 
             @Override
             public ActionLinksPanel<PropagationTaskTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<PropagationTaskTO> panel =
-                        ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<PropagationTaskTO> panel = ActionLinksPanel.builder(page.
+                        getPageReference());
 
                 return panel.add(new ActionLink<PropagationTaskTO>() {
 
@@ -178,6 +180,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
     protected Collection<ActionType> getBulkActions() {
         final List<ActionType> bulkActions = new ArrayList<>();
         bulkActions.add(ActionType.DELETE);
+        bulkActions.add(ActionType.EXECUTE);
         return bulkActions;
     }
 

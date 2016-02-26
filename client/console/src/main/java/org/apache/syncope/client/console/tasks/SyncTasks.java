@@ -37,7 +37,7 @@ public class SyncTasks extends AbstractTasks {
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new SyncTaskSearchResultPanel(MultilevelPanel.FIRST_LEVEL_ID, resource, pageReference) {
+        mlp.setFirstLevel(new SyncTaskSearchResultPanel(mlp, resource, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 

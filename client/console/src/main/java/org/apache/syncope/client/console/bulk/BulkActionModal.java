@@ -16,20 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.pages;
+package org.apache.syncope.client.console.bulk;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
+import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 
-public class AbstractStatusModalPage<T extends Serializable> extends AbstractModalPanel<T> {
+public class BulkActionModal<T extends Serializable, S> extends AbstractModalPanel<T> {
 
-    private static final long serialVersionUID = 6633408683036028540L;
+    private static final long serialVersionUID = 4114026480146090962L;
 
-    public AbstractStatusModalPage(final BaseModal<T> modal, final PageReference pageRef) {
+    public BulkActionModal(
+            final BaseModal<T> modal,
+            final PageReference pageRef,
+            final Collection<T> items,
+            final List<IColumn<T, S>> columns,
+            final Collection<ActionLink.ActionType> actions,
+            final BaseRestClient bulkActionExecutor,
+            final String keyFieldName) {
+
         super(modal, pageRef);
-        add(new Fragment("pwdMgtFields", "emptyFragment", this));
+        add(new BulkContent<T, S>("content", modal, pageRef, items, columns, actions, bulkActionExecutor, keyFieldName).
+                setRenderBodyOnly(true));
     }
 }
