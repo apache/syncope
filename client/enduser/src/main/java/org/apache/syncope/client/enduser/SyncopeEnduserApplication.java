@@ -37,6 +37,7 @@ import org.apache.syncope.client.enduser.resources.SyncopeAnyClassTypeResource;
 import org.apache.syncope.client.enduser.resources.SyncopeAnyTypeResource;
 import org.apache.syncope.client.enduser.resources.SyncopeGroupResource;
 import org.apache.syncope.client.enduser.resources.SyncopeResourceResource;
+import org.apache.syncope.client.enduser.resources.UserSelfChangePassword;
 import org.apache.syncope.client.enduser.resources.UserSelfConfirmPasswordReset;
 import org.apache.syncope.client.enduser.resources.UserSelfCreateResource;
 import org.apache.syncope.client.enduser.resources.UserSelfPasswordReset;
@@ -204,6 +205,16 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             @Override
             public IResource getResource() {
                 return new UserSelfConfirmPasswordReset();
+            }
+        });
+
+        mountResource("/api/self/changePassword", new ResourceReference("userSelfChangePassword") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new UserSelfChangePassword();
             }
         });
 

@@ -218,6 +218,20 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         });
       };
 
+      var initProperties = function () {
+        initRealms();
+        //retrieve security available questions
+        initSecurityQuestions();
+        //initialize available groups
+        initGroups();
+        //initialize available auxiliary classes
+        initAuxClasses();
+        // initialize user attributes starting from any object schemas
+        initUserSchemas();
+        // initialize available resources
+        initResources();
+      };
+
       var readUser = function () {
         UserSelfService.read().then(function (response) {
           $scope.user = UserUtil.getUnwrappedUser(response);
@@ -238,6 +252,12 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           //we need to initialize axiliar attribute schemas
           for (var index in $scope.user.auxClasses) {
             $scope.$emit("auxClassAdded", $scope.user.auxClasses[index]);
+          }
+          if ($scope.user.mustChangePassword) {
+            $location.path('/mustchangepassword')
+          }
+          else {
+            initProperties();
           }
         }, function (e) {
           console.log("Error during user read ", e);
@@ -275,6 +295,17 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         }
       };
 
+      //Event management
+      $scope.$on('auxClassAdded', function (event, auxClass) {
+        if (auxClass)
+          initUserSchemas(auxClass);
+      });
+
+      $scope.$on('auxClassRemoved', function (event, auxClass) {
+        if (auxClass)
+          removeUserSchemas(auxClass);
+      });
+
       if ($scope.createMode) {
 
         $scope.user = {
@@ -295,33 +326,11 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         for (var index in $scope.dynamicForm.selectedAuxClasses) {
           initUserSchemas($scope.dynamicForm.selectedAuxClasses[index]);
         }
+        initProperties();
       } else {
         // read user from syncope core
         readUser();
       }
-
-      initRealms();
-      //retrieve security available questions
-      initSecurityQuestions();
-      //initialize available groups
-      initGroups();
-      //initialize available auxiliary classes
-      initAuxClasses();
-      // initialize user attributes starting from any object schemas
-      initUserSchemas();
-      // initialize available resources
-      initResources();
-
-      //Event management
-      $scope.$on('auxClassAdded', function (event, auxClass) {
-        if (auxClass)
-          initUserSchemas(auxClass);
-      });
-
-      $scope.$on('auxClassRemoved', function (event, auxClass) {
-        if (auxClass)
-          removeUserSchemas(auxClass);
-      });
 
     };
 
@@ -441,10 +450,40 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         }
       }
     };
-    $scope.logout = function () {
+
+    $scope.changePassword = function (user, event) {
+
+      //getting the enclosing form in order to access to its controller                
+      var currentForm = GenericUtil.getEnclosingFormController(event.target, $scope);
+      if (currentForm != null) {
+        //check if password and confirmPassword are equals using angular built-in validation
+        if (ValidationExecutor.validate(currentForm, $scope)) {
+          if (user && user.password) {
+            UserSelfService.changePassword({"newPassword": user.password}).then(function (data) {
+              $scope.logout(data);
+            }, function (response) {
+              var errorMessage;
+              // parse error response 
+              if (response !== undefined) {
+                errorMessage = response.split("ErrorMessage{{")[1];
+                errorMessage = errorMessage.split("}}")[0];
+                $scope.showError("An error occured during password change: " + errorMessage, $scope.notification);
+              }
+            });
+          } else {
+            $scope.showError("You should use a valid and non-empty password", $scope.notification);
+          }
+        }
+      }
+    };
+
+    $scope.logout = function (message) {
       AuthService.logout().then(function (response) {
         console.log("Logout successfully");
         $location.path('/self');
+        if (message) {
+          $scope.showSuccess(message, $scope.notification);
+        }
       }, function (response) {
         console.log("Logout failed: ", response);
       });

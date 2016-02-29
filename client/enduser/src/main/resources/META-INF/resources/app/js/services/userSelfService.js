@@ -102,6 +102,26 @@ angular.module('login')
                         return $q.reject(response.data || response.statusText);
                       });
             };
+            userSelfService.changePassword = function (body) {
+              return $http
+                      .post('/syncope-enduser/api/self/changePassword', body,
+                              {
+                                headers: {
+                                  'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+                                },
+                                transformRequest: function (obj) {
+                                  var str = [];
+                                  for (var p in obj)
+                                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                                  return str.join("&");
+                                }
+                              })
+                      .then(function (response) {
+                        return response.data || response.statusText;
+                      }, function (response) {
+                        return $q.reject(response.data || response.statusText);
+                      });
+            };
             return userSelfService;
           }]);
 
