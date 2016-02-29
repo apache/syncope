@@ -109,7 +109,7 @@ specified above) containing three modules: `common`, `core` and `console`.
 You are now able to perform the first build via
 
 [source,bash]
-mvn clean verify
+mvn clean install
 
 After downloading all of the needed dependencies, two WAR files will be produced:
 

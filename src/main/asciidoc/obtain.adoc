@@ -122,7 +122,7 @@ made are lost.
 From the top-level directory of your project, execute:
 
 [source,bash]
-mvn clean verify
+mvn clean install
 
 then, from the `console` subdirectory, execute:
 
