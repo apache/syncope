@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.bulk;
 
-import static org.apache.syncope.client.console.panels.MultilevelPanel.SECOND_LEVEL_ID;
-
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -69,7 +67,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
             final Collection<ActionLink.ActionType> actions,
             final BaseRestClient bulkActionExecutor,
             final String keyFieldName) {
-        this(SECOND_LEVEL_ID, null, pageRef, items, columns, actions, bulkActionExecutor, keyFieldName);
+        this(MultilevelPanel.SECOND_LEVEL_ID, null, pageRef, items, columns, actions, bulkActionExecutor, keyFieldName);
     }
 
     public BulkContent(

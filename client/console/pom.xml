@@ -125,10 +125,6 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
-      <artifactId>highlightjs</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars</groupId>
       <artifactId>codemirror</artifactId>
     </dependency>
     <dependency>
