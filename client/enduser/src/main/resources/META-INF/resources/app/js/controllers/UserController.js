@@ -420,7 +420,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       var currentForm = GenericUtil.getEnclosingFormController(event.target, $scope);
       if (currentForm != null) {
         //check if password and confirmPassword are equals using angular built-in validation
-        if (ValidationExecutor.validate(currentForm, $scope)) {          
+        if (ValidationExecutor.validate(currentForm, $scope)) {
           var token = $location.search().token;
           if (user && user.password && token) {
             UserSelfService.confirmPasswordReset({"newPassword": user.password, "token": token}).then(function (data) {
@@ -432,7 +432,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
               if (response !== undefined) {
                 errorMessage = response.split("ErrorMessage{{")[1];
                 errorMessage = errorMessage.split("}}")[0];
-                $scope.showError("An error occured during password reset: " + errorMessage, $scope.notification);                
+                $scope.showError("An error occured during password reset: " + errorMessage, $scope.notification);
               }
             });
           } else {
@@ -440,5 +440,13 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           }
         }
       }
+    };
+    $scope.logout = function () {
+      AuthService.logout().then(function (response) {
+        console.log("Logout successfully");
+        $location.path('/self');
+      }, function (response) {
+        console.log("Logout failed: ", response);
+      });
     };
   }]);
