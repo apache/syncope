@@ -80,7 +80,10 @@ public class JobWidget extends AbstractWidget {
 
     private static List<JobTO> getAvailable(final SyncopeConsoleSession session) {
         List<JobTO> available = new ArrayList<>();
-        available.add(session.getService(NotificationService.class).getJob());
+        JobTO notificationJob = session.getService(NotificationService.class).getJob();
+        if (notificationJob != null) {
+            available.add(notificationJob);
+        }
         available.addAll(session.getService(TaskService.class).listJobs());
         available.addAll(session.getService(ReportService.class).listJobs());
 
