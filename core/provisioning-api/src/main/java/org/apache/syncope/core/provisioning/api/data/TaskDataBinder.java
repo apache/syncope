@@ -32,7 +32,7 @@ public interface TaskDataBinder {
 
     void updateSchedTask(SchedTask task, SchedTaskTO taskTO, TaskUtils taskUtil);
 
-    String buildReference(Task task);
+    String buildRefDesc(Task task);
 
     ExecTO getExecTO(TaskExec execution);
 

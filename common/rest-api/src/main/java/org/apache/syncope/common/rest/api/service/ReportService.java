@@ -157,13 +157,12 @@ public interface ReportService extends JAXRSService {
     /**
      * List report jobs (running and / or scheduled).
      *
-     * @param max the maximum number of jobs to return
      * @return report jobs (running and / or scheduled)
      */
     @GET
     @Path("jobs")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<JobTO> listJobs(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
+    List<JobTO> listJobs();
 
     /**
      * Executes an action on an existing report's job.

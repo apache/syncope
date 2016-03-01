@@ -135,8 +135,8 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
                         String css = super.getCssClass();
                         if ("key".equals(fieldName)) {
                             css = StringUtils.isBlank(css)
-                                    ? "medium_fixedsize"
-                                    : css + " medium_fixedsize";
+                                    ? "col-xs-1"
+                                    : css + " col-xs-1";
                         }
                         return css;
                     }

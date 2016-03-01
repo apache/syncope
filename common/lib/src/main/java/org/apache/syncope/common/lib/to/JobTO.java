@@ -22,6 +22,7 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.types.JobType;
 
 @XmlRootElement(name = "job")
 @XmlType
@@ -29,7 +30,11 @@ public class JobTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -7254450981751326711L;
 
-    private String reference;
+    private JobType type;
+
+    private Long refKey;
+
+    private String refDesc;
 
     private boolean running;
 
@@ -39,12 +44,28 @@ public class JobTO extends AbstractBaseBean {
 
     private Date start;
 
-    public String getReference() {
-        return reference;
+    public JobType getType() {
+        return type;
     }
 
-    public void setReference(final String reference) {
-        this.reference = reference;
+    public void setType(final JobType type) {
+        this.type = type;
+    }
+
+    public Long getRefKey() {
+        return refKey;
+    }
+
+    public void setRefKey(final Long refKey) {
+        this.refKey = refKey;
+    }
+
+    public String getRefDesc() {
+        return refDesc;
+    }
+
+    public void setRefDesc(final String refDesc) {
+        this.refDesc = refDesc;
     }
 
     public boolean isRunning() {

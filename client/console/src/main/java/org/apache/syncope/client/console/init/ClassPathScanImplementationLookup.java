@@ -25,7 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.pages.AbstractExtPage;
+import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.console.annotations.BinaryPreview;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -45,7 +45,7 @@ public class ClassPathScanImplementationLookup {
 
     private List<Class<? extends AbstractBinaryPreviewer>> previewers;
 
-    private List<Class<? extends AbstractExtPage>> extPages;
+    private List<Class<? extends BaseExtPage>> extPages;
 
     @SuppressWarnings("unchecked")
     public void load() {
@@ -56,7 +56,7 @@ public class ClassPathScanImplementationLookup {
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractBinaryPreviewer.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(AbstractExtPage.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
 
         for (BeanDefinition bd : scanner.findCandidateComponents(StringUtils.EMPTY)) {
             try {
@@ -65,9 +65,9 @@ public class ClassPathScanImplementationLookup {
                 boolean isAbsractClazz = Modifier.isAbstract(clazz.getModifiers());
 
                 if (!isAbsractClazz) {
-                    if (AbstractExtPage.class.isAssignableFrom(clazz)) {
+                    if (BaseExtPage.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(ExtPage.class)) {
-                            extPages.add((Class<? extends AbstractExtPage>) clazz);
+                            extPages.add((Class<? extends BaseExtPage>) clazz);
                         } else {
                             LOG.error("Could not find annotation {} in {}, ignoring",
                                     ExtPage.class.getName(), clazz.getName());
@@ -85,12 +85,12 @@ public class ClassPathScanImplementationLookup {
         pages = Collections.unmodifiableList(pages);
         previewers = Collections.unmodifiableList(previewers);
 
-        Collections.sort(extPages, new Comparator<Class<? extends AbstractExtPage>>() {
+        Collections.sort(extPages, new Comparator<Class<? extends BaseExtPage>>() {
 
             @Override
             public int compare(
-                    final Class<? extends AbstractExtPage> o1,
-                    final Class<? extends AbstractExtPage> o2) {
+                    final Class<? extends BaseExtPage> o1,
+                    final Class<? extends BaseExtPage> o2) {
 
                 int prio1 = o1.getAnnotation(ExtPage.class).priority();
                 int prio2 = o2.getAnnotation(ExtPage.class).priority();
@@ -130,7 +130,7 @@ public class ClassPathScanImplementationLookup {
         return previewers;
     }
 
-    public List<Class<? extends AbstractExtPage>> getExtPageClasses() {
+    public List<Class<? extends BaseExtPage>> getExtPageClasses() {
         return extPages;
     }
 

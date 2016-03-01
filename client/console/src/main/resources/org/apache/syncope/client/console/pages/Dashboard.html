@@ -25,28 +25,30 @@ under the License.
     </section>
 
     <section class="content">
-      <div class="row">
-        <span wicket:id="totalUsers"/>
-        <span wicket:id="totalGroups"/>
-        <span wicket:id="totalAny1OrRoles"/>
-        <span wicket:id="totalAny1OrResources"/>
-      </div>
+      <div wicket:id="timer">
+        <div class="row">
+          <span wicket:id="totalUsers"/>
+          <span wicket:id="totalGroups"/>
+          <span wicket:id="totalAny1OrRoles"/>
+          <span wicket:id="totalAny2OrResources"/>
+        </div>
 
-      <div class="row">
-        <div class="col-md-4">
-          <span wicket:id="usersByStatus"/>
+        <div class="row">
+          <div class="col-md-4">
+            <span wicket:id="usersByStatus"/>
+          </div>
+          <div class="col-md-4">
+            <span wicket:id="completeness"/>
+          </div>
+          <div class="col-md-4">
+            <span wicket:id="load"/>
+          </div>
         </div>
-        <div class="col-md-4">
-          <span wicket:id="completeness"/>
-        </div>
-        <div class="col-md-4">
-          <span wicket:id="load"/>
-        </div>
-      </div>
 
-      <div class="row">
-        <div class="col-md-6">
-          <span wicket:id="anyByRealm"/>
+        <div class="row">
+          <div class="col-md-6">
+            <span wicket:id="anyByRealm"/>
+          </div>
         </div>
       </div>
 

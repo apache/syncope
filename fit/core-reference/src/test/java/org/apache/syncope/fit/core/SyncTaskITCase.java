@@ -260,7 +260,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
     public void dryRun() {
         ExecTO execution = execProvisioningTask(taskService, SYNC_TASK_ID, 50, true);
         assertEquals(
-                "Execution of " + execution.getReference() + " failed with message " + execution.getMessage(),
+                "Execution of " + execution.getRefDesc() + " failed with message " + execution.getMessage(),
                 "SUCCESS", execution.getStatus());
     }
 

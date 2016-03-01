@@ -16,32 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.ajax.form;
+package org.apache.syncope.client.console.wicket.ajax;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
-import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 
 /**
- * An {@link AjaxFormChoiceComponentUpdatingBehavior} not showin veil.
+ * An {@link AjaxEventBehavior} not showin veil.
  */
-public abstract class IndicatorAjaxFormChoiceComponentUpdatingBehavior
-        extends AjaxFormChoiceComponentUpdatingBehavior implements IAjaxIndicatorAware {
+public abstract class IndicatorAjaxEventBehavior extends AjaxEventBehavior implements IAjaxIndicatorAware {
 
-    private static final long serialVersionUID = -5144403874783384604L;
+    private static final long serialVersionUID = 8531694702059356303L;
 
-    private final String indicator;
-
-    public IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
-        this(StringUtils.EMPTY);
-    }
-
-    public IndicatorAjaxFormChoiceComponentUpdatingBehavior(final String indicator) {
-        this.indicator = indicator;
+    public IndicatorAjaxEventBehavior(final String event) {
+        super(event);
     }
 
     @Override
     public String getAjaxIndicatorMarkupId() {
-        return indicator;
+        return StringUtils.EMPTY;
     }
 }

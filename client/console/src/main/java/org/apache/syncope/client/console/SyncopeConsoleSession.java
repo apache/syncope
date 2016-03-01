@@ -26,6 +26,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections4.CollectionUtils;
@@ -67,6 +71,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private String domain;
 
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
+
     private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<Class<?>, Object>());
 
     private SyncopeClient client;
@@ -100,6 +106,25 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         CollectionUtils.collect(anonymousClient.getService(DomainService.class).list(),
                 EntityTOUtils.<String, DomainTO>keyTransformer(),
                 domains);
+    }
+
+    public void execute(final Runnable command) {
+        executorService.execute(command);
+    }
+
+    public ScheduledFuture<?> scheduleAtFixedRate(
+            final Runnable command,
+            final long initialDelay,
+            final long period,
+            final TimeUnit unit) {
+
+        return executorService.scheduleAtFixedRate(command, initialDelay, period, unit);
+    }
+
+    @Override
+    public void invalidate() {
+        super.invalidate();
+        executorService.shutdownNow();
     }
 
     public PlatformInfo getPlatformInfo() {

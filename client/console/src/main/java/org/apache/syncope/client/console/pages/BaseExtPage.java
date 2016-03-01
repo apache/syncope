@@ -16,21 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.client.console.pages;
 
-import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.core.persistence.api.entity.Report;
-import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-public interface ReportDataBinder {
+public abstract class BaseExtPage extends BasePage {
 
-    void getReport(Report report, ReportTO reportTO);
+    private static final long serialVersionUID = 4627828052717627159L;
 
-    String buildRefDesc(Report report);
+    public BaseExtPage() {
+        super();
+    }
 
-    ExecTO getExecTO(ReportExec execution);
-
-    ReportTO getReportTO(Report report);
-
+    public BaseExtPage(final PageParameters parameters) {
+        super(parameters);
+    }
 }

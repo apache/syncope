@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.types.JobType;
 
 @XmlRootElement(name = "exec")
 @XmlType()
@@ -29,7 +30,11 @@ public class ExecTO extends AbstractStartEndBean implements EntityTO<Long> {
 
     private Long key;
 
-    private String reference;
+    private JobType jobType;
+
+    private Long refKey;
+
+    private String refDesc;
 
     private String status;
 
@@ -45,12 +50,28 @@ public class ExecTO extends AbstractStartEndBean implements EntityTO<Long> {
         this.key = key;
     }
 
-    public String getReference() {
-        return reference;
+    public JobType getJobType() {
+        return jobType;
     }
 
-    public void setReference(final String reference) {
-        this.reference = reference;
+    public void setJobType(final JobType jobType) {
+        this.jobType = jobType;
+    }
+
+    public Long getRefKey() {
+        return refKey;
+    }
+
+    public void setRefKey(final Long refKey) {
+        this.refKey = refKey;
+    }
+
+    public String getRefDesc() {
+        return refDesc;
+    }
+
+    public void setRefDesc(final String refDesc) {
+        this.refDesc = refDesc;
     }
 
     public String getMessage() {

@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -35,6 +36,7 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -225,7 +227,9 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
                 }
 
                 result = new ExecTO();
-                result.setReference(binder.buildReference(task));
+                result.setJobType(JobType.TASK);
+                result.setRefKey(task.getKey());
+                result.setRefDesc(binder.buildRefDesc(task));
                 result.setStart(new Date());
                 result.setStatus("JOB_FIRED");
                 result.setMessage("Job fired; waiting for results...");
@@ -331,17 +335,19 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @Override
-    protected String getReference(final JobKey jobKey) {
+    protected Triple<JobType, Long, String> getReference(final JobKey jobKey) {
         Long key = JobNamer.getTaskKeyFromJobName(jobKey.getName());
 
         Task task = taskDAO.find(key);
-        return task == null || !(task instanceof SchedTask) ? null : binder.buildReference(task);
+        return task == null || !(task instanceof SchedTask)
+                ? null
+                : Triple.of(JobType.TASK, key, binder.buildRefDesc(task));
     }
 
     @Override
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
-    public List<JobTO> listJobs(final int max) {
-        return super.listJobs(max);
+    public List<JobTO> listJobs() {
+        return super.listJobs();
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")

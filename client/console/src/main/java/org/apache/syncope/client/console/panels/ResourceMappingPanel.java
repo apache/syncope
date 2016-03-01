@@ -74,17 +74,7 @@ public class ResourceMappingPanel extends Panel {
     /**
      * Mapping field style sheet.
      */
-    private static final String FIELD_STYLE = "short_fixedsize";
-
-    /**
-     * Mapping field style sheet.
-     */
     private static final String DEF_FIELD_STYLE = "";
-
-    /**
-     * Mapping field style sheet.
-     */
-    private static final String SHORT_FIELD_STYLE = "veryshort_fixedsize";
 
     /**
      * Schema rest client.
@@ -264,7 +254,6 @@ public class ResourceMappingPanel extends Panel {
                         false);
                 intAttrNames.setChoices(schemaNames);
                 intAttrNames.setRequired(true).hideLabel();
-                intAttrNames.setStyleSheet(false, FIELD_STYLE);
 
                 intAttrNames.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -283,7 +272,6 @@ public class ResourceMappingPanel extends Panel {
                         new PropertyModel<IntMappingType>(mapItem, "intMappingType"));
                 intMappingTypes.setRequired(true).hideLabel();
                 intMappingTypes.setChoices(attrTypes);
-                intMappingTypes.setStyleSheet(false, FIELD_STYLE);
                 item.add(intMappingTypes);
 
                 final AjaxDropDownChoicePanel<AnyTypeKind> entitiesPanel = new AjaxDropDownChoicePanel<>(
@@ -330,7 +318,6 @@ public class ResourceMappingPanel extends Panel {
                 }
                 extAttrNames.setRequired(required).hideLabel();
                 extAttrNames.setEnabled(required);
-                extAttrNames.setStyleSheet(false, FIELD_STYLE);
                 item.add(extAttrNames);
 
                 final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel(
@@ -339,7 +326,6 @@ public class ResourceMappingPanel extends Panel {
                         new PropertyModel<String>(mapItem, "mandatoryCondition"));
                 mandatory.hideLabel();
                 mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
-                mandatory.setStyleSheet(false, SHORT_FIELD_STYLE);
                 item.add(mandatory);
 
                 final AjaxCheckBoxPanel connObjectKey = new AjaxCheckBoxPanel(
@@ -456,9 +442,10 @@ public class ResourceMappingPanel extends Panel {
 
         return clazz == null ? new ArrayList<String>()
                 : IterableUtils.toList(IterableUtils.filteredIterable(clazz.getAttributes(), new Predicate<String>() {
+
                     @Override
                     public boolean evaluate(final String object) {
-                        return !("__NAME__".equals(object) || "__ENABLE__".equals(object) 
+                        return !("__NAME__".equals(object) || "__ENABLE__".equals(object)
                                 || "__PASSWORD__".equals(object));
                     }
                 }));

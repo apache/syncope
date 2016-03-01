@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -123,7 +124,7 @@ public class ReportDataBinderImpl implements ReportDataBinder {
     }
 
     @Override
-    public String buildReference(final Report report) {
+    public String buildRefDesc(final Report report) {
         return "Report "
                 + report.getKey() + " "
                 + report.getName();
@@ -137,7 +138,9 @@ public class ReportDataBinderImpl implements ReportDataBinder {
         if (execution.getKey() != null) {
             execTO.setKey(execution.getKey());
         }
-        execTO.setReference(buildReference(execution.getReport()));
+        execTO.setJobType(JobType.REPORT);
+        execTO.setRefKey(execution.getReport().getKey());
+        execTO.setRefDesc(buildRefDesc(execution.getReport()));
 
         return execTO;
     }

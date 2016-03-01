@@ -18,20 +18,16 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div class="nav-tabs-custom">
-      <ul class="nav nav-tabs pull-right ui-sortable-handle">
-        <li class="active"><a data-toggle="tab" href="#running">Available</a></li>
-        <li><a data-toggle="tab" href="#recent">Recent</a></li>
-        <li class="pull-left header"><i class="fa fa-gears"></i> Jobs</li>
-      </ul>
-      <div class="tab-content no-padding">
-        <div style="position: relative;" id="running" class="chart tab-pane active">
-          <span wicket:id="available"/>
-        </div>
-        <div style="position: relative;" id="recent" class="chart tab-pane">
-          <span wicket:id="recent"/>
-        </div>
-      </div>
-    </div>
+    <div wicket:id="controls" style="text-align: right;"></div>
+
+    <wicket:fragment wicket:id="runningFragment">
+      <i class="fa fa-refresh fa-spin"></i>
+      &nbsp;
+      <a href="#" wicket:id="stop" class="fa fa-stop-circle"></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="notRunningFragment">
+      <a href="#" wicket:id="start" class="fa fa-play-circle"></a>
+    </wicket:fragment>
   </wicket:panel>
 </html>

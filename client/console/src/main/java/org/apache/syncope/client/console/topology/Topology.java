@@ -147,8 +147,7 @@ public class Topology extends BasePage {
     }
 
     public Topology() {
-
-        modal = new BaseModal<Serializable>("resource-modal");
+        modal = new BaseModal<>("resource-modal");
         body.add(modal.size(Modal.Size.Large));
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -594,7 +593,7 @@ public class Topology extends BasePage {
 
     private static class WebMarkupContainerNoVeil extends WebMarkupContainer implements IAjaxIndicatorAware {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 6883930486048460708L;
 
         WebMarkupContainerNoVeil(final String id) {
             super(id);

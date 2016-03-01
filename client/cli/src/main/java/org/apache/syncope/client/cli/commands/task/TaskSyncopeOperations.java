@@ -33,7 +33,7 @@ public class TaskSyncopeOperations {
     private final TaskService taskService = SyncopeServices.get(TaskService.class);
 
     public List<JobTO> listJobs() {
-        return taskService.listJobs(10);
+        return taskService.listJobs();
     }
 
     public <T extends AbstractTaskTO> T read(final String taskKey) {

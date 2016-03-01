@@ -32,13 +32,21 @@ public class LoadWidget extends AbstractWidget {
 
     private static final long serialVersionUID = -816175678514035085L;
 
+    private final LineChartPanel chart;
+
     public LoadWidget(final String id, final SystemInfo systeminfo) {
         super(id);
+        setOutputMarkupId(true);
 
         add(new Label("hostname", systeminfo.getHostname()));
         add(new Label("os", systeminfo.getOs()));
         add(new Label("jvm", systeminfo.getJvm()));
 
+        chart = new LineChartPanel("chart", Model.of(build(systeminfo)));
+        add(chart);
+    }
+
+    private Line build(final SystemInfo systeminfo) {
         List<String> labels = new ArrayList<>();
 
         List<Double> cpuValues = new ArrayList<>();
@@ -75,7 +83,10 @@ public class LoadWidget extends AbstractWidget {
         datasets.add(memDataSet);
         line.getData().setDatasets(datasets);
 
-        add(new LineChartPanel("chart", Model.of(line)));
+        return line;
     }
 
+    public void refresh(final SystemInfo systeminfo) {
+        chart.setDefaultModelObject(build(systeminfo));
+    }
 }

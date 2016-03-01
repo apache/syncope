@@ -71,13 +71,13 @@ public class ReportResultManager extends CommonsResultManager {
             System.out.println("       message: " + reportExecTO.getMessage());
             System.out.println("       start date: " + reportExecTO.getStart());
             System.out.println("       end date: " + reportExecTO.getEnd());
-            System.out.println("       report: " + reportExecTO.getReference());
+            System.out.println("       report: " + reportExecTO.getRefDesc());
         }
     }
 
     public void printJobs(final List<JobTO> jobTOs) {
         for (final JobTO jobTO : jobTOs) {
-            System.out.println("       REPORT: " + jobTO.getReference());
+            System.out.println("       REPORT: " + jobTO.getRefDesc());
             System.out.println("       status: " + jobTO.getStatus());
             System.out.println("       start date: " + jobTO.getStart());
             System.out.println("       running: " + jobTO.isRunning());

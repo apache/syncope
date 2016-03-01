@@ -165,7 +165,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                 switch (field.getModel().getObject().getType()) {
                     case ATTRIBUTE:
-                        final List<String> names = new ArrayList<String>(dnames.getObject());
+                        final List<String> names = new ArrayList<>(dnames.getObject());
                         if (anames != null && anames.getObject() != null && !anames.getObject().isEmpty()) {
                             names.addAll(anames.getObject());
                         }
@@ -293,7 +293,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             operatorContainer.add(searchButtonFragment);
         }
 
-        final AjaxDropDownChoicePanel<Pair<Long, String>> property = new AjaxDropDownChoicePanel<Pair<Long, String>>(
+        final AjaxDropDownChoicePanel<Pair<Long, String>> property = new AjaxDropDownChoicePanel<>(
                 "property", "property", new PropertyModel<Pair<Long, String>>(searchClause, "property") {
 
             private static final long serialVersionUID = -8430020195995502040L;

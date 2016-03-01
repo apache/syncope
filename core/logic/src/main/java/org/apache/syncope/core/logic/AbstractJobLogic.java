@@ -19,13 +19,12 @@
 package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.collections4.ComparatorUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -37,53 +36,15 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTransactionalLogic<T> {
 
-    private static final Comparator<Boolean> BOOLEAN_COMPARATOR = ComparatorUtils.booleanComparator(true);
-
-    @SuppressWarnings("unchecked")
-    private static final Comparator<JobTO> CHAINED_COMPARATOR = ComparatorUtils.chainedComparator(
-            new Comparator<JobTO>() {
-
-        @Override
-        public int compare(final JobTO job1, final JobTO job2) {
-            return BOOLEAN_COMPARATOR.compare(job1.isRunning(), job2.isRunning());
-        }
-    },
-            new Comparator<JobTO>() {
-
-        @Override
-        public int compare(final JobTO job1, final JobTO job2) {
-            return BOOLEAN_COMPARATOR.compare(job1.isScheduled(), job2.isScheduled());
-        }
-    },
-            new Comparator<JobTO>() {
-
-        @Override
-        public int compare(final JobTO job1, final JobTO job2) {
-            int result;
-
-            if (job1.getStart() == null && job2.getStart() == null) {
-                result = 0;
-            } else if (job1.getStart() == null) {
-                result = -1;
-            } else if (job2.getStart() == null) {
-                result = 1;
-            } else {
-                result = job1.getStart().compareTo(job2.getStart());
-            }
-
-            return result;
-        }
-    });
-
     @Autowired
     protected JobManager jobManager;
 
     @Autowired
     protected SchedulerFactoryBean scheduler;
 
-    protected abstract String getReference(final JobKey jobKey);
+    protected abstract Triple<JobType, Long, String> getReference(final JobKey jobKey);
 
-    protected List<JobTO> listJobs(final int max) {
+    protected List<JobTO> listJobs() {
         List<JobTO> jobTOs = new ArrayList<>();
 
         try {
@@ -92,11 +53,13 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
 
                 JobTO jobTO = new JobTO();
 
-                String reference = getReference(jobKey);
+                Triple<JobType, Long, String> reference = getReference(jobKey);
                 if (reference != null) {
                     jobTOs.add(jobTO);
 
-                    jobTO.setReference(reference);
+                    jobTO.setType(reference.getLeft());
+                    jobTO.setRefKey(reference.getMiddle());
+                    jobTO.setRefDesc(reference.getRight());
 
                     List<? extends Trigger> jobTriggers = scheduler.getScheduler().getTriggersOfJob(jobKey);
                     if (jobTriggers.isEmpty()) {
@@ -114,8 +77,7 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
             LOG.debug("Problems while retrieving scheduled jobs", e);
         }
 
-        Collections.sort(jobTOs, CHAINED_COMPARATOR);
-        return jobTOs.size() > max ? jobTOs.subList(0, max) : jobTOs;
+        return jobTOs;
     }
 
     protected void actionJob(final JobKey jobKey, final JobAction action) {

@@ -24,9 +24,11 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.logic.notification.NotificationJob;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -105,12 +107,15 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     }
 
     @Override
-    protected String getReference(final JobKey jobKey) {
-        return JobManager.NOTIFICATION_JOB.equals(jobKey) ? NotificationJob.class.getSimpleName() : null;
+    protected Triple<JobType, Long, String> getReference(final JobKey jobKey) {
+        return JobManager.NOTIFICATION_JOB.equals(jobKey)
+                ? Triple.of(JobType.NOTIFICATION, 0L, NotificationJob.class.getSimpleName())
+                : null;
     }
 
+    @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_LIST + "')")
     public JobTO getJob() {
-        List<JobTO> jobs = super.listJobs(1);
+        List<JobTO> jobs = super.listJobs();
         return jobs.isEmpty() ? null : jobs.get(0);
     }
 

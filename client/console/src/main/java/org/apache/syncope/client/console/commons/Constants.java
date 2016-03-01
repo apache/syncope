@@ -24,9 +24,11 @@ public final class Constants {
 
     public static final String ON_CHANGE = "change";
 
-    public static final String ON_KEYUP = "keyup";
-
     public static final String ON_BLUR = "blur";
+
+    public static final String ON_MOUSE_ENTER = "mouseenter";
+
+    public static final String ON_MOUSE_LEAVE = "mouseleave";
 
     public static final String PNG_EXT = ".png";
 

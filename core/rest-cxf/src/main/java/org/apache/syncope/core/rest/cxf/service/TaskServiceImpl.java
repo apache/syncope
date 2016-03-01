@@ -191,8 +191,8 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public List<JobTO> listJobs(final int max) {
-        return logic.listJobs(max);
+    public List<JobTO> listJobs() {
+        return logic.listJobs();
     }
 
     @Override

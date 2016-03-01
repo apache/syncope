@@ -29,9 +29,20 @@ public class UsersByStatusWidget extends AbstractWidget {
 
     private static final String[] COLORS = { "green", "orange", "aqua", "red", "gray" };
 
+    private Map<String, Integer> usersByStatus;
+
+    private final DoughnutChartPanel chart;
+
     public UsersByStatusWidget(final String id, final Map<String, Integer> usersByStatus) {
         super(id);
+        this.usersByStatus = usersByStatus;
+        setOutputMarkupId(true);
 
+        chart = new DoughnutChartPanel("chart", Model.of(build(usersByStatus)));
+        add(chart);
+    }
+
+    private Doughnut build(final Map<String, Integer> usersByStatus) {
         Doughnut doughnut = new Doughnut();
         doughnut.getOptions().setResponsive(true);
         doughnut.getOptions().setMaintainAspectRatio(true);
@@ -42,7 +53,16 @@ public class UsersByStatusWidget extends AbstractWidget {
             i++;
         }
 
-        add(new DoughnutChartPanel("chart", Model.of(doughnut)));
+        return doughnut;
+    }
+
+    public boolean refresh(final Map<String, Integer> usersByStatus) {
+        if (!this.usersByStatus.equals(usersByStatus)) {
+            this.usersByStatus = usersByStatus;
+            chart.setDefaultModelObject(build(usersByStatus));
+            return true;
+        }
+        return false;
     }
 
 }

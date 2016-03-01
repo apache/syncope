@@ -251,20 +251,20 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         ClassPathScanImplementationLookup classPathScanImplementationLookup =
                 (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
                 getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
-        List<Class<? extends AbstractExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
+        List<Class<? extends BaseExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
 
         WebMarkupContainer extensionsLI = new WebMarkupContainer(getLIContainerId("extensions"));
         extensionsLI.setOutputMarkupPlaceholderTag(true);
         extensionsLI.setVisible(!extPageClasses.isEmpty());
         body.add(extensionsLI);
 
-        ListView<Class<? extends AbstractExtPage>> extPages = new ListView<Class<? extends AbstractExtPage>>(
+        ListView<Class<? extends BaseExtPage>> extPages = new ListView<Class<? extends BaseExtPage>>(
                 "extPages", extPageClasses) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
-            protected void populateItem(final ListItem<Class<? extends AbstractExtPage>> item) {
+            protected void populateItem(final ListItem<Class<? extends BaseExtPage>> item) {
                 WebMarkupContainer containingLI = new WebMarkupContainer("extPageLI");
                 item.add(containingLI);
                 if (item.getModelObject().equals(BasePage.this.getClass())) {
@@ -294,7 +294,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         extPages.setOutputMarkupId(true);
         extensionsLI.add(extPages);
 
-        if (getPage() instanceof AbstractExtPage) {
+        if (getPage() instanceof BaseExtPage) {
             extPages.add(new Behavior() {
 
                 private static final long serialVersionUID = 1469628524240283489L;

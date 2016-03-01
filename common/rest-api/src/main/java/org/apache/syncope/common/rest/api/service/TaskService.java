@@ -176,13 +176,12 @@ public interface TaskService extends JAXRSService {
     /**
      * List task jobs (running and / or scheduled).
      *
-     * @param max the maximum number of jobs to return
      * @return task jobs (running and / or scheduled)
      */
     @GET
     @Path("jobs")
     @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<JobTO> listJobs(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
+    List<JobTO> listJobs();
 
     /**
      * Executes an action on an existing task's job.

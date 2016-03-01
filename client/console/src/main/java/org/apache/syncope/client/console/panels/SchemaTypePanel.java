@@ -171,8 +171,8 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                             String css = super.getCssClass();
                             if ("key".equals(field)) {
                                 css = StringUtils.isBlank(css)
-                                        ? "medium_fixedsize"
-                                        : css + " medium_fixedsize";
+                                        ? "col-xs-1"
+                                        : css + " col-xs-1";
                             }
                             return css;
                         }

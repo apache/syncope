@@ -38,6 +38,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -56,6 +57,7 @@ import org.apache.syncope.core.logic.report.TextSerializer;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.logic.report.XSLTTransformer;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
@@ -181,7 +183,9 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         }
 
         ExecTO result = new ExecTO();
-        result.setReference(binder.buildReference(report));
+        result.setJobType(JobType.REPORT);
+        result.setRefKey(report.getKey());
+        result.setRefDesc(binder.buildRefDesc(report));
         result.setStart(new Date());
         result.setStatus(ReportExecStatus.STARTED.name());
         result.setMessage("Job fired; waiting for results...");
@@ -337,17 +341,19 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @Override
-    protected String getReference(final JobKey jobKey) {
+    protected Triple<JobType, Long, String> getReference(final JobKey jobKey) {
         Long key = JobNamer.getReportKeyFromJobName(jobKey.getName());
 
         Report report = reportDAO.find(key);
-        return report == null ? null : binder.buildReference(report);
+        return report == null
+                ? null
+                : Triple.of(JobType.REPORT, key, binder.buildRefDesc(report));
     }
 
     @Override
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
-    public List<JobTO> listJobs(final int max) {
-        return super.listJobs(max);
+    public List<JobTO> listJobs() {
+        return super.listJobs();
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")

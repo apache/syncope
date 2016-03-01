@@ -35,6 +35,20 @@ public class AnyByRealmWidget extends AbstractWidget {
 
     private static final int MAX_REALMS = 9;
 
+    private Map<String, Integer> usersByRealm;
+
+    private Map<String, Integer> groupsByRealm;
+
+    private String anyType1;
+
+    private Map<String, Integer> any1ByRealm;
+
+    private String anyType2;
+
+    private Map<String, Integer> any2ByRealm;
+
+    private final BarChartPanel chart;
+
     public AnyByRealmWidget(
             final String id,
             final Map<String, Integer> usersByRealm,
@@ -45,6 +59,27 @@ public class AnyByRealmWidget extends AbstractWidget {
             final Map<String, Integer> any2ByRealm) {
 
         super(id);
+        this.usersByRealm = usersByRealm;
+        this.groupsByRealm = groupsByRealm;
+        this.anyType1 = anyType1;
+        this.any1ByRealm = any1ByRealm;
+        this.anyType2 = anyType2;
+        this.any2ByRealm = any2ByRealm;
+        setOutputMarkupId(true);
+
+        chart = new BarChartPanel(
+                "chart",
+                Model.of(build(usersByRealm, groupsByRealm, anyType1, any1ByRealm, anyType2, any2ByRealm)));
+        add(chart);
+    }
+
+    private Bar build(
+            final Map<String, Integer> usersByRealm,
+            final Map<String, Integer> groupsByRealm,
+            final String anyType1,
+            final Map<String, Integer> any1ByRealm,
+            final String anyType2,
+            final Map<String, Integer> any2ByRealm) {
 
         List<String> labels = new ArrayList<>();
 
@@ -106,7 +141,36 @@ public class AnyByRealmWidget extends AbstractWidget {
         }
         bar.getData().setDatasets(datasets);
 
-        add(new BarChartPanel("chart", Model.of(bar)));
+        return bar;
     }
 
+    public boolean refresh(
+            final Map<String, Integer> usersByRealm,
+            final Map<String, Integer> groupsByRealm,
+            final String anyType1,
+            final Map<String, Integer> any1ByRealm,
+            final String anyType2,
+            final Map<String, Integer> any2ByRealm) {
+
+        if (!this.usersByRealm.equals(usersByRealm)
+                || !this.groupsByRealm.equals(groupsByRealm)
+                || (!(this.anyType1 == null && anyType1 == null) && !this.anyType1.equals(anyType1))
+                || !this.any1ByRealm.equals(any1ByRealm)
+                || (!(this.anyType2 == null && anyType2 == null) && !this.anyType2.equals(anyType2))
+                || !this.any2ByRealm.equals(any2ByRealm)) {
+
+            this.usersByRealm = usersByRealm;
+            this.groupsByRealm = groupsByRealm;
+            this.anyType1 = anyType1;
+            this.any1ByRealm = any1ByRealm;
+            this.anyType2 = anyType2;
+            this.any2ByRealm = any2ByRealm;
+
+            chart.setDefaultModelObject(
+                    build(usersByRealm, groupsByRealm, anyType1, any1ByRealm, anyType2, any2ByRealm));
+
+            return true;
+        }
+        return false;
+    }
 }

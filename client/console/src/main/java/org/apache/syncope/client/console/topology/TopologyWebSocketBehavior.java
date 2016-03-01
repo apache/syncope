@@ -25,8 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -42,9 +41,11 @@ import org.slf4j.LoggerFactory;
 
 public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(TopologyWebSocketBehavior.class);
-
     private static final long serialVersionUID = -1653665542635275551L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(TopologyWebSocketBehavior.class);
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final Map<String, String> resources = new HashMap<>();
 
@@ -61,10 +62,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
     @Override
     protected void onMessage(final WebSocketRequestHandler handler, final TextMessage message) {
         try {
-            final ObjectMapper mapper = new ObjectMapper();
-            final JsonNode obj = mapper.readTree(message.getText());
-
-            final ExecutorService executorService = Executors.newFixedThreadPool(1);
+            JsonNode obj = OBJECT_MAPPER.readTree(message.getText());
 
             switch (Topology.SupportedOperation.valueOf(obj.get("kind").asText())) {
                 case CHECK_CONNECTOR:
@@ -85,7 +83,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                         }
                     }
 
-                    executorService.execute(new ConnCheck(ckey));
+                    SyncopeConsoleSession.get().execute(new ConnCheck(ckey));
 
                     break;
                 case CHECK_RESOURCE:
@@ -106,7 +104,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                         }
                     }
 
-                    executorService.execute(new ResCheck(rkey));
+                    SyncopeConsoleSession.get().execute(new ResCheck(rkey));
 
                     break;
                 case ADD_ENDPOINT:
@@ -117,9 +115,6 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                     break;
                 default:
             }
-
-            executorService.shutdown();
-
         } catch (IOException e) {
             LOG.error("Eror managing websocket message", e);
         }

@@ -199,7 +199,7 @@ public class TaskResultManager extends CommonsResultManager {
         for (final ExecTO taskExecTO : taskExecTOs) {
             System.out.println("     EXECUTIONS: ");
             System.out.println("     - task execution key: " + taskExecTO.getKey());
-            System.out.println("       task: " + taskExecTO.getReference());
+            System.out.println("       task: " + taskExecTO.getRefDesc());
             System.out.println("       message: ");
             System.out.println("       ###############     <BEGIN MESSAGE>     ###############");
             System.out.println("       message: " + taskExecTO.getMessage());
@@ -213,7 +213,7 @@ public class TaskResultManager extends CommonsResultManager {
 
     public void printJobs(final List<JobTO> jobTOs) {
         for (final JobTO jobTO : jobTOs) {
-            System.out.println("       TASK: " + jobTO.getReference());
+            System.out.println("       TASK: " + jobTO.getRefDesc());
             System.out.println("       status: " + jobTO.getStatus());
             System.out.println("       start date: " + jobTO.getStart());
             System.out.println("       running: " + jobTO.isRunning());

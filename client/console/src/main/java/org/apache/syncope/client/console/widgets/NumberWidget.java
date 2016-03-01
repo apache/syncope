@@ -26,14 +26,22 @@ public class NumberWidget extends AbstractWidget {
 
     private static final long serialVersionUID = -816175678514035085L;
 
+    private int number;
+
+    private final Label numberLabel;
+
     public NumberWidget(final String id, final String bg, final int number, final String label, final String icon) {
         super(id);
+        this.number = number;
+        setOutputMarkupId(true);
 
         WebMarkupContainer box = new WebMarkupContainer("box");
         box.add(new AttributeAppender("class", " " + bg));
         add(box);
 
-        box.add(new Label("number", number));
+        numberLabel = new Label("number", number);
+        numberLabel.setOutputMarkupId(true);
+        box.add(numberLabel);
         box.add(new Label("label", label));
 
         Label iconLabel = new Label("icon");
@@ -41,4 +49,12 @@ public class NumberWidget extends AbstractWidget {
         box.add(iconLabel);
     }
 
+    public boolean refresh(final int number) {
+        if (this.number != number) {
+            this.number = number;
+            numberLabel.setDefaultModelObject(number);
+            return true;
+        }
+        return false;
+    }
 }

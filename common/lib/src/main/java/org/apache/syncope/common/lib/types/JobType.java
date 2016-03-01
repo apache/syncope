@@ -16,21 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.common.lib.types;
 
-import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.core.persistence.api.entity.Report;
-import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import javax.xml.bind.annotation.XmlEnum;
 
-public interface ReportDataBinder {
-
-    void getReport(Report report, ReportTO reportTO);
-
-    String buildRefDesc(Report report);
-
-    ExecTO getExecTO(ReportExec execution);
-
-    ReportTO getReportTO(Report report);
+@XmlEnum
+public enum JobType {
+    NOTIFICATION,
+    REPORT,
+    TASK;
 
 }

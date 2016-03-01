@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -248,14 +249,12 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     }
 
     @Override
-    public String buildReference(final Task task) {
+    public String buildRefDesc(final Task task) {
         return taskUtilsFactory.getInstance(task).getType().name() + " "
                 + "Task "
                 + task.getKey() + " "
                 + (task instanceof SchedTask
-                        ? SchedTask.class.cast(task).getName() == null
-                        ? StringUtils.EMPTY
-                        : SchedTask.class.cast(task).getName()
+                        ? SchedTask.class.cast(task).getName()
                         : task instanceof PropagationTask
                                 ? PropagationTask.class.cast(task).getConnObjectKey()
                                 : StringUtils.EMPTY);
@@ -271,7 +270,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         }
 
         if (execution.getTask() != null && execution.getTask().getKey() != null) {
-            execTO.setReference(buildReference(execution.getTask()));
+            execTO.setJobType(JobType.TASK);
+            execTO.setRefKey(execution.getTask().getKey());
+            execTO.setRefDesc(buildRefDesc(execution.getTask()));
         }
 
         return execTO;

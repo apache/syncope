@@ -16,19 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.pages;
+package org.apache.syncope.client.console.wicket.ajax;
 
-import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
+import org.apache.wicket.ajax.IAjaxIndicatorAware;
+import org.apache.wicket.util.time.Duration;
 
-public abstract class AbstractExtPage extends BasePage {
+/**
+ * An {@link AbstractAjaxTimerBehavior} not showin veil.
+ */
+public abstract class IndicatorAjaxTimerBehavior extends AbstractAjaxTimerBehavior implements IAjaxIndicatorAware {
 
-    private static final long serialVersionUID = 4627828052717627159L;
+    private static final long serialVersionUID = 8863750325559215077L;
 
-    public AbstractExtPage() {
-        super();
+    public IndicatorAjaxTimerBehavior(final Duration updateInterval) {
+        super(updateInterval);
     }
 
-    public AbstractExtPage(final PageParameters parameters) {
-        super(parameters);
+    @Override
+    public String getAjaxIndicatorMarkupId() {
+        return StringUtils.EMPTY;
     }
 }

@@ -41,7 +41,7 @@ public class ReportSyncopeOperations {
     }
 
     public List<JobTO> listJobs() {
-        return reportService.listJobs(10);
+        return reportService.listJobs();
     }
 
     public List<ReportTO> list() {

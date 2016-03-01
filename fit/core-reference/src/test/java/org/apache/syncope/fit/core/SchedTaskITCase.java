@@ -161,7 +161,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE660() {
-        List<JobTO> jobs = taskService.listJobs(50);
+        List<JobTO> jobs = taskService.listJobs();
         int old_size = jobs.size();
 
         SchedTaskTO task = new SchedTaskTO();
@@ -172,7 +172,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         Response response = taskService.create(task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
 
-        jobs = taskService.listJobs(50);
+        jobs = taskService.listJobs();
         assertEquals(old_size + 1, jobs.size());
 
         taskService.actionJob(task.getKey(), JobAction.START);
@@ -186,7 +186,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
                 // ignore
             }
 
-            jobs = taskService.listJobs(50);
+            jobs = taskService.listJobs();
             CollectionUtils.filter(jobs, new Predicate<JobTO>() {
 
                 @Override
@@ -198,7 +198,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         } while (jobs.size() < 1 && i < maxit);
 
         assertEquals(1, jobs.size());
-        assertEquals("SCHEDULED Task " + task.getKey() + " " + task.getName(), jobs.get(0).getReference());
+        assertEquals(task.getKey(), jobs.get(0).getRefKey());
 
         taskService.actionJob(task.getKey(), JobAction.STOP);
 
@@ -211,7 +211,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
                 // ignore
             }
 
-            jobs = taskService.listJobs(50);
+            jobs = taskService.listJobs();
             CollectionUtils.filter(jobs, new Predicate<JobTO>() {
 
                 @Override
