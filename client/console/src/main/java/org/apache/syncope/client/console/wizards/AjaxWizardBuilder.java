@@ -25,7 +25,7 @@ import org.apache.wicket.extensions.wizard.WizardModel;
 public abstract class AjaxWizardBuilder<T extends Serializable> extends AbstractModalPanelBuilder<T> {
 
     private static final long serialVersionUID = 5241745929825564456L;
-    
+
     /**
      * Construct.
      *

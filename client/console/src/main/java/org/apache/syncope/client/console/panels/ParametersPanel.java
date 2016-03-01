@@ -41,8 +41,10 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPane
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
+import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -107,16 +109,6 @@ public class ParametersPanel extends AbstractSearchResultPanel<
             public ModalPanel<AttrTO> build(final int index, final boolean edit) {
                 return new ParametersCreateModalPanel(modal, newModelObject(), pageRef);
             }
-
-            @Override
-            protected void onCancelInternal(final AttrTO modelObject) {
-            }
-
-            @Override
-            protected Serializable onApplyInternal(final AttrTO modelObject) {
-                return null;
-            }
-
         }, true);
         modal.size(Modal.Size.Medium);
         initResultTable();
@@ -220,6 +212,8 @@ public class ParametersPanel extends AbstractSearchResultPanel<
                                 try {
                                     SyncopeConsoleSession.get().getService(
                                             ConfigurationService.class).delete(attrTO.getSchema());
+                                    SyncopeConsoleSession.get().getService(
+                                            SchemaService.class).delete(SchemaType.PLAIN, attrTO.getSchema());
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {

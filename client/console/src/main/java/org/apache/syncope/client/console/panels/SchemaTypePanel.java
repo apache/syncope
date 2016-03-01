@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -42,8 +44,10 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPane
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -266,12 +270,38 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
         public Iterator<AbstractSchemaTO> iterator(final long first, final long count) {
             final List<AbstractSchemaTO> list = schemaRestClient.getSchemas(this.schemaType);
             Collections.sort(list, comparator);
-            return list.subList((int) first, (int) first + (int) count).iterator();
+
+            if (SchemaType.PLAIN == this.schemaType) {
+                final List<String> configurations = new ArrayList<>();
+
+                CollectionUtils.collect(
+                        SyncopeConsoleSession.get().getService(ConfigurationService.class).list(),
+                        new Transformer<AttrTO, String>() {
+
+                    @Override
+                    public String transform(final AttrTO attrTO) {
+                        return attrTO.getSchema();
+                    }
+                }, configurations);
+
+                final List<AbstractSchemaTO> res = new ArrayList<>();
+                for (AbstractSchemaTO item : list) {
+                    if (!configurations.contains(item.getKey())) {
+                        res.add(item);
+                    }
+                }
+                return res.subList((int) first, (int) first + (int) count).iterator();
+            } else {
+                return list.subList((int) first, (int) first + (int) count).iterator();
+            }
         }
 
         @Override
         public long size() {
-            return schemaRestClient.getSchemas(this.schemaType).size();
+            int size = schemaRestClient.getSchemas(this.schemaType).size();
+            return SchemaType.PLAIN == this.schemaType
+                    ? size - SyncopeConsoleSession.get().getService(ConfigurationService.class).list().size()
+                    : size;
         }
 
         @Override

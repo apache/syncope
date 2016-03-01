@@ -36,7 +36,7 @@ public class ParametersCreateWizardPanel extends AjaxWizardBuilder<ParametersCre
     private static final long serialVersionUID = -2868592590785581481L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ParametersCreateWizardPanel.class);
-    
+
     public ParametersCreateWizardPanel(final String id, final ParametersForm defaultItem, final PageReference pageRef) {
         super(id, defaultItem, pageRef);
 

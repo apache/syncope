@@ -110,6 +110,8 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
         CPlainAttr attr = instance.getPlainAttr(key);
         if (attr != null) {
             instance.getPlainAttrs().remove(attr);
+            attrDAO.delete(attr.getKey(), CPlainAttr.class);
+
             instance = entityManager().merge(instance);
         }
 

@@ -21,15 +21,12 @@ package org.apache.syncope.fit.console;
 import java.lang.reflect.InvocationTargetException;
 import javax.servlet.ServletContext;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.pages.Login;
-import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.wicket.Component;
-import org.apache.wicket.Page;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.markup.repeater.OddEvenItem;
 import org.apache.wicket.util.tester.FormTester;
@@ -41,6 +38,8 @@ import org.junit.Before;
 public abstract class AbstractConsoleITCase extends AbstractITCase {
 
     protected static final String KEY = "key";
+    
+    protected static final String SCHEMA = "schema";
 
     protected WicketTester wicketTester;
 
@@ -98,37 +97,6 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
                         }
                     }
                 });
-        return result;
-    }
-
-    protected Component findSuccessNotification(final Page page, final String searchPath, final String key) {
-        Component result = page.visitChildren(NotificationPanel.class, new IVisitor<NotificationPanel, Component>() {
-
-            @Override
-            public void component(final NotificationPanel object, final IVisit<Component> visit) {
-
-                if (object.getDefaultModelObjectAsString().equals(Constants.OPERATION_SUCCEEDED)) {
-                    wicketTester.clickLink(object.getPageRelativePath());
-                    visit.stop(object);
-                }
-            }
-        });
-        return result;
-    }
-
-    protected Component findErrorNotification(final Page page, final String searchPath, final String key) {
-        Component result = page.visitChildren(NotificationPanel.class, new IVisitor<NotificationPanel, Component>() {
-
-            @Override
-            public void component(final NotificationPanel object, final IVisit<Component> visit) {
-
-                if (!object.getDefaultModelObjectAsString().equals(Constants.OPERATION_SUCCEEDED)) {
-                    wicketTester.clickLink(object.getPageRelativePath());
-                    visit.stop(object);
-                }
-
-            }
-        });
         return result;
     }
 }

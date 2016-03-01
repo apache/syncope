@@ -38,12 +38,14 @@ public class StyledNotificationBehavior extends NotificationBehavior {
 
     @Override
     public void show(final IPartialPageRequestHandler handler, final Serializable message, final String level) {
-        handler.appendJavaScript(String.format("%s.options.autoHideAfter = %s; %s.show( { message: '%s' } , '%s');",
-                this.widget(),
-                Notification.SUCCESS.equalsIgnoreCase(level)
-                || Notification.INFO.equalsIgnoreCase(level) ? AUTOHIDEAFTER_SUCCESS : AUTOHIDEAFTER_ERROR,
-                this.widget(),
-                this.format(String.valueOf(message), level),
-                level.toLowerCase()));
+        if (handler != null) {
+            handler.appendJavaScript(String.format("%s.options.autoHideAfter = %s; %s.show( { message: '%s' } , '%s');",
+                    this.widget(),
+                    Notification.SUCCESS.equalsIgnoreCase(level)
+                    || Notification.INFO.equalsIgnoreCase(level) ? AUTOHIDEAFTER_SUCCESS : AUTOHIDEAFTER_ERROR,
+                    this.widget(),
+                    this.format(String.valueOf(message), level),
+                    level.toLowerCase()));
+        }
     }
 }
