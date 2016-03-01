@@ -112,7 +112,7 @@ public class ParametersITCase extends AbstractConsoleITCase {
 
         Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "deleteParam");
         assertNotNull(result);
-        wicketTester.clickLink(result.getPageRelativePath() + "cells:5:cell:panelDelete:deleteLink");
+        wicketTester.clickLink(result.getPageRelativePath() + ":cells:5:cell:panelDelete:deleteLink");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
         wicketTester.cleanupFeedbackMessages();
