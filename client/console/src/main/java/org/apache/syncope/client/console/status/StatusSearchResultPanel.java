@@ -31,12 +31,13 @@ import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
-import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.StatusSearchResultPanel.AttributableStatusProvider;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -56,10 +57,12 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class StatusSearchResultPanel
-        extends AbstractSearchResultPanel<StatusBean, StatusBean, AttributableStatusProvider, BaseRestClient>
+        extends AbstractSearchResultPanel<StatusBean, StatusBean, AttributableStatusProvider, AbstractAnyRestClient<?>>
         implements ModalPanel<StatusBean> {
 
     private static final long serialVersionUID = -9148734710505211261L;
+
+    private final BaseModal<?> baseModal;
 
     protected final MultilevelPanel multiLevelPanelRef;
 
@@ -68,24 +71,27 @@ public class StatusSearchResultPanel
     private final boolean statusOnly;
 
     public StatusSearchResultPanel(
+            final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef,
             final AnyTO anyTO) {
 
-        this(multiLevelPanelRef, pageRef, anyTO, false);
+        this(baseModal, multiLevelPanelRef, pageRef, anyTO, false);
     }
 
     public StatusSearchResultPanel(
+            final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef,
             final AnyTO anyTO,
             final boolean statusOnly) {
 
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef);
+        this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         this.statusOnly = statusOnly;
         this.anyTO = anyTO;
-        this.itemKeyFieldName = "anyKey";
+        this.itemKeyFieldName = statusOnly ? "anyKey" : "resourceName";
 
         if (anyTO instanceof UserTO) {
             this.restClient = new UserRestClient();
@@ -100,7 +106,7 @@ public class StatusSearchResultPanel
 
     @Override
     protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<StatusBean, String> resultTableBuilder) {
-        resultTableBuilder.setMultiLevelPanel(multiLevelPanelRef);
+        resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
     }
 
     @Override
@@ -209,42 +215,45 @@ public class StatusSearchResultPanel
 
         AttributableStatusProvider() {
             super(statusOnly ? "resourceName" : "connObjectLink");
-            statusUtils = new StatusUtils(anyTO instanceof UserTO ? new UserRestClient() : new GroupRestClient());
+            statusUtils = new StatusUtils(restClient);
         }
 
         @SuppressWarnings("unchecked")
         @Override
         public List<StatusBean> getStatusBeans() {
+            // this is required to retrieve updated data by reloading table
+            final AnyTO actual = restClient.read(anyTO.getKey());
+
             final List<String> resources = new ArrayList<>();
             for (ResourceTO resourceTO : new ResourceRestClient().getAll()) {
                 resources.add(resourceTO.getKey());
             }
 
-            final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(anyTO);
+            final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(actual);
 
             final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size() + 1);
 
             for (ConnObjectWrapper entry : connObjects) {
-                final StatusBean statusBean = statusUtils.getStatusBean(anyTO,
+                final StatusBean statusBean = statusUtils.getStatusBean(actual,
                         entry.getResourceName(),
                         entry.getConnObjectTO(),
-                        anyTO instanceof GroupTO);
+                        actual instanceof GroupTO);
 
                 statusBeans.add(statusBean);
                 resources.remove(entry.getResourceName());
             }
 
             if (statusOnly) {
-                final StatusBean syncope = new StatusBean(anyTO, "Syncope");
+                final StatusBean syncope = new StatusBean(actual, "Syncope");
 
-                syncope.setConnObjectLink(((UserTO) anyTO).getUsername());
+                syncope.setConnObjectLink(((UserTO) actual).getUsername());
 
                 Status syncopeStatus = Status.UNDEFINED;
-                if (((UserTO) anyTO).getStatus() != null) {
+                if (((UserTO) actual).getStatus() != null) {
                     try {
-                        syncopeStatus = Status.valueOf(((UserTO) anyTO).getStatus().toUpperCase());
+                        syncopeStatus = Status.valueOf(((UserTO) actual).getStatus().toUpperCase());
                     } catch (IllegalArgumentException e) {
-                        LOG.warn("Unexpected status found: {}", ((UserTO) anyTO).getStatus(), e);
+                        LOG.warn("Unexpected status found: {}", ((UserTO) actual).getStatus(), e);
                     }
                 }
                 syncope.setStatus(syncopeStatus);
@@ -252,10 +261,10 @@ public class StatusSearchResultPanel
                 statusBeans.add(syncope);
             } else {
                 for (String resource : resources) {
-                    final StatusBean statusBean = statusUtils.getStatusBean(anyTO,
+                    final StatusBean statusBean = statusUtils.getStatusBean(actual,
                             resource,
                             null,
-                            anyTO instanceof GroupTO);
+                            actual instanceof GroupTO);
 
                     statusBean.setLinked(false);
                     statusBeans.add(statusBean);
@@ -265,100 +274,4 @@ public class StatusSearchResultPanel
             return statusBeans;
         }
     }
-//
-//    private void passwordManagement(
-//            final AjaxRequestTarget target,
-//            final ResourceAssociationAction type,
-//            final Collection<StatusBean> selection) {
-//
-//        final IndicatingAjaxButton goon
-//                = new IndicatingAjaxButton("continue", new ResourceModel("continue", "Continue")) {
-//
-//            private static final long serialVersionUID = -2341391430136818027L;
-//
-//            @Override
-//            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-//                try {
-//                    if (StringUtils.isNotBlank(password.getModelObject())
-//                            && !password.getModelObject().equals(confirm.getModelObject())) {
-//                        throw new Exception(getString("passwordMismatch"));
-//                    }
-//
-//                    final BulkActionResult bulkActionResult;
-//                    switch (type) {
-////                                case ASSIGN:
-////                                    bulkActionResult = userRestClient.assign(
-////                                            anyTO.getETagValue(),
-////                                            anyTO.getKey(),
-////                                            new ArrayList<>(selection),
-////                                            changepwd.getModelObject(),
-////                                            password.getModelObject());
-////                                    break;
-////                                case PROVISION:
-////                                    bulkActionResult = userRestClient.provision(
-////                                            anyTO.getETagValue(),
-////                                            anyTO.getKey(),
-////                                            new ArrayList<>(selection),
-////                                            changepwd.getModelObject(),
-////                                            password.getModelObject());
-////                                    break;
-//                        default:
-//                            bulkActionResult = null;
-//                        // ignore
-//                    }
-//
-//                    if (bulkActionResult != null) {
-//                        loadBulkActionResultPage(target, selection, bulkActionResult);
-//                    } else {
-//                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
-//                        modal.close(target);
-//                    }
-//                } catch (Exception e) {
-//                    LOG.error("Error provisioning resources", e);
-//                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-//                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
-//                }
-//            }
-//        };
-//
-//        pwdMgtForm.addOrReplace(goon);
-//
-//        table.setVisible(false);
-//        pwdMgtForm.setVisible(true).setEnabled(true);
-//
-//        target.add(table);
-//        target.add(pwdMgt);
-//    }
-//
-//    private void loadBulkActionResultPage(
-//            final AjaxRequestTarget target,
-//            final Collection<StatusBean> selection,
-//            final BulkActionResult bulkActionResult) {
-//        final List<String> resources = new ArrayList<>(selection.size());
-//        for (StatusBean statusBean : selection) {
-//            resources.add(statusBean.getResourceName());
-//        }
-//
-//        final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(Collections.singletonList(anyTO),
-//                resources);
-//
-//        final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size());
-//
-//        for (ConnObjectWrapper entry : connObjects) {
-//            final StatusBean statusBean = statusUtils.getStatusBean(anyTO,
-//                    entry.getResourceName(),
-//                    entry.getConnObjectTO(),
-//                    anyTO instanceof GroupTO);
-//
-//            statusBeans.add(statusBean);
-//        }
-//
-////        target.add(modal.setContent(new BulkResultModal<>(
-////                modal,
-////                pageRef,
-////                statusBeans,
-////                columns,
-////                bulkActionResult,
-////                "resourceName")));
-//    }
 }

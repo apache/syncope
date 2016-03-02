@@ -56,3 +56,7 @@ div#selectedObjects .circular-actions {
   padding: 3px;
   margin: 10px 0px 5px 0px;
 }
+
+.modal-body {
+  max-height: 650px !important;
+}

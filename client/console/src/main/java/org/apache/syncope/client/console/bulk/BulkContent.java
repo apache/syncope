@@ -29,14 +29,16 @@ import java.util.Map;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.console.panels.AbstractSearchResultPanel.EventDataWrapper;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.BaseRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionResultColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BulkActionResultColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
@@ -44,6 +46,7 @@ import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
@@ -61,18 +64,20 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
     protected static final Logger LOG = LoggerFactory.getLogger(BulkContent.class);
 
     public BulkContent(
+            final BaseModal<?> modal,
             final PageReference pageRef,
             final Collection<T> items,
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
             final BaseRestClient bulkActionExecutor,
             final String keyFieldName) {
-        this(MultilevelPanel.SECOND_LEVEL_ID, null, pageRef, items, columns, actions, bulkActionExecutor, keyFieldName);
+        this(MultilevelPanel.SECOND_LEVEL_ID,
+                modal, pageRef, items, columns, actions, bulkActionExecutor, keyFieldName);
     }
 
     public BulkContent(
             final String id,
-            final BaseModal<T> modal,
+            final BaseModal<?> modal,
             final PageReference pageRef,
             final Collection<T> items,
             final List<IColumn<T, S>> columns,
@@ -201,17 +206,20 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
 
                         if (modal != null) {
                             modal.changeCloseButtonLabel(getString("close", null, "Close"), target);
-
                         }
 
+                        final EventDataWrapper data = new EventDataWrapper();
+                        data.setTarget(target);
+                        send(getPage(), Broadcast.BREADTH, data);
+
                         final List<IColumn<T, S>> newColumnList = new ArrayList<>(columns);
-                        newColumnList.add(newColumnList.size(), new ActionResultColumn<T, S>(res, keyFieldName));
+                        newColumnList.add(newColumnList.size(), new BulkActionResultColumn<T, S>(res, keyFieldName));
 
                         container.addOrReplace(new AjaxFallbackDefaultDataTable<>(
                                 "selectedObjects",
                                 newColumnList,
                                 dataProvider,
-                                Integer.MAX_VALUE).setVisible(items != null && !items.isEmpty()));
+                                Integer.MAX_VALUE).setVisible(!items.isEmpty()));
 
                         actionPanel.setEnabled(false);
                         actionPanel.setVisible(false);
@@ -219,7 +227,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                         target.add(actionPanel);
 
                         info(getString(Constants.OPERATION_SUCCEEDED));
-                    } catch (NoSuchMethodException | SecurityException | IllegalAccessException
+                    } catch (SyncopeClientException | NoSuchMethodException | SecurityException | IllegalAccessException
                             | IllegalArgumentException | InvocationTargetException e) {
                         LOG.error("Bulk action failure", e);
                         error(getString(Constants.ERROR)

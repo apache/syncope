@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -45,11 +46,12 @@ public abstract class ProvisioningTaskSearchResultPanel<T extends AbstractProvis
     private final String resource;
 
     protected ProvisioningTaskSearchResultPanel(
+            final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final Class<T> reference,
             final String resource,
             final PageReference pageRef) {
-        super(multiLevelPanelRef, reference, pageRef);
+        super(baseModal, multiLevelPanelRef, reference, pageRef);
         this.resource = resource;
 
         this.schedTaskTO.setResource(resource);

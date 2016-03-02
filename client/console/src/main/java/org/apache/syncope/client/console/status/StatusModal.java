@@ -33,11 +33,11 @@ public class StatusModal<T extends AnyTO> extends Panel implements ModalPanel<An
     private static final long serialVersionUID = 1066124171682570080L;
 
     public StatusModal(
-            final PageReference pageReference, final T anyTO, final boolean statusOnly) {
+            final BaseModal<?> baseModal, final PageReference pageReference, final T anyTO, final boolean statusOnly) {
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("status");
-        add(mlp.setFirstLevel(new StatusSearchResultPanel(mlp, pageReference, anyTO, statusOnly)));
+        add(mlp.setFirstLevel(new StatusSearchResultPanel(baseModal, mlp, pageReference, anyTO, statusOnly)));
     }
 
     @Override

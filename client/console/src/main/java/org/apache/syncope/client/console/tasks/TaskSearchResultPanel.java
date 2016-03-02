@@ -26,6 +26,7 @@ import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
@@ -45,10 +46,14 @@ public abstract class TaskSearchResultPanel<T extends AbstractTaskTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
+    private final BaseModal<?> baseModal;
+
     protected final MultilevelPanel multiLevelPanelRef;
 
-    protected TaskSearchResultPanel(final MultilevelPanel multiLevelPanelRef, final PageReference pageRef) {
+    protected TaskSearchResultPanel(
+            final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanelRef, final PageReference pageRef) {
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, false);
+        this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         restClient = new TaskRestClient();
         setShowResultPage(false);
@@ -56,7 +61,7 @@ public abstract class TaskSearchResultPanel<T extends AbstractTaskTO>
 
     @Override
     protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<T, String> resultTableBuilder) {
-        resultTableBuilder.setMultiLevelPanel(multiLevelPanelRef);
+        resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
     }
 
     @Override

@@ -82,7 +82,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     /**
      * Modal window.
      */
-    protected final BaseModal<T> alternativeDefaultModal = new BaseModal<>("alternativeDefaultModal");
+    protected final BaseModal<T> altDefaultModal = new BaseModal<T>("alternativeDefaultModal");
 
     protected WizardMgtPanel(final String id) {
         this(id, false);
@@ -95,7 +95,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         this.wizardInModal = wizardInModal;
 
         super.add(modal);
-        super.add(alternativeDefaultModal);
+        super.add(altDefaultModal);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);

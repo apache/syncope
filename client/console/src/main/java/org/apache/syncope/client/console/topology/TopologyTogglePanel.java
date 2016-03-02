@@ -127,7 +127,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new SchedTasks(pageRef)));
+                target.add(taskModal.setContent(new SchedTasks(taskModal, pageRef)));
                 taskModal.header(new ResourceModel("task.generic.list", "Scheduled tasks"));
                 taskModal.show(true);
             }
@@ -309,7 +309,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             @SuppressWarnings("unchecked")
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new PropagationTasks(pageRef, node.getKey().toString())));
+                target.add(taskModal.setContent(new PropagationTasks(taskModal, pageRef, node.getKey().toString())));
                 taskModal.header(new ResourceModel("task.propagation.list", "Propagation tasks"));
                 taskModal.show(true);
             }
@@ -323,7 +323,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new SyncTasks(pageRef, node.getKey().toString())));
+                target.add(taskModal.setContent(new SyncTasks(taskModal, pageRef, node.getKey().toString())));
                 taskModal.header(new ResourceModel("task.synchronization.list", "Synchronization tasks"));
                 taskModal.show(true);
             }
@@ -337,7 +337,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new PushTasks(pageRef, node.getKey().toString())));
+                target.add(taskModal.setContent(new PushTasks(taskModal, pageRef, node.getKey().toString())));
                 taskModal.header(new ResourceModel("task.push.list", "Push tasks"));
                 taskModal.show(true);
             }

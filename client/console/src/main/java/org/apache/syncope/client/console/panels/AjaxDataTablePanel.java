@@ -74,6 +74,8 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
         private MultilevelPanel multiLevelPanel;
 
+        private BaseModal<?> baseModal;
+
         public Builder(final ISortableDataProvider<T, S> provider, final PageReference pageRef) {
             this.dataProvider = provider;
             this.pageRef = pageRef;
@@ -143,8 +145,9 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             return checkBoxEnabled && bulkActionExecutor != null && !bulkActions.isEmpty();
         }
 
-        public void setMultiLevelPanel(final MultilevelPanel multiLevelPanel) {
+        public void setMultiLevelPanel(final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanel) {
             this.multiLevelPanel = multiLevelPanel;
+            this.baseModal = baseModal;
         }
     }
 
@@ -212,7 +215,8 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                             bulkModal,
                             builder.pageRef,
                             group.getModelObject(),
-                            builder.columns.subList(1, builder.columns.size() - 1),
+                            // serialization problem with sublist only
+                            new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),
                             builder.bulkActions,
                             builder.bulkActionExecutor,
                             builder.itemKeyField)));
@@ -220,9 +224,11 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                     bulkModal.show(true);
                 } else {
                     builder.multiLevelPanel.next("bulk.action", new BulkContent<T, S>(
+                            builder.baseModal,
                             builder.pageRef,
                             group.getModelObject(),
-                            builder.columns.subList(1, builder.columns.size() - 1),
+                            // serialization problem with sublist only
+                            new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),
                             builder.bulkActions,
                             builder.bulkActionExecutor,
                             builder.itemKeyField), target);

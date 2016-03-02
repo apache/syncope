@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table;
 
-import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.BulkActionResult.Status;
 import org.apache.wicket.Component;
@@ -28,22 +28,23 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeansException;
 
-public class ActionResultColumn<T, S> extends AbstractColumn<T, S> {
+public class BulkActionResultColumn<T, S> extends AbstractColumn<T, S> {
 
     private static final long serialVersionUID = 7955560320949560716L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ActionResultColumn.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BulkActionResultColumn.class);
 
     private final BulkActionResult results;
 
     private final String keyFieldName;
 
-    public ActionResultColumn(final BulkActionResult results, final String keyFieldName) {
+    public BulkActionResultColumn(final BulkActionResult results, final String keyFieldName) {
         super(new Model<String>());
         this.results = results;
         this.keyFieldName = keyFieldName;
@@ -56,18 +57,23 @@ public class ActionResultColumn<T, S> extends AbstractColumn<T, S> {
 
     @Override
     public Component getHeader(final String componentId) {
-        return new Label(componentId, new ResourceModel("bulkActionResultLabel", "Result"));
+        final Label label = new Label(componentId, new Model<>());
+        label.setDefaultModel(new StringResourceModel("bulk.action.result.header", label, new Model<>("Result")));
+        return label;
     }
 
     @Override
     public void populateItem(final Item<ICellPopulator<T>> item, final String componentId, final IModel<T> rowModel) {
         try {
-            PropertyDescriptor propDesc =
-                    BeanUtils.getPropertyDescriptor(rowModel.getObject().getClass(), keyFieldName);
-            Object id = propDesc.getReadMethod().invoke(rowModel.getObject(), new Object[0]);
-            Status status = id == null ? null : results.getResults().get(id.toString());
-            item.add(new Label(componentId, status == null ? Status.SUCCESS : status.toString()));
-        } catch (Exception e) {
+            final Object id = BeanUtils.getPropertyDescriptor(rowModel.getObject().getClass(), keyFieldName).
+                    getReadMethod().invoke(rowModel.getObject(), new Object[0]);
+            final Status status = results.getResults().containsKey(id.toString())
+                    ? results.getResults().get(id.toString())
+                    : Status.NOT_ATTEMPTED;
+
+            item.add(new Label(componentId, new StringResourceModel(status.name(), item, new Model<>(status.name()))));
+
+        } catch (BeansException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             LOG.error("Errore retrieving target id value", e);
         }
     }

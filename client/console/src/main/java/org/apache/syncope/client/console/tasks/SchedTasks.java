@@ -31,13 +31,14 @@ public class SchedTasks extends AbstractTasks {
 
     private static final long serialVersionUID = -4013796607157549641L;
 
-    public <T extends AnyTO> SchedTasks(final PageReference pageReference) {
+    public <T extends AnyTO> SchedTasks(final BaseModal<?> baseModal, final PageReference pageReference) {
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new SchedTaskSearchResultPanel<SchedTaskTO>(mlp, SchedTaskTO.class, pageReference) {
+        mlp.setFirstLevel(new SchedTaskSearchResultPanel<SchedTaskTO>(
+                baseModal, mlp, SchedTaskTO.class, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 

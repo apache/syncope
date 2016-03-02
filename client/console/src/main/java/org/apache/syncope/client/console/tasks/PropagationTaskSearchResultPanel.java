@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -57,8 +58,11 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
     private final String resource;
 
     protected PropagationTaskSearchResultPanel(
-            final MultilevelPanel multiLevelPanelRef, final String resource, final PageReference pageRef) {
-        super(multiLevelPanelRef, pageRef);
+            final BaseModal<?> baseModal,
+            final MultilevelPanel multiLevelPanelRef,
+            final String resource,
+            final PageReference pageRef) {
+        super(baseModal, multiLevelPanelRef, pageRef);
         this.resource = resource;
         initResultTable();
     }

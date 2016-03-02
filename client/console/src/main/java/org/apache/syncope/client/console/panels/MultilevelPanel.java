@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.IHeaderContributor;
@@ -58,12 +57,13 @@ public class MultilevelPanel extends Panel implements IHeaderContributor {
         secondLevelContainer.setVisible(false);
         add(secondLevelContainer);
 
-        secondLevelContainer.add(new AjaxLink<StatusBean>("back") {
+        secondLevelContainer.add(new AjaxLink<String>("back") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
+                onClickBackInternal(target);
                 prev(target);
             }
         });
@@ -97,6 +97,9 @@ public class MultilevelPanel extends Panel implements IHeaderContributor {
 
             isFirstLevel = true;
         }
+    }
+
+    protected void onClickBackInternal(final AjaxRequestTarget taget) {
     }
 
     /**

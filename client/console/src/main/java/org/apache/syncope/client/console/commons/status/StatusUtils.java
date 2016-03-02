@@ -46,8 +46,6 @@ public class StatusUtils implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatusUtils.class);
 
-    private static final String IMG_PREFIX = "/img/statuses/";
-
     private final AbstractAnyRestClient<?> restClient;
 
     public StatusUtils(final AbstractAnyRestClient<?> restClient) {

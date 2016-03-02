@@ -52,8 +52,7 @@ public class BulkActionResult extends AbstractBaseBean {
         FAILURE,
         // specific propagation task execution statuses
         CREATED,
-        SUBMITTED,
-        UNSUBMITTED;
+        NOT_ATTEMPTED;
 
     }
 

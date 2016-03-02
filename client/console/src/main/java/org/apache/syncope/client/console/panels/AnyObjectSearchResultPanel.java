@@ -125,15 +125,15 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
                             public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                                 final IModel<AnyHandler<AnyObjectTO>> formModel
                                         = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
-                                alternativeDefaultModal.setFormModel(formModel);
+                                altDefaultModal.setFormModel(formModel);
 
-                                target.add(alternativeDefaultModal.setContent(new StatusModal<AnyObjectTO>(
-                                        pageRef, formModel.getObject().getInnerObject(), false)));
+                                target.add(altDefaultModal.setContent(new StatusModal<AnyObjectTO>(
+                                        altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
-                                alternativeDefaultModal.header(new Model<>(
+                                altDefaultModal.header(new Model<>(
                                         getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
 
-                                alternativeDefaultModal.show(true);
+                                altDefaultModal.show(true);
                             }
                         }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).
                         add(new ActionLink<AnyObjectTO>() {

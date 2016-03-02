@@ -123,15 +123,15 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                         final IModel<AnyHandler<UserTO>> formModel
                                 = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
-                        alternativeDefaultModal.setFormModel(formModel);
+                        altDefaultModal.setFormModel(formModel);
 
-                        target.add(alternativeDefaultModal.setContent(
-                                new StatusModal<UserTO>(pageRef, formModel.getObject().getInnerObject(), false)));
+                        target.add(altDefaultModal.setContent(new StatusModal<UserTO>(
+                                altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
-                        alternativeDefaultModal.header(new Model<>(
+                        altDefaultModal.header(new Model<>(
                                 getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
 
-                        alternativeDefaultModal.show(true);
+                        altDefaultModal.show(true);
                     }
                 }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
 
@@ -141,15 +141,15 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                         final IModel<AnyHandler<UserTO>> formModel
                                 = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
-                        alternativeDefaultModal.setFormModel(formModel);
+                        altDefaultModal.setFormModel(formModel);
 
-                        target.add(alternativeDefaultModal.setContent(
-                                new StatusModal<UserTO>(pageRef, formModel.getObject().getInnerObject(), true)));
+                        target.add(altDefaultModal.setContent(new StatusModal<UserTO>(
+                                altDefaultModal, pageRef, formModel.getObject().getInnerObject(), true)));
 
-                        alternativeDefaultModal.header(new Model<>(
+                        altDefaultModal.header(new Model<>(
                                 getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
 
-                        alternativeDefaultModal.show(true);
+                        altDefaultModal.show(true);
                     }
                 }, ActionLink.ActionType.ENABLE, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
 

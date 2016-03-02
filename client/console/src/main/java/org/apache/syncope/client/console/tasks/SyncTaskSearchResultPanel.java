@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.tasks;
 
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
@@ -32,8 +33,11 @@ public abstract class SyncTaskSearchResultPanel extends ProvisioningTaskSearchRe
     private static final long serialVersionUID = 4984337552918213290L;
 
     protected SyncTaskSearchResultPanel(
-            final MultilevelPanel multiLevelPanelRef, final String resource, final PageReference pageRef) {
-        super(multiLevelPanelRef, SyncTaskTO.class, resource, pageRef);
+            final BaseModal<?> baseModal,
+            final MultilevelPanel multiLevelPanelRef,
+            final String resource,
+            final PageReference pageRef) {
+        super(baseModal, multiLevelPanelRef, SyncTaskTO.class, resource, pageRef);
     }
 
     @Override

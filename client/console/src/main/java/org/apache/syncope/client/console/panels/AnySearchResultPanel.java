@@ -77,7 +77,7 @@ public abstract class AnySearchResultPanel<T extends AnyTO>
         this.fiql = builder.fiql;
 
         modal.size(Modal.Size.Large);
-        alternativeDefaultModal.size(Modal.Size.Large);
+        altDefaultModal.size(Modal.Size.Large);
 
         this.pSchemaNames = new ArrayList<>();
         for (AnyTypeClassTO anyTypeClassTO : AnySearchResultPanelBuilder.class.cast(builder).getAnyTypeClassTOs()) {

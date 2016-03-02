@@ -70,7 +70,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     private final Form<T> form;
 
-    private DefaultModalCloseButton defaultModalCloseButton;
+    private final DefaultModalCloseButton defaultModalCloseButton;
 
     public BaseModal(final String id) {
         super(id);

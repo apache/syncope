@@ -122,15 +122,15 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
                             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                                 final IModel<AnyHandler<GroupTO>> formModel
                                         = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
-                                alternativeDefaultModal.setFormModel(formModel);
+                                altDefaultModal.setFormModel(formModel);
 
-                                target.add(alternativeDefaultModal.setContent(new StatusModal<GroupTO>(
-                                        pageRef, formModel.getObject().getInnerObject(), false)));
+                                target.add(altDefaultModal.setContent(new StatusModal<GroupTO>(
+                                        altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
-                                alternativeDefaultModal.header(new Model<>(
+                                altDefaultModal.header(new Model<>(
                                         getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
 
-                                alternativeDefaultModal.show(true);
+                                altDefaultModal.show(true);
                             }
                         }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).
                         add(new ActionLink<GroupTO>() {

@@ -31,13 +31,14 @@ public class SyncTasks extends AbstractTasks {
 
     private static final long serialVersionUID = -4013796607157549641L;
 
-    public <T extends AnyTO> SyncTasks(final PageReference pageReference, final String resource) {
+    public <T extends AnyTO> SyncTasks(
+            final BaseModal<?> baseModal, final PageReference pageReference, final String resource) {
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new SyncTaskSearchResultPanel(mlp, resource, pageReference) {
+        mlp.setFirstLevel(new SyncTaskSearchResultPanel(baseModal, mlp, resource, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
