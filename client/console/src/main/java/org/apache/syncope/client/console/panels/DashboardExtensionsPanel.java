@@ -16,25 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.ajax;
+package org.apache.syncope.client.console.panels;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.wicket.ajax.AjaxEventBehavior;
-import org.apache.wicket.ajax.IAjaxIndicatorAware;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.markup.html.panel.Panel;
 
-/**
- * An {@link AjaxEventBehavior} not showin veil.
- */
-public abstract class IndicatorAjaxEventBehavior extends AjaxEventBehavior implements IAjaxIndicatorAware {
+public class DashboardExtensionsPanel extends Panel {
 
-    private static final long serialVersionUID = 8531694702059356303L;
+    private static final long serialVersionUID = 6381578992589664490L;
 
-    public IndicatorAjaxEventBehavior(final String event) {
-        super(event);
-    }
-
-    @Override
-    public String getAjaxIndicatorMarkupId() {
-        return StringUtils.EMPTY;
+    public DashboardExtensionsPanel(final String id, final PageReference pageRef) {
+        super(id);
     }
 }

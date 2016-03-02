@@ -43,6 +43,6 @@ public abstract class SyncTaskSearchResultPanel extends ProvisioningTaskSearchRe
 
     @Override
     protected ProvisioningTasksProvider<SyncTaskTO> dataProvider() {
-        return new ProvisioningTasksProvider<SyncTaskTO>(reference, TaskType.SYNCHRONIZATION, rows);
+        return new ProvisioningTasksProvider<>(reference, TaskType.SYNCHRONIZATION, rows);
     }
 }

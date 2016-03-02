@@ -39,9 +39,7 @@ public class Logs extends BasePage {
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
-        AjaxBootstrapTabbedPanel<ITab> tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
-        content.add(tabbedPanel);
-
+        content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList()));
         body.add(content);
     }
 

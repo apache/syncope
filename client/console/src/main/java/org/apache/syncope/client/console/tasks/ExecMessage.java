@@ -28,7 +28,7 @@ public class ExecMessage extends MultilevelPanel.SecondLevel {
 
     public ExecMessage(final String message) {
         super();
-        final Label dialogContent = new Label("message", new Model<String>(message));
+        final Label dialogContent = new Label("message", new Model<>(message));
         add(dialogContent.setOutputMarkupId(true));
     }
 }

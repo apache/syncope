@@ -88,7 +88,7 @@ public abstract class TaskSearchResultPanel<T extends AbstractTaskTO>
 
             //Default sorting
             setSort("key", SortOrder.DESCENDING);
-            comparator = new SortableDataProviderComparator<T>(this);
+            comparator = new SortableDataProviderComparator<>(this);
             this.id = id;
         }
 

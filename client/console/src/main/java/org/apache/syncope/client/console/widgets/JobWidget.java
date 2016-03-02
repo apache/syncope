@@ -27,12 +27,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
-import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxEventBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -46,7 +44,6 @@ import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.Application;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ThreadContext;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -106,10 +103,6 @@ public class JobWidget extends AbstractWidget {
 
     private final RecentExecPanel recentExecPanel;
 
-    private boolean refresh = true;
-
-    private boolean pendingRefresh = false;
-
     public JobWidget(final String id, final PageReference pageRef) {
         super(id);
 
@@ -135,34 +128,6 @@ public class JobWidget extends AbstractWidget {
                 SyncopeConsoleSession.get().scheduleAtFixedRate(new JobInfoUpdater(message), 0, 10, TimeUnit.SECONDS);
             }
         });
-
-        add(new IndicatorAjaxEventBehavior(Constants.ON_MOUSE_ENTER) {
-
-            private static final long serialVersionUID = -7133385027739964990L;
-
-            @Override
-            protected void onEvent(final AjaxRequestTarget target) {
-                refresh = false;
-                LOG.debug("Refresh disabled");
-            }
-        });
-        add(new IndicatorAjaxEventBehavior(Constants.ON_MOUSE_LEAVE) {
-
-            private static final long serialVersionUID = -7133385027739964990L;
-
-            @Override
-            protected void onEvent(final AjaxRequestTarget target) {
-                refresh = true;
-                LOG.debug("Refresh enabled");
-
-                if (pendingRefresh) {
-                    LOG.debug("Refresh pending");
-
-                    target.add(availableJobsPanel);
-                    pendingRefresh = false;
-                }
-            }
-        });
     }
 
     @Override
@@ -176,14 +141,10 @@ public class JobWidget extends AbstractWidget {
                 recent.clear();
                 recent.addAll(((JobWidgetMessage) wsEvent.getMessage()).getUpdatedRecent());
 
-                if (refresh) {
-                    availableJobsPanel.modelChanged();
-                    wsEvent.getHandler().add(availableJobsPanel);
-                    recentExecPanel.modelChanged();
-                    wsEvent.getHandler().add(recentExecPanel);
-                } else {
-                    pendingRefresh = true;
-                }
+                availableJobsPanel.modelChanged();
+                wsEvent.getHandler().add(availableJobsPanel);
+                recentExecPanel.modelChanged();
+                wsEvent.getHandler().add(recentExecPanel);
             }
         } else if (event.getPayload() instanceof JobActionPanel.JobActionPayload) {
             available.clear();

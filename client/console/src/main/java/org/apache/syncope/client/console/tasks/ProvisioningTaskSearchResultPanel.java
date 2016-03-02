@@ -65,7 +65,7 @@ public abstract class ProvisioningTaskSearchResultPanel<T extends AbstractProvis
 
     @Override
     protected List<IColumn<T, String>> getFieldColumns() {
-        final List<IColumn<T, String>> columns = new ArrayList<IColumn<T, String>>();
+        final List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<T, String>(
                 new StringResourceModel("key", this, null), "key", "key"));

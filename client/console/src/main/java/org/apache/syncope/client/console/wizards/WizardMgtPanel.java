@@ -82,7 +82,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     /**
      * Modal window.
      */
-    protected final BaseModal<T> alternativeDefaultModal = new BaseModal<T>("alternativeDefaultModal");
+    protected final BaseModal<T> alternativeDefaultModal = new BaseModal<>("alternativeDefaultModal");
 
     protected WizardMgtPanel(final String id) {
         this(id, false);

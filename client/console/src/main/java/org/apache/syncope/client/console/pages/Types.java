@@ -36,8 +36,6 @@ public class Types extends BasePage {
 
     private static final long serialVersionUID = 8091922398776299403L;
 
-    private final AjaxBootstrapTabbedPanel<ITab> tabbedPanel;
-
     private enum Type {
         SCHEMA,
         ANYTYPECLASS,
@@ -51,13 +49,11 @@ public class Types extends BasePage {
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
-        tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
-        content.add(tabbedPanel);
+        content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList()));
         body.add(content);
     }
 
     private List<ITab> buildTabList() {
-
         final List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new Model<>("RelationshipTypes")) {

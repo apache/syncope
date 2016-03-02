@@ -33,9 +33,6 @@ public class MultilevelPanel extends Panel implements IHeaderContributor {
 
     private static final long serialVersionUID = -4064294905566247729L;
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(MultilevelPanel.class);
 
     private boolean isFirstLevel = true;

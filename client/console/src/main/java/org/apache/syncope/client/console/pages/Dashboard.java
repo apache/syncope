@@ -18,176 +18,65 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
-import org.apache.syncope.client.console.widgets.NumberWidget;
-import org.apache.syncope.client.console.widgets.AnyByRealmWidget;
-import org.apache.syncope.client.console.widgets.CompletenessWidget;
-import org.apache.syncope.client.console.widgets.JobWidget;
-import org.apache.syncope.client.console.widgets.LoadWidget;
-import org.apache.syncope.client.console.widgets.UsersByStatusWidget;
-import org.apache.syncope.common.lib.info.NumbersInfo;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.syncope.client.console.panels.DashboardControlPanel;
+import org.apache.syncope.client.console.panels.DashboardExtensionsPanel;
+import org.apache.syncope.client.console.panels.DashboardOverviewPanel;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.time.Duration;
 
 public class Dashboard extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    private final NumberWidget totalUsers;
-
-    private final NumberWidget totalGroups;
-
-    private final NumberWidget totalAny1OrRoles;
-
-    private final NumberWidget totalAny2OrResources;
-
-    private final UsersByStatusWidget usersByStatus;
-
-    private final CompletenessWidget completeness;
-
-    private final AnyByRealmWidget anyByRealm;
-
-    private final LoadWidget load;
-
     public Dashboard(final PageParameters parameters) {
         super(parameters);
 
-        NumbersInfo numbers = SyncopeConsoleSession.get().getService(SyncopeService.class).numbers();
+        WebMarkupContainer content = new WebMarkupContainer("content");
+        content.setOutputMarkupId(true);
+        content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList()));
+        body.add(content);
+    }
 
-        WebMarkupContainer timer = new WebMarkupContainer("timer");
-        timer.setOutputMarkupId(true);
-        body.add(timer);
+    private List<ITab> buildTabList() {
+        final List<ITab> tabs = new ArrayList<>();
 
-        totalUsers = new NumberWidget(
-                "totalUsers", "bg-yellow", numbers.getTotalUsers(), getString("users"), "ion ion-person");
-        timer.add(totalUsers);
-        totalGroups = new NumberWidget(
-                "totalGroups", "bg-red", numbers.getTotalGroups(), getString("groups"), "ion ion-person-stalker");
-        timer.add(totalGroups);
+        tabs.add(new AbstractTab(new ResourceModel("overview")) {
 
-        Triple<Integer, String, String> built = buildTotalAny1OrRoles(numbers);
-        totalAny1OrRoles = new NumberWidget(
-                "totalAny1OrRoles", "bg-green", built.getLeft(), built.getMiddle(), built.getRight());
-        timer.add(totalAny1OrRoles);
-
-        built = buildTotalAny2OrResources(numbers);
-        totalAny2OrResources = new NumberWidget(
-                "totalAny2OrResources", "bg-aqua", built.getLeft(), built.getMiddle(), built.getRight());
-        timer.add(totalAny2OrResources);
-
-        usersByStatus = new UsersByStatusWidget("usersByStatus", numbers.getUsersByStatus());
-        timer.add(usersByStatus);
-
-        completeness = new CompletenessWidget("completeness", numbers.getConfCompleteness());
-        timer.add(completeness);
-
-        anyByRealm = new AnyByRealmWidget(
-                "anyByRealm",
-                numbers.getUsersByRealm(),
-                numbers.getGroupsByRealm(),
-                numbers.getAnyType1(),
-                numbers.getAny1ByRealm(),
-                numbers.getAnyType2(),
-                numbers.getAny2ByRealm());
-        timer.add(anyByRealm);
-
-        load = new LoadWidget("load", SyncopeConsoleSession.get().getService(SyncopeService.class).system());
-        timer.add(load);
-
-        timer.add(new IndicatorAjaxTimerBehavior(Duration.seconds(60)) {
-
-            private static final long serialVersionUID = -4426283634345968585L;
+            private static final long serialVersionUID = -6815067322125799251L;
 
             @Override
-            protected void onTimer(final AjaxRequestTarget target) {
-                NumbersInfo numbers = SyncopeConsoleSession.get().getService(SyncopeService.class).numbers();
-
-                if (totalUsers.refresh(numbers.getTotalUsers())) {
-                    target.add(totalUsers);
-                }
-                if (totalGroups.refresh(numbers.getTotalGroups())) {
-                    target.add(totalGroups);
-                }
-
-                Triple<Integer, String, String> updatedBuild = buildTotalAny1OrRoles(numbers);
-                if (totalAny1OrRoles.refresh(updatedBuild.getLeft())) {
-                    target.add(totalAny1OrRoles);
-                }
-                updatedBuild = buildTotalAny2OrResources(numbers);
-                if (totalAny2OrResources.refresh(updatedBuild.getLeft())) {
-                    target.add(totalAny2OrResources);
-                }
-
-                if (usersByStatus.refresh(numbers.getUsersByStatus())) {
-                    target.add(usersByStatus);
-                }
-
-                if (completeness.refresh(numbers.getConfCompleteness())) {
-                    target.add(completeness);
-                }
-
-                if (anyByRealm.refresh(
-                        numbers.getUsersByRealm(),
-                        numbers.getGroupsByRealm(),
-                        numbers.getAnyType1(),
-                        numbers.getAny1ByRealm(),
-                        numbers.getAnyType2(),
-                        numbers.getAny2ByRealm())) {
-
-                    target.add(anyByRealm);
-                }
-
-                load.refresh(SyncopeConsoleSession.get().getService(SyncopeService.class).system());
-                target.add(load);
+            public Panel getPanel(final String panelId) {
+                return new DashboardOverviewPanel(panelId);
             }
         });
 
-        JobWidget job = new JobWidget("job", getPageReference());
-        MetaDataRoleAuthorizationStrategy.authorize(job, WebPage.ENABLE,
-                String.format("%s,%s,%s",
-                        StandardEntitlement.NOTIFICATION_LIST,
-                        StandardEntitlement.TASK_LIST,
-                        StandardEntitlement.REPORT_LIST));
-        body.add(job);
-    }
+        tabs.add(new AbstractTab(new ResourceModel("control")) {
 
-    private Triple<Integer, String, String> buildTotalAny1OrRoles(final NumbersInfo numbers) {
-        int number;
-        String label;
-        String icon;
-        if (numbers.getAnyType1() == null) {
-            number = numbers.getTotalRoles();
-            label = getString("roles");
-            icon = "fa fa-users";
-        } else {
-            number = numbers.getTotalAny1();
-            label = numbers.getAnyType1();
-            icon = "ion ion-gear-a";
-        }
-        return Triple.of(number, label, icon);
-    }
+            private static final long serialVersionUID = -6815067322125799251L;
 
-    private Triple<Integer, String, String> buildTotalAny2OrResources(final NumbersInfo numbers) {
-        int number;
-        String label;
-        String icon;
-        if (numbers.getAnyType2() == null) {
-            number = numbers.getTotalResources();
-            label = getString("resources");
-            icon = "fa fa-database";
-        } else {
-            number = numbers.getTotalAny2();
-            label = numbers.getAnyType2();
-            icon = "ion ion-gear-a";
-        }
-        return Triple.of(number, label, icon);
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new DashboardControlPanel(panelId, getPageReference());
+            }
+        });
+
+        tabs.add(new AbstractTab(new ResourceModel("extensions")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new DashboardExtensionsPanel(panelId, getPageReference());
+            }
+        });
+
+        return tabs;
     }
 }

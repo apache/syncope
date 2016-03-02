@@ -93,8 +93,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
         };
 
         public Profile(final SchedTaskTO taskTO) {
-            final AjaxTextFieldPanel name
-                    = new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(taskTO, "name"), false);
+            final AjaxTextFieldPanel name =
+                    new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(taskTO, "name"), false);
             name.setEnabled(true);
             add(name);
 
@@ -144,7 +144,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
                     new PropertyModel<String>(taskTO, "destinationRealm"), false);
             syncTaskSpecifics.add(destinationRealm);
 
-            final AjaxDropDownChoicePanel<String> className = new AjaxDropDownChoicePanel<String>(
+            final AjaxDropDownChoicePanel<String> className = new AjaxDropDownChoicePanel<>(
                     "jobDelegateClassName",
                     getString("jobDelegateClassName"),
                     new PropertyModel<String>(taskTO, "jobDelegateClassName"), false);

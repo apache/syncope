@@ -17,17 +17,32 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:extend>
-    <section class="content-header">
-      <h1>
-        <wicket:message key="dashboard"/>
-      </h1>
-    </section>
-
-    <section class="content" wicket:id="content">
-      <div class="box">
-        <div class="box-body" wicket:id="tabbedPanel"/>
+  <wicket:panel>
+    <div wicket:id="container">
+      <div class="row">
+        <span wicket:id="totalUsers"/>
+        <span wicket:id="totalGroups"/>
+        <span wicket:id="totalAny1OrRoles"/>
+        <span wicket:id="totalAny2OrResources"/>
       </div>
-    </section>
-  </wicket:extend>
+
+      <div class="row">
+        <div class="col-md-4">
+          <span wicket:id="usersByStatus"/>
+        </div>
+        <div class="col-md-4">
+          <span wicket:id="completeness"/>
+        </div>
+        <div class="col-md-4">
+          <span wicket:id="load"/>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <span wicket:id="anyByRealm"/>
+        </div>
+      </div>
+    </div>
+  </wicket:panel>
 </html>
