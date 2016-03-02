@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -32,6 +31,8 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -44,12 +45,9 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -126,6 +124,9 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
 
                     columns.add(new PropertyColumn<AnyTypeClassTO, String>(
                             new ResourceModel(field.getName()), field.getName()));
+                } else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
+                    columns.add(new BooleanPropertyColumn<AnyTypeClassTO>(
+                            new ResourceModel(field.getName()), field.getName(), field.getName()));
                 } else {
                     columns.add(new PropertyColumn<AnyTypeClassTO, String>(
                             new ResourceModel(field.getName()), field.getName(), field.getName()) {
@@ -147,57 +148,68 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
             }
         }
 
-        columns.add(new AbstractColumn<AnyTypeClassTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AnyTypeClassTO, String>(new ResourceModel("actions", "")) {
 
-            private static final long serialVersionUID = 2054811145491901166L;
+            private static final long serialVersionUID = 906457126287899096L;
 
             @Override
-            public String getCssClass() {
-                return "action";
+            public ActionLinksPanel<AnyTypeClassTO> getActions(
+                    final String componentId, final IModel<AnyTypeClassTO> model) {
+
+                ActionLinksPanel<AnyTypeClassTO> panel = ActionLinksPanel.<AnyTypeClassTO>builder(pageRef).
+                        add(new ActionLink<AnyTypeClassTO>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final AnyTypeClassTO ignore) {
+                                send(AnyTypeClassesPanel.this, Broadcast.EXACT,
+                                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                            }
+                        }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPECLASS_UPDATE).
+                        add(new ActionLink<AnyTypeClassTO>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final AnyTypeClassTO ignore) {
+                                try {
+                                    SyncopeConsoleSession.get().
+                                            getService(AnyTypeClassService.class).delete(model.getObject().getKey());
+                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    target.add(container);
+                                } catch (Exception e) {
+                                    LOG.error("While deleting {}", model.getObject(), e);
+                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                }
+                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                            }
+                        }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPECLASS_DELETE).
+                        build(componentId);
+
+                return panel;
             }
 
             @Override
-            public void populateItem(final Item<ICellPopulator<AnyTypeClassTO>> item, final String componentId,
-                    final IModel<AnyTypeClassTO> model) {
+            public ActionLinksPanel<AnyTypeClassTO> getHeader(final String componentId) {
+                final ActionLinksPanel.Builder<AnyTypeClassTO> panel =
+                        ActionLinksPanel.builder(page.getPageReference());
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.
-                        getPageReference());
-                actionLinks.setDisableIndicator(true);
-                actionLinks.addWithRoles(new ActionLink<Serializable>() {
+                return panel.add(new ActionLink<AnyTypeClassTO>() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID = -1140254463922516111L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        send(AnyTypeClassesPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
-                    }
-                }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPECLASS_UPDATE).addWithRoles(
-                        new ActionLink<Serializable>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        try {
-                            SyncopeConsoleSession.get().
-                                    getService(AnyTypeClassService.class).delete(model.getObject().getKey());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                    public void onClick(final AjaxRequestTarget target, final AnyTypeClassTO ignore) {
+                        if (target != null) {
                             target.add(container);
-                        } catch (Exception e) {
-                            LOG.error("While deleting AnyTypeClassTO", e);
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPECLASS_DELETE);
-
-                item.add(actionLinks.build(componentId));
+                }, ActionLink.ActionType.RELOAD).build(componentId);
             }
         });
 
         return columns;
-
     }
 
     protected final class AnyTypeClassProvider extends SearchableDataProvider<AnyTypeClassTO> {

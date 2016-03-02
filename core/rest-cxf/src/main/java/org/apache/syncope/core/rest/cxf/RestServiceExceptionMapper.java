@@ -51,6 +51,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValid
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
@@ -230,6 +231,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         if (iee != null) {
             ClientExceptionType exType = iee.getEntityClassSimpleName().endsWith("Policy")
                     ? ClientExceptionType.InvalidPolicy
+                    : iee.getEntityClassSimpleName().equals(PlainAttr.class.getSimpleName())
+                    ? ClientExceptionType.InvalidValues
                     : ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
 
             ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);

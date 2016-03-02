@@ -58,10 +58,18 @@ public class ParametersCreateWizardPanel extends AjaxWizardBuilder<ParametersCre
     protected Serializable onApplyInternal(final ParametersForm modelObject) {
         final PlainSchemaTO plainSchemaTO = modelObject.getPlainSchemaTO();
         plainSchemaTO.setKey(modelObject.getAttrTO().getSchema());
-        
-        SyncopeConsoleSession.get().getService(SchemaService.class).create(
-                SchemaType.PLAIN, plainSchemaTO);
-        SyncopeConsoleSession.get().getService(ConfigurationService.class).set(modelObject.getAttrTO());
+
+        SyncopeConsoleSession.get().getService(SchemaService.class).
+                create(SchemaType.PLAIN, plainSchemaTO);
+        try {
+            SyncopeConsoleSession.get().getService(ConfigurationService.class).set(modelObject.getAttrTO());
+        } catch (Exception e) {
+            LOG.error("While setting {}, removing {}", modelObject.getAttrTO(), plainSchemaTO, e);
+            SyncopeConsoleSession.get().getService(SchemaService.class).
+                    delete(SchemaType.PLAIN, plainSchemaTO.getKey());
+
+            throw e;
+        }
         return modelObject.getAttrTO();
     }
 

@@ -31,18 +31,11 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractFieldPanel<T> extends Panel {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractFieldPanel.class);
 
     private static final long serialVersionUID = 5958017546318855690L;
 
     private static final String LABEL = "field-label";
-
-    private static final String EXTERNAL_ACTION = "externalAction";
-
-    private static final String EXTERNAL_ACTION_ICON = "externalActionIcon";
 
     protected boolean isRequiredLabelAdded = false;
 

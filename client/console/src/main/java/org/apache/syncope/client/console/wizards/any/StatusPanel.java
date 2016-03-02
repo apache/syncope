@@ -52,10 +52,7 @@ public class StatusPanel extends Panel {
 
     private static final long serialVersionUID = -4013796607157549641L;
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(StatusPanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StatusPanel.class);
 
     private final UserRestClient userRestClient = new UserRestClient();
 
@@ -170,8 +167,8 @@ public class StatusPanel extends Panel {
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                final Pair<ConnObjectTO, ConnObjectTO> pair
-                        = getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+                final Pair<ConnObjectTO, ConnObjectTO> pair =
+                        getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
 
                 return pair != null && pair.getRight() != null;
             }
@@ -213,8 +210,8 @@ public class StatusPanel extends Panel {
         private static final long serialVersionUID = 4303365227411467563L;
 
         public RemoteObjectPanel(final StatusBean bean, final List<Pair<ConnObjectTO, ConnObjectWrapper>> connObjects) {
-            final Pair<ConnObjectTO, ConnObjectTO> res
-                    = getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+            final Pair<ConnObjectTO, ConnObjectTO> res =
+                    getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
             add(new ConnObjectPanel("remoteObject", res == null ? null : res));
         }
     }

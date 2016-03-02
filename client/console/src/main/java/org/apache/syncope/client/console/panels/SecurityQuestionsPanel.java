@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -35,6 +34,7 @@ import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel.SecurityQuestionsProvider;
 import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -48,11 +48,8 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -149,58 +146,68 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
             }
         }
 
-        columns.add(new AbstractColumn<SecurityQuestionTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<SecurityQuestionTO, String>(new ResourceModel("actions", "")) {
 
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public String getCssClass() {
-                return "action";
-            }
+            private static final long serialVersionUID = -8089193528195091515L;
 
             @Override
-            public void populateItem(final Item<ICellPopulator<SecurityQuestionTO>> item, final String componentId,
-                    final IModel<SecurityQuestionTO> model) {
+            public ActionLinksPanel<SecurityQuestionTO> getActions(
+                    final String componentId, final IModel<SecurityQuestionTO> model) {
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.
-                        getPageReference());
-                actionLinks.setDisableIndicator(true);
-                actionLinks
-                        .addWithRoles(new ActionLink<Serializable>() {
+                ActionLinksPanel<SecurityQuestionTO> panel = ActionLinksPanel.<SecurityQuestionTO>builder(pageRef).
+                        add(new ActionLink<SecurityQuestionTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                            public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
                                 send(SecurityQuestionsPanel.this, Broadcast.EXACT,
                                         new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                             }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.SECURITY_QUESTION_UPDATE)
-                        .addWithRoles(new ActionLink<Serializable>() {
+                        }, ActionLink.ActionType.EDIT, StandardEntitlement.SECURITY_QUESTION_UPDATE).
+                        add(new ActionLink<SecurityQuestionTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                            public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
                                 try {
                                     SyncopeConsoleSession.get().getService(
                                             SecurityQuestionService.class).delete(model.getObject().getKey());
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
-                                    LOG.error("While deleting SecutiryQuestionTO", e);
+                                    LOG.error("While deleting {}", model.getObject(), e);
                                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.SECURITY_QUESTION_DELETE);
+                        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE).
+                        build(componentId);
 
-                item.add(actionLinks.build(componentId));
+                return panel;
+            }
+
+            @Override
+            public ActionLinksPanel<SecurityQuestionTO> getHeader(final String componentId) {
+                final ActionLinksPanel.Builder<SecurityQuestionTO> panel =
+                        ActionLinksPanel.builder(page.getPageReference());
+
+                return panel.add(new ActionLink<SecurityQuestionTO>() {
+
+                    private static final long serialVersionUID = -1140254463922516111L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
+                        if (target != null) {
+                            target.add(container);
+                        }
+                    }
+                }, ActionLink.ActionType.RELOAD).build(componentId);
             }
         });
 
         return columns;
-
     }
 
     protected final class SecurityQuestionsProvider extends SearchableDataProvider<SecurityQuestionTO> {

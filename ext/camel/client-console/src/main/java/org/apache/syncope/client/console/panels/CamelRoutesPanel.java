@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.CamelRoutes;
 import org.apache.syncope.client.console.panels.CamelRoutesPanel.CamelRoutesProvider;
 import org.apache.syncope.client.console.rest.CamelRoutesRestClient;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -44,12 +45,9 @@ import org.apache.syncope.common.lib.types.CamelEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -145,38 +143,53 @@ public class CamelRoutesPanel extends AbstractSearchResultPanel<
     @Override
     protected List<IColumn<CamelRouteTO, String>> getColumns() {
         List<IColumn<CamelRouteTO, String>> columns = new ArrayList<>();
-        columns.add(new PropertyColumn<CamelRouteTO, String>(new ResourceModel("key"), "key", "key"));
-        columns.add(new AbstractColumn<CamelRouteTO, String>(new ResourceModel("actions", "")) {
 
-            private static final long serialVersionUID = -3503023501954863131L;
+        columns.add(new PropertyColumn<CamelRouteTO, String>(new ResourceModel("key"), "key", "key"));
+
+        columns.add(new ActionColumn<CamelRouteTO, String>(new ResourceModel("actions", "")) {
+
+            private static final long serialVersionUID = 906457126287899096L;
 
             @Override
-            public String getCssClass() {
-                return "action";
+            public ActionLinksPanel<CamelRouteTO> getActions(
+                    final String componentId, final IModel<CamelRouteTO> model) {
+
+                ActionLinksPanel<CamelRouteTO> panel = ActionLinksPanel.<CamelRouteTO>builder(pageRef).
+                        add(new ActionLink<CamelRouteTO>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
+                                send(CamelRoutesPanel.this, Broadcast.EXACT,
+                                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                            }
+                        }, ActionLink.ActionType.EDIT, CamelEntitlement.ROUTE_UPDATE).
+                        build(componentId);
+
+                return panel;
             }
 
             @Override
-            public void populateItem(final Item<ICellPopulator<CamelRouteTO>> item, final String componentId,
-                    final IModel<CamelRouteTO> model) {
+            public ActionLinksPanel<CamelRouteTO> getHeader(final String componentId) {
+                final ActionLinksPanel.Builder<CamelRouteTO> panel =
+                        ActionLinksPanel.builder(page.getPageReference());
 
-                ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.getPageReference());
-                actionLinks.setDisableIndicator(true);
-                actionLinks.addWithRoles(new ActionLink<Serializable>() {
+                return panel.add(new ActionLink<CamelRouteTO>() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID = -1140254463922516111L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        send(CamelRoutesPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                    public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
+                        if (target != null) {
+                            target.add(container);
+                        }
                     }
-                }, ActionLink.ActionType.EDIT, CamelEntitlement.ROUTE_UPDATE);
-                item.add(actionLinks.build(componentId));
+                }, ActionLink.ActionType.RELOAD).build(componentId);
             }
         });
 
         return columns;
-
     }
 
     protected final class CamelRoutesProvider extends SearchableDataProvider<CamelRouteTO> {

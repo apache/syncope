@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -26,12 +25,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.panels.RelationshipTypePanel.RelationshipTypeProvider;
+import org.apache.syncope.client.console.panels.RelationshipTypesPanel.RelationshipTypeProvider;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -44,21 +46,18 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO, RelationshipTypeProvider> {
+public class RelationshipTypesPanel extends AbstractTypesPanel<RelationshipTypeTO, RelationshipTypeProvider> {
 
     private static final long serialVersionUID = -3731778000138547357L;
 
-    public RelationshipTypePanel(final String id, final PageReference pageRef) {
+    public RelationshipTypesPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);
         disableCheckBoxes();
 
@@ -121,83 +120,100 @@ public class RelationshipTypePanel extends AbstractTypesPanel<RelationshipTypeTO
         final List<IColumn<RelationshipTypeTO, String>> columns = new ArrayList<>();
 
         for (Field field : RelationshipTypeTO.class.getDeclaredFields()) {
-
             if (field != null && !Modifier.isStatic(field.getModifiers())) {
                 final String fieldName = field.getName();
+                if (field.getType().isArray()
+                        || Collection.class.isAssignableFrom(field.getType())
+                        || Map.class.isAssignableFrom(field.getType())) {
 
-                final IColumn<RelationshipTypeTO, String> column = new PropertyColumn<RelationshipTypeTO, String>(
-                        new ResourceModel(field.getName()), field.getName(), field.getName()) {
+                    columns.add(new PropertyColumn<RelationshipTypeTO, String>(
+                            new ResourceModel(field.getName()), field.getName()));
+                } else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
+                    columns.add(new BooleanPropertyColumn<RelationshipTypeTO>(
+                            new ResourceModel(field.getName()), field.getName(), field.getName()));
+                } else {
+                    columns.add(new PropertyColumn<RelationshipTypeTO, String>(
+                            new ResourceModel(field.getName()), field.getName(), field.getName()) {
 
-                    private static final long serialVersionUID = 3282547854226892169L;
+                        private static final long serialVersionUID = -6902459669035442212L;
 
-                    @Override
-                    public String getCssClass() {
-                        String css = super.getCssClass();
-                        if ("key".equals(fieldName)) {
-                            css = StringUtils.isBlank(css)
-                                    ? "col-xs-1"
-                                    : css + " col-xs-1";
+                        @Override
+                        public String getCssClass() {
+                            String css = super.getCssClass();
+                            if ("key".equals(fieldName)) {
+                                css = StringUtils.isBlank(css)
+                                        ? "col-xs-1"
+                                        : css + " col-xs-1";
+                            }
+                            return css;
                         }
-                        return css;
-                    }
-                };
-                columns.add(column);
-
+                    });
+                }
             }
         }
 
-        columns.add(new AbstractColumn<RelationshipTypeTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<RelationshipTypeTO, String>(new ResourceModel("actions", "")) {
 
-            private static final long serialVersionUID = 2054811145491901166L;
+            private static final long serialVersionUID = 906457126287899096L;
 
             @Override
-            public String getCssClass() {
-                return "action";
+            public ActionLinksPanel<RelationshipTypeTO> getActions(
+                    final String componentId, final IModel<RelationshipTypeTO> model) {
+
+                ActionLinksPanel<RelationshipTypeTO> panel = ActionLinksPanel.<RelationshipTypeTO>builder(pageRef).
+                        add(new ActionLink<RelationshipTypeTO>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
+                                send(RelationshipTypesPanel.this, Broadcast.EXACT,
+                                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                            }
+                        }, ActionLink.ActionType.EDIT, StandardEntitlement.RELATIONSHIPTYPE_UPDATE).
+                        add(new ActionLink<RelationshipTypeTO>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
+                                try {
+                                    SyncopeConsoleSession.get().getService(
+                                            RelationshipTypeService.class).delete(model.getObject().getKey());
+                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    target.add(container);
+                                } catch (Exception e) {
+                                    LOG.error("While deleting {}", model.getObject(), e);
+                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                }
+                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                            }
+                        }, ActionLink.ActionType.DELETE, StandardEntitlement.RELATIONSHIPTYPE_DELETE).
+                        build(componentId);
+
+                return panel;
             }
 
             @Override
-            public void populateItem(final Item<ICellPopulator<RelationshipTypeTO>> item, final String componentId,
-                    final IModel<RelationshipTypeTO> model) {
+            public ActionLinksPanel<RelationshipTypeTO> getHeader(final String componentId) {
+                final ActionLinksPanel.Builder<RelationshipTypeTO> panel =
+                        ActionLinksPanel.builder(page.getPageReference());
 
-                final RelationshipTypeTO relationshipTypeTO = model.getObject();
+                return panel.add(new ActionLink<RelationshipTypeTO>() {
 
-                ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.getPageReference());
-                actionLinks.setDisableIndicator(true);
-                actionLinks.addWithRoles(new ActionLink<Serializable>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID = -1140254463922516111L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        send(RelationshipTypePanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
-                    }
-                }, ActionLink.ActionType.EDIT, StandardEntitlement.RELATIONSHIPTYPE_UPDATE).addWithRoles(
-                        new ActionLink<Serializable>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        try {
-                            SyncopeConsoleSession.get().getService(
-                                    RelationshipTypeService.class).delete(relationshipTypeTO.getKey());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                    public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
+                        if (target != null) {
                             target.add(container);
-                        } catch (Exception e) {
-                            LOG.error("While deleting RelationshipType", e);
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.RELATIONSHIPTYPE_DELETE);
-
-                item.add(actionLinks.build(componentId));
+                }, ActionLink.ActionType.RELOAD).build(componentId);
             }
         });
 
         return columns;
-
     }
 
     protected final class RelationshipTypeProvider extends SearchableDataProvider<RelationshipTypeTO> {

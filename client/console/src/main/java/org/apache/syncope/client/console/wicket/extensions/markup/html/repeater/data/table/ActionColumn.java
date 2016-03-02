@@ -31,9 +31,6 @@ public abstract class ActionColumn<T, S> extends AbstractColumn<T, S> {
 
     private static final long serialVersionUID = 7955560320949560725L;
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(ActionColumn.class);
 
     public ActionColumn(final IModel<String> displayModel) {
@@ -55,5 +52,5 @@ public abstract class ActionColumn<T, S> extends AbstractColumn<T, S> {
         item.add(getActions(componentId, rowModel));
     }
 
-    public abstract ActionLinksPanel getActions(final String componentId, final IModel<T> rowModel);
+    public abstract ActionLinksPanel<?> getActions(final String componentId, final IModel<T> rowModel);
 }

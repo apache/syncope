@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.wizards.any.AnnotatedBeanPanel;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -26,6 +25,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
+import org.apache.syncope.client.console.wizards.any.AnnotatedBeanPanel;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -34,17 +34,10 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ResourceDetailsPanel extends Panel {
 
     private static final long serialVersionUID = -7982691107029848579L;
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(ResourceDetailsPanel.class);
 
     public ResourceDetailsPanel(
             final String id,
@@ -86,10 +79,10 @@ public class ResourceDetailsPanel extends Panel {
 
         container.add(new MultiFieldPanel.Builder<>(
                 new PropertyModel<List<String>>(model, "propagationActionsClassNames")).build(
-                        "actionsClasses",
-                        "actionsClasses",
-                        new AjaxDropDownChoicePanel<>("panel", "panel", new Model<String>())
-                        .setChoices(actionClassNames).setNullValid(true).setRequired(true)));
+                "actionsClasses",
+                "actionsClasses",
+                new AjaxDropDownChoicePanel<>("panel", "panel", new Model<String>())
+                .setChoices(actionClassNames).setNullValid(true).setRequired(true)));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "createTraceLevel",

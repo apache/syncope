@@ -45,7 +45,7 @@ public class SchedTasks extends AbstractTasks {
             protected void viewTask(final SchedTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
                         new StringResourceModel("task.view", this, new Model<>(taskTO)).getObject(),
-                        new TaskExecutionDetails<SchedTaskTO>(taskTO, pageReference), target);
+                        new TaskExecutionDetails<>(taskTO, pageReference), target);
             }
         });
     }

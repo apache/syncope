@@ -19,22 +19,18 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.ParametersPanel.ParametersProvider;
 import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -49,12 +45,9 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -140,91 +133,71 @@ public class ParametersPanel extends AbstractSearchResultPanel<
     protected List<IColumn<AttrTO, String>> getColumns() {
         final List<IColumn<AttrTO, String>> columns = new ArrayList<>();
 
-        for (Field field : AttrTO.class.getDeclaredFields()) {
-            if (field != null && !Modifier.isStatic(field.getModifiers())) {
-                final String fieldName = field.getName();
-                if (field.getType().isArray()
-                        || Collection.class.isAssignableFrom(field.getType())
-                        || Map.class.isAssignableFrom(field.getType())) {
+        columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("schema"), "schema", "schema"));
+        columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("values"), "values"));
 
-                    columns.add(new PropertyColumn<AttrTO, String>(
-                            new ResourceModel(field.getName()), field.getName()));
-                } else {
-                    columns.add(new PropertyColumn<AttrTO, String>(
-                            new ResourceModel(field.getName()), field.getName(), field.getName()) {
+        columns.add(new ActionColumn<AttrTO, String>(new ResourceModel("actions", "")) {
 
-                        private static final long serialVersionUID = -6902459669035442212L;
-
-                        @Override
-                        public String getCssClass() {
-                            String css = super.getCssClass();
-                            if ("key".equals(fieldName)) {
-                                css = StringUtils.isBlank(css)
-                                        ? "col-xs-1"
-                                        : css + " col-xs-1";
-                            }
-                            return css;
-                        }
-                    });
-                }
-            }
-        }
-
-        columns.add(new AbstractColumn<AttrTO, String>(new ResourceModel("actions", "")) {
-
-            private static final long serialVersionUID = -3503023501954863131L;
+            private static final long serialVersionUID = 906457126287899096L;
 
             @Override
-            public String getCssClass() {
-                return "action";
-            }
+            public ActionLinksPanel<AttrTO> getActions(final String componentId, final IModel<AttrTO> model) {
+                ActionLinksPanel<AttrTO> panel = ActionLinksPanel.<AttrTO>builder(pageRef).
+                        add(new ActionLink<AttrTO>() {
 
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<AttrTO>> item,
-                    final String componentId,
-                    final IModel<AttrTO> model) {
-
-                final AttrTO attrTO = model.getObject();
-
-                ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.getPageReference());
-                actionLinks.setDisableIndicator(true);
-                actionLinks.
-                        addWithRoles(new ActionLink<Serializable>() {
-
-                            private static final long serialVersionUID = 3257738274365467945L;
+                            private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                            public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
                                 target.add(modalDetails);
                                 modalDetails.addSumbitButton();
                                 modalDetails.header(new StringResourceModel("any.edit"));
-                                modalDetails.setContent(new ParametersEditModalPanel(modalDetails, attrTO, pageRef));
+                                modalDetails.setContent(
+                                        new ParametersEditModalPanel(modalDetails, model.getObject(), pageRef));
                                 modalDetails.show(true);
                             }
                         }, ActionLink.ActionType.EDIT, StandardEntitlement.CONFIGURATION_SET).
-                        addWithRoles(new ActionLink<Serializable>() {
+                        add(new ActionLink<AttrTO>() {
 
-                            private static final long serialVersionUID = 3257738274365467945L;
+                            private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                            public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
                                 try {
-                                    SyncopeConsoleSession.get().getService(
-                                            ConfigurationService.class).delete(attrTO.getSchema());
-                                    SyncopeConsoleSession.get().getService(
-                                            SchemaService.class).delete(SchemaType.PLAIN, attrTO.getSchema());
+                                    SyncopeConsoleSession.get().getService(ConfigurationService.class).
+                                            delete(model.getObject().getSchema());
+                                    SyncopeConsoleSession.get().getService(SchemaService.class).
+                                            delete(SchemaType.PLAIN, model.getObject().getSchema());
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
-                                    LOG.error("While deleting AttrTO", e);
+                                    LOG.error("While deleting {}", model.getObject(), e);
                                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.CONFIGURATION_DELETE);
+                        }, ActionLink.ActionType.DELETE, StandardEntitlement.CONFIGURATION_DELETE).
+                        build(componentId);
 
-                item.add(actionLinks.build(componentId));
+                return panel;
+            }
+
+            @Override
+            public ActionLinksPanel<AttrTO> getHeader(final String componentId) {
+                final ActionLinksPanel.Builder<AttrTO> panel =
+                        ActionLinksPanel.builder(page.getPageReference());
+
+                return panel.add(new ActionLink<AttrTO>() {
+
+                    private static final long serialVersionUID = -1140254463922516111L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
+                        if (target != null) {
+                            target.add(container);
+                        }
+                    }
+                }, ActionLink.ActionType.RELOAD).build(componentId);
             }
         });
 

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +36,7 @@ import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -53,13 +53,10 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -182,67 +179,76 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
             }
         }
 
-        columns.add(new AbstractColumn<AbstractSchemaTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AbstractSchemaTO, String>(new ResourceModel("actions", "")) {
 
-            private static final long serialVersionUID = 2054811145491901166L;
+            private static final long serialVersionUID = 906457126287899096L;
 
             @Override
-            public String getCssClass() {
-                return "action";
+            public ActionLinksPanel<AbstractSchemaTO> getActions(
+                    final String componentId, final IModel<AbstractSchemaTO> model) {
+
+                ActionLinksPanel<AbstractSchemaTO> panel = ActionLinksPanel.<AbstractSchemaTO>builder(pageRef).
+                        add(new ActionLink<AbstractSchemaTO>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final AbstractSchemaTO ignore) {
+                                send(SchemaTypePanel.this, Broadcast.EXACT,
+                                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                            }
+                        }, ActionLink.ActionType.EDIT, StandardEntitlement.SCHEMA_UPDATE).
+                        add(new ActionLink<AbstractSchemaTO>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final AbstractSchemaTO ignore) {
+                                try {
+                                    switch (schemaType) {
+                                        case DERIVED:
+                                            schemaRestClient.deleteDerSchema(model.getObject().getKey());
+                                            break;
+
+                                        case VIRTUAL:
+                                            schemaRestClient.deleteVirSchema(model.getObject().getKey());
+                                            break;
+
+                                        default:
+                                            schemaRestClient.deletePlainSchema(model.getObject().getKey());
+                                            break;
+                                    }
+
+                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    target.add(container);
+                                } catch (Exception e) {
+                                    LOG.error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                }
+                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                            }
+                        }, ActionLink.ActionType.DELETE, StandardEntitlement.SCHEMA_DELETE).
+                        build(componentId);
+
+                return panel;
             }
 
             @Override
-            public void populateItem(final Item<ICellPopulator<AbstractSchemaTO>> item, final String componentId,
-                    final IModel<AbstractSchemaTO> model) {
+            public ActionLinksPanel<AbstractSchemaTO> getHeader(final String componentId) {
+                final ActionLinksPanel.Builder<AbstractSchemaTO> panel =
+                        ActionLinksPanel.builder(page.getPageReference());
 
-                final AbstractSchemaTO schemaTO = model.getObject();
+                return panel.add(new ActionLink<AbstractSchemaTO>() {
 
-                final ActionLinksPanel.Builder<Serializable> actionLinks = ActionLinksPanel.builder(page.
-                        getPageReference());
-                actionLinks.setDisableIndicator(true);
-                actionLinks.setDisableIndicator(true);
-                actionLinks.addWithRoles(new ActionLink<Serializable>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID = -1140254463922516111L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        send(SchemaTypePanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
-                    }
-                }, ActionLink.ActionType.EDIT, StandardEntitlement.SCHEMA_UPDATE).addWithRoles(
-                        new ActionLink<Serializable>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        try {
-                            switch (schemaType) {
-                                case DERIVED:
-                                    schemaRestClient.deleteDerSchema(schemaTO.getKey());
-                                    break;
-
-                                case VIRTUAL:
-                                    schemaRestClient.deleteVirSchema(schemaTO.getKey());
-                                    break;
-
-                                default:
-                                    schemaRestClient.deletePlainSchema(schemaTO.getKey());
-                                    break;
-                            }
-
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                    public void onClick(final AjaxRequestTarget target, final AbstractSchemaTO ignore) {
+                        if (target != null) {
                             target.add(container);
-                        } catch (Exception e) {
-                            LOG.error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.SCHEMA_DELETE);
-
-                item.add(actionLinks.build(componentId));
+                }, ActionLink.ActionType.RELOAD).build(componentId);
             }
         });
 

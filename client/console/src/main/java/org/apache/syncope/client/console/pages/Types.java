@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.panels.AnyTypeClassesPanel;
 import org.apache.syncope.client.console.panels.AnyTypesPanel;
-import org.apache.syncope.client.console.panels.RelationshipTypePanel;
+import org.apache.syncope.client.console.panels.RelationshipTypesPanel;
 import org.apache.syncope.client.console.panels.SchemasPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
@@ -62,7 +62,7 @@ public class Types extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new RelationshipTypePanel(panelId, getPageReference());
+                return new RelationshipTypesPanel(panelId, getPageReference());
             }
         });
 

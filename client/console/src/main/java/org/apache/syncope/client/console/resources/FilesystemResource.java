@@ -33,9 +33,6 @@ public class FilesystemResource extends AbstractResource {
 
     private static final long serialVersionUID = -4791087117785935198L;
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(FilesystemResource.class);
 
     private final String baseCtx;

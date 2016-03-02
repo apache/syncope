@@ -37,20 +37,13 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Modal window with Connector form.
  */
 public class ConnectorDetailsPanel extends Panel {
 
-    private static final long serialVersionUID = -2025535531121434050L;
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(ConnectorDetailsPanel.class);
+    private static final long serialVersionUID = -2435937897614232137L;
 
     public ConnectorDetailsPanel(
             final String id, final IModel<ConnInstanceTO> model, final List<ConnBundleTO> bundles) {
