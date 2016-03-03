@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Policies extends BasePage {
@@ -26,5 +27,7 @@ public class Policies extends BasePage {
 
     public Policies(final PageParameters parameters) {
         super(parameters);
+
+        body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.ParametersPanel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -30,6 +31,8 @@ public class Parameters extends BasePage {
 
     public Parameters(final PageParameters parameters) {
         super(parameters);
+
+        body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);

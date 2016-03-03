@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.pages;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.ConsoleLogPanel;
 import org.apache.syncope.client.console.panels.CoreLogPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -37,6 +38,7 @@ public class Logs extends BasePage {
     public Logs(final PageParameters parameters) {
         super(parameters);
 
+        body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
         content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList()));

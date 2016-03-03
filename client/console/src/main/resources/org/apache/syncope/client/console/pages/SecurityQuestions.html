@@ -19,9 +19,12 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
     <section class="content-header">
-      <h1>
-        <wicket:message key="securityQuestions"/>
-      </h1>
+      <h1>&nbsp;</h1>
+      <ol class="breadcrumb">
+        <li><a wicket:id="dashboardBr"><i class="fa fa-dashboard"></i> <wicket:message key="dashboard"/></a></li>
+        <li class="active"><wicket:message key="configuration"/></li>
+        <li class="active"><wicket:message key="securityQuestions"/></li>
+      </ol>
     </section>
 
     <section class="content" wicket:id="content">

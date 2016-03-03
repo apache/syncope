@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.Realm;
@@ -51,6 +52,8 @@ public class Realms extends BasePage {
 
     public Realms(final PageParameters parameters) {
         super(parameters);
+
+        body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         content = new WebMarkupContainer("content");
 

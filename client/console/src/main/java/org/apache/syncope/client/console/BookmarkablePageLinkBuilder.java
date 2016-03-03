@@ -26,9 +26,15 @@ public final class BookmarkablePageLinkBuilder {
     public static <T> BookmarkablePageLink<T> build(
             final String key, final Class<? extends BasePage> defaultPageClass) {
 
+        return build(key, key, defaultPageClass);
+    }
+
+    public static <T> BookmarkablePageLink<T> build(
+            final String key, final String id, final Class<? extends BasePage> defaultPageClass) {
+
         Class<? extends BasePage> pageClass = SyncopeConsoleApplication.get().getPageClass(key);
         return new BookmarkablePageLink<>(
-                key,
+                id,
                 pageClass == null ? defaultPageClass : pageClass);
     }
 

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.pages;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.AnyTypeClassesPanel;
 import org.apache.syncope.client.console.panels.AnyTypesPanel;
 import org.apache.syncope.client.console.panels.RelationshipTypesPanel;
@@ -46,6 +47,8 @@ public class Types extends BasePage {
 
     public Types(final PageParameters parameters) {
         super(parameters);
+
+        body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
