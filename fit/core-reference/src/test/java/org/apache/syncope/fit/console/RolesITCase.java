@@ -123,7 +123,6 @@ public class RolesITCase extends AbstractConsoleITCase<String> {
         wicketTester.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp(KEY, "body:content:rolesPanel:container:content:searchContainer:"
-                + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "testRole"));
+                + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "deleteRole"));
     }
-
 }
