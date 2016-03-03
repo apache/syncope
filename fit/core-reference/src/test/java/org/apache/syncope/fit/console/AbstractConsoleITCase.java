@@ -35,10 +35,10 @@ import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
 import org.junit.Before;
 
-public abstract class AbstractConsoleITCase extends AbstractITCase {
+public abstract class AbstractConsoleITCase<T> extends AbstractITCase {
 
     protected static final String KEY = "key";
-    
+
     protected static final String SCHEMA = "schema";
 
     protected WicketTester wicketTester;
@@ -78,7 +78,7 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
         formTester.submit("submit");
     }
 
-    protected Component findComponentByProp(final String property, final String searchPath, final String key) {
+    protected Component findComponentByProp(final String property, final String searchPath, final T key) {
         Component component = wicketTester.getComponentFromLastRenderedPage(searchPath);
 
         Component result = component.getPage().
@@ -89,7 +89,8 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
 
                         try {
                             if (PropertyResolver.getPropertyGetter(
-                                    property, object.getModelObject()).invoke(object.getModelObject()).equals(key)) {
+                                    property,
+                                    object.getModelObject()).invoke(object.getModelObject()).equals(key)) {
                                 visit.stop(object);
                             }
                         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {

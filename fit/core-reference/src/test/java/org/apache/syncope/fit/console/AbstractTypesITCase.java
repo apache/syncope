@@ -24,7 +24,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Before;
 
-public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
+public abstract class AbstractTypesITCase extends AbstractConsoleITCase<String> {
 
     protected static final String PLAIN_DATATABLE_PATH = "body:content:tabbedPanel:panel:"
             + "accordionPanel:tabs:0:body:content:container:content:searchContainer:resultTable";
