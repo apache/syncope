@@ -306,8 +306,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
             for (String resource : patch.getResources()) {
                 result.getResults().put(resource,
                         updated.getAny().getResources().contains(resource)
-                        ? BulkActionResult.Status.FAILURE
-                        : BulkActionResult.Status.SUCCESS);
+                        ? BulkActionResult.Status.SUCCESS
+                        : BulkActionResult.Status.FAILURE);
             }
         } else {
             for (PropagationStatus propagationStatusTO : updated.getPropagationStatuses()) {

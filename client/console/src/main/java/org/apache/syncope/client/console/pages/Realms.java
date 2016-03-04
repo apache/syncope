@@ -22,8 +22,8 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.Realm;
 import org.apache.syncope.client.console.panels.RealmModalPanel;
-import org.apache.syncope.client.console.panels.RealmSidebarPanel;
-import org.apache.syncope.client.console.panels.RealmSidebarPanel.ControlSidebarClick;
+import org.apache.syncope.client.console.panels.RealmChoicePanel;
+import org.apache.syncope.client.console.panels.RealmChoicePanel.ChoosenRealm;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -43,7 +43,7 @@ public class Realms extends BasePage {
 
     private final RealmRestClient realmRestClient = new RealmRestClient();
 
-    private final RealmSidebarPanel realmSidebarPanel;
+    private final RealmChoicePanel realmChoicePanel;
 
     private final WebMarkupContainer content;
 
@@ -52,13 +52,12 @@ public class Realms extends BasePage {
     public Realms(final PageParameters parameters) {
         super(parameters);
 
-        realmSidebarPanel = new RealmSidebarPanel("realmSidebarPanel", getPageReference());
-        realmSidebarPanel.setMarkupId("sidebar");
-        realmSidebarPanel.setOutputMarkupId(true);
-        body.add(realmSidebarPanel);
-
         content = new WebMarkupContainer("content");
-        content.add(new Label("header", "Root realm"));
+
+        realmChoicePanel = new RealmChoicePanel("realmChoicePanel", getPageReference());
+        realmChoicePanel.setOutputMarkupId(true);
+        content.add(realmChoicePanel);
+
         content.add(new Label("body", "Root realm"));
         content.setOutputMarkupId(true);
         body.add(content);
@@ -72,29 +71,30 @@ public class Realms extends BasePage {
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
-                target.add(realmSidebarPanel.reloadRealmTree());
-                target.add(updateRealmContent(realmSidebarPanel.getCurrentRealm()));
+                target.add(realmChoicePanel.reloadRealmTree(target));
                 modal.show(false);
             }
         });
 
-        updateRealmContent(realmSidebarPanel.getCurrentRealm());
+        updateRealmContent(realmChoicePanel.getCurrentRealm());
     }
 
     @Override
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
 
-        if (event.getPayload() instanceof ControlSidebarClick) {
+        if (event.getPayload() instanceof ChoosenRealm) {
             @SuppressWarnings("unchecked")
-            final ControlSidebarClick<RealmTO> controlSidebarClick = ControlSidebarClick.class.cast(event.getPayload());
-            updateRealmContent(controlSidebarClick.getObj());
-            controlSidebarClick.getTarget().add(content);
+            final ChoosenRealm<RealmTO> choosenRealm = ChoosenRealm.class.cast(event.getPayload());
+            updateRealmContent(choosenRealm.getObj());
+            choosenRealm.getTarget().add(content);
         }
     }
 
     private WebMarkupContainer updateRealmContent(final RealmTO realmTO) {
-        content.addOrReplace(new Label("header", realmTO.getFullPath()));
+        if (realmTO == null) {
+            return content;
+        }
         content.addOrReplace(new Realm("body", realmTO, getPageReference()) {
 
             private static final long serialVersionUID = 8221398624379357183L;
@@ -111,7 +111,7 @@ public class Realms extends BasePage {
                         modal,
                         Realms.this.getPageReference(),
                         newRealmTO,
-                        realmSidebarPanel.getCurrentRealm().getFullPath(),
+                        realmChoicePanel.getCurrentRealm().getFullPath(),
                         StandardEntitlement.REALM_CREATE,
                         true);
                 target.add(modal.setContent(panel));
@@ -122,7 +122,7 @@ public class Realms extends BasePage {
 
             @Override
             protected void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO) {
-                modal.header(Model.of(realmSidebarPanel.getCurrentRealm().getName()));
+                modal.header(Model.of(realmChoicePanel.getCurrentRealm().getName()));
 
                 modal.setFormModel(realmTO);
 
@@ -146,8 +146,11 @@ public class Realms extends BasePage {
                         throw new Exception("Root realm cannot be deleted");
                     }
                     realmRestClient.delete(realmTO.getFullPath());
-                    target.add(realmSidebarPanel.reloadRealmTree());
-                    target.add(updateRealmContent(realmSidebarPanel.getCurrentRealm()));
+                    RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
+                    target.add(realmChoicePanel.reloadRealmTree(target));
+
+                    updateRealmContent(parent);
+                    target.add(content);
                     info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While deleting realm", e);

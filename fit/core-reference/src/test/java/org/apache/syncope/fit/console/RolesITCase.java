@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
-public class RolesITCase extends AbstractConsoleITCase<String> {
+public class RolesITCase extends AbstractConsoleITCase {
 
     private void createRole(final String name) {
         wicketTester.clickLink("body:content:rolesPanel:container:content:add");
@@ -52,7 +52,7 @@ public class RolesITCase extends AbstractConsoleITCase<String> {
 
         wicketTester.assertInfoMessages("Operation executed successfully");
         wicketTester.cleanupFeedbackMessages();
-        
+
         wicketTester.clickLink("body:configurationLI:configurationUL:rolesLI:roles");
     }
 

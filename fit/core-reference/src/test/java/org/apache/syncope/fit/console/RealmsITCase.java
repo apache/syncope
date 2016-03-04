@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
-public class RealmsITCase extends AbstractConsoleITCase<String> {
+public class RealmsITCase extends AbstractConsoleITCase {
 
     @Before
     public void login() {

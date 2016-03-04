@@ -17,24 +17,14 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title>Realms</title></head>
-  <body>
-    <wicket:extend>
-      <section class="content-header">
-        <h1>
-          <wicket:message key="realms"/>
-        </h1>
-      </section>
-
-      <section class="content" wicket:id="content">
-        <div class="box">
-          <div class="box-body">
-            <span wicket:id="realmChoicePanel">[Realm Sidebar Panel]</span>
-            <wicket:container wicket:id="body"></wicket:container>
-          </div>
-        </div>
-        <div wicket:id="modal"></div>
-      </section>
-    </wicket:extend>
-  </body>
+  <wicket:panel>
+    <div wicket:id="container" class="realm-header">
+      <div class="realm-label">
+        Realm: <label wicket:id="realm"/>
+      </div>
+      <div class="realm-choice">
+        <button wicket:id="realms"/>
+      </div>
+    </div>
+  </wicket:panel>
 </html>

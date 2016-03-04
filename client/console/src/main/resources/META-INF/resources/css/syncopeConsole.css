@@ -75,6 +75,34 @@ pre {
   min-height: 554px
 }
 
+.realm-header {
+  clear: both;
+  display:block;
+  display: inline-table;
+  margin: 0 0 10px;
+  line-height: 25px;
+}
+
+.realm-label {
+  float: left;
+  font-size: 16px;
+}
+
+.realm-label label {
+  font-weight: 600 !important;
+}
+
+.realm-choice {
+  right: 0px;
+  position: absolute;
+}
+
+.realm-header .dropdown-menu li a {
+  text-align: left !important;
+  white-space: pre !important;
+  line-height: 7px;
+}
+
 .block-header {
   position: fixed !important;
   width: 100% !important;
@@ -501,5 +529,5 @@ END - Result page
 }
 
 .nav-tabs-custom > .nav-tabs > li.active {
-    border-top-color: #d2d6de !important;
+  border-top-color: #d2d6de !important;
 }

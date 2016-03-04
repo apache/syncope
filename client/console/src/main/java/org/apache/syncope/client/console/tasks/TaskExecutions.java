@@ -29,11 +29,14 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
+import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
+import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel.SecondLevel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.tasks.TaskExecutions.TaskExecProvider;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -54,16 +57,31 @@ public abstract class TaskExecutions
 
     private static final long serialVersionUID = 2039393934721149162L;
 
+    private final BaseModal<?> baseModal;
+
+    private final MultilevelPanel multiLevelPanelRef;
+
     protected TaskRestClient taskRestClient = new TaskRestClient();
 
     private final AbstractTaskTO taskTO;
 
-    public TaskExecutions(final String id, final AbstractTaskTO taskTO, final PageReference pageRef) {
-        super(id, pageRef, false);
+    public TaskExecutions(
+            final BaseModal<?> baseModal,
+            final MultilevelPanel multiLevelPanelRef,
+            final AbstractTaskTO taskTO,
+            final PageReference pageRef) {
+        super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, false);
+        this.baseModal = baseModal;
+        this.multiLevelPanelRef = multiLevelPanelRef;
         restClient = taskRestClient;
         setOutputMarkupId(true);
         this.taskTO = taskTO;
         initResultTable();
+    }
+
+    @Override
+    protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<ExecTO, String> resultTableBuilder) {
+        resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
     }
 
     protected abstract void next(final String title, final SecondLevel secondLevel, final AjaxRequestTarget target);

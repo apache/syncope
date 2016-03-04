@@ -443,7 +443,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
             case DELETE:
                 fragment = new Fragment("panelDelete", "fragmentDelete", this);
 
-                fragment.addOrReplace(new IndicatingOnConfirmAjaxLink<Void>("deleteLink") {
+                fragment.addOrReplace(new IndicatingOnConfirmAjaxLink<Void>("deleteLink", enabled) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -601,7 +601,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
             case UNLINK:
                 fragment = new Fragment("panelUnlink", "fragmentUnlink", this);
 
-                fragment.addOrReplace(new IndicatingOnConfirmAjaxLink<Void>("unlinkLink", "confirmUnlink") {
+                fragment.addOrReplace(new IndicatingOnConfirmAjaxLink<Void>("unlinkLink", "confirmUnlink", enabled) {
 
                     private static final long serialVersionUID = -6957616042924610293L;
 
@@ -640,7 +640,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment = new Fragment("panelUnassign", "fragmentUnassign", this);
 
                 fragment.addOrReplace(
-                        new IndicatingOnConfirmAjaxLink<Void>("unassignLink", "confirmUnassign") {
+                        new IndicatingOnConfirmAjaxLink<Void>("unassignLink", "confirmUnassign", enabled) {
 
                     private static final long serialVersionUID = -6957616042924610294L;
 
@@ -680,7 +680,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment = new Fragment("panelDeprovision", "fragmentDeprovision", this);
 
                 fragment.addOrReplace(
-                        new IndicatingOnConfirmAjaxLink<Void>("deprovisionLink", "confirmDeprovision") {
+                        new IndicatingOnConfirmAjaxLink<Void>("deprovisionLink", "confirmDeprovision", enabled) {
 
                     private static final long serialVersionUID = -6957616042924610295L;
 

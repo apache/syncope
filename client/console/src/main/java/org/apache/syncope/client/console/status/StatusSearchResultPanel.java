@@ -64,7 +64,7 @@ public class StatusSearchResultPanel
 
     private final BaseModal<?> baseModal;
 
-    protected final MultilevelPanel multiLevelPanelRef;
+    private final MultilevelPanel multiLevelPanelRef;
 
     private final AnyTO anyTO;
 

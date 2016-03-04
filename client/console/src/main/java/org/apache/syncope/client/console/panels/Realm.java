@@ -142,7 +142,6 @@ public abstract class Realm extends Panel {
 
     private Panel getAnyPanel(final String id, final PageReference pageReference, final AnyTypeTO anyTypeTO) {
         final Panel panel;
-
         switch (anyTypeTO.getKind()) {
             case USER:
                 final UserTO userTO = new UserTO();

@@ -42,7 +42,7 @@ public class PropagationTasks extends AbstractTasks {
 
             @Override
             protected void viewTask(final PropagationTaskTO taskTO, final AjaxRequestTarget target) {
-                mlp.next("task.view", new TaskExecutionDetails<>(taskTO, pageReference), target);
+                mlp.next("task.view", new TaskExecutionDetails<>(baseModal, taskTO, pageReference), target);
             }
         });
     }

@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
-public class SecurityQuestionsITCase extends AbstractConsoleITCase<String> {
+public class SecurityQuestionsITCase extends AbstractConsoleITCase {
 
     private void createRealm(final String name) {
         wicketTester.clickLink("body:content:securityQuestionPanel:container:content:add");
@@ -88,11 +88,9 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase<String> {
 
         assertNotNull(result);
 
-        wicketTester.clickLink(
-                result.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink");
+        wicketTester.clickLink(result.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink");
 
-        FormTester formTester = wicketTester.newFormTester("body:content:securityQuestionPanel"
-                + ":modal:form");
+        FormTester formTester = wicketTester.newFormTester("body:content:securityQuestionPanel:modal:form");
         formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
                 "What's your favorite car?");
 
@@ -114,9 +112,8 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase<String> {
         assertNotNull(result);
 
         wicketTester.getRequest().addParameter("confirm", "true");
-        wicketTester.clickLink(
-                wicketTester.getComponentFromLastRenderedPage(
-                        result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"));
+        wicketTester.clickLink(wicketTester.getComponentFromLastRenderedPage(
+                result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"));
 
         wicketTester.executeAjaxEvent(wicketTester.getComponentFromLastRenderedPage(
                 result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"), "onclick");

@@ -27,13 +27,15 @@ public abstract class IndicatingOnConfirmAjaxLink<T> extends IndicatingAjaxLink<
 
     private final String msg;
 
-    public IndicatingOnConfirmAjaxLink(final String id) {
-        this(id, "confirmDelete");
+    public IndicatingOnConfirmAjaxLink(final String id, final boolean enabled) {
+        this(id, "confirmDelete", enabled);
     }
 
-    public IndicatingOnConfirmAjaxLink(final String id, final String msg) {
+    public IndicatingOnConfirmAjaxLink(final String id, final String msg, final boolean enabled) {
         super(id);
         this.msg = msg;
-        this.add(new ConfirmationModalBehavior(msg));
+        if (enabled) {
+            this.add(new ConfirmationModalBehavior(msg));
+        }
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.console;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import javax.servlet.ServletContext;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
@@ -35,7 +36,7 @@ import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
 import org.junit.Before;
 
-public abstract class AbstractConsoleITCase<T> extends AbstractITCase {
+public abstract class AbstractConsoleITCase extends AbstractITCase {
 
     protected static final String KEY = "key";
 
@@ -78,7 +79,8 @@ public abstract class AbstractConsoleITCase<T> extends AbstractITCase {
         formTester.submit("submit");
     }
 
-    protected Component findComponentByProp(final String property, final String searchPath, final T key) {
+    protected <V extends Serializable> Component findComponentByProp(
+            final String property, final String searchPath, final V key) {
         Component component = wicketTester.getComponentFromLastRenderedPage(searchPath);
 
         Component result = component.getPage().
