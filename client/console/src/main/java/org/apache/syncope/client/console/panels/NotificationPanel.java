@@ -41,7 +41,8 @@ public class NotificationPanel extends Panel implements IFeedback, IGenericCompo
         super(id);
 
         final Options options = new Options();
-        options.set("position", "{ pinned: true }");
+        options.set("appendTo", "'#appendto'");
+        options.set("stacking", "'up'");
         options.set("templates",
                 "[ { type: 'success', template: $('#successTemplate').html() },"
                 + " { type: 'info', template: $('#successTemplate').html() },"
