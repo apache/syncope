@@ -27,7 +27,6 @@ import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.GroupDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -97,14 +96,16 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
 
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
-            for (String name : GroupDisplayAttributesModalPage.GROUP_DEFAULT_SELECTION) {
+            for (String name : GroupDisplayAttributesModalPanel.GROUP_DEFAULT_SELECTION) {
                 columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
             }
 
             prefMan.setList(getRequest(), getResponse(), Constants.PREF_GROUP_DETAILS_VIEW,
-                    Arrays.asList(GroupDisplayAttributesModalPage.GROUP_DEFAULT_SELECTION));
+                    Arrays.asList(GroupDisplayAttributesModalPanel.GROUP_DEFAULT_SELECTION));
         }
 
+        setWindowClosedReloadCallback(displayAttributeModal);
+        
         columns.add(new ActionColumn<GroupTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
@@ -188,11 +189,11 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        target.add(modal.setContent(new GroupDisplayAttributesModalPage<>(
-                                modal, page.getPageReference(), pSchemaNames, dSchemaNames)));
-
-                        modal.header(new ResourceModel("any.attr.display", ""));
-                        modal.show(true);
+                        target.add(displayAttributeModal.setContent(new GroupDisplayAttributesModalPanel<>(
+                                displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
+                        displayAttributeModal.addSumbitButton();
+                        displayAttributeModal.header(new ResourceModel("any.attr.display", ""));
+                        displayAttributeModal.show(true);
                     }
                 }, ActionLink.ActionType.CHANGE_VIEW, StandardEntitlement.GROUP_READ).add(
                         new ActionLink<Serializable>() {

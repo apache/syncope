@@ -148,10 +148,10 @@ public class Realms extends BasePage {
                     realmRestClient.delete(realmTO.getFullPath());
                     RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
                     target.add(realmChoicePanel.reloadRealmTree(target));
-
-                    updateRealmContent(parent);
-                    target.add(content);
+                    
                     info(getString(Constants.OPERATION_SUCCEEDED));
+                    updateRealmContent(parent);
+                    target.add(content);                  
                 } catch (Exception e) {
                     LOG.error("While deleting realm", e);
                     // Excape line breaks

@@ -144,7 +144,7 @@ public abstract class AbstractSearchResultPanel<
 
         setWindowClosedReloadCallback(modal);
     }
-
+    
     protected abstract DP dataProvider();
 
     protected abstract String paginatorRowsKey();
@@ -252,7 +252,7 @@ public abstract class AbstractSearchResultPanel<
         super.onEvent(event);
     }
 
-    private void setWindowClosedReloadCallback(final BaseModal<?> modal) {
+    protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;

@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.AnyObjectDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -108,6 +107,8 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
 
         }
 
+        setWindowClosedReloadCallback(displayAttributeModal);
+        
         columns.add(new ActionColumn<AnyObjectTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
@@ -116,26 +117,25 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
             public ActionLinksPanel<AnyObjectTO> getActions(final String componentId, final IModel<AnyObjectTO> model) {
                 final ActionLinksPanel.Builder<AnyObjectTO> panel = ActionLinksPanel.builder(page.getPageReference());
 
-                panel.
-                        add(new ActionLink<AnyObjectTO>() {
+                panel.add(new ActionLink<AnyObjectTO>() {
 
-                            private static final long serialVersionUID = -7978723352517770645L;
+                    private static final long serialVersionUID = -7978723352517770645L;
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                                 final IModel<AnyHandler<AnyObjectTO>> formModel
                                         = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
-                                altDefaultModal.setFormModel(formModel);
+                        altDefaultModal.setFormModel(formModel);
 
-                                target.add(altDefaultModal.setContent(new StatusModal<AnyObjectTO>(
-                                        altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
+                        target.add(altDefaultModal.setContent(new StatusModal<AnyObjectTO>(
+                                altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
-                                altDefaultModal.header(new Model<>(
-                                        getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
+                        altDefaultModal.header(new Model<>(
+                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
 
-                                altDefaultModal.show(true);
-                            }
-                        }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).
+                        altDefaultModal.show(true);
+                    }
+                }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).
                         add(new ActionLink<AnyObjectTO>() {
 
                             private static final long serialVersionUID = -7978723352517770644L;
@@ -192,12 +192,11 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        // still missing content
-                        target.add(modal.setContent(new AnyObjectDisplayAttributesModalPage<>(
-                                modal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
-
-                        modal.header(new ResourceModel("any.attr.display", ""));
-                        modal.show(true);
+                        target.add(displayAttributeModal.setContent(new AnyObjectDisplayAttributesModalPage<>(
+                                displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
+                        displayAttributeModal.addSumbitButton();
+                        displayAttributeModal.header(new ResourceModel("any.attr.display", ""));
+                        displayAttributeModal.show(true);
                     }
                 }, ActionLink.ActionType.CHANGE_VIEW, String.format("%s_%s", type, AnyEntitlement.READ)).add(
                         new ActionLink<Serializable>() {
@@ -214,9 +213,11 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
 
                 return panel.build(componentId);
             }
-        });
+        }
+        );
 
         return columns;
+
     }
 
     public static class Builder extends AnySearchResultPanel.Builder<AnyObjectTO> {

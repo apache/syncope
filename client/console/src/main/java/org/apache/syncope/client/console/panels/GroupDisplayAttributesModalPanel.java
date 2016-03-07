@@ -16,57 +16,52 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.pages;
+package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.PageReference;
 
 /**
- * Modal window with Display user attributes form.
+ * Modal window with Display group attributes form.
  *
  * @param <T> can be {@link org.apache.syncope.common.lib.to.AnyTO} or
  * {@link org.apache.syncope.client.console.wizards.any.AnyHandler}
  */
-public class AnyObjectDisplayAttributesModalPage<T extends Serializable> extends DisplayAttributesModalPage<T> {
+public class GroupDisplayAttributesModalPanel<T extends Serializable> extends DisplayAttributesModalPanel<T> {
 
     private static final long serialVersionUID = 5194630813773543054L;
 
-    public static final String[] ANY_OBJECT_DEFAULT_SELECTION = { "key" };
+    public static final String[] GROUP_DEFAULT_SELECTION = { "key", "name" };
 
-    private final String type;
-
-    public AnyObjectDisplayAttributesModalPage(
+    public GroupDisplayAttributesModalPanel(
             final BaseModal<T> modal,
             final PageReference pageRef,
             final List<String> schemaNames,
-            final List<String> dSchemaNames,
-            final String type) {
-
+            final List<String> dSchemaNames) {
         super(modal, pageRef, schemaNames, dSchemaNames);
-        this.type = type;
     }
 
     @Override
     public String getPrefDetailView() {
-        return String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type);
+        return Constants.PREF_GROUP_DETAILS_VIEW;
     }
 
     @Override
     public String getPrefAttributeView() {
-        return String.format(Constants.PREF_ANY_OBJECT_PLAIN_ATTRS_VIEW, type);
+        return Constants.PREF_GROUP_PLAIN_ATTRS_VIEW;
     }
 
     @Override
     public String getPrefDerivedAttributeView() {
-        return String.format(Constants.PREF_ANY_OBJECT_DER_ATTRS_VIEW, type);
+        return Constants.PREF_GROUP_DER_ATTRS_VIEW;
     }
 
     @Override
-    public Class<AnyObjectTO> getTOClass() {
-        return AnyObjectTO.class;
+    public Class<GroupTO> getTOClass() {
+        return GroupTO.class;
     }
 }

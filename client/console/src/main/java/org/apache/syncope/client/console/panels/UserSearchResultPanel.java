@@ -27,7 +27,6 @@ import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.UserDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -97,14 +96,16 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
-            for (String name : UserDisplayAttributesModalPage.USER_DEFAULT_SELECTION) {
+            for (String name : UserDisplayAttributesModalPanel.USER_DEFAULT_SELECTION) {
                 columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
             }
 
             prefMan.setList(getRequest(), getResponse(), Constants.PREF_USERS_DETAILS_VIEW,
-                    Arrays.asList(UserDisplayAttributesModalPage.USER_DEFAULT_SELECTION));
+                    Arrays.asList(UserDisplayAttributesModalPanel.USER_DEFAULT_SELECTION));
         }
 
+        setWindowClosedReloadCallback(displayAttributeModal);
+        
         columns.add(new ActionColumn<UserTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
@@ -204,11 +205,12 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        target.add(modal.setContent(new UserDisplayAttributesModalPage<>(
-                                modal, page.getPageReference(), pSchemaNames, dSchemaNames)));
+                        target.add(displayAttributeModal.setContent(new UserDisplayAttributesModalPanel<>(
+                                displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
 
-                        modal.header(new ResourceModel("any.attr.display", ""));
-                        modal.show(true);
+                        displayAttributeModal.header(new ResourceModel("any.attr.display", ""));
+                        displayAttributeModal.addSumbitButton();
+                        displayAttributeModal.show(true);
                     }
                 }, ActionLink.ActionType.CHANGE_VIEW, StandardEntitlement.USER_READ).add(
                         new ActionLink<Serializable>() {

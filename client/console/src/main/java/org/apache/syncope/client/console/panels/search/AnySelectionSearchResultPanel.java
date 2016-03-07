@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import org.apache.syncope.client.console.pages.AnyObjectDisplayAttributesModalPage;
+import org.apache.syncope.client.console.panels.AnyObjectDisplayAttributesModalPage;
 import org.apache.syncope.client.console.panels.AnySearchResultPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -129,11 +129,12 @@ public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends Any
                             @Override
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 // still missing content
-                                target.add(modal.setContent(new AnyObjectDisplayAttributesModalPage<>(
-                                        modal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
-
-                                modal.header(new ResourceModel("any.attr.display", ""));
-                                modal.show(true);
+                                target.add(altDefaultModal.setContent(new AnyObjectDisplayAttributesModalPage<>(
+                                        altDefaultModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
+                                
+                                altDefaultModal.addSumbitButton();
+                                altDefaultModal.header(new ResourceModel("any.attr.display", ""));
+                                altDefaultModal.show(true);
                             }
                         }, ActionLink.ActionType.CHANGE_VIEW, String.format("%s_%s", type, AnyEntitlement.READ)).
                         add(new ActionLink<T>() {
