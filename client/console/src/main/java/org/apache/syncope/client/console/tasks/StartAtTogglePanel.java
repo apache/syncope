@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.tasks;
 
 import java.io.Serializable;
 import java.util.Date;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.TogglePanel;
@@ -48,7 +49,7 @@ public class StartAtTogglePanel extends TogglePanel<Serializable> {
         final Form<?> form = new Form<>("startAtForm");
         addInnerObject(form);
 
-        final Model<Date> startAtDateModel = new Model<Date>();
+        final Model<Date> startAtDateModel = new Model<>();
 
         final AjaxDateFieldPanel startAtDate = new AjaxDateFieldPanel(
                 "startAtDate", "startAtDate", startAtDateModel, SyncopeConstants.DATE_PATTERNS[3]);
@@ -57,7 +58,7 @@ public class StartAtTogglePanel extends TogglePanel<Serializable> {
         form.add(startAtDate);
 
         final AjaxCheckBoxPanel startAtCheck = new AjaxCheckBoxPanel(
-                "startAtCheck", "startAtCheck", new Model<Boolean>(false), false);
+                "startAtCheck", "startAtCheck", new Model<>(false), false);
 
         form.add(startAtCheck);
 
@@ -83,7 +84,7 @@ public class StartAtTogglePanel extends TogglePanel<Serializable> {
                     toggle(target, false);
                     target.add(container);
                 } catch (SyncopeClientException e) {
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                     LOG.error("While running propagation task {}", taskTO.getKey(), e);
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

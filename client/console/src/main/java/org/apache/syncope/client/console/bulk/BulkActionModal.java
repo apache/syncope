@@ -42,7 +42,7 @@ public class BulkActionModal<T extends Serializable, S> extends AbstractModalPan
             final String keyFieldName) {
 
         super(modal, pageRef);
-        add(new BulkContent<T, S>("content", modal, pageRef, items, columns, actions, bulkActionExecutor, keyFieldName).
+        add(new BulkContent<>("content", modal, items, columns, actions, bulkActionExecutor, keyFieldName).
                 setRenderBodyOnly(true));
     }
 }

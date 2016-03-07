@@ -810,7 +810,7 @@ under the License.
   <Provision id="7" resource_name="resource-testdb" anyType_name="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="7" provision_id="7"/>
   <MappingItem id="119" mapping_id="7"
-               extAttrName="id" intMappingType="Username" mandatoryCondition="true"
+               extAttrName="ID" intMappingType="Username" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="BOTH"/>
   <MappingItem id="120" mapping_id="7"
                extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
@@ -818,7 +818,7 @@ under the License.
                      
   <Provision id="8" resource_name="resource-testdb2" anyType_name="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="8" provision_id="8"/>
-  <MappingItem id="121" mapping_id="8" extAttrName="id" 
+  <MappingItem id="121" mapping_id="8" extAttrName="ID" 
                intMappingType="Username" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="PROPAGATION"/>
   <MappingItem id="122" mapping_id="8" extAttrName="__PASSWORD__" 
@@ -944,7 +944,7 @@ under the License.
   <Provision id="17" resource_name="resource-db-virattr" anyType_name="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="17" provision_id="17"/>
   <MappingItem id="331" mapping_id="17" connObjectKey="1" password="0"
-               extAttrName="id" intMappingType="UserKey" 
+               extAttrName="ID" intMappingType="UserKey" 
                mandatoryCondition="true" purpose="BOTH"/>
                 
   <VirSchema name="virtualdata" anyTypeClass_name="minimal user" provision_id="17" extAttrName="USERNAME"/>
@@ -963,10 +963,10 @@ under the License.
 
   <Provision id="21" resource_name="resource-db-scripted" anyType_name="PRINTER" objectClass="__PRINTER__"/>
   <Mapping id="21" provision_id="21"/>
-  <MappingItem id="405" mapping_id="21" extAttrName="id" 
+  <MappingItem id="405" mapping_id="21" extAttrName="ID" 
                intMappingType="AnyObjectKey" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="BOTH"/>
-  <MappingItem id="406" mapping_id="21" extAttrName="location" 
+  <MappingItem id="406" mapping_id="21" extAttrName="LOCATION" 
                intAttrName="location" intMappingType="AnyObjectPlainSchema"
                mandatoryCondition="false" connObjectKey="0" password="0" purpose="BOTH"/>
     

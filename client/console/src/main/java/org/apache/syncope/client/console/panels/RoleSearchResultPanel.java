@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.RoleDataProvider;
@@ -87,7 +88,7 @@ public class RoleSearchResultPanel
 
             @Override
             public ActionLinksPanel<RoleTO> getActions(final String componentId, final IModel<RoleTO> model) {
-                final ActionLinksPanel.Builder<RoleTO> panel = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<RoleTO> panel = ActionLinksPanel.builder();
 
                 panel.add(new ActionLink<RoleTO>() {
 
@@ -123,7 +124,7 @@ public class RoleSearchResultPanel
                             target.add(container);
                         } catch (SyncopeClientException e) {
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
@@ -134,7 +135,7 @@ public class RoleSearchResultPanel
 
             @Override
             public ActionLinksPanel<RoleTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<RoleTO> panel = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<RoleTO> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<RoleTO>() {
 

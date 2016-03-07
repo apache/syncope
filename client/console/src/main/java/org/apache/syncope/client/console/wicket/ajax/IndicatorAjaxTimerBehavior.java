@@ -24,7 +24,7 @@ import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.util.time.Duration;
 
 /**
- * An {@link AbstractAjaxTimerBehavior} not showin veil.
+ * An {@link AbstractAjaxTimerBehavior} not showing veil.
  */
 public abstract class IndicatorAjaxTimerBehavior extends AbstractAjaxTimerBehavior implements IAjaxIndicatorAware {
 

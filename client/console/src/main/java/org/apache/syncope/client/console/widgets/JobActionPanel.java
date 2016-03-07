@@ -19,15 +19,16 @@
 package org.apache.syncope.client.console.widgets;
 
 import java.io.Serializable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatorAjaxLink;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -47,7 +48,7 @@ public class JobActionPanel extends Panel {
         Fragment controls;
         if (jobTO.isRunning()) {
             controls = new Fragment("controls", "runningFragment", this);
-            controls.add(new AjaxLink<Void>("stop") {
+            controls.add(new IndicatorAjaxLink<Void>("stop") {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -76,14 +77,14 @@ public class JobActionPanel extends Panel {
                         send(widget, Broadcast.EXACT, new JobActionPayload(target));
                     } catch (Exception e) {
                         LOG.error("While stopping {}", jobTO.getRefDesc(), e);
-                        error(getString(Constants.ERROR) + ": " + e.getMessage());
+                        error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                     }
                     SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                 }
             });
         } else {
             controls = new Fragment("controls", "notRunningFragment", this);
-            controls.add(new AjaxLink<Void>("start") {
+            controls.add(new IndicatorAjaxLink<Void>("start") {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -111,8 +112,8 @@ public class JobActionPanel extends Panel {
                         info(getString(Constants.OPERATION_SUCCEEDED));
                         send(widget, Broadcast.EXACT, new JobActionPayload(target));
                     } catch (Exception e) {
-                        LOG.error("While stopping {}", jobTO.getRefDesc(), e);
-                        error(getString(Constants.ERROR) + ": " + e.getMessage());
+                        LOG.error("While starting {}", jobTO.getRefDesc(), e);
+                        error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                     }
                     SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                 }

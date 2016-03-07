@@ -82,9 +82,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     /**
      * Modal window.
      */
-    protected final BaseModal<T> altDefaultModal = new BaseModal<T>("alternativeDefaultModal");
+    protected final BaseModal<T> altDefaultModal = new BaseModal<>("alternativeDefaultModal");
     
-    protected final BaseModal<T> displayAttributeModal = new BaseModal<T>("displayAttributeModal");
+    protected final BaseModal<T> displayAttributeModal = new BaseModal<>("displayAttributeModal");
 
     protected WizardMgtPanel(final String id) {
         this(id, false);
@@ -166,10 +166,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                 if (wizardInModal && showResultPage) {
                     modal.setContent(new ResultPage<T>(
                             item,
-                            AjaxWizard.NewItemFinishEvent.class.cast(newItemEvent).getResult(),
-                            pageRef) {
+                            AjaxWizard.NewItemFinishEvent.class.cast(newItemEvent).getResult()) {
 
-                        private static final long serialVersionUID = 1L;
+                        private static final long serialVersionUID = -2630573849050255233L;
 
                         @Override
                         protected void closeAction(final AjaxRequestTarget target) {

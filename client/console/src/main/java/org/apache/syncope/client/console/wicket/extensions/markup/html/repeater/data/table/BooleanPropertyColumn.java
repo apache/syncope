@@ -43,7 +43,6 @@ public class BooleanPropertyColumn<T> extends PropertyColumn<T, String> {
 
     @Override
     public void populateItem(final Item<ICellPopulator<T>> item, final String componentId, final IModel<T> rowModel) {
-
         BeanWrapper bwi = new BeanWrapperImpl(rowModel.getObject());
         Object obj = bwi.getPropertyValue(getPropertyExpression());
 

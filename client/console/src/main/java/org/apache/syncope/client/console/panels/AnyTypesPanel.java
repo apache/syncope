@@ -78,14 +78,15 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
                                 SyncopeConsoleSession.get().getService(AnyTypeService.class).create(modelObject);
+                                SyncopeConsoleSession.get().refreshAuth();
                             } else {
                                 SyncopeConsoleSession.get().getService(AnyTypeService.class).update(modelObject);
                             }
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             modal.close(target);
                         } catch (Exception e) {
-                            LOG.error("While creating or updating AnyTypeTO", e);
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            LOG.error("While creating or updating {}", modelObject, e);
+                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
@@ -157,7 +158,7 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
             public ActionLinksPanel<AnyTypeTO> getActions(
                     final String componentId, final IModel<AnyTypeTO> model) {
 
-                ActionLinksPanel<AnyTypeTO> panel = ActionLinksPanel.<AnyTypeTO>builder(pageRef).
+                ActionLinksPanel<AnyTypeTO> panel = ActionLinksPanel.<AnyTypeTO>builder().
                         add(new ActionLink<AnyTypeTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -177,11 +178,14 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
                                 try {
                                     SyncopeConsoleSession.get().
                                             getService(AnyTypeService.class).delete(model.getObject().getKey());
+                                    SyncopeConsoleSession.get().refreshAuth();
+
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    error(StringUtils.isBlank(e.getMessage()) 
+                                            ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
@@ -193,8 +197,7 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
 
             @Override
             public ActionLinksPanel<AnyTypeTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<AnyTypeTO> panel =
-                        ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<AnyTypeTO> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<AnyTypeTO>() {
 

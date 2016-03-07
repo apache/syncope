@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
@@ -166,8 +167,8 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
             modal.close(target);
             info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
-            LOG.error("Failure managing resource {}", connInstanceTO, e);
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
+            LOG.error("Failure managing {}", connInstanceTO, e);
+            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
         }
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }

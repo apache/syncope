@@ -190,6 +190,6 @@ public interface TaskService extends JAXRSService {
      * @param action action to execute
      */
     @POST
-    @Path("/job/{key}")
+    @Path("jobs/{key}")
     void actionJob(@NotNull @PathParam("key") Long key, @QueryParam("action") JobAction action);
 }

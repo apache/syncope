@@ -105,5 +105,7 @@ public interface NotificationService extends JAXRSService {
      *
      * @param action action to execute
      */
+    @POST
+    @Path("job")
     void actionJob(@QueryParam("action") JobAction action);
 }

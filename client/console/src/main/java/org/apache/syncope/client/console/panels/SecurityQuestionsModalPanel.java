@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -59,8 +60,8 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
             info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
-            LOG.error("While creating or updating SecutiryQuestionTO", e);
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
+            LOG.error("While creating or updating {}", securityQuestionTO, e);
+            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
         }
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }

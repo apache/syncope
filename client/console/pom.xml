@@ -94,11 +94,6 @@ under the License.
       <groupId>com.pingunaut</groupId>
       <artifactId>wicket-chartjs</artifactId>
     </dependency>	
-      
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
     
     <dependency>
       <groupId>org.apache.syncope.client</groupId>
@@ -138,6 +133,11 @@ under the License.
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery-ui</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
     </dependency>
   </dependencies>
   

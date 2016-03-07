@@ -165,6 +165,11 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         getService(TaskService.class).deleteExecution(taskExecId);
     }
 
+    @Override
+    public List<ExecTO> listRecentExecutions(final int max) {
+        return SyncopeConsoleSession.get().getService(TaskService.class).listRecentExecutions(max);
+    }
+
     public void create(final SchedTaskTO taskTO) {
         getService(TaskService.class).create(taskTO);
     }

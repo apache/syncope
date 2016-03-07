@@ -19,8 +19,8 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -87,7 +87,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
             send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemCancelEvent<>(item, target));
         } catch (Exception e) {
             LOG.warn("Wizard error on cancel", e);
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
+            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
             SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
         }
     }
@@ -103,7 +103,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
             send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(res));
         } catch (Exception e) {
             LOG.error("Wizard error on finish", e);
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
+            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
             SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
         }
     }

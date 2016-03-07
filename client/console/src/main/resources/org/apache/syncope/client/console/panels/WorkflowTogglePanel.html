@@ -17,33 +17,30 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title>toggle menu</title></head>
-  <body>
-    <wicket:head>
-      <script type="text/javascript">
-        $(document).ready(function () {
-          $("div.inactive-topology-menu").toggle("slow");
-          $("div.inactive-topology-menu").attr("class", "topology-menu active-topology-menu");
-        });
-      </script>
+  <wicket:head>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $("div.inactive-topology-menu").toggle("slow");
+        $("div.inactive-topology-menu").attr("class", "topology-menu active-topology-menu");
+      });
+    </script>
 
-      <style type="text/css">
-        div.topology-menu {
-          top: 65px !important;
-        }
+    <style type="text/css">
+      div.topology-menu {
+        top: 65px !important;
+      }
 
-        div.topology-menu div.header {
-          display: none !important;
-        }
-      </style>
-    </wicket:head>
-    <wicket:extend>
-      <div wicket:id="container">
-        <ul class="menu">
-          <li><i class="fa fa-file-image-o"></i><a href="#" wicket:id="activitiModeler">Activiti Modeler</a></li>
-          <li><i class="fa fa-file-text-o"></i><a href="#" wicket:id="xmlEditor">XML editor</a></li>
-        </ul>
-      </div>
-    </wicket:extend>
-  </body>
+      div.topology-menu div.header {
+        display: none !important;
+      }
+    </style>
+  </wicket:head>
+  <wicket:extend>
+    <div wicket:id="container">
+      <ul class="menu">
+        <li><i class="fa fa-file-image-o"></i><a href="#" wicket:id="activitiModeler">Activiti Modeler</a></li>
+        <li><i class="fa fa-file-text-o"></i><a href="#" wicket:id="xmlEditor">XML editor</a></li>
+      </ul>
+    </div>
+  </wicket:extend>
 </html>

@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
@@ -142,7 +143,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
 
             @Override
             public ActionLinksPanel<AttrTO> getActions(final String componentId, final IModel<AttrTO> model) {
-                ActionLinksPanel<AttrTO> panel = ActionLinksPanel.<AttrTO>builder(pageRef).
+                ActionLinksPanel<AttrTO> panel = ActionLinksPanel.<AttrTO>builder().
                         add(new ActionLink<AttrTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -172,7 +173,8 @@ public class ParametersPanel extends AbstractSearchResultPanel<
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    error(StringUtils.isBlank(e.getMessage())
+                                            ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
@@ -184,8 +186,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
 
             @Override
             public ActionLinksPanel<AttrTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<AttrTO> panel =
-                        ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<AttrTO> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<AttrTO>() {
 

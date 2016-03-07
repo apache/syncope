@@ -223,9 +223,8 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
                     bulkModal.show(true);
                 } else {
-                    builder.multiLevelPanel.next("bulk.action", new BulkContent<T, S>(
+                    builder.multiLevelPanel.next("bulk.action", new BulkContent<>(
                             builder.baseModal,
-                            builder.pageRef,
                             group.getModelObject(),
                             // serialization problem with sublist only
                             new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),

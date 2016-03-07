@@ -349,7 +349,7 @@ public class UserReportlet extends AbstractReportlet {
 
     private int count() {
         return StringUtils.isBlank(conf.getMatchingCond())
-                ? userDAO.count(SyncopeConstants.FULL_ADMIN_REALMS)
+                ? userDAO.count()
                 : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
                         SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.USER);
     }

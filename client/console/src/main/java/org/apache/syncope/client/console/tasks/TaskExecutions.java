@@ -103,12 +103,10 @@ public abstract class TaskExecutions
             private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
-            public ActionLinksPanel<ExecTO> getActions(
-                    final String componentId, final IModel<ExecTO> model) {
-
+            public ActionLinksPanel<ExecTO> getActions(final String componentId, final IModel<ExecTO> model) {
                 final ExecTO taskExecutionTO = model.getObject();
 
-                final ActionLinksPanel.Builder<ExecTO> panel = ActionLinksPanel.builder(pageRef);
+                final ActionLinksPanel.Builder<ExecTO> panel = ActionLinksPanel.builder();
 
                 panel.
                         add(new ActionLink<ExecTO>() {
@@ -120,7 +118,7 @@ public abstract class TaskExecutions
                                 next(new StringResourceModel("execution.view", TaskExecutions.this, model).getObject(),
                                         new ExecMessage(model.getObject().getMessage()), target);
                             }
-                        }, ActionLink.ActionType.SEARCH, StandardEntitlement.TASK_READ).
+                        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ).
                         add(new ActionLink<ExecTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -144,7 +142,7 @@ public abstract class TaskExecutions
 
             @Override
             public ActionLinksPanel<Serializable> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder(pageRef);
+                final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<Serializable>() {
 

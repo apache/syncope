@@ -48,7 +48,6 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
 
     @Before
     public void setUp() {
-
         testApplicaton = new SyncopeConsoleApplication() {
 
             @Override

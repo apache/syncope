@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.UserSelfRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -93,7 +93,7 @@ public class MustChangePassword extends WebPage {
                 } catch (Exception e) {
                     LOG.error("While changing password for {}",
                             SyncopeConsoleSession.get().getSelfTO().getUsername(), e);
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                     SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                 }
             }

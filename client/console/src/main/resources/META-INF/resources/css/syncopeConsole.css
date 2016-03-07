@@ -531,3 +531,13 @@ END - Result page
 .nav-tabs-custom > .nav-tabs > li.active {
   border-top-color: #d2d6de !important;
 }
+
+.code-deletion {
+  background-color: #ffdddd;
+  border-color: #f1c0c0;
+}
+
+.code-addition {
+  background-color: #dbffdb;
+  border-color: #c1e9c1;
+}

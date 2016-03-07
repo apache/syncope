@@ -100,8 +100,7 @@ public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends Any
 
             @Override
             public ActionLinksPanel<T> getActions(final String componentId, final IModel<T> model) {
-
-                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.builder();
 
                 panel.add(new ActionLink<T>() {
 
@@ -110,7 +109,7 @@ public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends Any
                     @Override
                     public void onClick(final AjaxRequestTarget target, final T ignore) {
                         send(AnySelectionSearchResultPanel.this,
-                                Broadcast.BUBBLE, new ItemSelection<T>(target, model.getObject()));
+                                Broadcast.BUBBLE, new ItemSelection<>(target, model.getObject()));
                     }
                 }, ActionLink.ActionType.SELECT, String.format("%s_%s", type, AnyEntitlement.READ));
 
@@ -119,7 +118,7 @@ public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends Any
 
             @Override
             public ActionLinksPanel<T> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.builder();
 
                 return panel.
                         add(new ActionLink<T>() {

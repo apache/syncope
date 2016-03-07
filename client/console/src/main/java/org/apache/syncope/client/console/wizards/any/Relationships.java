@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -153,7 +154,7 @@ public class Relationships extends WizardStep {
             }
         });
 
-        viewFragment.add(ActionLinksPanel.<RelationshipTO>builder(pageRef).add(new ActionLink<RelationshipTO>() {
+        viewFragment.add(ActionLinksPanel.<RelationshipTO>builder().add(new ActionLink<RelationshipTO>() {
 
             private static final long serialVersionUID = 3257738274365467945L;
 
@@ -192,9 +193,7 @@ public class Relationships extends WizardStep {
     }
 
     private void addNewRelationships(final RelationshipTO... rels) {
-        for (RelationshipTO relationship : rels) {
-            getCurrentRelationships().add(relationship);
-        }
+        getCurrentRelationships().addAll(Arrays.asList(rels));
     }
 
     private void removeRelationships(
@@ -330,7 +329,7 @@ public class Relationships extends WizardStep {
 
                         anyObjectSearchPanel = new AnyObjectSearchPanel.Builder(
                                 anyType.getKey(),
-                                new ListModel<SearchClause>(new ArrayList<SearchClause>())).
+                                new ListModel<>(new ArrayList<SearchClause>())).
                                 enableSearch().
                                 build("searchPanel");
                         fragment.add(anyObjectSearchPanel.setRenderBodyOnly(true));

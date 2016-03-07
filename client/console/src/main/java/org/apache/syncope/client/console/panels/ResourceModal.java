@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
@@ -255,8 +256,8 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
                 info(getString(Constants.OPERATION_SUCCEEDED));
                 modal.close(target);
             } catch (Exception e) {
-                LOG.error("Failure managing resource {}", resourceTO, e);
-                error(getString(Constants.ERROR) + ": " + e.getMessage());
+                LOG.error("Failure managing {}", resourceTO, e);
+                error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
             }
         }
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

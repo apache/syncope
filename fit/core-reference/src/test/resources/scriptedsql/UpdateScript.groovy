@@ -50,9 +50,9 @@ def sql = new Sql(connection);
 
 switch (action) {
 case "UPDATE":
-  if (attributes.get("location").get(0) != null) {
+  if (attributes.get("LOCATION").get(0) != null) {
     sql.executeUpdate("UPDATE TESTPRINTER SET location = ?, lastmodification = ? where id = ?", 
-      [attributes.get("location").get(0), new Date(), attributes.get("__NAME__").get(0)])
+      [attributes.get("LOCATION").get(0), new Date(), attributes.get("__NAME__").get(0)])
     
     return attributes.get("__NAME__").get(0);
   }

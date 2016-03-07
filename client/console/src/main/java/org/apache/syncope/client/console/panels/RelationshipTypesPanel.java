@@ -86,8 +86,8 @@ public class RelationshipTypesPanel extends AbstractTypesPanel<RelationshipTypeT
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             modal.close(target);
                         } catch (Exception e) {
-                            LOG.error("While creating or updating RelationshipTypeTO", e);
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            LOG.error("While creating or updating {}", modelObject, e);
+                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
@@ -160,7 +160,7 @@ public class RelationshipTypesPanel extends AbstractTypesPanel<RelationshipTypeT
             public ActionLinksPanel<RelationshipTypeTO> getActions(
                     final String componentId, final IModel<RelationshipTypeTO> model) {
 
-                ActionLinksPanel<RelationshipTypeTO> panel = ActionLinksPanel.<RelationshipTypeTO>builder(pageRef).
+                ActionLinksPanel<RelationshipTypeTO> panel = ActionLinksPanel.<RelationshipTypeTO>builder().
                         add(new ActionLink<RelationshipTypeTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -184,7 +184,8 @@ public class RelationshipTypesPanel extends AbstractTypesPanel<RelationshipTypeT
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    error(StringUtils.isBlank(e.getMessage())
+                                            ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
@@ -196,8 +197,7 @@ public class RelationshipTypesPanel extends AbstractTypesPanel<RelationshipTypeT
 
             @Override
             public ActionLinksPanel<RelationshipTypeTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<RelationshipTypeTO> panel =
-                        ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<RelationshipTypeTO> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<RelationshipTypeTO>() {
 

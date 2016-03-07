@@ -139,7 +139,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
                 } catch (Exception e) {
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                 }
             }
         };

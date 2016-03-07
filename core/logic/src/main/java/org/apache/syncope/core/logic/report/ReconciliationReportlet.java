@@ -24,12 +24,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.ReconciliationReportletConf;
 import org.apache.syncope.common.lib.report.ReconciliationReportletConf.Feature;
@@ -61,6 +63,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -232,22 +235,26 @@ public class ReconciliationReportlet extends AbstractReportlet {
             handler.startElement("", "", "misaligned", atts);
 
             handler.startElement("", "", "onSyncope", null);
-            for (Object value : item.getOnSyncope()) {
-                char[] asChars = value.toString().toCharArray();
+            if (item.getOnSyncope() != null) {
+                for (Object value : item.getOnSyncope()) {
+                    char[] asChars = value.toString().toCharArray();
 
-                handler.startElement("", "", "value", null);
-                handler.characters(asChars, 0, asChars.length);
-                handler.endElement("", "", "value");
+                    handler.startElement("", "", "value", null);
+                    handler.characters(asChars, 0, asChars.length);
+                    handler.endElement("", "", "value");
+                }
             }
             handler.endElement("", "", "onSyncope");
 
             handler.startElement("", "", "onResource", null);
-            for (Object value : item.getOnResource()) {
-                char[] asChars = value.toString().toCharArray();
+            if (item.getOnResource() != null) {
+                for (Object value : item.getOnResource()) {
+                    char[] asChars = value.toString().toCharArray();
 
-                handler.startElement("", "", "value", null);
-                handler.characters(asChars, 0, asChars.length);
-                handler.endElement("", "", "value");
+                    handler.startElement("", "", "value", null);
+                    handler.characters(asChars, 0, asChars.length);
+                    handler.endElement("", "", "value");
+                }
             }
             handler.endElement("", "", "onResource");
 
@@ -299,10 +306,18 @@ public class ReconciliationReportlet extends AbstractReportlet {
                         missing.add(new Missing(resource.getKey(), connObjectKeyValue));
                     } else {
                         // 5. found but misaligned?
+                        Pair<String, Set<Attribute>> preparedAttrs =
+                                mappingUtils.prepareAttrs(any, null, false, null, provision);
+                        preparedAttrs.getRight().add(AttributeBuilder.build(
+                                Uid.NAME, preparedAttrs.getLeft()));
+                        preparedAttrs.getRight().add(AttributeBuilder.build(
+                                connObjectKeyItem.getExtAttrName(), preparedAttrs.getLeft()));
 
                         final Map<String, Set<Object>> syncopeAttrs = new HashMap<>();
-                        for (Attribute attr : mappingUtils.prepareAttrs(any, null, false, null, provision).getRight()) {
-                            syncopeAttrs.put(attr.getName(), new HashSet<>(attr.getValue()));
+                        for (Attribute attr : preparedAttrs.getRight()) {
+                            syncopeAttrs.put(
+                                    attr.getName(),
+                                    attr.getValue() == null ? null : new HashSet<>(attr.getValue()));
                         }
 
                         final Map<String, Set<Object>> resourceAttrs = new HashMap<>();
@@ -310,7 +325,9 @@ public class ReconciliationReportlet extends AbstractReportlet {
                             if (!OperationalAttributes.PASSWORD_NAME.equals(attr.getName())
                                     && !OperationalAttributes.ENABLE_NAME.equals(attr.getName())) {
 
-                                resourceAttrs.put(attr.getName(), new HashSet<>(attr.getValue()));
+                                resourceAttrs.put(
+                                        attr.getName(),
+                                        attr.getValue() == null ? null : new HashSet<>(attr.getValue()));
                             }
                         }
 
@@ -330,7 +347,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
 
                         for (Map.Entry<String, Set<Object>> entry : resourceAttrs.entrySet()) {
                             if (syncopeAttrs.containsKey(entry.getKey())) {
-                                if (!syncopeAttrs.get(entry.getKey()).equals(entry.getValue())) {
+                                if (!Objects.equals(syncopeAttrs.get(entry.getKey()), entry.getValue())) {
                                     misaligned.add(new Misaligned(
                                             resource.getKey(),
                                             connObjectKeyValue,
@@ -357,13 +374,9 @@ public class ReconciliationReportlet extends AbstractReportlet {
         }
     }
 
-    private void doExtract(final ContentHandler handler, final SearchCond cond, final AnyTypeKind anyTypeKind)
+    private void doExtract(
+            final ContentHandler handler, final int count, final SearchCond cond, final AnyTypeKind anyTypeKind)
             throws SAXException {
-
-        int count = searchDAO.count(
-                SyncopeConstants.FULL_ADMIN_REALMS,
-                cond,
-                anyTypeKind);
 
         for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
             List<AnyObject> anys = searchDAO.search(
@@ -386,32 +399,43 @@ public class ReconciliationReportlet extends AbstractReportlet {
             throw new ReportException(new IllegalArgumentException("Invalid configuration provided"));
         }
 
-        handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + "s", null);
+        AttributesImpl atts = new AttributesImpl();
+
         if (StringUtils.isBlank(this.conf.getUserMatchingCond())) {
+            atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(userDAO.count()));
+            handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + "s", atts);
+
             doExtract(handler, userDAO.findAll());
         } else {
             SearchCond cond = SearchCondConverter.convert(this.conf.getUserMatchingCond());
-            doExtract(handler, cond, AnyTypeKind.USER);
+
+            int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
+            atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(count));
+            handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + "s", atts);
+
+            doExtract(handler, count, cond, AnyTypeKind.USER);
         }
         handler.endElement("", "", getAnyElementName(AnyTypeKind.USER) + "s");
 
-        handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s", null);
+        atts.clear();
         if (StringUtils.isBlank(this.conf.getGroupMatchingCond())) {
+            atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(groupDAO.count()));
+            handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s", atts);
+
             doExtract(handler, groupDAO.findAll());
         } else {
             SearchCond cond = SearchCondConverter.convert(this.conf.getUserMatchingCond());
-            doExtract(handler, cond, AnyTypeKind.GROUP);
+
+            int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.GROUP);
+            atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(count));
+            handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s", atts);
+
+            doExtract(handler, count, cond, AnyTypeKind.GROUP);
         }
         handler.endElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s");
 
-        AttributesImpl atts = new AttributesImpl();
-
         for (AnyType anyType : anyTypeDAO.findAll()) {
             if (!anyType.equals(anyTypeDAO.findUser()) && !anyType.equals(anyTypeDAO.findGroup())) {
-                atts.clear();
-                atts.addAttribute("", "", "type", ReportXMLConst.XSD_STRING, anyType.getKey());
-                handler.startElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + "s", atts);
-
                 AnyTypeCond anyTypeCond = new AnyTypeCond();
                 anyTypeCond.setAnyTypeName(anyType.getKey());
                 SearchCond cond = StringUtils.isBlank(this.conf.getAnyObjectMatchingCond())
@@ -420,7 +444,14 @@ public class ReconciliationReportlet extends AbstractReportlet {
                                 SearchCond.getLeafCond(anyTypeCond),
                                 SearchCondConverter.convert(this.conf.getAnyObjectMatchingCond()));
 
-                doExtract(handler, cond, AnyTypeKind.ANY_OBJECT);
+                int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.ANY_OBJECT);
+
+                atts.clear();
+                atts.addAttribute("", "", "type", ReportXMLConst.XSD_STRING, anyType.getKey());
+                atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(count));
+                handler.startElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + "s", atts);
+
+                doExtract(handler, count, cond, AnyTypeKind.ANY_OBJECT);
 
                 handler.endElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + "s");
             }

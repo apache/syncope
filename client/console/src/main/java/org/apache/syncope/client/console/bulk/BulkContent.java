@@ -38,13 +38,11 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
@@ -65,20 +63,19 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
 
     public BulkContent(
             final BaseModal<?> modal,
-            final PageReference pageRef,
             final Collection<T> items,
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
             final BaseRestClient bulkActionExecutor,
             final String keyFieldName) {
+
         this(MultilevelPanel.SECOND_LEVEL_ID,
-                modal, pageRef, items, columns, actions, bulkActionExecutor, keyFieldName);
+                modal, items, columns, actions, bulkActionExecutor, keyFieldName);
     }
 
     public BulkContent(
             final String id,
             final BaseModal<?> modal,
-            final PageReference pageRef,
             final Collection<T> items,
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
@@ -117,7 +114,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                 dataProvider,
                 Integer.MAX_VALUE).setMarkupId("selectedObjects").setVisible(items != null && !items.isEmpty()));
 
-        final ActionLinksPanel<Serializable> actionPanel = ActionLinksPanel.builder(pageRef).build("actions");
+        final ActionLinksPanel<Serializable> actionPanel = ActionLinksPanel.builder().build("actions");
         container.add(actionPanel);
 
         for (ActionLink.ActionType action : actions) {
@@ -149,8 +146,8 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                                 throw new IllegalArgumentException("Invalid bulk action executor");
                             }
 
-                            final AbstractAnyRestClient<?> anyRestClient
-                                    = AbstractAnyRestClient.class.cast(bulkActionExecutor);
+                            final AbstractAnyRestClient<?> anyRestClient =
+                                    AbstractAnyRestClient.class.cast(bulkActionExecutor);
 
                             if (items.isEmpty() || !(items.iterator().next() instanceof StatusBean)) {
                                 throw new IllegalArgumentException("Invalid items");
@@ -227,11 +224,9 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                         target.add(actionPanel);
 
                         info(getString(Constants.OPERATION_SUCCEEDED));
-                    } catch (SyncopeClientException | NoSuchMethodException | SecurityException | IllegalAccessException
-                            | IllegalArgumentException | InvocationTargetException e) {
+                    } catch (Exception e) {
                         LOG.error("Bulk action failure", e);
-                        error(getString(Constants.ERROR)
-                                + ": Operation " + actionToBeAddresed.getActionId() + " not supported");
+                        error("Operation " + actionToBeAddresed.getActionId() + " not supported");
                     }
                     SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                 }

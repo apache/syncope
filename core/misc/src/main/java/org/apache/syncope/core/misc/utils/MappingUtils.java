@@ -376,7 +376,7 @@ public class MappingUtils {
      * @param mapItem mapping item for the given attribute
      * @param any any object
      * @param password clear-text password
-     * @return connObjectLink + prepared attribute
+     * @return connObjectKey + prepared attribute
      */
     private Pair<String, Attribute> prepareAttr(
             final Provision provision, final MappingItem mapItem, final Any<?> any, final String password) {

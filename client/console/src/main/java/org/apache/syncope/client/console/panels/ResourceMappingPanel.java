@@ -221,9 +221,7 @@ public class ResourceMappingPanel extends Panel {
                     entity = mapItem.getIntMappingType().getAnyTypeKind();
                 }
 
-                final ActionLinksPanel.Builder<Serializable> actions = ActionLinksPanel.builder(
-                        getPage().getPageReference());
-
+                final ActionLinksPanel.Builder<Serializable> actions = ActionLinksPanel.builder();
                 actions.add(new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -3722207913631435501L;

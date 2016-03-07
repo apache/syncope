@@ -21,6 +21,8 @@ package org.apache.syncope.client.console.rest;
 import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -51,7 +53,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
      *
      * @param reportKey report to delete
      */
-    public void delete(final Long reportKey) {
+    public void delete(final long reportKey) {
         getService(ReportService.class).delete(reportKey);
     }
 
@@ -60,17 +62,17 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
         getService(ReportService.class).execute(new ExecuteQuery.Builder().key(reportKey).startAt(start).build());
     }
 
-    /**
-     * Delete specified report execution.
-     *
-     * @param reportExecId report execution id
-     */
     @Override
-    public void deleteExecution(final long reportExecId) {
-        getService(ReportService.class).deleteExecution(reportExecId);
+    public void deleteExecution(final long reportExecKey) {
+        getService(ReportService.class).deleteExecution(reportExecKey);
     }
 
-    public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
+    @Override
+    public List<ExecTO> listRecentExecutions(final int max) {
+        return SyncopeConsoleSession.get().getService(ReportService.class).listRecentExecutions(max);
+    }
+
+    public Response exportExecutionResult(final long executionId, final ReportExecExportFormat fmt) {
         return getService(ReportService.class).exportExecutionResult(executionId, fmt);
     }
 }

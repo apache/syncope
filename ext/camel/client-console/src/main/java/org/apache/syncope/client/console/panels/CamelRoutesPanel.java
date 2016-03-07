@@ -154,7 +154,7 @@ public class CamelRoutesPanel extends AbstractSearchResultPanel<
             public ActionLinksPanel<CamelRouteTO> getActions(
                     final String componentId, final IModel<CamelRouteTO> model) {
 
-                ActionLinksPanel<CamelRouteTO> panel = ActionLinksPanel.<CamelRouteTO>builder(pageRef).
+                ActionLinksPanel<CamelRouteTO> panel = ActionLinksPanel.<CamelRouteTO>builder().
                         add(new ActionLink<CamelRouteTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -172,8 +172,7 @@ public class CamelRoutesPanel extends AbstractSearchResultPanel<
 
             @Override
             public ActionLinksPanel<CamelRouteTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<CamelRouteTO> panel =
-                        ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<CamelRouteTO> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<CamelRouteTO>() {
 

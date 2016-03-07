@@ -17,23 +17,34 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:head>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $("#pageTitleInBradcrumb").append($("#pageTitle").text());
+      });
+    </script>
+  </wicket:head>
   <wicket:extend>
+    <script lang="text/javascript">
+
+    </script>
     <section class="content-header">
       <h1>&nbsp;</h1>
       <ol class="breadcrumb">
         <li><a wicket:id="dashboardBr"><i class="fa fa-dashboard"></i> <wicket:message key="dashboard"/></a></li>
-        <li class="active"><wicket:message key="realms"/></li>
+        <li class="active" id="pageTitleInBradcrumb"/>
       </ol>
+      <div id="pageTitle" style="visibility: hidden;"><wicket:message key='realms'/></div>
     </section>
 
     <section class="content" wicket:id="content">
       <div class="box">
         <div class="box-body">
-          <span wicket:id="realmChoicePanel">[Realm Sidebar Panel]</span>
-          <wicket:container wicket:id="body"></wicket:container>
+          <span wicket:id="realmChoicePanel"/>
+          <wicket:container wicket:id="body"/>
         </div>
       </div>
-      <div wicket:id="modal"></div>
+      <div wicket:id="modal"/>
     </section>
   </wicket:extend>
 </html>

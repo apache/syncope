@@ -61,8 +61,13 @@ public class ParametersITCase extends AbstractConsoleITCase {
 
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:finish");
 
+        try {
         wicketTester.assertInfoMessages("Operation executed successfully");
-
+        } catch(Throwable t) {
+            System.err.println("EEEEEEEEEEEEEE " + wicketTester.getLastResponseAsString());
+            t.printStackTrace();
+        }
+        
         wicketTester.cleanupFeedbackMessages();
         wicketTester.assertRenderedPage(Parameters.class);
     }

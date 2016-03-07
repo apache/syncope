@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.widgets;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,7 +52,10 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -97,26 +101,20 @@ public class JobWidget extends AbstractWidget {
 
     private final List<JobTO> available;
 
-    private final AvailableJobsPanel availableJobsPanel;
+    private AvailableJobsPanel availableJobsPanel;
 
     private final List<ExecTO> recent;
 
-    private final RecentExecPanel recentExecPanel;
+    private RecentExecPanel recentExecPanel;
 
     public JobWidget(final String id, final PageReference pageRef) {
         super(id);
-
         setOutputMarkupId(true);
 
         available = getAvailable(SyncopeConsoleSession.get());
-        availableJobsPanel = new AvailableJobsPanel("available", pageRef);
-        availableJobsPanel.setOutputMarkupId(true);
-        add(availableJobsPanel);
-
         recent = getRecent(SyncopeConsoleSession.get());
-        recentExecPanel = new RecentExecPanel("recent", pageRef);
-        recentExecPanel.setOutputMarkupId(true);
-        add(recentExecPanel);
+
+        add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));
 
         add(new WebSocketBehavior() {
 
@@ -130,6 +128,36 @@ public class JobWidget extends AbstractWidget {
         });
     }
 
+    private List<ITab> buildTabList(final PageReference pageRef) {
+        final List<ITab> tabs = new ArrayList<>();
+
+        tabs.add(new AbstractTab(new ResourceModel("available")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                availableJobsPanel = new AvailableJobsPanel(panelId, pageRef);
+                availableJobsPanel.setOutputMarkupId(true);
+                return availableJobsPanel;
+            }
+        });
+
+        tabs.add(new AbstractTab(new ResourceModel("recent")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                recentExecPanel = new RecentExecPanel(panelId, pageRef);
+                recentExecPanel.setOutputMarkupId(true);
+                return recentExecPanel;
+            }
+        });
+
+        return tabs;
+    }
+
     @Override
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof WebSocketPushPayload) {
@@ -141,10 +169,14 @@ public class JobWidget extends AbstractWidget {
                 recent.clear();
                 recent.addAll(((JobWidgetMessage) wsEvent.getMessage()).getUpdatedRecent());
 
-                availableJobsPanel.modelChanged();
-                wsEvent.getHandler().add(availableJobsPanel);
-                recentExecPanel.modelChanged();
-                wsEvent.getHandler().add(recentExecPanel);
+                if (availableJobsPanel != null) {
+                    availableJobsPanel.modelChanged();
+                    wsEvent.getHandler().add(availableJobsPanel);
+                }
+                if (recentExecPanel != null) {
+                    recentExecPanel.modelChanged();
+                    wsEvent.getHandler().add(recentExecPanel);
+                }
             }
         } else if (event.getPayload() instanceof JobActionPanel.JobActionPayload) {
             available.clear();
@@ -402,6 +434,5 @@ public class JobWidget extends AbstractWidget {
         public List<ExecTO> getUpdatedRecent() {
             return updatedRecent;
         }
-
     }
 }

@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
@@ -165,7 +166,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
                 final T taskTO = model.getObject();
 
-                final ActionLinksPanel<T> panel = ActionLinksPanel.<T>builder(pageRef).
+                final ActionLinksPanel<T> panel = ActionLinksPanel.<T>builder().
                         add(new ActionLink<T>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -174,7 +175,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 viewTask(taskTO, target);
                             }
-                        }, ActionLink.ActionType.SEARCH, StandardEntitlement.TASK_READ).
+                        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ).
                         add(new ActionLink<T>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -220,7 +221,8 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    error(StringUtils.isBlank(e.getMessage())
+                                            ? e.getClass().getName() : e.getMessage());
                                     LOG.error("While running propagation task {}", taskTO.getKey(), e);
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
@@ -237,7 +239,8 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    error(StringUtils.isBlank(e.getMessage())
+                                            ? e.getClass().getName() : e.getMessage());
                                     LOG.error("While deleting propagation task {}", taskTO.getKey(), e);
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
@@ -249,7 +252,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
             @Override
             public ActionLinksPanel<T> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<T>() {
 

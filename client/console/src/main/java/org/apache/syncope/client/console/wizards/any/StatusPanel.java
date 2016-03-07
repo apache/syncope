@@ -177,7 +177,7 @@ public class StatusPanel extends Panel {
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                 mlp.next(bean.getResourceName(), new RemoteObjectPanel(bean, connObjects), target);
             }
-        }, ActionLink.ActionType.SEARCH, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
+        }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
 
         listViewPanel = ListViewPanel.class.cast(builder.build(MultilevelPanel.FIRST_LEVEL_ID));
         mlp.setFirstLevel(listViewPanel);

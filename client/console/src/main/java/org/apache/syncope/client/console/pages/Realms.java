@@ -157,8 +157,8 @@ public class Realms extends BasePage {
                     target.add(content);                  
                 } catch (Exception e) {
                     LOG.error("While deleting realm", e);
-                    // Excape line breaks
-                    error(getString(Constants.ERROR) + ": " + e.getMessage().replace("\n", " "));
+                    // Escape line breaks
+                    error(e.getMessage().replace("\n", " "));
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }

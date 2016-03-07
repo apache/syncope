@@ -183,6 +183,11 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return roles;
     }
 
+    public void refreshAuth() {
+        authenticate(username, password);
+        roles = null;
+    }
+
     @SuppressWarnings("unchecked")
     private <T> T getCachedService(final Class<T> serviceClass) {
         T service;

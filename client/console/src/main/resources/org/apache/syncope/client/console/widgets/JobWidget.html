@@ -18,19 +18,15 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div class="nav-tabs-custom">
-      <ul class="nav nav-tabs pull-right ui-sortable-handle">
-        <li class="active"><a data-toggle="tab" href="#running">Available</a></li>
-        <li><a data-toggle="tab" href="#recent">Recent</a></li>
-        <li class="pull-left header"><i class="fa fa-gears"></i> Jobs</li>
-      </ul>
-      <div class="tab-content no-padding">
-        <div style="position: relative;" id="running" class="chart tab-pane active">
-          <span wicket:id="available"/>
+    <div class="box box-default box-solid">
+      <div class="box-header with-border">
+        <h3 class="box-title"><wicket:message key="jobs"/></h3>
+        <div class="box-tools pull-right">
+          <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
         </div>
-        <div style="position: relative;" id="recent" class="chart tab-pane">
-          <span wicket:id="recent"/>
-        </div>
+      </div>
+      <div class="box-body">
+        <div class="box-body" wicket:id="tabbedPanel"/>
       </div>
     </div>
   </wicket:panel>

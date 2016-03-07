@@ -115,7 +115,6 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
 
     @Override
     public BulkActionResult bulkAction(final BulkAction action) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return getService(AnyObjectService.class).bulk(action);
     }
-
 }

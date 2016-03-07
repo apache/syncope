@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
@@ -74,9 +75,7 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
 
             final Field field = ReflectionUtils.findField(AnyObjectTO.class, name);
 
-            if ("token".equalsIgnoreCase(name)) {
-                columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
-            } else if (field != null && field.getType().equals(Date.class)) {
+            if (field != null && field.getType().equals(Date.class)) {
                 columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
             } else {
                 columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
@@ -104,18 +103,17 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
             for (String name : AnyObjectDisplayAttributesModalPage.ANY_OBJECT_DEFAULT_SELECTION) {
                 columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
             }
-
         }
 
         setWindowClosedReloadCallback(displayAttributeModal);
-        
+
         columns.add(new ActionColumn<AnyObjectTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
             public ActionLinksPanel<AnyObjectTO> getActions(final String componentId, final IModel<AnyObjectTO> model) {
-                final ActionLinksPanel.Builder<AnyObjectTO> panel = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<AnyObjectTO> panel = ActionLinksPanel.builder();
 
                 panel.add(new ActionLink<AnyObjectTO>() {
 
@@ -123,11 +121,11 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                                final IModel<AnyHandler<AnyObjectTO>> formModel
-                                        = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                        final IModel<AnyHandler<AnyObjectTO>> formModel =
+                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
-                        target.add(altDefaultModal.setContent(new StatusModal<AnyObjectTO>(
+                        target.add(altDefaultModal.setContent(new StatusModal<>(
                                 altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
                         altDefaultModal.header(new Model<>(
@@ -173,7 +171,8 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
                                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    error(StringUtils.isBlank(e.getMessage())
+                                            ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
@@ -184,7 +183,7 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
 
             @Override
             public ActionLinksPanel<Serializable> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder();
 
                 panel.add(new ActionLink<Serializable>() {
 

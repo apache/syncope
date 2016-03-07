@@ -118,5 +118,4 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
     public BulkActionResult bulkAction(final BulkAction action) {
         return getService(GroupService.class).bulk(action);
     }
-
 }

@@ -19,10 +19,14 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.Date;
+import java.util.List;
+import org.apache.syncope.common.lib.to.ExecTO;
 
 public interface ExecutionRestClient {
 
-    void startExecution(long executionCollectorId, Date start);
+    void startExecution(long executionCollectorKey, Date start);
 
-    void deleteExecution(long executionId);
+    void deleteExecution(long executionKeyI);
+
+    List<ExecTO> listRecentExecutions(final int max);
 }

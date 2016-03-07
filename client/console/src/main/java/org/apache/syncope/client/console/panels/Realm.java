@@ -78,7 +78,7 @@ public abstract class Realm extends Panel {
         return realmTO;
     }
 
-    private List<ITab> buildTabList(final PageReference pageReference) {
+    private List<ITab> buildTabList(final PageReference pageRef) {
 
         final List<ITab> tabs = new ArrayList<>();
 
@@ -88,7 +88,7 @@ public abstract class Realm extends Panel {
 
             @Override
             public Panel getPanel(final String panelId) {
-                final ActionLinksPanel<RealmTO> actionLinksPanel = ActionLinksPanel.<RealmTO>builder(pageRef).
+                final ActionLinksPanel<RealmTO> actionLinksPanel = ActionLinksPanel.<RealmTO>builder().
                         add(new ActionLink<RealmTO>(realmTO) {
 
                             private static final long serialVersionUID = 2802988981431379827L;
@@ -133,14 +133,14 @@ public abstract class Realm extends Panel {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return getAnyPanel(panelId, pageReference, anyTypeTO);
+                    return getAnyPanel(panelId, pageRef, anyTypeTO);
                 }
             });
         }
         return tabs;
     }
 
-    private Panel getAnyPanel(final String id, final PageReference pageReference, final AnyTypeTO anyTypeTO) {
+    private Panel getAnyPanel(final String id, final PageReference pageRef, final AnyTypeTO anyTypeTO) {
         final Panel panel;
         switch (anyTypeTO.getKind()) {
             case USER:
@@ -149,7 +149,7 @@ public abstract class Realm extends Panel {
                 panel = new UserSearchResultPanel.Builder(
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
-                        pageReference).setRealm(realmTO.getFullPath()).
+                        pageRef).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new UserWizardBuilder(
                                 BaseModal.CONTENT_ID, userTO, anyTypeTO.getClasses(), pageRef)).build(id);
                 MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER, StandardEntitlement.USER_LIST);
@@ -160,7 +160,7 @@ public abstract class Realm extends Panel {
                 panel = new GroupSearchResultPanel.Builder(
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
-                        pageReference).setRealm(realmTO.getFullPath()).
+                        pageRef).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new GroupWizardBuilder(
                                 BaseModal.CONTENT_ID, groupTO, anyTypeTO.getClasses(), pageRef)).build(id);
                 // list of group is available to all authenticated users
@@ -172,7 +172,7 @@ public abstract class Realm extends Panel {
                 panel = new AnyObjectSearchResultPanel.Builder(
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
-                        pageReference).setRealm(realmTO.getFullPath()).
+                        pageRef).setRealm(realmTO.getFullPath()).
                         addNewItemPanelBuilder(new AnyObjectWizardBuilder(
                                 BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).build(id);
                 MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER,

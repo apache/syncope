@@ -35,12 +35,12 @@ log.info("Entering " + action + " Script");
 
 def sql = new Sql(connection);
 
-switch ( objectClass ) {
+switch ( objectClass ) {  
 case "__PRINTER__":
   sql.execute("INSERT INTO TESTPRINTER (id, location, lastmodification) values (?,?,?)",
     [
       id,
-      attributes.get("location").get(0),
+      attributes.get("LOCATION").get(0),
       new Date()
     ])
   break

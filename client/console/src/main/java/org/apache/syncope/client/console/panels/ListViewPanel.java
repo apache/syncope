@@ -154,7 +154,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
             @Override
             protected void populateItem(final ListItem<T> beanItem) {
-                beanItem.add(new Check<T>("check", beanItem.getModel(), checkGroup).setOutputMarkupId(true)
+                beanItem.add(new Check<>("check", beanItem.getModel(), checkGroup).setOutputMarkupId(true)
                         .setOutputMarkupPlaceholderTag(true)
                         .setVisible(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE
                                 || ListViewPanel.this.check.getObject() == CheckAvailability.DISABLED)
@@ -234,7 +234,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             super(pageRef);
             this.reference = reference;
             this.items = null;
-            this.actions = ActionLinksPanel.<T>builder(pageRef);
+            this.actions = ActionLinksPanel.<T>builder();
         }
 
         public Builder<T> setModel(final IModel<? extends Collection<T>> model) {

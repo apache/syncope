@@ -84,7 +84,7 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
                             modal.close(target);
                         } catch (Exception e) {
                             LOG.error("While creating or updating AnyTypeClassTO", e);
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
@@ -156,7 +156,7 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
             public ActionLinksPanel<AnyTypeClassTO> getActions(
                     final String componentId, final IModel<AnyTypeClassTO> model) {
 
-                ActionLinksPanel<AnyTypeClassTO> panel = ActionLinksPanel.<AnyTypeClassTO>builder(pageRef).
+                ActionLinksPanel<AnyTypeClassTO> panel = ActionLinksPanel.<AnyTypeClassTO>builder().
                         add(new ActionLink<AnyTypeClassTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -180,7 +180,8 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    error(StringUtils.isBlank(e.getMessage())
+                                            ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
@@ -192,8 +193,7 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
 
             @Override
             public ActionLinksPanel<AnyTypeClassTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<AnyTypeClassTO> panel =
-                        ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<AnyTypeClassTO> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<AnyTypeClassTO>() {
 

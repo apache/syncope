@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.UserRestClient;
@@ -105,15 +106,14 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
         }
 
         setWindowClosedReloadCallback(displayAttributeModal);
-        
+
         columns.add(new ActionColumn<UserTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
             public ActionLinksPanel<UserTO> getActions(final String componentId, final IModel<UserTO> model) {
-
-                final ActionLinksPanel.Builder<UserTO> panel = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<UserTO> panel = ActionLinksPanel.builder();
 
                 panel.add(new ActionLink<UserTO>() {
 
@@ -122,11 +122,11 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
 
-                        final IModel<AnyHandler<UserTO>> formModel
-                                = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                        final IModel<AnyHandler<UserTO>> formModel =
+                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
-                        target.add(altDefaultModal.setContent(new StatusModal<UserTO>(
+                        target.add(altDefaultModal.setContent(new StatusModal<>(
                                 altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
                         altDefaultModal.header(new Model<>(
@@ -140,11 +140,11 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel
-                                = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                        final IModel<AnyHandler<UserTO>> formModel =
+                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
-                        target.add(altDefaultModal.setContent(new StatusModal<UserTO>(
+                        target.add(altDefaultModal.setContent(new StatusModal<>(
                                 altDefaultModal, pageRef, formModel.getObject().getInnerObject(), true)));
 
                         altDefaultModal.header(new Model<>(
@@ -186,7 +186,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                             target.add(container);
                         } catch (SyncopeClientException e) {
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
@@ -197,7 +197,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
             @Override
             public ActionLinksPanel<Serializable> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<Serializable>() {
 

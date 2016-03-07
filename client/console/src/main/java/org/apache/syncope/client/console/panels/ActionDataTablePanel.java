@@ -30,7 +30,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -50,18 +49,13 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
 
     private final ActionLinksPanel<Serializable> actionPanel;
 
-    private final PageReference pageRef;
-
     public ActionDataTablePanel(
             final String id,
             final List<IColumn<T, S>> columns,
             final ISortableDataProvider<T, S> dataProvider,
-            final int rowsPerPage,
-            final PageReference pageRef) {
+            final int rowsPerPage) {
 
         super(id);
-
-        this.pageRef = pageRef;
 
         bulkActionForm = new Form<>("groupForm");
         add(bulkActionForm);
@@ -93,7 +87,7 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
         final WebMarkupContainer actionPanelContainer = new WebMarkupContainer("actionPanelContainer");
         bulkActionForm.add(actionPanelContainer);
 
-        actionPanel = ActionLinksPanel.builder(pageRef).build("actions");
+        actionPanel = ActionLinksPanel.builder().build("actions");
         actionPanelContainer.add(actionPanel);
 
         if (dataTable.getRowCount() == 0) {

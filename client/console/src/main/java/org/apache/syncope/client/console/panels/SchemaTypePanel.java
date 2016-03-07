@@ -115,8 +115,8 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                                 info(getString(Constants.OPERATION_SUCCEEDED));
                                 modal.close(target);
                             } catch (Exception e) {
-                                LOG.error("While creating or updating schema", e);
-                                error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                LOG.error("While creating or updating {}", modelObject, e);
+                                error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                             }
                             SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                         }
@@ -187,7 +187,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
             public ActionLinksPanel<AbstractSchemaTO> getActions(
                     final String componentId, final IModel<AbstractSchemaTO> model) {
 
-                ActionLinksPanel<AbstractSchemaTO> panel = ActionLinksPanel.<AbstractSchemaTO>builder(pageRef).
+                ActionLinksPanel<AbstractSchemaTO> panel = ActionLinksPanel.<AbstractSchemaTO>builder().
                         add(new ActionLink<AbstractSchemaTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -222,8 +222,9 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
-                                    LOG.error(getString(Constants.ERROR) + ": " + e.getMessage());
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    LOG.error("While deleting {}", model.getObject(), e);
+                                    error(StringUtils.isBlank(e.getMessage()) 
+                                            ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
@@ -235,8 +236,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
 
             @Override
             public ActionLinksPanel<AbstractSchemaTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<AbstractSchemaTO> panel =
-                        ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<AbstractSchemaTO> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<AbstractSchemaTO>() {
 

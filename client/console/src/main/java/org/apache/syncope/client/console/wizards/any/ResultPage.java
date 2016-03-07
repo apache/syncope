@@ -23,7 +23,6 @@ import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -38,14 +37,14 @@ public abstract class ResultPage<T extends Serializable> extends Panel implement
 
     private final T item;
 
-    public ResultPage(final T item, final Serializable result, final PageReference pageRef) {
+    public ResultPage(final T item, final Serializable result) {
         super(BaseModal.CONTENT_ID);
         setOutputMarkupId(true);
         this.item = item;
 
         add(customResultBody("customResultBody", item, result));
 
-        add(ActionLinksPanel.<T>builder(pageRef).add(new ActionLink<T>() {
+        add(ActionLinksPanel.<T>builder().add(new ActionLink<T>() {
 
             private static final long serialVersionUID = 3257738274365467945L;
 

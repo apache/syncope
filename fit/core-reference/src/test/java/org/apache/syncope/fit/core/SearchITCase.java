@@ -236,6 +236,21 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
+    public void searchByDate() {
+        clientFactory.create("bellini", "password").self();
+
+        PagedResult<UserTO> users = userService.search(
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("lastLoginDate").lexicalNotBefore("2016-03-02 15:21:22").
+                        and("username").equalTo("bellini").query()).
+                build());
+        assertNotNull(users);
+        assertEquals(1, users.getTotalCount());
+        assertEquals(1, users.getResult().size());
+    }
+
+    @Test
     public void searchByRelationshipAnyCond() {
         PagedResult<GroupTO> groups = groupService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -405,7 +420,7 @@ public class SearchITCase extends AbstractITCase {
                 getResult();
 
         assertFalse(usersWithType.isEmpty());
-        
+
         final PagedResult<UserTO> matchedUsers = userService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query()).

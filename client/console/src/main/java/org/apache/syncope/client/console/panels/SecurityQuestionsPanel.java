@@ -154,7 +154,7 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
             public ActionLinksPanel<SecurityQuestionTO> getActions(
                     final String componentId, final IModel<SecurityQuestionTO> model) {
 
-                ActionLinksPanel<SecurityQuestionTO> panel = ActionLinksPanel.<SecurityQuestionTO>builder(pageRef).
+                ActionLinksPanel<SecurityQuestionTO> panel = ActionLinksPanel.<SecurityQuestionTO>builder().
                         add(new ActionLink<SecurityQuestionTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -178,7 +178,8 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                    error(StringUtils.isBlank(e.getMessage())
+                                            ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
@@ -190,8 +191,7 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
 
             @Override
             public ActionLinksPanel<SecurityQuestionTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<SecurityQuestionTO> panel =
-                        ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<SecurityQuestionTO> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<SecurityQuestionTO>() {
 

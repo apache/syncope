@@ -280,7 +280,7 @@ public class GroupReportlet extends AbstractReportlet {
 
     private int count() {
         return StringUtils.isBlank(conf.getMatchingCond())
-                ? groupDAO.count(SyncopeConstants.FULL_ADMIN_REALMS)
+                ? groupDAO.count()
                 : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
                         SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.GROUP);
     }

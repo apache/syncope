@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.data;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -33,6 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
@@ -98,10 +100,26 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         realm.setParent(realmDAO.find(parentPath));
 
         if (realmTO.getPasswordPolicy() != null) {
-            realm.setPasswordPolicy((PasswordPolicy) policyDAO.find(realmTO.getPasswordPolicy()));
+            Policy policy = policyDAO.find(realmTO.getPasswordPolicy());
+            if (policy instanceof PasswordPolicy) {
+                realm.setPasswordPolicy((PasswordPolicy) policy);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+                sce.getElements().add("Expected " + PasswordPolicy.class.getSimpleName()
+                        + ", found " + policy.getClass().getSimpleName());
+                throw sce;
+            }
         }
         if (realmTO.getAccountPolicy() != null) {
-            realm.setAccountPolicy((AccountPolicy) policyDAO.find(realmTO.getAccountPolicy()));
+            Policy policy = policyDAO.find(realmTO.getAccountPolicy());
+            if (policy instanceof AccountPolicy) {
+                realm.setAccountPolicy((AccountPolicy) policy);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+                sce.getElements().add("Expected " + AccountPolicy.class.getSimpleName()
+                        + ", found " + policy.getClass().getSimpleName());
+                throw sce;
+            }
         }
 
         realm.getActionsClassNames().addAll(realmTO.getActionsClassNames());
@@ -117,10 +135,26 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         realm.setParent(realmTO.getParent() == 0 ? null : realmDAO.find(realmTO.getParent()));
 
         if (realmTO.getPasswordPolicy() != null) {
-            realm.setPasswordPolicy((PasswordPolicy) policyDAO.find(realmTO.getPasswordPolicy()));
+            Policy policy = policyDAO.find(realmTO.getPasswordPolicy());
+            if (policy instanceof PasswordPolicy) {
+                realm.setPasswordPolicy((PasswordPolicy) policy);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+                sce.getElements().add("Expected " + PasswordPolicy.class.getSimpleName()
+                        + ", found " + policy.getClass().getSimpleName());
+                throw sce;
+            }
         }
         if (realmTO.getAccountPolicy() != null) {
-            realm.setAccountPolicy((AccountPolicy) policyDAO.find(realmTO.getAccountPolicy()));
+            Policy policy = policyDAO.find(realmTO.getAccountPolicy());
+            if (policy instanceof AccountPolicy) {
+                realm.setAccountPolicy((AccountPolicy) policy);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+                sce.getElements().add("Expected " + AccountPolicy.class.getSimpleName()
+                        + ", found " + policy.getClass().getSimpleName());
+                throw sce;
+            }
         }
 
         realm.getActionsClassNames().clear();

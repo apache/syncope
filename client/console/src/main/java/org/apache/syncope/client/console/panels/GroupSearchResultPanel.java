@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.GroupRestClient;
@@ -105,14 +106,14 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
         }
 
         setWindowClosedReloadCallback(displayAttributeModal);
-        
+
         columns.add(new ActionColumn<GroupTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
             public ActionLinksPanel<GroupTO> getActions(final String componentId, final IModel<GroupTO> model) {
-                final ActionLinksPanel.Builder<GroupTO> panel = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<GroupTO> panel = ActionLinksPanel.builder();
 
                 panel.
                         add(new ActionLink<GroupTO>() {
@@ -121,11 +122,11 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                                final IModel<AnyHandler<GroupTO>> formModel
-                                        = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                                final IModel<AnyHandler<GroupTO>> formModel =
+                                        new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
                                 altDefaultModal.setFormModel(formModel);
 
-                                target.add(altDefaultModal.setContent(new StatusModal<GroupTO>(
+                                target.add(altDefaultModal.setContent(new StatusModal<>(
                                         altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
                                 altDefaultModal.header(new Model<>(
@@ -169,8 +170,9 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
                                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                                    error(StringUtils.isBlank(e.getMessage())
+                                            ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
@@ -181,7 +183,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
 
             @Override
             public ActionLinksPanel<Serializable> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder(page.getPageReference());
+                final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<Serializable>() {
 

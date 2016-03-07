@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.topology;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.text.MessageFormat;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ConnectorModal;
@@ -185,7 +186,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (SyncopeClientException e) {
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
@@ -266,7 +267,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (SyncopeClientException e) {
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

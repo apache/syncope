@@ -78,7 +78,7 @@ public class XMLWorkflowEditorModalPanel extends AbstractModalPanel<String> {
             modal.show(false);
             modal.close(target);
         } catch (SyncopeClientException e) {
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
+            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
         }
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }

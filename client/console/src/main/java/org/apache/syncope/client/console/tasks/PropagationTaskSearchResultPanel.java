@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
@@ -69,7 +70,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
 
     @Override
     protected List<IColumn<PropagationTaskTO, String>> getColumns() {
-        final List<IColumn<PropagationTaskTO, String>> columns = new ArrayList<IColumn<PropagationTaskTO, String>>();
+        final List<IColumn<PropagationTaskTO, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(
                 new StringResourceModel("key", this, null), "key", "key"));
@@ -110,7 +111,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
 
                 final PropagationTaskTO taskTO = model.getObject();
 
-                final ActionLinksPanel<PropagationTaskTO> panel = ActionLinksPanel.<PropagationTaskTO>builder(pageRef).
+                final ActionLinksPanel<PropagationTaskTO> panel = ActionLinksPanel.<PropagationTaskTO>builder().
                         add(new ActionLink<PropagationTaskTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -119,7 +120,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
                             public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
                                 viewTask(taskTO, target);
                             }
-                        }, ActionLink.ActionType.SEARCH, StandardEntitlement.TASK_READ).
+                        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ).
                         add(new ActionLink<PropagationTaskTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -131,8 +132,9 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                                    LOG.error("While running propagation task {}", taskTO.getKey(), e);
+                                    error(StringUtils.isBlank(e.getMessage())
+                                            ? e.getClass().getName() : e.getMessage());
+                                    LOG.error("While running {}", taskTO.getKey(), e);
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
@@ -148,8 +150,9 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
-                                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                                    LOG.error("While deleting propagation task {}", taskTO.getKey(), e);
+                                    LOG.error("While deleting {}", taskTO.getKey(), e);
+                                    error(StringUtils.isBlank(e.getMessage())
+                                            ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
@@ -160,8 +163,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
 
             @Override
             public ActionLinksPanel<PropagationTaskTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<PropagationTaskTO> panel = ActionLinksPanel.builder(page.
-                        getPageReference());
+                final ActionLinksPanel.Builder<PropagationTaskTO> panel = ActionLinksPanel.builder();
 
                 return panel.add(new ActionLink<PropagationTaskTO>() {
 
