@@ -85,29 +85,24 @@ angular.module('self')
                     };
                     break;
                   case "Date":
-
-                    $scope.selectedDate = $scope.user.plainAttrs[schema.key].values[index];
                     $scope.format = $scope.schema.conversionPattern;
+                    var temporaryDate = moment($scope.user.plainAttrs[schema.key].values[index], moment().toMomentFormatString($scope.format));
+                    if(temporaryDate.isValid()){
+                      $scope.selectedDate = temporaryDate.toDate();  
+                    }
+                    else{
+                      $scope.selectedDate = $scope.user.plainAttrs[schema.key].values[index];
+                    }                    
                     $scope.includeTimezone = false;
-                    if ($scope.schema.conversionPattern.indexOf(".SSS") > -1) {
-                      $scope.format = $scope.format.replace(".SSS", ".sss");
-                    }
-                    if ($scope.schema.conversionPattern.indexOf("Z") > -1) {
-                      $scope.includeTimezone = true;
-                      $scope.format = $scope.format.replace("Z", "");
-                    }
-                    if ($scope.schema.conversionPattern.indexOf("\'") > -1) {
-                      $scope.format = $scope.format.replace(new RegExp("\'", "g"), "");
-                    }
 
-                    $scope.bindDateToModel = function (selectedDate, format) {
-                      var newFormat = $scope.includeTimezone ? format.concat(" Z") : format;
+                    $scope.bindDateToModel = function (selectedDate, format) {                                       
                       if (selectedDate) {
-                        selectedDate = $filter('date')(selectedDate, newFormat);
-                        var dateGood = selectedDate.toString();
+                        selectedDate = moment(selectedDate).format(moment().toMomentFormatString(format));
+                        //removing from selectedDate existing quotes, since moment doesn't remove the from the pattern
+                        var dateGood = selectedDate.toString().replace(/'/g, "");
                         $scope.user.plainAttrs[schema.key].values[index] = dateGood;
                       } else {
-                        $scope.user.plainAttrs[schema.key].values[index] = selectedDate;
+                        $scope.user.plainAttrs[schema.key].values[index] = selectedDate;                        
                       }
                     };
 
@@ -129,11 +124,11 @@ angular.module('self')
                     $scope.maxDate = new Date(2050, 5, 22);
 
                     $scope.open = function ($event) {
-                      $scope.status.opened = true;
+                      $scope.status.opened = true;                      
                     };
 
                     $scope.setDate = function (year, month, day) {
-                      $scope.user.plainAttrs[schema.key].values[index] = new Date(year, month, day);
+                      $scope.user.plainAttrs[schema.key].values[index] = new Date(year, month, day);                      
                     };
 
                     $scope.dateOptions = {
@@ -173,12 +168,12 @@ angular.module('self')
                         }
                       }
 
-                    };
+                    };                    
                     break;
 
                   case "Boolean":
                     $scope.user.plainAttrs[schema.key].values[index] =
-                            Boolean($scope.user.plainAttrs[schema.key].values[index]) || false;
+                           $scope.user.plainAttrs[schema.key].values[index] == "true" ? true : false;
                     break;
 
                 }

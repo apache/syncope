@@ -153,6 +153,14 @@ under the License.
       <groupId>org.webjars.bower</groupId>
       <artifactId>FileSaver.js</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>momentjs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>moment-jdateformatparser</artifactId>
+    </dependency>
 
     <!--Jquery-->
     <dependency>

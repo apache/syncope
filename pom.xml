@@ -394,7 +394,7 @@ under the License.
 
     <angular.version>1.5.0</angular.version>
     <angular-ui-router.version>0.2.17</angular-ui-router.version>
-    <angular-ui-bootstrap.version>1.1.1-1</angular-ui-bootstrap.version>
+    <angular-ui-bootstrap.version>1.2.1</angular-ui-bootstrap.version>
     <angular-ui-select.version>0.14.8</angular-ui-select.version>
     <angular-treasure-overlay-spinner.version>1.1.0</angular-treasure-overlay-spinner.version>
     <ng-password-strength.version>0.2.1</ng-password-strength.version>
@@ -402,6 +402,8 @@ under the License.
     <kendo-ui-core.version>2014.2.716</kendo-ui-core.version>
     <select2.version>3.4.8</select2.version>
     <fileSaver.version>0.0.2</fileSaver.version>
+    <momentjs.version>2.11.1</momentjs.version>
+    <moment-jdateformatparser.version>1.0.0</moment-jdateformatparser.version>
     
     <izpack.version>5.0.6</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
@@ -1132,6 +1134,16 @@ under the License.
         <groupId>org.webjars.bower</groupId>
         <artifactId>FileSaver.js</artifactId>
         <version>${fileSaver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>momentjs</artifactId>
+        <version>${momentjs.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars.npm</groupId>
+        <artifactId>moment-jdateformatparser</artifactId>
+        <version>${moment-jdateformatparser.version}</version>
       </dependency>
 
       <dependency>
