@@ -22,9 +22,9 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.syncope.client.console.wizards.any.AnnotatedBeanPanel;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -66,7 +66,7 @@ public class ResourceDetailsPanel extends Panel {
                 new PropertyModel<Boolean>(model, "enforceMandatoryCondition"),
                 false));
 
-        container.add(new SpinnerFieldPanel<>(
+        container.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
                 "propagationPriority",
                 "propagationPriority",
                 Integer.class,

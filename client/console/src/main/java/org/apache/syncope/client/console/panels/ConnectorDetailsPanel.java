@@ -26,8 +26,8 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
@@ -121,53 +121,41 @@ public class ConnectorDetailsPanel extends Panel {
             model.getObject().setPoolConf(new ConnPoolConfTO());
         }
 
-        add(new SpinnerFieldPanel<>(
+        add(new AjaxSpinnerFieldPanel.Builder<Integer>().setMin(0).setMax(Integer.MAX_VALUE).build(
                 "connRequestTimeout",
                 "connRequestTimeout",
                 Integer.class,
-                new PropertyModel<Integer>(model, "connRequestTimeout"),
-                0,
-                Integer.MAX_VALUE));
+                new PropertyModel<Integer>(model, "connRequestTimeout")));
 
-        add(new SpinnerFieldPanel<>(
+        add(new AjaxSpinnerFieldPanel.Builder<Integer>().setMin(0).setMax(Integer.MAX_VALUE).build(
                 "poolMaxObjects",
                 "poolMaxObjects",
                 Integer.class,
-                new PropertyModel<Integer>(model.getObject().getPoolConf(), "maxObjects"),
-                0,
-                Integer.MAX_VALUE));
+                new PropertyModel<Integer>(model.getObject().getPoolConf(), "maxObjects")));
 
-        add(new SpinnerFieldPanel<>(
+        add(new AjaxSpinnerFieldPanel.Builder<Integer>().setMin(0).setMax(Integer.MAX_VALUE).build(
                 "poolMinIdle",
                 "poolMinIdle",
                 Integer.class,
-                new PropertyModel<Integer>(model.getObject().getPoolConf(), "minIdle"),
-                0,
-                Integer.MAX_VALUE));
+                new PropertyModel<Integer>(model.getObject().getPoolConf(), "minIdle")));
 
-        add(new SpinnerFieldPanel<>(
+        add(new AjaxSpinnerFieldPanel.Builder<Integer>().setMin(0).setMax(Integer.MAX_VALUE).build(
                 "poolMaxIdle",
                 "poolMaxIdle",
                 Integer.class,
-                new PropertyModel<Integer>(model.getObject().getPoolConf(), "maxIdle"),
-                0,
-                Integer.MAX_VALUE));
+                new PropertyModel<Integer>(model.getObject().getPoolConf(), "maxIdle")));
 
-        add(new SpinnerFieldPanel<>(
+        add(new AjaxSpinnerFieldPanel.Builder<Long>().setMin(0L).setMax(Long.MAX_VALUE).build(
                 "poolMaxWait",
                 "poolMaxWait",
                 Long.class,
-                new PropertyModel<Long>(model.getObject().getPoolConf(), "maxWait"),
-                0L,
-                Long.MAX_VALUE));
+                new PropertyModel<Long>(model.getObject().getPoolConf(), "maxWait")));
 
-        add(new SpinnerFieldPanel<>(
+        add(new AjaxSpinnerFieldPanel.Builder<Long>().setMin(0L).setMax(Long.MAX_VALUE).build(
                 "poolMinEvictableIdleTime",
                 "poolMinEvictableIdleTime",
                 Long.class,
-                new PropertyModel<Long>(model.getObject().getPoolConf(), "minEvictableIdleTimeMillis"),
-                0L,
-                Long.MAX_VALUE));
+                new PropertyModel<Long>(model.getObject().getPoolConf(), "minEvictableIdleTimeMillis")));
     }
 
     private List<String> getVersions(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {

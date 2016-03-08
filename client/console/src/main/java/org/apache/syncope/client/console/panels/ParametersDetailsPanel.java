@@ -25,10 +25,10 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -67,7 +67,7 @@ public class ParametersDetailsPanel extends Panel {
         form.add(getFieldPanel("panel", attrTO));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private Panel getFieldPanel(final String id, final AttrTO attrTO) {
 
         final String valueHeaderName = getString("values");
@@ -140,11 +140,13 @@ public class ParametersDetailsPanel extends Panel {
                 break;
 
             case Long:
-                panel = new SpinnerFieldPanel<>(id, valueHeaderName, Long.class, new Model<Long>());
+                panel = new AjaxSpinnerFieldPanel.Builder<Long>()
+                        .build(id, valueHeaderName, Long.class, new Model<Long>());
                 break;
 
             case Double:
-                panel = new SpinnerFieldPanel<>(id, valueHeaderName, Double.class, new Model<Double>());
+                panel = new AjaxSpinnerFieldPanel.Builder<Double>()
+                        .build(id, valueHeaderName, Double.class, new Model<Double>());
                 break;
 
             default:

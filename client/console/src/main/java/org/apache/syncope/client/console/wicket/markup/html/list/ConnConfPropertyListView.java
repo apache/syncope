@@ -28,10 +28,10 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -102,7 +102,7 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
             if (ClassUtils.isAssignable(Number.class, propertySchemaClass)) {
                 @SuppressWarnings("unchecked")
                 Class<Number> numberClass = (Class<Number>) propertySchemaClass;
-                field = new SpinnerFieldPanel<>(
+                field = new AjaxSpinnerFieldPanel.Builder<>().build(
                         "panel", label.getDefaultModelObjectAsString(), numberClass, new Model<Number>());
 
                 required = property.getSchema().isRequired();

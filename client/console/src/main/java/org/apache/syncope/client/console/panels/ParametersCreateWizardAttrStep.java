@@ -24,10 +24,10 @@ import java.util.List;
 import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -57,8 +57,8 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
         schema.setRequired(true);
         content.add(schema);
 
-        final LoadableDetachableModel<List<PlainSchemaTO>> loadableDetachableModel
-                = new LoadableDetachableModel<List<PlainSchemaTO>>() {
+        final LoadableDetachableModel<List<PlainSchemaTO>> loadableDetachableModel =
+                new LoadableDetachableModel<List<PlainSchemaTO>>() {
 
             private static final long serialVersionUID = 7172461137064525667L;
 
@@ -83,7 +83,7 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
         content.add(listView);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private Panel getFieldPanel(final String id, final AttrTO attrTO, final PlainSchemaTO plainSchemaTO) {
 
         final String valueHeaderName = getString("values");
@@ -153,11 +153,13 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
                 break;
 
             case Long:
-                panel = new SpinnerFieldPanel<>(id, valueHeaderName, Long.class, new Model<Long>());
+                panel = new AjaxSpinnerFieldPanel.Builder<Long>()
+                        .build(id, valueHeaderName, Long.class, new Model<Long>());
                 break;
 
             case Double:
-                panel = new SpinnerFieldPanel<>(id, valueHeaderName, Double.class, new Model<Double>());
+                panel = new AjaxSpinnerFieldPanel.Builder<Double>()
+                        .build(id, valueHeaderName, Double.class, new Model<Double>());
                 break;
 
             default:

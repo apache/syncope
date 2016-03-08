@@ -35,11 +35,11 @@ import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -238,7 +238,8 @@ public class PlainAttrs extends AbstractAttrs {
                 break;
 
             case Long:
-                panel = new SpinnerFieldPanel<>("panel", schemaTO.getKey(), Long.class, new Model<Long>());
+                panel = new AjaxSpinnerFieldPanel.Builder<Long>()
+                        .build("panel", schemaTO.getKey(), Long.class, new Model<Long>());
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -246,7 +247,8 @@ public class PlainAttrs extends AbstractAttrs {
                 break;
 
             case Double:
-                panel = new SpinnerFieldPanel<>("panel", schemaTO.getKey(), Double.class, new Model<Double>());
+                panel = new AjaxSpinnerFieldPanel.Builder<Double>().setStep(0.1)
+                        .build("panel", schemaTO.getKey(), Double.class, new Model<Double>());
 
                 if (required) {
                     panel.addRequiredLabel();
