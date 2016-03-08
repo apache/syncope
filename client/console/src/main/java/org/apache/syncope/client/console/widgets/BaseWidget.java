@@ -20,11 +20,11 @@ package org.apache.syncope.client.console.widgets;
 
 import org.apache.wicket.markup.html.panel.Panel;
 
-public abstract class AbstractWidget extends Panel {
+public abstract class BaseWidget extends Panel {
 
     private static final long serialVersionUID = -4186604985011430091L;
 
-    public AbstractWidget(final String id) {
+    public BaseWidget(final String id) {
         super(id);
     }
 

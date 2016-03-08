@@ -823,6 +823,13 @@ under the License.
                       <exclude>workflowActivitiContext.xml</exclude>
                     </excludes>
                   </resource>
+
+                  <resource>
+                    <directory>${basedir}/../../ext/camel/common-lib/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../ext/camel/logic/target/classes</directory>
+                  </resource>
                   <resource>
                     <directory>${basedir}/../../ext/camel/provisioning-camel/target/classes</directory>
                     <excludes>

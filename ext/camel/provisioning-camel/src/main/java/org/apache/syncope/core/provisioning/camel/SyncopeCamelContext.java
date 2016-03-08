@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+import org.apache.camel.component.metrics.routepolicy.MetricsRoutePolicyFactory;
 import org.apache.camel.model.Constants;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.spring.SpringCamelContext;
@@ -55,6 +56,7 @@ public class SyncopeCamelContext {
         synchronized (this) {
             if (camelContext == null) {
                 camelContext = new SpringCamelContext(ApplicationContextProvider.getApplicationContext());
+                camelContext.addRoutePolicyFactory(new MetricsRoutePolicyFactory());
             }
         }
 
@@ -103,11 +105,9 @@ public class SyncopeCamelContext {
     public void updateContext(final String routeKey) {
         if (camelContext == null) {
             getContext();
-        } else {
-            if (!camelContext.getRouteDefinitions().isEmpty()) {
-                camelContext.getRouteDefinitions().remove(camelContext.getRouteDefinition(routeKey));
-                loadContext(Collections.singletonList(routeDAO.find(routeKey)));
-            }
+        } else if (!camelContext.getRouteDefinitions().isEmpty()) {
+            camelContext.getRouteDefinitions().remove(camelContext.getRouteDefinition(routeKey));
+            loadContext(Collections.singletonList(routeDAO.find(routeKey)));
         }
     }
 

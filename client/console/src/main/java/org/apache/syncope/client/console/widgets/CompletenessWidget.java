@@ -38,7 +38,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.Model;
 
-public class CompletenessWidget extends AbstractWidget {
+public class CompletenessWidget extends BaseWidget {
 
     private static final long serialVersionUID = 7667120094526529934L;
 

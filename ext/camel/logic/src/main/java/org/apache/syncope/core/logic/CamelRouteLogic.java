@@ -18,10 +18,19 @@
  */
 package org.apache.syncope.core.logic;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import org.apache.camel.component.metrics.routepolicy.MetricsRegistryService;
+import java.util.Map;
+import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.to.CamelMetrics;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CamelEntitlement;
@@ -85,6 +94,35 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
     @PreAuthorize("hasRole('" + CamelEntitlement.ROUTE_UPDATE + "')")
     public void restartContext() {
         context.restartContext();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public CamelMetrics metrics() {
+        CamelMetrics metrics = new CamelMetrics();
+
+        MetricsRegistryService registryService = context.getContext().hasService(MetricsRegistryService.class);
+        if (registryService == null) {
+            LOG.warn("Camel metrics not available");
+        } else {
+            MetricRegistry registry = registryService.getMetricsRegistry();
+            for (Map.Entry<String, Timer> entry : registry.getTimers().entrySet()) {
+                CamelMetrics.MeanRate meanRate = new CamelMetrics.MeanRate();
+                meanRate.setRouteId(StringUtils.substringBetween(entry.getKey(), ":", "."));
+                meanRate.setValue(entry.getValue().getMeanRate());
+                metrics.getResponseMeanRates().add(meanRate);
+            }
+
+            Collections.sort(metrics.getResponseMeanRates(), new Comparator<CamelMetrics.MeanRate>() {
+
+                @Override
+                public int compare(final CamelMetrics.MeanRate o1, final CamelMetrics.MeanRate o2) {
+                    return ComparatorUtils.reversedComparator(ComparatorUtils.<Double>naturalComparator()).
+                            compare(o1.getValue(), o2.getValue());
+                }
+            });
+        }
+
+        return metrics;
     }
 
     @Override

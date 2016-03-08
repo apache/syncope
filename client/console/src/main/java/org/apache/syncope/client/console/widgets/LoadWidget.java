@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 
-public class LoadWidget extends AbstractWidget {
+public class LoadWidget extends BaseWidget {
 
     private static final long serialVersionUID = -816175678514035085L;
 

@@ -21,9 +21,13 @@ package org.apache.syncope.client.console.pages;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.panels.DashboardControlPanel;
 import org.apache.syncope.client.console.panels.DashboardExtensionsPanel;
 import org.apache.syncope.client.console.panels.DashboardOverviewPanel;
+import org.apache.syncope.client.console.widgets.BaseExtWidget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -67,15 +71,22 @@ public class Dashboard extends BasePage {
             }
         });
 
-        tabs.add(new AbstractTab(new ResourceModel("extensions")) {
+        ClassPathScanImplementationLookup classPathScanImplementationLookup =
+                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+                getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
+        final List<Class<? extends BaseExtWidget>> extWidgetClasses =
+                classPathScanImplementationLookup.getExtWidgetClasses();
+        if (!extWidgetClasses.isEmpty()) {
+            tabs.add(new AbstractTab(new ResourceModel("extensions")) {
 
-            private static final long serialVersionUID = -6815067322125799251L;
+                private static final long serialVersionUID = -6815067322125799251L;
 
-            @Override
-            public Panel getPanel(final String panelId) {
-                return new DashboardExtensionsPanel(panelId, getPageReference());
-            }
-        });
+                @Override
+                public Panel getPanel(final String panelId) {
+                    return new DashboardExtensionsPanel(panelId, extWidgetClasses, getPageReference());
+                }
+            });
+        }
 
         return tabs;
     }

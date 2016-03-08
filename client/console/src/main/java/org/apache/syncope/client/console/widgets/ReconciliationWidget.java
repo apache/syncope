@@ -91,7 +91,7 @@ import org.apache.wicket.protocol.ws.api.registry.IKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ReconciliationWidget extends AbstractWidget {
+public class ReconciliationWidget extends BaseWidget {
 
     private static final long serialVersionUID = -816175678514035085L;
 

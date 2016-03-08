@@ -22,7 +22,7 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 
-public class NumberWidget extends AbstractWidget {
+public class NumberWidget extends BaseWidget {
 
     private static final long serialVersionUID = -816175678514035085L;
 

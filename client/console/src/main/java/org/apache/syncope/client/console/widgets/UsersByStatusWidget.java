@@ -23,7 +23,7 @@ import com.pingunaut.wicket.chartjs.core.panel.DoughnutChartPanel;
 import java.util.Map;
 import org.apache.wicket.model.Model;
 
-public class UsersByStatusWidget extends AbstractWidget {
+public class UsersByStatusWidget extends BaseWidget {
 
     private static final long serialVersionUID = -816175678514035085L;
 

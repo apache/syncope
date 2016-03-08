@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
+import org.apache.syncope.common.lib.to.CamelMetrics;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
@@ -50,6 +51,11 @@ public class CamelRouteServiceImpl extends AbstractServiceImpl implements CamelR
     @Override
     public void restartContext() {
         logic.restartContext();
+    }
+
+    @Override
+    public CamelMetrics metrics() {
+        return logic.metrics();
     }
 
 }

@@ -71,7 +71,7 @@ import org.apache.wicket.protocol.ws.api.registry.IKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JobWidget extends AbstractWidget {
+public class JobWidget extends BaseWidget {
 
     private static final long serialVersionUID = 7667120094526529934L;
 

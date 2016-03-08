@@ -18,14 +18,66 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.syncope.client.console.annotations.ExtWidget;
+import org.apache.syncope.client.console.widgets.BaseExtWidget;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.ClassUtils;
 
 public class DashboardExtensionsPanel extends Panel {
 
     private static final long serialVersionUID = 6381578992589664490L;
 
-    public DashboardExtensionsPanel(final String id, final PageReference pageRef) {
+    protected static final Logger LOG = LoggerFactory.getLogger(DashboardExtensionsPanel.class);
+
+    public DashboardExtensionsPanel(
+            final String id, final List<Class<? extends BaseExtWidget>> extWidgetClasses, final PageReference pageRef) {
+
         super(id);
+
+        List<BaseExtWidget> instances = new ArrayList<>();
+
+        for (final Class<? extends BaseExtWidget> clazz : extWidgetClasses) {
+            final Constructor<? extends BaseExtWidget> constructor =
+                    ClassUtils.getConstructorIfAvailable(clazz, String.class, PageReference.class);
+            if (constructor == null) {
+                LOG.error("Could not find required construtor in {}, ignoring", clazz);
+            } else {
+                try {
+                    instances.add(constructor.newInstance("widget", pageRef));
+                } catch (Exception e) {
+                    LOG.error("While creating instance of {}", clazz, e);
+                }
+            }
+        }
+
+        ListView<BaseExtWidget> widgets = new ListView<BaseExtWidget>("widgets", instances) {
+
+            private static final long serialVersionUID = 4949588177564901031L;
+
+            @Override
+            protected void populateItem(final ListItem<BaseExtWidget> item) {
+                WebMarkupContainer widgetContainer = new WebMarkupContainer("widgetContainer");
+                widgetContainer.setOutputMarkupId(true);
+                ExtWidget ann = item.getModelObject().getClass().getAnnotation(ExtWidget.class);
+                if (ann != null) {
+                    widgetContainer.add(new AttributeModifier("class", ann.cssClass()));
+                }
+                item.add(widgetContainer);
+
+                item.getModelObject().setOutputMarkupId(true);
+                widgetContainer.add(item.getModelObject());
+            }
+        };
+        add(widgets);
     }
 }

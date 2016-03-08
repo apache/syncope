@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.wicket.model.Model;
 
-public class AnyByRealmWidget extends AbstractWidget {
+public class AnyByRealmWidget extends BaseWidget {
 
     private static final long serialVersionUID = -816175678514035085L;
 
