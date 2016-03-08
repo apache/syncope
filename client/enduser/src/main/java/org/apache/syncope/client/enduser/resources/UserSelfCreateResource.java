@@ -25,7 +25,6 @@ import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
-import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +57,7 @@ public class UserSelfCreateResource extends AbstractBaseResource {
 
             String jsonString = request.getReader().readLine();
 
-            final UserTO userTO = POJOHelper.deserialize(jsonString, UserTO.class);
+            final UserTO userTO = MAPPER.readValue(jsonString, UserTO.class);
 
             if (!captchaCheck(request.getHeader("captcha"), request.getSession().getAttribute(
                     SyncopeEnduserConstants.CAPTCHA_SESSION_KEY).toString())) {
@@ -79,7 +78,7 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                         attributes.getResponse().write(res.getStatusInfo().getFamily().equals(
                                 Response.Status.Family.SUCCESSFUL)
                                         ? responseMessage.append("User: ").append(userTO.getUsername()).append(
-                                                " successfully created")
+                                        " successfully created")
                                         : new StringBuilder().append("ErrorMessage{{ ").
                                         append(res.getStatusInfo().getReasonPhrase()).append(" }}"));
                     }
@@ -88,8 +87,8 @@ public class UserSelfCreateResource extends AbstractBaseResource {
             } else {
                 response.setError(Response.Status.FORBIDDEN.getStatusCode(), new StringBuilder().
                         append("ErrorMessage{{").append(userTO == null
-                                        ? "Request received is not valid }}"
-                                        : "Self registration not allowed }}").toString());
+                        ? "Request received is not valid }}"
+                        : "Self registration not allowed }}").toString());
             }
 
         } catch (Exception e) {

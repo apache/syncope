@@ -25,7 +25,6 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
-import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ public class SyncopeAnyClassTypeResource extends AbstractBaseResource {
 
     private final AnyTypeClassService anyTypeClassService;
 
-    public SyncopeAnyClassTypeResource() {        
+    public SyncopeAnyClassTypeResource() {
         anyTypeClassService = SyncopeEnduserSession.get().getService(AnyTypeClassService.class);
     }
 
@@ -64,7 +63,7 @@ public class SyncopeAnyClassTypeResource extends AbstractBaseResource {
 
                 @Override
                 public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(POJOHelper.serialize(anyTypeClassTOs));
+                    attributes.getResponse().write(MAPPER.writeValueAsString(anyTypeClassTOs));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());

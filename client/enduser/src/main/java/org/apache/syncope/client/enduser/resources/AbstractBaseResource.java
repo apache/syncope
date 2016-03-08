@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
@@ -33,6 +34,8 @@ public abstract class AbstractBaseResource extends AbstractResource {
     private static final long serialVersionUID = -7875801358718612782L;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBaseResource.class);
+
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     protected final boolean isSelfRegistrationAllowed() {
         Boolean result = null;

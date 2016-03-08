@@ -27,7 +27,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
-import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +68,7 @@ public class SyncopeGroupResource extends AbstractBaseResource {
 
                 @Override
                 public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(POJOHelper.serialize(groupTOs));
+                    attributes.getResponse().write(MAPPER.writeValueAsString(groupTOs));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());

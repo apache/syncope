@@ -25,7 +25,6 @@ import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.PlatformInfoAdapter;
 import org.apache.syncope.client.enduser.util.SaltGenerator;
-import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
@@ -57,9 +56,9 @@ public class InfoResource extends AbstractBaseResource {
                 @Override
                 public void writeData(final IResource.Attributes attributes) throws IOException {
                     attributes.getResponse().write(
-                            POJOHelper.serialize(
+                            MAPPER.writeValueAsString(
                                     PlatformInfoAdapter.toPlatformInfoRequest(
-                                    SyncopeEnduserSession.get().getPlatformInfo())));
+                                            SyncopeEnduserSession.get().getPlatformInfo())));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());

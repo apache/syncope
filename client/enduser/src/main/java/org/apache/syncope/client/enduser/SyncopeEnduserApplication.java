@@ -52,7 +52,7 @@ import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
-import org.springframework.util.Assert;
+import org.apache.wicket.util.lang.Args;
 
 public class SyncopeEnduserApplication extends WebApplication implements Serializable {
 
@@ -105,30 +105,30 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             throw new WicketRuntimeException("Could not read " + ENDUSER_PROPERTIES, e);
         }
         version = props.getProperty("version");
-        Assert.notNull(version, "<version> not set");
+        Args.notNull(version, "<version> not set");
         site = props.getProperty("site");
-        Assert.notNull(site, "<site> not set");
+        Args.notNull(site, "<site> not set");
         license = props.getProperty("license");
-        Assert.notNull(license, "<license> not set");
+        Args.notNull(license, "<license> not set");
         anonymousUser = props.getProperty("anonymousUser");
-        Assert.notNull(anonymousUser, "<anonymousUser> not set");
+        Args.notNull(anonymousUser, "<anonymousUser> not set");
         anonymousKey = props.getProperty("anonymousKey");
-        Assert.notNull(anonymousKey, "<anonymousKey> not set");
+        Args.notNull(anonymousKey, "<anonymousKey> not set");
 
         captchaEnabled = Boolean.parseBoolean(props.getProperty("captcha"));
-        Assert.notNull(captchaEnabled, "<captcha> not set");
+        Args.notNull(captchaEnabled, "<captcha> not set");
 
         xsrfEnabled = Boolean.parseBoolean(props.getProperty("xsrf"));
-        Assert.notNull(xsrfEnabled, "<xsrf> not set");
+        Args.notNull(xsrfEnabled, "<xsrf> not set");
 
         String scheme = props.getProperty("scheme");
-        Assert.notNull(scheme, "<scheme> not set");
+        Args.notNull(scheme, "<scheme> not set");
         String host = props.getProperty("host");
-        Assert.notNull(host, "<host> not set");
+        Args.notNull(host, "<host> not set");
         String port = props.getProperty("port");
-        Assert.notNull(port, "<port> not set");
+        Args.notNull(port, "<port> not set");
         String rootPath = props.getProperty("rootPath");
-        Assert.notNull(rootPath, "<rootPath> not set");
+        Args.notNull(rootPath, "<rootPath> not set");
 
         clientFactory = new SyncopeClientFactoryBean().setAddress(scheme + "://" + host + ":" + port + "/" + rootPath);
         clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.JSON);

@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
-import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.slf4j.Logger;
@@ -94,7 +93,7 @@ public class SchemaResource extends AbstractBaseResource {
 
                 @Override
                 public void writeData(final IResource.Attributes attributes) throws IOException {
-                    attributes.getResponse().write(POJOHelper.serialize(new SchemaResponse().
+                    attributes.getResponse().write(MAPPER.writeValueAsString(new SchemaResponse().
                             plainSchemas(plainSchemas).
                             derSchemas(derSchemas).
                             virSchemas(virSchemas)));

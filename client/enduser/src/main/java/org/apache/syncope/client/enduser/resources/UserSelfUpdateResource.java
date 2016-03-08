@@ -25,7 +25,6 @@ import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
-import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.slf4j.Logger;
@@ -39,14 +38,12 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
 
     private final UserSelfService userSelfService;
 
-
     public UserSelfUpdateResource() {
         userSelfService = SyncopeEnduserSession.get().getService(UserSelfService.class);
     }
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
 
         try {
@@ -59,14 +56,14 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
 
             String jsonString = request.getReader().readLine();
 
-            final UserTO userTO = POJOHelper.deserialize(jsonString, UserTO.class);
+            final UserTO userTO = MAPPER.readValue(jsonString, UserTO.class);
 
             if (!captchaCheck(request.getHeader("captcha"), request.getSession().getAttribute(
                     SyncopeEnduserConstants.CAPTCHA_SESSION_KEY).toString())) {
                 LOG.error("Entered captcha is not matching");
                 throw new Exception("Entered captcha is not matching");
             }
-            
+
             LOG.debug("User {} id updating himself", userTO.getUsername());
 
             // update user
@@ -74,7 +71,7 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
 
             final String responseMessage = res.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)
                     ? new StringBuilder().append("User").append(userTO.getUsername()).append(
-                            " successfully updated").toString()
+                    " successfully updated").toString()
                     : new StringBuilder().append("ErrorMessage{{ ").
                     append(res.getStatusInfo().getReasonPhrase()).append(" }}").toString();
 

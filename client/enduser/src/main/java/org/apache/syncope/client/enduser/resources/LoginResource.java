@@ -24,7 +24,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.model.Credentials;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.io.IOUtils;
@@ -37,12 +36,8 @@ public class LoginResource extends AbstractBaseResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoginResource.class);
 
-    public LoginResource() {
-    }
-
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
 
         try {
@@ -54,8 +49,8 @@ public class LoginResource extends AbstractBaseResource {
                 return response;
             }
 
-            Credentials credentials = POJOHelper.deserialize(IOUtils.toString(request.getInputStream()),
-                    Credentials.class);
+            Credentials credentials = MAPPER.readValue(
+                    IOUtils.toString(request.getInputStream()), Credentials.class);
             final String username = credentials.getUsername();
             final String password = credentials.getPassword().isEmpty() ? null : credentials.getPassword();
 

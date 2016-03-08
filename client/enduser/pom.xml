@@ -38,13 +38,6 @@ under the License.
   </properties>
   
   <dependencies>
-    
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-misc</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     <dependency> 
       <groupId>javax.servlet</groupId> 
       <artifactId>javax.servlet-api</artifactId>
@@ -175,7 +168,7 @@ under the License.
       <groupId>org.webjars</groupId>
       <artifactId>jquery-ui</artifactId>
     </dependency>
-    
+
     <!--Logging-->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>

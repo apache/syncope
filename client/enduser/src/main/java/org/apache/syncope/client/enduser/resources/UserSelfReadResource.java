@@ -22,7 +22,6 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.slf4j.Logger;
@@ -56,7 +55,7 @@ public class UserSelfReadResource extends AbstractBaseResource {
                 return response;
             }
 
-            final String selfTOJson = POJOHelper.serialize(SyncopeEnduserSession.get().getSelfTO());
+            final String selfTOJson = MAPPER.writeValueAsString(SyncopeEnduserSession.get().getSelfTO());
 
             response.setWriteCallback(new WriteCallback() {
 
