@@ -37,7 +37,7 @@ under the License.
     <property name="ignoreUnresolvablePlaceholders" value="true"/>
   </bean>
   
-  <bean class="org.apache.syncope.core.misc.spring.ApplicationContextProvider"/>
+  <bean class="org.apache.syncope.core.spring.ApplicationContextProvider"/>
 
   <bean id="adminUser" class="java.lang.String">
     <constructor-arg value="${adminUser}"/>
@@ -46,10 +46,9 @@ under the License.
     <constructor-arg value="${anonymousUser}"/>
   </bean>
   
-  <context:component-scan base-package="org.apache.syncope.core.misc.policy"/>
-  <context:component-scan base-package="org.apache.syncope.core.misc.security"/>
+  <context:component-scan base-package="org.apache.syncope.core.spring.security"/>
 
-  <bean class="org.apache.syncope.core.misc.security.DefaultPasswordGenerator"/>
+  <bean class="org.apache.syncope.core.spring.security.DefaultPasswordGenerator"/>
 
   <import resource="persistenceContext.xml"/>
 

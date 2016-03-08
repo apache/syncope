@@ -35,7 +35,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

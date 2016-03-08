@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.logic.init;
 
-import org.apache.syncope.core.misc.EntitlementsHolder;
+import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.springframework.beans.factory.annotation.Autowired;

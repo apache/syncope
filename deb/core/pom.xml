@@ -156,7 +156,7 @@ under the License.
         <filtering>true</filtering>
       </resource>
       <resource>
-        <directory>${basedir}/../../core/misc/src/main/resources</directory>
+        <directory>${basedir}/../../core/spring/src/main/resources</directory>
         <includes>
           <include>security.properties</include>
         </includes>

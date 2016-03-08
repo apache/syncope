@@ -20,7 +20,7 @@ package org.apache.syncope.fit.core.reference;
 
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.provisioning.api.sync.SyncCorrelationRule;
+import org.apache.syncope.core.provisioning.api.syncpull.SyncCorrelationRule;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 /**

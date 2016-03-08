@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java.job;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.syncope.core.misc.utils.FormatUtils;
+import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.InterruptableJob;

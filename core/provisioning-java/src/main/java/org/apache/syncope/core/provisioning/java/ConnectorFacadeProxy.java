@@ -30,15 +30,15 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
-import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
-import org.apache.syncope.core.provisioning.api.ConnPoolConfUtils;
+import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
-import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.provisioning.api.syncpull.ReconciliationFilterBuilder;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -66,7 +66,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ClassUtils;
-import org.apache.syncope.core.provisioning.api.sync.ReconciliationFilterBuilder;
 
 public class ConnectorFacadeProxy implements Connector {
 
@@ -481,7 +480,7 @@ public class ConnectorFacadeProxy implements Connector {
             }
         }, new ArrayList<SortKey>(orderBy.size())));
 
-        builder.setAttributesToGet(MappingUtils.buildOperationOptions(mapItems).getAttributesToGet());
+        builder.setAttributesToGet(MappingManagerImpl.buildOperationOptions(mapItems).getAttributesToGet());
 
         search(objectClass, filter, handler, builder.build());
     }

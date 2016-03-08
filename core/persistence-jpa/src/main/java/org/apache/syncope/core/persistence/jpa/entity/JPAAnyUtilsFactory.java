@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;

@@ -20,13 +20,13 @@ package org.apache.syncope.core.provisioning.java.job;
 
 import java.util.Date;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.core.misc.AuditManager;
-import org.apache.syncope.core.misc.utils.ExceptionUtils2;
+import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.quartz.JobExecutionException;

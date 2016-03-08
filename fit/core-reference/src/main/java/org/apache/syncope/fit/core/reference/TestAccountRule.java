@@ -19,7 +19,7 @@
 package org.apache.syncope.fit.core.reference;
 
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
-import org.apache.syncope.core.misc.policy.AccountPolicyException;
+import org.apache.syncope.core.provisioning.api.utils.policy.AccountPolicyException;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.User;

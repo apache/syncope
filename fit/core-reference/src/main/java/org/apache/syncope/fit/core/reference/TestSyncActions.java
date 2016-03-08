@@ -25,9 +25,9 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.core.provisioning.api.sync.IgnoreProvisionException;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.java.sync.DefaultSyncActions;
+import org.apache.syncope.core.provisioning.api.syncpull.IgnoreProvisionException;
+import org.apache.syncope.core.provisioning.api.syncpull.ProvisioningProfile;
+import org.apache.syncope.core.provisioning.java.syncpull.DefaultSyncActions;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 

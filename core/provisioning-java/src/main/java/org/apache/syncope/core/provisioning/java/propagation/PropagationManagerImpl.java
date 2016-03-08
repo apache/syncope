@@ -43,9 +43,9 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.misc.utils.ConnObjectUtils;
-import org.apache.syncope.core.misc.utils.MappingUtils;
-import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
+import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
+import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -58,6 +58,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -108,7 +109,7 @@ public class PropagationManagerImpl implements PropagationManager {
     protected ConnObjectUtils connObjectUtils;
 
     @Autowired
-    protected MappingUtils mappingUtils;
+    protected MappingManager mappingManager;
 
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
@@ -367,7 +368,7 @@ public class PropagationManagerImpl implements PropagationManager {
             Provision provision = resource == null ? null : resource.getProvision(any.getType());
             List<MappingItem> mappingItems = provision == null
                     ? Collections.<MappingItem>emptyList()
-                    : MappingUtils.getPropagationMappingItems(provision);
+                    : MappingManagerImpl.getPropagationMappingItems(provision);
 
             if (resource == null) {
                 LOG.error("Invalid resource name specified: {}, ignoring...", entry.getKey());
@@ -391,7 +392,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
                 Pair<String, Set<Attribute>> preparedAttrs =
-                        mappingUtils.prepareAttrs(any, password, changePwd, enable, provision);
+                        mappingManager.prepareAttrs(any, password, changePwd, enable, provision);
                 task.setConnObjectKey(preparedAttrs.getKey());
 
                 // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 

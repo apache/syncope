@@ -21,7 +21,7 @@ under the License.
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@page import="org.springframework.beans.factory.support.DefaultListableBeanFactory"%>
 <%@page import="org.apache.syncope.common.lib.SyncopeConstants"%>
-<%@page import="org.apache.syncope.core.misc.spring.ApplicationContextProvider"%>
+<%@page import="org.apache.syncope.core.spring.ApplicationContextProvider"%>
 <%@page import="org.apache.commons.lang3.time.FastDateFormat"%>
 <%@page import="java.util.Date"%>
 <%@page import="org.apache.openjpa.datacache.CacheStatisticsImpl"%>

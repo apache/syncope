@@ -24,7 +24,7 @@ under the License.
   
   <import resource="classpath*:domains/*Domain.xml"/>
   
-  <bean class="org.apache.syncope.core.misc.spring.DomainTransactionInterceptorInjector"/>
+  <bean class="org.apache.syncope.core.persistence.jpa.spring.DomainTransactionInterceptorInjector"/>
   
   <bean id="commonEMFConf" class="org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf">
     <property name="packagesToScan" value="org.apache.syncope.core.persistence.jpa.entity"/>

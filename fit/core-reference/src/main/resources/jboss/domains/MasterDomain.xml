@@ -28,11 +28,11 @@ under the License.
                            http://www.springframework.org/schema/util
                            http://www.springframework.org/schema/util/spring-util.xsd">
   
-  <bean id="MasterContentXML" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+  <bean id="MasterContentXML" class="org.apache.syncope.core.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${content.directory}/domains/MasterContent.xml"/>
     <property name="fallback" value="classpath:domains/MasterContent.xml"/>
   </bean>
-  <bean id="MasterProperties" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+  <bean id="MasterProperties" class="org.apache.syncope.core.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${content.directory}/domains/Master.properties"/>
     <property name="fallback" value="classpath:domains/Master.properties"/>
   </bean>

@@ -25,7 +25,7 @@ under the License.
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
-  <bean id="userWorkflowDef" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+  <bean id="userWorkflowDef" class="org.apache.syncope.core.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${wf.directory}/userWorkflow.bpmn20.xml"/>
     <property name="fallback" value="classpath:userWorkflow.bpmn20.xml"/>
   </bean>

@@ -49,8 +49,8 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
-import org.apache.syncope.core.misc.utils.ConnObjectUtils;
-import org.apache.syncope.core.misc.utils.MappingUtils;
+import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
+import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
@@ -61,6 +61,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -104,7 +105,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     private ConnObjectUtils connObjectUtils;
 
     @Autowired
-    private MappingUtils mappingUtils;
+    private MappingManager mappingManager;
 
     @Autowired
     private ConnectorFactory connFactory;
@@ -228,12 +229,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         // 2. build connObjectKeyItem
-        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(init.getRight());
+        MappingItem connObjectKeyItem = MappingManagerImpl.getConnObjectKeyItem(init.getRight());
         if (connObjectKeyItem == null) {
             throw new NotFoundException(
                     "ConnObjectKey mapping for " + init.getMiddle() + " " + anyKey + " on resource '" + key + "'");
         }
-        String connObjectKeyValue = mappingUtils.getConnObjectKeyValue(any, init.getRight());
+        String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, init.getRight());
 
         // 3. determine attributes to query
         Set<MappingItem> linkinMappingItems = new HashSet<>();
@@ -246,10 +247,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         // 4. read from the underlying connector
         Connector connector = connFactory.getConnector(init.getLeft());
-        ConnectorObject connectorObject = connector.getObject(
-                init.getRight().getObjectClass(),
+        ConnectorObject connectorObject = connector.getObject(init.getRight().getObjectClass(),
                 new Uid(connObjectKeyValue),
-                MappingUtils.buildOperationOptions(mapItems));
+                MappingManagerImpl.buildOperationOptions(mapItems));
         if (connectorObject == null) {
             throw new NotFoundException(
                     "Object " + connObjectKeyValue + " with class " + init.getRight().getObjectClass()

@@ -19,7 +19,7 @@
 package org.apache.syncope.fit.core.reference;
 
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.core.misc.policy.PasswordPolicyException;
+import org.apache.syncope.core.provisioning.api.utils.policy.PasswordPolicyException;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.User;

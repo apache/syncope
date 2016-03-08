@@ -30,8 +30,8 @@ import org.apache.logging.log4j.core.appender.db.jdbc.ColumnConfig;
 import org.apache.logging.log4j.core.appender.db.jdbc.ConnectionSource;
 import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.syncope.core.misc.AuditManager;
-import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.provisioning.java.AuditManagerImpl;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,9 +79,10 @@ public class LoggerLoader implements SyncopeLoader {
                 ctx.getConfiguration().addAppender(appender);
             }
 
-            LoggerConfig logConf = new LoggerConfig(AuditManager.getDomainAuditLoggerName(entry.getKey()), null, false);
+            LoggerConfig logConf = new LoggerConfig(
+                    AuditManagerImpl.getDomainAuditLoggerName(entry.getKey()), null, false);
             logConf.addAppender(appender, Level.DEBUG, null);
-            ctx.getConfiguration().addLogger(AuditManager.getDomainAuditLoggerName(entry.getKey()), logConf);
+            ctx.getConfiguration().addLogger(AuditManagerImpl.getDomainAuditLoggerName(entry.getKey()), logConf);
 
             AuthContextUtils.execWithAuthContext(entry.getKey(), new AuthContextUtils.Executable<Void>() {
 

@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -36,6 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
@@ -60,7 +60,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
     private VirAttrCache virAttrCache;
 
     @Autowired
-    private MappingUtils mappingUtils;
+    private MappingManager mappingManager;
 
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
@@ -97,9 +97,9 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
         for (Map.Entry<Provision, Set<VirSchema>> entry : toRead.entrySet()) {
             LOG.debug("About to read from {}: {}", entry.getKey(), entry.getValue());
 
-            String connObjectKey = MappingUtils.getConnObjectKeyItem(entry.getKey()) == null
+            String connObjectKey = MappingManagerImpl.getConnObjectKeyItem(entry.getKey()) == null
                     ? null
-                    : mappingUtils.getConnObjectKeyValue(any, entry.getKey());
+                    : mappingManager.getConnObjectKeyValue(any, entry.getKey());
             if (StringUtils.isBlank(connObjectKey)) {
                 LOG.error("No ConnObjectKey found for {}, ignoring...", entry.getKey());
             } else {
@@ -110,10 +110,9 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
 
                 Connector connector = connFactory.getConnector(entry.getKey().getResource());
                 try {
-                    ConnectorObject connectorObject = connector.getObject(
-                            entry.getKey().getObjectClass(),
+                    ConnectorObject connectorObject = connector.getObject(entry.getKey().getObjectClass(),
                             new Uid(connObjectKey),
-                            MappingUtils.buildOperationOptions(linkingMappingItems.iterator()));
+                            MappingManagerImpl.buildOperationOptions(linkingMappingItems.iterator()));
 
                     if (connectorObject == null) {
                         LOG.debug("No read from {} about {}", entry.getKey(), connObjectKey);

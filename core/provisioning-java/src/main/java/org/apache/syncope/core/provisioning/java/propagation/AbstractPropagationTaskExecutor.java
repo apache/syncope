@@ -44,11 +44,10 @@ import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.misc.AuditManager;
-import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
-import org.apache.syncope.core.misc.utils.ConnObjectUtils;
-import org.apache.syncope.core.misc.utils.ExceptionUtils2;
-import org.apache.syncope.core.misc.utils.MappingUtils;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
+import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
+import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -59,6 +58,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -574,11 +574,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         ConnectorObject obj = null;
         try {
-            obj = connector.getObject(
-                    new ObjectClass(task.getObjectClassName()),
+            obj = connector.getObject(new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),
-                    MappingUtils.buildOperationOptions(IteratorUtils.chainedIterator(
-                            MappingUtils.getPropagationMappingItems(provision).iterator(),
+                    MappingManagerImpl.buildOperationOptions(IteratorUtils.chainedIterator(MappingManagerImpl.
+                            getPropagationMappingItems(provision).iterator(),
                             linkingMappingItems.iterator())));
 
             for (MappingItem item : linkingMappingItems) {

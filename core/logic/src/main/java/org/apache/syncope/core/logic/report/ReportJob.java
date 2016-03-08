@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.logic.report;
 
-import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

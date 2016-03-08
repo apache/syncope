@@ -21,8 +21,8 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.provisioning.api.URIUtils;
-import org.apache.syncope.core.provisioning.api.ConnPoolConfUtils;
+import org.apache.syncope.core.provisioning.api.utils.URIUtils;
+import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 
 public class ConnInstanceValidator extends AbstractValidator<ConnInstanceCheck, ConnInstance> {
 

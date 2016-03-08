@@ -32,7 +32,7 @@ import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
+import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.workflow.activiti.spring.DomainProcessEngine;
 import org.slf4j.Logger;

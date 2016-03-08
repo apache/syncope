@@ -19,8 +19,8 @@
 package org.apache.syncope.core.provisioning.java.job;
 
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.syncope.core.misc.security.AuthContextUtils;
-import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

@@ -324,7 +324,7 @@ under the License.
                     </excludes>
                   </resource>
                   <resource>
-                    <directory>${basedir}/../../core/misc/target/classes</directory>
+                    <directory>${basedir}/../../core/spring/target/classes</directory>
                     <excludes>
                       <exclude>securityContext.xml</exclude>
                     </excludes>

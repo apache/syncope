@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningReport;
+import org.apache.syncope.core.provisioning.api.syncpull.ProvisioningReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

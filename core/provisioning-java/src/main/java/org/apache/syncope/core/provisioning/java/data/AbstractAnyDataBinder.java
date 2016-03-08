@@ -59,10 +59,10 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.common.lib.types.PropagationByResource;
-import org.apache.syncope.core.misc.utils.ConnObjectUtils;
-import org.apache.syncope.core.misc.utils.MappingUtils;
-import org.apache.syncope.core.misc.jexl.JexlUtils;
-import org.apache.syncope.core.misc.utils.EntityUtils;
+import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
+import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
+import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -83,6 +83,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,7 +156,7 @@ abstract class AbstractAnyDataBinder {
     protected ConnObjectUtils connObjectUtils;
 
     @Autowired
-    protected MappingUtils mappingUtils;
+    protected MappingManager mappingManager;
 
     protected void setRealm(final Any<?> any, final AnyPatch anyPatch) {
         if (anyPatch.getRealm() != null && StringUtils.isNotBlank(anyPatch.getRealm().getValue())) {
@@ -232,7 +233,7 @@ abstract class AbstractAnyDataBinder {
                         && (item.getPurpose() == MappingPurpose.PROPAGATION
                         || item.getPurpose() == MappingPurpose.BOTH)) {
 
-                    List<PlainAttrValue> values = mappingUtils.getIntValues(
+                    List<PlainAttrValue> values = mappingManager.getIntValues(
                             provision, item, Collections.<Any<?>>singletonList(any));
                     if (values.isEmpty() && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
                         missingAttrNames.add(item.getIntAttrName());
@@ -351,7 +352,8 @@ abstract class AbstractAnyDataBinder {
         }
 
         for (ExternalResource resource : resources) {
-            for (MappingItem mapItem : MappingUtils.getPropagationMappingItems(resource.getProvision(any.getType()))) {
+            for (MappingItem mapItem : MappingManagerImpl.getPropagationMappingItems(resource.
+                    getProvision(any.getType()))) {
                 if (schema.getKey().equals(mapItem.getIntAttrName())
                         && mapItem.getIntMappingType() == anyUtils.plainIntMappingType()) {
 
@@ -574,14 +576,14 @@ abstract class AbstractAnyDataBinder {
         for (ExternalResource resource : iterable) {
             Provision provision = resource.getProvision(any.getType());
             if (provision != null && provision.getMapping() != null) {
-                MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+                MappingItem connObjectKeyItem = MappingManagerImpl.getConnObjectKeyItem(provision);
                 if (connObjectKeyItem == null) {
                     throw new NotFoundException(
                             "ConnObjectKey mapping for " + any.getType().getKey() + " " + any.getKey()
                             + " on resource '" + resource.getKey() + "'");
                 }
 
-                String connObjectKey = mappingUtils.getConnObjectKeyValue(any, provision);
+                String connObjectKey = mappingManager.getConnObjectKeyValue(any, provision);
                 if (connObjectKey != null) {
                     connObjectKeys.put(resource.getKey(), connObjectKey);
                 }

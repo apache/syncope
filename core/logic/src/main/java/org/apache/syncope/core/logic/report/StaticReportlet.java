@@ -21,7 +21,7 @@ package org.apache.syncope.core.logic.report;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.report.StaticReportletConf;
-import org.apache.syncope.core.misc.utils.FormatUtils;
+import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.springframework.util.StringUtils;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;

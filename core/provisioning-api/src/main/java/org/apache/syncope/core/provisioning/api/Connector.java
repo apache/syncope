@@ -34,7 +34,7 @@ import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.apache.syncope.core.provisioning.api.sync.ReconciliationFilterBuilder;
+import org.apache.syncope.core.provisioning.api.syncpull.ReconciliationFilterBuilder;
 
 /**
  * Entry point for making requests on underlying connector bundles.

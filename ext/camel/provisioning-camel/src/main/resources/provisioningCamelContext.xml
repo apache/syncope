@@ -25,15 +25,15 @@ under the License.
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
-  <bean id="userRoutes" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+  <bean id="userRoutes" class="org.apache.syncope.core.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${camel.directory}/userRoutes.xml"/>
     <property name="fallback" value="classpath:userRoutes.xml"/>
   </bean>
-  <bean id="groupRoutes" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+  <bean id="groupRoutes" class="org.apache.syncope.core.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${camel.directory}/groupRoutes.xml"/>
     <property name="fallback" value="classpath:groupRoutes.xml"/>
   </bean>
-  <bean id="anyObjectRoutes" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+  <bean id="anyObjectRoutes" class="org.apache.syncope.core.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${camel.directory}/anyObjectRoutes.xml"/>
     <property name="fallback" value="classpath:anyObjectRoutes.xml"/>
   </bean>

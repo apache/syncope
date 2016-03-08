@@ -44,7 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ConnInstanceCheck;
-import org.apache.syncope.core.misc.serialization.POJOHelper;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 
 @Entity

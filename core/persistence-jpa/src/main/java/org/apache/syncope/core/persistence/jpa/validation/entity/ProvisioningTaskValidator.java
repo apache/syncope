@@ -25,9 +25,9 @@ import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASyncTask;
-import org.apache.syncope.core.provisioning.api.sync.PushActions;
-import org.apache.syncope.core.provisioning.api.sync.SyncActions;
-import org.apache.syncope.core.provisioning.api.sync.ReconciliationFilterBuilder;
+import org.apache.syncope.core.provisioning.api.syncpull.PushActions;
+import org.apache.syncope.core.provisioning.api.syncpull.SyncActions;
+import org.apache.syncope.core.provisioning.api.syncpull.ReconciliationFilterBuilder;
 
 public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTaskCheck, ProvisioningTask> {
 

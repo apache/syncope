@@ -33,11 +33,11 @@ under the License.
 
   <bean class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 
-  <bean id="viewsXML" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+  <bean id="viewsXML" class="org.apache.syncope.core.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${content.directory}/views.xml"/>
     <property name="fallback" value="classpath:views.xml"/>
   </bean>
-  <bean id="indexesXML" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+  <bean id="indexesXML" class="org.apache.syncope.core.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${content.directory}/indexes.xml"/>
     <property name="fallback" value="classpath:indexes.xml"/>
   </bean>

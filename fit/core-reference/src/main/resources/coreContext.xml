@@ -54,6 +54,6 @@ under the License.
     </property>
   </bean>
 
-  <bean class="org.apache.syncope.core.misc.spring.ApplicationContextProvider"/>
+  <bean class="org.apache.syncope.core.spring.ApplicationContextProvider"/>
 
 </beans>

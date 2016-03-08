@@ -19,8 +19,8 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import javax.persistence.EntityManager;
-import org.apache.syncope.core.misc.security.AuthContextUtils;
-import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.junit.runner.RunWith;

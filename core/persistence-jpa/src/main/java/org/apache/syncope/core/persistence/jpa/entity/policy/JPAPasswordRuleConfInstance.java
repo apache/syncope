@@ -24,7 +24,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.core.misc.serialization.POJOHelper;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
 

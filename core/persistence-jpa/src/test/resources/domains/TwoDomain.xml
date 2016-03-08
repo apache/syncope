@@ -28,11 +28,11 @@ under the License.
                            http://www.springframework.org/schema/util
                            http://www.springframework.org/schema/util/spring-util.xsd">
   
-  <bean id="TwoContentXML" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+  <bean id="TwoContentXML" class="org.apache.syncope.core.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${content.directory}/domains/TwoContent.xml"/>
     <property name="fallback" value="classpath:domains/TwoContent.xml"/>
   </bean>
-  <bean id="TwoProperties" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+  <bean id="TwoProperties" class="org.apache.syncope.core.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${content.directory}/domains/Two.properties"/>
     <property name="fallback" value="classpath:domains/Two.properties"/>
   </bean>

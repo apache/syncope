@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.camel.data;
 
 import org.apache.syncope.common.lib.to.CamelRouteTO;
-import org.apache.syncope.core.misc.spring.BeanUtils;
+import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.apache.syncope.core.provisioning.api.data.CamelRouteDataBinder;

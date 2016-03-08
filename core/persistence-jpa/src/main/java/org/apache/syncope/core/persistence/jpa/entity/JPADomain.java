@@ -24,7 +24,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.misc.security.Encryptor;
+import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.jpa.validation.entity.DomainCheck;
 

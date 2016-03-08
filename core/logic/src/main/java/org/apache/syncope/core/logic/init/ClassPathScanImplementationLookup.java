@@ -42,11 +42,11 @@ import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationRecipientsProvider;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
-import org.apache.syncope.core.provisioning.api.sync.PushActions;
-import org.apache.syncope.core.provisioning.api.sync.SyncActions;
-import org.apache.syncope.core.provisioning.api.sync.SyncCorrelationRule;
-import org.apache.syncope.core.provisioning.java.sync.PushJobDelegate;
-import org.apache.syncope.core.provisioning.java.sync.SyncJobDelegate;
+import org.apache.syncope.core.provisioning.api.syncpull.PushActions;
+import org.apache.syncope.core.provisioning.api.syncpull.SyncActions;
+import org.apache.syncope.core.provisioning.api.syncpull.SyncCorrelationRule;
+import org.apache.syncope.core.provisioning.java.syncpull.PushJobDelegate;
+import org.apache.syncope.core.provisioning.java.syncpull.SyncJobDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -54,7 +54,7 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
-import org.apache.syncope.core.provisioning.api.sync.ReconciliationFilterBuilder;
+import org.apache.syncope.core.provisioning.api.syncpull.ReconciliationFilterBuilder;
 
 /**
  * Cache class names for all implementations of Syncope interfaces found in classpath, for later usage.
