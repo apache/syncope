@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.reqres.PagedResult;
+import org.apache.syncope.common.services.UserSelfService;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.UserTO;
 import org.junit.FixMethodOrder;
@@ -135,6 +136,19 @@ public class SearchTestITCase extends AbstractTest {
                 SyncopeClient.getRoleSearchConditionBuilder().is("inheritAttrs").equalTo("true").query());
         assertNotNull(matchingRoles);
         assertFalse(matchingRoles.getResult().isEmpty());
+    }
+
+    @Test
+    public void searchByDate() {
+        clientFactory.create("bellini", "password").getService(UserSelfService.class).read();
+
+        PagedResult<UserTO> users = userService.search(
+                SyncopeClient.getUserSearchConditionBuilder().
+                is("lastLoginDate").lexicalNotBefore("2016-03-02 15:21:22").
+                and("username").equalTo("bellini").query());
+        assertNotNull(users);
+        assertEquals(1, users.getTotalCount());
+        assertEquals(1, users.getResult().size());
     }
 
     @Test
