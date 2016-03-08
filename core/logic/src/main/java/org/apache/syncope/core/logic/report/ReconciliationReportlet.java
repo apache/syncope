@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic.report;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,7 +28,6 @@ import java.util.Set;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -53,7 +51,6 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -282,30 +279,21 @@ public class ReconciliationReportlet extends AbstractReportlet {
                     // 1. build connObjectKeyValue
                     final String connObjectKeyValue = mappingUtils.getConnObjectKeyValue(any, provision);
 
-                    // 2. determine attributes to query
-                    Set<MappingItem> linkinMappingItems = new HashSet<>();
-                    for (VirSchema virSchema : virSchemaDAO.findByProvision(provision)) {
-                        linkinMappingItems.add(virSchema.asLinkingMappingItem());
-                    }
-                    Iterator<MappingItem> mapItems = IteratorUtils.chainedIterator(
-                            provision.getMapping().getItems().iterator(),
-                            linkinMappingItems.iterator());
-
-                    // 3. read from the underlying connector
+                    // 2. read from the underlying connector
                     Connector connector = connFactory.getConnector(resource);
                     ConnectorObject connectorObject = connector.getObject(
                             provision.getObjectClass(),
                             new Uid(connObjectKeyValue),
-                            MappingUtils.buildOperationOptions(mapItems));
+                            MappingUtils.buildOperationOptions(provision.getMapping().getItems().iterator()));
 
                     if (connectorObject == null) {
-                        // 4. not found on resource?
+                        // 3. not found on resource?
                         LOG.error("Object {} with class {} not found on resource {}",
                                 connObjectKeyValue, provision.getObjectClass(), resource);
 
                         missing.add(new Missing(resource.getKey(), connObjectKeyValue));
                     } else {
-                        // 5. found but misaligned?
+                        // 4. found but misaligned?
                         Pair<String, Set<Attribute>> preparedAttrs =
                                 mappingUtils.prepareAttrs(any, null, false, null, provision);
                         preparedAttrs.getRight().add(AttributeBuilder.build(

@@ -644,11 +644,11 @@ public class MappingUtils {
 
             case GroupOwnerSchema:
                 Mapping uMapping = provision.getAnyType().equals(anyTypeDAO.findUser())
-                        ? null
-                        : provision.getMapping();
+                        ? provision.getMapping()
+                        : null;
                 Mapping gMapping = provision.getAnyType().equals(anyTypeDAO.findGroup())
-                        ? null
-                        : provision.getMapping();
+                        ? provision.getMapping()
+                        : null;
 
                 for (Any<?> any : anys) {
                     if (any instanceof Group) {

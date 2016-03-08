@@ -416,7 +416,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
                     readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
             assertFalse(anyObjectTO.getPlainAttrMap().get("location").getValues().get(0).
                     startsWith(PrefixMappingItemTransformer.PREFIX));
-            assertTrue(connObjectTO.getPlainAttrMap().get("location").getValues().get(0).
+            assertTrue(connObjectTO.getPlainAttrMap().get("LOCATION").getValues().get(0).
                     startsWith(PrefixMappingItemTransformer.PREFIX));
 
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)

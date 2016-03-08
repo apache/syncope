@@ -81,8 +81,8 @@ if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
             attributes:[
               __UID__:it.id.toString(),
               __NAME__:it.id.toString(),
-              id:it.id.toString(),
-              location:it.location
+              ID:it.id.toString(),
+              LOCATION:it.location
             ]
           ]);
       }

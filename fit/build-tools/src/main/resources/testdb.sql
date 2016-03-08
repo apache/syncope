@@ -47,6 +47,6 @@ INSERT INTO testsync VALUES (965, 'issuesyncope230', 'Surname', 'syncope230@sync
 
 DROP TABLE testPRINTER IF EXISTS;
 CREATE TABLE testPRINTER (
-id NUMBER(10) PRIMARY KEY,
+id VARCHAR(10) PRIMARY KEY,
 location VARCHAR(80),
 lastModification TIMESTAMP);

@@ -37,12 +37,12 @@ import org.identityconnectors.framework.common.objects.ObjectClassInfoBuilder;
 
 log.info("Entering " + action + " Script");
 
-idAIB = new AttributeInfoBuilder("id", String.class);
+idAIB = new AttributeInfoBuilder("ID", String.class);
 idAIB.setRequired(true);
 
 orgAttrsInfo = new HashSet<AttributeInfo>();
 orgAttrsInfo.add(idAIB.build());
-orgAttrsInfo.add(AttributeInfoBuilder.build("location", String.class));
+orgAttrsInfo.add(AttributeInfoBuilder.build("LOCATION", String.class));
 // Create the organization Object class
 ObjectClassInfo ociOrg = new ObjectClassInfoBuilder().setType("__PRINTER__").addAllAttributeInfo(orgAttrsInfo).build();
 builder.defineObjectClass(ociOrg);
