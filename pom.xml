@@ -384,7 +384,7 @@ under the License.
     <font-awesome.version>4.5.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.2.0</highlightjs.version>
-    <codemirror.version>5.11</codemirror.version>
+    <codemirror.version>5.12</codemirror.version>
     <jsplumb.version>2.0.5</jsplumb.version>
     
     <wicket.version>7.2.0</wicket.version>
@@ -393,7 +393,7 @@ under the License.
     <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
 
     <angular.version>1.5.0</angular.version>
-    <angular-ui-router.version>0.2.17</angular-ui-router.version>
+    <angular-ui-router.version>0.2.18</angular-ui-router.version>
     <angular-ui-bootstrap.version>1.2.1</angular-ui-bootstrap.version>
     <angular-ui-select.version>0.14.8</angular-ui-select.version>
     <angular-treasure-overlay-spinner.version>1.1.0</angular-treasure-overlay-spinner.version>
