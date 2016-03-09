@@ -498,13 +498,13 @@ public class VirAttrITCase extends AbstractITCase {
         // -------------------------------------------
         // Create a VirAttrITCase ad-hoc
         // -------------------------------------------
-        String rvirtualdata = "ml@group.it";
-
         GroupTO groupTO = new GroupTO();
         groupTO.setName(groupName);
         groupTO.setRealm("/");
         groupTO.getResources().add(RESOURCE_NAME_LDAP);
         groupTO = createGroup(groupTO).getAny();
+
+        String rvirtualdata = "ml@group.it";
 
         int i = 0;
         int maxit = 5;
@@ -521,9 +521,10 @@ public class VirAttrITCase extends AbstractITCase {
             rvirtualdata = i + rvirtualdata;
             patch.getVirAttrs().add(attrTO("rvirtualdata", rvirtualdata));
 
+            LOG.info("Updating " + groupName + " with " + rvirtualdata);
             groupTO = updateGroup(patch).getAny();
-            groupService.read(groupTO.getKey());
             assertNotNull(groupTO);
+            LOG.info("Updated " + groupName + " now has virAttrs " + groupTO.getVirAttrs());
 
             i++;
         } while (groupTO.getVirAttrs().isEmpty() && i < maxit);
