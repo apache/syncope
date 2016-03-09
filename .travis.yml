@@ -26,7 +26,7 @@ script:
   #invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
   - mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
 after_failure:
-  - cat fit/core-reference/target/log/* target/failsafe-reports/org.apache.syncope.*-output.txt
+  - cat fit/core-reference/target/log/* fit/core/reference/target/failsafe-reports/org.apache.syncope.fit.core.VirAttrITCase-output.txt
 notifications:
   email:
     - dev@syncope.apache.org
