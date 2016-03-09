@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Locale;
 import java.util.Map;
@@ -30,6 +31,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
@@ -267,11 +269,11 @@ public class VirAttrITCase extends AbstractITCase {
             CollectionUtils.filterInverse(csv.getProvisions().get(0).getMapping().getItems(),
                     new Predicate<MappingItemTO>() {
 
-                        @Override
-                        public boolean evaluate(final MappingItemTO item) {
-                            return "email".equals(item.getIntAttrName());
-                        }
-                    });
+                @Override
+                public boolean evaluate(final MappingItemTO item) {
+                    return "email".equals(item.getIntAttrName());
+                }
+            });
 
             resourceService.update(csv);
             csv = resourceService.read(RESOURCE_NAME_CSV);
@@ -496,14 +498,41 @@ public class VirAttrITCase extends AbstractITCase {
         // -------------------------------------------
         // Create a VirAttrITCase ad-hoc
         // -------------------------------------------
+        String rvirtualdata = "ml@group.it";
+
         GroupTO groupTO = new GroupTO();
         groupTO.setName(groupName);
         groupTO.setRealm("/");
-        groupTO.getVirAttrs().add(attrTO("rvirtualdata", "ml@group.it"));
         groupTO.getResources().add(RESOURCE_NAME_LDAP);
         groupTO = createGroup(groupTO).getAny();
-        /*assertEquals(1, groupTO.getVirAttrs().size());
-        assertEquals("ml@group.it", groupTO.getVirAttrs().iterator().next().getValues().get(0));*/
+
+        int i = 0;
+        int maxit = 5;
+
+        // wait for group propagation on LDAP
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            GroupPatch patch = new GroupPatch();
+            patch.setKey(groupTO.getKey());
+            rvirtualdata = i + rvirtualdata;
+            patch.getVirAttrs().add(attrTO("rvirtualdata", rvirtualdata));
+
+            groupTO = updateGroup(patch).getAny();
+            groupService.read(groupTO.getKey());
+            assertNotNull(groupTO);
+
+            i++;
+        } while (groupTO.getVirAttrs().isEmpty() && i < maxit);
+        if (i == 5) {
+            fail("Timeout when propagating " + groupName + " to LDAP");
+        }
+
+        assertEquals(1, groupTO.getVirAttrs().size());
+        assertEquals(rvirtualdata, groupTO.getVirAttrs().iterator().next().getValues().get(0));
         // -------------------------------------------
 
         // -------------------------------------------
@@ -527,12 +556,12 @@ public class VirAttrITCase extends AbstractITCase {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
-        final Map<String, Object> actuals = jdbcTemplate.queryForMap(
+        Map<String, Object> actuals = jdbcTemplate.queryForMap(
                 "SELECT id, surname, email FROM testsync WHERE id=?",
                 new Object[] { Integer.parseInt(userTO.getPlainAttrMap().get("aLong").getValues().get(0)) });
 
         assertEquals(userTO.getPlainAttrMap().get("aLong").getValues().get(0), actuals.get("id").toString());
-        assertEquals("ml@group.it", actuals.get("email"));
+        assertEquals(rvirtualdata, actuals.get("email"));
         // -------------------------------------------
 
         // -------------------------------------------
