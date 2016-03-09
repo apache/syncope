@@ -188,38 +188,37 @@ public class Ownership extends WizardStep {
             ownerContainer.add(userSearchFragment);
         }
 
-        final AjaxTextFieldPanel userOwner
-                = new AjaxTextFieldPanel("userOwner", "userOwner",
-                        new PropertyModel<String>(groupHandler.getInnerObject(), "userOwner") {
+        final AjaxTextFieldPanel userOwner = new AjaxTextFieldPanel(
+                "userOwner", "userOwner", new PropertyModel<String>(groupHandler.getInnerObject(), "userOwner") {
 
-                    private static final long serialVersionUID = -3743432456095828573L;
+            private static final long serialVersionUID = -3743432456095828573L;
 
-                    @Override
-                    public String getObject() {
-                        if (groupHandler.getInnerObject().getUserOwner() == null) {
-                            return StringUtils.EMPTY;
-                        } else {
-                            UserTO userTO = userRestClient.read(groupHandler.getInnerObject().getUserOwner());
-                            if (userTO == null) {
-                                return StringUtils.EMPTY;
-                            } else {
-                                return String.format("[%d] %s", userTO.getKey(), userTO.getUsername());
-                            }
-                        }
+            @Override
+            public String getObject() {
+                if (groupHandler.getInnerObject().getUserOwner() == null) {
+                    return StringUtils.EMPTY;
+                } else {
+                    UserTO userTO = userRestClient.read(groupHandler.getInnerObject().getUserOwner());
+                    if (userTO == null) {
+                        return StringUtils.EMPTY;
+                    } else {
+                        return String.format("[%d] %s", userTO.getKey(), userTO.getUsername());
                     }
+                }
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        if (StringUtils.isBlank(object)) {
-                            groupHandler.getInnerObject().setUserOwner(null);
-                        } else {
-                            final Matcher matcher = owner.matcher(object);
-                            if (matcher.matches()) {
-                                groupHandler.getInnerObject().setUserOwner(Long.parseLong(matcher.group(1)));
-                            }
-                        }
+            @Override
+            public void setObject(final String object) {
+                if (StringUtils.isBlank(object)) {
+                    groupHandler.getInnerObject().setUserOwner(null);
+                } else {
+                    final Matcher matcher = owner.matcher(object);
+                    if (matcher.matches()) {
+                        groupHandler.getInnerObject().setUserOwner(Long.parseLong(matcher.group(1)));
                     }
-                }, false);
+                }
+            }
+        }, false);
         userOwner.setPlaceholder("userOwner");
         userOwner.hideLabel();
         userOwner.setReadOnly(true).setOutputMarkupId(true);
@@ -237,8 +236,8 @@ public class Ownership extends WizardStep {
         };
         userSearchFragment.add(userOwnerReset);
 
-        final AjaxTextFieldPanel groupOwner = new AjaxTextFieldPanel("groupOwner", "groupOwner",
-                new PropertyModel<String>(groupHandler.getInnerObject(), "groupOwner") {
+        final AjaxTextFieldPanel groupOwner = new AjaxTextFieldPanel(
+                "groupOwner", "groupOwner", new PropertyModel<String>(groupHandler.getInnerObject(), "groupOwner") {
 
             private static final long serialVersionUID = -3743432456095828573L;
 
@@ -292,7 +291,7 @@ public class Ownership extends WizardStep {
             final AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
             if (Ownership.this.isGroupOwnership.getObject()) {
                 final String fiql = SearchUtils.buildFIQL(
-                        groupSearchPanel.getModel().getObject(), SyncopeClient.getUserSearchConditionBuilder());
+                        groupSearchPanel.getModel().getObject(), SyncopeClient.getGroupSearchConditionBuilder());
                 groupSearchResultPanel.search(fiql, target);
             } else {
                 final String fiql = SearchUtils.buildFIQL(

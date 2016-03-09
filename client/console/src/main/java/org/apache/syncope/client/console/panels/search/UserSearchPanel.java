@@ -18,13 +18,21 @@
  */
 package org.apache.syncope.client.console.panels.search;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 
 public final class UserSearchPanel extends AnyObjectSearchPanel {
 
     private static final long serialVersionUID = -1769527800450203738L;
+
+    private final RoleRestClient roleRestClient = new RoleRestClient();
 
     public static class Builder extends AnyObjectSearchPanel.Builder {
 
@@ -42,6 +50,38 @@ public final class UserSearchPanel extends AnyObjectSearchPanel {
 
     private UserSearchPanel(final String id, final Builder builder) {
         super(id, AnyTypeKind.USER, builder);
+    }
+
+    @Override
+    protected void populate() {
+        super.populate();
+
+        this.roleNames = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return CollectionUtils.collect(roleRestClient.list(), new Transformer<RoleTO, String>() {
+
+                    @Override
+                    public String transform(final RoleTO input) {
+                        return input.getKey();
+                    }
+                }, new ArrayList<String>());
+            }
+        };
+    }
+
+    @Override
+    protected List<SearchClause.Type> getAvailableTypes() {
+        List<SearchClause.Type> result = new ArrayList<SearchClause.Type>();
+        result.add(SearchClause.Type.ATTRIBUTE);
+        result.add(SearchClause.Type.ROLE_MEMBERSHIP);
+        result.add(SearchClause.Type.GROUP_MEMBERSHIP);
+        result.add(SearchClause.Type.RESOURCE);
+        result.add(SearchClause.Type.RELATIONSHIP);
+        return result;
     }
 
 }

@@ -118,7 +118,7 @@ public final class SearchUtils implements Serializable {
         LOG.info("Condition: " + sc.getCondition());
 
         if (SpecialAttr.GROUPS.toString().equals(property)) {
-            res.setType(SearchClause.Type.MEMBERSHIP);
+            res.setType(SearchClause.Type.GROUP_MEMBERSHIP);
             res.setProperty(value);
         } else if (SpecialAttr.RESOURCES.toString().equals(property)) {
             res.setType(SearchClause.Type.RESOURCE);
@@ -170,11 +170,12 @@ public final class SearchUtils implements Serializable {
         boolean notTheFirst = false;
 
         for (SearchClause clause : clauses) {
-            if (clause.getType() != null && StringUtils.isNotBlank(clause.getProperty())) {
+            if (clause.getType() != null && (SearchClause.Type.RELATIONSHIP == clause.getType()
+                    || StringUtils.isNotBlank(clause.getProperty()))) {
                 prevCondition = condition;
 
                 switch (clause.getType()) {
-                    case MEMBERSHIP:
+                    case GROUP_MEMBERSHIP:
                         Long groupId = NumberUtils.toLong(clause.getProperty().split(" ")[0]);
 
                         if (builder instanceof UserFiqlSearchConditionBuilder) {
@@ -239,6 +240,70 @@ public final class SearchUtils implements Serializable {
                                 break;
                         }
                         break;
+
+                    case ROLE_MEMBERSHIP:
+                        switch (clause.getComparator()) {
+                            case EQUALS:
+                                condition = ((UserFiqlSearchConditionBuilder) builder).inRoles(clause.getProperty());
+                                break;
+                            case NOT_EQUALS:
+                                condition = ((UserFiqlSearchConditionBuilder) builder).notInRoles(clause.getProperty());
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+
+                    case RELATIONSHIP:
+                        String relationship = clause.getProperty();
+                        String value = clause.getValue();
+
+                        // This condition could be avoided by providing a refactoring of the common lib
+                        if (builder instanceof UserFiqlSearchConditionBuilder) {
+                            switch (clause.getComparator()) {
+                                case IS_NOT_NULL:
+                                    condition = ((UserFiqlSearchConditionBuilder) builder).
+                                            inRelationshipTypes(relationship);
+                                    break;
+                                case IS_NULL:
+                                    condition = ((UserFiqlSearchConditionBuilder) builder).
+                                            notInRelationshipTypes(relationship);
+                                    break;
+                                case EQUALS:
+                                    condition = ((UserFiqlSearchConditionBuilder) builder).
+                                            inRelationships(Long.parseLong(value));
+                                    break;
+                                case NOT_EQUALS:
+                                    condition = ((UserFiqlSearchConditionBuilder) builder).
+                                            notInRelationships(Long.parseLong(value));
+                                    break;
+                                default:
+                                    break;
+                            }
+                        } else {
+                            switch (clause.getComparator()) {
+                                case IS_NOT_NULL:
+                                    condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
+                                            inRelationshipTypes(relationship);
+                                    break;
+                                case IS_NULL:
+                                    condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
+                                            notInRelationshipTypes(relationship);
+                                    break;
+                                case EQUALS:
+                                    condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
+                                            inRelationships(Long.parseLong(value));
+                                    break;
+                                case NOT_EQUALS:
+                                    condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
+                                            notInRelationships(Long.parseLong(value));
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        break;
+
                     default:
                         break;
                 }

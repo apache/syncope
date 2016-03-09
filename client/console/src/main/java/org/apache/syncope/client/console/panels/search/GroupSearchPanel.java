@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.panels.search;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
+import java.util.Map;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -65,13 +65,13 @@ public final class GroupSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.groupNames = new LoadableDetachableModel<List<Pair<Long, String>>>() {
+        this.groupNames = new LoadableDetachableModel<Map<Long, String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected List<Pair<Long, String>> load() {
-                return Collections.<Pair<Long, String>>emptyList();
+            protected Map<Long, String> load() {
+                return Collections.<Long, String>emptyMap();
             }
         };
     }

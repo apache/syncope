@@ -38,9 +38,10 @@ public final class SearchClause implements Serializable {
     public enum Type {
 
         ATTRIBUTE,
-        MEMBERSHIP,
+        GROUP_MEMBERSHIP,
+        ROLE_MEMBERSHIP,
         RESOURCE,
-        ENTITLEMENT;
+        RELATIONSHIP;
 
     }
 

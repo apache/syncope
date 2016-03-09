@@ -177,8 +177,7 @@ public class Relationships extends WizardStep {
                 : Collections.<RelationshipTO>emptyList();
     }
 
-    private void addRelationship(
-            final Map<String, List<RelationshipTO>> relationships, final RelationshipTO... rels) {
+    private void addRelationship(final Map<String, List<RelationshipTO>> relationships, final RelationshipTO... rels) {
 
         for (RelationshipTO relationship : rels) {
             final List<RelationshipTO> listrels;

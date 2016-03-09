@@ -19,8 +19,9 @@
 package org.apache.syncope.client.console.panels.search;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
+import java.util.Map;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -69,32 +70,37 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected List<SearchClause.Type> load() {
-                List<SearchClause.Type> result = new ArrayList<SearchClause.Type>();
-                result.add(SearchClause.Type.ATTRIBUTE);
-                result.add(SearchClause.Type.MEMBERSHIP);
-                result.add(SearchClause.Type.RESOURCE);
-                return result;
+                return getAvailableTypes();
             }
         };
 
-        this.groupNames = new LoadableDetachableModel<List<Pair<Long, String>>>() {
+        this.groupNames = new LoadableDetachableModel<Map<Long, String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected List<Pair<Long, String>> load() {
+            protected Map<Long, String> load() {
                 List<GroupTO> groupTOs = groupRestClient.list("/",
                         -1, -1,
                         new SortParam<>("name", true),
                         null);
 
-                List<Pair<Long, String>> result = new ArrayList<>(groupTOs.size());
+                final Map<Long, String> result = new HashMap<>(groupTOs.size());
                 for (GroupTO group : groupTOs) {
-                    result.add(Pair.of(group.getKey(), group.getName()));
+                    result.put(group.getKey(), group.getName());
                 }
 
                 return result;
             }
         };
+    }
+
+    protected List<SearchClause.Type> getAvailableTypes() {
+        List<SearchClause.Type> result = new ArrayList<SearchClause.Type>();
+        result.add(SearchClause.Type.ATTRIBUTE);
+        result.add(SearchClause.Type.GROUP_MEMBERSHIP);
+        result.add(SearchClause.Type.RESOURCE);
+        result.add(SearchClause.Type.RELATIONSHIP);
+        return result;
     }
 }

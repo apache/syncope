@@ -21,8 +21,8 @@ package org.apache.syncope.client.console.panels.search;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
@@ -61,7 +61,9 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected IModel<List<SearchClause.Type>> types;
 
-    protected IModel<List<Pair<Long, String>>> groupNames;
+    protected IModel<Map<Long, String>> groupNames;
+
+    protected IModel<List<String>> roleNames;
 
     protected IModel<List<SearchClause>> model;
 
@@ -127,7 +129,7 @@ public abstract class AbstractSearchPanel extends Panel {
         final SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),
                 required,
-                types, anames, dnames, groupNames, resourceNames);
+                types, anames, dnames, groupNames, roleNames, resourceNames);
 
         if (enableSearch) {
             searchClausePanel.enableSearch();

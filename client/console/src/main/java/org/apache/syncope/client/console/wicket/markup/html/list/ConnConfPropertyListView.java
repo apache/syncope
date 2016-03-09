@@ -36,7 +36,6 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.PasswordTextField;
@@ -70,9 +69,8 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
     protected void populateItem(final ListItem<ConnConfProperty> item) {
         final ConnConfProperty property = item.getModelObject();
 
-        final Label label = new Label("connPropAttrSchema", StringUtils.isBlank(property.getSchema().getDisplayName())
-                ? property.getSchema().getName() : property.getSchema().getDisplayName());
-        item.add(label);
+        final String label = StringUtils.isBlank(property.getSchema().getDisplayName())
+                ? property.getSchema().getName() : property.getSchema().getDisplayName();
 
         final FieldPanel<? extends Serializable> field;
         boolean required = false;
@@ -82,8 +80,7 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
                 || Constants.GUARDED_STRING.equalsIgnoreCase(property.getSchema().getType())
                 || Constants.GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
 
-            field = new AjaxPasswordFieldPanel(
-                    "panel", label.getDefaultModelObjectAsString(), new Model<String>(), false);
+            field = new AjaxPasswordFieldPanel("panel", label, new Model<String>(), false);
             ((PasswordTextField) field.getField()).setResetPassword(false);
 
             required = property.getSchema().isRequired();
@@ -102,16 +99,12 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
             if (ClassUtils.isAssignable(Number.class, propertySchemaClass)) {
                 @SuppressWarnings("unchecked")
                 Class<Number> numberClass = (Class<Number>) propertySchemaClass;
-                field = new AjaxSpinnerFieldPanel.Builder<>().build(
-                        "panel", label.getDefaultModelObjectAsString(), numberClass, new Model<Number>());
-
+                field = new AjaxSpinnerFieldPanel.Builder<>().build("panel", label, numberClass, new Model<Number>());
                 required = property.getSchema().isRequired();
             } else if (ClassUtils.isAssignable(Boolean.class, propertySchemaClass)) {
-                field = new AjaxCheckBoxPanel(
-                        "panel", label.getDefaultModelObjectAsString(), new Model<Boolean>(), false);
+                field = new AjaxCheckBoxPanel("panel", label, new Model<Boolean>(), false);
             } else {
-                field = new AjaxTextFieldPanel(
-                        "panel", label.getDefaultModelObjectAsString(), new Model<String>(), false);
+                field = new AjaxTextFieldPanel("panel", label, new Model<String>(), false);
                 required = property.getSchema().isRequired();
             }
 
@@ -126,9 +119,7 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
         if (isArray) {
             final MultiFieldPanel multiFieldPanel = new MultiFieldPanel.Builder(
                     new PropertyModel<List<String>>(property, "values")).setEventTemplate(true).build(
-                            "panel",
-                            label.getDefaultModelObjectAsString(),
-                            field);
+                    "panel", label, field);
             item.add(multiFieldPanel);
             fieldPanel = multiFieldPanel;
         } else {
