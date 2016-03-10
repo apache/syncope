@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.Locale;
 import java.util.Map;
@@ -31,7 +30,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
@@ -450,127 +449,130 @@ public class VirAttrITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE453() {
-        final String resourceName = "issueSYNCOPE453-Res-" + getUUIDString();
-        final String groupName = "issueSYNCOPE453-Group-" + getUUIDString();
+        String resourceName = "issueSYNCOPE453-Res-" + getUUIDString();
+        Long groupKey = null;
+        String groupName = "issueSYNCOPE453-Group-" + getUUIDString();
 
-        // -------------------------------------------
-        // Create a resource ad-hoc
-        // -------------------------------------------
-        ResourceTO resourceTO = new ResourceTO();
+        try {
+            // -------------------------------------------
+            // Create a resource ad-hoc
+            // -------------------------------------------
+            ResourceTO resourceTO = new ResourceTO();
 
-        resourceTO.setKey(resourceName);
-        resourceTO.setConnector(107L);
+            resourceTO.setKey(resourceName);
+            resourceTO.setConnector(107L);
 
-        ProvisionTO provisionTO = new ProvisionTO();
-        provisionTO.setAnyType(AnyTypeKind.USER.name());
-        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
-        resourceTO.getProvisions().add(provisionTO);
+            ProvisionTO provisionTO = new ProvisionTO();
+            provisionTO.setAnyType(AnyTypeKind.USER.name());
+            provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+            resourceTO.getProvisions().add(provisionTO);
 
-        MappingTO mapping = new MappingTO();
-        provisionTO.setMapping(mapping);
+            MappingTO mapping = new MappingTO();
+            provisionTO.setMapping(mapping);
 
-        MappingItemTO item = new MappingItemTO();
-        item.setIntAttrName("aLong");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
-        item.setExtAttrName("ID");
-        item.setPurpose(MappingPurpose.PROPAGATION);
-        item.setConnObjectKey(true);
-        mapping.setConnObjectKeyItem(item);
+            MappingItemTO item = new MappingItemTO();
+            item.setIntAttrName("aLong");
+            item.setIntMappingType(IntMappingType.UserPlainSchema);
+            item.setExtAttrName("ID");
+            item.setPurpose(MappingPurpose.PROPAGATION);
+            item.setConnObjectKey(true);
+            mapping.setConnObjectKeyItem(item);
 
-        item = new MappingItemTO();
-        item.setExtAttrName("USERNAME");
-        item.setIntAttrName("username");
-        item.setIntMappingType(IntMappingType.Username);
-        item.setPurpose(MappingPurpose.PROPAGATION);
-        mapping.getItems().add(item);
+            item = new MappingItemTO();
+            item.setExtAttrName("USERNAME");
+            item.setIntAttrName("username");
+            item.setIntMappingType(IntMappingType.Username);
+            item.setPurpose(MappingPurpose.PROPAGATION);
+            mapping.getItems().add(item);
 
-        item = new MappingItemTO();
-        item.setExtAttrName("EMAIL");
-        item.setIntAttrName("rvirtualdata");
-        item.setIntMappingType(IntMappingType.GroupVirtualSchema);
-        item.setPurpose(MappingPurpose.PROPAGATION);
-        mapping.getItems().add(item);
+            item = new MappingItemTO();
+            item.setExtAttrName("EMAIL");
+            item.setIntAttrName("rvirtualdata");
+            item.setIntMappingType(IntMappingType.GroupVirtualSchema);
+            item.setPurpose(MappingPurpose.PROPAGATION);
+            mapping.getItems().add(item);
 
-        assertNotNull(getObject(
-                resourceService.create(resourceTO).getLocation(), ResourceService.class, ResourceTO.class));
-        // -------------------------------------------
-
-        // -------------------------------------------
-        // Create a VirAttrITCase ad-hoc
-        // -------------------------------------------
-        GroupTO groupTO = new GroupTO();
-        groupTO.setName(groupName);
-        groupTO.setRealm("/");
-        groupTO.getResources().add(RESOURCE_NAME_LDAP);
-        groupTO = createGroup(groupTO).getAny();
-
-        String rvirtualdata = "ml@group.it";
-
-        int i = 0;
-        int maxit = 5;
-
-        // wait for group propagation on LDAP
-        do {
+            assertNotNull(getObject(
+                    resourceService.create(resourceTO).getLocation(), ResourceService.class, ResourceTO.class));
+            // -------------------------------------------
+            // -------------------------------------------
+            // Create a VirAttrITCase ad-hoc
+            // -------------------------------------------
+            VirSchemaTO rvirtualdata;
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                rvirtualdata = schemaService.read(SchemaType.VIRTUAL, "rvirtualdata");
+            } catch (SyncopeClientException e) {
+                LOG.warn("rvirtualdata not found, re-creating", e);
+
+                rvirtualdata = new VirSchemaTO();
+                rvirtualdata.setKey("rvirtualdata");
+                rvirtualdata.setExtAttrName("businessCategory");
+                rvirtualdata.setProvision(20);
+
+                rvirtualdata = createSchema(SchemaType.VIRTUAL, rvirtualdata);
+            }
+            assertNotNull(rvirtualdata);
+
+            if (!"minimal group".equals(rvirtualdata.getAnyTypeClass())) {
+                LOG.warn("rvirtualdata not in minimal group, restoring");
+
+                AnyTypeClassTO minimalGroup = anyTypeClassService.read("minimal group");
+                minimalGroup.getVirSchemas().add(rvirtualdata.getKey());
+                anyTypeClassService.update(minimalGroup);
+
+                rvirtualdata = schemaService.read(SchemaType.VIRTUAL, rvirtualdata.getKey());
+                assertEquals("minimal group", rvirtualdata.getAnyTypeClass());
             }
 
-            GroupPatch patch = new GroupPatch();
-            patch.setKey(groupTO.getKey());
-            rvirtualdata = i + rvirtualdata;
-            patch.getVirAttrs().add(attrTO("rvirtualdata", rvirtualdata));
+            GroupTO groupTO = new GroupTO();
+            groupTO.setName(groupName);
+            groupTO.setRealm("/");
+            groupTO.getVirAttrs().add(attrTO(rvirtualdata.getKey(), "ml@group.it"));
+            groupTO.getResources().add(RESOURCE_NAME_LDAP);
+            groupTO = createGroup(groupTO).getAny();
+            groupKey = groupTO.getKey();
+            assertEquals(1, groupTO.getVirAttrs().size());
+            assertEquals("ml@group.it", groupTO.getVirAttrs().iterator().next().getValues().get(0));
+            // -------------------------------------------
 
-            LOG.info("Updating " + groupName + " with " + rvirtualdata);
-            groupTO = updateGroup(patch).getAny();
-            assertNotNull(groupTO);
-            LOG.info("Updated " + groupName + " now has virAttrs " + groupTO.getVirAttrs());
+            // -------------------------------------------
+            // Create new user
+            // -------------------------------------------
+            UserTO userTO = UserITCase.getUniqueSampleTO("syncope453@syncope.apache.org");
+            userTO.getPlainAttrs().add(attrTO("aLong", "123"));
+            userTO.getResources().clear();
+            userTO.getResources().add(resourceName);
+            userTO.getVirAttrs().clear();
+            userTO.getDerAttrs().clear();
+            userTO.getMemberships().clear();
 
-            i++;
-        } while (groupTO.getVirAttrs().isEmpty() && i < maxit);
-        if (i == 5) {
-            fail("Timeout when propagating " + groupName + " to LDAP");
+            userTO.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
+
+            ProvisioningResult<UserTO> result = createUser(userTO);
+            assertEquals(2, result.getPropagationStatuses().size());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(1).getStatus());
+            userTO = result.getAny();
+
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+            Map<String, Object> actuals = jdbcTemplate.queryForMap(
+                    "SELECT id, surname, email FROM testsync WHERE id=?",
+                    new Object[] { Integer.parseInt(userTO.getPlainAttrMap().get("aLong").getValues().get(0)) });
+
+            assertEquals(userTO.getPlainAttrMap().get("aLong").getValues().get(0), actuals.get("id").toString());
+            assertEquals("ml@group.it", actuals.get("email"));
+            // -------------------------------------------
+        } finally {
+            // -------------------------------------------
+            // Delete resource and group ad-hoc
+            // -------------------------------------------
+            resourceService.delete(resourceName);
+            if (groupKey != null) {
+                groupService.delete(groupKey);
+            }
+            // -------------------------------------------
         }
-
-        assertEquals(1, groupTO.getVirAttrs().size());
-        assertEquals(rvirtualdata, groupTO.getVirAttrs().iterator().next().getValues().get(0));
-        // -------------------------------------------
-
-        // -------------------------------------------
-        // Create new user
-        // -------------------------------------------
-        UserTO userTO = UserITCase.getUniqueSampleTO("syncope453@syncope.apache.org");
-        userTO.getPlainAttrs().add(attrTO("aLong", "123"));
-        userTO.getResources().clear();
-        userTO.getResources().add(resourceName);
-        userTO.getVirAttrs().clear();
-        userTO.getDerAttrs().clear();
-        userTO.getMemberships().clear();
-
-        userTO.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
-
-        ProvisioningResult<UserTO> result = createUser(userTO);
-        assertEquals(2, result.getPropagationStatuses().size());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(1).getStatus());
-        userTO = result.getAny();
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-
-        Map<String, Object> actuals = jdbcTemplate.queryForMap(
-                "SELECT id, surname, email FROM testsync WHERE id=?",
-                new Object[] { Integer.parseInt(userTO.getPlainAttrMap().get("aLong").getValues().get(0)) });
-
-        assertEquals(userTO.getPlainAttrMap().get("aLong").getValues().get(0), actuals.get("id").toString());
-        assertEquals(rvirtualdata, actuals.get("email"));
-        // -------------------------------------------
-
-        // -------------------------------------------
-        // Delete resource and group ad-hoc
-        // -------------------------------------------
-        resourceService.delete(resourceName);
-        groupService.delete(groupTO.getKey());
-        // -------------------------------------------
     }
 
     @Test
