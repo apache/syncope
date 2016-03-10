@@ -117,8 +117,7 @@ public class MailTemplateTest extends AbstractTest {
                 ctx);
 
         assertNotNull(htmlBody);
-        System.out.println("AAAAAAAAAAAAA\n" + htmlBody);
-        
+
         assertTrue(htmlBody.contains("Hi John Doe,"));
         assertTrue(htmlBody.contains("Your email address is john.doe@syncope.apache.org."));
         assertTrue(htmlBody.contains("<li>another@syncope.apache.org</li>"));

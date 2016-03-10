@@ -58,9 +58,9 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.resource.DynamicJQueryResourceReference;
+import org.apache.wicket.util.lang.Args;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
 
 public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
@@ -90,6 +90,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     private String anonymousKey;
 
     private String activitiModelerDirectory;
+
+    private Long reconciliationReportKey;
 
     private SyncopeClientFactoryBean clientFactory;
 
@@ -136,24 +138,24 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
             throw new WicketRuntimeException("Could not read " + CONSOLE_PROPERTIES, e);
         }
         version = props.getProperty("version");
-        Assert.notNull(version, "<version> not set");
+        Args.notNull(version, "<version> not set");
         site = props.getProperty("site");
-        Assert.notNull(site, "<site> not set");
+        Args.notNull(site, "<site> not set");
         license = props.getProperty("license");
-        Assert.notNull(license, "<license> not set");
+        Args.notNull(license, "<license> not set");
         anonymousUser = props.getProperty("anonymousUser");
-        Assert.notNull(anonymousUser, "<anonymousUser> not set");
+        Args.notNull(anonymousUser, "<anonymousUser> not set");
         anonymousKey = props.getProperty("anonymousKey");
-        Assert.notNull(anonymousKey, "<anonymousKey> not set");
+        Args.notNull(anonymousKey, "<anonymousKey> not set");
 
         String scheme = props.getProperty("scheme");
-        Assert.notNull(scheme, "<scheme> not set");
+        Args.notNull(scheme, "<scheme> not set");
         String host = props.getProperty("host");
-        Assert.notNull(host, "<host> not set");
+        Args.notNull(host, "<host> not set");
         String port = props.getProperty("port");
-        Assert.notNull(port, "<port> not set");
+        Args.notNull(port, "<port> not set");
         String rootPath = props.getProperty("rootPath");
-        Assert.notNull(rootPath, "<rootPath> not set");
+        Args.notNull(rootPath, "<rootPath> not set");
 
         clientFactory = new SyncopeClientFactoryBean().setAddress(scheme + "://" + host + ":" + port + "/" + rootPath);
 
@@ -193,7 +195,15 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         mountPage("/login", getSignInPageClass());
 
         activitiModelerDirectory = props.getProperty("activitiModelerDirectory");
-        Assert.notNull(activitiModelerDirectory, "<activitiModelerDirectory> not set");
+        Args.notNull(activitiModelerDirectory, "<activitiModelerDirectory> not set");
+
+        try {
+            reconciliationReportKey = Long.valueOf(props.getProperty("reconciliationReportKey"));
+        } catch (NumberFormatException e) {
+            LOG.error("While parsing reconciliationReportKey", e);
+        }
+        Args.notNull(reconciliationReportKey, "<reconciliationReportKey> not set");
+
         mountResource("/" + ACTIVITI_MODELER_CONTEXT, new ResourceReference(ACTIVITI_MODELER_CONTEXT) {
 
             private static final long serialVersionUID = -128426276529456602L;
@@ -273,6 +283,10 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public String getActivitiModelerDirectory() {
         return activitiModelerDirectory;
+    }
+
+    public Long getReconciliationReportKey() {
+        return reconciliationReportKey;
     }
 
     public SyncopeClientFactoryBean getClientFactory() {

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.widgets.reconciliation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -174,13 +172,6 @@ public final class ReconciliationReportParser {
             }
 
             streamReader.next();
-        }
-
-        try {
-            System.out.println("QQQQQQQQQ\n" + new ObjectMapper().writeValueAsString(report));
-        } catch (JsonProcessingException ex) {
-            System.err.println("nuuuuuuuuuuuuuuuuuuuuuuuu");
-            ex.printStackTrace();
         }
 
         return report;

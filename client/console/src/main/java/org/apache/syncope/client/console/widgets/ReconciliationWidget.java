@@ -36,6 +36,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
@@ -97,8 +98,6 @@ public class ReconciliationWidget extends BaseWidget {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReconciliationWidget.class);
 
-    private static final long RECONCILIATION_REPORT_KEY = 2L;
-
     private static final int ROWS = 10;
 
     private final BaseModal<Any> detailsModal = new BaseModal<>("detailsModal");
@@ -122,26 +121,34 @@ public class ReconciliationWidget extends BaseWidget {
         overlay.setVisible(false);
         add(overlay);
 
-        ReportTO reconciliationReport = restClient.read(RECONCILIATION_REPORT_KEY);
+        ReportTO reconciliationReport = null;
+        try {
+            reconciliationReport = restClient.read(SyncopeConsoleApplication.get().getReconciliationReportKey());
+        } catch (Exception e) {
+            LOG.error("Could not fetch the expected reconciliation report with key {}, aborting",
+                    SyncopeConsoleApplication.get().getReconciliationReportKey(), e);
+        }
 
-        Fragment reportResult = reconciliationReport.getExecutions().isEmpty()
+        Fragment reportResult = reconciliationReport == null || reconciliationReport.getExecutions().isEmpty()
                 ? new Fragment("reportResult", "noExecFragment", this)
                 : buildExecFragment();
         reportResult.setOutputMarkupId(true);
         add(reportResult);
 
-        add(new WebSocketBehavior() {
+        if (reconciliationReport != null) {
+            add(new WebSocketBehavior() {
 
-            private static final long serialVersionUID = 3507933905864454312L;
+                private static final long serialVersionUID = 3507933905864454312L;
 
-            @Override
-            protected void onConnect(final ConnectedMessage message) {
-                super.onConnect(message);
+                @Override
+                protected void onConnect(final ConnectedMessage message) {
+                    super.onConnect(message);
 
-                SyncopeConsoleSession.get().scheduleAtFixedRate(
-                        new ReconciliationJobInfoUpdater(message), 0, 10, TimeUnit.SECONDS);
-            }
-        });
+                    SyncopeConsoleSession.get().scheduleAtFixedRate(
+                            new ReconciliationJobInfoUpdater(message), 0, 10, TimeUnit.SECONDS);
+                }
+            });
+        }
 
         add(new IndicatorAjaxLink<Void>("refresh") {
 
@@ -150,7 +157,7 @@ public class ReconciliationWidget extends BaseWidget {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    restClient.startExecution(RECONCILIATION_REPORT_KEY, null);
+                    restClient.startExecution(SyncopeConsoleApplication.get().getReconciliationReportKey(), null);
 
                     overlay.setVisible(true);
                     target.add(ReconciliationWidget.this);
@@ -236,7 +243,7 @@ public class ReconciliationWidget extends BaseWidget {
 
             @Override
             public boolean evaluate(final ExecTO exec) {
-                return exec.getRefKey() == RECONCILIATION_REPORT_KEY;
+                return exec.getRefKey() == SyncopeConsoleApplication.get().getReconciliationReportKey();
             }
         });
         if (exec == null) {
@@ -501,11 +508,13 @@ public class ReconciliationWidget extends BaseWidget {
 
                             @Override
                             public boolean evaluate(final JobTO jobTO) {
-                                return RECONCILIATION_REPORT_KEY == jobTO.getRefKey();
+                                return SyncopeConsoleApplication.get().
+                                        getReconciliationReportKey().equals(jobTO.getRefKey());
                             }
                         });
                         if (reportJobTO != null && !reportJobTO.isRunning()) {
-                            LOG.debug("Report {} is not running", RECONCILIATION_REPORT_KEY);
+                            LOG.debug("Report {} is not running",
+                                    SyncopeConsoleApplication.get().getReconciliationReportKey());
 
                             WebSocketSettings webSocketSettings = WebSocketSettings.Holder.get(application);
                             WebSocketPushBroadcaster broadcaster =
