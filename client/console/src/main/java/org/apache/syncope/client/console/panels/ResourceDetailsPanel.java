@@ -106,9 +106,9 @@ public class ResourceDetailsPanel extends Panel {
                 setChoices(Arrays.asList(TraceLevel.values())));
 
         container.add(new AjaxDropDownChoicePanel<>(
-                "syncTraceLevel",
-                new ResourceModel("syncTraceLevel", "syncTraceLevel").getObject(),
-                new PropertyModel<TraceLevel>(model, "syncTraceLevel"),
+                "pullTraceLevel",
+                new ResourceModel("pullTraceLevel", "pullTraceLevel").getObject(),
+                new PropertyModel<TraceLevel>(model, "pullTraceLevel"),
                 false).
                 setChoices(Arrays.asList(TraceLevel.values())));
 

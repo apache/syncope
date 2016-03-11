@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -75,6 +77,8 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
     private final CheckGroupSelector groupSelector;
 
     private final Model<CheckAvailability> check;
+
+    private final ListView<T> beans;
 
     private final List<T> listOfItems;
 
@@ -148,7 +152,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         addInnerObject(header(toBeIncluded));
 
-        final ListView<T> beans = new ListView<T>("beans", listOfItems) {
+        beans = new ListView<T>("beans", listOfItems) {
 
             private static final long serialVersionUID = 1L;
 
@@ -335,6 +339,18 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                     : new Label("field", new ResourceModel(value.toString(), value.toString()));
         }
 
+        protected T getActualItem(final T item, final List<T> list) {
+            return item == null
+                    ? null
+                    : IteratorUtils.find(list.iterator(), new Predicate<T>() {
+
+                        @Override
+                        public boolean evaluate(final T object) {
+                            return item.equals(object);
+                        }
+                    });
+        }
+
         @Override
         protected WizardMgtPanel<T> newInstance(final String id) {
             return new ListViewPanel<T>(id, items, reference, includes, actions, check, reuseItem, model) {
@@ -346,6 +362,10 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                     return Builder.this.getValueComponent(key, bean);
                 }
 
+                @Override
+                protected T getActualItem(final T item, final List<T> list) {
+                    return Builder.this.getActualItem(item, list);
+                }
             };
         }
     }
@@ -354,14 +374,17 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
     @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
-
             final T item = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getItem();
             final AjaxRequestTarget target = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getTarget();
 
             if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                if (item != null && !this.listOfItems.contains(item)) {
-                    this.listOfItems.add(item);
+                final T old = getActualItem(item, ListViewPanel.this.listOfItems);
+                int indexOf = ListViewPanel.this.listOfItems.size();
+                if (old != null) {
+                    indexOf = ListViewPanel.this.listOfItems.indexOf(old);
+                    ListViewPanel.this.listOfItems.remove(old);
                 }
+                ListViewPanel.this.listOfItems.add(indexOf, item);
             }
 
             target.add(ListViewPanel.this);
@@ -372,6 +395,8 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             super.onEvent(event);
         }
     }
+
+    protected abstract T getActualItem(final T item, final List<T> list);
 
     public static class ListViewReload {
 

@@ -471,7 +471,7 @@ div.listview-actions a {
 }
 
 .btn-circle, .circular-actions a {
-  border-radius: 15px;
+  border-radius: 15px !important;
   font-size: 12px;
   height: 30px;
   line-height: 1.42857;

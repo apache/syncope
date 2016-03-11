@@ -21,23 +21,29 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
-import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MappingPurposePanel;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
@@ -77,9 +83,14 @@ public class ResourceMappingPanel extends Panel {
     private static final String DEF_FIELD_STYLE = "";
 
     /**
-     * Schema rest client.
+     * Any type rest client.
      */
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
+    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
+
+    /**
+     * Any type class rest client.
+     */
+    private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     /**
      * ConnInstance rest client.
@@ -217,10 +228,127 @@ public class ResourceMappingPanel extends Panel {
                 }
 
                 AnyTypeKind entity = null;
-                if (mapItem.getIntMappingType() != null) {
+                if (provisionTO.getAnyType().equals(AnyTypeKind.GROUP.name())) {
+                    // support for clone
+                    entity = AnyTypeKind.GROUP;
+                } else if (mapItem.getIntMappingType() != null) {
                     entity = mapItem.getIntMappingType().getAnyTypeKind();
                 }
 
+                // it will happen just in case of clone to create a new mapping for group object
+                if (mapItem.getIntMappingType() != null && mapItem.getIntMappingType().getAnyTypeKind() != entity) {
+                    mapItem.setIntMappingType(null);
+                    mapItem.setIntAttrName(null);
+                }
+
+                //--------------------------------
+                // Entity
+                // -------------------------------
+                final AjaxDropDownChoicePanel<AnyTypeKind> entitiesPanel = new AjaxDropDownChoicePanel<>(
+                        "entities",
+                        new ResourceModel("entities", "entities").getObject(),
+                        new Model<>(entity));
+
+                entitiesPanel.hideLabel();
+                entitiesPanel.setChoices(provisionTO.getAnyType().equals(AnyTypeKind.GROUP.name())
+                        ? Collections.<AnyTypeKind>singletonList(AnyTypeKind.GROUP)
+                        : Arrays.asList(AnyTypeKind.values()));
+
+                entitiesPanel.setStyleSheet(false, DEF_FIELD_STYLE);
+                item.add(entitiesPanel);
+                // -------------------------------
+
+                //--------------------------------
+                // Internal attribute type
+                // -------------------------------
+                final List<IntMappingType> attrTypes = new ArrayList<>(getAttributeTypes(entity));
+                final AjaxDropDownChoicePanel<IntMappingType> intMappingTypes = new AjaxDropDownChoicePanel<>(
+                        "intMappingTypes",
+                        new ResourceModel("intMappingTypes", "intMappingTypes").getObject(),
+                        new PropertyModel<IntMappingType>(mapItem, "intMappingType"),
+                        false);
+                intMappingTypes.setNullValid(true).setRequired(true).hideLabel();
+                intMappingTypes.setChoices(attrTypes);
+                item.add(intMappingTypes);
+                // -------------------------------
+
+                //--------------------------------
+                // Internal attribute
+                // -------------------------------
+                final AjaxDropDownChoicePanel<String> intAttrNames = new AjaxDropDownChoicePanel<>(
+                        "intAttrNames",
+                        getString("intAttrNames"),
+                        new PropertyModel<String>(mapItem, "intAttrName"),
+                        false);
+                intAttrNames.setChoices(Collections.<String>emptyList());
+                intAttrNames.setNullValid(true).setRequired(true).hideLabel();
+                item.add(intAttrNames);
+                // -------------------------------
+
+                //--------------------------------
+                // External attribute
+                // -------------------------------
+                final AjaxTextFieldPanel extAttrNames = new AjaxTextFieldPanel(
+                        "extAttrName",
+                        new ResourceModel("extAttrNames", "extAttrNames").getObject(),
+                        new PropertyModel<String>(mapItem, "extAttrName"));
+                extAttrNames.setChoices(schemaNames);
+
+                boolean required = !mapItem.isPassword();
+                extAttrNames.setRequired(required).hideLabel();
+                extAttrNames.setEnabled(required);
+                item.add(extAttrNames);
+                // -------------------------------
+
+                //--------------------------------
+                // Mandatory
+                // -------------------------------
+                final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel(
+                        "mandatoryCondition",
+                        new ResourceModel("mandatoryCondition", "mandatoryCondition").getObject(),
+                        new PropertyModel<String>(mapItem, "mandatoryCondition"));
+                mandatory.hideLabel();
+                mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
+                item.add(mandatory);
+                // -------------------------------
+
+                //--------------------------------
+                // Connector object key
+                // -------------------------------
+                final AjaxCheckBoxPanel connObjectKey = new AjaxCheckBoxPanel(
+                        "connObjectKey",
+                        new ResourceModel("connObjectKey", "connObjectKey").getObject(),
+                        new PropertyModel<Boolean>(mapItem, "connObjectKey"), false);
+                connObjectKey.hideLabel();
+                item.add(connObjectKey);
+                // -------------------------------
+
+                //--------------------------------
+                // Password
+                // -------------------------------
+                final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel(
+                        "password",
+                        new ResourceModel("password", "password").getObject(),
+                        new PropertyModel<Boolean>(mapItem, "password"), false);
+                item.add(password.hideLabel());
+                // -------------------------------
+
+                //--------------------------------
+                // Purpose
+                // -------------------------------
+                final WebMarkupContainer purpose = new WebMarkupContainer("purpose");
+                purpose.setOutputMarkupId(Boolean.TRUE);
+
+                final MappingPurposePanel panel = new MappingPurposePanel(
+                        "purposeActions", new PropertyModel<MappingPurpose>(mapItem, "purpose"), purpose);
+
+                purpose.add(panel.setRenderBodyOnly(true));
+                item.add(purpose);
+                // -------------------------------
+
+                //--------------------------------
+                // Remove
+                // -------------------------------
                 final ActionLinksPanel.Builder<Serializable> actions = ActionLinksPanel.builder();
                 actions.add(new ActionLink<Serializable>() {
 
@@ -242,47 +370,8 @@ public class ResourceMappingPanel extends Panel {
                         }
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_UPDATE);
-
                 item.add(actions.build("toRemove"));
-
-                final AjaxDropDownChoicePanel<String> intAttrNames = new AjaxDropDownChoicePanel<>(
-                        "intAttrNames",
-                        getString("intAttrNames"),
-                        new PropertyModel<String>(mapItem, "intAttrName"),
-                        false);
-                intAttrNames.setChoices(schemaNames);
-                intAttrNames.setRequired(true).hideLabel();
-
-                intAttrNames.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-                    private static final long serialVersionUID = -1107858522700306810L;
-
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                    }
-                });
-                item.add(intAttrNames);
-
-                final List<IntMappingType> attrTypes = new ArrayList<>(getAttributeTypes(entity));
-                final AjaxDropDownChoicePanel<IntMappingType> intMappingTypes = new AjaxDropDownChoicePanel<>(
-                        "intMappingTypes",
-                        new ResourceModel("intMappingTypes", "intMappingTypes").getObject(),
-                        new PropertyModel<IntMappingType>(mapItem, "intMappingType"));
-                intMappingTypes.setRequired(true).hideLabel();
-                intMappingTypes.setChoices(attrTypes);
-                item.add(intMappingTypes);
-
-                final AjaxDropDownChoicePanel<AnyTypeKind> entitiesPanel = new AjaxDropDownChoicePanel<>(
-                        "entities",
-                        new ResourceModel("entities", "entities").getObject(),
-                        new Model<>(entity));
-
-                entitiesPanel.hideLabel();
-                entitiesPanel.setChoices(provisionTO.getAnyType().equals(AnyTypeKind.GROUP.name())
-                        ? Collections.<AnyTypeKind>singletonList(AnyTypeKind.GROUP)
-                        : Arrays.asList(AnyTypeKind.values()));
-
-                entitiesPanel.setStyleSheet(false, DEF_FIELD_STYLE);
+                // -------------------------------
 
                 entitiesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -300,38 +389,30 @@ public class ResourceMappingPanel extends Panel {
                         target.add(intAttrNames);
                     }
                 });
-                item.add(entitiesPanel);
 
-                final FieldPanel<String> extAttrNames = new AjaxTextFieldPanel(
-                        "extAttrName",
-                        new ResourceModel("extAttrNames", "extAttrNames").getObject(),
-                        new PropertyModel<String>(mapItem, "extAttrName"));
-                ((AjaxTextFieldPanel) extAttrNames).setChoices(schemaNames);
+                intMappingTypes.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
-                boolean required = false;
-                if (mapItem.isPassword()) {
-                    ((AjaxTextFieldPanel) extAttrNames).setModelObject(null);
-                } else {
-                    required = true;
-                }
-                extAttrNames.setRequired(required).hideLabel();
-                extAttrNames.setEnabled(required);
-                item.add(extAttrNames);
+                    private static final long serialVersionUID = -1107858522700306810L;
 
-                final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel(
-                        "mandatoryCondition",
-                        new ResourceModel("mandatoryCondition", "mandatoryCondition").getObject(),
-                        new PropertyModel<String>(mapItem, "mandatoryCondition"));
-                mandatory.hideLabel();
-                mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
-                item.add(mandatory);
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        setAttrNames(intMappingTypes.getModelObject(), intAttrNames);
+                        target.add(intAttrNames);
 
-                final AjaxCheckBoxPanel connObjectKey = new AjaxCheckBoxPanel(
-                        "connObjectKey",
-                        new ResourceModel("connObjectKey", "connObjectKey").getObject(),
-                        new PropertyModel<Boolean>(mapItem, "connObjectKey"));
+                        setConnObjectKey(intMappingTypes.getModelObject(), connObjectKey, password);
+                        target.add(connObjectKey);
+                    }
+                });
 
-                connObjectKey.hideLabel();
+                intAttrNames.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                    private static final long serialVersionUID = -1107858522700306810L;
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                    }
+                });
+
                 connObjectKey.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
@@ -348,14 +429,7 @@ public class ResourceMappingPanel extends Panel {
                         target.add(mandatory);
                     }
                 });
-                item.add(connObjectKey);
 
-                final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel(
-                        "password",
-                        new ResourceModel("password", "password").getObject(),
-                        new PropertyModel<Boolean>(mapItem, "password"));
-
-                password.hideLabel();
                 password.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
@@ -363,37 +437,10 @@ public class ResourceMappingPanel extends Panel {
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                         extAttrNames.setEnabled(!mapItem.isConnObjectKey() && !password.getModelObject());
-                        extAttrNames.setModelObject(null);
+                        extAttrNames.setModelObject(password.getModelObject()
+                                ? ConnIdSpecialAttributeName.PASSWORD : extAttrNames.getModelObject());
                         extAttrNames.setRequired(!password.getModelObject());
                         target.add(extAttrNames);
-
-                        setConnObjectKey(intMappingTypes.getModelObject(), connObjectKey, password);
-                        target.add(connObjectKey);
-                    }
-                });
-                item.add(password);
-                if (!AnyTypeKind.USER.name().equals(provisionTO.getAnyType())) {
-                    password.setVisible(false);
-                }
-
-                final WebMarkupContainer purpose = new WebMarkupContainer("purpose");
-                purpose.setOutputMarkupId(Boolean.TRUE);
-
-                final MappingPurposePanel panel = new MappingPurposePanel(
-                        "purposeActions", new PropertyModel<MappingPurpose>(mapItem, "purpose"), purpose);
-
-                purpose.add(panel.setRenderBodyOnly(true));
-
-                item.add(purpose);
-
-                intMappingTypes.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-                    private static final long serialVersionUID = -1107858522700306810L;
-
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        setAttrNames(intMappingTypes.getModelObject(), intAttrNames);
-                        target.add(intAttrNames);
 
                         setConnObjectKey(intMappingTypes.getModelObject(), connObjectKey, password);
                         target.add(connObjectKey);
@@ -402,6 +449,18 @@ public class ResourceMappingPanel extends Panel {
 
                 setAttrNames(mapItem.getIntMappingType(), intAttrNames);
                 setConnObjectKey(mapItem.getIntMappingType(), connObjectKey, password);
+
+                if (!AnyTypeKind.USER.name().equals(provisionTO.getAnyType())) {
+                    password.setVisible(false);
+
+                    // Changes required by clone ....
+                    extAttrNames.setEnabled(!mapItem.isConnObjectKey());
+                    if (mapItem.isPassword()) {
+                        // re-enable if and only if cloned objec mapping item was a password
+                        intAttrNames.setEnabled(true);
+                    }
+                    mapItem.setPassword(false);
+                }
             }
         };
 
@@ -443,8 +502,9 @@ public class ResourceMappingPanel extends Panel {
 
                     @Override
                     public boolean evaluate(final String object) {
-                        return !("__NAME__".equals(object) || "__ENABLE__".equals(object)
-                                || "__PASSWORD__".equals(object));
+                        return !(ConnIdSpecialAttributeName.NAME.equals(object)
+                                || ConnIdSpecialAttributeName.ENABLE.equals(object)
+                                || ConnIdSpecialAttributeName.PASSWORD.equals(object));
                     }
                 }));
     }
@@ -472,30 +532,60 @@ public class ResourceMappingPanel extends Panel {
      * @param toBeUpdated drop down choice to be updated.
      */
     private void setAttrNames(final IntMappingType type, final AjaxDropDownChoicePanel<String> toBeUpdated) {
+
         toBeUpdated.setRequired(true);
         toBeUpdated.setEnabled(true);
 
         if (type == null || type.getAnyTypeKind() == null) {
             toBeUpdated.setChoices(Collections.<String>emptyList());
         } else {
+            Collection<AnyTypeTO> anyTypeTOs = type.getAnyTypeKind() == AnyTypeKind.ANY_OBJECT
+                    ? CollectionUtils.select(anyTypeRestClient.list(), new Predicate<AnyTypeTO>() {
+
+                        @Override
+                        public boolean evaluate(final AnyTypeTO object) {
+                            return object.getKind() == AnyTypeKind.ANY_OBJECT;
+                        }
+                    })
+                    : Collections.singletonList(anyTypeRestClient.get(type.getAnyTypeKind().name()));
+
+            final List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
+            for (AnyTypeTO anyTypeTO : anyTypeTOs) {
+                anyTypeClassTOs.addAll(anyTypeClassRestClient.list(anyTypeTO.getClasses()));
+            }
+
+            List<String> choices;
+
             switch (type) {
                 // user attribute names
                 case UserPlainSchema:
                 case GroupPlainSchema:
                 case AnyObjectPlainSchema:
-                    toBeUpdated.setChoices(schemaRestClient.getPlainSchemaNames());
+                    final Set<String> plains = new HashSet<>();
+                    for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
+                        plains.addAll(anyTypeClassTO.getPlainSchemas());
+                    }
+                    choices = new ArrayList<>(plains);
                     break;
 
                 case UserDerivedSchema:
                 case GroupDerivedSchema:
                 case AnyObjectDerivedSchema:
-                    toBeUpdated.setChoices(schemaRestClient.getDerSchemaNames());
+                    final Set<String> deriveds = new HashSet<>();
+                    for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
+                        deriveds.addAll(anyTypeClassTO.getDerSchemas());
+                    }
+                    choices = new ArrayList<>(deriveds);
                     break;
 
                 case UserVirtualSchema:
                 case GroupVirtualSchema:
                 case AnyObjectVirtualSchema:
-                    toBeUpdated.setChoices(schemaRestClient.getVirSchemaNames());
+                    final Set<String> virtuals = new HashSet<>();
+                    for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
+                        virtuals.addAll(anyTypeClassTO.getVirSchemas());
+                    }
+                    choices = new ArrayList<>(virtuals);
                     break;
 
                 case UserKey:
@@ -507,8 +597,10 @@ public class ResourceMappingPanel extends Panel {
                 default:
                     toBeUpdated.setRequired(false);
                     toBeUpdated.setEnabled(false);
-                    toBeUpdated.setChoices(Collections.<String>emptyList());
+                    choices = Collections.<String>emptyList();
             }
+            Collections.sort(choices);
+            toBeUpdated.setChoices(choices);
         }
     }
 

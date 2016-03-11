@@ -77,7 +77,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
             final List<String> res = new ArrayList<>();
 
             CollectionUtils.filter(CollectionUtils.collect(new AnyTypeRestClient().list(),
-                            EntityTOUtils.<String, AnyTypeTO>keyTransformer(), res),
+                    EntityTOUtils.<String, AnyTypeTO>keyTransformer(), res),
                     new Predicate<String>() {
 
                 @Override
@@ -242,7 +242,6 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
 
     @Override
     protected Serializable onApplyInternal(final ProvisionTO modelObject) {
-        this.resourceTO.getProvisions().add(modelObject);
         return modelObject;
     }
 }

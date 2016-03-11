@@ -60,6 +60,22 @@ public class TopologyITCase extends AbstractConsoleITCase {
     }
 
     @Test
+    public void editProvisioning() {
+        wicketTester.clickLink("body:topologyLI:topology");
+        wicketTester.executeAjaxEvent("body:resources:8:resources:0:res", Constants.ON_CLICK);
+        wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:edit");
+
+        wicketTester.clickLink(
+                "body:toggle:outerObjectsRepeater:0:outer:form:content:tabbedPanel:tabs-container:tabs:1:link");
+
+        wicketTester.clickLink("body:toggle:outerObjectsRepeater:0:outer:form:content:tabbedPanel:panel:container:"
+                + "content:group:beans:0:actions:panelMapping:mappingLink");
+
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:0:outer:form:content:tabbedPanel:panel:"
+                + "container:content:wizard:form:view:mapping:mappingContainer:mappings:1", WebMarkupContainer.class);
+    }
+
+    @Test
     public void executePullTask() {
         wicketTester.clickLink("body:topologyLI:topology");
         wicketTester.executeAjaxEvent("body:resources:2:resources:0:res", Constants.ON_CLICK);

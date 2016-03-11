@@ -21,7 +21,9 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -90,9 +92,31 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         //--------------------------------
         // Resource provision panels
         //--------------------------------
-        final ListViewPanel.Builder<ProvisionTO> builder = new ListViewPanel.Builder<>(ProvisionTO.class, pageRef);
+        final ListViewPanel.Builder<ProvisionTO> builder
+                = new ListViewPanel.Builder<ProvisionTO>(ProvisionTO.class, pageRef) {
+
+            private static final long serialVersionUID = 4907732721283972943L;
+
+            @Override
+            protected ProvisionTO getActualItem(final ProvisionTO item, final List<ProvisionTO> list) {
+                return item == null
+                        ? null
+                        : IteratorUtils.find(list.iterator(), new Predicate<ProvisionTO>() {
+
+                            @Override
+                            public boolean evaluate(final ProvisionTO in) {
+                                return ((item.getKey() == null && in.getKey() == null)
+                                        || (in.getKey() != null && in.getKey().equals(item.getKey())))
+                                        && ((item.getAnyType() == null && in.getAnyType() == null)
+                                        || (in.getAnyType() != null && in.getAnyType().equals(item.getAnyType())));
+                            }
+                        });
+            }
+        };
+
         builder.setItems(model.getObject().getProvisions());
         builder.includes("anyType", "objectClass");
+        builder.setReuseItem(false);
 
         builder.
                 addAction(new ActionLink<ProvisionTO>() {
@@ -122,8 +146,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
                         provisionTO.setSyncToken(null);
-                        send(pageRef.getPage(), Broadcast.DEPTH,
-                                new AjaxWizard.NewItemFinishEvent<>(provisionTO, target));
+                        send(pageRef.getPage(), Broadcast.DEPTH, new ListViewPanel.ListViewReload(target));
                     }
                 }, ActionLink.ActionType.RESET_TIME, StandardEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ProvisionTO>() {
@@ -132,8 +155,11 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                        send(pageRef.getPage(), Broadcast.DEPTH,
-                                new AjaxWizard.NewItemActionEvent<>(SerializationUtils.clone(provisionTO), target));
+                        final ProvisionTO clone = SerializationUtils.clone(provisionTO);
+                        clone.setKey(0L);
+                        clone.setAnyType(null);
+                        clone.setObjectClass(null);
+                        send(pageRef.getPage(), Broadcast.DEPTH, new AjaxWizard.NewItemActionEvent<>(clone, target));
                     }
                 }, ActionLink.ActionType.CLONE, StandardEntitlement.RESOURCE_CREATE).
                 addAction(new ActionLink<ProvisionTO>() {
@@ -143,8 +169,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
                         model.getObject().getProvisions().remove(provisionTO);
-                        send(pageRef.getPage(), Broadcast.DEPTH,
-                                new AjaxWizard.NewItemFinishEvent<ProvisionTO>(null, target));
+                        send(pageRef.getPage(), Broadcast.DEPTH, new ListViewPanel.ListViewReload(target));
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_DELETE);
 
