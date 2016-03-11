@@ -178,13 +178,13 @@ public class ResourceMappingPanel extends Panel {
                 } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
                     compared = 1;
                 } else if (left.getPurpose() == MappingPurpose.PROPAGATION
-                        && (right.getPurpose() == MappingPurpose.SYNCHRONIZATION
+                        && (right.getPurpose() == MappingPurpose.PULL
                         || right.getPurpose() == MappingPurpose.NONE)) {
                     compared = -1;
-                } else if (left.getPurpose() == MappingPurpose.SYNCHRONIZATION
+                } else if (left.getPurpose() == MappingPurpose.PULL
                         && right.getPurpose() == MappingPurpose.PROPAGATION) {
                     compared = 1;
-                } else if (left.getPurpose() == MappingPurpose.SYNCHRONIZATION
+                } else if (left.getPurpose() == MappingPurpose.PULL
                         && right.getPurpose() == MappingPurpose.NONE) {
                     compared = -1;
                 } else if (left.getPurpose() == MappingPurpose.NONE

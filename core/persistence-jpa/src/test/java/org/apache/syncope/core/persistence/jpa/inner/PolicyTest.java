@@ -29,17 +29,17 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.policy.SyncPolicySpec;
+import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
-import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 
 @Transactional("Master")
 public class PolicyTest extends AbstractTest {
@@ -59,10 +59,10 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void findByKey() {
-        SyncPolicy policy = policyDAO.find(3L);
+        PullPolicy policy = policyDAO.find(3L);
         assertNotNull("findById did not work", policy);
 
-        SyncPolicySpec spec = policy.getSpecification();
+        PullPolicySpec spec = policy.getSpecification();
         assertNotNull(spec);
 
         String rule = spec.getCorrelationRules().get(AnyTypeKind.USER.name());
@@ -76,33 +76,33 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void findByType() {
-        List<? extends Policy> policies = policyDAO.find(PolicyType.SYNC);
+        List<? extends Policy> policies = policyDAO.find(PolicyType.PULL);
         assertNotNull("findById did not work", policies);
         assertFalse(policies.isEmpty());
     }
 
     @Test
     public void create() {
-        SyncPolicy policy = entityFactory.newEntity(SyncPolicy.class);
+        PullPolicy policy = entityFactory.newEntity(PullPolicy.class);
 
-        final String syncURuleName = "net.tirasa.sync.correlation.TirasaURule";
-        final String syncGRuleName = "net.tirasa.sync.correlation.TirasaGRule";
+        final String pullURuleName = "net.tirasa.pull.correlation.TirasaURule";
+        final String pullGRuleName = "net.tirasa.pull.correlation.TirasaGRule";
 
-        SyncPolicySpec syncPolicySpec = new SyncPolicySpec();
+        PullPolicySpec pullPolicySpec = new PullPolicySpec();
 
-        syncPolicySpec.getCorrelationRules().put(anyTypeDAO.findUser().getKey(), syncURuleName);
-        syncPolicySpec.getCorrelationRules().put(anyTypeDAO.findGroup().getKey(), syncGRuleName);
+        pullPolicySpec.getCorrelationRules().put(anyTypeDAO.findUser().getKey(), pullURuleName);
+        pullPolicySpec.getCorrelationRules().put(anyTypeDAO.findGroup().getKey(), pullGRuleName);
 
-        policy.setSpecification(syncPolicySpec);
-        policy.setDescription("Sync policy");
+        policy.setSpecification(pullPolicySpec);
+        policy.setDescription("Pull policy");
 
         policy = policyDAO.save(policy);
 
         assertNotNull(policy);
-        assertEquals(PolicyType.SYNC, policy.getType());
-        assertEquals(syncURuleName,
+        assertEquals(PolicyType.PULL, policy.getType());
+        assertEquals(pullURuleName,
                 policy.getSpecification().getCorrelationRules().get(anyTypeDAO.findUser().getKey()));
-        assertEquals(syncGRuleName,
+        assertEquals(pullGRuleName,
                 policy.getSpecification().getCorrelationRules().get(anyTypeDAO.findGroup().getKey()));
     }
 

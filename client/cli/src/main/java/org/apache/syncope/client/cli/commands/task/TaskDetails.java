@@ -30,8 +30,8 @@ import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
-import org.apache.syncope.common.lib.types.SyncMode;
+import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,27 +57,24 @@ public class TaskDetails extends AbstractTaskCommand {
                 final List<AbstractTaskTO> propagationTaskTOs = taskSyncopeOperations.list(TaskType.PROPAGATION.name());
                 final List<AbstractTaskTO> pushTaskTOs = taskSyncopeOperations.list(TaskType.PUSH.name());
                 final List<AbstractTaskTO> scheduledTaskTOs = taskSyncopeOperations.list(TaskType.SCHEDULED.name());
-                final List<AbstractTaskTO> syncTaskTOs = taskSyncopeOperations.list(TaskType.SYNCHRONIZATION.name());
+                final List<AbstractTaskTO> pullTaskTOs = taskSyncopeOperations.list(TaskType.PULL.name());
                 final List<JobTO> jobTOs = taskSyncopeOperations.listJobs();
                 final int notificationTaskSize = notificationTaskTOs.size();
-                int notificationNotExecuted = 0;
                 final int propagationTaskSize = propagationTaskTOs.size();
-                int propagationNotExecuted = 0;
                 final int pushTaskSize = pushTaskTOs.size();
-                int pushNotExecuted = 0;
                 final int scheduledTaskSize = scheduledTaskTOs.size();
                 int scheduledNotExecuted = 0;
-                final int syncTaskSize = syncTaskTOs.size();
-                int syncNotExecuted = 0;
-                int syncFull = 0;
+                final int pullTaskSize = pullTaskTOs.size();
                 final int jobsSize = jobTOs.size();
 
+                int notificationNotExecuted = 0;
                 for (final AbstractTaskTO notificationTaskTO : notificationTaskTOs) {
                     if (!((NotificationTaskTO) notificationTaskTO).isExecuted()) {
                         notificationNotExecuted++;
                     }
                 }
 
+                int propagationNotExecuted = 0;
                 for (final AbstractTaskTO propagationTaskTO : propagationTaskTOs) {
                     if (((PropagationTaskTO) propagationTaskTO).getExecutions() == null
                             || ((PropagationTaskTO) propagationTaskTO).getExecutions().isEmpty()) {
@@ -85,6 +82,7 @@ public class TaskDetails extends AbstractTaskCommand {
                     }
                 }
 
+                int pushNotExecuted = 0;
                 for (final AbstractTaskTO pushTaskTO : pushTaskTOs) {
                     if (((PushTaskTO) pushTaskTO).getExecutions() == null
                             || ((PushTaskTO) pushTaskTO).getExecutions().isEmpty()) {
@@ -99,13 +97,15 @@ public class TaskDetails extends AbstractTaskCommand {
                     }
                 }
 
-                for (final AbstractTaskTO syncTaskTO : syncTaskTOs) {
-                    if (((SyncTaskTO) syncTaskTO).getExecutions() == null
-                            || ((SyncTaskTO) syncTaskTO).getExecutions().isEmpty()) {
-                        syncNotExecuted++;
+                int pullNotExecuted = 0;
+                int pullFull = 0;
+                for (final AbstractTaskTO pullTaskTO : pullTaskTOs) {
+                    if (((PullTaskTO) pullTaskTO).getExecutions() == null
+                            || ((PullTaskTO) pullTaskTO).getExecutions().isEmpty()) {
+                        pullNotExecuted++;
                     }
-                    if (((SyncTaskTO) syncTaskTO).getSyncMode() == SyncMode.FULL_RECONCILIATION) {
-                        syncFull++;
+                    if (((PullTaskTO) pullTaskTO).getPullMode() == PullMode.FULL_RECONCILIATION) {
+                        pullFull++;
                     }
                 }
 
@@ -113,7 +113,7 @@ public class TaskDetails extends AbstractTaskCommand {
                         + propagationTaskSize
                         + pushTaskSize
                         + scheduledTaskSize
-                        + syncTaskSize));
+                        + pullTaskSize));
                 details.put("notification tasks", String.valueOf(notificationTaskSize));
                 details.put("notification tasks not executed", String.valueOf(notificationNotExecuted));
                 details.put("propagation tasks", String.valueOf(propagationTaskSize));
@@ -122,9 +122,9 @@ public class TaskDetails extends AbstractTaskCommand {
                 details.put("push tasks not executed", String.valueOf(pushNotExecuted));
                 details.put("scheduled tasks", String.valueOf(scheduledTaskSize));
                 details.put("scheduled tasks not executed", String.valueOf(scheduledNotExecuted));
-                details.put("synchronization tasks", String.valueOf(syncTaskSize));
-                details.put("synchronization tasks not executed", String.valueOf(syncNotExecuted));
-                details.put("synchronization tasks with full reconciliation", String.valueOf(syncFull));
+                details.put("pull tasks", String.valueOf(pullTaskSize));
+                details.put("pull tasks not executed", String.valueOf(pullNotExecuted));
+                details.put("pull tasks with full reconciliation", String.valueOf(pullFull));
                 details.put("jobs", String.valueOf(jobsSize));
                 taskResultManager.printDetails(details);
             } catch (final SyncopeClientException ex) {

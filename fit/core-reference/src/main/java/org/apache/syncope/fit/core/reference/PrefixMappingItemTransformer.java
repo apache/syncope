@@ -41,9 +41,9 @@ public class PrefixMappingItemTransformer extends DefaultMappingItemTransformer 
     }
 
     @Override
-    public List<Object> beforeSync(final List<Object> values) {
+    public List<Object> beforePull(final List<Object> values) {
         if (values == null || values.isEmpty() || values.get(0) == null) {
-            return super.beforeSync(values);
+            return super.beforePull(values);
         } else {
             List<Object> newValues = new ArrayList<>(values);
             newValues.set(0, StringUtils.substringAfter(values.get(0).toString(), PREFIX));

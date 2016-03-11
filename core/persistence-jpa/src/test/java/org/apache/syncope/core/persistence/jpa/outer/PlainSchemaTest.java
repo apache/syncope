@@ -156,7 +156,7 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void deleteALong() {
-        assertEquals(6, resourceDAO.find("resource-db-sync").
+        assertEquals(6, resourceDAO.find("resource-db-pull").
                 getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
 
         plainSchemaDAO.delete("aLong");
@@ -164,7 +164,7 @@ public class PlainSchemaTest extends AbstractTest {
 
         plainSchemaDAO.flush();
 
-        assertEquals(5, resourceDAO.find("resource-db-sync").
+        assertEquals(5, resourceDAO.find("resource-db-pull").
                 getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
     }
 }

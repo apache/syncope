@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -49,8 +49,8 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return SyncopeConsoleSession.get().getPlatformInfo().getTaskJobs();
     }
 
-    public Set<String> getSyncActionsClasses() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getSyncActions();
+    public Set<String> getPullActionsClasses() {
+        return SyncopeConsoleSession.get().getPlatformInfo().getPullActions();
     }
 
     public Set<String> getPushActionsClasses() {
@@ -126,8 +126,8 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             result = TaskType.NOTIFICATION;
         } else if (SchedTaskTO.class.equals(reference)) {
             result = TaskType.SCHEDULED;
-        } else if (SyncTaskTO.class.equals(reference)) {
-            result = TaskType.SYNCHRONIZATION;
+        } else if (PullTaskTO.class.equals(reference)) {
+            result = TaskType.PULL;
         } else if (PushTaskTO.class.equals(reference)) {
             result = TaskType.PUSH;
         }

@@ -23,15 +23,15 @@ import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 
 @SuppressWarnings("unchecked")
 public final class JPATaskUtils implements TaskUtils {
@@ -60,8 +60,8 @@ public final class JPATaskUtils implements TaskUtils {
                 result = (Class<T>) SchedTask.class;
                 break;
 
-            case SYNCHRONIZATION:
-                result = (Class<T>) SyncTask.class;
+            case PULL:
+                result = (Class<T>) PullTask.class;
                 break;
 
             case PUSH:
@@ -91,8 +91,8 @@ public final class JPATaskUtils implements TaskUtils {
                 result = (T) new JPASchedTask();
                 break;
 
-            case SYNCHRONIZATION:
-                result = (T) new JPASyncTask();
+            case PULL:
+                result = (T) new JPAPullTask();
                 break;
 
             case PUSH:
@@ -122,8 +122,8 @@ public final class JPATaskUtils implements TaskUtils {
                 result = (Class<T>) SchedTaskTO.class;
                 break;
 
-            case SYNCHRONIZATION:
-                result = (Class<T>) SyncTaskTO.class;
+            case PULL:
+                result = (Class<T>) PullTaskTO.class;
                 break;
 
             case PUSH:

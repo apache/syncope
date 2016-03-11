@@ -32,7 +32,7 @@ import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.tasks.PropagationTasks;
 import org.apache.syncope.client.console.tasks.PushTasks;
 import org.apache.syncope.client.console.tasks.SchedTasks;
-import org.apache.syncope.client.console.tasks.SyncTasks;
+import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -318,19 +318,19 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         fragment.add(propagation);
         MetaDataRoleAuthorizationStrategy.authorize(propagation, ENABLE, StandardEntitlement.TASK_LIST);
 
-        final AjaxLink<String> synchronization = new IndicatingAjaxLink<String>("synchronization") {
+        final AjaxLink<String> pull = new IndicatingAjaxLink<String>("pull") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new SyncTasks(taskModal, pageRef, node.getKey().toString())));
-                taskModal.header(new ResourceModel("task.synchronization.list", "Synchronization tasks"));
+                target.add(taskModal.setContent(new PullTasks(taskModal, pageRef, node.getKey().toString())));
+                taskModal.header(new ResourceModel("task.pull.list"));
                 taskModal.show(true);
             }
         };
-        fragment.add(synchronization);
-        MetaDataRoleAuthorizationStrategy.authorize(synchronization, ENABLE, StandardEntitlement.TASK_LIST);
+        fragment.add(pull);
+        MetaDataRoleAuthorizationStrategy.authorize(pull, ENABLE, StandardEntitlement.TASK_LIST);
 
         final AjaxLink<String> push = new IndicatingAjaxLink<String>("push") {
 

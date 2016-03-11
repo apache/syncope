@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.types;
 public enum MappingPurpose {
 
     BOTH,
-    SYNCHRONIZATION,
+    PULL,
     PROPAGATION,
     NONE
 

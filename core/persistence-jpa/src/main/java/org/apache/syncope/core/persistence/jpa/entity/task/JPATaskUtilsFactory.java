@@ -23,17 +23,17 @@ import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.springframework.stereotype.Component;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 
 @Component
 public class JPATaskUtilsFactory implements TaskUtilsFactory {
@@ -46,8 +46,8 @@ public class JPATaskUtilsFactory implements TaskUtilsFactory {
     @Override
     public TaskUtils getInstance(final Task task) {
         TaskType type;
-        if (task instanceof SyncTask) {
-            type = TaskType.SYNCHRONIZATION;
+        if (task instanceof PullTask) {
+            type = TaskType.PULL;
         } else if (task instanceof PushTask) {
             type = TaskType.PUSH;
         } else if (task instanceof SchedTask) {
@@ -72,8 +72,8 @@ public class JPATaskUtilsFactory implements TaskUtilsFactory {
             type = TaskType.NOTIFICATION;
         } else if (taskClass == SchedTaskTO.class) {
             type = TaskType.SCHEDULED;
-        } else if (taskClass == SyncTaskTO.class) {
-            type = TaskType.SYNCHRONIZATION;
+        } else if (taskClass == PullTaskTO.class) {
+            type = TaskType.PULL;
         } else if (taskClass == PushTaskTO.class) {
             type = TaskType.PUSH;
         } else {

@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.JobType;
@@ -46,7 +46,6 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
@@ -58,9 +57,10 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
-import org.apache.syncope.core.persistence.api.entity.task.AnyTemplateSyncTask;
-import org.apache.syncope.core.provisioning.java.syncpull.PushJobDelegate;
-import org.apache.syncope.core.provisioning.java.syncpull.SyncJobDelegate;
+import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -142,46 +142,46 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                     return pushTaskTO.getFilters().containsKey(anyFilter.getAnyType().getKey());
                 }
             });
-        } else if (task instanceof SyncTask && taskTO instanceof SyncTaskTO) {
-            SyncTask syncTask = (SyncTask) task;
-            final SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
+        } else if (task instanceof PullTask && taskTO instanceof PullTaskTO) {
+            PullTask pullTask = (PullTask) task;
+            final PullTaskTO pullTaskTO = (PullTaskTO) taskTO;
 
-            syncTask.setSyncMode(syncTaskTO.getSyncMode());
-            syncTask.setReconciliationFilterBuilderClassName(syncTaskTO.getReconciliationFilterBuilderClassName());
+            pullTask.setPullMode(pullTaskTO.getPullMode());
+            pullTask.setReconciliationFilterBuilderClassName(pullTaskTO.getReconciliationFilterBuilderClassName());
 
-            syncTask.setDestinationRealm(realmDAO.find(syncTaskTO.getDestinationRealm()));
+            pullTask.setDestinationRealm(realmDAO.find(pullTaskTO.getDestinationRealm()));
 
-            syncTask.setJobDelegateClassName(SyncJobDelegate.class.getName());
+            pullTask.setJobDelegateClassName(PullJobDelegate.class.getName());
 
-            syncTask.setMatchingRule(syncTaskTO.getMatchingRule() == null
-                    ? MatchingRule.UPDATE : syncTaskTO.getMatchingRule());
-            syncTask.setUnmatchingRule(syncTaskTO.getUnmatchingRule() == null
-                    ? UnmatchingRule.PROVISION : syncTaskTO.getUnmatchingRule());
+            pullTask.setMatchingRule(pullTaskTO.getMatchingRule() == null
+                    ? MatchingRule.UPDATE : pullTaskTO.getMatchingRule());
+            pullTask.setUnmatchingRule(pullTaskTO.getUnmatchingRule() == null
+                    ? UnmatchingRule.PROVISION : pullTaskTO.getUnmatchingRule());
 
             // validate JEXL expressions from templates and proceed if fine
-            templateUtils.check(syncTaskTO.getTemplates(), ClientExceptionType.InvalidSyncTask);
-            for (Map.Entry<String, AnyTO> entry : syncTaskTO.getTemplates().entrySet()) {
+            templateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
+            for (Map.Entry<String, AnyTO> entry : pullTaskTO.getTemplates().entrySet()) {
                 AnyType type = anyTypeDAO.find(entry.getKey());
                 if (type == null) {
                     LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
                 } else {
-                    AnyTemplateSyncTask anyTemplate = syncTask.getTemplate(type);
+                    AnyTemplatePullTask anyTemplate = pullTask.getTemplate(type);
                     if (anyTemplate == null) {
-                        anyTemplate = entityFactory.newEntity(AnyTemplateSyncTask.class);
+                        anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
                         anyTemplate.setAnyType(type);
-                        anyTemplate.setSyncTask(syncTask);
+                        anyTemplate.setPullTask(pullTask);
 
-                        syncTask.add(anyTemplate);
+                        pullTask.add(anyTemplate);
                     }
                     anyTemplate.set(entry.getValue());
                 }
             }
             // remove all templates not contained in the TO
-            CollectionUtils.filter(syncTask.getTemplates(), new Predicate<AnyTemplate>() {
+            CollectionUtils.filter(pullTask.getTemplates(), new Predicate<AnyTemplate>() {
 
                 @Override
                 public boolean evaluate(final AnyTemplate anyTemplate) {
-                    return syncTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey());
+                    return pullTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey());
                 }
             });
         }
@@ -190,7 +190,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         task.setPerformCreate(taskTO.isPerformCreate());
         task.setPerformUpdate(taskTO.isPerformUpdate());
         task.setPerformDelete(taskTO.isPerformDelete());
-        task.setSyncStatus(taskTO.isSyncStatus());
+        task.setPullStatus(taskTO.isPullStatus());
         task.getActionsClassNames().clear();
         task.getActionsClassNames().addAll(taskTO.getActionsClassNames());
     }
@@ -334,21 +334,21 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 setExecTime((SchedTaskTO) taskTO, task);
                 break;
 
-            case SYNCHRONIZATION:
-                if (!(task instanceof SyncTask)) {
-                    throw new IllegalArgumentException("taskUtils is type Sync but task is not SyncTask: "
+            case PULL:
+                if (!(task instanceof PullTask)) {
+                    throw new IllegalArgumentException("taskUtils is type Pull but task is not PullTask: "
                             + task.getClass().getName());
                 }
                 setExecTime((SchedTaskTO) taskTO, task);
-                ((SyncTaskTO) taskTO).setDestinationRealm(((SyncTask) task).getDestinatioRealm().getFullPath());
-                ((SyncTaskTO) taskTO).setResource(((SyncTask) task).getResource().getKey());
-                ((SyncTaskTO) taskTO).setMatchingRule(((SyncTask) task).getMatchingRule() == null
-                        ? MatchingRule.UPDATE : ((SyncTask) task).getMatchingRule());
-                ((SyncTaskTO) taskTO).setUnmatchingRule(((SyncTask) task).getUnmatchingRule() == null
-                        ? UnmatchingRule.PROVISION : ((SyncTask) task).getUnmatchingRule());
+                ((PullTaskTO) taskTO).setDestinationRealm(((PullTask) task).getDestinatioRealm().getFullPath());
+                ((PullTaskTO) taskTO).setResource(((PullTask) task).getResource().getKey());
+                ((PullTaskTO) taskTO).setMatchingRule(((PullTask) task).getMatchingRule() == null
+                        ? MatchingRule.UPDATE : ((PullTask) task).getMatchingRule());
+                ((PullTaskTO) taskTO).setUnmatchingRule(((PullTask) task).getUnmatchingRule() == null
+                        ? UnmatchingRule.PROVISION : ((PullTask) task).getUnmatchingRule());
 
-                for (AnyTemplate template : ((SyncTask) task).getTemplates()) {
-                    ((SyncTaskTO) taskTO).getTemplates().put(template.getAnyType().getKey(), template.get());
+                for (AnyTemplate template : ((PullTask) task).getTemplates()) {
+                    ((PullTaskTO) taskTO).getTemplates().put(template.getAnyType().getKey(), template.get());
                 }
                 break;
 

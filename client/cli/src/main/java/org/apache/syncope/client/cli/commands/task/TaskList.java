@@ -32,7 +32,7 @@ public class TaskList extends AbstractTaskCommand {
     private static final Logger LOG = LoggerFactory.getLogger(TaskList.class);
 
     private static final String LIST_HELP_MESSAGE = "task --list {TASK-TYPE}\n"
-            + "   Task type: NOTIFICATION / PROPAGATION / PUSH / SCHEDULED / SYNCHRONIZATION";
+            + "   Task type: NOTIFICATION / PROPAGATION / PUSH / SCHEDULED / PULL";
 
     private final Input input;
 

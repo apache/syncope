@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public interface ExternalResource extends AnnotatedEntity<String> {
@@ -57,9 +57,9 @@ public interface ExternalResource extends AnnotatedEntity<String> {
 
     void setPasswordPolicy(PasswordPolicy passwordPolicy);
 
-    SyncPolicy getSyncPolicy();
+    PullPolicy getPullPolicy();
 
-    void setSyncPolicy(SyncPolicy syncPolicy);
+    void setPullPolicy(PullPolicy pullPolicy);
 
     TraceLevel getCreateTraceLevel();
 
@@ -73,9 +73,9 @@ public interface ExternalResource extends AnnotatedEntity<String> {
 
     void setDeleteTraceLevel(TraceLevel deleteTraceLevel);
 
-    TraceLevel getSyncTraceLevel();
+    TraceLevel getPullTraceLevel();
 
-    void setSyncTraceLevel(TraceLevel syncTraceLevel);
+    void setPullTraceLevel(TraceLevel pullTraceLevel);
 
     List<String> getPropagationActionsClassNames();
 

@@ -61,7 +61,7 @@ public enum ClientExceptionType {
     InvalidNotification(Response.Status.BAD_REQUEST),
     InvalidPropagationTask(Response.Status.BAD_REQUEST),
     InvalidSchedTask(Response.Status.BAD_REQUEST),
-    InvalidSyncTask(Response.Status.BAD_REQUEST),
+    InvalidPullTask(Response.Status.BAD_REQUEST),
     InvalidValues(Response.Status.BAD_REQUEST),
     NotFound(Response.Status.NOT_FOUND),
     RejectedUserCreate(Response.Status.BAD_REQUEST),

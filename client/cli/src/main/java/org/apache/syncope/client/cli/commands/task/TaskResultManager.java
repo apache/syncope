@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.TaskType;
 
@@ -46,8 +46,8 @@ public class TaskResultManager extends CommonsResultManager {
                 printPushTask((PushTaskTO) taskTO);
             } else if (taskTO instanceof SchedTaskTO) {
                 printScheduledTask((SchedTaskTO) taskTO);
-            } else if (taskTO instanceof SyncTaskTO) {
-                printSyncTask((SyncTaskTO) taskTO);
+            } else if (taskTO instanceof PullTaskTO) {
+                printPullTask((PullTaskTO) taskTO);
             }
         }
     }
@@ -75,9 +75,9 @@ public class TaskResultManager extends CommonsResultManager {
                     printScheduledTask((SchedTaskTO) taskTO);
                 }
                 break;
-            case SYNCHRONIZATION:
+            case PULL:
                 for (final AbstractTaskTO taskTO : taskTOs) {
-                    printSyncTask((SyncTaskTO) taskTO);
+                    printPullTask((PullTaskTO) taskTO);
                 }
                 break;
             default:
@@ -127,7 +127,7 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     is perform create: " + pushTaskTO.isPerformCreate());
         System.out.println("     is perform delete: " + pushTaskTO.isPerformDelete());
         System.out.println("     is perform update: " + pushTaskTO.isPerformUpdate());
-        System.out.println("     is sync status: " + pushTaskTO.isSyncStatus());
+        System.out.println("     is pull status: " + pushTaskTO.isPullStatus());
         System.out.println("     start date: " + pushTaskTO.getStart());
         System.out.println("     end date: " + pushTaskTO.getEnd());
         System.out.println("     last execution: " + pushTaskTO.getLastExec());
@@ -157,30 +157,30 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("");
     }
 
-    private void printSyncTask(final SyncTaskTO syncTaskTO) {
-        System.out.println(" - Sync task key: " + syncTaskTO.getKey());
-        System.out.println("     name: " + syncTaskTO.getName());
-        System.out.println("     resource: " + syncTaskTO.getResource());
-        System.out.println("     realm destination: " + syncTaskTO.getDestinationRealm());
-        System.out.println("     cron expression: " + syncTaskTO.getCronExpression());
-        System.out.println("     description: " + syncTaskTO.getDescription());
-        System.out.println("     sync mode: " + syncTaskTO.getSyncMode());
-        System.out.println("     perform create: " + syncTaskTO.isPerformCreate());
-        System.out.println("     perform delete: " + syncTaskTO.isPerformDelete());
-        System.out.println("     perform update: " + syncTaskTO.isPerformUpdate());
-        System.out.println("     sync status: " + syncTaskTO.isSyncStatus());
+    private void printPullTask(final PullTaskTO pullTaskTO) {
+        System.out.println(" - Pull task key: " + pullTaskTO.getKey());
+        System.out.println("     name: " + pullTaskTO.getName());
+        System.out.println("     resource: " + pullTaskTO.getResource());
+        System.out.println("     realm destination: " + pullTaskTO.getDestinationRealm());
+        System.out.println("     cron expression: " + pullTaskTO.getCronExpression());
+        System.out.println("     description: " + pullTaskTO.getDescription());
+        System.out.println("     pull mode: " + pullTaskTO.getPullMode());
+        System.out.println("     perform create: " + pullTaskTO.isPerformCreate());
+        System.out.println("     perform delete: " + pullTaskTO.isPerformDelete());
+        System.out.println("     perform update: " + pullTaskTO.isPerformUpdate());
+        System.out.println("     pull status: " + pullTaskTO.isPullStatus());
         System.out.println("     TEMPLATES:");
-        printTemplates(syncTaskTO.getTemplates());
-        System.out.println("     start date: " + syncTaskTO.getStart());
-        System.out.println("     end date: " + syncTaskTO.getEnd());
-        System.out.println("     next execution: " + syncTaskTO.getNextExec());
-        System.out.println("     last execution: " + syncTaskTO.getLastExec());
-        System.out.println("     latest execution status: " + syncTaskTO.getLatestExecStatus());
-        System.out.println("     job delegate class: " + syncTaskTO.getJobDelegateClassName());
-        System.out.println("     action class name: " + syncTaskTO.getActionsClassNames());
-        System.out.println("     matching rule: " + syncTaskTO.getMatchingRule());
-        System.out.println("     unmatching rule: " + syncTaskTO.getUnmatchingRule());
-        printTaskExecTOs(syncTaskTO.getExecutions());
+        printTemplates(pullTaskTO.getTemplates());
+        System.out.println("     start date: " + pullTaskTO.getStart());
+        System.out.println("     end date: " + pullTaskTO.getEnd());
+        System.out.println("     next execution: " + pullTaskTO.getNextExec());
+        System.out.println("     last execution: " + pullTaskTO.getLastExec());
+        System.out.println("     latest execution status: " + pullTaskTO.getLatestExecStatus());
+        System.out.println("     job delegate class: " + pullTaskTO.getJobDelegateClassName());
+        System.out.println("     action class name: " + pullTaskTO.getActionsClassNames());
+        System.out.println("     matching rule: " + pullTaskTO.getMatchingRule());
+        System.out.println("     unmatching rule: " + pullTaskTO.getUnmatchingRule());
+        printTaskExecTOs(pullTaskTO.getExecutions());
         System.out.println("");
     }
 

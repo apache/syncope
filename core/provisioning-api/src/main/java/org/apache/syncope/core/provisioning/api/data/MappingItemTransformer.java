@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 
 /**
- * Transforms values to be propagated to (or synchronizing from) external resources right before they leave (or enter)
+ * Transforms values to be propagated to (or pulling from) external resources right before they leave (or enter)
  * the Syncope internal storage.
  *
  * These transformations are not applied to virtual attribute values.
@@ -38,10 +38,10 @@ public interface MappingItemTransformer {
     List<PlainAttrValue> beforePropagation(List<PlainAttrValue> values);
 
     /**
-     * Invoked while reading attribute values from external resource during synchronization.
+     * Invoked while reading attribute values from external resource during pull.
      *
      * @param values original values
      * @return transformed values
      */
-    List<Object> beforeSync(List<Object> values);
+    List<Object> beforePull(List<Object> values);
 }

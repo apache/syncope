@@ -32,7 +32,7 @@ to that resource.
 Users and roles can be assigned to an external resource by defining a direct or indirect link between objects.
 By the way, Apache Syncope empowers the possibility to control the existence of users/roles on external resources 
 giving the possibility to manage remote provisioning directly.
-In fact, an authorized user (or an internal task - a sync task, for instance) can ask for 
+In fact, an authorized user (or an internal task - a pull task, for instance) can ask for 
 
 * *link / unlink* users/roles to/from specific resources (soft link), 
 * *assign / unassign* users/roles to/from specific resources (hard link),

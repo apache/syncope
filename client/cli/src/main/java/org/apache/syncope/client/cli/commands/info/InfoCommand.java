@@ -86,10 +86,10 @@ public class InfoCommand extends AbstractCommand {
                 info.reportlets();
                 break;
             case SYNC_ACTIONS:
-                info.syncActions();
+                info.pullActions();
                 break;
             case SYNC_CORRELATION_RULES:
-                info.syncCorrelationRules();
+                info.pullCorrelationRules();
                 break;
             case TASK_JOBS:
                 info.taskJobs();

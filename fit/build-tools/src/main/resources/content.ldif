@@ -29,21 +29,21 @@ objectClass: groupOfUniqueNames
 objectClass: top
 cn: testLDAPGroup
 uniqueMember: uid=admin,ou=system
-uniqueMember: uid=syncFromLDAP,ou=People,o=isp
-owner: uid=syncFromLDAP,ou=People,o=isp
+uniqueMember: uid=pullFromLDAP,ou=People,o=isp
+owner: uid=pullFromLDAP,ou=People,o=isp
 
-DN: uid=syncFromLDAP,ou=People,o=isp
+DN: uid=pullFromLDAP,ou=People,o=isp
 objectClass: organizationalPerson
 objectClass: person
 objectClass: inetOrgPerson
 objectClass: top
-cn: syncFromLDAP
+cn: pullFromLDAP
 description: Active
-mail: syncFromLDAP@syncope.apache.org
+mail: pullFromLDAP@syncope.apache.org
 sn: Surname
-uid: syncFromLDAP
+uid: pullFromLDAP
 userpassword:: cGFzc3dvcmQxMjM=
-givenname: syncFromLDAP
+givenname: pullFromLDAP
 registeredAddress:  5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8
 jpegPhoto:: /9j/4AAQSkZJRgABAQEBKwErAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoH
  BwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQk

@@ -258,7 +258,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void executeSyncTask() {
+    public void executePullTask() {
         wicketTester.clickLink("body:topologyLI:topology");
         wicketTester.executeAjaxEvent("body:resources:2:resources:0:res", Constants.ON_CLICK);
         wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:propagation");

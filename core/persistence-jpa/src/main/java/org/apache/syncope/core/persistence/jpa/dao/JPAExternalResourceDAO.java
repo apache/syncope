@@ -106,8 +106,8 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
                 query.append("passwordPolicy");
                 break;
 
-            case SYNC:
-                query.append("syncPolicy");
+            case PULL:
+                query.append("pullPolicy");
                 break;
 
             default:
@@ -198,7 +198,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
         }
 
         taskDAO.deleteAll(resource, TaskType.PROPAGATION);
-        taskDAO.deleteAll(resource, TaskType.SYNCHRONIZATION);
+        taskDAO.deleteAll(resource, TaskType.PULL);
         taskDAO.deleteAll(resource, TaskType.PUSH);
 
         for (AnyObject anyObject : anyObjectDAO.findByResource(resource)) {

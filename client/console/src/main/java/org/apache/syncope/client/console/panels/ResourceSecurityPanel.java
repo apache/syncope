@@ -45,7 +45,7 @@ public class ResourceSecurityPanel extends Panel {
 
     private IModel<Map<Long, String>> accountPolicies = null;
 
-    private IModel<Map<Long, String>> syncPolicies = null;
+    private IModel<Map<Long, String>> pullPolicies = null;
 
     public ResourceSecurityPanel(final String id, final IModel<ResourceTO> model) {
 
@@ -86,14 +86,14 @@ public class ResourceSecurityPanel extends Panel {
             }
         };
 
-        syncPolicies = new LoadableDetachableModel<Map<Long, String>>() {
+        pullPolicies = new LoadableDetachableModel<Map<Long, String>>() {
 
             private static final long serialVersionUID = -2012833443695917883L;
 
             @Override
             protected Map<Long, String> load() {
                 Map<Long, String> res = new HashMap<>();
-                for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.SYNC)) {
+                for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PULL)) {
                     res.put(policyTO.getKey(), policyTO.getDescription());
                 }
                 return res;
@@ -131,18 +131,18 @@ public class ResourceSecurityPanel extends Panel {
         // -------------------------------
 
         // -------------------------------
-        // Sync policy specification
+        // Pull policy specification
         // -------------------------------
-        final AjaxDropDownChoicePanel<Long> syncPolicy = new AjaxDropDownChoicePanel<Long>(
-                "syncPolicy",
-                new ResourceModel("syncPolicy", "syncPolicy").getObject(),
-                new PropertyModel<Long>(model, "syncPolicy"),
+        AjaxDropDownChoicePanel<Long> pullPolicy = new AjaxDropDownChoicePanel<>(
+                "pullPolicy",
+                new ResourceModel("pullPolicy", "pullPolicy").getObject(),
+                new PropertyModel<Long>(model, "pullPolicy"),
                 false);
 
-        syncPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.SYNC));
-        syncPolicy.setChoices(new ArrayList<Long>(syncPolicies.getObject().keySet()));
-        ((DropDownChoice<?>) syncPolicy.getField()).setNullValid(true);
-        container.add(syncPolicy);
+        pullPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.PULL));
+        pullPolicy.setChoices(new ArrayList<Long>(pullPolicies.getObject().keySet()));
+        ((DropDownChoice<?>) pullPolicy.getField()).setNullValid(true);
+        container.add(pullPolicy);
         // -------------------------------
     }
 
@@ -164,8 +164,8 @@ public class ResourceSecurityPanel extends Panel {
                     return accountPolicies.getObject().get(object);
                 case PASSWORD:
                     return passwordPolicies.getObject().get(object);
-                case SYNC:
-                    return syncPolicies.getObject().get(object);
+                case PULL:
+                    return pullPolicies.getObject().get(object);
                 default:
                     return "";
             }

@@ -57,8 +57,8 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.spring.BeanUtils;
-import org.apache.syncope.core.provisioning.java.syncpull.PushJobDelegate;
-import org.apache.syncope.core.provisioning.java.syncpull.SyncJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -294,13 +294,13 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
             events.add(authenticationControllerEvents);
 
             events.add(new EventCategoryTO(EventCategoryType.PROPAGATION));
-            events.add(new EventCategoryTO(EventCategoryType.SYNCHRONIZATION));
+            events.add(new EventCategoryTO(EventCategoryType.PULL));
             events.add(new EventCategoryTO(EventCategoryType.PUSH));
 
             for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
                 for (ExternalResource resource : resourceDAO.findAll()) {
                     EventCategoryTO propEventCategoryTO = new EventCategoryTO(EventCategoryType.PROPAGATION);
-                    EventCategoryTO syncEventCategoryTO = new EventCategoryTO(EventCategoryType.SYNCHRONIZATION);
+                    EventCategoryTO syncEventCategoryTO = new EventCategoryTO(EventCategoryType.PULL);
                     EventCategoryTO pushEventCategoryTO = new EventCategoryTO(EventCategoryType.PUSH);
 
                     propEventCategoryTO.setCategory(anyTypeKind.name().toLowerCase());
@@ -342,7 +342,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
             }
 
             EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
-            eventCategoryTO.setCategory(SyncJobDelegate.class.getSimpleName());
+            eventCategoryTO.setCategory(PullJobDelegate.class.getSimpleName());
             events.add(eventCategoryTO);
 
             eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);

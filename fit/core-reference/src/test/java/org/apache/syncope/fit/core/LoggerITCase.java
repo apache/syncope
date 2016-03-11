@@ -174,7 +174,7 @@ public class LoggerITCase extends AbstractITCase {
         for (EventCategoryTO eventCategoryTO : events) {
             if (AnyTypeKind.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
                 if (RESOURCE_NAME_LDAP.equals(eventCategoryTO.getSubcategory())
-                        && EventCategoryType.SYNCHRONIZATION == eventCategoryTO.getType()) {
+                        && EventCategoryType.PULL == eventCategoryTO.getType()) {
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.CREATE.name().toLowerCase()));
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.UPDATE.name().toLowerCase()));
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.DELETE.name().toLowerCase()));
@@ -210,7 +210,7 @@ public class LoggerITCase extends AbstractITCase {
         found = false;
         for (EventCategoryTO eventCategoryTO : events) {
             if (EventCategoryType.TASK == eventCategoryTO.getType()
-                    && "SyncJobDelegate".equals(eventCategoryTO.getCategory())) {
+                    && "PullJobDelegate".equals(eventCategoryTO.getCategory())) {
                 found = true;
             }
         }

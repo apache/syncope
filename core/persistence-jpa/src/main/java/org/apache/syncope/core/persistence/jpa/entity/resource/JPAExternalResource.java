@@ -50,7 +50,6 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ExternalResourceCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -60,11 +59,12 @@ import org.apache.syncope.core.persistence.jpa.entity.AbstractAnnotatedEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPASyncPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 
 /**
- * Resource for propagation and synchronization.
+ * Resource for propagation and pull.
  */
 @Entity
 @Table(name = JPAExternalResource.TABLE)
@@ -128,7 +128,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private TraceLevel syncTraceLevel;
+    private TraceLevel pullTraceLevel;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPasswordPolicy passwordPolicy;
@@ -137,7 +137,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     private JPAAccountPolicy accountPolicy;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private JPASyncPolicy syncPolicy;
+    private JPAPullPolicy pullPolicy;
 
     /**
      * Configuration properties that are overridden from the connector instance.
@@ -180,7 +180,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
         createTraceLevel = TraceLevel.FAILURES;
         updateTraceLevel = TraceLevel.FAILURES;
         deleteTraceLevel = TraceLevel.FAILURES;
-        syncTraceLevel = TraceLevel.FAILURES;
+        pullTraceLevel = TraceLevel.FAILURES;
     }
 
     @Override
@@ -301,13 +301,13 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     }
 
     @Override
-    public TraceLevel getSyncTraceLevel() {
-        return syncTraceLevel;
+    public TraceLevel getPullTraceLevel() {
+        return pullTraceLevel;
     }
 
     @Override
-    public void setSyncTraceLevel(final TraceLevel syncTraceLevel) {
-        this.syncTraceLevel = syncTraceLevel;
+    public void setPullTraceLevel(final TraceLevel pullTraceLevel) {
+        this.pullTraceLevel = pullTraceLevel;
     }
 
     @Override
@@ -333,14 +333,14 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     }
 
     @Override
-    public SyncPolicy getSyncPolicy() {
-        return syncPolicy;
+    public PullPolicy getPullPolicy() {
+        return pullPolicy;
     }
 
     @Override
-    public void setSyncPolicy(final SyncPolicy syncPolicy) {
-        checkType(syncPolicy, JPASyncPolicy.class);
-        this.syncPolicy = (JPASyncPolicy) syncPolicy;
+    public void setPullPolicy(final PullPolicy pullPolicy) {
+        checkType(pullPolicy, JPAPullPolicy.class);
+        this.pullPolicy = (JPAPullPolicy) pullPolicy;
     }
 
     @Override

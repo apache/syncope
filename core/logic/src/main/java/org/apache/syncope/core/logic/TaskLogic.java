@@ -197,7 +197,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
                 break;
 
             case SCHEDULED:
-            case SYNCHRONIZATION:
+            case PULL:
             case PUSH:
                 if (!((SchedTask) task).isActive()) {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
@@ -252,7 +252,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         T taskToDelete = binder.getTaskTO(task, taskUtils, true);
 
         if (TaskType.SCHEDULED == taskUtils.getType()
-                || TaskType.SYNCHRONIZATION == taskUtils.getType()
+                || TaskType.PULL == taskUtils.getType()
                 || TaskType.PUSH == taskUtils.getType()) {
 
             jobManager.unregister(task);

@@ -24,7 +24,7 @@ import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
-import org.apache.syncope.common.lib.policy.SyncPolicyTO;
+import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 
 public class PolicyResultManager extends CommonsResultManager {
@@ -44,8 +44,8 @@ public class PolicyResultManager extends CommonsResultManager {
                     case PUSH:
                         System.out.println(policyTO);
                         break;
-                    case SYNC:
-                        printSyncPolicy((SyncPolicyTO) policyTO);
+                    case PULL:
+                        printPullPolicy((PullPolicyTO) policyTO);
                         break;
                     default:
                         break;
@@ -74,9 +74,9 @@ public class PolicyResultManager extends CommonsResultManager {
                     System.out.println(policyTO);
                 }
                 break;
-            case SYNC:
+            case PULL:
                 for (final AbstractPolicyTO policyTO : policyTOs) {
-                    printSyncPolicy((SyncPolicyTO) policyTO);
+                    printPullPolicy((PullPolicyTO) policyTO);
                 }
                 break;
             default:
@@ -110,7 +110,7 @@ public class PolicyResultManager extends CommonsResultManager {
         System.out.println("");
     }
 
-    public void printSyncPolicy(final SyncPolicyTO policyTO) {
+    public void printPullPolicy(final PullPolicyTO policyTO) {
         System.out.println(" > KEY: " + policyTO.getKey());
         System.out.println("    type: " + policyTO.getType().name());
         System.out.println("    description: " + policyTO.getDescription());

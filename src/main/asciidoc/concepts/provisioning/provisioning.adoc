@@ -22,8 +22,8 @@ User and role provisioning refers to the creation, maintenance, activation and d
 and their attributes. Provisioning operations can act on Apache Syncope only or be propagated towards external 
 resources as well.
 The provisioning operation can be initiated by an authorized user (for instance, working on Apache Syncope 
-administration console) or by an internal task like a synchronization task.
-A synchronization task can be used to perform a bulk provisioning operation involving either Syncope and one 
+administration console) or by an internal task like a pull task.
+A push task can be used to perform a bulk provisioning operation involving either Syncope and one 
 or more external resources.
 
 include::connectors.adoc[]
@@ -34,4 +34,4 @@ include::propagation.adoc[]
 
 include::push.adoc[]
 
-include::sync.adoc[]
+include::pull.adoc[]

@@ -33,7 +33,7 @@ import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPASyncTask;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTask;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,8 +63,8 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
                 result = JPASchedTask.class;
                 break;
 
-            case SYNCHRONIZATION:
-                result = JPASyncTask.class;
+            case PULL:
+                result = JPAPullTask.class;
                 break;
 
             default:
@@ -116,7 +116,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
             final Long anyTypeKey) {
 
         if (resource != null
-                && type != TaskType.PROPAGATION && type != TaskType.PUSH && type != TaskType.SYNCHRONIZATION) {
+                && type != TaskType.PROPAGATION && type != TaskType.PUSH && type != TaskType.PULL) {
 
             throw new IllegalArgumentException(type + " is not related to " + ExternalResource.class.getSimpleName());
         }

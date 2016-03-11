@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -51,7 +51,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     @Override
     public Response create(final SchedTaskTO taskTO) {
         SchedTaskTO createdTask;
-        if (taskTO instanceof SyncTaskTO || taskTO instanceof PushTaskTO || taskTO instanceof SchedTaskTO) {
+        if (taskTO instanceof PullTaskTO || taskTO instanceof PushTaskTO || taskTO instanceof SchedTaskTO) {
             createdTask = logic.createSchedTask(taskTO);
         } else {
             throw new BadRequestException();

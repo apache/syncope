@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -49,7 +49,7 @@ import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.SyncMode;
+import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
@@ -133,7 +133,7 @@ public class MultitenancyITCase extends AbstractITCase {
     }
 
     @Test
-    public void createResourceAndSync() {
+    public void createResourceAndPull() {
         // read connector
         ConnInstanceTO conn = adminClient.getService(ConnectorService.class).read(100L, Locale.ENGLISH.getLanguage());
         assertNotNull(conn);
@@ -188,13 +188,13 @@ public class MultitenancyITCase extends AbstractITCase {
         resource = adminClient.getService(ResourceService.class).read(resource.getKey());
         assertNotNull(resource);
 
-        // create sync task
-        SyncTaskTO task = new SyncTaskTO();
-        task.setName("LDAP Sync Task");
+        // create pull task
+        PullTaskTO task = new PullTaskTO();
+        task.setName("LDAP Pull Task");
         task.setActive(true);
         task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         task.setResource(resource.getKey());
-        task.setSyncMode(SyncMode.FULL_RECONCILIATION);
+        task.setPullMode(PullMode.FULL_RECONCILIATION);
         task.setPerformCreate(true);
 
         response = adminClient.getService(TaskService.class).create(task);
@@ -203,7 +203,7 @@ public class MultitenancyITCase extends AbstractITCase {
                 Long.valueOf(StringUtils.substringAfterLast(response.getLocation().toASCIIString(), "/")), true);
         assertNotNull(resource);
 
-        // synchronize
+        // pull
         ExecTO execution = AbstractTaskITCase.execProvisioningTask(
                 adminClient.getService(TaskService.class), task.getKey(), 50, false);
 
@@ -212,10 +212,10 @@ public class MultitenancyITCase extends AbstractITCase {
         assertNotNull(status);
         assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(status));
 
-        // verify that synchronized user is found
+        // verify that pulled user is found
         PagedResult<UserTO> matchingUsers = adminClient.getService(UserService.class).search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query()).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
                 build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());

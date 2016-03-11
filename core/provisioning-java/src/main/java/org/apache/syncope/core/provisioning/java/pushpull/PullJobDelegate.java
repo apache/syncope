@@ -1,0 +1,248 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.core.provisioning.java.pushpull;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.policy.PullPolicySpec;
+import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
+import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
+import org.identityconnectors.framework.common.objects.SyncResultsHandler;
+import org.identityconnectors.framework.common.objects.SyncToken;
+import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPullResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
+import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
+
+public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> {
+
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private GroupDAO groupDAO;
+
+    @Autowired
+    private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
+    protected PullUtils pullUtils;
+
+    protected void setGroupOwners(final GroupPullResultHandler ghandler) {
+        for (Map.Entry<Long, String> entry : ghandler.getGroupOwnerMap().entrySet()) {
+            Group group = groupDAO.find(entry.getKey());
+            if (group == null) {
+                throw new NotFoundException("Group " + entry.getKey());
+            }
+
+            if (StringUtils.isBlank(entry.getValue())) {
+                group.setGroupOwner(null);
+                group.setUserOwner(null);
+            } else {
+                Long userKey = pullUtils.findMatchingAnyKey(
+                        anyTypeDAO.findUser(),
+                        entry.getValue(),
+                        ghandler.getProfile().getTask().getResource(),
+                        ghandler.getProfile().getConnector());
+
+                if (userKey == null) {
+                    Long groupKey = pullUtils.findMatchingAnyKey(
+                            anyTypeDAO.findGroup(),
+                            entry.getValue(),
+                            ghandler.getProfile().getTask().getResource(),
+                            ghandler.getProfile().getConnector());
+
+                    if (groupKey != null) {
+                        group.setGroupOwner(groupDAO.find(groupKey));
+                    }
+                } else {
+                    group.setUserOwner(userDAO.find(userKey));
+                }
+            }
+
+            groupDAO.save(group);
+        }
+    }
+
+    @Override
+    protected String doExecuteProvisioning(
+            final PullTask pullTask,
+            final Connector connector,
+            final boolean dryRun) throws JobExecutionException {
+
+        LOG.debug("Executing pull on {}", pullTask.getResource());
+
+        List<PullActions> actions = new ArrayList<>();
+        for (String className : pullTask.getActionsClassNames()) {
+            try {
+                Class<?> actionsClass = Class.forName(className);
+                PullActions pullActions = (PullActions) ApplicationContextProvider.getBeanFactory().
+                        createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+
+                actions.add(pullActions);
+            } catch (Exception e) {
+                LOG.warn("Class '{}' not found", className, e);
+            }
+        }
+
+        ProvisioningProfile<PullTask, PullActions> profile = new ProvisioningProfile<>(connector, pullTask);
+        profile.getActions().addAll(actions);
+        profile.setDryRun(dryRun);
+        profile.setResAct(getPullPolicySpec(pullTask).getConflictResolutionAction());
+
+        // Prepare handler for SyncDelta objects (any objects)
+        AnyObjectPullResultHandler ahandler = (AnyObjectPullResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(AnyObjectPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        ahandler.setProfile(profile);
+
+        // Prepare handler for SyncDelta objects (users)
+        UserPullResultHandler uhandler = (UserPullResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(UserPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        uhandler.setProfile(profile);
+
+        // Prepare handler for SyncDelta objects (groups)
+        GroupPullResultHandler ghandler = (GroupPullResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(GroupPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        ghandler.setProfile(profile);
+
+        if (!profile.isDryRun()) {
+            for (PullActions action : actions) {
+                action.beforeAll(profile);
+            }
+        }
+
+        for (Provision provision : pullTask.getResource().getProvisions()) {
+            if (provision.getMapping() != null) {
+                SyncResultsHandler handler;
+                switch (provision.getAnyType().getKind()) {
+                    case USER:
+                        handler = uhandler;
+                        break;
+
+                    case GROUP:
+                        handler = ghandler;
+                        break;
+
+                    case ANY_OBJECT:
+                    default:
+                        handler = ahandler;
+                }
+
+                try {
+                    Set<MappingItem> linkinMappingItems = new HashSet<>();
+                    for (VirSchema virSchema : virSchemaDAO.findByProvision(provision)) {
+                        linkinMappingItems.add(virSchema.asLinkingMappingItem());
+                    }
+                    Iterator<MappingItem> mapItems = IteratorUtils.chainedIterator(
+                            provision.getMapping().getItems().iterator(),
+                            linkinMappingItems.iterator());
+
+                    switch (pullTask.getPullMode()) {
+                        case INCREMENTAL:
+                            SyncToken latestSyncToken = connector.getLatestSyncToken(provision.getObjectClass());
+                            connector.sync(provision.getObjectClass(),
+                                    provision.getSyncToken(),
+                                    handler,
+                                    MappingManagerImpl.buildOperationOptions(mapItems));
+                            if (!dryRun) {
+                                provision.setSyncToken(latestSyncToken);
+                                resourceDAO.save(provision.getResource());
+                            }
+                            break;
+
+                        case FILTERED_RECONCILIATION:
+                            ReconciliationFilterBuilder filterBuilder =
+                                    (ReconciliationFilterBuilder) ApplicationContextProvider.getBeanFactory().
+                                    createBean(Class.forName(pullTask.getReconciliationFilterBuilderClassName()),
+                                            AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                            connector.filteredReconciliation(provision.getObjectClass(),
+                                    filterBuilder,
+                                    handler,
+                                    MappingManagerImpl.buildOperationOptions(mapItems));
+                            break;
+
+                        case FULL_RECONCILIATION:
+                        default:
+                            connector.fullReconciliation(provision.getObjectClass(),
+                                    handler,
+                                    MappingManagerImpl.buildOperationOptions(mapItems));
+                            break;
+                    }
+                } catch (Throwable t) {
+                    throw new JobExecutionException("While pulling from connector", t);
+                }
+            }
+        }
+
+        try {
+            setGroupOwners(ghandler);
+        } catch (Exception e) {
+            LOG.error("While setting group owners", e);
+        }
+
+        if (!profile.isDryRun()) {
+            for (PullActions action : actions) {
+                action.afterAll(profile);
+            }
+        }
+
+        String result = createReport(profile.getResults(), pullTask.getResource().getPullTraceLevel(), dryRun);
+
+        LOG.debug("Pull result: {}", result);
+
+        return result;
+    }
+
+    private PullPolicySpec getPullPolicySpec(final ProvisioningTask task) {
+        PullPolicySpec pullPolicySpec;
+
+        if (task instanceof PullTask) {
+            pullPolicySpec = task.getResource().getPullPolicy() == null
+                    ? null
+                    : task.getResource().getPullPolicy().getSpecification();
+        } else {
+            pullPolicySpec = null;
+        }
+
+        // step required because the call <policy>.getSpecification() could return a null value
+        return pullPolicySpec == null ? new PullPolicySpec() : pullPolicySpec;
+    }
+}

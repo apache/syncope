@@ -30,6 +30,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import static org.junit.Assert.assertNotNull;
+
 @FixMethodOrder(MethodSorters.JVM)
 public class ParametersITCase extends AbstractConsoleITCase {
 

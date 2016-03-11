@@ -42,11 +42,9 @@ import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationRecipientsProvider;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
-import org.apache.syncope.core.provisioning.api.syncpull.PushActions;
-import org.apache.syncope.core.provisioning.api.syncpull.SyncActions;
-import org.apache.syncope.core.provisioning.api.syncpull.SyncCorrelationRule;
-import org.apache.syncope.core.provisioning.java.syncpull.PushJobDelegate;
-import org.apache.syncope.core.provisioning.java.syncpull.SyncJobDelegate;
+import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
+import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -54,7 +52,9 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
-import org.apache.syncope.core.provisioning.api.syncpull.ReconciliationFilterBuilder;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
+import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
+import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 
 /**
  * Cache class names for all implementations of Syncope interfaces found in classpath, for later usage.
@@ -98,9 +98,9 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(ReconciliationFilterBuilder.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(LogicActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PropagationActions.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(SyncActions.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PullActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushActions.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(SyncCorrelationRule.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(NotificationRecipientsProvider.class));
 
@@ -140,7 +140,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 }
 
                 if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbsractClazz
-                        && !SyncJobDelegate.class.isAssignableFrom(clazz)
+                        && !PullJobDelegate.class.isAssignableFrom(clazz)
                         && !PushJobDelegate.class.isAssignableFrom(clazz)) {
 
                     classNames.get(Type.TASKJOBDELEGATE).add(bd.getBeanClassName());
@@ -158,7 +158,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(Type.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
                 }
 
-                if (SyncActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (PullActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                     classNames.get(Type.SYNC_ACTIONS).add(bd.getBeanClassName());
                 }
 
@@ -166,8 +166,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(Type.PUSH_ACTIONS).add(bd.getBeanClassName());
                 }
 
-                if (SyncCorrelationRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
-                    classNames.get(Type.SYNC_CORRELATION_RULE).add(bd.getBeanClassName());
+                if (PullCorrelationRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.PULL_CORRELATION_RULE).add(bd.getBeanClassName());
                 }
 
                 if (Validator.class.isAssignableFrom(clazz) && !isAbsractClazz) {

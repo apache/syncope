@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 
 @XmlRootElement(name = "abstractProvisioningTask")
 @XmlType
-@XmlSeeAlso({ PushTaskTO.class, SyncTaskTO.class })
+@XmlSeeAlso({ PushTaskTO.class, PullTaskTO.class })
 public class AbstractProvisioningTaskTO extends SchedTaskTO {
 
     private static final long serialVersionUID = -2143537546915809016L;
@@ -84,11 +84,11 @@ public class AbstractProvisioningTaskTO extends SchedTaskTO {
         this.performDelete = performDelete;
     }
 
-    public boolean isSyncStatus() {
+    public boolean isPullStatus() {
         return syncStatus;
     }
 
-    public void setSyncStatus(final boolean syncStatus) {
+    public void setPullStatus(final boolean syncStatus) {
         this.syncStatus = syncStatus;
     }
 

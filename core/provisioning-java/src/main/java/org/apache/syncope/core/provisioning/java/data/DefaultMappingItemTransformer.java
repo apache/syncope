@@ -33,7 +33,7 @@ public class DefaultMappingItemTransformer implements MappingItemTransformer {
     }
 
     @Override
-    public List<Object> beforeSync(final List<Object> values) {
+    public List<Object> beforePull(final List<Object> values) {
         return values;
     }
 

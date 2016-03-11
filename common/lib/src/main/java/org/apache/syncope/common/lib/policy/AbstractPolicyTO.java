@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.types.PolicyType;
 
 @XmlRootElement(name = "abstractPolicy")
 @XmlType
-@XmlSeeAlso({ AccountPolicyTO.class, PasswordPolicyTO.class, SyncPolicyTO.class })
+@XmlSeeAlso({ AccountPolicyTO.class, PasswordPolicyTO.class, PullPolicyTO.class })
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public abstract class AbstractPolicyTO extends AbstractBaseBean {
 

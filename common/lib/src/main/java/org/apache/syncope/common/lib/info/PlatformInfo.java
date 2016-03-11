@@ -77,11 +77,11 @@ public class PlatformInfo extends AbstractBaseBean {
 
     private final Set<String> propagationActions = new HashSet<>();
 
-    private final Set<String> syncActions = new HashSet<>();
+    private final Set<String> pullActions = new HashSet<>();
 
     private final Set<String> pushActions = new HashSet<>();
 
-    private final Set<String> syncCorrelationRules = new HashSet<>();
+    private final Set<String> pullCorrelationRules = new HashSet<>();
 
     private final Set<String> pushCorrelationRules = new HashSet<>();
 
@@ -211,11 +211,11 @@ public class PlatformInfo extends AbstractBaseBean {
         return propagationActions;
     }
 
-    @XmlElementWrapper(name = "syncActions")
-    @XmlElement(name = "syncAction")
-    @JsonProperty("syncActions")
-    public Set<String> getSyncActions() {
-        return syncActions;
+    @XmlElementWrapper(name = "pullActions")
+    @XmlElement(name = "pullAction")
+    @JsonProperty("pullActions")
+    public Set<String> getPullActions() {
+        return pullActions;
     }
 
     @XmlElementWrapper(name = "pushActions")
@@ -225,11 +225,11 @@ public class PlatformInfo extends AbstractBaseBean {
         return pushActions;
     }
 
-    @XmlElementWrapper(name = "syncCorrelationRules")
-    @XmlElement(name = "syncCorrelationRule")
-    @JsonProperty("syncCorrelationRules")
-    public Set<String> getSyncCorrelationRules() {
-        return syncCorrelationRules;
+    @XmlElementWrapper(name = "pullCorrelationRules")
+    @XmlElement(name = "pullCorrelationRule")
+    @JsonProperty("pullCorrelationRules")
+    public Set<String> getPullCorrelationRules() {
+        return pullCorrelationRules;
     }
 
     @XmlElementWrapper(name = "pushCorrelationRules")

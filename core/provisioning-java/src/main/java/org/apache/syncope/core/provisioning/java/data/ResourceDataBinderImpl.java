@@ -41,7 +41,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +53,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 
 @Component
 public class ResourceDataBinderImpl implements ResourceDataBinder {
@@ -178,7 +178,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
         resource.setUpdateTraceLevel(resourceTO.getUpdateTraceLevel());
         resource.setDeleteTraceLevel(resourceTO.getDeleteTraceLevel());
-        resource.setSyncTraceLevel(resourceTO.getSyncTraceLevel());
+        resource.setPullTraceLevel(resourceTO.getPullTraceLevel());
 
         resource.setPasswordPolicy(resourceTO.getPasswordPolicy() == null
                 ? null : (PasswordPolicy) policyDAO.find(resourceTO.getPasswordPolicy()));
@@ -186,8 +186,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.setAccountPolicy(resourceTO.getAccountPolicy() == null
                 ? null : (AccountPolicy) policyDAO.find(resourceTO.getAccountPolicy()));
 
-        resource.setSyncPolicy(resourceTO.getSyncPolicy() == null
-                ? null : (SyncPolicy) policyDAO.find(resourceTO.getSyncPolicy()));
+        resource.setPullPolicy(resourceTO.getPullPolicy() == null
+                ? null : (PullPolicy) policyDAO.find(resourceTO.getPullPolicy()));
 
         resource.setConfOverride(new HashSet<>(resourceTO.getConfOverride()));
 
@@ -340,7 +340,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
         resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());
         resourceTO.setDeleteTraceLevel(resource.getDeleteTraceLevel());
-        resourceTO.setSyncTraceLevel(resource.getSyncTraceLevel());
+        resourceTO.setPullTraceLevel(resource.getPullTraceLevel());
 
         resourceTO.setPasswordPolicy(resource.getPasswordPolicy() == null
                 ? null : resource.getPasswordPolicy().getKey());
@@ -348,8 +348,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setAccountPolicy(resource.getAccountPolicy() == null
                 ? null : resource.getAccountPolicy().getKey());
 
-        resourceTO.setSyncPolicy(resource.getSyncPolicy() == null
-                ? null : resource.getSyncPolicy().getKey());
+        resourceTO.setPullPolicy(resource.getPullPolicy() == null
+                ? null : resource.getPullPolicy().getKey());
 
         resourceTO.getConfOverride().addAll(resource.getConfOverride());
 

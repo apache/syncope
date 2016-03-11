@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPASyncPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
@@ -49,7 +49,6 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -70,13 +69,11 @@ import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.task.AnyTemplateSyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
@@ -106,12 +103,12 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTaskAnyFilter;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplateSyncTask;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplatePullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPASyncTask;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
@@ -121,6 +118,9 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.springframework.stereotype.Component;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 
 @Component
 public class JPAEntityFactory implements EntityFactory {
@@ -142,8 +142,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPAPasswordPolicy();
         } else if (reference.equals(PushPolicy.class)) {
             result = (T) new JPAPushPolicy();
-        } else if (reference.equals(SyncPolicy.class)) {
-            result = (T) new JPASyncPolicy();
+        } else if (reference.equals(PullPolicy.class)) {
+            result = (T) new JPAPullPolicy();
         } else if (reference.equals(AnyTypeClass.class)) {
             result = (T) new JPAAnyTypeClass();
         } else if (reference.equals(AnyType.class)) {
@@ -228,16 +228,16 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPAPropagationTask();
         } else if (reference.equals(PushTask.class)) {
             result = (T) new JPAPushTask();
-        } else if (reference.equals(SyncTask.class)) {
-            result = (T) new JPASyncTask();
+        } else if (reference.equals(PullTask.class)) {
+            result = (T) new JPAPullTask();
         } else if (reference.equals(SchedTask.class)) {
             result = (T) new JPASchedTask();
         } else if (reference.equals(TaskExec.class)) {
             result = (T) new JPATaskExec();
         } else if (reference.equals(PushTaskAnyFilter.class)) {
             result = (T) new JPAPushTaskAnyFilter();
-        } else if (reference.equals(AnyTemplateSyncTask.class)) {
-            result = (T) new JPAAnyTemplateSyncTask();
+        } else if (reference.equals(AnyTemplatePullTask.class)) {
+            result = (T) new JPAAnyTemplatePullTask();
         } else if (reference.equals(SecurityQuestion.class)) {
             result = (T) new JPASecurityQuestion();
         } else if (reference.equals(Logger.class)) {

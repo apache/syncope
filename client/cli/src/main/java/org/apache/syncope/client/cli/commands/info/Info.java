@@ -183,18 +183,18 @@ public class Info {
         }
     }
 
-    public void syncActions() {
+    public void pullActions() {
         try {
-            infoResultManager.printSyncActions(platformInfo.getSyncActions());
+            infoResultManager.printPullActions(platformInfo.getPullActions());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());
         }
     }
 
-    public void syncCorrelationRules() {
+    public void pullCorrelationRules() {
         try {
-            infoResultManager.printCorrelationRules(platformInfo.getSyncCorrelationRules());
+            infoResultManager.printCorrelationRules(platformInfo.getPullCorrelationRules());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());

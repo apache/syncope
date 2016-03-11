@@ -41,7 +41,7 @@ public abstract class AbstractProvisioningTask extends JPASchedTask implements P
     private static final long serialVersionUID = -4141057723006682562L;
 
     /**
-     * ExternalResource to which the sync happens.
+     * ExternalResource to which pull happens.
      */
     @ManyToOne
     private JPAExternalResource resource;
@@ -64,7 +64,7 @@ public abstract class AbstractProvisioningTask extends JPASchedTask implements P
     @Basic
     @Min(0)
     @Max(1)
-    private Integer syncStatus;
+    private Integer pullStatus;
 
     /**
      * @see UnmatchingRule
@@ -89,7 +89,7 @@ public abstract class AbstractProvisioningTask extends JPASchedTask implements P
 
     @Override
     public void setJobDelegateClassName(final String jobClassName) {
-        // fixed to SyncJob, cannot be changed
+        // fixed to PullJob, cannot be changed
     }
 
     @Override
@@ -137,13 +137,13 @@ public abstract class AbstractProvisioningTask extends JPASchedTask implements P
     }
 
     @Override
-    public boolean isSyncStatus() {
-        return isBooleanAsInteger(syncStatus);
+    public boolean isPullStatus() {
+        return isBooleanAsInteger(pullStatus);
     }
 
     @Override
-    public void setSyncStatus(final boolean syncStatus) {
-        this.syncStatus = getBooleanAsInteger(syncStatus);
+    public void setPullStatus(final boolean pullStatus) {
+        this.pullStatus = getBooleanAsInteger(pullStatus);
     }
 
     @Override

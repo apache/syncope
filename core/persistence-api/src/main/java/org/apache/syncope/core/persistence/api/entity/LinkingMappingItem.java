@@ -105,7 +105,7 @@ public class LinkingMappingItem implements MappingItem {
 
     @Override
     public MappingPurpose getPurpose() {
-        return virSchema.isReadonly() ? MappingPurpose.SYNCHRONIZATION : MappingPurpose.BOTH;
+        return virSchema.isReadonly() ? MappingPurpose.PULL : MappingPurpose.BOTH;
     }
 
     @Override

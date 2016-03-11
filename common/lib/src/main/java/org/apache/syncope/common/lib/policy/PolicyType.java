@@ -32,9 +32,9 @@ public enum PolicyType {
      */
     PASSWORD,
     /**
-     * For handling conflicts resolution during synchronization.
+     * For handling conflicts resolution during pull.
      */
-    SYNC,
+    PULL,
     /**
      * For handling conflicts resolution during push.
      */

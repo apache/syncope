@@ -37,7 +37,7 @@ import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -66,7 +66,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
                 taskService.list(new TaskQuery.Builder().type(TaskType.SCHEDULED).build());
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
-            if (!(task instanceof SchedTaskTO) || task instanceof SyncTaskTO || task instanceof PushTaskTO) {
+            if (!(task instanceof SchedTaskTO) || task instanceof PullTaskTO || task instanceof PushTaskTO) {
                 fail();
             }
         }

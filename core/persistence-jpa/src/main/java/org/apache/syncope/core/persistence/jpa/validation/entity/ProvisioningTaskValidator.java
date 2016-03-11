@@ -20,14 +20,14 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.common.lib.types.SyncMode;
+import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPASyncTask;
-import org.apache.syncope.core.provisioning.api.syncpull.PushActions;
-import org.apache.syncope.core.provisioning.api.syncpull.SyncActions;
-import org.apache.syncope.core.provisioning.api.syncpull.ReconciliationFilterBuilder;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
+import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 
 public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTaskCheck, ProvisioningTask> {
 
@@ -60,14 +60,14 @@ public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTas
                     boolean isAssignable = false;
                     try {
                         actionsClass = Class.forName(className);
-                        isAssignable = task instanceof JPASyncTask
-                                ? SyncActions.class.isAssignableFrom(actionsClass)
+                        isAssignable = task instanceof JPAPullTask
+                                ? PullActions.class.isAssignableFrom(actionsClass)
                                 : task instanceof JPAPushTask
                                         ? PushActions.class.isAssignableFrom(actionsClass)
                                         : false;
                     } catch (Exception e) {
                         LOG.error("Invalid {} / {} specified",
-                                PushActions.class.getName(), SyncActions.class.getName(), e);
+                                PushActions.class.getName(), PullActions.class.getName(), e);
                         isValid = false;
                     }
 
@@ -82,17 +82,17 @@ public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTas
                 }
             }
 
-            if (isValid && task instanceof SyncTask
-                    && ((SyncTask) task).getSyncMode() == SyncMode.FILTERED_RECONCILIATION) {
+            if (isValid && task instanceof PullTask
+                    && ((PullTask) task).getPullMode() == PullMode.FILTERED_RECONCILIATION) {
 
                 Class<?> filterBuilderClass = null;
                 boolean isAssignable = false;
                 try {
-                    filterBuilderClass = Class.forName(((SyncTask) task).getReconciliationFilterBuilderClassName());
+                    filterBuilderClass = Class.forName(((PullTask) task).getReconciliationFilterBuilderClassName());
                     isAssignable = ReconciliationFilterBuilder.class.isAssignableFrom(filterBuilderClass);
                 } catch (Exception e) {
                     LOG.error("Invalid {} specified",
-                            ReconciliationFilterBuilder.class.getName(), SyncActions.class.getName(), e);
+                            ReconciliationFilterBuilder.class.getName(), PullActions.class.getName(), e);
                     isValid = false;
                 }
 

@@ -42,7 +42,6 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.logic.notification.NotificationJob;
@@ -52,8 +51,8 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
-import org.apache.syncope.core.provisioning.java.syncpull.PushJobDelegate;
-import org.apache.syncope.core.provisioning.java.syncpull.SyncJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -76,6 +75,7 @@ import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.identityconnectors.common.IOUtil;
 import org.quartz.impl.jdbcjobstore.Constants;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 
 @Component
 public class JobManagerImpl implements JobManager, SyncopeLoader {
@@ -229,8 +229,8 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
         TaskJob job = createSpringBean(TaskJob.class);
         job.setTaskKey(task.getKey());
 
-        String jobDelegateClassName = task instanceof SyncTask
-                ? SyncJobDelegate.class.getName()
+        String jobDelegateClassName = task instanceof PullTask
+                ? PullJobDelegate.class.getName()
                 : task instanceof PushTask
                         ? PushJobDelegate.class.getName()
                         : task.getJobDelegateClassName();
@@ -321,7 +321,7 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
                 public Void exec() {
                     // 1. jobs for SchedTasks
                     Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
-                    tasks.addAll(taskDAO.<SyncTask>findAll(TaskType.SYNCHRONIZATION));
+                    tasks.addAll(taskDAO.<PullTask>findAll(TaskType.PULL));
                     tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
                     for (SchedTask task : tasks) {
                         try {

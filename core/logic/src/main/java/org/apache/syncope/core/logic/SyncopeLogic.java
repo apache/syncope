@@ -185,9 +185,9 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                         addAll(implLookup.getClassNames(Type.RECONCILIATION_FILTER_BUILDER));
                 PLATFORM_INFO.getLogicActions().addAll(implLookup.getClassNames(Type.LOGIC_ACTIONS));
                 PLATFORM_INFO.getPropagationActions().addAll(implLookup.getClassNames(Type.PROPAGATION_ACTIONS));
-                PLATFORM_INFO.getSyncActions().addAll(implLookup.getClassNames(Type.SYNC_ACTIONS));
+                PLATFORM_INFO.getPullActions().addAll(implLookup.getClassNames(Type.SYNC_ACTIONS));
                 PLATFORM_INFO.getPushActions().addAll(implLookup.getClassNames(Type.PUSH_ACTIONS));
-                PLATFORM_INFO.getSyncCorrelationRules().addAll(implLookup.getClassNames(Type.SYNC_CORRELATION_RULE));
+                PLATFORM_INFO.getPullCorrelationRules().addAll(implLookup.getClassNames(Type.PULL_CORRELATION_RULE));
                 PLATFORM_INFO.getValidators().addAll(implLookup.getClassNames(Type.VALIDATOR));
                 PLATFORM_INFO.getNotificationRecipientsProviders().
                         addAll(implLookup.getClassNames(Type.NOTIFICATION_RECIPIENTS_PROVIDER));
@@ -285,7 +285,7 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
         numbersInfo.getConfCompleteness().put(
                 NumbersInfo.ConfItem.NOTIFICATION, !notificationDAO.findAll().isEmpty());
         numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.SYNC_TASK, !taskDAO.findAll(TaskType.SYNCHRONIZATION).isEmpty());
+                NumbersInfo.ConfItem.SYNC_TASK, !taskDAO.findAll(TaskType.PULL).isEmpty());
         numbersInfo.getConfCompleteness().put(
                 NumbersInfo.ConfItem.VIR_SCHEMA, !virSchemaDAO.findAll().isEmpty());
         numbersInfo.getConfCompleteness().put(

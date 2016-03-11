@@ -214,7 +214,7 @@ public class ResourceITCase extends AbstractITCase {
         item.setIntMappingType(IntMappingType.GroupKey);
         item.setExtAttrName("groupId");
         item.setConnObjectKey(true);
-        item.setPurpose(MappingPurpose.SYNCHRONIZATION);
+        item.setPurpose(MappingPurpose.PULL);
         mapping.setConnObjectKeyItem(item);
 
         Response response = resourceService.create(resourceTO);
@@ -225,7 +225,7 @@ public class ResourceITCase extends AbstractITCase {
         assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).getMapping().getItems());
         assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).getMapping());
         assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).getMapping().getItems());
-        assertEquals(MappingPurpose.SYNCHRONIZATION,
+        assertEquals(MappingPurpose.PULL,
                 actual.getProvision(AnyTypeKind.GROUP.name()).getMapping().getConnObjectKeyItem().getPurpose());
         assertEquals(MappingPurpose.PROPAGATION,
                 actual.getProvision(AnyTypeKind.USER.name()).getMapping().getConnObjectKeyItem().getPurpose());

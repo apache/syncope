@@ -38,21 +38,21 @@ under the License.
     </doTry>
   </route> 
                
-  <route id="createGroupSync">
-    <from uri="direct:createGroupInSync"/>
+  <route id="createGroupPull">
+    <from uri="direct:createGroupInPull"/>
     <setProperty propertyName="any">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
       <bean ref="gwfAdapter" method="create(${body})"/>
-      <process ref="groupCreateInSyncProcessor"/>
-      <to uri="direct:createGroupInSyncPort"/>
+      <process ref="groupCreateInPullProcessor"/>
+      <to uri="direct:createGroupInPullPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
         <handled>
           <constant>false</constant>
         </handled>
-        <to uri="direct:createGroupInSyncPort"/>
+        <to uri="direct:createGroupInPullPort"/>
       </doCatch>
     </doTry>
   </route> 

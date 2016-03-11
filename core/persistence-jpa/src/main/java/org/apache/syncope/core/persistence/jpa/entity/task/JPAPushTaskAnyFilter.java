@@ -62,9 +62,9 @@ public class JPAPushTaskAnyFilter extends AbstractEntity<Long> implements PushTa
     }
 
     @Override
-    public void setPushTask(final PushTask syncTask) {
-        checkType(syncTask, JPAPushTask.class);
-        this.pushTask = (JPAPushTask) syncTask;
+    public void setPushTask(final PushTask pushTask) {
+        checkType(pushTask, JPAPushTask.class);
+        this.pushTask = (JPAPushTask) pushTask;
     }
 
     @Override

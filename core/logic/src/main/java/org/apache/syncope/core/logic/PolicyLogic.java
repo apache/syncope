@@ -27,7 +27,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
-import org.apache.syncope.common.lib.policy.SyncPolicyTO;
+import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -35,11 +35,11 @@ import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
-import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 
 @Component
 public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
@@ -82,10 +82,10 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_UPDATE + "')")
-    public SyncPolicyTO update(final SyncPolicyTO policyTO) {
+    public PullPolicyTO update(final PullPolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getKey());
-        if (!(policy instanceof SyncPolicy)) {
-            throw new NotFoundException("SyncPolicy with key " + policyTO.getKey());
+        if (!(policy instanceof PullPolicy)) {
+            throw new NotFoundException(PullPolicy.class.getSimpleName() + " with key " + policyTO.getKey());
         }
 
         return update(policyTO, policy);

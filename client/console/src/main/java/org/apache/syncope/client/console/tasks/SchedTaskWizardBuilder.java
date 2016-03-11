@@ -31,9 +31,9 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.MatchingRule;
-import org.apache.syncope.common.lib.types.SyncMode;
+import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -107,42 +107,42 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
                     new PropertyModel<Boolean>(taskTO, "active"), false);
             add(active);
 
-            final WebMarkupContainer syncTaskSpecifics = new WebMarkupContainer("syncTaskSpecifics");
-            add(syncTaskSpecifics.setRenderBodyOnly(true));
+            final WebMarkupContainer pullTaskSpecifics = new WebMarkupContainer("pullTaskSpecifics");
+            add(pullTaskSpecifics.setRenderBodyOnly(true));
 
             boolean isFiltered = false;
 
-            if (taskTO instanceof SyncTaskTO) {
-                isFiltered = SyncTaskTO.class.cast(taskTO).getSyncMode() == SyncMode.FILTERED_RECONCILIATION;
+            if (taskTO instanceof PullTaskTO) {
+                isFiltered = PullTaskTO.class.cast(taskTO).getPullMode() == PullMode.FILTERED_RECONCILIATION;
             } else {
-                syncTaskSpecifics.setEnabled(false).setVisible(false);
+                pullTaskSpecifics.setEnabled(false).setVisible(false);
             }
 
-            final AjaxDropDownChoicePanel<SyncMode> syncMode = new AjaxDropDownChoicePanel<>("syncMode", "syncMode",
-                    new PropertyModel<SyncMode>(taskTO, "syncMode"), false);
-            syncTaskSpecifics.add(syncMode);
-            syncMode.setChoices(Arrays.asList(SyncMode.values()));
+            final AjaxDropDownChoicePanel<PullMode> pullMode = new AjaxDropDownChoicePanel<>("pullMode", "pullMode",
+                    new PropertyModel<PullMode>(taskTO, "pullMode"), false);
+            pullTaskSpecifics.add(pullMode);
+            pullMode.setChoices(Arrays.asList(PullMode.values()));
 
             final AjaxTextFieldPanel filter = new AjaxTextFieldPanel(
                     "reconciliationFilterBuilderClassName", "reconciliationFilterBuilderClassName",
                     new PropertyModel<String>(taskTO, "reconciliationFilterBuilderClassName"), false);
-            syncTaskSpecifics.add(filter);
+            pullTaskSpecifics.add(filter);
             filter.setEnabled(isFiltered);
 
-            syncMode.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            pullMode.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    filter.setEnabled(syncMode.getModelObject() == SyncMode.FILTERED_RECONCILIATION);
+                    filter.setEnabled(pullMode.getModelObject() == PullMode.FILTERED_RECONCILIATION);
                     target.add(filter);
                 }
             });
 
             final AjaxTextFieldPanel destinationRealm = new AjaxTextFieldPanel("destinationRealm", "destinationRealm",
                     new PropertyModel<String>(taskTO, "destinationRealm"), false);
-            syncTaskSpecifics.add(destinationRealm);
+            pullTaskSpecifics.add(destinationRealm);
 
             final AjaxDropDownChoicePanel<String> className = new AjaxDropDownChoicePanel<>(
                     "jobDelegateClassName",
@@ -181,9 +181,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
                     "performDelete", "performDelete", new PropertyModel<Boolean>(taskTO, "performDelete"), false);
             provisioningTaskSpecifics.add(performDelete);
 
-            final AjaxCheckBoxPanel syncStatus = new AjaxCheckBoxPanel(
-                    "syncStatus", "syncStatus", new PropertyModel<Boolean>(taskTO, "syncStatus"), false);
-            provisioningTaskSpecifics.add(syncStatus);
+            final AjaxCheckBoxPanel pullStatus = new AjaxCheckBoxPanel(
+                    "pullStatus", "pullStatus", new PropertyModel<Boolean>(taskTO, "pullStatus"), false);
+            provisioningTaskSpecifics.add(pullStatus);
 
             if (taskTO instanceof AbstractProvisioningTaskTO) {
                 className.setEnabled(false).setVisible(false);

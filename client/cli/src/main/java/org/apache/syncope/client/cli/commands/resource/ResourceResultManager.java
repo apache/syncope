@@ -42,7 +42,7 @@ public class ResourceResultManager extends CommonsResultManager {
         System.out.println("    connector id: " + resourceTO.getConnector());
         System.out.println("    account policy id: " + resourceTO.getAccountPolicy());
         System.out.println("    password policy id: " + resourceTO.getPasswordPolicy());
-        System.out.println("    sync policy id: " + resourceTO.getSyncPolicy());
+        System.out.println("    pull policy id: " + resourceTO.getPullPolicy());
         System.out.println("    creator: " + resourceTO.getCreator());
         System.out.println("    creation date: " + resourceTO.getCreationDate());
         System.out.println("    last modifier: " + resourceTO.getLastModifier());
@@ -54,7 +54,7 @@ public class ResourceResultManager extends CommonsResultManager {
         System.out.println("    create trace level: " + resourceTO.getCreateTraceLevel());
         System.out.println("    delete trace level: " + resourceTO.getDeleteTraceLevel());
         System.out.println("    update trace level: " + resourceTO.getUpdateTraceLevel());
-        System.out.println("    sync trace level: " + resourceTO.getSyncTraceLevel());
+        System.out.println("    pull trace level: " + resourceTO.getPullTraceLevel());
         System.out.println("    enforce mandatory condition: " + resourceTO.isEnforceMandatoryCondition());
         System.out.println("    override capabilities: " + resourceTO.isOverrideCapabilities());
         System.out.println("    random password if not provided: " + resourceTO.isRandomPwdIfNotProvided());

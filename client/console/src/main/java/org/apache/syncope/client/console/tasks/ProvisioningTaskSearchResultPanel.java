@@ -26,7 +26,7 @@ import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -78,7 +78,7 @@ public abstract class ProvisioningTaskSearchResultPanel<T extends AbstractProvis
         columns.add(new PropertyColumn<T, String>(
                 new StringResourceModel("description", this, null), "description", "description"));
 
-        if (reference == SyncTaskTO.class) {
+        if (reference == PullTaskTO.class) {
             columns.add(new PropertyColumn<T, String>(
                     new StringResourceModel("destinationRealm", this, null), "destinationRealm", "destinationRealm"));
         }

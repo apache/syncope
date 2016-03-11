@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
-import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
@@ -223,7 +222,7 @@ public class SearchITCase extends AbstractITCase {
                 build());
         assertNotNull(matchingUsers);
         assertEquals(2, matchingUsers.getPage());
-        assertEquals(2, matchingUsers.getResult().size());
+        assertFalse(matchingUsers.getResult().isEmpty());
     }
 
     @Test
@@ -414,18 +413,23 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE768() {
-        final List<UserTO> usersWithType = userService.search(
+        int usersWithNullable = userService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").notNullValue().query()).build()).
-                getResult();
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").nullValue().query()).build()).
+                getTotalCount();
+        assertTrue(usersWithNullable > 0);
 
-        assertFalse(usersWithType.isEmpty());
+        int nonOrdered = userService.search(
+                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query()).build()).
+                getTotalCount();
+        assertTrue(nonOrdered > 0);
 
-        final PagedResult<UserTO> matchedUsers = userService.search(
+        int orderedByNullable = userService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query()).
-                orderBy(SyncopeClient.getOrderByClauseBuilder().asc("ctype").build()).build());
-
-        assertTrue(matchedUsers.getResult().size() > usersWithType.size());
+                orderBy(SyncopeClient.getOrderByClauseBuilder().asc("ctype").build()).build()).
+                getTotalCount();
+        assertEquals(nonOrdered, orderedByNullable);
     }
 }

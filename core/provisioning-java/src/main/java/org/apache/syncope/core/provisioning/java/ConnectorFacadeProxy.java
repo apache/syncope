@@ -38,7 +38,7 @@ import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.provisioning.api.syncpull.ReconciliationFilterBuilder;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;

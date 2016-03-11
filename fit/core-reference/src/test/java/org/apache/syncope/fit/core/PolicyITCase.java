@@ -31,15 +31,15 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
-import org.apache.syncope.common.lib.policy.SyncPolicyTO;
+import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.policy.SyncPolicySpec;
+import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.core.reference.TestSyncRule;
+import org.apache.syncope.fit.core.reference.TestPullRule;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -47,21 +47,21 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class PolicyITCase extends AbstractITCase {
 
-    private SyncPolicyTO buildSyncPolicyTO() {
-        SyncPolicyTO policy = new SyncPolicyTO();
+    private PullPolicyTO buildPullPolicyTO() {
+        PullPolicyTO policy = new PullPolicyTO();
 
-        SyncPolicySpec spec = new SyncPolicySpec();
-        spec.getCorrelationRules().put(AnyTypeKind.USER.name(), TestSyncRule.class.getName());
+        PullPolicySpec spec = new PullPolicySpec();
+        spec.getCorrelationRules().put(AnyTypeKind.USER.name(), TestPullRule.class.getName());
 
         policy.setSpecification(spec);
-        policy.setDescription("Sync policy");
+        policy.setDescription("Pull policy");
 
         return policy;
     }
 
     @Test
     public void listByType() {
-        List<SyncPolicyTO> policyTOs = policyService.list(PolicyType.SYNC);
+        List<PullPolicyTO> policyTOs = policyService.list(PolicyType.PULL);
 
         assertNotNull(policyTOs);
         assertFalse(policyTOs.isEmpty());
@@ -86,8 +86,8 @@ public class PolicyITCase extends AbstractITCase {
     }
 
     @Test
-    public void getSyncPolicy() {
-        SyncPolicyTO policyTO = policyService.read(1L);
+    public void getPullPolicy() {
+        PullPolicyTO policyTO = policyService.read(1L);
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByRealms().isEmpty());
@@ -95,8 +95,8 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void createMissingDescription() {
-        SyncPolicyTO policy = new SyncPolicyTO();
-        policy.setSpecification(new SyncPolicySpec());
+        PullPolicyTO policy = new PullPolicyTO();
+        policy.setSpecification(new PullPolicySpec());
 
         try {
             createPolicy(policy);
@@ -108,13 +108,13 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void create() {
-        SyncPolicyTO policy = buildSyncPolicyTO();
+        PullPolicyTO policy = buildPullPolicyTO();
 
-        SyncPolicyTO policyTO = createPolicy(policy);
+        PullPolicyTO policyTO = createPolicy(policy);
 
         assertNotNull(policyTO);
-        assertEquals(PolicyType.SYNC, policyTO.getType());
-        assertEquals(TestSyncRule.class.getName(),
+        assertEquals(PolicyType.PULL, policyTO.getType());
+        assertEquals(TestPullRule.class.getName(),
                 policyTO.getSpecification().getCorrelationRules().get(AnyTypeKind.USER.name()));
     }
 
@@ -144,9 +144,9 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void delete() {
-        SyncPolicyTO policy = buildSyncPolicyTO();
+        PullPolicyTO policy = buildPullPolicyTO();
 
-        SyncPolicyTO policyTO = createPolicy(policy);
+        PullPolicyTO policyTO = createPolicy(policy);
         assertNotNull(policyTO);
 
         policyService.delete(policyTO.getKey());
@@ -161,7 +161,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getCorrelationRules() {
-        assertEquals(2, syncopeService.platform().getSyncCorrelationRules().size());
+        assertEquals(2, syncopeService.platform().getPullCorrelationRules().size());
     }
 
     @Test

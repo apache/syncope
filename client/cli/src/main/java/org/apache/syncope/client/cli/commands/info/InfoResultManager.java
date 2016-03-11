@@ -111,7 +111,7 @@ public class InfoResultManager extends CommonsResultManager {
         }
     }
 
-    public void printSyncActions(final Collection<String> actions) {
+    public void printPullActions(final Collection<String> actions) {
         for (final String action : actions) {
             genericMessage("Sync action: " + action);
         }

@@ -89,6 +89,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.junit.Assert.assertNotNull;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:testJDBCContext.xml" })
 public abstract class AbstractITCase {
@@ -115,7 +117,7 @@ public abstract class AbstractITCase {
 
     protected static final String RESOURCE_NAME_CSV = "resource-csv";
 
-    protected static final String RESOURCE_NAME_DBSYNC = "resource-db-sync";
+    protected static final String RESOURCE_NAME_DBPULL = "resource-db-pull";
 
     protected static final String RESOURCE_NAME_DBVIRATTR = "resource-db-virattr";
 

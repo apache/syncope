@@ -33,7 +33,7 @@ public class MappingPurposePanel extends Panel {
 
     private final AjaxLink<Void> propagation;
 
-    private final AjaxLink<Void> synchronization;
+    private final AjaxLink<Void> pull;
 
     private final AjaxLink<Void> both;
 
@@ -56,14 +56,14 @@ public class MappingPurposePanel extends Panel {
             }
         };
 
-        synchronization = new AjaxLink<Void>("synchronizationPurposeLink") {
+        pull = new AjaxLink<Void>("pullPurposeLink") {
 
             private static final long serialVersionUID = -6957616042924610305L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                model.setObject(MappingPurpose.SYNCHRONIZATION);
-                setOpacity(MappingPurpose.SYNCHRONIZATION);
+                model.setObject(MappingPurpose.PULL);
+                setOpacity(MappingPurpose.PULL);
                 target.add(container);
             }
         };
@@ -93,7 +93,7 @@ public class MappingPurposePanel extends Panel {
         };
 
         add(propagation);
-        add(synchronization);
+        add(pull);
         add(both);
         add(none);
 
@@ -104,28 +104,32 @@ public class MappingPurposePanel extends Panel {
         switch (mappingPurpose) {
             case PROPAGATION:
                 propagation.add(new AttributeModifier("style", new Model<String>("opacity: 1;")));
-                synchronization.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
+                pull.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
                 both.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
                 none.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
                 break;
-            case SYNCHRONIZATION:
-                synchronization.add(new AttributeModifier("style", new Model<String>("opacity: 1;")));
+
+            case PULL:
+                pull.add(new AttributeModifier("style", new Model<String>("opacity: 1;")));
                 propagation.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
                 both.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
                 none.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
                 break;
+
             case BOTH:
                 both.add(new AttributeModifier("style", new Model<String>("opacity: 1;")));
                 propagation.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
-                synchronization.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
+                pull.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
                 none.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
                 break;
+
             case NONE:
                 none.add(new AttributeModifier("style", new Model<String>("opacity: 1;")));
-                synchronization.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
+                pull.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
                 propagation.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
                 both.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
                 break;
+
             default:
             // do nothing
         }

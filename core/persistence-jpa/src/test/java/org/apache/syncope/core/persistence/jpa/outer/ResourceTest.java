@@ -134,7 +134,7 @@ public class ResourceTest extends AbstractTest {
             item.setIntAttrName("nonexistent" + i);
             item.setIntMappingType(IntMappingType.UserPlainSchema);
             item.setMandatoryCondition("false");
-            item.setPurpose(MappingPurpose.SYNCHRONIZATION);
+            item.setPurpose(MappingPurpose.PULL);
             mapping.add(item);
             item.setMapping(mapping);
         }

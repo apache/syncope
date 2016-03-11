@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.common.lib.policy.SyncPolicyTO;
+import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -37,11 +37,11 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 
 @Component
 public class PolicyDataBinderImpl implements PolicyDataBinder {
@@ -92,10 +92,10 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 accountPolicyTO.getResources().addAll(accountPolicy.getResourceNames());
                 break;
 
-            case SYNC:
+            case PULL:
             default:
-                policyTO = (T) new SyncPolicyTO();
-                ((SyncPolicyTO) policyTO).setSpecification(((SyncPolicy) policy).getSpecification());
+                policyTO = (T) new PullPolicyTO();
+                ((PullPolicyTO) policyTO).setSpecification(((PullPolicy) policy).getSpecification());
         }
 
         policyTO.setKey(policy.getKey());
@@ -172,16 +172,16 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 }
                 break;
 
-            case SYNC:
+            case PULL:
             default:
-                if (!(policyTO instanceof SyncPolicyTO)) {
-                    throw new ClassCastException("Expected " + SyncPolicyTO.class.getName()
+                if (!(policyTO instanceof PullPolicyTO)) {
+                    throw new ClassCastException("Expected " + PullPolicyTO.class.getName()
                             + ", found " + policyTO.getClass().getName());
                 }
                 if (result == null) {
-                    result = (T) entityFactory.newEntity(SyncPolicy.class);
+                    result = (T) entityFactory.newEntity(PullPolicy.class);
                 }
-                ((SyncPolicy) result).setSpecification(((SyncPolicyTO) policyTO).getSpecification());
+                ((PullPolicy) result).setSpecification(((PullPolicyTO) policyTO).getSpecification());
         }
 
         result.setDescription(policyTO.getDescription());

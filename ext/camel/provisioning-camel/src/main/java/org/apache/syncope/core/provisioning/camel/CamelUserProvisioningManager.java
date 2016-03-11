@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.syncpull.ProvisioningReport;
+import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -326,7 +326,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             final Set<String> excludedResources,
             final boolean nullPriorityAsync) {
 
-        PollingConsumer pollingConsumer = getConsumer("direct:updateInSyncPort");
+        PollingConsumer pollingConsumer = getConsumer("direct:updateInPullPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("key", userPatch.getKey());
@@ -335,22 +335,22 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         props.put("excludedResources", excludedResources);
         props.put("nullPriorityAsync", nullPriorityAsync);
 
-        sendMessage("direct:updateUserInSync", userPatch, props);
+        sendMessage("direct:updateUserInPull", userPatch, props);
 
         Exchange exchange = pollingConsumer.receive();
 
         Exception ex = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         if (ex != null) {
-            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)",
+            LOG.error("Update of user {} failed, trying to pull its status anyway (if configured)",
                     nullPriorityAsync, ex);
 
             result.setStatus(ProvisioningReport.Status.FAILURE);
-            result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + ex.getMessage());
+            result.setMessage("Update failed, trying to pull status anyway (if configured)\n" + ex.getMessage());
 
             WorkflowResult<Pair<UserPatch, Boolean>> updated = new WorkflowResult<Pair<UserPatch, Boolean>>(
                     new ImmutablePair<>(userPatch, false), new PropagationByResource(),
                     new HashSet<String>());
-            sendMessage("direct:userInSync", updated, props);
+            sendMessage("direct:userInPull", updated, props);
             exchange = pollingConsumer.receive();
         }
 

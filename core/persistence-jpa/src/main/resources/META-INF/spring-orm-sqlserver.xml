@@ -320,11 +320,11 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplateSyncTask">
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplatePullTask">
     <attributes>
       <id name="id">
-        <generated-value generator="SEQ_AnyTemplateSyncTask" strategy="TABLE"/>
-        <table-generator name="SEQ_AnyTemplateSyncTask" pk-column-value="SEQ_AnyTemplateSyncTask" initial-value="1000"/>
+        <generated-value generator="SEQ_AnyTemplatePullTask" strategy="TABLE"/>
+        <table-generator name="SEQ_AnyTemplatePullTask" pk-column-value="SEQ_AnyTemplatePullTask" initial-value="1000"/>
       </id>
     </attributes>
   </entity>

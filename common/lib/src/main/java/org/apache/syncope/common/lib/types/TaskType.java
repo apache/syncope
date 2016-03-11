@@ -26,7 +26,7 @@ public enum TaskType {
     PROPAGATION,
     NOTIFICATION,
     SCHEDULED,
-    SYNCHRONIZATION,
+    PULL,
     PUSH;
 
 }

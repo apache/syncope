@@ -49,7 +49,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import org.apache.syncope.core.provisioning.api.syncpull.ProvisioningReport;
+import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,11 +150,11 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         try {
             updated = uwfAdapter.update(userPatch);
         } catch (Exception e) {
-            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)",
+            LOG.error("Update of user {} failed, trying to pull its status anyway (if configured)",
                     userPatch.getKey(), e);
 
             result.setStatus(ProvisioningReport.Status.FAILURE);
-            result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
+            result.setMessage("Update failed, trying to pull status anyway (if configured)\n" + e.getMessage());
 
             updated = new WorkflowResult<Pair<UserPatch, Boolean>>(
                     new ImmutablePair<>(userPatch, false), new PropagationByResource(),

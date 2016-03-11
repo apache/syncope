@@ -42,7 +42,7 @@ include::provisioning/provisioning.adoc[]
 
 ==== Push
 
-==== Synchronization
+==== Pull
 
 === Workflow and Approval
 

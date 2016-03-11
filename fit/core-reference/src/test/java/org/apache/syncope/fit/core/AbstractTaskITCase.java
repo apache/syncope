@@ -47,7 +47,7 @@ import org.apache.syncope.fit.AbstractITCase;
 
 public abstract class AbstractTaskITCase extends AbstractITCase {
 
-    protected static final Long SYNC_TASK_ID = 4L;
+    protected static final Long PULL_TASK_ID = 4L;
 
     protected static final Long SCHED_TASK_ID = 5L;
 

@@ -127,8 +127,8 @@ public class AuditLoggerName extends AbstractBaseBean {
 
                 if (EventCategoryType.PROPAGATION.toString().equals(elements[0])) {
                     type = EventCategoryType.PROPAGATION;
-                } else if (EventCategoryType.SYNCHRONIZATION.toString().equals(elements[0])) {
-                    type = EventCategoryType.SYNCHRONIZATION;
+                } else if (EventCategoryType.PULL.toString().equals(elements[0])) {
+                    type = EventCategoryType.PULL;
                 } else if (EventCategoryType.PUSH.toString().equals(elements[0])) {
                     type = EventCategoryType.PUSH;
                 } else {

@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
@@ -44,6 +43,7 @@ import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
 import org.identityconnectors.common.Base64;
@@ -120,7 +120,7 @@ public class ConnObjectUtils {
      * Build a UserTO / GroupTO / AnyObjectTO out of connector object attributes and schema mapping.
      *
      * @param obj connector object
-     * @param syncTask synchronization task
+     * @param pullTask pull task
      * @param provision provision information
      * @param anyUtils utils
      * @param <T> any object
@@ -128,9 +128,9 @@ public class ConnObjectUtils {
      */
     @Transactional(readOnly = true)
     public <T extends AnyTO> T getAnyTO(
-            final ConnectorObject obj, final SyncTask syncTask, final Provision provision, final AnyUtils anyUtils) {
+            final ConnectorObject obj, final PullTask pullTask, final Provision provision, final AnyUtils anyUtils) {
 
-        T anyTO = getAnyTOFromConnObject(obj, syncTask, provision, anyUtils);
+        T anyTO = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
 
         // (for users) if password was not set above, generate
         if (anyTO instanceof UserTO && StringUtils.isBlank(((UserTO) anyTO).getPassword())) {
@@ -174,7 +174,7 @@ public class ConnObjectUtils {
      * @param key any object to be updated
      * @param obj connector object
      * @param original any object to get diff from
-     * @param syncTask synchronization task
+     * @param pullTask pull task
      * @param provision provision information
      * @param anyUtils utils
      * @param <T> any object
@@ -183,9 +183,9 @@ public class ConnObjectUtils {
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public <T extends AnyPatch> T getAnyPatch(final Long key, final ConnectorObject obj,
-            final AnyTO original, final SyncTask syncTask, final Provision provision, final AnyUtils anyUtils) {
+            final AnyTO original, final PullTask pullTask, final Provision provision, final AnyUtils anyUtils) {
 
-        AnyTO updated = getAnyTOFromConnObject(obj, syncTask, provision, anyUtils);
+        AnyTO updated = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
         updated.setKey(key);
 
         if (null != anyUtils.getAnyTypeKind()) {
@@ -215,19 +215,19 @@ public class ConnObjectUtils {
     }
 
     private <T extends AnyTO> T getAnyTOFromConnObject(final ConnectorObject obj,
-            final SyncTask syncTask, final Provision provision, final AnyUtils anyUtils) {
+            final PullTask pullTask, final Provision provision, final AnyUtils anyUtils) {
 
         T anyTO = anyUtils.newAnyTO();
         anyTO.setType(provision.getAnyType().getKey());
 
         // 1. fill with data from connector object
-        anyTO.setRealm(syncTask.getDestinatioRealm().getFullPath());
-        for (MappingItem item : MappingManagerImpl.getSyncMappingItems(provision)) {
+        anyTO.setRealm(pullTask.getDestinatioRealm().getFullPath());
+        for (MappingItem item : MappingManagerImpl.getPullMappingItems(provision)) {
             mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO, anyUtils);
         }
 
         // 2. add data from defined template (if any)
-        templateUtils.apply(anyTO, syncTask.getTemplate(provision.getAnyType()));
+        templateUtils.apply(anyTO, pullTask.getTemplate(provision.getAnyType()));
 
         return anyTO;
     }

@@ -31,6 +31,9 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 @FixMethodOrder(MethodSorters.JVM)
 public class SecurityQuestionsITCase extends AbstractConsoleITCase {
 

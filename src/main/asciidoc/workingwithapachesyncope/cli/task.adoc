@@ -29,7 +29,7 @@ Usage: task [options]
     --details
     --list
        Syntax: --list {TASK-TYPE} 
-          Task type: NOTIFICATION / PROPAGATION / PUSH / SCHEDULED / SYNCHRONIZATION
+          Task type: NOTIFICATION / PROPAGATION / PUSH / SCHEDULED / PULL
     --list-running-jobs
     --list-scheduled-jobs
     --read 

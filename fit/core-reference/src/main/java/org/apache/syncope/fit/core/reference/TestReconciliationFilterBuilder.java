@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import org.apache.syncope.core.provisioning.java.syncpull.DefaultReconciliationFilterBuilder;
+import org.apache.syncope.core.provisioning.java.pushpull.DefaultReconciliationFilterBuilder;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;

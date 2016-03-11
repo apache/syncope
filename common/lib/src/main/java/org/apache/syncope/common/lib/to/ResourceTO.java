@@ -68,13 +68,13 @@ public class ResourceTO extends AbstractAnnotatedBean implements EntityTO<String
 
     private TraceLevel deleteTraceLevel = TraceLevel.ALL;
 
-    private TraceLevel syncTraceLevel = TraceLevel.ALL;
+    private TraceLevel pullTraceLevel = TraceLevel.ALL;
 
     private Long passwordPolicy;
 
     private Long accountPolicy;
 
-    private Long syncPolicy;
+    private Long pullPolicy;
 
     private final Set<ConnConfProperty> confOverride = new HashSet<>();
 
@@ -175,12 +175,12 @@ public class ResourceTO extends AbstractAnnotatedBean implements EntityTO<String
         this.accountPolicy = accountPolicy;
     }
 
-    public Long getSyncPolicy() {
-        return syncPolicy;
+    public Long getPullPolicy() {
+        return pullPolicy;
     }
 
-    public void setSyncPolicy(final Long syncPolicy) {
-        this.syncPolicy = syncPolicy;
+    public void setPullPolicy(final Long pullPolicy) {
+        this.pullPolicy = pullPolicy;
     }
 
     @JsonIgnore
@@ -223,12 +223,12 @@ public class ResourceTO extends AbstractAnnotatedBean implements EntityTO<String
         return capabilitiesOverride;
     }
 
-    public TraceLevel getSyncTraceLevel() {
-        return syncTraceLevel;
+    public TraceLevel getPullTraceLevel() {
+        return pullTraceLevel;
     }
 
-    public void setSyncTraceLevel(final TraceLevel syncTraceLevel) {
-        this.syncTraceLevel = syncTraceLevel;
+    public void setPullTraceLevel(final TraceLevel pullTraceLevel) {
+        this.pullTraceLevel = pullTraceLevel;
     }
 
     @XmlElementWrapper(name = "propagationActionsClassNames")

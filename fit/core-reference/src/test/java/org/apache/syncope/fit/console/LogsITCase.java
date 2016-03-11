@@ -34,6 +34,8 @@ import org.apache.wicket.util.visit.IVisitor;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotNull;
+
 public class LogsITCase extends AbstractConsoleITCase {
 
     private final static String CONTAINER_PATH = "body:content:tabbedPanel:panel:loggerContainer";

@@ -230,13 +230,13 @@ public class VirAttrITCase extends AbstractITCase {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
         String value = jdbcTemplate.queryForObject(
-                "SELECT USERNAME FROM testsync WHERE ID=?", String.class, actual.getKey());
+                "SELECT USERNAME FROM testpull WHERE ID=?", String.class, actual.getKey());
         assertEquals("virattrcache", value);
 
-        jdbcTemplate.update("UPDATE testsync set USERNAME='virattrcache2' WHERE ID=?", actual.getKey());
+        jdbcTemplate.update("UPDATE testpull set USERNAME='virattrcache2' WHERE ID=?", actual.getKey());
 
         value = jdbcTemplate.queryForObject(
-                "SELECT USERNAME FROM testsync WHERE ID=?", String.class, actual.getKey());
+                "SELECT USERNAME FROM testpull WHERE ID=?", String.class, actual.getKey());
         assertEquals("virattrcache2", value);
 
         // 4. check for cached attribute value
@@ -393,13 +393,13 @@ public class VirAttrITCase extends AbstractITCase {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
         String value = jdbcTemplate.queryForObject(
-                "SELECT USERNAME FROM testsync WHERE ID=?", String.class, userTO.getKey());
+                "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
         assertEquals("virattrcache", value);
 
-        jdbcTemplate.update("UPDATE testsync set USERNAME='virattrcache2' WHERE ID=?", userTO.getKey());
+        jdbcTemplate.update("UPDATE testpull set USERNAME='virattrcache2' WHERE ID=?", userTO.getKey());
 
         value = jdbcTemplate.queryForObject(
-                "SELECT USERNAME FROM testsync WHERE ID=?", String.class, userTO.getKey());
+                "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
         assertEquals("virattrcache2", value);
         // ----------------------------------------
 
@@ -557,7 +557,7 @@ public class VirAttrITCase extends AbstractITCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
             Map<String, Object> actuals = jdbcTemplate.queryForMap(
-                    "SELECT id, surname, email FROM testsync WHERE id=?",
+                    "SELECT id, surname, email FROM testpull WHERE id=?",
                     new Object[] { Integer.parseInt(userTO.getPlainAttrMap().get("aLong").getValues().get(0)) });
 
             assertEquals(userTO.getPlainAttrMap().get("aLong").getValues().get(0), actuals.get("id").toString());

@@ -33,7 +33,7 @@ import javax.validation.Payload;
 @Documented
 public @interface ProvisioningTaskCheck {
 
-    String message() default "{org.apache.syncope.core.persistence.validation.abstractsynctask}";
+    String message() default "{org.apache.syncope.core.persistence.validation.provisioningtask}";
 
     Class<?>[] groups() default {};
 

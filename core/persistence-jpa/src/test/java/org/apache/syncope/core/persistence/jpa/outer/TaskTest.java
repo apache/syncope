@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.common.lib.types.SyncMode;
+import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -45,17 +45,17 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.api.entity.task.AnyTemplateSyncTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.provisioning.api.syncpull.SyncActions;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
+import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 
 @Transactional("Master")
 public class TaskTest extends AbstractTest {
@@ -139,8 +139,8 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void addSyncTaskExecution() {
-        SyncTask task = taskDAO.find(4L);
+    public void addPullTaskExecution() {
+        PullTask task = taskDAO.find(4L);
         assertNotNull(task);
 
         int executionNumber = task.getExecs().size();
@@ -210,18 +210,18 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void saveSyncTask() {
+    public void savePullTask() {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
-        AnyTemplateSyncTask template = entityFactory.newEntity(AnyTemplateSyncTask.class);
+        AnyTemplatePullTask template = entityFactory.newEntity(AnyTemplatePullTask.class);
         template.set(new UserTO());
 
-        SyncTask task = entityFactory.newEntity(SyncTask.class);
-        task.setName("saveSyncTask");
-        task.setDescription("SyncTask description");
+        PullTask task = entityFactory.newEntity(PullTask.class);
+        task.setName("savePullTask");
+        task.setDescription("PullTask description");
         task.setActive(true);
-        task.setSyncMode(SyncMode.FULL_RECONCILIATION);
+        task.setPullMode(PullMode.FULL_RECONCILIATION);
         task.add(template);
         task.setCronExpression("BLA BLA");
         task.setMatchingRule(MatchingRule.UPDATE);
@@ -237,7 +237,7 @@ public class TaskTest extends AbstractTest {
         assertNotNull(exception);
 
         task.setCronExpression(null);
-        // this save() fails because a SyncTask requires a target resource
+        // this save() fails because a PullTask requires a target resource
         exception = null;
         try {
             taskDAO.save(task);
@@ -260,12 +260,12 @@ public class TaskTest extends AbstractTest {
         assertNotNull(exception);
 
         task.getActionsClassNames().clear();
-        task.getActionsClassNames().add(SyncActions.class.getName());
+        task.getActionsClassNames().add(PullActions.class.getName());
         // this save() finally works
         task = taskDAO.save(task);
         assertNotNull(task);
 
-        SyncTask actual = taskDAO.find(task.getKey());
+        PullTask actual = taskDAO.find(task.getKey());
         assertEquals(task, actual);
     }
 
@@ -274,21 +274,21 @@ public class TaskTest extends AbstractTest {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
-        SyncTask task = entityFactory.newEntity(SyncTask.class);
+        PullTask task = entityFactory.newEntity(PullTask.class);
 
         task.setResource(resource);
         task.setName("issueSYNCOPE144");
         task.setDescription("issueSYNCOPE144 Description");
         task.setActive(true);
-        task.setSyncMode(SyncMode.FULL_RECONCILIATION);
-        task.getActionsClassNames().add(SyncActions.class.getName());
+        task.setPullMode(PullMode.FULL_RECONCILIATION);
+        task.getActionsClassNames().add(PullActions.class.getName());
         task.setMatchingRule(MatchingRule.UPDATE);
         task.setUnmatchingRule(UnmatchingRule.PROVISION);
 
         task = taskDAO.save(task);
         assertNotNull(task);
 
-        SyncTask actual = taskDAO.find(task.getKey());
+        PullTask actual = taskDAO.find(task.getKey());
         assertEquals(task, actual);
         assertEquals("issueSYNCOPE144", actual.getName());
         assertEquals("issueSYNCOPE144 Description", actual.getDescription());

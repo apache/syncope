@@ -36,7 +36,7 @@ public final class AuditElements implements Serializable {
         REST(StringUtils.EMPTY),
         TASK(StringUtils.EMPTY),
         PROPAGATION("PropagationTask"),
-        SYNCHRONIZATION("SyncTask"),
+        PULL("PullTask"),
         PUSH("PushTask"),
         CUSTOM(StringUtils.EMPTY);
 

@@ -70,14 +70,14 @@ public class CamelGroupProvisioningManager
             final Set<String> excludedResources,
             final boolean nullPriorityAsync) {
 
-        PollingConsumer pollingConsumer = getConsumer("direct:createGroupInSyncPort");
+        PollingConsumer pollingConsumer = getConsumer("direct:createGroupInPullPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("groupOwnerMap", groupOwnerMap);
         props.put("excludedResources", excludedResources);
         props.put("nullPriorityAsync", nullPriorityAsync);
 
-        sendMessage("direct:createGroupInSync", groupTO, props);
+        sendMessage("direct:createGroupInPull", groupTO, props);
 
         Exchange exchange = pollingConsumer.receive();
 

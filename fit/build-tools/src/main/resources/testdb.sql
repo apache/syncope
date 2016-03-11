@@ -36,14 +36,14 @@ INSERT INTO test2 VALUES ('rossini', 'password321', 'true');
 INSERT INTO test2 VALUES ('verdi', 'password321', 'true');
 
 -- this table is for issueSYNCOPE230
-DROP TABLE testsync IF EXISTS;
-CREATE TABLE testsync (
+DROP TABLE testpull IF EXISTS;
+CREATE TABLE testpull (
 id NUMBER(10) PRIMARY KEY,
 username VARCHAR(80),
 surname VARCHAR(80),
 email VARCHAR(80));
 
-INSERT INTO testsync VALUES (965, 'issuesyncope230', 'Surname', 'syncope230@syncope.apache.org');
+INSERT INTO testpull VALUES (965, 'issuesyncope230', 'Surname', 'syncope230@syncope.apache.org');
 
 DROP TABLE testPRINTER IF EXISTS;
 CREATE TABLE testPRINTER (

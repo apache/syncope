@@ -48,7 +48,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:delete", AjaxLink.class);
         wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:edit", AjaxLink.class);
         wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:propagation", AjaxLink.class);
-        wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:synchronization",
+        wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:pull",
                 AjaxLink.class);
         wicketTester.assertComponent("body:toggle:togglePanelContainer:container:actions:push", AjaxLink.class);
         wicketTester.executeAjaxEvent("body:syncope", Constants.ON_CLICK);
@@ -60,10 +60,10 @@ public class TopologyITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void executeSyncTask() {
+    public void executePullTask() {
         wicketTester.clickLink("body:topologyLI:topology");
         wicketTester.executeAjaxEvent("body:resources:2:resources:0:res", Constants.ON_CLICK);
-        wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:synchronization");
+        wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:pull");
         wicketTester.clickLink("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
                 + "body:rows:1:cells:10:cell:panelExecute:executeLink");

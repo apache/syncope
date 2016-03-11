@@ -117,7 +117,7 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
 
     @Override
     public <T extends Policy> List<Realm> findByPolicy(final T policy) {
-        if (policy.getType() == PolicyType.SYNC) {
+        if (policy.getType() == PolicyType.PULL) {
             return Collections.<Realm>emptyList();
         }
 

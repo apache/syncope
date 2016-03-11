@@ -58,26 +58,26 @@ under the License.
     </doTry>
   </route>
                 
-  <route id="updateUserInSync">
-    <from uri="direct:updateUserInSync"/>            
+  <route id="updateUserInPull">
+    <from uri="direct:updateUserInPull"/>            
     <doTry>
       <bean ref="uwfAdapter" method="update(${body})"/>
-      <to uri="direct:userInSync"/>
+      <to uri="direct:userInPull"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
         <handled>
           <constant>false</constant>
         </handled>
-        <to uri="direct:updateInSyncPort"/>
+        <to uri="direct:updateInPullPort"/>
       </doCatch>
     </doTry>
   </route>
         
-  <route id="userInSync">
-    <from uri="direct:userInSync"/>
-    <process ref="userSetStatusInSyncProcessor"/>
-    <process ref="userUpdateInSyncProcessor"/>
-    <to uri="direct:updateInSyncPort"/>
+  <route id="userInPull">
+    <from uri="direct:userInPull"/>
+    <process ref="userSetStatusInPullProcessor"/>
+    <process ref="userUpdateInPullProcessor"/>
+    <to uri="direct:updateInPullPort"/>
   </route>
   
   <route id="deleteUser">

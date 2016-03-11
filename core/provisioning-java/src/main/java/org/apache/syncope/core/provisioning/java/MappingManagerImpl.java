@@ -151,7 +151,7 @@ public class MappingManagerImpl implements MappingManager {
         List<MappingItem> result = new ArrayList<>();
 
         switch (purpose) {
-            case SYNCHRONIZATION:
+            case PULL:
                 for (MappingItem item : items) {
                     if (MappingPurpose.PROPAGATION != item.getPurpose()
                             && MappingPurpose.NONE != item.getPurpose()) {
@@ -163,7 +163,7 @@ public class MappingManagerImpl implements MappingManager {
 
             case PROPAGATION:
                 for (MappingItem item : items) {
-                    if (MappingPurpose.SYNCHRONIZATION != item.getPurpose()
+                    if (MappingPurpose.PULL != item.getPurpose()
                             && MappingPurpose.NONE != item.getPurpose()) {
 
                         result.add(item);
@@ -201,8 +201,8 @@ public class MappingManagerImpl implements MappingManager {
         return getMappingItems(provision, MappingPurpose.PROPAGATION);
     }
 
-    public static List<MappingItem> getSyncMappingItems(final Provision provision) {
-        return getMappingItems(provision, MappingPurpose.SYNCHRONIZATION);
+    public static List<MappingItem> getPullMappingItems(final Provision provision) {
+        return getMappingItems(provision, MappingPurpose.PULL);
     }
 
     /**
@@ -728,7 +728,7 @@ public class MappingManagerImpl implements MappingManager {
         if (attr != null) {
             values = attr.getValue();
             for (MappingItemTransformer transformer : getMappingItemTransformers(mappingItem)) {
-                values = transformer.beforeSync(values);
+                values = transformer.beforePull(values);
             }
         }
         values = ListUtils.emptyIfNull(values);
