@@ -203,160 +203,24 @@
 
 ==
 
-For ASM (http://asm.ow2.org/):
-This is licensed under the BSD license:
+For Admin LTE (https://github.com/almasaeed2010/AdminLTE/):
+This is licensed under the terms of the MIT license:
 
-Redistribution and use in source and binary forms, with or without 
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this 
-list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors 
-may be used to endorse or promote products derived from this software without 
-specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-==
-
-For NanoXML lite (http://nanoxml.sourceforge.net/orig/):
-This is licensed under the zlib/libpng license:
-
-This software is provided 'as-is', without any express or implied
-warranty. In no event will the authors be held liable for any damages
-arising from the use of this software.
-
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it
-freely, subject to the following restrictions:
-
-1. The origin of this software must not be misrepresented; you must not
-   claim that you wrote the original software. If you use this software
-   in a product, an acknowledgement in the product documentation would be
-   appreciated but is not required.
-2. Altered source versions must be plainly marked as such, and must not be
-   misrepresented as being the original software.
-3. This notice may not be removed or altered from any source distribution.
-
-==
-
-For Plexus Classworlds (https://codehaus-plexus.github.io/plexus-classworlds/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Jackson (http://wiki.fasterxml.com/JacksonHome):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For JGoodies Looks (https://java.net/projects/looks):
-This is licensed under the BSD license, see above.
-
-==
-
-For Jline v2 (http://jline.github.io/jline2/):
-This is licensed under the BSD license, see above.
-
-==
-
-For Laf-plugin (https://java.net/projects/laf-plugin):
-This is licensed under the BSD license, see above.
-
-==
-
-For Laf-widget (https://java.net/projects/laf-widget):
-This is licensed under the BSD license, see above.
-
-==
-
-For IzPack (http://izpack.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Codehaus Plexus (https://codehaus-plexus.github.io/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Eclipse SWT (https://www.eclipse.org/swt/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Hamcrest (http://hamcrest.org/):
-This is licensed under the BSD license, see above.
-
-==
-
-For Substance (https://java.net/projects/substance):
-This is licensed under the BSD license, see above.
-
-==
-
-For JDOM (http://www.jdom.org/):
-This is licensed under the BSD license, see above.
-
-==
-
-For PicoContainer (http://picocontainer.com/):
-This is licensed under the BSD license, see above.
-
-==
-
-For Trident (https://kenai.com/projects/trident/):
-This is licensed under the BSD license, see above.
-
-==
-
-For MXP1: Xml Pull Parser 3rd Edition (http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/):
-This is licensed under the Indiana University Extreme! Lab Software License, version 1.1.1:
-
-Indiana University Extreme! Lab Software License
-Version 1.1.1
-Copyright (c) 2002 Extreme! Lab, Indiana University. All rights reserved.
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
-1. Redistributions of source code must retain the above copyright notice, this
-list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice,
-this list of conditions and the following disclaimer in the documentation and/or
-other materials provided with the distribution.
-3. The end-user documentation included with the redistribution, if any, must
-include the following acknowledgment:
-"This product includes software developed by the Indiana University Extreme! Lab
-(http://www.extreme.indiana.edu/)."
-Alternately, this acknowledgment may appear in the software itself, if and
-wherever such third-party acknowledgments normally appear.
-4. The names "Indiana Univeristy" and "Indiana Univeristy Extreme! Lab" must not
-be used to endorse or promote products derived from this software without prior
-written permission. For written permission, please contact
-http://www.extreme.indiana.edu/.
-5. Products derived from this software may not use "Indiana Univeristy" name nor
-may "Indiana Univeristy" appear in their name, without prior written permission
-of the Indiana University.
-THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED WARRANTIES,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS,
-COPYRIGHT HOLDERS OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ Permission is hereby granted, free  of charge, to any person obtaining
+ a  copy  of this  software  and  associated  documentation files  (the
+ "Software"), to  deal in  the Software without  restriction, including
+ without limitation  the rights to  use, copy, modify,  merge, publish,
+ distribute,  sublicense, and/or sell  copies of  the Software,  and to
+ permit persons to whom the Software  is furnished to do so, subject to
+ the following conditions:
+ 
+ The  above  copyright  notice  and  this permission  notice  shall  be
+ included in all copies or substantial portions of the Software.
+ 
+ THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
+ EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
+ MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
+ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

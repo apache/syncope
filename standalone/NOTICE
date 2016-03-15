@@ -9,13 +9,23 @@ with which this file is now or was at one time distributed.
 
 ==
 
-This product includes software developed by the Activiti BPM Platform project (http://www.activiti.org/).
+This product includes software developed by the AngularJS UI Bootstrap project.
+Copyright (c) 2012-2016 the AngularUI Team, https://github.com/organizations/angular-ui/teams/291112]
 
 ==
 
-This product includes software developed by Oracle Corporation.
-Copyright (C) 1999-2013 http://www.oracle.com/ and/or its affiliates.
-All rights reserved.
+This product includes software developed by the AngularJS UI Router project.
+Copyright (c) 2013-2015 The AngularUI Team, Karsten Sperling
+
+==
+
+This product includes software developed by the AngularJS UI Select project.
+Copyright (c) 2013-2014 AngularUI
+
+==
+
+This product includes software developed by the Animate.css project.
+Copyright (c) 2016 Daniel Eden
 
 ==
 
@@ -23,115 +33,117 @@ This product includes software developed by the AOP Alliance (Java/J2EE AOP stan
 
 ==
 
-This product includes software developed by the ASM project (http://asm.ow2.org/).
-Copyright (c) 2000-2011 INRIA, France Telecom
-All rights reserved.
+This product includes software developed by the Bootbox.js project.
+Copyright (C) 2011-2015 by Nick Payne nick@kurai.co.uk
 
 ==
 
-This product includes AspectJ (>= 1.52) software developed by the Eclipse
-Software Foundation.
-This software is included in binary form only.
+This product includes software developed by the Bootstrap project.
+Copyright (c) 2011-2016 Twitter, Inc.
 
 ==
 
-This product includes software developed by ClassMate (https://github.com/cowtowncoder/java-classmate).
+This product includes software developed by the bootstrap-select project.
+Copyright (c) 2013-2015 bootstrap-select]
 
 ==
 
-This product includes software developed by Tirasa (http://www.tirasa.net)
-Copyright 2008-2009 Sun Microsystems, Inc. All rights reserved.
-Copyright 2011-2015 Tirasa S.r.l. All rights reserved.
-This software is included in binary form only.
-
-==
-
-This product includes the CodeMirror JavaScript component.
-Copyright (C) 2015 by Marijn Haverbeke <marijnh@gmail.com> and others
-
-==
-
-This product includes software developed by the atinject Project.
-Copyright (c) 2009, http://code.google.com/p/atinject/
-All rights reserved.
-
-==
-
-This product includes software developed by the dom4j Project.
-Copyright 2001-2010 (C) MetaStuff, Ltd.
-All Rights Reserved.
-
-==
-
-This product contains unmodified binary redistributions for H2 database engine
-(http://www.h2database.com/), which is dual licensed and available under a 
-modified version of the MPL 1.1 (Mozilla Public License) or under the 
-(unmodified) EPL 1.0 (Eclipse Public License).
-An original copy of the license agreement can be found at: 
-http://www.h2database.com/html/license.html
-
-==
-
-This product includes the Javascript syntax highlighter (http://highlightjs.org/).
-Copyright (c) 2006, Ivan Sagalaev
+This product includes software developed by the Modernizr project.
+Copyright (C) 2016
 
 ==
 
 This product includes software developed by the Jackson project.
-http://wiki.fasterxml.com/JacksonHome
+
+==
+
+This product includes software developed by the Google Guava project.
+Copyright (c) 2016 The Guava Authors.
+
+==
+
+This product includes software developed by the Wicket - jQuery UI project.
+Copyright 2012-2013 Sebastien Briquet
+
+==
+
+This product includes software developed by the JAXB project.
+Copyright (c) 2013-2016 The JAXB project.
+
+==
+
+This product includes the Javascript syntax highlighter.
+Copyright (c) 2006, Ivan Sagalaev
+
+==
+
+This product includes software developed by the Metrics project.
+Copyright (c) 2010-2014 Coda Hale, Yammer.com
+
+==
+
+This product includes software developed by the Swagger project.
+Copyright 2016 SmartBear Software
+
+==
+
+This product includes software developed by the Ionicons project.
+Copyright (c) 2016 Drifty (http://drifty.com/)
+
+==
+
+This product includs software developed by Oracle.
+Copyright (c) 2012-2013 Oracle and/or its affiliates. All rights reserved.
+
+==
+
+This product includes software developed by the Bean Validation Project (http://beanvalidation.org).
+Copyright (c) Red Hat, Inc., Emmanuel Bernard
+
+==
+
+This product includes software developed by the JAX-RS project.
+Copyright (c) 2014, Oracle Corporation and/or its affiliates. All rights reserved.
 
 ==
 
 This product includes software developed by the Joda Time project.
-http://www.joda.org/joda-time
+Copyright (c) 2002-2016 Joda.org. All Rights Reserved.
 
 ==
 
 This product includes the jQuery Core JavaScript Library.
-Copyright 2007, 2015 jQuery Foundation and other contributors,
-https://jquery.org/
+Copyright 2007, 2016 jQuery Foundation and other contributors.
+
+==
+
+This product includes software developed by the jquery.cookie project.
+Copyright 2014 Klaus Hartl
 
 ==
 
 This product includes the jQuery UI JavaScript Library.
-Copyright 2007, 2015 jQuery Foundation and other contributors,
-https://jquery.org/
+Copyright 2007, 2015 jQuery Foundation and other contributors.
 
 ==
 
-This product includes software developed by Almsaeed Studio.
-Copyright 2014-2015 Almsaeed Studio. All rights reserved.
-https://almsaeedstudio.com/
+This product includes software developed by the jQuery++ project.
+Copyright (C) 2012 Bitovi
 
 ==
 
-This products includes software developed by Twitter Bootstrap.
-http://twitter.github.com/bootstrap/
+This product includes software developed by the jsPlumb project.
+Copyright (c) 2010 - 2014 jsPlumb, http://jsplumbtoolkit.com/
 
 ==
 
-This products includes software developed by bootstrap-select.
-Copyright (C) 2013-2015 bootstrap-select.
-https://silviomoreto.github.io/bootstrap-select/
+This product includes software developed by the Kendo UI project.
+Copyright (c) 2014-2015 Telerik]
 
 ==
 
-This products includes software developed by Font Awesome.
-https://fortawesome.github.io/Font-Awesome/icons/
-
-==
-
-This products includes software developed by ionicons.
-http://ionicons.com/
-
-==
-
-This product includes software developed by the MyBatis project.
-
-==
-
-This product includes software developed by Terracotta. Inc.
-Quartz Scheduler source code and documentation are Copyright (c) Terracotta, Inc.
+This product includes software developed by the lodash project.
+Copyright jQuery Foundation and other contributors <https://jquery.org/>]
 
 ==
 
@@ -141,39 +153,116 @@ All rights reserved.
 
 ==
 
-This products includes software developed by SLF4J (http://www.slf4j.org)
-Copyright (c) 2004-2013 QOS.ch.
+This product includes software developed by the ConnId project.
+Copyright 2008-2009 Sun Microsystems, Inc. All rights reserved.
+Copyright 2011-2016 Tirasa S.r.l. All rights reserved.
 
 ==
 
-This product includes software developed by SpringSource.
-Copyright (c) 2004-2015 SpringSource
+This product includes software developed by the Activiti BPM Platform project.
+
+==
+
+This product includes AspectJ (>= 1.52) software developed by the Eclipse
+Software Foundation.
+
+==
+
+This product includes software developed by the Stax 2 Extension API Project.
+
+==
+
+This product includes software developed by the Woodstox Project.
+
+==
+
+This project includes software developed by the Jasypt project.
+Copyright (c) 2014 The JASYPT team. All Rights Reserved
+
+==
+
+This product includes softare developed by the Javassist project.
+Copyright (C) 1999- by Shigeru Chiba, All rights reserved.
+
+==
+
+This product includes software developed by the MyBatis project.
+
+==
+
+This product includes software developed by the ASM project.
+Copyright (c) 2000-2011 INRIA, France Telecom
 All rights reserved.
 
 ==
 
-This product includes software developed by the Bean Validation Project (http://beanvalidation.org).
-Copyright (c) Red Hat, Inc., Emmanuel Bernard
+This product includes software developed by Terracotta. Inc.
+Quartz Scheduler source code and documentation are Copyright (c) Terracotta, Inc.
 
 ==
 
-This product includes software developed by the Woodstox Project (http://woodstox.codehaus.org/).
+This product includes software developed by the Reflections project.
 
 ==
 
-This product includes software developed by Web Services Description Language for Java (http://wsdl4j.sourceforge.net/).
+This products includes software developed by the Simple Logging Facade for Java (SLF4J) project.
+Copyright (c) 2004-2016 QOS.ch.
+
+==
+
+This product includes software developed by SpringSource.
+Copyright (c) 2004-2016 SpringSource
+All rights reserved.
+
+==
+
+This product includes software developed by the spin.js project.
+Copyright (c) 2011-2015 Felix Gnass [fgnass at gmail dot com]
+
+==
+
+This product includes software developed by the FileSaver.js project.
+Copyright (c) 2015 Carlos A. Gomes.
+
+==
+
+This product includes software developed by the AngularJS project.
+Copyright (c) 2014-2016 Google, Inc. http://angular.io
+
+==
+
+This product contains unmodified binary redistributions for H2 database engine,
+which is dual licensed and available under a modified version of the MPL 1.1 (Mozilla Public License) or under the
+(unmodified) EPL 1.0 (Eclipse Public License).
+An original copy of the license agreement can be found at: http://www.h2database.com/html/license.html
+
+==
+
+This product includes software developed by the Select2 project.
+Copyright (c) 2012-2015 Kevin Brown, Igor Vaynberg, and Select2 contributors
+
+==
+
+This product includes software developed by the Moment.js project.
+Copyright (c) 2011-2016 Tim Wood, Iskren Chernev, Moment.js contributors
+
+==
+
+This product includes software developed by the moment-jdateformatparser project.
+Copyright (c) 2013 MadMG
+
+==
+
+This product includes software developed by the SnakeYAML project.
+
+==
+
+This product includes software developed by the Web Services Description Language for Java project.
 Copyright (c) Dice.
 All Rights Reserved.
-==
-
-This product includes software developed by the AngularJS Project (http://angularjs.org).
 
 ==
 
-This product includes software developed by the FileSaver.js Project (https://github.com/eligrey/FileSaver.js).
-Copyright © 2015 Eli Grey.
+This product includes software developed by the X-editable project.
+Copyright (c) 2012 Vitaliy Potapov
 
-==
-
-This product includes software developed by the Select2 Project (https://select2.github.io/).
-Copyright (c) 2012-2015 Kevin Brown, Igor Vaynberg, and Select2 contributors

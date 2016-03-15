@@ -355,6 +355,7 @@ under the License.
     <disruptor.version>3.3.4</disruptor.version>
 
     <commons-io.version>2.4</commons-io.version>
+    <commons-email.version>1.4</commons-email.version>
     <commons-codec.version>1.10</commons-codec.version>
     <commons-jexl.version>3.0</commons-jexl.version>
     <commons-lang.version>3.4</commons-lang.version>
@@ -388,7 +389,7 @@ under the License.
     <jsplumb.version>2.0.5</jsplumb.version>
     
     <wicket.version>7.2.0</wicket.version>
-    <wicket-jqueryui.version>7.2.0</wicket-jqueryui.version>
+    <wicket-jqueryui.version>7.2.1</wicket-jqueryui.version>
     <wicket-bootstrap.version>0.10.6</wicket-bootstrap.version>
     <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
 
@@ -402,7 +403,7 @@ under the License.
     <kendo-ui-core.version>2014.2.716</kendo-ui-core.version>
     <select2.version>3.4.8</select2.version>
     <fileSaver.version>0.0.2</fileSaver.version>
-    <momentjs.version>2.11.1</momentjs.version>
+    <momentjs.version>2.12.0</momentjs.version>
     <moment-jdateformatparser.version>1.0.0</moment-jdateformatparser.version>
     
     <izpack.version>5.0.6</izpack.version>
@@ -540,6 +541,10 @@ under the License.
           <exclusion>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-joda</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.slf4j</groupId>
@@ -729,6 +734,21 @@ under the License.
         <version>${commons-io.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-email</artifactId>
+        <version>${commons-email.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
         <version>${commons-codec.version}</version>
@@ -854,12 +874,12 @@ under the License.
             <artifactId>activation</artifactId>
           </exclusion>
           <exclusion>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-          </exclusion>
-          <exclusion>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-email</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -868,6 +888,10 @@ under the License.
         <artifactId>activiti-spring</artifactId>
         <version>${activiti.version}</version>
         <exclusions>
+          <exclusion>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -938,6 +962,24 @@ under the License.
         <groupId>de.agilecoders.wicket</groupId>
         <artifactId>wicket-bootstrap-extensions</artifactId>
         <version>${wicket-bootstrap.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.javascript</groupId>
+            <artifactId>closure-compiler</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>summernote</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.webjars</groupId>
+            <artifactId>momentjs</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.webjars</groupId>
+            <artifactId>Eonasdan-bootstrap-datetimepicker</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>com.pingunaut</groupId>
@@ -1066,11 +1108,6 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.webjars.bower</groupId>
-        <artifactId>angular-route</artifactId>
-        <version>${angular.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
         <artifactId>angular-resource</artifactId>
         <version>${angular.version}</version>
       </dependency>
@@ -1083,6 +1120,12 @@ under the License.
         <groupId>org.webjars</groupId>
         <artifactId>angular-ui-router</artifactId>
         <version>${angular-ui-router.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.webjars</groupId>
+            <artifactId>angularjs</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.webjars.bower</groupId>
@@ -1093,11 +1136,23 @@ under the License.
         <groupId>org.webjars</groupId>
         <artifactId>angular-ui-bootstrap</artifactId>
         <version>${angular-ui-bootstrap.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.webjars</groupId>
+            <artifactId>angularjs</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
         <artifactId>angular-ui-select</artifactId>
         <version>${angular-ui-select.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.webjars</groupId>
+            <artifactId>angularjs</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.webjars.bower</groupId>
@@ -1113,6 +1168,12 @@ under the License.
         <groupId>org.webjars.bower</groupId>
         <artifactId>ng-password-strength</artifactId>
         <version>${ng-password-strength.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>lodash</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
@@ -1141,8 +1202,8 @@ under the License.
         <version>${fileSaver.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.webjars</groupId>
-        <artifactId>momentjs</artifactId>
+        <groupId>org.webjars.npm</groupId>
+        <artifactId>moment</artifactId>
         <version>${momentjs.version}</version>
       </dependency>
       <dependency>

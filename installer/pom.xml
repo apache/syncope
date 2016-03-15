@@ -136,6 +136,7 @@ under the License.
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}/staging/lib</outputDirectory>
+              <excludeGroupIds>junit</excludeGroupIds>
             </configuration>
           </execution>
         </executions>
@@ -158,7 +159,6 @@ under the License.
               <baseDir>${staging.dir}</baseDir>
               <installFile>${staging.dir}/install.xml</installFile>
               <classifier>uber</classifier>
-              <excludeGroupIds>junit</excludeGroupIds>
             </configuration>
           </execution>
         </executions>

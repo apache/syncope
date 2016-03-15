@@ -9,42 +9,21 @@ with which this file is now or was at one time distributed.
 
 ==
 
-This product includes software developed by Oracle Corporation.
-Copyright (C) 1999-2013 http://www.oracle.com/ and/or its affiliates.
-All rights reserved.
-
-==
-
 This product includes software developed by the AOP Alliance (Java/J2EE AOP standards).
 
 ==
 
-This product includes software developed by the ASM project (http://asm.ow2.org/).
-Copyright (c) 2000-2011 INRIA, France Telecom
-All rights reserved.
-
-==
-
-This product includes software developed by Tirasa (http://www.tirasa.net)
-Copyright 2008-2009 Sun Microsystems, Inc. All rights reserved.
-Copyright 2011-2015 Tirasa S.r.l. All rights reserved.
-This software is included in binary form only.
-
-==
-
 This product includes software developed by the Jackson project.
-http://wiki.fasterxml.com/JacksonHome
 
 ==
 
-This products includes software developed by SLF4J (http://www.slf4j.org)
-Copyright (c) 2004-2013 QOS.ch.
+This product includes software developed by the JAXB project.
+Copyright (c) 2013-2016 The JAXB project.
 
 ==
 
-This product includes software developed by SpringSource.
-Copyright (c) 2004-2015 SpringSource
-All rights reserved.
+This product includs software developed by Oracle.
+Copyright (c) 2012-2013 Oracle and/or its affiliates. All rights reserved.
 
 ==
 
@@ -53,10 +32,46 @@ Copyright (c) Red Hat, Inc., Emmanuel Bernard
 
 ==
 
-This product includes software developed by the Woodstox Project (http://woodstox.codehaus.org/).
+This product includes software developed by the JAX-RS project.
+Copyright (c) 2014, Oracle Corporation and/or its affiliates. All rights reserved.
 
 ==
 
-This product includes software developed by Web Services Description Language for Java (http://wsdl4j.sourceforge.net/).
+This product includes software developed by the Joda Time project.
+Copyright (c) 2002-2016 Joda.org. All Rights Reserved.
+
+==
+
+This product includes software developed by the Stax 2 Extension API Project.
+
+==
+
+This product includes software developed by the Woodstox Project.
+
+==
+
+This project includes software developed by the Jasypt project.
+Copyright (c) 2014 The JASYPT team. All Rights Reserved
+
+==
+
+This product includes software developed by the ASM project.
+Copyright (c) 2000-2011 INRIA, France Telecom
+All rights reserved.
+
+==
+
+This products includes software developed by the Simple Logging Facade for Java (SLF4J) project.
+Copyright (c) 2004-2016 QOS.ch.
+
+==
+
+This product includes software developed by SpringSource.
+Copyright (c) 2004-2016 SpringSource
+All rights reserved.
+
+==
+
+This product includes software developed by the Web Services Description Language for Java project.
 Copyright (c) Dice.
 All Rights Reserved.

@@ -154,6 +154,45 @@ under the License.
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
+      
+      <resource>
+        <directory>${basedir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE</include>
+          <include>NOTICE</include>
+        </includes>
+      </resource>
     </resources>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>apache-release</id>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+                <configuration>
+                  <includes>
+                    <include>${basedir}/LICENSE</include>
+                    <include>${basedir}/NOTICE</include>
+                  </includes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

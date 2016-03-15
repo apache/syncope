@@ -1,3 +1,4 @@
+
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -207,30 +208,8 @@ This is Public Domain.
 
 ==
 
-For ASM (http://asm.ow2.org/):
-This is licensed under the BSD license.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted 
-provided that the following conditions are met:
-
- * Redistributions of source code must retain the above copyright notice, this list of 
-   conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright notice, this list of 
-   conditions and the following disclaimer in the documentation and/or other materials 
-   provided with the distribution.
- * Neither the name of the author nor the names of its contributors may be used to 
-   endorse or promote products derived from this software without specific prior written 
-   permission. 
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+For Jackson (http://wiki.fasterxml.com/JacksonHome):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -239,18 +218,8 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Jackson (http://wiki.fasterxml.com/JacksonHome):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For jasypt (http://www.jasypt.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For javax.ws.rs-api (http://www.oracle.com/):
-This is licensed under CDDL 1.0.
+For JAX-B (http://jaxb.java.net/):
+This is licensed under the CDDL 1.0:
 
 COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
 
@@ -635,13 +604,73 @@ of liability.
 
 ==
 
-For JAX-B (http://jaxb.java.net/):
-This is licensed under CDDL 1.0, see above.
+For javax.annotation-api (https://jcp.org/en/jsr/detail?id=250):
+This is licensed under the CDDL 1.0, see above.
+
+==
+
+For Bean Validation API (http://beanvalidation.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For javax.ws.rs-api (https://jax-rs-spec.java.net/):
+This is licensed under the CDDL 1.0, see above.
+
+==
+
+For Joda Time (http://www.joda.org/joda-time/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For StAX2 API (http://wiki.fasterxml.com/WoodstoxStax2):
+This is licensed under the BSD license:
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this 
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, 
+this list of conditions and the following disclaimer in the documentation 
+and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors 
+may be used to endorse or promote products derived from this software without 
+specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+==
+
+For Woodstox (http://wiki.fasterxml.com/WoodstoxHome):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For jasypt (http://www.jasypt.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For ASM (http://asm.ow2.org/):
+This is licensed under the BSD license, see above.
 
 ==
 
 For Simple Logging Facade for Java - SLF4J (http://www.slf4j.org/):
-This is licensed under the terms of the MIT license.
+This is licensed under the MIT license:
 
  Permission is hereby granted, free  of charge, to any person obtaining
  a  copy  of this  software  and  associated  documentation files  (the
@@ -669,62 +698,8 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For StAX2 API (http://woodstox.codehaus.org/StAX2):
-This is licensed under BSD style license.
-
-Redistribution and use of this software and associated documentation
-("Software"), with or without modification, are permitted provided
-that the following conditions are met:
-
-1. Redistributions of source code must retain copyright
-   statements and notices.  Redistributions must also contain a
-   copy of this document.
- 
-2. Redistributions in binary form must reproduce the
-   above copyright notice, this list of conditions and the
-   following disclaimer in the documentation and/or other
-   materials provided with the distribution.
- 
-3. The name "DOM4J" must not be used to endorse or promote
-   products derived from this Software without prior written
-   permission of MetaStuff, Ltd.  For written permission,
-   please contact dom4j-info@metastuff.com.
- 
-4. Products derived from this Software may not be called "DOM4J"
-   nor may "DOM4J" appear in their names without prior written
-   permission of MetaStuff, Ltd. DOM4J is a registered
-   trademark of MetaStuff, Ltd.
- 
-5. Due credit should be given to the DOM4J Project - 
-   http://dom4j.sourceforge.net
- 
-THIS SOFTWARE IS PROVIDED BY METASTUFF, LTD. AND CONTRIBUTORS
-``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
-NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
-METASTUFF, LTD. OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-OF THE POSSIBILITY OF SUCH DAMAGE.
-
-==
-
-For Bean Validation API (http://beanvalidation.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Woodstox (http://woodstox.codehaus.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For WSDL4J (http://wsdl4j.sourceforge.net/):
-This is licensed under the Common Public License 1.0.
+For Web Services Description Language for Java (http://wsdl4j.sourceforge.net/):
+This is licensed under the CPL:
 
 THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS COMMON PUBLIC
 LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM
