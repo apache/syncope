@@ -100,6 +100,8 @@ public class ReconciliationWidget extends BaseWidget {
 
     private static final int ROWS = 10;
 
+    private final Long reconciliationReportKey;
+
     private final BaseModal<Any> detailsModal = new BaseModal<>("detailsModal");
 
     private final PageReference pageRef;
@@ -121,12 +123,14 @@ public class ReconciliationWidget extends BaseWidget {
         overlay.setVisible(false);
         add(overlay);
 
+        this.reconciliationReportKey = SyncopeConsoleApplication.get().getReconciliationReportKey();
+
         ReportTO reconciliationReport = null;
         try {
-            reconciliationReport = restClient.read(SyncopeConsoleApplication.get().getReconciliationReportKey());
+            reconciliationReport = restClient.read(reconciliationReportKey);
         } catch (Exception e) {
             LOG.error("Could not fetch the expected reconciliation report with key {}, aborting",
-                    SyncopeConsoleApplication.get().getReconciliationReportKey(), e);
+                    reconciliationReportKey, e);
         }
 
         Fragment reportResult = reconciliationReport == null || reconciliationReport.getExecutions().isEmpty()
@@ -157,7 +161,7 @@ public class ReconciliationWidget extends BaseWidget {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    restClient.startExecution(SyncopeConsoleApplication.get().getReconciliationReportKey(), null);
+                    restClient.startExecution(reconciliationReportKey, null);
 
                     overlay.setVisible(true);
                     target.add(ReconciliationWidget.this);
@@ -243,7 +247,7 @@ public class ReconciliationWidget extends BaseWidget {
 
             @Override
             public boolean evaluate(final ExecTO exec) {
-                return exec.getRefKey() == SyncopeConsoleApplication.get().getReconciliationReportKey();
+                return reconciliationReportKey.equals(exec.getRefKey());
             }
         });
         if (exec == null) {
@@ -513,8 +517,7 @@ public class ReconciliationWidget extends BaseWidget {
                             }
                         });
                         if (reportJobTO != null && !reportJobTO.isRunning()) {
-                            LOG.debug("Report {} is not running",
-                                    SyncopeConsoleApplication.get().getReconciliationReportKey());
+                            LOG.debug("Report {} is not running", reconciliationReportKey);
 
                             WebSocketSettings webSocketSettings = WebSocketSettings.Holder.get(application);
                             WebSocketPushBroadcaster broadcaster =
