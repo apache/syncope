@@ -53,8 +53,8 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
     }
 
     @Override
-    public List<AnyObjectTO> list(final String realm, final int page, final int size, final SortParam<String> sort,
-            final String type) {
+    public List<AnyObjectTO> list(
+            final String realm, final int page, final int size, final SortParam<String> sort, final String type) {
 
         return list(type, realm).getResult();
     }

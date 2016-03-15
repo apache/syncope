@@ -18,31 +18,19 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import com.googlecode.wicket.jquery.core.panel.LabelPanel;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.client.console.wizards.any.AnyObjectWizardBuilder;
-import org.apache.syncope.client.console.wizards.any.GroupWizardBuilder;
-import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.slf4j.Logger;
@@ -60,16 +48,11 @@ public abstract class Realm extends Panel {
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
-    private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
-
-    private final PageReference pageRef;
-
     @SuppressWarnings({ "unchecked", "unchecked" })
     public Realm(final String id, final RealmTO realmTO, final PageReference pageRef) {
         super(id);
         this.realmTO = realmTO;
         this.anyTypeTOs = anyTypeRestClient.list();
-        this.pageRef = pageRef;
 
         add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));
     }
@@ -133,55 +116,11 @@ public abstract class Realm extends Panel {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return getAnyPanel(panelId, pageRef, anyTypeTO);
+                    return new AnyPanel(panelId, anyTypeTO, realmTO, pageRef);
                 }
             });
         }
         return tabs;
-    }
-
-    private Panel getAnyPanel(final String id, final PageReference pageRef, final AnyTypeTO anyTypeTO) {
-        final Panel panel;
-        switch (anyTypeTO.getKind()) {
-            case USER:
-                final UserTO userTO = new UserTO();
-                userTO.setRealm(realmTO.getFullPath());
-                panel = new UserSearchResultPanel.Builder(
-                        anyTypeClassRestClient.list(anyTypeTO.getClasses()),
-                        anyTypeTO.getKey(),
-                        pageRef).setRealm(realmTO.getFullPath()).
-                        addNewItemPanelBuilder(new UserWizardBuilder(
-                                BaseModal.CONTENT_ID, userTO, anyTypeTO.getClasses(), pageRef)).build(id);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER, StandardEntitlement.USER_LIST);
-                break;
-            case GROUP:
-                final GroupTO groupTO = new GroupTO();
-                groupTO.setRealm(realmTO.getFullPath());
-                panel = new GroupSearchResultPanel.Builder(
-                        anyTypeClassRestClient.list(anyTypeTO.getClasses()),
-                        anyTypeTO.getKey(),
-                        pageRef).setRealm(realmTO.getFullPath()).
-                        addNewItemPanelBuilder(new GroupWizardBuilder(
-                                BaseModal.CONTENT_ID, groupTO, anyTypeTO.getClasses(), pageRef)).build(id);
-                // list of group is available to all authenticated users
-                break;
-            case ANY_OBJECT:
-                final AnyObjectTO anyObjectTO = new AnyObjectTO();
-                anyObjectTO.setRealm(realmTO.getFullPath());
-                anyObjectTO.setType(anyTypeTO.getKey());
-                panel = new AnyObjectSearchResultPanel.Builder(
-                        anyTypeClassRestClient.list(anyTypeTO.getClasses()),
-                        anyTypeTO.getKey(),
-                        pageRef).setRealm(realmTO.getFullPath()).
-                        addNewItemPanelBuilder(new AnyObjectWizardBuilder(
-                                BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).build(id);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER,
-                        String.format("%s_%s", anyObjectTO.getType(), AnyEntitlement.LIST));
-                break;
-            default:
-                panel = new LabelPanel(id, null);
-        }
-        return panel;
     }
 
     protected abstract void onClickCreate(final AjaxRequestTarget target);

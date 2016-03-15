@@ -28,44 +28,46 @@ import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class DisplayAttributesITCase extends AbstractConsoleITCase {
-    
+
     @Before
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
         wicketTester.clickLink("body:realmsLI:realms");
         wicketTester.assertRenderedPage(Realms.class);
     }
-    
+
     @Test
     public void read() {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
         wicketTester.clickLink("body:content:body:tabbedPanel:panel:"
-                + "container:content:searchContainer:resultTable:"
+                + "searchResult:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
                 + "toolbars:1:headers:3:header:label:panelChangeView:changeViewLink");
-        
-        wicketTester.assertComponent("body:content:body:tabbedPanel:panel:displayAttributeModal", Modal.class);
+
+        wicketTester.assertComponent(
+                "body:content:body:tabbedPanel:panel:searchResult:displayAttributeModal", Modal.class);
     }
-    
+
     @Test
     public void set() {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
         wicketTester.clickLink("body:content:body:tabbedPanel:panel:"
-                + "container:content:searchContainer:resultTable:"
+                + "searchResult:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
                 + "toolbars:1:headers:3:header:label:panelChangeView:changeViewLink");
-        
-        wicketTester.assertComponent("body:content:body:tabbedPanel:panel:displayAttributeModal", Modal.class);
-        
-        final FormTester formTester =
-                wicketTester.newFormTester("body:content:body:tabbedPanel:panel:displayAttributeModal:form");
-        
+
+        wicketTester.assertComponent(
+                "body:content:body:tabbedPanel:panel:searchResult:displayAttributeModal", Modal.class);
+
+        final FormTester formTester = wicketTester.newFormTester(
+                "body:content:body:tabbedPanel:panel:searchResult:displayAttributeModal:form");
+
         formTester.setValue("content:container:details:paletteField:recorder", "status");
-        
-        wicketTester.
-                clickLink("body:content:body:tabbedPanel:panel:displayAttributeModal:dialog:footer:inputs:0:submit");
+
+        wicketTester.clickLink(
+                "body:content:body:tabbedPanel:panel:searchResult:displayAttributeModal:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
-        
+
         wicketTester.clearFeedbackMessages();
     }
 }
