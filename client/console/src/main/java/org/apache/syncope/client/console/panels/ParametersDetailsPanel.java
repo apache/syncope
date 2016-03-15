@@ -23,12 +23,14 @@ import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.SchemaUtils;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.DateTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -78,8 +80,15 @@ public class ParametersDetailsPanel extends Panel {
         final FieldPanel panel;
         switch (schemaTO.getType()) {
             case Date:
-                panel = new AjaxDateFieldPanel(
-                        id, valueHeaderName, new Model<Date>(), schemaTO.getConversionPattern());
+                final String dataPattern = schemaTO.getConversionPattern() == null
+                        ? SyncopeConstants.DEFAULT_DATE_PATTERN
+                        : schemaTO.getConversionPattern();
+
+                if (dataPattern.contains("H")) {
+                    panel = new DateTimeFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
+                } else {
+                    panel = new DateTextFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
+                }
                 break;
             case Boolean:
                 panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<String>(), false);

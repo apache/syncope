@@ -61,6 +61,10 @@
   width: 220px;
 }
 
+.clause .textvalue{
+  width: 45px;
+}
+
 .clause .action{
   float: left;
   padding: 0px 7px 0px;

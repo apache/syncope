@@ -22,12 +22,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.console.commons.SchemaUtils;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.DateTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -91,8 +93,17 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
         final FieldPanel panel;
         switch (plainSchemaTO.getType()) {
             case Date:
-                panel = new AjaxDateFieldPanel(
-                        id, valueHeaderName, new Model<Date>(), plainSchemaTO.getConversionPattern());
+                final String dataPattern = plainSchemaTO.getConversionPattern() == null
+                        ? SyncopeConstants.DEFAULT_DATE_PATTERN
+                        : plainSchemaTO.getConversionPattern();
+
+                if (dataPattern.contains("H")) {
+                    panel = new DateTimeFieldPanel(
+                            id, valueHeaderName, new Model<Date>(), dataPattern);
+                } else {
+                    panel = new DateTextFieldPanel(
+                            "panel", valueHeaderName, new Model<Date>(), dataPattern);
+                }
                 break;
             case Boolean:
                 panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<String>(), false);

@@ -541,3 +541,96 @@ END - Result page
   background-color: #dbffdb;
   border-color: #c1e9c1;
 }
+
+/**
+START - AjaxDateTimePicker
+*/
+.input-auto-width {
+  width: auto !important;
+}
+
+.icon-top-position {
+  top: 5px !important;
+}
+
+/**
+END - AjaxDateTimePicker
+*/
+
+/**
+START - Search - AjaxDateTimePicker
+*/
+.searchBox .col-xs-12{
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+
+.clause{
+  display: block;
+  line-height: 34px;
+  width: 100%;
+}
+
+.clause .operator{
+  width: 65px !important;
+}
+
+.clause .operator .checkbox{
+  margin: 0px !important;
+}
+
+.clause .field {
+  line-height: 34px;
+  float: left;
+  padding: 0 3px 0px 0px;
+  display: inline-block !important;
+}
+
+.clause .type{
+  width: 120px !important;
+}
+
+.clause .property{
+  width: 190px;
+}
+
+.clause .comparator{
+  width: 100px;
+}
+
+.clause .comparator button{
+  width: 100px !important;
+}
+
+.clause .value{
+  width: 220px;
+}
+
+.clause .date{
+  width: 160px;
+}
+
+.clause .hours{
+  width: 45px;
+}
+
+.clause .separator{
+  width: 20px;
+  padding-left: 12px;
+}
+
+.clause .action{
+  float: left;
+  padding: 0px 7px 0px;
+}
+
+.searchBox .input-group-addon:last-child{
+  border: 1px solid #ccc !important;
+}
+
+.searchBox .input-group{
+  margin-top: 1px;
+}
+/**
+END - Search - AjaxDateTimePicker
+*/

@@ -33,14 +33,16 @@ import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.DateTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -200,8 +202,20 @@ public class PlainAttrs extends AbstractAttrs {
                 panel.setRequired(required);
                 break;
             case Date:
-                panel = new AjaxDateFieldPanel(
-                        "panel", schemaTO.getKey(), new Model<Date>(), schemaTO.getConversionPattern());
+                final String dataPattern = schemaTO.getConversionPattern() == null
+                        ? SyncopeConstants.DEFAULT_DATE_PATTERN
+                        : schemaTO.getConversionPattern();
+
+                if (dataPattern.contains("H")) {
+                    panel = new DateTimeFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
+                } else {
+                    panel = new DateTextFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
+                }
+
+                if (required) {
+                    panel.addRequiredLabel();
+                }
+                
                 break;
             case Enum:
                 panel = new AjaxDropDownChoicePanel<>("panel", schemaTO.getKey(), new Model<String>(), false);
