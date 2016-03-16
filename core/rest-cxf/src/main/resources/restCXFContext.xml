@@ -141,10 +141,6 @@ under the License.
     <jaxrs:features>
       <ref bean="swagger2Feature"/>
     </jaxrs:features>
-    <jaxrs:extensionMappings>
-      <entry key="json" value="application/json;charset=UTF-8"/>
-      <entry key="xml" value="application/xml;charset=UTF-8"/>
-    </jaxrs:extensionMappings>
   </jaxrs:server>
 
 </beans>
