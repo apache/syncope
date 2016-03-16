@@ -80,7 +80,7 @@ public class ParametersITCase extends AbstractConsoleITCase {
         FormTester formTester = wicketTester.newFormTester(
                 "body:content:parametersPanel:container:content:modalDetails:form");
 
-        formTester.setValue("content:parametersDetailsPanel:container:form:panel:spinner", "70");
+        formTester.setValue("content:parametersDetailsPanel:container:parametersForm:panel:spinner", "70");
         wicketTester.clickLink("body:content:parametersPanel:"
                 + "container:content:modalDetails:dialog:footer:inputs:0:submit");
 

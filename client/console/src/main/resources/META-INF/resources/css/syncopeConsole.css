@@ -634,3 +634,12 @@ START - Search - AjaxDateTimePicker
 /**
 END - Search - AjaxDateTimePicker
 */
+/**
+START - Parameters Details
+*/
+div#parametersForm{
+  min-height: 220px;
+}
+/**
+END - Parameters Details
+*/

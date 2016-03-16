@@ -56,7 +56,9 @@ public class ParametersDetailsPanel extends Panel {
         container.setOutputMarkupId(true);
         add(container);
 
-        final Form<AttrTO> form = new Form<>("form");
+        final Form<AttrTO> form = new Form<>("parametersForm");
+        form.setMarkupId("parametersForm");
+        form.setOutputMarkupId(true);
 
         form.setModel(new CompoundPropertyModel<>(attrTO));
         container.add(form);
