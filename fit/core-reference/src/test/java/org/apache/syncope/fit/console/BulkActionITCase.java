@@ -77,7 +77,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         assertNotNull(component);
 
         wicketTester.clickLink(component.getPageRelativePath()
-                + ":cells:5:cell:panelManageResources:manageResourcesLink");
+                + ":cells:6:cell:panelManageResources:manageResourcesLink");
 
         wicketTester.assertComponent(tabPanel + "alternativeDefaultModal:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
@@ -118,7 +118,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        wicketTester.clickLink(component.getPageRelativePath() + ":cells:5:cell:panelEnable:enableLink");
+        wicketTester.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEnable:enableLink");
 
         wicketTester.assertComponent(tabPanel + "alternativeDefaultModal:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
@@ -153,7 +153,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        wicketTester.clickLink(component.getPageRelativePath() + ":cells:5:cell:panelEnable:enableLink");
+        wicketTester.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEnable:enableLink");
 
         wicketTester.assertComponent(tabPanel + "alternativeDefaultModal:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"

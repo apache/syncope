@@ -26,6 +26,7 @@ under the License.
     </style>
   </wicket:head>
   <wicket:panel>
+    <span wicket:id="panelResetPwd">[plus]</span>
     <span wicket:id="panelClaim">[plus]</span>
     <span wicket:id="panelManageResources">[plus]</span>
     <span wicket:id="panelManageUsers">[plus]</span>
@@ -61,6 +62,10 @@ under the License.
     <span wicket:id="panelProvision">[plus]</span>
     <span wicket:id="panelZoomIn">[plus]</span>
     <span wicket:id="panelZoomOut">[plus]</span>
+
+    <wicket:fragment wicket:id="fragmentResetPwd">
+      <a href="#" wicket:id="resetPwdLink" class="btn"><i class="fa fa-lock" alt="reset password icon" title="Reset password"></i></a>
+    </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentClaim">
       <a href="#" wicket:id="claimLink" class="btn"><img id="actionLink" src="img/actions/claim.png" alt="claim icon" title="Claim"/></a>

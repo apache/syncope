@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
@@ -67,6 +68,18 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
     }
 
     @Override
+    protected Collection<ActionLink.ActionType> getBulkActions() {
+        final List<ActionLink.ActionType> bulkActions = new ArrayList<>();
+
+        bulkActions.add(ActionLink.ActionType.MUSTCHANGEPASSWORD);
+        bulkActions.add(ActionLink.ActionType.DELETE);
+        bulkActions.add(ActionLink.ActionType.SUSPEND);
+        bulkActions.add(ActionLink.ActionType.REACTIVATE);
+
+        return bulkActions;
+    }
+
+    @Override
     protected List<IColumn<UserTO, String>> getColumns() {
 
         final List<IColumn<UserTO, String>> columns = new ArrayList<>();
@@ -74,10 +87,8 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(UserTO.class, name);
 
-            if ("token".equalsIgnoreCase(name)) {
-                columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
-            } else if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
+            if (field != null && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {
+                columns.add(new BooleanPropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
             } else {
                 columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
             }
@@ -121,9 +132,27 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                        try {
+                            UserRestClient.class.cast(restClient).
+                                    mustChangePassword(model.getObject().getETagValue(), model.getObject().getKey());
+                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(container);
+                        } catch (SyncopeClientException e) {
+                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                        }
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                    }
+                }, ActionLink.ActionType.MUSTCHANGEPASSWORD, StandardEntitlement.USER_UPDATE).add(
+                        new ActionLink<UserTO>() {
 
-                        final IModel<AnyHandler<UserTO>> formModel =
-                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+
+                        final IModel<AnyHandler<UserTO>> formModel
+                                = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
                         target.add(altDefaultModal.setContent(new StatusModal<>(
@@ -134,36 +163,38 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                         altDefaultModal.show(true);
                     }
-                }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
+                }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).add(
+                                new ActionLink<UserTO>() {
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+                            private static final long serialVersionUID = -7978723352517770644L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel =
-                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
-                        altDefaultModal.setFormModel(formModel);
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                                final IModel<AnyHandler<UserTO>> formModel = new CompoundPropertyModel<>(
+                                        new AnyHandler<>(model.
+                                                getObject()));
+                                altDefaultModal.setFormModel(formModel);
 
-                        target.add(altDefaultModal.setContent(new StatusModal<>(
-                                altDefaultModal, pageRef, formModel.getObject().getInnerObject(), true)));
+                                target.add(altDefaultModal.setContent(new StatusModal<>(
+                                        altDefaultModal, pageRef, formModel.getObject().getInnerObject(), true)));
 
-                        altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
+                                altDefaultModal.header(new Model<>(
+                                        getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
 
-                        altDefaultModal.show(true);
-                    }
-                }, ActionLink.ActionType.ENABLE, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
+                                altDefaultModal.show(true);
+                            }
+                        }, ActionLink.ActionType.ENABLE, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+                            private static final long serialVersionUID = -7978723352517770644L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        send(UserSearchResultPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(
-                                        new AnyHandler<>(new UserRestClient().read(model.getObject().getKey())),
-                                        target));
-                    }
-                }, ActionLink.ActionType.EDIT, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                                send(UserSearchResultPanel.this, Broadcast.EXACT,
+                                        new AjaxWizard.EditItemActionEvent<>(
+                                                new AnyHandler<>(new UserRestClient().read(model.getObject().getKey())),
+                                                target));
+                            }
+                        }, ActionLink.ActionType.EDIT, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 

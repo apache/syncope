@@ -143,8 +143,10 @@ public abstract class AbstractSearchResultPanel<
         rows = prefMan.getPaginatorRows(getRequest(), paginatorRowsKey());
 
         setWindowClosedReloadCallback(modal);
+        setWindowClosedReloadCallback(altDefaultModal);
+        setWindowClosedReloadCallback(displayAttributeModal);
     }
-    
+
     protected abstract DP dataProvider();
 
     protected abstract String paginatorRowsKey();
@@ -247,7 +249,9 @@ public abstract class AbstractSearchResultPanel<
                 updateResultTable(data.isCreate(), data.getRows());
             }
 
-            data.getTarget().add(container);
+            if (AbstractSearchResultPanel.this.container.isVisibleInHierarchy()) {
+                data.getTarget().add(AbstractSearchResultPanel.this.container);
+            }
         }
         super.onEvent(event);
     }

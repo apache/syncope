@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.Set;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -26,8 +27,10 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -197,8 +200,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
         checkETag(before.getETagValue());
 
-        ProvisioningResult<TO> updated =
-                getAnyLogic().update(AnyOperations.<TO, P>diff(anyTO, before, false), isNullPriorityAsync());
+        ProvisioningResult<TO> updated = getAnyLogic().update(AnyOperations.<TO, P>diff(anyTO, before, false),
+                isNullPriorityAsync());
         return modificationResponse(updated);
     }
 
@@ -326,6 +329,27 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         BulkActionResult result = new BulkActionResult();
 
         switch (bulkAction.getType()) {
+            case MUSTCHANGEPASSWORD:
+                if (logic instanceof UserLogic) {
+                    for (String key : bulkAction.getTargets()) {
+                        try {
+                            final UserPatch userPatch = new UserPatch();
+                            userPatch.setKey(Long.valueOf(key));
+                            userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
+
+                            result.getResults().put(
+                                    String.valueOf(((UserLogic) logic).update(userPatch, false).getAny().getKey()),
+                                    BulkActionResult.Status.SUCCESS);
+                        } catch (Exception e) {
+                            LOG.error("Error performing delete for user {}", key, e);
+                            result.getResults().put(key, BulkActionResult.Status.FAILURE);
+                        }
+                    }
+                } else {
+                    throw new BadRequestException();
+                }
+                break;
+
             case DELETE:
                 for (String key : bulkAction.getTargets()) {
                     try {
@@ -356,23 +380,29 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                             result.getResults().put(key, BulkActionResult.Status.FAILURE);
                         }
                     }
+                } else {
+                    throw new BadRequestException();
                 }
                 break;
 
             case REACTIVATE:
-                for (String key : bulkAction.getTargets()) {
-                    StatusPatch statusPatch = new StatusPatch();
-                    statusPatch.setKey(Long.valueOf(key));
-                    statusPatch.setType(StatusPatchType.REACTIVATE);
-                    try {
-                        result.getResults().put(
-                                String.valueOf(((UserLogic) logic).
-                                        status(statusPatch, isNullPriorityAsync()).getAny().getKey()),
-                                BulkActionResult.Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing reactivate for user {}", key, e);
-                        result.getResults().put(key, BulkActionResult.Status.FAILURE);
+                if (logic instanceof UserLogic) {
+                    for (String key : bulkAction.getTargets()) {
+                        StatusPatch statusPatch = new StatusPatch();
+                        statusPatch.setKey(Long.valueOf(key));
+                        statusPatch.setType(StatusPatchType.REACTIVATE);
+                        try {
+                            result.getResults().put(
+                                    String.valueOf(((UserLogic) logic).
+                                            status(statusPatch, isNullPriorityAsync()).getAny().getKey()),
+                                    BulkActionResult.Status.SUCCESS);
+                        } catch (Exception e) {
+                            LOG.error("Error performing reactivate for user {}", key, e);
+                            result.getResults().put(key, BulkActionResult.Status.FAILURE);
+                        }
                     }
+                } else {
+                    throw new BadRequestException();
                 }
                 break;
 

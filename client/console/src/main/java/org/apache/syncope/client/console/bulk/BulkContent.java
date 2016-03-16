@@ -29,7 +29,6 @@ import java.util.Map;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.StatusBean;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel.EventDataWrapper;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.BaseRestClient;
@@ -44,7 +43,6 @@ import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
@@ -69,8 +67,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
             final BaseRestClient bulkActionExecutor,
             final String keyFieldName) {
 
-        this(MultilevelPanel.SECOND_LEVEL_ID,
-                modal, items, columns, actions, bulkActionExecutor, keyFieldName);
+        this(MultilevelPanel.SECOND_LEVEL_ID, modal, items, columns, actions, bulkActionExecutor, keyFieldName);
     }
 
     public BulkContent(
@@ -146,8 +143,8 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                                 throw new IllegalArgumentException("Invalid bulk action executor");
                             }
 
-                            final AbstractAnyRestClient<?> anyRestClient =
-                                    AbstractAnyRestClient.class.cast(bulkActionExecutor);
+                            final AbstractAnyRestClient<?> anyRestClient
+                                    = AbstractAnyRestClient.class.cast(bulkActionExecutor);
 
                             if (items.isEmpty() || !(items.iterator().next() instanceof StatusBean)) {
                                 throw new IllegalArgumentException("Invalid items");
@@ -204,10 +201,6 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                         if (modal != null) {
                             modal.changeCloseButtonLabel(getString("close", null, "Close"), target);
                         }
-
-                        final EventDataWrapper data = new EventDataWrapper();
-                        data.setTarget(target);
-                        send(getPage(), Broadcast.BREADTH, data);
 
                         final List<IColumn<T, S>> newColumnList = new ArrayList<>(columns);
                         newColumnList.add(newColumnList.size(), new BulkActionResultColumn<T, S>(res, keyFieldName));

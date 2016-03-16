@@ -38,6 +38,7 @@ public class BulkAction extends AbstractBaseBean {
     @XmlType(name = "bulkActionType")
     public enum Type {
 
+        MUSTCHANGEPASSWORD,
         DELETE,
         REACTIVATE,
         SUSPEND,

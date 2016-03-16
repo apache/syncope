@@ -23,6 +23,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
+import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -113,6 +114,13 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     @Override
     public ConnObjectTO readConnObject(final String resourceName, final Long id) {
         return getService(ResourceService.class).readConnObject(resourceName, AnyTypeKind.USER.name(), id);
+    }
+
+    public ProvisioningResult<UserTO> mustChangePassword(final String etag, final Long key) {
+        final UserPatch userPatch = new UserPatch();
+        userPatch.setKey(key);
+        userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
+        return update(etag, userPatch);
     }
 
     public void suspend(final String etag, final long userKey, final List<StatusBean> statuses) {

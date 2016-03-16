@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.BaseRestClient;
@@ -214,7 +215,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                     target.add(bulkModal.setContent(new BulkActionModal<>(
                             bulkModal,
                             builder.pageRef,
-                            group.getModelObject(),
+                            new ArrayList<T>(group.getModelObject()),
                             // serialization problem with sublist only
                             new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),
                             builder.bulkActions,
@@ -225,13 +226,15 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                 } else {
                     builder.multiLevelPanel.next("bulk.action", new BulkContent<>(
                             builder.baseModal,
-                            group.getModelObject(),
+                            new ArrayList<T>(group.getModelObject()),
                             // serialization problem with sublist only
                             new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),
                             builder.bulkActions,
                             builder.bulkActionExecutor,
                             builder.itemKeyField), target);
                 }
+                group.setModelObject(Collections.<T>emptyList());
+                target.add(group);
             }
         }.setEnabled(builder.isBulkEnabled()).setVisible(builder.isBulkEnabled()));
     }
