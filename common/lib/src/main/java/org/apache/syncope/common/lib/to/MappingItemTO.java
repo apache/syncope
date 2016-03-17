@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -138,6 +141,9 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO<Long> {
         this.purpose = purpose;
     }
 
+    @XmlElementWrapper(name = "mappingItemTransformerClassNames")
+    @XmlElement(name = "className")
+    @JsonProperty("mappingItemTransformerClassNames")
     public List<String> getMappingItemTransformerClassNames() {
         return mappingItemTransformerClassNames;
     }

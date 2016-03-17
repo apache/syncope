@@ -20,6 +20,8 @@ package org.apache.syncope.client.console.pages;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.UserSelfRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -53,6 +55,9 @@ public class MustChangePassword extends WebPage {
 
     public MustChangePassword(final PageParameters parameters) {
         super(parameters);
+
+        final NotificationPanel notificationPanel = new NotificationPanel(Constants.FEEDBACK);
+        add(notificationPanel);
 
         form = new StatelessForm<>("changePassword");
         form.setOutputMarkupId(true);
@@ -94,13 +99,13 @@ public class MustChangePassword extends WebPage {
                     LOG.error("While changing password for {}",
                             SyncopeConsoleSession.get().getSelfTO().getUsername(), e);
                     error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
-                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                    notificationPanel.refresh(target);
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                notificationPanel.refresh(target);
             }
 
         };

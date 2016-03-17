@@ -24,7 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlType
-@XmlSeeAlso({ StaticReportletConf.class, UserReportletConf.class, GroupReportletConf.class })
+@XmlSeeAlso({
+    StaticReportletConf.class, UserReportletConf.class, GroupReportletConf.class,
+    AuditReportletConf.class, ReconciliationReportletConf.class })
 public abstract class AbstractReportletConf extends AbstractBaseBean implements ReportletConf {
 
     private static final long serialVersionUID = -6130008602014516608L;

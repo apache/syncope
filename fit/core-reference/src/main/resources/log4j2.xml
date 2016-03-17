@@ -124,6 +124,9 @@ under the License.
     <asyncLogger name="org.apache.camel" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
     </asyncLogger>
+    <asyncLogger name="io.swagger" additivity="false" level="ERROR">
+      <appender-ref ref="main"/>
+    </asyncLogger>
     
     <root level="INFO">
       <appender-ref ref="main"/>

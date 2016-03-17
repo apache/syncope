@@ -39,7 +39,7 @@ under the License.
   
   <str id="options.swagger.id" txt="Swagger"/>
   <str id="options.activiti.workflow.adapter.id" txt="Activiti workflow adapter"/>
-  <str id="options.camel.id" txt="Camel"/>
+  <str id="options.camel.id" txt="Apache Camel provisioning manager"/>
   
   <str id="persistence.jdbc.url" txt="Database JDBC url:"/>
   <str id="persistence.db.user" txt="Username:"/>
