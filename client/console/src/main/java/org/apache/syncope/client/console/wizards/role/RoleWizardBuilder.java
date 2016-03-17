@@ -144,7 +144,8 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
                     modelObject.getEntitlements().clear();
                     modelObject.getEntitlements().addAll(object);
                 }
-            }, new ListModel<>(new RoleRestClient().getAllAvailableEntitlements())).setOutputMarkupId(true));
+            }, new ListModel<>(new RoleRestClient().getAllAvailableEntitlements())).
+                    hideLabel().setOutputMarkupId(true));
         }
     }
 
@@ -162,7 +163,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
                                 public String transform(final RealmTO input) {
                                     return input.getFullPath();
                                 }
-                            }, new ArrayList<String>()))).setOutputMarkupId(true));
+                            }, new ArrayList<String>()))).hideLabel().setOutputMarkupId(true));
         }
     }
 

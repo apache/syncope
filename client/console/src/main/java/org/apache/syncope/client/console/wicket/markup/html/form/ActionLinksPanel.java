@@ -57,7 +57,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelManageGroups", "emptyFragment", this));
         super.add(new Fragment("panelMapping", "emptyFragment", this));
         super.add(new Fragment("panelAccountLink", "emptyFragment", this));
-        super.add(new Fragment("panelResetPwd", "emptyFragment", this));
+        super.add(new Fragment("panelMustChangePassword", "emptyFragment", this));
         super.add(new Fragment("panelResetTime", "emptyFragment", this));
         super.add(new Fragment("panelClone", "emptyFragment", this));
         super.add(new Fragment("panelCreate", "emptyFragment", this));
@@ -214,9 +214,9 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 break;
 
             case MUSTCHANGEPASSWORD:
-                fragment = new Fragment("panelResetPwd", "fragmentResetPwd", this);
+                fragment = new Fragment("panelMustChangePassword", "fragmentMustChangePassword", this);
 
-                fragment.addOrReplace(new IndicatingAjaxLink<Void>("resetPwdLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("MustChangePasswordLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -813,7 +813,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 break;
 
             case MUSTCHANGEPASSWORD:
-                super.addOrReplace(new Fragment("panelResetPwd", "emptyFragment", this));
+                super.addOrReplace(new Fragment("panelMustChangePassword", "emptyFragment", this));
                 break;
 
             case RESET_TIME:
