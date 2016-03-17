@@ -289,7 +289,7 @@ svn commit -m "Staging artifacts for $VERSION vote"]]></source>
             <source><![CDATA[
 unzip $SYNCOPE_RELEASE_DIR/target/syncope-$VERSION-source-release.zip
 cd syncope-$VERSION        
-mvn -PskipTests
+mvn -PskipTests,all
 
 # if releasing from 1_2_X              
 mvn javadoc:aggregate
