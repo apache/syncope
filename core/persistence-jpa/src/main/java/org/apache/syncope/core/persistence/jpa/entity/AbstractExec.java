@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Date;
+import javax.persistence.Column;
 
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
@@ -46,12 +47,14 @@ public abstract class AbstractExec extends AbstractEntity<Long> implements Exec 
      */
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "startDate")
     protected Date start;
 
     /**
      * End instant of this execution.
      */
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "endDate")
     protected Date end;
 
     @Override

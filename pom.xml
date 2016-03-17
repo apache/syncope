@@ -1850,6 +1850,18 @@ under the License.
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
             <version>3.5</version>
+            <dependencies>
+              <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>1.5</version>
+              </dependency>
+              <dependency>
+                <groupId>org.apache.maven.doxia</groupId>
+                <artifactId>doxia-core</artifactId>
+                <version>1.7</version>
+              </dependency>
+            </dependencies>
             <configuration>
               <locales>en</locales>
               <generateProjectInfo>false</generateProjectInfo>

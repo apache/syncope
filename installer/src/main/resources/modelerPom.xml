@@ -29,7 +29,6 @@ under the License.
    
   <properties>
     <activiti-modeler.version>${activiti.version}</activiti-modeler.version>
-    <!--<h2-modeler.version>${h2.version}</h2-modeler.version>-->
     <activiti-modeler.directory>%s</activiti-modeler.directory>
      
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -43,11 +42,6 @@ under the License.
       <type>war</type>
       <scope>test</scope>
     </dependency>
-<!--    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>${h2-modeler.version}</version>
-    </dependency>-->
   </dependencies>
    
   <build>   

@@ -244,7 +244,7 @@ public final class ContainerProcess extends BaseProcess {
                     handler.logOutput("Core successfully deployed ", true);
                     InstallLog.getInstance().info("Core successfully deployed ");
                 } else {
-                    String messageError = "Deploy core on Tomcat failed";
+                    String messageError = "Core deploy failed";
                     handler.emitError(messageError, messageError);
                     InstallLog.getInstance().error(messageError);
                 }
@@ -254,7 +254,7 @@ public final class ContainerProcess extends BaseProcess {
                     handler.logOutput("Console successfully deployed ", true);
                     InstallLog.getInstance().info("Console successfully deployed ");
                 } else {
-                    final String messageError = "Deploy console on Tomcat failed";
+                    final String messageError = "Console deploy failed";
                     handler.emitError(messageError, messageError);
                     InstallLog.getInstance().error(messageError);
                 }
@@ -264,7 +264,7 @@ public final class ContainerProcess extends BaseProcess {
                     handler.logOutput("Enduser successfully deployed ", true);
                     InstallLog.getInstance().info("Enduser successfully deployed ");
                 } else {
-                    final String messageError = "Deploy console on Tomcat failed";
+                    final String messageError = "Enduser deploy failed";
                     handler.emitError(messageError, messageError);
                     InstallLog.getInstance().error(messageError);
                 }
@@ -280,7 +280,7 @@ public final class ContainerProcess extends BaseProcess {
                     handler.logOutput("Core successfully deployed ", true);
                     InstallLog.getInstance().info("Core successfully deployed ");
                 } else {
-                    final String messageError = "Deploy core on JBoss failed";
+                    String messageError = "Core deploy failed";
                     handler.emitError(messageError, messageError);
                     InstallLog.getInstance().error(messageError);
                 }
@@ -290,7 +290,7 @@ public final class ContainerProcess extends BaseProcess {
                     handler.logOutput("Console successfully deployed ", true);
                     InstallLog.getInstance().info("Console successfully deployed ");
                 } else {
-                    final String messageError = "Deploy console on JBoss failed";
+                    final String messageError = "Console deploy failed";
                     handler.emitError(messageError, messageError);
                     InstallLog.getInstance().error(messageError);
                 }
@@ -300,7 +300,7 @@ public final class ContainerProcess extends BaseProcess {
                     handler.logOutput("Enduser successfully deployed ", true);
                     InstallLog.getInstance().info("Enduser successfully deployed ");
                 } else {
-                    final String messageError = "Deploy console on JBoss failed";
+                    final String messageError = "Enduser deploy failed";
                     handler.emitError(messageError, messageError);
                     InstallLog.getInstance().error(messageError);
                 }

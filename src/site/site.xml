@@ -30,7 +30,7 @@ under the License.
   <skin>
     <groupId>org.apache.maven.skins</groupId>
     <artifactId>maven-fluido-skin</artifactId>
-    <version>1.4</version>
+    <version>1.5</version>
   </skin>
   <custom>
     <fluidoSkin>
@@ -90,9 +90,7 @@ under the License.
     </menu>
 
     <footer>
-      <div class="row-fluid">
-        Apache, Syncope, Apache Syncope, the Apache feather logo and the Apache Syncope project logo are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.
-      </div>
+      Apache, Syncope, Apache Syncope, the Apache feather logo and the Apache Syncope project logo are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.
     </footer>
   </body>
 
