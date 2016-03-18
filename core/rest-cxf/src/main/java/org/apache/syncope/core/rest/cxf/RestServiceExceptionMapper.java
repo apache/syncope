@@ -114,8 +114,11 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                     header(RESTHeaders.ERROR_INFO, ex.getMessage());
         } else if (ex instanceof DelegatedAdministrationException) {
             builder = builder(ClientExceptionType.DelegatedAdministration, ExceptionUtils.getRootCauseMessage(ex));
-        } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException) {
-            builder = builder(ClientExceptionType.EntityExists, getJPAMessage(ex));
+        } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException
+                || ex instanceof PersistenceException && ex.getCause() instanceof EntityExistsException) {
+
+            builder = builder(ClientExceptionType.EntityExists,
+                    getJPAMessage(ex instanceof PersistenceException ? ex.getCause() : ex));
         } else if (ex instanceof DataIntegrityViolationException || ex instanceof JpaSystemException) {
             builder = builder(ClientExceptionType.DataIntegrityViolation, getJPAMessage(ex));
         } else if (ex instanceof ConnectorException) {

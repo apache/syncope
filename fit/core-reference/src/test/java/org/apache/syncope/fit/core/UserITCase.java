@@ -432,7 +432,7 @@ public class UserITCase extends AbstractITCase {
             createUser(userTO);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.GenericPersistence, e.getType());
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
     }
 

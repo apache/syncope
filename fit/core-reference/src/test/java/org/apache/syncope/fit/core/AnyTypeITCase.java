@@ -118,13 +118,13 @@ public class AnyTypeITCase extends AbstractITCase {
     @Test
     public void createInvalidName() {
         AnyTypeTO newType = new AnyTypeTO();
-        newType.setKey("group");
-        newType.setKind(AnyTypeKind.ANY_OBJECT);
+        newType.setKey("GROUP");
+        newType.setKind(AnyTypeKind.GROUP);
         try {
             anyTypeService.create(newType);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidAnyType, e.getType());
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
     }
 

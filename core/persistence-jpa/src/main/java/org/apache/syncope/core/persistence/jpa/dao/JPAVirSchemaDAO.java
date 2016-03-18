@@ -84,7 +84,7 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
 
     @Override
     public void delete(final String key) {
-        final VirSchema schema = find(key);
+        VirSchema schema = find(key);
         if (schema == null) {
             return;
         }

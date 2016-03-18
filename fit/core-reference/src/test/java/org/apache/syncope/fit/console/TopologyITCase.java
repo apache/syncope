@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.TextField;
@@ -62,7 +65,10 @@ public class TopologyITCase extends AbstractConsoleITCase {
     @Test
     public void editProvisioning() {
         wicketTester.clickLink("body:topologyLI:topology");
-        wicketTester.executeAjaxEvent("body:resources:8:resources:0:res", Constants.ON_CLICK);
+        
+        Component component = findComponentByProp("key", "body:resources", "ws-target-resource-1");
+        assertNotNull(component);
+        wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
         wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:edit");
 
         wicketTester.clickLink(
@@ -78,7 +84,10 @@ public class TopologyITCase extends AbstractConsoleITCase {
     @Test
     public void executePullTask() {
         wicketTester.clickLink("body:topologyLI:topology");
-        wicketTester.executeAjaxEvent("body:resources:2:resources:0:res", Constants.ON_CLICK);
+
+        Component component = findComponentByProp("key", "body:resources", "resource-testdb");
+        assertNotNull(component);
+        wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
         wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:pull");
         wicketTester.clickLink("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
@@ -92,7 +101,10 @@ public class TopologyITCase extends AbstractConsoleITCase {
     @Test
     public void editPushTask() {
         wicketTester.clickLink("body:topologyLI:topology");
-        wicketTester.executeAjaxEvent("body:resources:5:resources:0:res", Constants.ON_CLICK);
+        
+        Component component = findComponentByProp("key", "body:resources", "resource-ldap");
+        assertNotNull(component);
+        wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
         wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:push");
         wicketTester.clickLink("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"

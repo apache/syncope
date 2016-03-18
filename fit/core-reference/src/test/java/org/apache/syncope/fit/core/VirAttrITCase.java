@@ -635,6 +635,8 @@ public class VirAttrITCase extends AbstractITCase {
             });
             provision.getVirSchemas().clear();
 
+            ldap.getProvisions().clear();
+            ldap.getProvisions().add(provision);
             ldap.setKey(RESOURCE_NAME_LDAP + "691" + getUUIDString());
             resourceService.create(ldap);
 

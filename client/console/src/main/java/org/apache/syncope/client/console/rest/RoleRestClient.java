@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.rest.api.service.RoleService;
@@ -59,6 +60,8 @@ public class RoleRestClient extends BaseRestClient {
     }
 
     public List<String> getAllAvailableEntitlements() {
-        return new ArrayList<>(getSyncopeService().platform().getEntitlements());
+        List<String> entitlements = new ArrayList<>(getSyncopeService().platform().getEntitlements());
+        Collections.sort(entitlements);
+        return entitlements;
     }
 }

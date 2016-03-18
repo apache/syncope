@@ -20,12 +20,16 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -108,8 +112,8 @@ public abstract class Realm extends Panel {
             }
         });
 
+        Collections.sort(anyTypeTOs, new AnyTypeComparator());
         for (final AnyTypeTO anyTypeTO : anyTypeTOs) {
-
             tabs.add(new AbstractTab(new Model<>(anyTypeTO.getKey())) {
 
                 private static final long serialVersionUID = -5861786415855103549L;
@@ -128,4 +132,27 @@ public abstract class Realm extends Panel {
     protected abstract void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO);
 
     protected abstract void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO);
+
+    private static class AnyTypeComparator implements Comparator<AnyTypeTO> {
+
+        @Override
+        public int compare(final AnyTypeTO o1, final AnyTypeTO o2) {
+            if (o1.getKind() == AnyTypeKind.USER) {
+                return -1;
+            }
+            if (o2.getKind() == AnyTypeKind.USER) {
+                return 1;
+            }
+
+            if (o1.getKind() == AnyTypeKind.GROUP) {
+                return -1;
+            }
+            if (o2.getKind() == AnyTypeKind.GROUP) {
+                return 1;
+            }
+
+            return ComparatorUtils.<String>naturalComparator().compare(o1.getKey(), o2.getKey());
+        }
+
+    }
 }

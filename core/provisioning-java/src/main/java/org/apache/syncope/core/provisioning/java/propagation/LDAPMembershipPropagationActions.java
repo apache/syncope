@@ -73,7 +73,7 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
         super.before(task, beforeObj);
 
         Provision provision = task.getResource().getProvision(anyTypeDAO.findGroup());
-        if (AnyTypeKind.USER == task.getAnyTypeKind() && provision.getMapping() != null) {
+        if (AnyTypeKind.USER == task.getAnyTypeKind() && provision != null && provision.getMapping() != null) {
             User user = userDAO.find(task.getAnyKey());
             if (user != null) {
                 List<String> groupConnObjectLinks = new ArrayList<>();

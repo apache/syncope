@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.util.tester.FormTester;
@@ -51,7 +52,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        final FormTester formTester = wicketTester.newFormTester(searchResultContainer
+        FormTester formTester = wicketTester.newFormTester(searchResultContainer
                 + "searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
@@ -89,7 +90,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "checkgroup:dataTable", "resource-csv");
         assertNotNull(component);
 
-        final FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = wicketTester.newFormTester(
                 tabPanel + "alternativeDefaultModal:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
@@ -197,18 +198,22 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
+        wicketTester.clickLink(tabPanel + "alternativeDefaultModal:form:content:status:firstLevelContainer:first:"
+                + "container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
+                + "toolbars:1:headers:2:header:orderByLink", true);
+
         component = findComponentByProp("resourceName",
                 tabPanel + "alternativeDefaultModal:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "ws-target-resource-1");
         assertNotNull(component);
 
-        final FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = wicketTester.newFormTester(
                 tabPanel + "alternativeDefaultModal:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
-        formTester.select("checkgroup", 1);
+        formTester.select("checkgroup", 7);
 
         wicketTester.executeAjaxEvent(tabPanel + "alternativeDefaultModal:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
@@ -237,18 +242,22 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
+        wicketTester.clickLink(tabPanel + "alternativeDefaultModal:form:content:status:firstLevelContainer:first:"
+                + "container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
+                + "toolbars:1:headers:2:header:orderByLink", true);
+
         component = findComponentByProp("resourceName",
                 tabPanel + "alternativeDefaultModal:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "ws-target-resource-1");
         assertNotNull(component);
 
-        final FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = wicketTester.newFormTester(
                 tabPanel + "alternativeDefaultModal:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
-        formTester.select("checkgroup", 1);
+        formTester.select("checkgroup", 7);
 
         wicketTester.executeAjaxEvent(tabPanel + "alternativeDefaultModal:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
@@ -262,12 +271,15 @@ public class BulkActionITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void executePullTask() {
+    public void executePropagationTask() {
         wicketTester.clickLink("body:topologyLI:topology");
-        wicketTester.executeAjaxEvent("body:resources:2:resources:0:res", Constants.ON_CLICK);
+
+        Component component = findComponentByProp("key", "body:resources", "resource-testdb");
+        assertNotNull(component);
+        wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
         wicketTester.clickLink("body:toggle:togglePanelContainer:container:actions:propagation");
 
-        final FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = wicketTester.newFormTester(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);

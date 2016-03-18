@@ -19,7 +19,7 @@
 package org.apache.syncope.fit.console;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import javax.servlet.ServletContext;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
@@ -29,7 +29,7 @@ import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.wicket.Component;
 import org.apache.wicket.core.util.lang.PropertyResolver;
-import org.apache.wicket.markup.repeater.OddEvenItem;
+import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.apache.wicket.util.visit.IVisit;
@@ -80,25 +80,23 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
 
     protected <V extends Serializable> Component findComponentByProp(
             final String property, final String searchPath, final V key) {
-        Component component = wicketTester.getComponentFromLastRenderedPage(searchPath);
 
-        Component result = component.getPage().
-                visitChildren(OddEvenItem.class, new IVisitor<OddEvenItem<?>, Component>() {
+        return wicketTester.getComponentFromLastRenderedPage(searchPath).getPage().
+                visitChildren(ListItem.class, new IVisitor<ListItem<?>, Component>() {
 
                     @Override
-                    public void component(final OddEvenItem<?> object, final IVisit<Component> visit) {
-
+                    public void component(final ListItem<?> object, final IVisit<Component> visit) {
+                        System.out.println("EEEEEEEEEEE " + object.getPath());
+                        
                         try {
-                            if (PropertyResolver.getPropertyGetter(
-                                    property,
-                                    object.getModelObject()).invoke(object.getModelObject()).equals(key)) {
+                            Method getter = PropertyResolver.getPropertyGetter(property, object.getModelObject());
+                            if (getter != null && getter.invoke(object.getModelObject()).equals(key)) {
                                 visit.stop(object);
                             }
-                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                            LOG.error("Error invoke method", ex);
+                        } catch (Exception e) {
+                            LOG.error("Error invoke method", e);
                         }
                     }
                 });
-        return result;
     }
 }
