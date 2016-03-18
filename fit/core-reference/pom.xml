@@ -512,14 +512,14 @@ under the License.
 
       <properties>
         <jdbcdriver.groupId>com.microsoft.sqlserver</jdbcdriver.groupId>
-        <jdbcdriver.artifactId>sqljdbc4</jdbcdriver.artifactId>
+        <jdbcdriver.artifactId>sqljdbc42</jdbcdriver.artifactId>
       </properties>
 
       <dependencies>
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
-          <artifactId>sqljdbc4</artifactId>
-          <version>4.0</version>
+          <artifactId>sqljdbc42</artifactId>
+          <version>4.2</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
