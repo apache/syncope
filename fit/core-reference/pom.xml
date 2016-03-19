@@ -717,9 +717,9 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly9x</containerId>
+                <containerId>wildfly10x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.jboss.org/wildfly/9.0.2.Final/wildfly-9.0.2.Final.zip</url>
+		  <url>http://download.jboss.org/wildfly/10.0.0.Final/wildfly-10.0.0.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
