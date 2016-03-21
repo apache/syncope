@@ -197,6 +197,9 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
     $httpProvider.defaults.withCredentials = true;
     $httpProvider.defaults.xsrfCookieName = 'XSRF-TOKEN';
     $httpProvider.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
+    
+    //SYNCOPE-780
+    $httpProvider.defaults.headers.common["If-Modified-Since"] = "0";
 
     $httpProvider.interceptors.push(function ($q, $rootScope, $location) {
       var numLoadings = 0;
