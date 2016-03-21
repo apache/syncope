@@ -2,6 +2,47 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.0-M2
+================================================================================
+
+** Sub-task
+    * [SYNCOPE-720] - Unauthenticated password reset functionality
+    * [SYNCOPE-743] - Complete Topology
+    * [SYNCOPE-744] - Provide dashboard
+    * [SYNCOPE-746] - Migrate console extension mechanism from 1.2
+    * [SYNCOPE-752] - Re-enable console tests
+
+** Bug
+    * [SYNCOPE-730] - Datetime picker component is not working properly with some date formats
+    * [SYNCOPE-756] - Relationships with USERs on the right side have to be forbidden
+    * [SYNCOPE-758] - Workflow diagram not updated after saving from XML editor modal window
+    * [SYNCOPE-759] - Creation of a new AnyTypeClass doesn't check if the key is already used
+    * [SYNCOPE-762] - Last execution date value is always null for Sched, Sync and Push tasks
+    * [SYNCOPE-768] - Missing records in case of user list ordered by nullable schema
+    * [SYNCOPE-769] - Sync performance decrease
+    * [SYNCOPE-774] - Cannot update resource mapping
+    * [SYNCOPE-775] - Error when adding a dynamic user membership condition to a role
+    * [SYNCOPE-776] - Standalone 2.0.0-M1 does not start up
+    * [SYNCOPE-780] - On logout session is not completely cleared out
+    * [SYNCOPE-782] - DateParamConverterProvider not working with Widlfly 9
+
+** Improvement
+    * [SYNCOPE-155] - Better way to override console pages
+    * [SYNCOPE-742] - Upgrade to CXF 3.1.5
+    * [SYNCOPE-760] - Allow dynamic reloading of mail templates
+    * [SYNCOPE-761] - Allow dynamic reloading of report stylesheets
+    * [SYNCOPE-763] - Provide sample Audit reportlet
+    * [SYNCOPE-767] - Password Policy: mustn't contain value of the following attributes case insensitive
+    * [SYNCOPE-771] - Rename Sync to Pull
+    * [SYNCOPE-778] - Allow admins to force users' password change at next login
+
+** New Feature
+    * [SYNCOPE-750] - Statistics
+    * [SYNCOPE-766] - Reconciliation reportlet
+
+** Task
+    * [SYNCOPE-764] - Replace Hibernate Validator with Apache BVal
+
 Release Notes - Syncope - Version 2.0.0-M1
 ================================================================================
 
