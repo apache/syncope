@@ -1570,7 +1570,7 @@ under the License.
         </executions>
       </plugin>
       
-      <!--<plugin>
+      <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
         <configuration>
@@ -1608,7 +1608,7 @@ under the License.
             </goals>
           </execution>
         </executions>
-      </plugin>-->
+      </plugin>
       
       <!-- Drop inherited behavior (i.e. don't put any more default LICENSE and NOTICE files in all artifacts) -->
       <plugin>
