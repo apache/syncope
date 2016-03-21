@@ -24,9 +24,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.syncope.client.console.annotations.BinaryPreview;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -44,9 +44,9 @@ public class BinaryPDFPreviewer extends AbstractBinaryPreviewer {
 
     private static final int IMG_SIZE = 300;
 
-    private static final int RESOLUTION = 96;
+    private static final float RESOLUTION = 96;
 
-    private static final int IMAGE_TYPE = BufferedImage.TYPE_INT_RGB;
+    private static final ImageType IMAGE_TYPE = ImageType.RGB;
 
     private transient BufferedImage firstPage;
 
@@ -64,9 +64,7 @@ public class BinaryPDFPreviewer extends AbstractBinaryPreviewer {
             if (document.isEncrypted()) {
                 LOG.info("Document is encrypted, no preview is possible");
             } else {
-                @SuppressWarnings("unchecked")
-                List<PDPage> pages = document.getDocumentCatalog().getAllPages();
-                firstPage = pages.get(0).convertToImage(IMAGE_TYPE, RESOLUTION);
+                firstPage = new PDFRenderer(document).renderImage(0, RESOLUTION, IMAGE_TYPE);
             }
         } catch (IOException e) {
             LOG.error("While generating thumbnail from first page", e);
