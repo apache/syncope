@@ -68,6 +68,7 @@ public class NotificationJob extends AbstractInterruptableJob {
                         try {
                             delegate.execute();
                         } catch (Exception e) {
+                            LOG.error("While sending out notifications", e);
                             throw new RuntimeException(e);
                         }
 
@@ -75,7 +76,8 @@ public class NotificationJob extends AbstractInterruptableJob {
                     }
                 });
             } catch (RuntimeException e) {
-                throw new JobExecutionException(e.getCause());
+                LOG.error("While sending out notifications", e);
+                throw new JobExecutionException("While sending out notifications", e);
             }
         }
 

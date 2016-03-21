@@ -49,8 +49,9 @@ public class AuditReportlet extends AbstractReportlet {
 
     private void doExtractConf(final ContentHandler handler) throws SAXException {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource);
-        List<Map<String, Object>> rows = jdbcTemplate.queryForList(
-                String.format("SELECT * FROM SYNCOPEAUDIT LIMIT %d OFFSET %d", conf.getSize(), conf.getPage()));
+        jdbcTemplate.setMaxRows(conf.getSize());
+        List<Map<String, Object>> rows = jdbcTemplate.
+                queryForList("SELECT * FROM SYNCOPEAUDIT ORDER BY EVENT_DATE DESC");
 
         handler.startElement("", "", "events", null);
         AttributesImpl atts = new AttributesImpl();

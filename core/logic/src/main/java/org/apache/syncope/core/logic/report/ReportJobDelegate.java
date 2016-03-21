@@ -152,14 +152,16 @@ public class ReportJobDelegate {
                     // invoke reportlet
                     try {
                         reportlet.extract(reportletConf, handler);
-                    } catch (Exception e) {
+                    } catch (Throwable t) {
+                        LOG.error("While executing reportlet {} for report {}", reportlet, reportKey, t);
+
                         execution.setStatus(ReportExecStatus.FAILURE);
 
-                        Throwable t = e instanceof ReportException
-                                ? e.getCause()
-                                : e;
+                        Throwable effective = t instanceof ReportException
+                                ? t.getCause()
+                                : t;
                         reportExecutionMessage.
-                                append(ExceptionUtils2.getFullStackTrace(t)).
+                                append(ExceptionUtils2.getFullStackTrace(effective)).
                                 append("\n==================\n");
                     }
                 }

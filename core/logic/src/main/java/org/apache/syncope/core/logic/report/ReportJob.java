@@ -24,11 +24,15 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Quartz job for executing a given report.
  */
 public class ReportJob extends AbstractInterruptableJob {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ReportJob.class);
 
     /**
      * Key, set by the caller, for identifying the report to be executed.
@@ -60,6 +64,7 @@ public class ReportJob extends AbstractInterruptableJob {
                     try {
                         delegate.execute(reportKey);
                     } catch (Exception e) {
+                        LOG.error("While executing report {}", reportKey, e);
                         throw new RuntimeException(e);
                     }
 
@@ -67,7 +72,8 @@ public class ReportJob extends AbstractInterruptableJob {
                 }
             });
         } catch (RuntimeException e) {
-            throw new JobExecutionException(e.getCause());
+            LOG.error("While executing report {}", reportKey, e);
+            throw new JobExecutionException("While executing report " + reportKey, e);
         }
     }
 

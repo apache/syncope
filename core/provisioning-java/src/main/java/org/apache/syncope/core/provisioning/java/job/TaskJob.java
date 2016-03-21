@@ -26,8 +26,12 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TaskJob extends AbstractInterruptableJob {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TaskJob.class);
 
     public static final String DRY_RUN_JOBDETAIL_KEY = "dryRun";
 
@@ -75,6 +79,7 @@ public class TaskJob extends AbstractInterruptableJob {
                                 createBean(delegateClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false)).
                                 execute(taskKey, context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY));
                     } catch (Exception e) {
+                        LOG.error("While executing task {}", taskKey, e);
                         throw new RuntimeException(e);
                     }
 
@@ -83,7 +88,8 @@ public class TaskJob extends AbstractInterruptableJob {
             }
             );
         } catch (RuntimeException e) {
-            throw new JobExecutionException(e.getCause());
+            LOG.error("While executing task {}", taskKey, e);
+            throw new JobExecutionException("While executing task " + taskKey, e);
         }
     }
 }

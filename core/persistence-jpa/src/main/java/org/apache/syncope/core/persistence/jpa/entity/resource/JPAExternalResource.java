@@ -154,7 +154,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @Column(name = "capabilityOverride")
-    @CollectionTable(name = "ExternalResource_capabilitiesOverride",
+    @CollectionTable(name = "ExternalResource_capOverride",
             joinColumns =
             @JoinColumn(name = "resource_name", referencedColumnName = "name"))
     private Set<ConnectorCapability> capabilitiesOverride = new HashSet<>();

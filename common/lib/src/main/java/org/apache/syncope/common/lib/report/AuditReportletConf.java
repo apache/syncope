@@ -27,8 +27,6 @@ public class AuditReportletConf extends AbstractReportletConf {
 
     private static final long serialVersionUID = -4814950086361753689L;
 
-    private int page = 0;
-
     private int size = 10;
 
     public AuditReportletConf() {
@@ -37,14 +35,6 @@ public class AuditReportletConf extends AbstractReportletConf {
 
     public AuditReportletConf(final String name) {
         super(name);
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(final int page) {
-        this.page = page;
     }
 
     public int getSize() {

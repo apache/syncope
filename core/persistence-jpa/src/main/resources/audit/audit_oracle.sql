@@ -15,24 +15,10 @@
 -- specific language governing permissions and limitations
 -- under the License.
 
-BEGIN
-    BEGIN
-         EXECUTE IMMEDIATE 'DROP TABLE SYNCOPEAUDIT';
-    EXCEPTION
-         WHEN OTHERS THEN
-                IF SQLCODE != -942 THEN
-                     RAISE;
-                END IF;
-    END;
-
-    EXECUTE IMMEDIATE '
 CREATE TABLE SYNCOPEAUDIT (
   EVENT_DATE TIMESTAMP,
   LOGGER_LEVEL VARCHAR(255) NOT NULL,
   LOGGER VARCHAR(255) NOT NULL,
   MESSAGE CLOB NOT NULL,
   THROWABLE CLOB
-)
-';
-
-END;
+);

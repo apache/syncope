@@ -94,7 +94,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
             execution.setStatus(TaskJob.Status.SUCCESS.name());
             result = AuditElements.Result.SUCCESS;
         } catch (JobExecutionException e) {
-            LOG.error("While executing task " + taskKey, e);
+            LOG.error("While executing task {}" , taskKey, e);
             result = AuditElements.Result.FAILURE;
 
             execution.setMessage(ExceptionUtils2.getFullStackTrace(e));

@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -174,10 +173,8 @@ public class PlainSchemaITCase extends AbstractITCase {
 
     @Test
     public void listByAnyTypeClass() {
-        final String clazz = anyTypeService.read(AnyTypeKind.USER.name()).getClasses().get(0);
-
         List<PlainSchemaTO> userSchemas = schemaService.list(
-                new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClass(clazz).build());
+                new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClass("minimal user").build());
 
         assertTrue(IterableUtils.matchesAny(userSchemas, new Predicate<PlainSchemaTO>() {
 
