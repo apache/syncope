@@ -262,11 +262,18 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceNames) {
 
-        if (noPropResourceNames != null) {
+        if (noPropResourceNames != null && propByRes != null) {
             propByRes.removeAll(noPropResourceNames);
         }
 
-        return createTasks(any, password, changePwd, enable, false, propByRes, vAttrs);
+        return createTasks(
+                any,
+                password,
+                changePwd,
+                enable,
+                false,
+                propByRes == null ? new PropagationByResource() : propByRes,
+                vAttrs);
     }
 
     @Override
