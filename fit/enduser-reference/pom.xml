@@ -112,6 +112,20 @@ under the License.
       <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.fit</groupId>
+      <artifactId>syncope-fit-core-reference</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.fit</groupId>
+      <artifactId>syncope-fit-console-reference</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -169,6 +183,12 @@ under the License.
               <pingTimeout>60000</pingTimeout>
               <properties>
                 <context>syncope</context>
+              </properties>
+            </deployable>
+            <deployable>
+              <location>${basedir}/../console-reference/target/syncope-fit-console-reference-${project.version}</location>
+              <properties>
+                <context>syncope-console</context>
               </properties>
             </deployable>
             <deployable>
