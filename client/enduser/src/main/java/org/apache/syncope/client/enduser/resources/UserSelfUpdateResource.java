@@ -58,22 +58,23 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
 
             final UserTO userTO = MAPPER.readValue(jsonString, UserTO.class);
 
-            if (!captchaCheck(request.getHeader("captcha"), request.getSession().getAttribute(
-                    SyncopeEnduserConstants.CAPTCHA_SESSION_KEY).toString())) {
-                LOG.error("Entered captcha is not matching");
-                throw new Exception("Entered captcha is not matching");
+            if (!captchaCheck(
+                    request.getHeader("captcha"),
+                    request.getSession().getAttribute(SyncopeEnduserConstants.CAPTCHA_SESSION_KEY))) {
+
+                throw new IllegalArgumentException("Entered captcha is not matching");
             }
 
-            LOG.debug("User {} id updating himself", userTO.getUsername());
+            LOG.debug("User {} id self-updating", userTO.getUsername());
 
             // update user
             Response res = userSelfService.update(userTO);
 
             final String responseMessage = res.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)
-                    ? new StringBuilder().append("User").append(userTO.getUsername()).append(
-                    " successfully updated").toString()
-                    : new StringBuilder().append("ErrorMessage{{ ").
-                    append(res.getStatusInfo().getReasonPhrase()).append(" }}").toString();
+                    ? new StringBuilder().
+                    append("User").append(userTO.getUsername()).append(" successfully updated").toString()
+                    : new StringBuilder().
+                    append("ErrorMessage{{ ").append(res.getStatusInfo().getReasonPhrase()).append(" }}").toString();
 
             response.setWriteCallback(new WriteCallback() {
 
@@ -87,11 +88,12 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
 
         } catch (final Exception e) {
             LOG.error("Error while updating user", e);
-            response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
-                    .append("ErrorMessage{{ ")
-                    .append(e.getMessage())
-                    .append(" }}")
-                    .toString());
+            response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
+                    new StringBuilder().
+                    append("ErrorMessage{{ ").
+                    append(e.getMessage()).
+                    append(" }}").
+                    toString());
         }
         return response;
     }

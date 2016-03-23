@@ -42,7 +42,6 @@ public class UserSelfCreateResource extends AbstractBaseResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
-
         final StringBuilder responseMessage = new StringBuilder();
         ResourceResponse response = new ResourceResponse();
 
@@ -59,10 +58,11 @@ public class UserSelfCreateResource extends AbstractBaseResource {
 
             final UserTO userTO = MAPPER.readValue(jsonString, UserTO.class);
 
-            if (!captchaCheck(request.getHeader("captcha"), request.getSession().getAttribute(
-                    SyncopeEnduserConstants.CAPTCHA_SESSION_KEY).toString())) {
-                LOG.error("Entered captcha is not matching");
-                throw new Exception("Entered captcha is not matching");
+            if (!captchaCheck(
+                    request.getHeader("captcha"),
+                    request.getSession().getAttribute(SyncopeEnduserConstants.CAPTCHA_SESSION_KEY))) {
+
+                throw new IllegalArgumentException("Entered captcha is not matching");
             }
 
             if (isSelfRegistrationAllowed() && userTO != null) {
@@ -93,11 +93,12 @@ public class UserSelfCreateResource extends AbstractBaseResource {
 
         } catch (Exception e) {
             LOG.error("Could not create userTO", e);
-            response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
-                    .append("ErrorMessage{{ ")
-                    .append(e.getMessage())
-                    .append(" }}")
-                    .toString());
+            response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
+                    new StringBuilder().
+                    append("ErrorMessage{{ ").
+                    append(e.getMessage()).
+                    append(" }}").
+                    toString());
         }
         return response;
     }
