@@ -385,7 +385,7 @@ under the License.
     <font-awesome.version>4.5.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.2.0</highlightjs.version>
-    <codemirror.version>5.12</codemirror.version>
+    <codemirror.version>5.13</codemirror.version>
     <jsplumb.version>2.0.5</jsplumb.version>
     
     <wicket.version>7.2.0</wicket.version>
