@@ -40,6 +40,8 @@ public class ParametersCreateWizardSchemaStep extends WizardStep {
     private static final long serialVersionUID = -7843275202297616553L;
 
     public ParametersCreateWizardSchemaStep(final ParametersCreateWizardPanel.ParametersForm modelObject) {
+        modelObject.getPlainSchemaTO().setMandatoryCondition("false");
+
         final WebMarkupContainer content = new WebMarkupContainer("content");
         this.setOutputMarkupId(true);
         content.setOutputMarkupId(true);
@@ -107,14 +109,8 @@ public class ParametersCreateWizardSchemaStep extends WizardStep {
             }
         });
 
-        final AjaxTextFieldPanel mandatoryCondition = new AjaxTextFieldPanel(
-                "mandatoryCondition", getString("mandatoryCondition"),
-                new PropertyModel<String>(modelObject.getPlainSchemaTO(), "mandatoryCondition"));
-        content.add(mandatoryCondition);
-
         final AjaxCheckBoxPanel multiValue = new AjaxCheckBoxPanel("panel", getString("multivalue"),
                 new PropertyModel<Boolean>(modelObject.getPlainSchemaTO(), "multivalue"), false);
         content.add(multiValue);
     }
-
 }
