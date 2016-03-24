@@ -95,7 +95,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                 private static final long serialVersionUID = -6388405037134399367L;
 
                 @Override
-                public ModalPanel<AbstractSchemaTO> build(final int index, final boolean edit) {
+                public ModalPanel<AbstractSchemaTO> build(final int index, final AjaxWizard.Mode mode) {
                     final AbstractSchemaTO modelObject = newModelObject();
                     return new SchemaModalPanel(modal, modelObject, pageRef) {
 
@@ -223,7 +223,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(StringUtils.isBlank(e.getMessage()) 
+                                    error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

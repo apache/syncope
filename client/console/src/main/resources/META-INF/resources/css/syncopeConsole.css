@@ -643,3 +643,7 @@ div#parametersForm{
 /**
 END - Parameters Details
 */
+
+li.todoitem a {
+  cursor: default;
+}

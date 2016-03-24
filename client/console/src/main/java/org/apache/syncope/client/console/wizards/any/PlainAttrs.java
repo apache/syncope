@@ -215,7 +215,7 @@ public class PlainAttrs extends AbstractAttrs {
                 if (required) {
                     panel.addRequiredLabel();
                 }
-                
+
                 break;
             case Enum:
                 panel = new AjaxDropDownChoicePanel<>("panel", schemaTO.getKey(), new Model<String>(), false);

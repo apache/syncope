@@ -38,19 +38,19 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
     }
 
     @Override
-    public AjaxWizard<T> build(final int index, final boolean edit) {
-        final AjaxWizard<T> wizard = build(edit);
+    public AjaxWizard<T> build(final int index, final AjaxWizard.Mode mode) {
+        final AjaxWizard<T> wizard = build(mode);
         for (int i = 1; i < index; i++) {
             wizard.getWizardModel().next();
         }
         return wizard;
     }
 
-    public AjaxWizard<T> build(final boolean edit) {
+    public AjaxWizard<T> build(final AjaxWizard.Mode mode) {
         // ge the specified item if available
         final T modelObject = newModelObject();
 
-        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), edit) {
+        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode) {
 
             private static final long serialVersionUID = 1L;
 

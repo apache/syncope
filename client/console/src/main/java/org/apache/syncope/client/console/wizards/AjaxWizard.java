@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.ModalPanel;
@@ -26,8 +27,10 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.wizard.IWizardModel;
+import org.apache.wicket.extensions.wizard.IWizardStep;
 import org.apache.wicket.extensions.wizard.Wizard;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.request.cycle.RequestCycle;
@@ -38,11 +41,18 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
 
     private static final long serialVersionUID = -1272120742876833520L;
 
+    public enum Mode {
+        CREATE,
+        EDIT,
+        READONLY;
+
+    }
+
     protected static final Logger LOG = LoggerFactory.getLogger(AjaxWizard.class);
 
     private T item;
 
-    private final boolean edit;
+    private final Mode mode;
 
     /**
      * Construct.
@@ -50,12 +60,17 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
      * @param id The component id.
      * @param item model object.
      * @param model wizard model
-     * @param edit <tt>true</tt> if edit mode.
+     * @param mode <tt>true</tt> if edit mode.
      */
-    public AjaxWizard(final String id, final T item, final WizardModel model, final boolean edit) {
+    public AjaxWizard(final String id, final T item, final WizardModel model, final Mode mode) {
         super(id);
         this.item = item;
-        this.edit = edit;
+        this.mode = mode;
+
+        if (mode == Mode.READONLY) {
+            model.setCancelVisible(false);
+        }
+
         setOutputMarkupId(true);
         setDefaultModel(new CompoundPropertyModel<>(this));
         init(model);
@@ -65,11 +80,18 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
     protected void init(final IWizardModel wizardModel) {
         super.init(wizardModel);
         getForm().remove(FEEDBACK_ID);
+
+        if (mode == Mode.READONLY) {
+            final Iterator<IWizardStep> iter = wizardModel.stepIterator();
+            while (iter.hasNext()) {
+                WizardStep.class.cast(iter.next()).setEnabled(false);
+            }
+        }
     }
 
     @Override
     protected Component newButtonBar(final String id) {
-        return new AjaxWizardMgtButtonBar(id, this, edit);
+        return new AjaxWizardMgtButtonBar<>(id, this, mode);
     }
 
     protected abstract void onCancelInternal();

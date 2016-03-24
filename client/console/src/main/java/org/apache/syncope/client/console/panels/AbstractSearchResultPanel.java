@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -145,6 +146,9 @@ public abstract class AbstractSearchResultPanel<
         setWindowClosedReloadCallback(modal);
         setWindowClosedReloadCallback(altDefaultModal);
         setWindowClosedReloadCallback(displayAttributeModal);
+
+        altDefaultModal.size(Modal.Size.Medium);
+        displayAttributeModal.size(Modal.Size.Medium);
     }
 
     protected abstract DP dataProvider();

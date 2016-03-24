@@ -76,7 +76,7 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<SecurityQuestionTO> build(final int index, final boolean edit) {
+            public ModalPanel<SecurityQuestionTO> build(final int index, final AjaxWizard.Mode mode) {
                 final SecurityQuestionTO modelObject = newModelObject();
                 return new SecurityQuestionsModalPanel(modal, modelObject, pageRef);
             }
@@ -223,8 +223,8 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
 
         @Override
         public Iterator<SecurityQuestionTO> iterator(final long first, final long count) {
-            final List<SecurityQuestionTO> list =
-                    SyncopeConsoleSession.get().getService(SecurityQuestionService.class).list();
+            final List<SecurityQuestionTO> list = SyncopeConsoleSession.get().getService(SecurityQuestionService.class).
+                    list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }

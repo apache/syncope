@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards;
 
+import java.io.Serializable;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
@@ -32,19 +33,17 @@ import org.apache.wicket.extensions.wizard.WizardButton;
 import org.apache.wicket.extensions.wizard.WizardButtonBar;
 import org.apache.wicket.markup.ComponentTag;
 
-public class AjaxWizardMgtButtonBar extends WizardButtonBar {
+public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButtonBar {
 
     private static final long serialVersionUID = 7453943437344127136L;
 
-    private final boolean edit;
+    private final AjaxWizard.Mode mode;
 
-    private final AjaxWizard wizard;
-
-    public AjaxWizardMgtButtonBar(final String id, final AjaxWizard wizard, final boolean edit) {
+    public AjaxWizardMgtButtonBar(final String id, final AjaxWizard<T> wizard, final AjaxWizard.Mode mode) {
         super(id, wizard);
-        this.edit = edit;
-        this.wizard = wizard;
+        this.mode = mode;
         wizard.setOutputMarkupId(true);
+        wizard.getWizardModel().isCancelVisible();
     }
 
     @Override
@@ -103,6 +102,7 @@ public class AjaxWizardMgtButtonBar extends WizardButtonBar {
     protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
     }
 
+    @Override
     protected FinishButton newFinishButton(final String id, final IWizard wizard) {
         return new FinishButton(id, wizard) {
 
@@ -110,11 +110,24 @@ public class AjaxWizardMgtButtonBar extends WizardButtonBar {
 
             @Override
             public final boolean isEnabled() {
-                if (edit) {
-                    return true;
-                } else {
-                    final IWizardStep activeStep = getWizardModel().getActiveStep();
-                    return (activeStep != null) && getWizardModel().isLastStep(activeStep) && super.isEnabled();
+                switch (mode) {
+                    case EDIT:
+                        return true;
+                    case READONLY:
+                        return false;
+                    default:
+                        final IWizardStep activeStep = getWizardModel().getActiveStep();
+                        return (activeStep != null) && getWizardModel().isLastStep(activeStep) && super.isEnabled();
+                }
+            }
+
+            @Override
+            public boolean isVisible() {
+                switch (mode) {
+                    case READONLY:
+                        return false;
+                    default:
+                        return true;
                 }
             }
         };

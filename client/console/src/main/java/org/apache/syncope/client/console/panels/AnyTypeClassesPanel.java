@@ -66,7 +66,7 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<AnyTypeClassTO> build(final int index, final boolean edit) {
+            public ModalPanel<AnyTypeClassTO> build(final int index, final AjaxWizard.Mode mode) {
                 final AnyTypeClassTO modelObject = newModelObject();
                 return new AnyTypeClassModalPanel(modal, modelObject, pageRef) {
 

@@ -48,7 +48,7 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
         this.pageRef = pageRef;
     }
 
-    public abstract ModalPanel<T> build(final int index, final boolean edit);
+    public abstract ModalPanel<T> build(final int index, final AjaxWizard.Mode mode);
 
     protected void onCancelInternal(final T modelObject) {
     }

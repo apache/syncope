@@ -27,10 +27,10 @@ import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.panels.NotificationPanel;
-import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.widgets.TODOsWidget;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -84,8 +84,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         super(parameters);
 
         body = new WebMarkupContainer("body");
-        Serializable leftMenuCollapse =
-                SyncopeConsoleSession.get().getAttribute(SyncopeConsoleSession.MENU_COLLAPSE);
+        Serializable leftMenuCollapse = SyncopeConsoleSession.get().getAttribute(SyncopeConsoleSession.MENU_COLLAPSE);
         if ((leftMenuCollapse instanceof Boolean) && ((Boolean) leftMenuCollapse)) {
             body.add(new AttributeAppender("class", " sidebar-collapse"));
         }
@@ -97,15 +96,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         body.add(new Label("version", SyncopeConsoleApplication.get().getVersion()));
         body.add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
 
-        WebMarkupContainer todosContainer = new WebMarkupContainer("todosContainer");
-        body.add(todosContainer);
-        Label todos = new Label("todos", "0");
-        todosContainer.add(todos);
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_LIST)) {
-            todos.setDefaultModelObject(new UserWorkflowRestClient().getForms().size());
-        }
-        MetaDataRoleAuthorizationStrategy.authorize(
-                todosContainer, WebPage.ENABLE, StandardEntitlement.WORKFLOW_FORM_LIST);
+        body.add(new TODOsWidget("todosWidget", getPageReference()).setRenderBodyOnly(true));
 
         // menu
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("dashboard"));
@@ -248,8 +239,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         }
 
         // Extensions
-        ClassPathScanImplementationLookup classPathScanImplementationLookup =
-                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+        ClassPathScanImplementationLookup classPathScanImplementationLookup
+                = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
                 getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         List<Class<? extends BaseExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
 

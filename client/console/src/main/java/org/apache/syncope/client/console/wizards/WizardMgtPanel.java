@@ -83,7 +83,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
      * Modal window.
      */
     protected final BaseModal<T> altDefaultModal = new BaseModal<>("alternativeDefaultModal");
-    
+
     protected final BaseModal<T> displayAttributeModal = new BaseModal<>("displayAttributeModal");
 
     protected WizardMgtPanel(final String id) {
@@ -134,7 +134,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                 newItemPanelBuilder.setItem(item);
 
                 final ModalPanel<T> modalPanel = newItemPanelBuilder.build(
-                        ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(), item != null);
+                        ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(),
+                        item != null ? AjaxWizard.Mode.EDIT : AjaxWizard.Mode.CREATE);
 
                 if (wizardInModal) {
                     final IModel<T> model = new CompoundPropertyModel<>(item);

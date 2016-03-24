@@ -67,7 +67,7 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<AnyTypeTO> build(final int index, final boolean edit) {
+            public ModalPanel<AnyTypeTO> build(final int index, final AjaxWizard.Mode mode) {
                 final AnyTypeTO modelObject = newModelObject();
                 return new AnyTypeModalPanel(modal, modelObject, pageRef) {
 
@@ -184,7 +184,7 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(StringUtils.isBlank(e.getMessage()) 
+                                    error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
