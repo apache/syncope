@@ -497,8 +497,7 @@ Best regards.
             </ol>
           </li>
           <li>
-            Add the distribution artifacts to the distribution area (execute the commands below preferably on
-            <code>people.apache.org</code>)
+            Add the distribution artifacts to the distribution area
             <source><![CDATA[
 svn mv -m "Moving the voted release artifacts to dist/release" \
 https://dist.apache.org/repos/dist/dev/syncope/$VERSION
