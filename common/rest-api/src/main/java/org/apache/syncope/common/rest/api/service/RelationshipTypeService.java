@@ -44,7 +44,7 @@ public interface RelationshipTypeService extends JAXRSService {
      * @return list of all relationshipTypes.
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<RelationshipTypeTO> list();
 
     /**
@@ -55,7 +55,7 @@ public interface RelationshipTypeService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     RelationshipTypeTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -65,7 +65,7 @@ public interface RelationshipTypeService extends JAXRSService {
      * @return Response object featuring Location header of created relationshipType
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull RelationshipTypeTO relationshipTypeTO);
 
     /**
@@ -75,7 +75,7 @@ public interface RelationshipTypeService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull RelationshipTypeTO relationshipTypeTO);
 
     /**

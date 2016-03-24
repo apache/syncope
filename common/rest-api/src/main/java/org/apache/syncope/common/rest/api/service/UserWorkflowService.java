@@ -43,7 +43,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @GET
     @Path("forms")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<WorkflowFormTO> getForms();
 
     /**
@@ -54,7 +54,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @GET
     @Path("forms/{userKey}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     WorkflowFormTO getFormForUser(@NotNull @PathParam("userKey") Long userKey);
 
     /**
@@ -65,7 +65,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @POST
     @Path("forms/{taskId}/claim")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     WorkflowFormTO claimForm(@NotNull @PathParam("taskId") String taskId);
 
     /**
@@ -76,8 +76,8 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @POST
     @Path("forms")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     UserTO submitForm(@NotNull WorkflowFormTO form);
 
     /**
@@ -89,7 +89,7 @@ public interface UserWorkflowService extends JAXRSService {
      */
     @POST
     @Path("tasks/{taskId}/execute")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     UserTO executeTask(@NotNull @PathParam("taskId") String taskId, @NotNull UserTO userTO);
 }

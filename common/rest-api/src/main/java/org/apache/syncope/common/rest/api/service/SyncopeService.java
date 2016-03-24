@@ -41,7 +41,7 @@ public interface SyncopeService extends JAXRSService {
      */
     @GET
     @Path("/platform")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     PlatformInfo platform();
 
     /**
@@ -51,7 +51,7 @@ public interface SyncopeService extends JAXRSService {
      */
     @GET
     @Path("/system")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     SystemInfo system();
 
     /** *
@@ -61,6 +61,6 @@ public interface SyncopeService extends JAXRSService {
      */
     @GET
     @Path("/numbers")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     NumbersInfo numbers();
 }

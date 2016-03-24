@@ -375,7 +375,7 @@ under the License.
     <swagger-core.version>1.5.8</swagger-core.version>    
     <swagger-ui.version>2.1.4</swagger-ui.version>
         
-    <jquery.version>2.2.1</jquery.version>
+    <jquery.version>2.2.2</jquery.version>
     <jquery-ui.version>1.11.4</jquery-ui.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
     
@@ -385,7 +385,7 @@ under the License.
     <font-awesome.version>4.5.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.2.0</highlightjs.version>
-    <codemirror.version>5.13</codemirror.version>
+    <codemirror.version>5.13.2</codemirror.version>
     <jsplumb.version>2.0.5</jsplumb.version>
     
     <wicket.version>7.2.0</wicket.version>

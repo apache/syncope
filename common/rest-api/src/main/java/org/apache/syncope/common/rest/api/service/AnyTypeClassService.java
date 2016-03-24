@@ -44,7 +44,7 @@ public interface AnyTypeClassService extends JAXRSService {
      * @return list of all anyTypeClasss.
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<AnyTypeClassTO> list();
 
     /**
@@ -55,7 +55,7 @@ public interface AnyTypeClassService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     AnyTypeClassTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -65,7 +65,7 @@ public interface AnyTypeClassService extends JAXRSService {
      * @return Response object featuring Location header of created anyTypeClass
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull AnyTypeClassTO anyTypeClassTO);
 
     /**
@@ -75,7 +75,7 @@ public interface AnyTypeClassService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull AnyTypeClassTO anyTypeClassTO);
 
     /**

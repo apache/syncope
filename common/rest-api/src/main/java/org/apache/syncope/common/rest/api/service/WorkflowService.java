@@ -43,7 +43,7 @@ public interface WorkflowService extends JAXRSService {
      * @return workflow definition for matching kind
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response exportDefinition(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind);
 
     /**
@@ -64,7 +64,7 @@ public interface WorkflowService extends JAXRSService {
      * @param definition workflow definition for matching kind
      */
     @PUT
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void importDefinition(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind, @NotNull String definition);
 
 }

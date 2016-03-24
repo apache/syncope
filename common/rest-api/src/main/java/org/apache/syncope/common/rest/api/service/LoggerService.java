@@ -46,7 +46,7 @@ public interface LoggerService extends JAXRSService {
      */
     @GET
     @Path("events")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<EventCategoryTO> events();
 
     /**
@@ -58,7 +58,7 @@ public interface LoggerService extends JAXRSService {
      */
     @GET
     @Path("{type}/{name}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     LoggerTO read(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") final String name);
 
     /**
@@ -69,7 +69,7 @@ public interface LoggerService extends JAXRSService {
      */
     @GET
     @Path("{type}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<LoggerTO> list(@NotNull @PathParam("type") LoggerType type);
 
     /**
@@ -80,7 +80,7 @@ public interface LoggerService extends JAXRSService {
      */
     @PUT
     @Path("{type}/{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull @PathParam("type") LoggerType type, @NotNull LoggerTO logger);
 
     /**

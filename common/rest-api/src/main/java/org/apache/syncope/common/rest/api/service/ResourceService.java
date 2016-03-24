@@ -55,7 +55,7 @@ public interface ResourceService extends JAXRSService {
      */
     @GET
     @Path("{key}/{anyTypeKey}/{anyKey}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     ConnObjectTO readConnObject(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("anyTypeKey") String anyTypeKey,
@@ -72,7 +72,7 @@ public interface ResourceService extends JAXRSService {
      */
     @GET
     @Path("{key}/{anyTypeKey}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     PagedConnObjectTOResult listConnObjects(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("anyTypeKey") String anyTypeKey,
@@ -86,7 +86,7 @@ public interface ResourceService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     ResourceTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -95,7 +95,7 @@ public interface ResourceService extends JAXRSService {
      * @return list of all resources
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<ResourceTO> list();
 
     /**
@@ -105,7 +105,7 @@ public interface ResourceService extends JAXRSService {
      * @return Response object featuring Location header of created resource
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull ResourceTO resourceTO);
 
     /**
@@ -115,7 +115,7 @@ public interface ResourceService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull ResourceTO resourceTO);
 
     /**
@@ -125,7 +125,7 @@ public interface ResourceService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("key") String key);
 
     /**
@@ -135,8 +135,8 @@ public interface ResourceService extends JAXRSService {
      */
     @POST
     @Path("check")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void check(@NotNull ResourceTO resourceTO);
 
     /**
@@ -147,8 +147,8 @@ public interface ResourceService extends JAXRSService {
      */
     @POST
     @Path("{key}/bulkDeassociation/{anyTypeKey}/{action}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     BulkActionResult bulkDeassociation(@NotNull ResourceDeassociationPatch patch);
 
     /**
@@ -159,7 +159,7 @@ public interface ResourceService extends JAXRSService {
      */
     @POST
     @Path("bulk")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     BulkActionResult bulk(@NotNull BulkAction bulkAction);
 }
