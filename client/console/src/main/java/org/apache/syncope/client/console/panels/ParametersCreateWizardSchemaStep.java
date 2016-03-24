@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.PropertyList;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -29,7 +30,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.Model;
@@ -89,7 +89,7 @@ public class ParametersCreateWizardSchemaStep extends WizardStep {
         panel.setVisible(false);
         content.add(panel);
 
-        type.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+        type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior("onchange") {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

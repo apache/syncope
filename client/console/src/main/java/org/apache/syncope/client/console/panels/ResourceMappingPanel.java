@@ -36,6 +36,7 @@ import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -56,7 +57,6 @@ import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -373,7 +373,7 @@ public class ResourceMappingPanel extends Panel {
                 item.add(actions.build("toRemove"));
                 // -------------------------------
 
-                entitiesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                entitiesPanel.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -390,7 +390,7 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                intMappingTypes.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                intMappingTypes.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -404,7 +404,7 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                intAttrNames.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                intAttrNames.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -413,7 +413,7 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                connObjectKey.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                connObjectKey.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -430,7 +430,7 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                password.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                password.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 

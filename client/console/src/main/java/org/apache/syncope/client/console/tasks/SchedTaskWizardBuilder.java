@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DateFormatROModel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -37,7 +38,6 @@ import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -93,8 +93,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
         };
 
         public Profile(final SchedTaskTO taskTO) {
-            final AjaxTextFieldPanel name =
-                    new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(taskTO, "name"), false);
+            final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(taskTO,
+                    "name"), false);
             name.setEnabled(true);
             add(name);
 
@@ -129,7 +129,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             pullTaskSpecifics.add(filter);
             filter.setEnabled(isFiltered);
 
-            pullMode.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            pullMode.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 

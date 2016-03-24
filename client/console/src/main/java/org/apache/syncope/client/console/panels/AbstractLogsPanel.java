@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -31,7 +32,6 @@ import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -67,7 +67,7 @@ public abstract class AbstractLogsPanel<T extends AbstractBaseBean> extends Pane
                             "field", getString("level"), Model.of(loggerTO.getLevel()), false);
                     loggerTOs.hideLabel();
                     loggerTOs.setChoices(Arrays.asList(LoggerLevel.values()));
-                    loggerTOs.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                    loggerTOs.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                         private static final long serialVersionUID = -1107858522700306810L;
 

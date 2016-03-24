@@ -37,6 +37,7 @@ import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -46,7 +47,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
@@ -129,7 +129,7 @@ public class Ownership extends WizardStep {
             @Override
             protected CheckBox newCheckBox(final String id, final IModel<Boolean> model) {
                 final CheckBox checkBox = super.newCheckBox(id, model);
-                checkBox.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                checkBox.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = 1L;
 

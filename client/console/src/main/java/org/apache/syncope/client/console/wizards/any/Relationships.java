@@ -42,6 +42,7 @@ import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -60,7 +61,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -298,7 +298,7 @@ public class Relationships extends WizardStep {
             Fragment emptyFragment = new Fragment("searchPanel", "emptyFragment", this);
             container.add(emptyFragment.setRenderBodyOnly(true));
 
-            type.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
@@ -312,7 +312,7 @@ public class Relationships extends WizardStep {
                 }
             });
 
-            rightType.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            rightType.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 

@@ -26,12 +26,12 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -171,7 +171,7 @@ public abstract class AbstractSearchResultPanel<
         final DropDownChoice<Integer> rowsChooser = new DropDownChoice<>(
                 "rowsChooser", new PropertyModel<Integer>(this, "rows"), prefMan.getPaginatorChoices());
 
-        rowsChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        rowsChooser.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

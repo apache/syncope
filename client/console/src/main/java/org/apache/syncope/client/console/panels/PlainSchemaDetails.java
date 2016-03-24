@@ -29,6 +29,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.PropertyList;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -39,7 +40,6 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -213,7 +213,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 encryptedParams, secretKey, cipherAlgorithm,
                 binaryParams, mimeType);
 
-        type.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -266,7 +266,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 return choices.iterator();
             }
         };
-        mandatoryCondition.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        mandatoryCondition.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ResourceMappingPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -40,7 +41,6 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -124,7 +124,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
 
             container.add(clazz);
 
-            type.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
@@ -200,7 +200,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
             connObjectLink.setEnabled(connObjectLinkEnabled);
             connObjectLinkContainer.add(connObjectLink);
 
-            connObjectLinkCheckbox.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            connObjectLinkCheckbox.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 

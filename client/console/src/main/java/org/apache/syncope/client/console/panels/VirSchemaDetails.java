@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -33,7 +34,6 @@ import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.model.PropertyModel;
 
@@ -85,7 +85,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
         add(schemaForm);
 
-        resource.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        resource.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
