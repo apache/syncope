@@ -24,8 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.model.IModel;
@@ -73,7 +73,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
         add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
 
         if (enableOnChange && !isReadOnly()) {
-            field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 

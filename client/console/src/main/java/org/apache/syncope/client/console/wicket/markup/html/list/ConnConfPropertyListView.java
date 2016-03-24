@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
@@ -34,7 +35,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.FormComponent;
@@ -158,7 +158,7 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
             @Override
             protected CheckBox newCheckBox(final String id, final IModel<Boolean> model) {
                 final CheckBox checkBox = super.newCheckBox(id, model);
-                checkBox.add(new AjaxFormComponentUpdatingBehavior("change") {
+                checkBox.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = 1L;
 

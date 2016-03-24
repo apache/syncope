@@ -23,8 +23,8 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -50,7 +50,7 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
         if (enableOnBlur) {
-            field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+            field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 

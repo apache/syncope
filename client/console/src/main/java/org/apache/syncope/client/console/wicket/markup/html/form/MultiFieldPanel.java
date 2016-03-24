@@ -21,9 +21,9 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatorAjaxSubmitLink;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -95,7 +95,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractFi
     }
 
     private Fragment getPlusFragment(final IModel<List<E>> model, final String label) {
-        final AjaxSubmitLink plus = new AjaxSubmitLink("add") {
+        final IndicatorAjaxSubmitLink plus = new IndicatorAjaxSubmitLink("add") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -116,6 +116,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractFi
                 error(getString(Constants.OPERATION_ERROR));
                 super.onError(target, form);
             }
+
         };
 
         final Fragment fragment = new Fragment("panelPlus", "fragmentPlus", MultiFieldPanel.this);
@@ -219,7 +220,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractFi
             fieldPanel.settingsDependingComponents();
 
             if (eventTemplate) {
-                fieldPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                fieldPanel.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -232,7 +233,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractFi
 
             item.add(fieldPanel.hideLabel().setRenderBodyOnly(true));
 
-            final AjaxSubmitLink minus = new AjaxSubmitLink("drop") {
+            final IndicatorAjaxSubmitLink minus = new IndicatorAjaxSubmitLink("drop") {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
