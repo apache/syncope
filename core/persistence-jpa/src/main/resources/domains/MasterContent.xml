@@ -30,14 +30,14 @@ under the License.
   <CPlainAttrValue id="1" attribute_id="1" stringValue="SHA1"/>
 
   <!-- notificationjob.cronExpression:
-  + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
+  + not existing: NotificationJob runs according to NotificationJob.DEFAULT_CRON_EXP
   + provided as empty string: NotificationJob disabled
   + provided as non-empty string: NotificationJob runs according to the given value -->
   <PlainSchema name="notificationjob.cronExpression" type="String"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="2" owner_id="1" schema_name="notificationjob.cronExpression"/>
   <CPlainAttrValue id="2" attribute_id="2" stringValue=""/>
-
+  
   <PlainSchema name="notification.maxRetries" type="Long"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="3" owner_id="1" schema_name="notification.maxRetries"/>
@@ -83,18 +83,12 @@ under the License.
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="12" owner_id="1" schema_name="tasks.interruptMaxRetries"/>
   <CPlainAttrValue id="12" attribute_id="12" longValue="20"/>
-
+  
   <!-- Return hashed password values when reading users -->
   <PlainSchema name="return.password.value" type="Boolean"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="14" owner_id="1" schema_name="return.password.value"/>
   <CPlainAttrValue id="14" attribute_id="14" booleanValue="0"/>
-
-  <AnyType name="USER" kind="USER"/>
-  <AnyTypeClass name="BaseUser"/>
-  <AnyType_AnyTypeClass anyType_name="USER" anyTypeClass_name="BaseUser"/>
-
-  <AnyType name="GROUP" kind="GROUP"/>
   
   <!-- For usage with admin console -->
   <PlainSchema name="admin.user.layout" type="String"
@@ -109,7 +103,16 @@ under the License.
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
   <PlainSchema name="self.membership.layout" type="String"
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+
+  <AnyType name="USER" kind="USER"/>
+  <AnyTypeClass name="BaseUser"/>
+  <AnyType_AnyTypeClass anyType_name="USER" anyTypeClass_name="BaseUser"/>
+
+  <AnyType name="GROUP" kind="GROUP"/>
+  <AnyTypeClass name="BaseGroup"/>
+  <AnyType_AnyTypeClass anyType_name="GROUP" anyTypeClass_name="BaseGroup"/>
         
+  <!-- Actual plain schemas -->
   <PlainSchema name="email" type="String" anyTypeClass_name="BaseUser"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
