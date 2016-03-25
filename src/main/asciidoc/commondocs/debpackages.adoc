@@ -68,7 +68,7 @@ Install::
 [source,bash]
 sudo service tomcat8 stop
 +
-. Install Apache Syncope core and console via the downloaded packages
+. Install Apache Syncope core, console and enduser via the downloaded packages
 +
 [source,bash]
 sudo dpkg -i apache-syncope-*.deb
@@ -98,5 +98,8 @@ CAUTION: The following assumes that Apache Tomcat is reachable on host `host.dom
 
 | Administration console
 | http://host.domain:port/syncope-console/ +
+
+| End-user UI
+| http://localhost:9080/syncope-enduser/
 
 |===

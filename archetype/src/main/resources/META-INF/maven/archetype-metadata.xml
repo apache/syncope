@@ -26,7 +26,7 @@ under the License.
   </requiredProperties>
   
   <modules>
-    <module id="common" dir="common" name="common">
+    <module id="syncope-common" dir="common" name="syncope-common">
       <fileSets>
         <fileSet filtered="false" encoding="UTF-8">
           <directory>src/main/resources</directory>
@@ -36,20 +36,7 @@ under the License.
         </fileSet>
       </fileSets>
     </module>
-    <module id="core" dir="core" name="core">
-      <fileSets>
-        <fileSet filtered="false" encoding="UTF-8">
-          <directory>src/main/resources</directory>
-        </fileSet>
-        <fileSet filtered="false" encoding="UTF-8">
-          <directory>src/main/webapp</directory>
-        </fileSet>
-        <fileSet filtered="false" encoding="UTF-8">
-          <directory>src/test/resources</directory>
-        </fileSet>
-      </fileSets>
-    </module>
-    <module id="console" dir="console" name="console">
+    <module id="syncope-core" dir="core" name="syncope-core">
       <fileSets>
         <fileSet filtered="false" encoding="UTF-8">
           <directory>src/main/resources</directory>
@@ -62,7 +49,20 @@ under the License.
         </fileSet>
       </fileSets>
     </module>
-    <module id="enduser" dir="enduser" name="enduser">
+    <module id="syncope-console" dir="console" name="syncope-console">
+      <fileSets>
+        <fileSet filtered="false" encoding="UTF-8">
+          <directory>src/main/resources</directory>
+        </fileSet>
+        <fileSet filtered="false" encoding="UTF-8">
+          <directory>src/main/webapp</directory>
+        </fileSet>
+        <fileSet filtered="false" encoding="UTF-8">
+          <directory>src/test/resources</directory>
+        </fileSet>
+      </fileSets>
+    </module>
+    <module id="syncope-enduser" dir="enduser" name="syncope-enduser">
       <fileSets>
         <fileSet filtered="false" encoding="UTF-8">
           <directory>src/main/resources</directory>
