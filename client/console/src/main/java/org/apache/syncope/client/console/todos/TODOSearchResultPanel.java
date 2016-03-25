@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.todos;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,7 +73,7 @@ public class TODOSearchResultPanel
     @Override
     protected List<IColumn<WorkflowFormTO, String>> getColumns() {
 
-        List<IColumn<WorkflowFormTO, String>> columns = new ArrayList<IColumn<WorkflowFormTO, String>>();
+        List<IColumn<WorkflowFormTO, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<WorkflowFormTO, String>(
                 new ResourceModel("taskId"), "taskId", "taskId"));
         columns.add(new PropertyColumn<WorkflowFormTO, String>(

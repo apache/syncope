@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.todos;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -146,7 +144,7 @@ public abstract class Approval extends Panel {
 
                             @Override
                             public ArrayList<String> getObject() {
-                                return new ArrayList<String>(prop.getEnumValues().keySet());
+                                return new ArrayList<>(prop.getEnumValues().keySet());
                             }
                         });
                         break;
