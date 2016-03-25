@@ -43,7 +43,7 @@ under the License.
 
   <properties>
     <connid.location>connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}</connid.location>
-    <log.directory>./logs</log.directory>
+    <log.directory>${sys:catalina.home}/logs</log.directory>
 
     <work.dir>${project.build.directory}/standalone</work.dir>
   </properties>
