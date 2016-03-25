@@ -1931,6 +1931,11 @@ under the License.
                     <replace dir="${rootpom.basedir}/target/site" token="48px" value="70px">
                       <include name="**/*.html" />
                     </replace>
+                    <replace dir="${rootpom.basedir}/target/site"
+                             token='dropdown-toggle"'
+                             value='dropdown-toggle" data-toggle="dropdown"'>
+                      <include name="**/*.html" />
+                    </replace>
                   </target>
                 </configuration>
               </execution>
