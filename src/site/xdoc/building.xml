@@ -88,16 +88,16 @@ under the License.
         in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>
         but console) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug,all</source>
-or, without Activiti and Camel support
+        or, without Activiti and Camel support
         <source>$ mvn -Pdebug</source>
 
         <h4>JRebel</h4>
         As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
         <source>$ export REBEL_HOME=/opt/jrebel
-$ mvn -Pjrebel,all</source>
-or, without Activiti and Camel support
+          $ mvn -Pjrebel,all</source>
+        or, without Activiti and Camel support
         <source>$ export REBEL_HOME=/opt/jrebel
-$ mvn -Pjrebel</source>
+          $ mvn -Pjrebel</source>
 
         <h4>DBMSes</h4>
 
@@ -145,15 +145,28 @@ $ mvn -Pjrebel</source>
       
       <subsection name="fit/console-reference">
         <h4>Debug</h4>
-        Starts the full environment used by core's integration tests (with same components available when running new project
-        in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>,
-        including console) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
+        Starts the full environment used by core's integration tests (with same components available when running new 
+        project in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>, including console) and 
+        enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug</source>
 
         <h4>JRebel</h4>
         As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
         <source>$ export REBEL_HOME=/opt/jrebel
-$ mvn -Pjrebel</source>
+          $ mvn -Pjrebel</source>
+      </subsection>
+      
+      <subsection name="fit/enduser-reference">
+        <h4>Debug</h4>
+        Starts the full environment used by core's integration tests (with same components available when running new 
+        project in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>, including console and 
+        enduser) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
+        <source>$ mvn -Pdebug</source>
+
+        <h4>JRebel</h4>
+        As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
+        <source>$ export REBEL_HOME=/opt/jrebel
+          $ mvn -Pjrebel</source>
       </subsection>
     </section>
   </body>
