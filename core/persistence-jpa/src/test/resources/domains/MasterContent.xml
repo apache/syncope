@@ -106,7 +106,7 @@ under the License.
   
   <!-- sample policies -->
   <PullPolicy id="1" description="a pull policy" type="PULL" 
-              specification='{"conflictResolutionAction":"IGNORE"'/>
+              specification='{"conflictResolutionAction":"IGNORE"}'/>
   <PasswordPolicy id="2" description="a password policy" type="PASSWORD" 
                   historyLength="1" allowNullPassword="1"/> 
   <PasswordRuleConfInstance id="2" passwordPolicy_id="2"
@@ -1014,7 +1014,7 @@ under the License.
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","readonly":true,"values":[""]}],"resources":["resource-ldap"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynGroups":[],"plainAttrs":[]}'/>
   <AnyTemplatePullTask id="2" pullTask_id="11" anyType_name="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[{"schema":"show","readonly":false,"values":["true"]}]}'/>
-  <PullTask_actionsClassNames PullTask_id="11" actionClassName="org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions"/>
+  <PullTask_actionsClassNames pullTask_id="11" actionClassName="org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions"/>
   <Task DTYPE="PullTask" type="PULL" id="12" name="VirAttrCache test" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="0" performUpdate="1" performDelete="0" pullStatus="0" pullMode="FULL_RECONCILIATION"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
