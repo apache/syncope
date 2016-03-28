@@ -20,6 +20,7 @@ package org.apache.syncope.client.cli.commands.logger;
 
 import java.util.LinkedList;
 import javax.xml.ws.WebServiceException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -32,8 +33,8 @@ public class LoggerUpdate extends AbstractLoggerCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoggerUpdate.class);
 
-    private static final String UPDATE_HELP_MESSAGE
-            = "logger --update {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]";
+    private static final String UPDATE_HELP_MESSAGE =
+            "logger --update {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]";
 
     private final Input input;
 
@@ -43,18 +44,16 @@ public class LoggerUpdate extends AbstractLoggerCommand {
 
     public void update() {
         if (input.parameterNumber() >= 1) {
-            Input.PairParameter pairParameter;
-            LoggerTO loggerTO;
             final LinkedList<LoggerTO> loggerTOs = new LinkedList<>();
             boolean failed = false;
-            for (final String parameter : input.getParameters()) {
+            for (String parameter : input.getParameters()) {
+                Pair<String, String> pairParameter = input.toPairParameter(parameter);
                 try {
-                    pairParameter = input.toPairParameter(parameter);
-                    loggerTO = loggerSyncopeOperations.read(pairParameter.getKey());
+                    LoggerTO loggerTO = loggerSyncopeOperations.read(pairParameter.getKey());
                     loggerTO.setLevel(LoggerLevel.valueOf(pairParameter.getValue()));
                     loggerSyncopeOperations.update(loggerTO);
                     loggerTOs.add(loggerTO);
-                } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
+                } catch (WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
                     LOG.error("Error updating logger", ex);
                     if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
                         loggerResultManager.typeNotValidError(

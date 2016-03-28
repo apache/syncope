@@ -22,7 +22,7 @@ import org.apache.syncope.client.cli.Input;
 
 public abstract class AbstractCommand {
 
-    public abstract void execute(final Input input);
+    public abstract void execute(Input input);
 
     public abstract String getHelpMessage();
 }
