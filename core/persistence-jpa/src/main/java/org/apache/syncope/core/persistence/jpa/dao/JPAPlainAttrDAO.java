@@ -35,7 +35,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>, Long> implements PlainAttrDAO {
 
-    public <T extends PlainAttr<?>> Class<? extends AbstractPlainAttr<?>> getJPAEntityReference(
+    public <T extends PlainAttr<?>> Class<? extends AbstractPlainAttr<?>> getEntityReference(
             final Class<T> reference) {
 
         return CPlainAttr.class.isAssignableFrom(reference)
@@ -51,7 +51,7 @@ public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>, Long> implements 
 
     @Override
     public <T extends PlainAttr<?>> T find(final Long key, final Class<T> reference) {
-        return reference.cast(entityManager().find(getJPAEntityReference(reference), key));
+        return reference.cast(entityManager().find(getEntityReference(reference), key));
     }
 
     @Override

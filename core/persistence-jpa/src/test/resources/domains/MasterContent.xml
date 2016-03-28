@@ -105,34 +105,28 @@ under the License.
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
   
   <!-- sample policies -->
-  <PullPolicy id="1" description="a pull policy" type="PULL" 
-              specification='{"conflictResolutionAction":"IGNORE"}'/>
-  <PasswordPolicy id="2" description="a password policy" type="PASSWORD" 
-                  historyLength="1" allowNullPassword="1"/> 
+  <PullPolicy id="1" description="a pull policy" specification='{"conflictResolutionAction":"IGNORE"}'/>
+  <PasswordPolicy id="2" description="a password policy" historyLength="1" allowNullPassword="1"/> 
   <PasswordRuleConfInstance id="2" passwordPolicy_id="2"
                             serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
-  <PullPolicy id="3" description="pull policy 2" type="PULL" 
+  <PullPolicy id="3" description="pull policy 2"
               specification='{"conflictResolutionAction":"ALL","correlationRules":{"USER":"[\"username\",\"firstname\"]"}}'/>
-  <PasswordPolicy id="4" description="sample password policy" type="PASSWORD"
-                  historyLength="0"  allowNullPassword="1"/> 
+  <PasswordPolicy id="4" description="sample password policy" historyLength="0"  allowNullPassword="1"/> 
   <PasswordRuleConfInstance id="4" passwordPolicy_id="4"
                             serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
-  <AccountPolicy id="5" description="an account policy" type="ACCOUNT"
+  <AccountPolicy id="5" description="an account policy"
                  propagateSuspension="0" maxAuthenticationAttempts="0"/>
   <AccountRuleConfInstance id="5" accountPolicy_id="5"
                            serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
-  <AccountPolicy id="6" description="sample account policy" type="ACCOUNT"
+  <AccountPolicy id="6" description="sample account policy"
                  propagateSuspension="0" maxAuthenticationAttempts="3"/>
   <AccountRuleConfInstance id="6" accountPolicy_id="6"
                            serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
-  <PullPolicy id="7" description="pull policy 1" type="PULL" 
-              specification='{"conflictResolutionAction":"IGNORE"}'/>
-  <PasswordPolicy id="8" description="sample password policy" type="PASSWORD"
-                  historyLength="0" allowNullPassword="0"/> 
+  <PullPolicy id="7" description="pull policy 1" specification='{"conflictResolutionAction":"IGNORE"}'/>
+  <PasswordPolicy id="8" description="sample password policy" historyLength="0" allowNullPassword="0"/> 
   <PasswordRuleConfInstance id="8" passwordPolicy_id="8"
                             serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
-  <PullPolicy id="9" description="pull policy for java rule" type="PULL" 
-              specification='{"conflictResolutionAction":"IGNORE"}'/>
+  <PullPolicy id="9" description="pull policy for java rule" specification='{"conflictResolutionAction":"IGNORE"}'/>
 
   <RelationshipType name="inclusion" description="Models the act that an object is included in another"/>
   <RelationshipType name="neighborhood"/>

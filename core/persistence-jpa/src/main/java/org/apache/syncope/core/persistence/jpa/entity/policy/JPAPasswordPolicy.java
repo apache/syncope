@@ -31,7 +31,6 @@ import javax.validation.constraints.Min;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 
 @Entity
@@ -51,11 +50,6 @@ public class JPAPasswordPolicy extends AbstractPolicy implements PasswordPolicy 
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "passwordPolicy")
     private List<JPAPasswordRuleConfInstance> ruleConfs = new ArrayList<>();
-
-    public JPAPasswordPolicy() {
-        super();
-        this.type = PolicyType.PASSWORD;
-    }
 
     @Override
     public boolean isAllowNullPassword() {

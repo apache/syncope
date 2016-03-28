@@ -24,7 +24,6 @@ import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.IntMappingType;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -41,6 +40,8 @@ import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
@@ -93,41 +94,34 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
         return entityManager().find(JPAProvision.class, key);
     }
 
-    private StringBuilder getByPolicyQuery(final PolicyType type) {
+    private StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
         StringBuilder query = new StringBuilder("SELECT e FROM ").
                 append(JPAExternalResource.class.getSimpleName()).
                 append(" e WHERE e.");
-        switch (type) {
-            case ACCOUNT:
-                query.append("accountPolicy");
-                break;
 
-            case PASSWORD:
-                query.append("passwordPolicy");
-                break;
-
-            case PULL:
-                query.append("pullPolicy");
-                break;
-
-            default:
-                break;
+        if (AccountPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("accountPolicy");
+        } else if (PasswordPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("passwordPolicy");
+        } else if (PullPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("pullPolicy");
         }
+
         return query;
     }
 
     @Override
     public List<ExternalResource> findByPolicy(final Policy policy) {
         TypedQuery<ExternalResource> query = entityManager().createQuery(
-                getByPolicyQuery(policy.getType()).append(" = :policy").toString(), ExternalResource.class);
+                getByPolicyQuery(policy.getClass()).append(" = :policy").toString(), ExternalResource.class);
         query.setParameter("policy", policy);
         return query.getResultList();
     }
 
     @Override
-    public List<ExternalResource> findWithoutPolicy(final PolicyType type) {
+    public List<ExternalResource> findWithoutPolicy(final Class<? extends Policy> policyClass) {
         TypedQuery<ExternalResource> query = entityManager().createQuery(
-                getByPolicyQuery(type).append(" IS NULL").toString(), ExternalResource.class);
+                getByPolicyQuery(policyClass).append(" IS NULL").toString(), ExternalResource.class);
         return query.getResultList();
     }
 

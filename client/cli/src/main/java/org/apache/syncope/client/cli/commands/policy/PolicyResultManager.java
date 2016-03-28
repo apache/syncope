@@ -32,27 +32,14 @@ public class PolicyResultManager extends CommonsResultManager {
     public void printPolicies(final LinkedList<AbstractPolicyTO> policyTOs) {
         System.out.println("");
         for (AbstractPolicyTO policyTO : policyTOs) {
-            if (!policyTOs.isEmpty()) {
-                final PolicyType policyType = policyTO.getType();
-                switch (policyType) {
-                    case ACCOUNT:
-                        printAccountPolicy((AccountPolicyTO) policyTO);
-                        break;
-                    case PASSWORD:
-                        printPasswordPolicy((PasswordPolicyTO) policyTO);
-                        break;
-                    case PUSH:
-                        System.out.println(policyTO);
-                        break;
-                    case PULL:
-                        printPullPolicy((PullPolicyTO) policyTO);
-                        break;
-                    default:
-                        break;
-                }
+            if (policyTO instanceof AccountPolicyTO) {
+                printAccountPolicy((AccountPolicyTO) policyTO);
+            } else if (policyTO instanceof PasswordPolicyTO) {
+                printPasswordPolicy((PasswordPolicyTO) policyTO);
+            } else if (policyTO instanceof PullPolicyTO) {
+                printPullPolicy((PullPolicyTO) policyTO);
             }
         }
-
     }
 
     public void printPoliciesByType(final String policyTypeString, final LinkedList<AbstractPolicyTO> policyTOs) {
@@ -86,7 +73,7 @@ public class PolicyResultManager extends CommonsResultManager {
 
     public void printAccountPolicy(final AccountPolicyTO policyTO) {
         System.out.println(" > KEY: " + policyTO.getKey());
-        System.out.println("    type: " + policyTO.getType().name());
+        System.out.println("    type: " + policyTO.getClass().getSimpleName());
         System.out.println("    description: " + policyTO.getDescription());
         System.out.println("    resources : " + policyTO.getUsedByResources().toString());
         System.out.println("    realms : " + policyTO.getUsedByRealms().toString());
@@ -99,20 +86,20 @@ public class PolicyResultManager extends CommonsResultManager {
 
     public void printPasswordPolicy(final PasswordPolicyTO policyTO) {
         System.out.println(" > KEY: " + policyTO.getKey());
-        System.out.println("    type: " + policyTO.getType().name());
+        System.out.println("    type: " + policyTO.getClass().getSimpleName());
         System.out.println("    description: " + policyTO.getDescription());
         System.out.println("    resources : " + policyTO.getUsedByResources().toString());
         System.out.println("    realms : " + policyTO.getUsedByRealms().toString());
         System.out.println("    history lenght : " + policyTO.getHistoryLength());
         System.out.println("    allow null password : " + policyTO.isAllowNullPassword());
         System.out.println("    RULES : ");
-        System.out.println("       > class : " + ((PasswordPolicyTO) policyTO).getRuleConfs());
+        System.out.println("       > class : " + policyTO.getRuleConfs());
         System.out.println("");
     }
 
     public void printPullPolicy(final PullPolicyTO policyTO) {
         System.out.println(" > KEY: " + policyTO.getKey());
-        System.out.println("    type: " + policyTO.getType().name());
+        System.out.println("    type: " + policyTO.getClass().getSimpleName());
         System.out.println("    description: " + policyTO.getDescription());
         System.out.println("    resources : " + policyTO.getUsedByResources().toString());
         System.out.println("    realms : " + policyTO.getUsedByRealms().toString());

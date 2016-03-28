@@ -113,7 +113,6 @@ public class PolicyITCase extends AbstractITCase {
         PullPolicyTO policyTO = createPolicy(policy);
 
         assertNotNull(policyTO);
-        assertEquals(PolicyType.PULL, policyTO.getType());
         assertEquals(TestPullRule.class.getName(),
                 policyTO.getSpecification().getCorrelationRules().get(AnyTypeKind.USER.name()));
     }
@@ -137,7 +136,6 @@ public class PolicyITCase extends AbstractITCase {
         policy = policyService.read(policy.getKey());
 
         assertNotNull(policy);
-        assertEquals(PolicyType.PASSWORD, policy.getType());
         assertEquals(22, ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).getMaxLength());
         assertEquals(8, ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).getMinLength());
     }
