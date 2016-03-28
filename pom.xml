@@ -394,7 +394,7 @@ under the License.
     <wicket-bootstrap.version>0.10.6</wicket-bootstrap.version>
     <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
 
-    <angular.version>1.5.2</angular.version>
+    <angular.version>1.5.3</angular.version>
     <angular-ui-router.version>0.2.18</angular-ui-router.version>
     <angular-ui-bootstrap.version>1.2.5</angular-ui-bootstrap.version>
     <angular-ui-select.version>0.14.8</angular-ui-select.version>
