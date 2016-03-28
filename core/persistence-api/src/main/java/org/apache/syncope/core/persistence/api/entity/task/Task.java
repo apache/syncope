@@ -19,12 +19,9 @@
 package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public interface Task extends Entity<Long> {
-
-    TaskType getType();
 
     boolean add(TaskExec exec);
 

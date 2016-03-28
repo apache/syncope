@@ -27,7 +27,6 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.jpa.validation.entity.SchedTaskCheck;
 
@@ -55,11 +54,6 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
     @Min(0)
     @Max(1)
     private Integer active;
-
-    public JPASchedTask() {
-        super();
-        this.type = TaskType.SCHEDULED;
-    }
 
     @Override
     public Date getStartAt() {

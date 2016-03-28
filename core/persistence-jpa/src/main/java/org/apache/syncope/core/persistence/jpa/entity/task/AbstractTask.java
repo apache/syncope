@@ -24,15 +24,11 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
@@ -50,21 +46,12 @@ public abstract class AbstractTask extends AbstractEntity<Long> implements Task 
     @Id
     private Long id;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    protected TaskType type;
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
     private List<JPATaskExec> executions = new ArrayList<>();
 
     @Override
     public Long getKey() {
         return id;
-    }
-
-    @Override
-    public TaskType getType() {
-        return type;
     }
 
     @Override

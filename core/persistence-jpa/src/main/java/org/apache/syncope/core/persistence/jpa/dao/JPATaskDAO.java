@@ -23,6 +23,7 @@ import java.util.List;
 import javax.persistence.Query;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -81,9 +82,18 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     }
 
     private <T extends Task> StringBuilder buildFindAllQuery(final TaskType type) {
-        return new StringBuilder("SELECT t FROM ").
+        StringBuilder builder = new StringBuilder("SELECT t FROM ").
                 append(getEntityReference(type).getSimpleName()).
-                append(" t WHERE t.type=:type ");
+                append(" t WHERE ");
+        if (type == TaskType.SCHEDULED) {
+            builder.append("t.id NOT IN (SELECT t.id FROM ").append(JPAPushTask.class.getSimpleName()).append(" t) ").
+                    append("AND ").
+                    append("t.id NOT IN (SELECT t.id FROM ").append(JPAPullTask.class.getSimpleName()).append(" t)");
+        } else {
+            builder.append("1=1");
+        }
+
+        return builder.append(' ');
     }
 
     @Override
@@ -99,7 +109,6 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
         queryString.append("ORDER BY t.id DESC");
 
         Query query = entityManager().createQuery(queryString.toString());
-        query.setParameter("type", type);
         return query.getResultList();
     }
 
@@ -172,7 +181,6 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
                 append(toOrderByStatement(getEntityReference(type), orderByClauses));
 
         Query query = entityManager().createQuery(queryString.toString());
-        query.setParameter("type", type);
         if (resource != null) {
             query.setParameter("resource", resource);
         }
@@ -201,10 +209,8 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
 
         StringBuilder queryString = buildFindAllQuery(type, resource, anyTypeKind, anyTypeKey);
 
-        Query query = entityManager().createQuery(queryString.toString().replace(
-                "SELECT t",
-                "SELECT COUNT(t)"));
-        query.setParameter("type", type);
+        Query query = entityManager().createQuery(StringUtils.replaceOnce(
+                queryString.toString(), "SELECT t", "SELECT COUNT(t)"));
         if (resource != null) {
             query.setParameter("resource", resource);
         }
