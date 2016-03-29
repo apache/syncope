@@ -16,13 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.configuration;
+package org.apache.syncope.client.cli.commands.migrate;
 
-public abstract class AbstractConfigurationCommand {
+import org.apache.syncope.client.cli.commands.CommonsResultManager;
 
-    protected final ConfigurationSyncopeOperations configurationSyncopeOperations =
-            new ConfigurationSyncopeOperations();
-
-    protected final ConfigurationResultManager configurationResultManager = new ConfigurationResultManager();
-
+public class MigrateResultManager extends CommonsResultManager {
 }

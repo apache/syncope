@@ -136,16 +136,14 @@ public class InstallSetup {
                 }
             }
 
-            System.out.print("Syncope admin password: ");
-            String syncopeAdminPasswordFromSystemIn = scanIn.nextLine();
+            char[] syncopeAdminPasswordFromSystemConsole = System.console().readPassword("Syncope admin password: ");
             boolean syncopeAdminPasswordFound = false;
             while (!syncopeAdminPasswordFound) {
-                if (StringUtils.isNotBlank(syncopeAdminPasswordFromSystemIn)) {
-                    syncopeAdminPassword = syncopeAdminPasswordFromSystemIn;
+                if (syncopeAdminPasswordFromSystemConsole != null && syncopeAdminPasswordFromSystemConsole.length > 0) {
+                    syncopeAdminPassword = new String(syncopeAdminPasswordFromSystemConsole);
                     syncopeAdminPasswordFound = true;
                 } else {
-                    System.out.print("Syncope admin user: ");
-                    syncopeAdminPasswordFromSystemIn = scanIn.nextLine();
+                    syncopeAdminPasswordFromSystemConsole = System.console().readPassword("Syncope admin password: ");
                 }
             }
         }

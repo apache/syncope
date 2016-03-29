@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.configuration;
+package org.apache.syncope.client.cli.commands.migrate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +25,10 @@ import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
 
-@Command(name = "configuration")
-public class ConfigurationCommand extends AbstractCommand {
+@Command(name = "migrate")
+public class MigrateCommand extends AbstractCommand {
 
-    private final ConfigurationResultManager configurationResultManager = new ConfigurationResultManager();
+    private final MigrateResultManager migrateResultManager = new MigrateResultManager();
 
     @Override
     public void execute(final Input input) {
@@ -37,42 +37,28 @@ public class ConfigurationCommand extends AbstractCommand {
         }
 
         switch (Options.fromName(input.getOption())) {
-            case GET:
-                new ConfigurationGet(input).get();
+            case CONF:
+                new MigrateConf(input).migrate();
                 break;
-            case READ:
-                new ConfigurationRead(input).read();
-                break;
-            case UPDATE:
-                new ConfigurationUpdate(input).update();
-                break;
-            case DELETE:
-                new ConfigurationDelete(input).delete();
-                break;
-            case EXPORT:
-                new ConfigurationExport(input).export();
-                break;
+
             case HELP:
                 System.out.println(getHelpMessage());
                 break;
+
             default:
-                configurationResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
+                migrateResultManager.defaultOptionMessage(input.getOption(), getHelpMessage());
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return configurationResultManager.commandHelpMessage(getClass());
+        return migrateResultManager.commandHelpMessage(getClass());
     }
 
     private enum Options {
 
         HELP("--help"),
-        GET("--get"),
-        READ("--read"),
-        UPDATE("--update"),
-        DELETE("--delete"),
-        EXPORT("--export");
+        CONF("--conf");
 
         private final String optionName;
 

@@ -50,13 +50,9 @@ public class CommandUtilsTest {
     }
 
     @Test
-    public void commands() {
-        try {
-            final List<AbstractCommand> commands = CommandUtils.commands();
-            assertFalse(commands.isEmpty());
-            assertEquals(21, commands.size());
-        } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException ex) {
-            fail(ex.getMessage());
-        }
+    public void commands() throws InstantiationException, IllegalAccessException {
+        List<AbstractCommand> commands = CommandUtils.commands();
+        assertFalse(commands.isEmpty());
+        assertEquals(22, commands.size());
     }
 }
