@@ -50,6 +50,8 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -92,6 +94,15 @@ public class PlainAttrs extends AbstractAttrs {
         add(new ListView<AttrTO>("schemas", plainAttrTOs) {
 
             private static final long serialVersionUID = 9101744072914090143L;
+
+            @Override
+            public void renderHead(final IHeaderResponse response) {
+                super.renderHead(response);
+                if (plainAttrTOs.getObject().isEmpty()) {
+                    response.render(OnDomReadyHeaderItem.forScript(
+                            String.format("$('#emptyPlaceholder').append(\"%s\")", getString("attribute.empty.list"))));
+                }
+            }
 
             @Override
             @SuppressWarnings({ "unchecked", "rawtypes" })
