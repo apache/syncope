@@ -81,7 +81,7 @@ public class PlainAttrs extends AbstractAttrs {
 
             @Override
             protected List<AttrTO> load() {
-                setSchemas(CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
+                setPlainSchemas(CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
                         EntityTOUtils.<String, AnyTypeClassTO>keyTransformer(),
                         new ArrayList<>(Arrays.asList(anyTypeClass))));
                 setAttrs();
@@ -124,23 +124,25 @@ public class PlainAttrs extends AbstractAttrs {
         });
     }
 
-    private void setSchemas(final List<String> anyTypeClasses) {
-
-        AttrTO attrLayout = null;
-        final List<PlainSchemaTO> schemaTOs =
-                schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeClasses.toArray(new String[] {}));
+    private void setPlainSchemas(final List<String> anyTypeClasses) {
+        List<PlainSchemaTO> plainSchemas = Collections.emptyList();
+        if (!anyTypeClasses.isEmpty()) {
+            plainSchemas = schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeClasses.toArray(new String[] {}));
+        }
 
         schemas.clear();
 
+        // SYNCOPE-790
+        AttrTO attrLayout = null;
         if (attrLayout != null && mode != Mode.TEMPLATE) {
             // 1. remove attributes not selected for display
-            schemaRestClient.filter(schemaTOs, attrLayout.getValues(), true);
+            schemaRestClient.filter(plainSchemas, attrLayout.getValues(), true);
             // 2. sort remainig attributes according to configuration, e.g. attrLayout
             final Map<String, Integer> attrLayoutMap = new HashMap<>(attrLayout.getValues().size());
             for (int i = 0; i < attrLayout.getValues().size(); i++) {
                 attrLayoutMap.put(attrLayout.getValues().get(i), i);
             }
-            Collections.sort(schemaTOs, new Comparator<PlainSchemaTO>() {
+            Collections.sort(plainSchemas, new Comparator<PlainSchemaTO>() {
 
                 @Override
                 public int compare(final PlainSchemaTO schema1, final PlainSchemaTO schema2) {
@@ -156,7 +158,7 @@ public class PlainAttrs extends AbstractAttrs {
                 }
             });
         }
-        for (PlainSchemaTO schemaTO : schemaTOs) {
+        for (PlainSchemaTO schemaTO : plainSchemas) {
             schemas.put(schemaTO.getKey(), schemaTO);
         }
     }

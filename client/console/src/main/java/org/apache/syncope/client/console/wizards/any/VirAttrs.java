@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
@@ -56,12 +57,15 @@ public class VirAttrs extends AbstractAttrs {
 
             @Override
             protected List<AttrTO> load() {
-                final List<String> classes = CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
+                List<String> anyTypeClasses = CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
                         EntityTOUtils.<String, AnyTypeClassTO>keyTransformer(),
                         new ArrayList<>(Arrays.asList(anyTypeClass)));
 
-                final List<VirSchemaTO> virSchemas =
-                        schemaRestClient.getSchemas(SchemaType.VIRTUAL, classes.toArray(new String[] {}));
+                List<VirSchemaTO> virSchemas = Collections.emptyList();
+                if (!anyTypeClasses.isEmpty()) {
+                    virSchemas =
+                            schemaRestClient.getSchemas(SchemaType.VIRTUAL, anyTypeClasses.toArray(new String[] {}));
+                }
 
                 final Map<String, AttrTO> currents = entityTO.getVirAttrMap();
                 entityTO.getVirAttrs().clear();
