@@ -67,7 +67,9 @@ public abstract class AbstractSubjectDAOImpl extends AbstractDAOImpl implements 
             attrValues.add(attrValue);
         } else {
             for (String token : attrValue.split(Pattern.quote(literals.get(0)))) {
-                attrValues.addAll(split(token, literals.subList(1, literals.size())));
+                if (!token.isEmpty()) {
+                    attrValues.addAll(split(token, literals.subList(1, literals.size())));
+                }
             }
         }
 

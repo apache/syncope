@@ -169,8 +169,8 @@ public class SyncUtilities {
                     }
                 }
 
-                List<AbstractSubject> subjects =
-                        getSubjectDAO(accountIdItem).findByAttrValue(accountIdItem.getIntAttrName(), value, attrUtil);
+                List<AbstractSubject> subjects = getSubjectDAO(accountIdItem).findByAttrValue(accountIdItem.
+                        getIntAttrName(), value, attrUtil);
                 for (AbstractSubject subject : subjects) {
                     result.add(subject.getId());
                 }
@@ -338,10 +338,14 @@ public class SyncUtilities {
             altSearchSchemas = attrUtil.getAltSearchSchemas(syncPolicySpec);
         }
 
-        return syncRule == null ? altSearchSchemas == null || altSearchSchemas.isEmpty()
-                ? findByAccountIdItem(uid, resource, attrUtil)
-                : findByAttributableSearch(connObj, altSearchSchemas, resource, attrUtil)
-                : findByCorrelationRule(connObj, syncRule, SubjectType.valueOf(attrUtil.getType().name()));
+        try {
+            return syncRule == null ? altSearchSchemas == null || altSearchSchemas.isEmpty()
+                    ? findByAccountIdItem(uid, resource, attrUtil)
+                    : findByAttributableSearch(connObj, altSearchSchemas, resource, attrUtil)
+                    : findByCorrelationRule(connObj, syncRule, SubjectType.valueOf(attrUtil.getType().name()));
+        } catch (RuntimeException e) {
+            return Collections.<Long>emptyList();
+        }
     }
 
     public Boolean readEnabled(final ConnectorObject connectorObject, final AbstractSyncTask task) {
