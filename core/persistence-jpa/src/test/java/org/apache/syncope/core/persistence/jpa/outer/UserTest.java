@@ -26,12 +26,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
@@ -65,6 +67,9 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private PlainAttrValueDAO plainAttrValueDAO;
+
+    @Autowired
+    private DerSchemaDAO derSchemaDAO;
 
     @Test
     public void delete() {
@@ -127,5 +132,39 @@ public class UserTest extends AbstractTest {
         user = userDAO.find(4L);
         assertEquals(1, user.getRelationships().size());
         assertEquals(2L, user.getRelationships().get(0).getRightEnd().getKey(), 0);
+    }
+
+    @Test // search by derived attribute
+    public void issueSYNCOPE800() {
+        // create derived attribute (literal as prefix)
+        DerSchema prefix = entityFactory.newEntity(DerSchema.class);
+        prefix.setKey("kprefix");
+        prefix.setExpression("'k' + firstname");
+
+        prefix = derSchemaDAO.save(prefix);
+        derSchemaDAO.flush();
+
+        // create derived attribute (literal as suffix)
+        DerSchema suffix = entityFactory.newEntity(DerSchema.class);
+        suffix.setKey("ksuffix");
+        suffix.setExpression("firstname + 'k'");
+
+        suffix = derSchemaDAO.save(suffix);
+        derSchemaDAO.flush();
+
+        // add derived attributes to user
+        User owner = userDAO.find(3L);
+        assertNotNull("did not get expected user", owner);
+
+        String firstname = owner.getPlainAttr("firstname").getValuesAsStrings().iterator().next();
+        assertNotNull(firstname);
+
+        // search by ksuffix derived attribute
+        List<User> list = userDAO.findByDerAttrValue("ksuffix", firstname + "k");
+        assertEquals("did not get expected number of users ", 1, list.size());
+
+        // search by kprefix derived attribute
+        list = userDAO.findByDerAttrValue("kprefix", "k" + firstname);
+        assertEquals("did not get expected number of users ", 1, list.size());
     }
 }
