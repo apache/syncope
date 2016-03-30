@@ -34,6 +34,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.staxutils.PrettyPrintXMLStreamWriter;
 import org.apache.syncope.client.cli.Input;
 import org.slf4j.Logger;
@@ -80,6 +81,45 @@ public class MigrateConf {
         }
 
         return value;
+    }
+
+    private static String toNewIntMappingType(final String oldIntMappingType) {
+        String newIntMappingType;
+        switch (oldIntMappingType) {
+            case "UserId":
+                newIntMappingType = "UserKey";
+                break;
+
+            case "UserSchema":
+            case "MembershipSchema":
+                newIntMappingType = "UserPlainSchema";
+                break;
+
+            case "MembershipDerivedSchema":
+                newIntMappingType = "UserDerivedSchema";
+                break;
+
+            case "RoleId":
+                newIntMappingType = "GroupKey";
+                break;
+
+            case "RoleName":
+                newIntMappingType = "GroupName";
+                break;
+
+            case "RoleOwnerSchema":
+                newIntMappingType = "GroupOwnerSchema";
+                break;
+
+            case "RoleSchema":
+                newIntMappingType = "RolePlainSchema";
+                break;
+
+            default:
+                newIntMappingType = oldIntMappingType;
+        }
+
+        return newIntMappingType;
     }
 
     private static void exec(final String src, final String dst) throws XMLStreamException, IOException {
@@ -247,7 +287,8 @@ public class MigrateConf {
 
                                 JsonNode allowNullPassword = specification.get("allowNullPassword");
                                 if (allowNullPassword != null) {
-                                    writer.writeAttribute("allowNullPassword", allowNullPassword.asText());
+                                    writer.writeAttribute(
+                                            "allowNullPassword", allowNullPassword.asBoolean() ? "1" : "0");
                                     specification.remove("allowNullPassword");
                                 }
                                 JsonNode historyLength = specification.get("historyLength");
@@ -278,7 +319,8 @@ public class MigrateConf {
 
                                 JsonNode propagateSuspension = specification.get("propagateSuspension");
                                 if (propagateSuspension != null) {
-                                    writer.writeAttribute("propagateSuspension", propagateSuspension.asText());
+                                    writer.writeAttribute(
+                                            "propagateSuspension", propagateSuspension.asBoolean() ? "1" : "0");
                                     specification.remove("propagateSuspension");
                                 }
                                 JsonNode permittedLoginRetries = specification.get("permittedLoginRetries");
@@ -293,7 +335,7 @@ public class MigrateConf {
 
                                 writer.writeStartElement("AccountRuleConfInstance");
                                 writer.writeAttribute("id", policyId);
-                                writer.writeAttribute("passwordPolicy_id", policyId);
+                                writer.writeAttribute("accountPolicy_id", policyId);
                                 writer.writeAttribute("serializedInstance", specification.toString());
                                 writer.writeEndElement();
                                 break;
@@ -319,7 +361,7 @@ public class MigrateConf {
                         if (!connInstanceCapabilities.contains(connInstanceId + capabilities)) {
                             writer.writeStartElement("ConnInstance_capabilities");
                             writer.writeAttribute("ConnInstance_id", connInstanceId);
-                            writer.writeAttribute("capabilities", capabilities);
+                            writer.writeAttribute("capability", capabilities);
                             writer.writeEndElement();
 
                             connInstanceCapabilities.add(connInstanceId + capabilities);
@@ -329,15 +371,22 @@ public class MigrateConf {
                     case "externalresource":
                         writer.writeStartElement("ExternalResource");
                         copyAttrs(reader, writer,
-                                "syncTraceLevel", "userializedSyncToken", "rserializedSyncToken");
+                                "syncTraceLevel", "userializedSyncToken", "rserializedSyncToken",
+                                "propagationMode", "propagationPrimary", "syncPolicy_id");
+                        String syncPolicyId = getAttributeValue(reader, "syncPolicy_id");
                         writer.writeAttribute(
                                 "pullTraceLevel", getAttributeValue(reader, "syncTraceLevel"));
+                        if (StringUtils.isNotBlank(syncPolicyId)) {
+                            writer.writeAttribute(
+                                    "pullPolicy_id", getAttributeValue(reader, "syncPolicy_id"));
+                        }
                         writer.writeEndElement();
                         break;
 
                     case "externalresource_propactions":
                         writer.writeStartElement("ExternalResource_PropActions");
-                        copyAttrs(reader, writer, "element");
+
+                        writer.writeAttribute("resource_name", getAttributeValue(reader, "externalResource_name"));
 
                         String propActionClassName = getAttributeValue(reader, "element");
                         switch (propActionClassName) {
@@ -363,7 +412,8 @@ public class MigrateConf {
 
                     case "policy_externalresource":
                         writer.writeStartElement("AccountPolicy_ExternalResource");
-                        copyAttrs(reader, writer);
+                        writer.writeAttribute("accountPolicy_id", getAttributeValue(reader, "account_policy_id"));
+                        writer.writeAttribute("resource_name", getAttributeValue(reader, "resource_name"));
                         writer.writeEndElement();
                         break;
 
@@ -382,7 +432,7 @@ public class MigrateConf {
                         writer.writeAttribute("provision_id", umappingId);
 
                         String uaccountLink = getAttributeValue(reader, "accountlink");
-                        if (uaccountLink != null && !uaccountLink.isEmpty()) {
+                        if (StringUtils.isNotBlank(uaccountLink)) {
                             writer.writeAttribute("connObjectLink", uaccountLink);
                         }
                         writer.writeEndElement();
@@ -396,14 +446,15 @@ public class MigrateConf {
                             reporter.writeEndElement();
                         } else {
                             writer.writeStartElement("MappingItem");
-                            copyAttrs(reader, writer, "accountid");
+                            copyAttrs(reader, writer, "accountid", "intMappingType");
+                            writer.writeAttribute("intMappingType", toNewIntMappingType(uIntMappingType));
                             writer.writeAttribute("connObjectKey", getAttributeValue(reader, "accountid"));
                             writer.writeEndElement();
                         }
                         break;
 
                     case "rmapping":
-                        String rmappingId = getAttributeValue(reader, "id");
+                        String rmappingId = "10" + getAttributeValue(reader, "id");
                         writer.writeStartElement("Provision");
                         writer.writeAttribute("id", rmappingId);
                         writer.writeAttribute(
@@ -417,7 +468,7 @@ public class MigrateConf {
                         writer.writeAttribute("provision_id", rmappingId);
 
                         String raccountLink = getAttributeValue(reader, "accountlink");
-                        if (raccountLink != null && !raccountLink.isEmpty()) {
+                        if (StringUtils.isNotBlank(raccountLink)) {
                             writer.writeAttribute("connObjectLink", raccountLink);
                         }
                         writer.writeEndElement();
@@ -431,7 +482,8 @@ public class MigrateConf {
                             reporter.writeEndElement();
                         } else {
                             writer.writeStartElement("MappingItem");
-                            copyAttrs(reader, writer, "accountid");
+                            copyAttrs(reader, writer, "accountid", "intMappingType");
+                            writer.writeAttribute("intMappingType", toNewIntMappingType(rIntMappingType));
                             writer.writeAttribute("connObjectKey", getAttributeValue(reader, "accountid"));
                             writer.writeEndElement();
                         }
@@ -441,7 +493,8 @@ public class MigrateConf {
                         writer.writeStartElement("Task");
                         copyAttrs(reader, writer,
                                 "DTYPE", "propagationMode", "subjectType", "subjectId", "xmlAttributes",
-                                "jobClassName", "userTemplate", "roleTemplate", "userFilter", "roleFilter");
+                                "jobClassName", "userTemplate", "roleTemplate", "userFilter", "roleFilter",
+                                "propagationOperation", "syncStatus", "fullReconciliation");
 
                         String taskId = getAttributeValue(reader, "id");
 
@@ -454,29 +507,48 @@ public class MigrateConf {
                                         "anyKey", getAttributeValue(reader, "subjectId"));
                                 writer.writeAttribute(
                                         "attributes", getAttributeValue(reader, "xmlAttributes"));
+                                writer.writeAttribute(
+                                        "operation", getAttributeValue(reader, "propagationOperation"));
                                 writer.writeEndElement();
                                 break;
 
                             case "SyncTask":
                                 writer.writeAttribute("DTYPE", "PullTask");
+                                writer.writeAttribute("pullStatus", getAttributeValue(reader, "syncStatus"));
+
+                                String fullReconciliation = getAttributeValue(reader, "fullReconciliation");
+                                if ("1".equals(fullReconciliation)) {
+                                    writer.writeAttribute("pullMode", "FULL_RECONCILIATION");
+                                } else if ("0".equals(fullReconciliation)) {
+                                    writer.writeAttribute("pullMode", "INCREMENTAL");
+                                }
+
                                 writer.writeEndElement();
 
                                 String userTemplate = getAttributeValue(reader, "userTemplate");
-                                if (userTemplate != null && !userTemplate.isEmpty()) {
+                                if (StringUtils.isNotBlank(userTemplate)) {
+                                    ObjectNode template = (ObjectNode) OBJECT_MAPPER.readTree(userTemplate);
+                                    JsonNode plainAttrs = template.remove("attrs");
+                                    template.set("plainAttrs", plainAttrs);
+
                                     writer.writeStartElement("AnyTemplatePullTask");
-                                    writer.writeAttribute("id", taskId);
+                                    writer.writeAttribute("id", taskId + "1");
                                     writer.writeAttribute("pullTask_id", taskId);
                                     writer.writeAttribute("anyType_name", "USER");
-                                    writer.writeAttribute("template", userTemplate);
+                                    writer.writeAttribute("template", template.toString());
                                     writer.writeEndElement();
                                 }
                                 String roleTemplate = getAttributeValue(reader, "roleTemplate");
-                                if (roleTemplate != null && !roleTemplate.isEmpty()) {
+                                if (StringUtils.isNotBlank(roleTemplate)) {
+                                    ObjectNode template = (ObjectNode) OBJECT_MAPPER.readTree(roleTemplate);
+                                    JsonNode plainAttrs = template.remove("attrs");
+                                    template.set("plainAttrs", plainAttrs);
+
                                     writer.writeStartElement("AnyTemplatePullTask");
-                                    writer.writeAttribute("id", taskId);
+                                    writer.writeAttribute("id", taskId + "2");
                                     writer.writeAttribute("pullTask_id", taskId);
                                     writer.writeAttribute("anyType_name", "GROUP");
-                                    writer.writeAttribute("template", roleTemplate);
+                                    writer.writeAttribute("template", template.toString());
                                     writer.writeEndElement();
                                 }
                                 break;
@@ -498,19 +570,19 @@ public class MigrateConf {
                                 writer.writeEndElement();
 
                                 String userFilter = getAttributeValue(reader, "userFilter");
-                                if (userFilter != null && !userFilter.isEmpty()) {
+                                if (StringUtils.isNotBlank(userFilter)) {
                                     writer.writeStartElement("PushTaskAnyFilter");
-                                    writer.writeAttribute("id", taskId);
-                                    writer.writeAttribute("pusTask_id", taskId);
+                                    writer.writeAttribute("id", taskId + "1");
+                                    writer.writeAttribute("pushTask_id", taskId);
                                     writer.writeAttribute("anyType_name", "USER");
                                     writer.writeAttribute("fiql", userFilter);
                                     writer.writeEndElement();
                                 }
                                 String roleFilter = getAttributeValue(reader, "roleFilter");
-                                if (roleFilter != null && !roleFilter.isEmpty()) {
+                                if (StringUtils.isNotBlank(roleFilter)) {
                                     writer.writeStartElement("PushTaskAnyFilter");
-                                    writer.writeAttribute("id", taskId);
-                                    writer.writeAttribute("pusTask_id", taskId);
+                                    writer.writeAttribute("id", taskId + "2");
+                                    writer.writeAttribute("pushTask_id", taskId);
                                     writer.writeAttribute("anyType_name", "GROUP");
                                     writer.writeAttribute("fiql", roleFilter);
                                     writer.writeEndElement();
@@ -556,22 +628,23 @@ public class MigrateConf {
 
                     case "notification":
                         writer.writeStartElement("Notification");
-                        copyAttrs(reader, writer, "recipientAttrType", "template");
+                        copyAttrs(reader, writer, "recipientAttrType", "template",
+                                "userAbout", "roleAbout", "recipients");
                         String recipientAttrType = getAttributeValue(reader, "recipientAttrType");
-                        if ("UserSchema".equals(recipientAttrType)) {
-                            recipientAttrType = "UserPlainSchema";
-                        } else if ("RoleSchema".equals(recipientAttrType)) {
-                            recipientAttrType = "GroupPlainSchema";
+                        if (StringUtils.isNotBlank(recipientAttrType)) {
+                            writer.writeAttribute("recipientAttrType", toNewIntMappingType(recipientAttrType));
                         }
-                        writer.writeAttribute("recipientAttrType", recipientAttrType);
-                        writer.writeAttribute(
-                                "template_name", getAttributeValue(reader, "template"));
+                        String recipients = getAttributeValue(reader, "recipients");
+                        if (StringUtils.isNotBlank(recipients)) {
+                            writer.writeAttribute("recipientsFIQL", getAttributeValue(reader, "recipients"));
+                        }
+                        writer.writeAttribute("template_name", getAttributeValue(reader, "template"));
                         writer.writeEndElement();
 
                         String notificationId = getAttributeValue(reader, "id");
 
                         String userAbout = getAttributeValue(reader, "userAbout");
-                        if (userAbout != null && !userAbout.isEmpty()) {
+                        if (StringUtils.isNotBlank(userAbout)) {
                             writer.writeStartElement("AnyAbout");
                             writer.writeAttribute("id", notificationId);
                             writer.writeAttribute("notification_id", notificationId);
@@ -580,7 +653,7 @@ public class MigrateConf {
                             writer.writeEndElement();
                         }
                         String roleAbout = getAttributeValue(reader, "roleAbout");
-                        if (roleAbout != null && !roleAbout.isEmpty()) {
+                        if (StringUtils.isNotBlank(roleAbout)) {
                             writer.writeStartElement("AnyAbout");
                             writer.writeAttribute("id", notificationId);
                             writer.writeAttribute("notification_id", notificationId);
@@ -592,7 +665,7 @@ public class MigrateConf {
 
                     case "notification_events":
                         writer.writeStartElement("Notification_events");
-                        copyAttrs(reader, writer, "event");
+                        copyAttrs(reader, writer, "events");
                         writer.writeAttribute(
                                 "event", getAttributeValue(reader, "events").
                                 replaceAll("Controller", "Logic"));
