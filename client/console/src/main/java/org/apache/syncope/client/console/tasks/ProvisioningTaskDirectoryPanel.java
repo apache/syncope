@@ -38,14 +38,14 @@ import org.apache.wicket.model.StringResourceModel;
  *
  * @param <T> Sched task type.
  */
-public abstract class ProvisioningTaskSearchResultPanel<T extends AbstractProvisioningTaskTO>
-        extends SchedTaskSearchResultPanel<T> {
+public abstract class ProvisioningTaskDirectoryPanel<T extends AbstractProvisioningTaskTO>
+        extends SchedTaskDirectoryPanel<T> {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
     private final String resource;
 
-    protected ProvisioningTaskSearchResultPanel(
+    protected ProvisioningTaskDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final Class<T> reference,

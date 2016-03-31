@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.types.CamelEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.syncope.client.console.annotations.ExtPage;
-import org.apache.syncope.client.console.panels.CamelRoutesPanel;
+import org.apache.syncope.client.console.panels.CamelRoutesDirectoryPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -67,7 +67,8 @@ public class CamelRoutes extends BaseExtPage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                CamelRoutesPanel panel = new CamelRoutesPanel(panelId, getPageReference(), AnyTypeKind.USER);
+                CamelRoutesDirectoryPanel panel =
+                        new CamelRoutesDirectoryPanel(panelId, getPageReference(), AnyTypeKind.USER);
                 panel.setEnabled(restClient.isCamelEnabledFor(AnyTypeKind.USER));
                 return panel;
             }
@@ -79,7 +80,8 @@ public class CamelRoutes extends BaseExtPage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                CamelRoutesPanel panel = new CamelRoutesPanel(panelId, getPageReference(), AnyTypeKind.GROUP);
+                CamelRoutesDirectoryPanel panel =
+                        new CamelRoutesDirectoryPanel(panelId, getPageReference(), AnyTypeKind.GROUP);
                 panel.setEnabled(restClient.isCamelEnabledFor(AnyTypeKind.GROUP));
                 return panel;
             }
@@ -91,7 +93,8 @@ public class CamelRoutes extends BaseExtPage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                CamelRoutesPanel panel = new CamelRoutesPanel(panelId, getPageReference(), AnyTypeKind.ANY_OBJECT);
+                CamelRoutesDirectoryPanel panel =
+                        new CamelRoutesDirectoryPanel(panelId, getPageReference(), AnyTypeKind.ANY_OBJECT);
                 panel.setEnabled(restClient.isCamelEnabledFor(AnyTypeKind.ANY_OBJECT));
                 return panel;
             }

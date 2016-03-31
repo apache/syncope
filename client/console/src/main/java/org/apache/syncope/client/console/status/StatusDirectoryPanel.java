@@ -27,7 +27,7 @@ import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.Status;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
@@ -36,7 +36,7 @@ import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.console.status.StatusSearchResultPanel.AttributableStatusProvider;
+import org.apache.syncope.client.console.status.StatusDirectoryPanel.AttributableStatusProvider;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -56,8 +56,8 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class StatusSearchResultPanel
-        extends AbstractSearchResultPanel<StatusBean, StatusBean, AttributableStatusProvider, AbstractAnyRestClient<?>>
+public class StatusDirectoryPanel
+        extends DirectoryPanel<StatusBean, StatusBean, AttributableStatusProvider, AbstractAnyRestClient<?>>
         implements ModalPanel<StatusBean> {
 
     private static final long serialVersionUID = -9148734710505211261L;
@@ -70,7 +70,7 @@ public class StatusSearchResultPanel
 
     private final boolean statusOnly;
 
-    public StatusSearchResultPanel(
+    public StatusDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef,
@@ -79,7 +79,7 @@ public class StatusSearchResultPanel
         this(baseModal, multiLevelPanelRef, pageRef, anyTO, false);
     }
 
-    public StatusSearchResultPanel(
+    public StatusDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef,
@@ -126,7 +126,7 @@ public class StatusSearchResultPanel
 
     @Override
     protected List<IColumn<StatusBean, String>> getColumns() {
-        final List<IColumn<StatusBean, String>> columns = new ArrayList<IColumn<StatusBean, String>>();
+        final List<IColumn<StatusBean, String>> columns = new ArrayList<>();
 
         columns.add(new AbstractColumn<StatusBean, String>(
                 new StringResourceModel("resourceName", this, null), "resourceName") {

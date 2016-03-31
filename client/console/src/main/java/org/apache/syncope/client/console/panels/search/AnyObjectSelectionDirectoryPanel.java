@@ -28,11 +28,11 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.wicket.PageReference;
 
-public final class AnyObjectSelectionSearchResultPanel extends AnySelectionSearchResultPanel<AnyObjectTO> {
+public final class AnyObjectSelectionDirectoryPanel extends AnySelectionDirectoryPanel<AnyObjectTO> {
 
     private static final long serialVersionUID = -1100228004207271272L;
 
-    private AnyObjectSelectionSearchResultPanel(final String id, final Builder builder) {
+    private AnyObjectSelectionDirectoryPanel(final String id, final Builder builder) {
         super(id, builder, AnyObjectTO.class);
     }
 
@@ -61,7 +61,7 @@ public final class AnyObjectSelectionSearchResultPanel extends AnySelectionSearc
         return String.format(Constants.PREF_ANY_OBJECT_DER_ATTRS_VIEW, type);
     }
 
-    public static final class Builder extends AnySelectionSearchResultPanel.Builder<AnyObjectTO> {
+    public static final class Builder extends AnySelectionDirectoryPanel.Builder<AnyObjectTO> {
 
         private static final long serialVersionUID = 5155811461060452446L;
 
@@ -73,7 +73,7 @@ public final class AnyObjectSelectionSearchResultPanel extends AnySelectionSearc
 
         @Override
         protected WizardMgtPanel<AnyHandler<AnyObjectTO>> newInstance(final String id) {
-            return new AnyObjectSelectionSearchResultPanel(id, this);
+            return new AnyObjectSelectionDirectoryPanel(id, this);
         }
     }
 }

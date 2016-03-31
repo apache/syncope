@@ -16,23 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.commons;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
-import org.apache.syncope.client.console.rest.BaseRestClient;
-import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.wicket.PageReference;
+import java.io.Serializable;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 
-public abstract class AbstractTypesPanel<T extends AbstractBaseBean, DP extends SearchableDataProvider<T>>
-        extends AbstractSearchResultPanel<T, T, DP, BaseRestClient> {
+public abstract class DirectoryDataProvider<T extends Serializable> extends SortableDataProvider<T, String> {
 
-    private static final long serialVersionUID = 7890071604330629259L;
+    private static final long serialVersionUID = 6267494272884913376L;
 
-    public AbstractTypesPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef);
-        setFooterVisibility(true);
-        modal.addSumbitButton();
-        modal.size(Modal.Size.Large);
+    protected final int paginatorRows;
+
+    public DirectoryDataProvider(final int paginatorRows) {
+        super();
+        this.paginatorRows = paginatorRows;
+
+        // default sorting
+        setSort("key", SortOrder.ASCENDING);
     }
 }

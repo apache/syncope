@@ -25,11 +25,11 @@ import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
 
-public abstract class PullTaskSearchResultPanel extends ProvisioningTaskSearchResultPanel<PullTaskTO> {
+public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPanel<PullTaskTO> {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    protected PullTaskSearchResultPanel(
+    protected PullTaskDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final String resource,

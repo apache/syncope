@@ -32,7 +32,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
@@ -62,7 +62,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, SchemaProvider> {
+public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, SchemaProvider> {
 
     private static final long serialVersionUID = 3905038169553185171L;
 
@@ -255,7 +255,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
         return columns;
     }
 
-    protected final class SchemaProvider extends SearchableDataProvider<AbstractSchemaTO> {
+    protected final class SchemaProvider extends DirectoryDataProvider<AbstractSchemaTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 

@@ -28,11 +28,11 @@ import org.apache.wicket.PageReference;
 /**
  * Push Tasks page.
  */
-public abstract class PushTaskSearchResultPanel extends ProvisioningTaskSearchResultPanel<PushTaskTO> {
+public abstract class PushTaskDirectoryPanel extends ProvisioningTaskDirectoryPanel<PushTaskTO> {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    protected PushTaskSearchResultPanel(
+    protected PushTaskDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final String resource,
@@ -47,6 +47,6 @@ public abstract class PushTaskSearchResultPanel extends ProvisioningTaskSearchRe
 
     @Override
     protected ProvisioningTasksProvider<PushTaskTO> dataProvider() {
-        return new ProvisioningTasksProvider<PushTaskTO>(reference, TaskType.PUSH, rows);
+        return new ProvisioningTasksProvider<>(reference, TaskType.PUSH, rows);
     }
 }

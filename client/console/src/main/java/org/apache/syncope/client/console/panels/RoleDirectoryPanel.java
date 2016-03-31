@@ -47,12 +47,11 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class RoleSearchResultPanel
-        extends AbstractSearchResultPanel<RoleTO, RoleHandler, RoleDataProvider, RoleRestClient> {
+public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleHandler, RoleDataProvider, RoleRestClient> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected RoleSearchResultPanel(final String id, final Builder builder) {
+    protected RoleDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
         setShowResultPage(true);
 
@@ -96,7 +95,7 @@ public class RoleSearchResultPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                        send(RoleSearchResultPanel.this, Broadcast.EXACT,
+                        send(RoleDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<>(
                                         new RoleHandler(new RoleRestClient().read(model.getObject().getKey())),
                                         target));
@@ -109,7 +108,7 @@ public class RoleSearchResultPanel
                     public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                         final RoleTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(null);
-                        send(RoleSearchResultPanel.this, Broadcast.EXACT,
+                        send(RoleDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.NewItemActionEvent<>(new RoleHandler(clone), target));
                     }
                 }, ActionLink.ActionType.CLONE, StandardEntitlement.ROLE_CREATE).add(new ActionLink<RoleTO>() {
@@ -162,7 +161,7 @@ public class RoleSearchResultPanel
     }
 
     public abstract static class Builder
-            extends AbstractSearchResultPanel.Builder<RoleTO, RoleHandler, RoleRestClient> {
+            extends DirectoryPanel.Builder<RoleTO, RoleHandler, RoleRestClient> {
 
         private static final long serialVersionUID = 5088962796986706805L;
 
@@ -172,7 +171,7 @@ public class RoleSearchResultPanel
 
         @Override
         protected WizardMgtPanel<RoleHandler> newInstance(final String id) {
-            return new RoleSearchResultPanel(id, this);
+            return new RoleDirectoryPanel(id, this);
         }
     }
 }

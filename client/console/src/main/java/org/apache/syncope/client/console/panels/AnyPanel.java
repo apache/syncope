@@ -75,7 +75,7 @@ public class AnyPanel extends Panel {
 
     private AbstractSearchPanel searchPanel;
 
-    private final Panel searchResultPanel;
+    private final Panel directoryPanel;
 
     @SuppressWarnings({ "unchecked", "unchecked" })
     public AnyPanel(
@@ -128,8 +128,8 @@ public class AnyPanel extends Panel {
         accordion.setOutputMarkupId(true);
         add(accordion);
 
-        searchResultPanel = getSearchResultPanel("searchResult");
-        add(searchResultPanel);
+        directoryPanel = getDirectoryPanel("searchResult");
+        add(directoryPanel);
         // ------------------------
     }
 
@@ -140,23 +140,23 @@ public class AnyPanel extends Panel {
 
             switch (anyTypeTO.getKind()) {
                 case USER:
-                    UserSearchResultPanel.class.cast(AnyPanel.this.searchResultPanel).search(SearchUtils.buildFIQL(
+                    UserDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(SearchUtils.buildFIQL(
                             AnyPanel.this.searchPanel.getModel().getObject(),
                             SyncopeClient.getUserSearchConditionBuilder()), target);
                     break;
                 case GROUP:
-                    GroupSearchResultPanel.class.cast(AnyPanel.this.searchResultPanel).search(SearchUtils.buildFIQL(
+                    GroupDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(SearchUtils.buildFIQL(
                             AnyPanel.this.searchPanel.getModel().getObject(),
                             SyncopeClient.getGroupSearchConditionBuilder()), target);
                     break;
                 case ANY_OBJECT:
-                    AnyObjectSearchResultPanel.class.cast(AnyPanel.this.searchResultPanel).search(SearchUtils.buildFIQL(
+                    AnyObjectDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(SearchUtils.buildFIQL(
                             AnyPanel.this.searchPanel.getModel().getObject(),
                             SyncopeClient.getAnyObjectSearchConditionBuilder(anyTypeTO.getKey())), target);
                     break;
                 default:
             }
-            target.add(searchResultPanel);
+            target.add(directoryPanel);
         } else {
             super.onEvent(event);
         }
@@ -187,7 +187,7 @@ public class AnyPanel extends Panel {
         return panel;
     }
 
-    private Panel getSearchResultPanel(final String id) {
+    private Panel getDirectoryPanel(final String id) {
         final Panel panel;
         final String fiql;
         switch (anyTypeTO.getKind()) {
@@ -195,7 +195,7 @@ public class AnyPanel extends Panel {
                 fiql = SyncopeClient.getUserSearchConditionBuilder().is("key").greaterThan(0).query();
                 final UserTO userTO = new UserTO();
                 userTO.setRealm(realmTO.getFullPath());
-                panel = new UserSearchResultPanel.Builder(
+                panel = new UserDirectoryPanel.Builder(
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).
@@ -207,7 +207,7 @@ public class AnyPanel extends Panel {
                 fiql = SyncopeClient.getGroupSearchConditionBuilder().is("key").greaterThan(0).query();
                 final GroupTO groupTO = new GroupTO();
                 groupTO.setRealm(realmTO.getFullPath());
-                panel = new GroupSearchResultPanel.Builder(
+                panel = new GroupDirectoryPanel.Builder(
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).
@@ -221,7 +221,7 @@ public class AnyPanel extends Panel {
                 final AnyObjectTO anyObjectTO = new AnyObjectTO();
                 anyObjectTO.setRealm(realmTO.getFullPath());
                 anyObjectTO.setType(anyTypeTO.getKey());
-                panel = new AnyObjectSearchResultPanel.Builder(
+                panel = new AnyObjectDirectoryPanel.Builder(
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).

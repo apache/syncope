@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
@@ -41,8 +41,8 @@ import org.apache.wicket.model.IModel;
  *
  * @param <T> task type.
  */
-public abstract class TaskSearchResultPanel<T extends AbstractTaskTO>
-        extends AbstractSearchResultPanel<T, T, TaskDataProvider<T>, TaskRestClient> implements ModalPanel<T> {
+public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
+        extends DirectoryPanel<T, T, TaskDataProvider<T>, TaskRestClient> implements ModalPanel<T> {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
@@ -50,7 +50,7 @@ public abstract class TaskSearchResultPanel<T extends AbstractTaskTO>
 
     protected final MultilevelPanel multiLevelPanelRef;
 
-    protected TaskSearchResultPanel(
+    protected TaskDirectoryPanel(
             final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanelRef, final PageReference pageRef) {
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, false);
         this.baseModal = baseModal;
@@ -79,7 +79,7 @@ public abstract class TaskSearchResultPanel<T extends AbstractTaskTO>
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public abstract class TasksProvider<T extends AbstractTaskTO> extends SearchableDataProvider<T> {
+    public abstract class TasksProvider<T extends AbstractTaskTO> extends DirectoryDataProvider<T> {
 
         private static final long serialVersionUID = -20112718133295756L;
 

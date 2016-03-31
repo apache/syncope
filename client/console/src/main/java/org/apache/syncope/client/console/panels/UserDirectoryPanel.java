@@ -57,11 +57,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
+public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected UserSearchResultPanel(final String id, final Builder builder) {
+    protected UserDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
     }
 
@@ -197,7 +197,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                                send(UserSearchResultPanel.this, Broadcast.EXACT,
+                                send(UserDirectoryPanel.this, Broadcast.EXACT,
                                         new AjaxWizard.EditItemActionEvent<>(
                                                 new AnyHandler<>(new UserRestClient().read(model.getObject().getKey())),
                                                 target));
@@ -210,7 +210,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                         final UserTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(0L);
-                        send(UserSearchResultPanel.this, Broadcast.EXACT,
+                        send(UserDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.NewItemActionEvent<>(new AnyHandler<>(clone), target));
                     }
                 }, ActionLink.ActionType.CLONE, StandardEntitlement.USER_CREATE).add(new ActionLink<UserTO>() {
@@ -269,7 +269,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
         return columns;
     }
 
-    public static class Builder extends AnySearchResultPanel.Builder<UserTO> {
+    public static class Builder extends AnyDirectoryPanel.Builder<UserTO> {
 
         private static final long serialVersionUID = 1L;
 
@@ -280,7 +280,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
         @Override
         protected WizardMgtPanel<AnyHandler<UserTO>> newInstance(final String id) {
-            return new UserSearchResultPanel(id, this);
+            return new UserDirectoryPanel(id, this);
         }
     }
 }

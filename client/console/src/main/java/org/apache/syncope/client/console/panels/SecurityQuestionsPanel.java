@@ -30,7 +30,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel.SecurityQuestionsProvider;
 import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
@@ -54,7 +54,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
+public class SecurityQuestionsPanel extends DirectoryPanel<
         SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionsProvider, SecurityQuestionRestClient> {
 
     private static final long serialVersionUID = 3323019773236588850L;
@@ -210,7 +210,7 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
         return columns;
     }
 
-    protected final class SecurityQuestionsProvider extends SearchableDataProvider<SecurityQuestionTO> {
+    protected final class SecurityQuestionsProvider extends DirectoryDataProvider<SecurityQuestionTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 

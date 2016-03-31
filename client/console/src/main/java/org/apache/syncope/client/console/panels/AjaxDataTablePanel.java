@@ -29,7 +29,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.console.bulk.BulkActionModal;
 import org.apache.syncope.client.console.bulk.BulkContent;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel.EventDataWrapper;
+import org.apache.syncope.client.console.panels.DirectoryPanel.EventDataWrapper;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;

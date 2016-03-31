@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -44,13 +44,13 @@ import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractSearchResultPanel<
-        T extends Serializable, W extends Serializable, DP extends SearchableDataProvider<T>, E extends BaseRestClient>
+public abstract class DirectoryPanel<
+        T extends Serializable, W extends Serializable, DP extends DirectoryDataProvider<T>, E extends BaseRestClient>
         extends WizardMgtPanel<W> {
 
     private static final long serialVersionUID = -9170191461250434024L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractSearchResultPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DirectoryPanel.class);
 
     /**
      * Application preferences.
@@ -103,11 +103,11 @@ public abstract class AbstractSearchResultPanel<
      * @param id panel id.
      * @param pageRef page reference.
      */
-    public AbstractSearchResultPanel(final String id, final PageReference pageRef) {
+    public DirectoryPanel(final String id, final PageReference pageRef) {
         this(id, pageRef, true);
     }
 
-    public AbstractSearchResultPanel(final String id, final PageReference pageRef, final boolean wizardInModal) {
+    public DirectoryPanel(final String id, final PageReference pageRef, final boolean wizardInModal) {
         this(id, new Builder<T, W, E>(null, pageRef) {
 
             private static final long serialVersionUID = -8424727765826509309L;
@@ -120,11 +120,11 @@ public abstract class AbstractSearchResultPanel<
         setPageRef(pageRef);
     }
 
-    protected AbstractSearchResultPanel(final String id, final Builder<T, W, E> builder) {
+    protected DirectoryPanel(final String id, final Builder<T, W, E> builder) {
         this(id, builder, true);
     }
 
-    protected AbstractSearchResultPanel(final String id, final Builder<T, W, E> builder, final boolean wizardInModal) {
+    protected DirectoryPanel(final String id, final Builder<T, W, E> builder, final boolean wizardInModal) {
         super(id, wizardInModal);
         setOutputMarkupId(true);
 
@@ -237,7 +237,7 @@ public abstract class AbstractSearchResultPanel<
 
     }
 
-    public AbstractSearchResultPanel<T, W, DP, E> disableCheckBoxes() {
+    public DirectoryPanel<T, W, DP, E> disableCheckBoxes() {
         this.checkBoxEnabled = false;
         return this;
     }
@@ -253,8 +253,8 @@ public abstract class AbstractSearchResultPanel<
                 updateResultTable(data.isCreate(), data.getRows());
             }
 
-            if (AbstractSearchResultPanel.this.container.isVisibleInHierarchy()) {
-                data.getTarget().add(AbstractSearchResultPanel.this.container);
+            if (DirectoryPanel.this.container.isVisibleInHierarchy()) {
+                data.getTarget().add(DirectoryPanel.this.container);
             }
         }
         super.onEvent(event);

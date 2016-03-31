@@ -27,10 +27,10 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.CamelRoutes;
-import org.apache.syncope.client.console.panels.CamelRoutesPanel.CamelRoutesProvider;
+import org.apache.syncope.client.console.panels.CamelRoutesDirectoryPanel.CamelRoutesProvider;
 import org.apache.syncope.client.console.rest.CamelRoutesRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -52,14 +52,14 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class CamelRoutesPanel extends AbstractSearchResultPanel<
+public class CamelRoutesDirectoryPanel extends DirectoryPanel<
         CamelRouteTO, CamelRouteTO, CamelRoutesProvider, CamelRoutesRestClient> {
 
     private static final long serialVersionUID = 3727444742501082182L;
 
     private final AnyTypeKind anyTypeKind;
 
-    public CamelRoutesPanel(final String id, final PageReference pageRef, final AnyTypeKind anyTypeKind) {
+    public CamelRoutesDirectoryPanel(final String id, final PageReference pageRef, final AnyTypeKind anyTypeKind) {
         super(id, new Builder<CamelRouteTO, CamelRouteTO, CamelRoutesRestClient>(
                 new CamelRoutesRestClient(), pageRef) {
 
@@ -67,7 +67,7 @@ public class CamelRoutesPanel extends AbstractSearchResultPanel<
 
             @Override
             protected WizardMgtPanel<CamelRouteTO> newInstance(final String id) {
-                return new CamelRoutesPanel(id, this, anyTypeKind);
+                return new CamelRoutesDirectoryPanel(id, this, anyTypeKind);
             }
         }.disableCheckBoxes());
 
@@ -116,7 +116,7 @@ public class CamelRoutesPanel extends AbstractSearchResultPanel<
         }, false);
     }
 
-    private CamelRoutesPanel(
+    private CamelRoutesDirectoryPanel(
             final String id,
             final Builder<CamelRouteTO, CamelRouteTO, CamelRoutesRestClient> builder,
             final AnyTypeKind anyTypeKind) {
@@ -161,7 +161,7 @@ public class CamelRoutesPanel extends AbstractSearchResultPanel<
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
-                                send(CamelRoutesPanel.this, Broadcast.EXACT,
+                                send(CamelRoutesDirectoryPanel.this, Broadcast.EXACT,
                                         new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                             }
                         }, ActionLink.ActionType.EDIT, CamelEntitlement.ROUTE_UPDATE).
@@ -191,7 +191,7 @@ public class CamelRoutesPanel extends AbstractSearchResultPanel<
         return columns;
     }
 
-    protected final class CamelRoutesProvider extends SearchableDataProvider<CamelRouteTO> {
+    protected final class CamelRoutesProvider extends DirectoryDataProvider<CamelRouteTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 

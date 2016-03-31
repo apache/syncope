@@ -25,7 +25,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-public abstract class TaskDataProvider<T extends AbstractTaskTO> extends SearchableDataProvider<T> {
+public abstract class TaskDataProvider<T extends AbstractTaskTO> extends DirectoryDataProvider<T> {
 
     private static final long serialVersionUID = -20112718133295756L;
 

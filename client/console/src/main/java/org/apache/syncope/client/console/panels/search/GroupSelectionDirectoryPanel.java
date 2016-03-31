@@ -20,60 +20,60 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.UserDisplayAttributesModalPanel;
-import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.panels.GroupDisplayAttributesModalPanel;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.PageReference;
 
-public final class UserSelectionSearchResultPanel extends AnySelectionSearchResultPanel<UserTO> {
+public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPanel<GroupTO> {
 
-    private static final long serialVersionUID = -1100228004207271272L;
+    private static final long serialVersionUID = -1100228004207271271L;
 
-    private UserSelectionSearchResultPanel(final String id, final Builder builder) {
-        super(id, builder, UserTO.class);
+    private GroupSelectionDirectoryPanel(final String id, final Builder builder) {
+        super(id, builder, GroupTO.class);
     }
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_USERS_PAGINATOR_ROWS;
+        return Constants.PREF_GROUP_PAGINATOR_ROWS;
     }
 
     @Override
     protected String[] getDisplayAttributes() {
-        return UserDisplayAttributesModalPanel.DEFAULT_SELECTION;
+        return GroupDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     @Override
-    protected String getPrefDetailsView() {
-        return Constants.PREF_USERS_DETAILS_VIEW;
+    public String getPrefDetailsView() {
+        return Constants.PREF_GROUP_DETAILS_VIEW;
     }
 
     @Override
-    protected String getPrefPlainAttributesView() {
-        return Constants.PREF_USERS_PLAIN_ATTRS_VIEW;
+    public String getPrefPlainAttributesView() {
+        return Constants.PREF_GROUP_PLAIN_ATTRS_VIEW;
     }
 
     @Override
-    protected String getPrefDerivedAttributesView() {
-        return Constants.PREF_USERS_DER_ATTRS_VIEW;
+    public String getPrefDerivedAttributesView() {
+        return Constants.PREF_GROUP_DER_ATTRS_VIEW;
     }
 
-    public static final class Builder extends AnySelectionSearchResultPanel.Builder<UserTO> {
+    public static final class Builder extends AnySelectionDirectoryPanel.Builder<GroupTO> {
 
-        private static final long serialVersionUID = -1555789797531054422L;
+        private static final long serialVersionUID = -8774023867045850683L;
 
         public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
-            super(anyTypeClassTOs, new UserRestClient(), type, pageRef);
+            super(anyTypeClassTOs, new GroupRestClient(), type, pageRef);
             this.filtered = true;
             this.checkBoxEnabled = false;
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<UserTO>> newInstance(final String id) {
-            return new UserSelectionSearchResultPanel(id, this);
+        protected WizardMgtPanel<AnyHandler<GroupTO>> newInstance(final String id) {
+            return new GroupSelectionDirectoryPanel(id, this);
         }
     }
 }

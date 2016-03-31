@@ -51,14 +51,14 @@ import org.apache.wicket.model.StringResourceModel;
 /**
  * Tasks page.
  */
-public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultPanel<PropagationTaskTO>
-        implements ModalPanel<PropagationTaskTO> {
+public abstract class PropagationTaskDirectoryPanel
+        extends TaskDirectoryPanel<PropagationTaskTO> implements ModalPanel<PropagationTaskTO> {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
     private final String resource;
 
-    protected PropagationTaskSearchResultPanel(
+    protected PropagationTaskDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final String resource,

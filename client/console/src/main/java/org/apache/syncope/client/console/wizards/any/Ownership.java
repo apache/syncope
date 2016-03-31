@@ -25,14 +25,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.search.AnySelectionSearchResultPanel;
+import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
-import org.apache.syncope.client.console.panels.search.GroupSelectionSearchResultPanel;
+import org.apache.syncope.client.console.panels.search.GroupSelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
-import org.apache.syncope.client.console.panels.search.UserSelectionSearchResultPanel;
+import org.apache.syncope.client.console.panels.search.UserSelectionDirectoryPanel;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
@@ -79,7 +79,7 @@ public class Ownership extends WizardStep {
 
     private final Fragment groupSearchFragment;
 
-    private final GroupSelectionSearchResultPanel groupSearchResultPanel;
+    private final GroupSelectionDirectoryPanel groupDirectoryPanel;
 
     private final UserSearchPanel userSearchPanel;
 
@@ -87,7 +87,7 @@ public class Ownership extends WizardStep {
 
     private final Fragment userSearchFragment;
 
-    private final UserSelectionSearchResultPanel userSearchResultPanel;
+    private final UserSelectionDirectoryPanel userDirectoryPanel;
 
     private final Model<Boolean> isGroupOwnership;
 
@@ -138,10 +138,10 @@ public class Ownership extends WizardStep {
                         isGroupOwnership.setObject(!isGroupOwnership.getObject());
                         if (isGroupOwnership.getObject()) {
                             ownerContainer.addOrReplace(groupSearchFragment);
-                            groupSearchResultPanel.search(null, target);
+                            groupDirectoryPanel.search(null, target);
                         } else {
                             ownerContainer.addOrReplace(userSearchFragment);
-                            userSearchResultPanel.search(null, target);
+                            userDirectoryPanel.search(null, target);
                         }
                         target.add(ownerContainer);
                     }
@@ -161,12 +161,12 @@ public class Ownership extends WizardStep {
 
         AnyTypeTO anyTypeTO = anyTypeRestClient.get(AnyTypeKind.GROUP.name());
 
-        groupSearchResultPanel = GroupSelectionSearchResultPanel.class.cast(new GroupSelectionSearchResultPanel.Builder(
+        groupDirectoryPanel = GroupSelectionDirectoryPanel.class.cast(new GroupSelectionDirectoryPanel.Builder(
                 anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                 anyTypeTO.getKey(),
                 pageRef).build("searchResult"));
 
-        groupSearchFragment.add(groupSearchResultPanel);
+        groupSearchFragment.add(groupDirectoryPanel);
 
         userSearchFragment = new Fragment("search", "userSearchFragment", this);
         userSearchPanel = UserSearchPanel.class.cast(new UserSearchPanel.Builder(
@@ -175,12 +175,12 @@ public class Ownership extends WizardStep {
 
         anyTypeTO = anyTypeRestClient.get(AnyTypeKind.USER.name());
 
-        userSearchResultPanel = UserSelectionSearchResultPanel.class.cast(new UserSelectionSearchResultPanel.Builder(
+        userDirectoryPanel = UserSelectionDirectoryPanel.class.cast(new UserSelectionDirectoryPanel.Builder(
                 anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                 anyTypeTO.getKey(),
                 pageRef).build("searchResult"));
 
-        userSearchFragment.add(userSearchResultPanel);
+        userSearchFragment.add(userDirectoryPanel);
 
         if (isGroupOwnership.getObject()) {
             ownerContainer.add(groupSearchFragment);
@@ -231,7 +231,7 @@ public class Ownership extends WizardStep {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 send(Ownership.this, Broadcast.EXACT,
-                        new GroupSelectionSearchResultPanel.ItemSelection<GroupTO>(target, null));
+                        new GroupSelectionDirectoryPanel.ItemSelection<GroupTO>(target, null));
             }
         };
         userSearchFragment.add(userOwnerReset);
@@ -279,7 +279,7 @@ public class Ownership extends WizardStep {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 send(Ownership.this, Broadcast.EXACT,
-                        new GroupSelectionSearchResultPanel.ItemSelection<GroupTO>(target, null));
+                        new GroupSelectionDirectoryPanel.ItemSelection<GroupTO>(target, null));
             }
         };
         groupSearchFragment.add(groupOwnerReset);
@@ -292,25 +292,25 @@ public class Ownership extends WizardStep {
             if (Ownership.this.isGroupOwnership.getObject()) {
                 final String fiql = SearchUtils.buildFIQL(
                         groupSearchPanel.getModel().getObject(), SyncopeClient.getGroupSearchConditionBuilder());
-                groupSearchResultPanel.search(fiql, target);
+                groupDirectoryPanel.search(fiql, target);
             } else {
                 final String fiql = SearchUtils.buildFIQL(
                         userSearchPanel.getModel().getObject(), SyncopeClient.getUserSearchConditionBuilder());
-                userSearchResultPanel.search(fiql, target);
+                userDirectoryPanel.search(fiql, target);
             }
-        } else if (event.getPayload() instanceof AnySelectionSearchResultPanel.ItemSelection) {
-            final AnyTO sel = ((AnySelectionSearchResultPanel.ItemSelection) event.getPayload()).getSelection();
+        } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
+            final AnyTO sel = ((AnySelectionDirectoryPanel.ItemSelection) event.getPayload()).getSelection();
             if (sel == null) {
                 handler.getInnerObject().setUserOwner(null);
                 handler.getInnerObject().setGroupOwner(null);
             } else if (sel instanceof UserTO) {
                 handler.getInnerObject().setUserOwner(sel.getKey());
                 handler.getInnerObject().setGroupOwner(null);
-                ((UserSelectionSearchResultPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
+                ((UserSelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
             } else if (sel instanceof GroupTO) {
                 handler.getInnerObject().setGroupOwner(sel.getKey());
                 handler.getInnerObject().setUserOwner(null);
-                ((GroupSelectionSearchResultPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
+                ((GroupSelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
             }
         } else {
             super.onEvent(event);

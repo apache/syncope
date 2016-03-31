@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.console.panels.AnyObjectDisplayAttributesModalPanel;
-import org.apache.syncope.client.console.panels.AnySearchResultPanel;
+import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -51,14 +51,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends AnySearchResultPanel<T> {
+public abstract class AnySelectionDirectoryPanel<T extends AnyTO> extends AnyDirectoryPanel<T> {
 
     private static final long serialVersionUID = -1100228004207271272L;
 
     private final Class<T> reference;
 
-    protected AnySelectionSearchResultPanel(
-            final String id, final AnySearchResultPanel.Builder<T> builder, final Class<T> reference) {
+    protected AnySelectionDirectoryPanel(
+            final String id, final AnyDirectoryPanel.Builder<T> builder, final Class<T> reference) {
 
         super(id, builder);
         this.reference = reference;
@@ -119,7 +119,7 @@ public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends Any
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final T ignore) {
-                        send(AnySelectionSearchResultPanel.this,
+                        send(AnySelectionDirectoryPanel.this,
                                 Broadcast.BUBBLE, new ItemSelection<>(target, model.getObject()));
                     }
                 }, ActionLink.ActionType.SELECT, String.format("%s_%s", type, AnyEntitlement.READ));
@@ -178,7 +178,7 @@ public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends Any
 
     protected abstract String getPrefDerivedAttributesView();
 
-    public abstract static class Builder<T extends AnyTO> extends AnySearchResultPanel.Builder<T> {
+    public abstract static class Builder<T extends AnyTO> extends AnyDirectoryPanel.Builder<T> {
 
         private static final long serialVersionUID = 5460024856989891156L;
 

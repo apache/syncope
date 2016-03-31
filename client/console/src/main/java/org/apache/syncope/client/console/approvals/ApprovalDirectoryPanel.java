@@ -26,11 +26,11 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
-import org.apache.syncope.client.console.approvals.ApprovalSearchResultPanel.ApprovalProvider;
+import org.apache.syncope.client.console.approvals.ApprovalDirectoryPanel.ApprovalProvider;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -50,12 +50,12 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
-public class ApprovalSearchResultPanel
-        extends AbstractSearchResultPanel<WorkflowFormTO, WorkflowFormTO, ApprovalProvider, UserWorkflowRestClient> {
+public class ApprovalDirectoryPanel
+        extends DirectoryPanel<WorkflowFormTO, WorkflowFormTO, ApprovalProvider, UserWorkflowRestClient> {
 
     private static final long serialVersionUID = -7122136682275797903L;
 
-    public ApprovalSearchResultPanel(final String id, final PageReference pageReference) {
+    public ApprovalDirectoryPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, false);
         disableCheckBoxes();
 
@@ -168,7 +168,7 @@ public class ApprovalSearchResultPanel
         return Constants.PREF_WORKFLOW_FORM_PAGINATOR_ROWS;
     }
 
-    public static class ApprovalProvider extends SearchableDataProvider<WorkflowFormTO> {
+    public static class ApprovalProvider extends DirectoryDataProvider<WorkflowFormTO> {
 
         private static final long serialVersionUID = -2311716167583335852L;
 

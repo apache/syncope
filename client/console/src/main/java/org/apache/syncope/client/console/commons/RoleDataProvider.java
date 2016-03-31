@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-public class RoleDataProvider extends SearchableDataProvider<RoleTO> {
+public class RoleDataProvider extends DirectoryDataProvider<RoleTO> {
 
     private static final long serialVersionUID = 6267494272884913376L;
 

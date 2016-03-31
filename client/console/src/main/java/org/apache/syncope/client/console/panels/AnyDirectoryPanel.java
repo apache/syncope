@@ -44,8 +44,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.util.ListModel;
 
-public abstract class AnySearchResultPanel<T extends AnyTO>
-        extends AbstractSearchResultPanel<T, AnyHandler<T>, AnyDataProvider<T>, AbstractAnyRestClient<T>> {
+public abstract class AnyDirectoryPanel<T extends AnyTO>
+        extends DirectoryPanel<T, AnyHandler<T>, AnyDataProvider<T>, AbstractAnyRestClient<T>> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -70,7 +70,7 @@ public abstract class AnySearchResultPanel<T extends AnyTO>
      */
     protected final String type;
 
-    protected AnySearchResultPanel(final String id, final Builder<T> builder) {
+    protected AnyDirectoryPanel(final String id, final Builder<T> builder) {
         super(id, builder);
         this.realm = builder.realm;
         this.type = builder.type;
@@ -80,11 +80,11 @@ public abstract class AnySearchResultPanel<T extends AnyTO>
         altDefaultModal.size(Modal.Size.Large);
 
         this.pSchemaNames = new ArrayList<>();
-        for (AnyTypeClassTO anyTypeClassTO : AnySearchResultPanelBuilder.class.cast(builder).getAnyTypeClassTOs()) {
+        for (AnyTypeClassTO anyTypeClassTO : AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs()) {
             this.pSchemaNames.addAll(anyTypeClassTO.getPlainSchemas());
         }
         this.dSchemaNames = new ArrayList<>();
-        for (AnyTypeClassTO anyTypeClassTO : AnySearchResultPanelBuilder.class.cast(builder).getAnyTypeClassTOs()) {
+        for (AnyTypeClassTO anyTypeClassTO : AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs()) {
             this.dSchemaNames.addAll(anyTypeClassTO.getDerSchemas());
         }
 
@@ -114,14 +114,14 @@ public abstract class AnySearchResultPanel<T extends AnyTO>
         return bulkActions;
     }
 
-    public interface AnySearchResultPanelBuilder extends Serializable {
+    public interface AnyDirectoryPanelBuilder extends Serializable {
 
         List<AnyTypeClassTO> getAnyTypeClassTOs();
     }
 
     public abstract static class Builder<T extends AnyTO>
-            extends AbstractSearchResultPanel.Builder<T, AnyHandler<T>, AbstractAnyRestClient<T>>
-            implements AnySearchResultPanelBuilder {
+            extends DirectoryPanel.Builder<T, AnyHandler<T>, AbstractAnyRestClient<T>>
+            implements AnyDirectoryPanelBuilder {
 
         private static final long serialVersionUID = -6828423611982275640L;
 

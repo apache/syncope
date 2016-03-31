@@ -29,7 +29,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.RelationshipTypesPanel.RelationshipTypeProvider;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -53,7 +53,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class RelationshipTypesPanel extends AbstractTypesPanel<RelationshipTypeTO, RelationshipTypeProvider> {
+public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipTypeTO, RelationshipTypeProvider> {
 
     private static final long serialVersionUID = -3731778000138547357L;
 
@@ -216,7 +216,7 @@ public class RelationshipTypesPanel extends AbstractTypesPanel<RelationshipTypeT
         return columns;
     }
 
-    protected final class RelationshipTypeProvider extends SearchableDataProvider<RelationshipTypeTO> {
+    protected final class RelationshipTypeProvider extends DirectoryDataProvider<RelationshipTypeTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 

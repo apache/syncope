@@ -27,7 +27,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-public class AnyDataProvider<T extends AnyTO> extends SearchableDataProvider<T> {
+public class AnyDataProvider<T extends AnyTO> extends DirectoryDataProvider<T> {
 
     private static final long serialVersionUID = 6267494272884913376L;
 

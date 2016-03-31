@@ -40,9 +40,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatorAjaxLink;
@@ -313,7 +313,7 @@ public class ReconciliationWidget extends BaseWidget {
         }
     }
 
-    private class AnysReconciliationPanel extends AbstractSearchResultPanel<
+    private class AnysReconciliationPanel extends DirectoryPanel<
         Any, Any, AnysReconciliationProvider, BaseRestClient> {
 
         private static final long serialVersionUID = -8214546246301342868L;
@@ -453,7 +453,7 @@ public class ReconciliationWidget extends BaseWidget {
         }
     }
 
-    protected final class AnysReconciliationProvider extends SearchableDataProvider<Any> {
+    protected final class AnysReconciliationProvider extends DirectoryDataProvider<Any> {
 
         private static final long serialVersionUID = -1500081449932597854L;
 

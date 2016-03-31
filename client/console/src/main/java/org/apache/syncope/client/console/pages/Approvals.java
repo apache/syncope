@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
-import org.apache.syncope.client.console.approvals.ApprovalSearchResultPanel;
+import org.apache.syncope.client.console.approvals.ApprovalDirectoryPanel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
@@ -36,6 +36,6 @@ public class Approvals extends BasePage {
         content.setOutputMarkupId(true);
         body.add(content);
 
-        content.add(new ApprovalSearchResultPanel("wfPanel", getPageReference()));
+        content.add(new ApprovalDirectoryPanel("wfPanel", getPageReference()));
     }
 }

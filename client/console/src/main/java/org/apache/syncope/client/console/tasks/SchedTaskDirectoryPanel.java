@@ -60,8 +60,8 @@ import org.apache.wicket.model.StringResourceModel;
  *
  * @param <T> Sched task type.
  */
-public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends TaskSearchResultPanel<T>
-        implements ModalPanel<T> {
+public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
+        extends TaskDirectoryPanel<T> implements ModalPanel<T> {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
@@ -71,7 +71,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
     private final StartAtTogglePanel startAt;
 
-    protected SchedTaskSearchResultPanel(
+    protected SchedTaskDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final Class<T> reference,
@@ -182,7 +182,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
-                                send(SchedTaskSearchResultPanel.this, Broadcast.EXACT,
+                                send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
                                         new AjaxWizard.EditItemActionEvent<>(
                                                 restClient.readSchedTask(reference, model.getObject().getKey()),
                                                 target));
@@ -196,7 +196,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 final T clone = SerializationUtils.clone(model.getObject());
                                 clone.setKey(0L);
-                                send(SchedTaskSearchResultPanel.this, Broadcast.EXACT,
+                                send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
                                         new AjaxWizard.EditItemActionEvent<>(clone, target));
                             }
                         }, ActionLink.ActionType.CLONE, StandardEntitlement.TASK_CREATE).

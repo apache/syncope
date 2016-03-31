@@ -31,12 +31,12 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SerializableTransformer;
-import org.apache.syncope.client.console.panels.AnyObjectSearchResultPanel;
+import org.apache.syncope.client.console.panels.AnyObjectDirectoryPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
-import org.apache.syncope.client.console.panels.search.AnyObjectSelectionSearchResultPanel;
-import org.apache.syncope.client.console.panels.search.AnySelectionSearchResultPanel;
+import org.apache.syncope.client.console.panels.search.AnyObjectSelectionDirectoryPanel;
+import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
@@ -218,7 +218,7 @@ public class Relationships extends WizardStep {
 
         private AnyObjectSearchPanel anyObjectSearchPanel;
 
-        private WizardMgtPanel<AnyHandler<AnyObjectTO>> anyObjectSearchResultPanel;
+        private WizardMgtPanel<AnyHandler<AnyObjectTO>> anyObjectDirectoryPanel;
 
         public Specification() {
             super("specification");
@@ -333,14 +333,14 @@ public class Relationships extends WizardStep {
                                 build("searchPanel");
                         fragment.add(anyObjectSearchPanel.setRenderBodyOnly(true));
 
-                        anyObjectSearchResultPanel = new AnyObjectSelectionSearchResultPanel.Builder(
+                        anyObjectDirectoryPanel = new AnyObjectSelectionDirectoryPanel.Builder(
                                 anyTypeClassRestClient.list(anyType.getClasses()),
                                 anyType.getKey(),
                                 pageRef).setFiltered(true).
                                 setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
                                         is("key").notNullValue().query()).
                                 build("searchResultPanel");
-                        fragment.add(anyObjectSearchResultPanel.setRenderBodyOnly(true));
+                        fragment.add(anyObjectDirectoryPanel.setRenderBodyOnly(true));
                     }
                     target.add(container);
                 }
@@ -354,12 +354,12 @@ public class Relationships extends WizardStep {
                         getTarget();
                 final String fiql = SearchUtils.buildFIQL(anyObjectSearchPanel.getModel().getObject(),
                         SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectSearchPanel.getBackObjectType()));
-                AnyObjectSearchResultPanel.class.cast(anyObjectSearchResultPanel).search(fiql, target);
-            } else if (event.getPayload() instanceof AnySelectionSearchResultPanel.ItemSelection) {
-                final AjaxRequestTarget target = AnySelectionSearchResultPanel.ItemSelection.class.cast(event.
+                AnyObjectDirectoryPanel.class.cast(anyObjectDirectoryPanel).search(fiql, target);
+            } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
+                final AjaxRequestTarget target = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.
                         getPayload()).getTarget();
 
-                AnyTO right = AnySelectionSearchResultPanel.ItemSelection.class.cast(event.getPayload()).getSelection();
+                AnyTO right = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.getPayload()).getSelection();
                 rel.setRightKey(right.getKey());
 
                 Relationships.this.addNewRelationships(rel);

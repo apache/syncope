@@ -27,7 +27,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.ParametersPanel.ParametersProvider;
 import org.apache.syncope.client.console.rest.BaseRestClient;
@@ -55,7 +55,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class ParametersPanel extends AbstractSearchResultPanel<
+public class ParametersPanel extends DirectoryPanel<
         AttrTO, AttrTO, ParametersProvider, BaseRestClient> {
 
     private static final long serialVersionUID = 2765863608539154422L;
@@ -206,7 +206,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
         return columns;
     }
 
-    protected final class ParametersProvider extends SearchableDataProvider<AttrTO> {
+    protected final class ParametersProvider extends DirectoryDataProvider<AttrTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 

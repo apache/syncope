@@ -28,20 +28,19 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
-import org.apache.syncope.client.console.wizards.any.GroupHandler;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -55,115 +54,122 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
+public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected GroupSearchResultPanel(final String id, final Builder builder) {
+    protected AnyObjectDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
     }
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_GROUP_PAGINATOR_ROWS;
+        return Constants.PREF_ANYOBJECT_PAGINATOR_ROWS;
     }
 
     @Override
-    protected List<IColumn<GroupTO, String>> getColumns() {
-        final List<IColumn<GroupTO, String>> columns = new ArrayList<>();
+    protected List<IColumn<AnyObjectTO, String>> getColumns() {
+        final List<IColumn<AnyObjectTO, String>> columns = new ArrayList<>();
 
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_DETAILS_VIEW)) {
-            final Field field = ReflectionUtils.findField(GroupTO.class, name);
+        for (String name : prefMan.getList(
+                getRequest(), String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type))) {
+
+            final Field field = ReflectionUtils.findField(AnyObjectTO.class, name);
 
             if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new DatePropertyColumn<GroupTO>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
             } else {
-                columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
             }
         }
 
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_PLAIN_ATTRS_VIEW)) {
+        for (String name : prefMan.getList(
+                getRequest(), String.format(Constants.PREF_ANY_OBJECT_PLAIN_ATTRS_VIEW, type))) {
+
             if (pSchemaNames.contains(name)) {
-                columns.add(new AttrColumn<GroupTO>(name, SchemaType.PLAIN));
+                columns.add(new AttrColumn<AnyObjectTO>(name, SchemaType.PLAIN));
             }
         }
 
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_DER_ATTRS_VIEW)) {
+        for (String name : prefMan.getList(
+                getRequest(), String.format(Constants.PREF_ANY_OBJECT_DER_ATTRS_VIEW, type))) {
+
             if (dSchemaNames.contains(name)) {
-                columns.add(new AttrColumn<GroupTO>(name, SchemaType.DERIVED));
+                columns.add(new AttrColumn<AnyObjectTO>(name, SchemaType.DERIVED));
             }
         }
 
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
-            for (String name : GroupDisplayAttributesModalPanel.DEFAULT_SELECTION) {
-                columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
+            for (String name : AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION) {
+                columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
             }
 
-            prefMan.setList(getRequest(), getResponse(), Constants.PREF_GROUP_DETAILS_VIEW,
-                    Arrays.asList(GroupDisplayAttributesModalPanel.DEFAULT_SELECTION));
+            prefMan.setList(getRequest(), getResponse(),
+                    String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type),
+                    Arrays.asList(AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION));
         }
 
         setWindowClosedReloadCallback(displayAttributeModal);
 
-        columns.add(new ActionColumn<GroupTO, String>(new ResourceModel("actions")) {
+        columns.add(new ActionColumn<AnyObjectTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
-            public ActionLinksPanel<GroupTO> getActions(final String componentId, final IModel<GroupTO> model) {
-                final ActionLinksPanel.Builder<GroupTO> panel = ActionLinksPanel.builder();
+            public ActionLinksPanel<AnyObjectTO> getActions(final String componentId, final IModel<AnyObjectTO> model) {
+                final ActionLinksPanel.Builder<AnyObjectTO> panel = ActionLinksPanel.builder();
 
-                panel.
-                        add(new ActionLink<GroupTO>() {
+                panel.add(new ActionLink<AnyObjectTO>() {
+
+                    private static final long serialVersionUID = -7978723352517770645L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                        final IModel<AnyHandler<AnyObjectTO>> formModel =
+                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                        altDefaultModal.setFormModel(formModel);
+
+                        target.add(altDefaultModal.setContent(new StatusModal<>(
+                                altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
+
+                        altDefaultModal.header(new Model<>(
+                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
+
+                        altDefaultModal.show(true);
+                    }
+                }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).
+                        add(new ActionLink<AnyObjectTO>() {
+
+                            private static final long serialVersionUID = -7978723352517770644L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                                send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
+                                        new AjaxWizard.EditItemActionEvent<>(
+                                                new AnyHandler<>(new AnyObjectRestClient().read(model.getObject().
+                                                        getKey())),
+                                                target));
+                            }
+                        }, ActionLink.ActionType.EDIT, String.format("%s_%s", type, AnyEntitlement.READ)).
+                        add(new ActionLink<AnyObjectTO>() {
 
                             private static final long serialVersionUID = -7978723352517770645L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                                final IModel<AnyHandler<GroupTO>> formModel =
-                                        new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
-                                altDefaultModal.setFormModel(formModel);
-
-                                target.add(altDefaultModal.setContent(new StatusModal<>(
-                                        altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
-
-                                altDefaultModal.header(new Model<>(
-                                        getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
-
-                                altDefaultModal.show(true);
-                            }
-                        }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).
-                        add(new ActionLink<GroupTO>() {
-
-                            private static final long serialVersionUID = -7978723352517770644L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                                send(GroupSearchResultPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(
-                                                new GroupHandler(new GroupRestClient().read(model.getObject().
-                                                        getKey())), target));
-                            }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.GROUP_READ).
-                        add(new ActionLink<GroupTO>() {
-
-                            private static final long serialVersionUID = -7978723352517770644L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                                final GroupTO clone = SerializationUtils.clone(model.getObject());
+                            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                                final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
                                 clone.setKey(0L);
-                                send(GroupSearchResultPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.NewItemActionEvent<>(new GroupHandler(clone), target));
+                                send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
+                                        new AjaxWizard.NewItemActionEvent<>(new AnyHandler<>(clone), target));
                             }
-                        }, ActionLink.ActionType.CLONE, StandardEntitlement.GROUP_CREATE).
-                        add(new ActionLink<GroupTO>() {
+                        }, ActionLink.ActionType.CLONE, StandardEntitlement.USER_CREATE).
+                        add(new ActionLink<AnyObjectTO>() {
 
-                            private static final long serialVersionUID = -7978723352517770644L;
+                            private static final long serialVersionUID = -7978723352517770646L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                                 try {
                                     restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
                                     info(getString(Constants.OPERATION_SUCCEEDED));
@@ -175,28 +181,28 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.GROUP_DELETE);
+                        }, ActionLink.ActionType.DELETE, String.format("%s_%s", type, AnyEntitlement.DELETE));
 
-                return panel.build(componentId);
+                return panel.build(componentId, model.getObject());
             }
 
             @Override
             public ActionLinksPanel<Serializable> getHeader(final String componentId) {
                 final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder();
 
-                return panel.add(new ActionLink<Serializable>() {
+                panel.add(new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        target.add(displayAttributeModal.setContent(new GroupDisplayAttributesModalPanel<>(
-                                displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
+                        target.add(displayAttributeModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
+                                displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
                         displayAttributeModal.addSumbitButton();
                         displayAttributeModal.header(new ResourceModel("any.attr.display"));
                         displayAttributeModal.show(true);
                     }
-                }, ActionLink.ActionType.CHANGE_VIEW, StandardEntitlement.GROUP_READ).add(
+                }, ActionLink.ActionType.CHANGE_VIEW, String.format("%s_%s", type, AnyEntitlement.READ)).add(
                         new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
@@ -207,26 +213,29 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
                             target.add(container);
                         }
                     }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.GROUP_SEARCH).build(componentId);
+                }, ActionLink.ActionType.RELOAD, String.format("%s_%s", type, AnyEntitlement.SEARCH));
+
+                return panel.build(componentId);
             }
-        });
+        }
+        );
 
         return columns;
+
     }
 
-    public static class Builder extends AnySearchResultPanel.Builder<GroupTO>
-            implements AnySearchResultPanelBuilder {
+    public static class Builder extends AnyDirectoryPanel.Builder<AnyObjectTO> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -6828423611982275641L;
 
         public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
-            super(anyTypeClassTOs, new GroupRestClient(), type, pageRef);
+            super(anyTypeClassTOs, new AnyObjectRestClient(), type, pageRef);
             setShowResultPage(true);
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<GroupTO>> newInstance(final String id) {
-            return new GroupSearchResultPanel(id, this);
+        protected WizardMgtPanel<AnyHandler<AnyObjectTO>> newInstance(final String id) {
+            return new AnyObjectDirectoryPanel(id, this);
         }
     }
 }

@@ -17,32 +17,27 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head>
-    <title>Search result panel</title>
-  </head>
-  <body>
-    <wicket:extend>
-      <div wicket:id="searchContainer">
-        <div class="row">
-          <div class="col-sm-6">
-            <form wicket:id="paginator">
-              <div>
-                <div class="dataTables_length">
-                  <label>
-                    <wicket:message key="displayRows"/>
-                    <select class="form-control input-sm" wicket:id="rowsChooser"/>
-                  </label>
-                </div>
+  <wicket:extend>
+    <div wicket:id="searchContainer">
+      <div class="row">
+        <div class="col-sm-6">
+          <form wicket:id="paginator">
+            <div>
+              <div class="dataTables_length">
+                <label>
+                  <wicket:message key="displayRows"/>
+                  <select class="form-control input-sm" wicket:id="rowsChooser"/>
+                </label>
               </div>
-            </form>
-          </div>
-        </div>
-
-        <div class="dataTable">
-          <span wicket:id="resultTable">[Table]</span>
+            </div>
+          </form>
         </div>
       </div>
-      <wicket:child/>
-    </wicket:extend>
-  </body>
+
+      <div class="dataTable">
+        <span wicket:id="resultTable">[Table]</span>
+      </div>
+    </div>
+    <wicket:child/>
+  </wicket:extend>
 </html>
