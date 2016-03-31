@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.todos;
+package org.apache.syncope.client.console.approvals;
 
 import java.text.ParseException;
 import java.util.ArrayList;

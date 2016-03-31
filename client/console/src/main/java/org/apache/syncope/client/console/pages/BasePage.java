@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.widgets.TODOsWidget;
+import org.apache.syncope.client.console.widgets.ApprovalsWidget;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -96,7 +96,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         body.add(new Label("version", SyncopeConsoleApplication.get().getVersion()));
         body.add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
 
-        body.add(new TODOsWidget("todosWidget", getPageReference()).setRenderBodyOnly(true));
+        body.add(new ApprovalsWidget("approvalsWidget", getPageReference()).setRenderBodyOnly(true));
 
         // menu
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("dashboard"));
@@ -239,8 +239,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         }
 
         // Extensions
-        ClassPathScanImplementationLookup classPathScanImplementationLookup
-                = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+        ClassPathScanImplementationLookup classPathScanImplementationLookup =
+                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
                 getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         List<Class<? extends BaseExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
 

@@ -19,15 +19,15 @@
 package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
-import org.apache.syncope.client.console.todos.TODOSearchResultPanel;
+import org.apache.syncope.client.console.approvals.ApprovalSearchResultPanel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-public class TODOs extends BasePage {
+public class Approvals extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271271L;
 
-    public TODOs(final PageParameters parameters) {
+    public Approvals(final PageParameters parameters) {
         super(parameters);
 
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
@@ -36,6 +36,6 @@ public class TODOs extends BasePage {
         content.setOutputMarkupId(true);
         body.add(content);
 
-        content.add(new TODOSearchResultPanel("wfPanel", getPageReference()));
+        content.add(new ApprovalSearchResultPanel("wfPanel", getPageReference()));
     }
 }

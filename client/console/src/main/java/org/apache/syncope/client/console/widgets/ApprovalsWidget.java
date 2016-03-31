@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.pages.TODOs;
+import org.apache.syncope.client.console.pages.Approvals;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -57,25 +57,25 @@ import org.apache.wicket.protocol.ws.api.registry.IKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TODOsWidget extends Panel {
+public class ApprovalsWidget extends Panel {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(TODOsWidget.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ApprovalsWidget.class);
 
     private static final int UPDATE_PERIOD = 30;
 
-    private final Label linkTODOsNumber;
+    private final Label linkApprovalsNumber;
 
-    private final Label headerTODOsNumber;
+    private final Label headerApprovalsNumber;
 
-    private final WebMarkupContainer lastTODOsList;
+    private final WebMarkupContainer lastApprovalsList;
 
     private final ListView<WorkflowFormTO> lastFive;
 
-    private List<WorkflowFormTO> lastTODOs;
+    private final List<WorkflowFormTO> lastApprovals;
 
-    public TODOsWidget(final String id, final PageReference pageRef) {
+    public ApprovalsWidget(final String id, final PageReference pageRef) {
         super(id);
         setOutputMarkupId(true);
 
@@ -85,15 +85,15 @@ public class TODOsWidget extends Panel {
 
             @Override
             protected List<WorkflowFormTO> load() {
-                return TODOsWidget.this.lastTODOs.subList(
-                        0, TODOsWidget.this.lastTODOs.size() < 6 ? TODOsWidget.this.lastTODOs.size() : 5);
+                return ApprovalsWidget.this.lastApprovals.subList(0, ApprovalsWidget.this.lastApprovals.size() < 6
+                        ? ApprovalsWidget.this.lastApprovals.size() : 5);
             }
         };
 
-        lastTODOs = getLastTODOs();
-        Collections.sort(lastTODOs, new WorkflowFormComparator());
+        lastApprovals = getLastApprovals();
+        Collections.sort(lastApprovals, new WorkflowFormComparator());
 
-        linkTODOsNumber = new Label("todos", lastTODOs.size()) {
+        linkApprovalsNumber = new Label("approvals", lastApprovals.size()) {
 
             private static final long serialVersionUID = 4755868673082976208L;
 
@@ -108,17 +108,17 @@ public class TODOsWidget extends Panel {
             }
 
         };
-        add(linkTODOsNumber.setOutputMarkupId(true));
+        add(linkApprovalsNumber.setOutputMarkupId(true));
 
-        headerTODOsNumber = new Label("number", lastTODOs.size());
-        headerTODOsNumber.setOutputMarkupId(true);
-        add(headerTODOsNumber);
+        headerApprovalsNumber = new Label("number", lastApprovals.size());
+        headerApprovalsNumber.setOutputMarkupId(true);
+        add(headerApprovalsNumber);
 
-        lastTODOsList = new WebMarkupContainer("lastTODOsList");
-        lastTODOsList.setOutputMarkupId(true);
-        add(lastTODOsList);
+        lastApprovalsList = new WebMarkupContainer("lastApprovalsList");
+        lastApprovalsList.setOutputMarkupId(true);
+        add(lastApprovalsList);
 
-        lastFive = new ListView<WorkflowFormTO>("lastTODOs", model) {
+        lastFive = new ListView<WorkflowFormTO>("lastApprovals", model) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
@@ -126,7 +126,7 @@ public class TODOsWidget extends Panel {
             protected void populateItem(final ListItem<WorkflowFormTO> item) {
                 final WorkflowFormTO modelObject = item.getModelObject();
 
-                final AjaxLink<String> todo = new AjaxLink<String>("todo") {
+                final AjaxLink<String> approval = new AjaxLink<String>("approval") {
 
                     private static final long serialVersionUID = 7021195294339489084L;
 
@@ -144,20 +144,20 @@ public class TODOsWidget extends Panel {
                     }
                 };
 
-                item.add(todo);
+                item.add(approval);
 
-                todo.add(new Label("key", new ResourceModel(modelObject.getKey(), modelObject.getKey())).
+                approval.add(new Label("key", new ResourceModel(modelObject.getKey(), modelObject.getKey())).
                         setRenderBodyOnly(true));
 
-                todo.add(new Label("owner", modelObject.getOwner()));
+                approval.add(new Label("owner", modelObject.getOwner()));
 
-                todo.add(new Label("createTime",
+                approval.add(new Label("createTime",
                         SyncopeConsoleSession.get().getDateFormat().format(modelObject.getCreateTime())).
                         setRenderBodyOnly(true));
 
                 WebMarkupContainer dueDateContainer = new WebMarkupContainer("dueDateContainer");
                 dueDateContainer.setOutputMarkupId(true);
-                todo.add(dueDateContainer);
+                approval.add(dueDateContainer);
 
                 if (modelObject.getDueDate() == null) {
                     dueDateContainer.add(new Label("dueDate"));
@@ -170,12 +170,11 @@ public class TODOsWidget extends Panel {
 
             }
         };
-        lastTODOsList.add(lastFive.setReuseItems(false).setOutputMarkupId(true));
+        lastApprovalsList.add(lastFive.setReuseItems(false).setOutputMarkupId(true));
 
-        final BookmarkablePageLink<Object> todos = BookmarkablePageLinkBuilder.build("todosLink", TODOs.class);
-        add(todos);
-
-        MetaDataRoleAuthorizationStrategy.authorize(todos, WebPage.ENABLE, StandardEntitlement.WORKFLOW_FORM_LIST);
+        BookmarkablePageLink<Object> approvals = BookmarkablePageLinkBuilder.build("approvalsLink", Approvals.class);
+        add(approvals);
+        MetaDataRoleAuthorizationStrategy.authorize(approvals, WebPage.ENABLE, StandardEntitlement.WORKFLOW_FORM_LIST);
 
         add(new WebSocketBehavior() {
 
@@ -185,12 +184,12 @@ public class TODOsWidget extends Panel {
             protected void onConnect(final ConnectedMessage message) {
                 super.onConnect(message);
                 SyncopeConsoleSession.get().scheduleAtFixedRate(
-                        new TODOInfoUpdater(message), 0, UPDATE_PERIOD, TimeUnit.SECONDS);
+                        new ApprovalInfoUpdater(message), 0, UPDATE_PERIOD, TimeUnit.SECONDS);
             }
         });
     }
 
-    private List<WorkflowFormTO> getLastTODOs() {
+    private List<WorkflowFormTO> getLastApprovals() {
         if (SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_LIST)) {
             return new UserWorkflowRestClient().getForms();
         } else {
@@ -204,21 +203,23 @@ public class TODOsWidget extends Panel {
             WebSocketPushPayload wsEvent = (WebSocketPushPayload) event.getPayload();
             if (wsEvent.getMessage() instanceof UpdateMessage) {
 
-                TODOsWidget.this.linkTODOsNumber.setDefaultModelObject(TODOsWidget.this.lastTODOs.size());
-                wsEvent.getHandler().add(TODOsWidget.this.linkTODOsNumber);
+                ApprovalsWidget.this.linkApprovalsNumber.
+                        setDefaultModelObject(ApprovalsWidget.this.lastApprovals.size());
+                wsEvent.getHandler().add(ApprovalsWidget.this.linkApprovalsNumber);
 
-                TODOsWidget.this.headerTODOsNumber.setDefaultModelObject(TODOsWidget.this.lastTODOs.size());
-                wsEvent.getHandler().add(TODOsWidget.this.headerTODOsNumber);
+                ApprovalsWidget.this.headerApprovalsNumber.
+                        setDefaultModelObject(ApprovalsWidget.this.lastApprovals.size());
+                wsEvent.getHandler().add(ApprovalsWidget.this.headerApprovalsNumber);
 
-                TODOsWidget.this.lastFive.removeAll();
-                wsEvent.getHandler().add(TODOsWidget.this.lastTODOsList);
+                ApprovalsWidget.this.lastFive.removeAll();
+                wsEvent.getHandler().add(ApprovalsWidget.this.lastApprovalsList);
             }
         } else {
             super.onEvent(event);
         }
     }
 
-    protected final class TODOInfoUpdater implements Runnable {
+    protected final class ApprovalInfoUpdater implements Runnable {
 
         private final Application application;
 
@@ -226,7 +227,7 @@ public class TODOsWidget extends Panel {
 
         private final IKey key;
 
-        public TODOInfoUpdater(final ConnectedMessage message) {
+        public ApprovalInfoUpdater(final ConnectedMessage message) {
             this.application = message.getApplication();
             this.session = SyncopeConsoleSession.get();
             this.key = message.getKey();
@@ -238,22 +239,22 @@ public class TODOsWidget extends Panel {
                 ThreadContext.setApplication(application);
                 ThreadContext.setSession(session);
 
-                final List<WorkflowFormTO> actual = getLastTODOs();
+                final List<WorkflowFormTO> actual = getLastApprovals();
                 Collections.sort(actual, new WorkflowFormComparator());
 
-                if (!actual.equals(lastTODOs)) {
-                    LOG.debug("Update TODOs");
+                if (!actual.equals(lastApprovals)) {
+                    LOG.debug("Update approvals");
 
-                    lastTODOs.clear();
-                    lastTODOs = actual;
+                    lastApprovals.clear();
+                    lastApprovals.addAll(actual);
 
                     WebSocketSettings settings = WebSocketSettings.Holder.get(application);
-                    WebSocketPushBroadcaster broadcaster
-                            = new WebSocketPushBroadcaster(settings.getConnectionRegistry());
+                    WebSocketPushBroadcaster broadcaster =
+                            new WebSocketPushBroadcaster(settings.getConnectionRegistry());
                     broadcaster.broadcast(new ConnectedMessage(application, session.getId(), key), new UpdateMessage());
                 }
             } catch (Throwable t) {
-                LOG.error("Unexpected error while checking for updated Job info", t);
+                LOG.error("Unexpected error while checking for updated approval info", t);
             } finally {
                 ThreadContext.detach();
             }

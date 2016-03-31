@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.todos;
+package org.apache.syncope.client.console.approvals;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.commons.SearchableDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
-import org.apache.syncope.client.console.todos.TODOSearchResultPanel.ApprovalProvider;
+import org.apache.syncope.client.console.approvals.ApprovalSearchResultPanel.ApprovalProvider;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -50,12 +50,12 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
-public class TODOSearchResultPanel
+public class ApprovalSearchResultPanel
         extends AbstractSearchResultPanel<WorkflowFormTO, WorkflowFormTO, ApprovalProvider, UserWorkflowRestClient> {
 
     private static final long serialVersionUID = -7122136682275797903L;
 
-    public TODOSearchResultPanel(final String id, final PageReference pageReference) {
+    public ApprovalSearchResultPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, false);
         disableCheckBoxes();
 

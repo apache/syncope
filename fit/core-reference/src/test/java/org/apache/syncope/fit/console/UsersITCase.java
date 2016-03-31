@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
@@ -26,9 +28,6 @@ import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import static org.junit.Assert.assertNotNull;
-
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 

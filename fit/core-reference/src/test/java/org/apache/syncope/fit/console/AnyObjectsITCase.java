@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -26,9 +28,6 @@ import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import static org.junit.Assert.assertNotNull;
-
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.wicket.markup.html.form.TextField;
@@ -106,7 +105,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
         formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
-        
+
         wicketTester.cleanupFeedbackMessages();
 
         formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
