@@ -31,13 +31,13 @@ import org.apache.wicket.PageReference;
  * @param <T> can be {@link org.apache.syncope.common.lib.to.AnyTO} or
  * {@link org.apache.syncope.client.console.wizards.any.AnyHandler}
  */
-public class AnyObjectDisplayAttributesModalPage<T extends Serializable> extends DisplayAttributesModalPanel<T> {
+public class AnyObjectDisplayAttributesModalPanel<T extends Serializable> extends DisplayAttributesModalPanel<T> {
 
     private static final long serialVersionUID = 5194630813773543054L;
 
-    public static final String[] ANY_OBJECT_DEFAULT_SELECTION = { "key" };
+    public static final String[] DEFAULT_SELECTION = { "key" };
 
-    public AnyObjectDisplayAttributesModalPage(
+    public AnyObjectDisplayAttributesModalPanel(
             final BaseModal<T> modal,
             final PageReference pageRef,
             final List<String> schemaNames,
@@ -48,22 +48,22 @@ public class AnyObjectDisplayAttributesModalPage<T extends Serializable> extends
     }
 
     @Override
-    public String getPrefDetailView() {
+    protected String getPrefDetailView() {
         return String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type);
     }
 
     @Override
-    public String getPrefAttributeView() {
+    protected String getPrefPlainAttributeView() {
         return String.format(Constants.PREF_ANY_OBJECT_PLAIN_ATTRS_VIEW, type);
     }
 
     @Override
-    public String getPrefDerivedAttributeView() {
+    protected String getPrefDerivedAttributeView() {
         return String.format(Constants.PREF_ANY_OBJECT_DER_ATTRS_VIEW, type);
     }
 
     @Override
-    public Class<AnyObjectTO> getTOClass() {
+    protected Class<AnyObjectTO> getTOClass() {
         return AnyObjectTO.class;
     }
 }

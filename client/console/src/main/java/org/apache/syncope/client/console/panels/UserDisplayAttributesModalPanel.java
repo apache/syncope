@@ -35,7 +35,7 @@ public class UserDisplayAttributesModalPanel<T extends Serializable> extends Dis
 
     private static final long serialVersionUID = 5194630813773543054L;
 
-    public static final String[] USER_DEFAULT_SELECTION = { "key", "username", "status", "mustChangePassword" };
+    public static final String[] DEFAULT_SELECTION = { "key", "username", "status", "mustChangePassword" };
 
     public UserDisplayAttributesModalPanel(
             final BaseModal<T> modal,
@@ -46,22 +46,22 @@ public class UserDisplayAttributesModalPanel<T extends Serializable> extends Dis
     }
 
     @Override
-    public String getPrefDetailView() {
+    protected String getPrefDetailView() {
         return Constants.PREF_USERS_DETAILS_VIEW;
     }
 
     @Override
-    public String getPrefAttributeView() {
+    protected String getPrefPlainAttributeView() {
         return Constants.PREF_USERS_PLAIN_ATTRS_VIEW;
     }
 
     @Override
-    public String getPrefDerivedAttributeView() {
+    protected String getPrefDerivedAttributeView() {
         return Constants.PREF_USERS_DER_ATTRS_VIEW;
     }
 
     @Override
-    public Class<UserTO> getTOClass() {
+    protected Class<UserTO> getTOClass() {
         return UserTO.class;
     }
 

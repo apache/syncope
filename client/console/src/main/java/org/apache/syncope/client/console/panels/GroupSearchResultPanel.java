@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
@@ -74,10 +75,8 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
         for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(GroupTO.class, name);
 
-            if ("token".equalsIgnoreCase(name)) {
-                columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
-            } else if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
+            if (field != null && field.getType().equals(Date.class)) {
+                columns.add(new DatePropertyColumn<GroupTO>(new ResourceModel(name, name), name, name));
             } else {
                 columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
             }
@@ -97,17 +96,17 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
 
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
-            for (String name : GroupDisplayAttributesModalPanel.GROUP_DEFAULT_SELECTION) {
+            for (String name : GroupDisplayAttributesModalPanel.DEFAULT_SELECTION) {
                 columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
             }
 
             prefMan.setList(getRequest(), getResponse(), Constants.PREF_GROUP_DETAILS_VIEW,
-                    Arrays.asList(GroupDisplayAttributesModalPanel.GROUP_DEFAULT_SELECTION));
+                    Arrays.asList(GroupDisplayAttributesModalPanel.DEFAULT_SELECTION));
         }
 
         setWindowClosedReloadCallback(displayAttributeModal);
 
-        columns.add(new ActionColumn<GroupTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<GroupTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
@@ -194,7 +193,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
                         target.add(displayAttributeModal.setContent(new GroupDisplayAttributesModalPanel<>(
                                 displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
                         displayAttributeModal.addSumbitButton();
-                        displayAttributeModal.header(new ResourceModel("any.attr.display", ""));
+                        displayAttributeModal.header(new ResourceModel("any.attr.display"));
                         displayAttributeModal.show(true);
                     }
                 }, ActionLink.ActionType.CHANGE_VIEW, StandardEntitlement.GROUP_READ).add(

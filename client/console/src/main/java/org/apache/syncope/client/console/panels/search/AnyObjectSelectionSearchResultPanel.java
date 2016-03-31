@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.AnyObjectDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
@@ -31,10 +32,8 @@ public final class AnyObjectSelectionSearchResultPanel extends AnySelectionSearc
 
     private static final long serialVersionUID = -1100228004207271272L;
 
-    public static final String[] USER_DEFAULT_SELECTION = { "key" };
-
     private AnyObjectSelectionSearchResultPanel(final String id, final Builder builder) {
-        super(id, builder);
+        super(id, builder, AnyObjectTO.class);
     }
 
     @Override
@@ -43,8 +42,8 @@ public final class AnyObjectSelectionSearchResultPanel extends AnySelectionSearc
     }
 
     @Override
-    protected String[] getDislayAttributes() {
-        return USER_DEFAULT_SELECTION;
+    protected String[] getDisplayAttributes() {
+        return AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     @Override
@@ -53,7 +52,7 @@ public final class AnyObjectSelectionSearchResultPanel extends AnySelectionSearc
     }
 
     @Override
-    public String getPrefAttributesView() {
+    public String getPrefPlainAttributesView() {
         return String.format(Constants.PREF_ANY_OBJECT_PLAIN_ATTRS_VIEW, type);
     }
 
@@ -64,7 +63,7 @@ public final class AnyObjectSelectionSearchResultPanel extends AnySelectionSearc
 
     public static final class Builder extends AnySelectionSearchResultPanel.Builder<AnyObjectTO> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 5155811461060452446L;
 
         public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
             super(anyTypeClassTOs, new AnyObjectRestClient(), type, pageRef);

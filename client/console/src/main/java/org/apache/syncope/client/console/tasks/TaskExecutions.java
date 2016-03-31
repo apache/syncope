@@ -98,7 +98,7 @@ public abstract class TaskExecutions
 
         columns.add(new PropertyColumn<ExecTO, String>(new ResourceModel("status"), "status", "status"));
 
-        columns.add(new ActionColumn<ExecTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<ExecTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
@@ -100,14 +101,18 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
 
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
-            for (String name : AnyObjectDisplayAttributesModalPage.ANY_OBJECT_DEFAULT_SELECTION) {
+            for (String name : AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION) {
                 columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
             }
+
+            prefMan.setList(getRequest(), getResponse(),
+                    String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type),
+                    Arrays.asList(AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION));
         }
 
         setWindowClosedReloadCallback(displayAttributeModal);
 
-        columns.add(new ActionColumn<AnyObjectTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AnyObjectTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
@@ -191,10 +196,10 @@ public class AnyObjectSearchResultPanel extends AnySearchResultPanel<AnyObjectTO
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        target.add(displayAttributeModal.setContent(new AnyObjectDisplayAttributesModalPage<>(
+                        target.add(displayAttributeModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
                                 displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
                         displayAttributeModal.addSumbitButton();
-                        displayAttributeModal.header(new ResourceModel("any.attr.display", ""));
+                        displayAttributeModal.header(new ResourceModel("any.attr.display"));
                         displayAttributeModal.show(true);
                     }
                 }, ActionLink.ActionType.CHANGE_VIEW, String.format("%s_%s", type, AnyEntitlement.READ)).add(

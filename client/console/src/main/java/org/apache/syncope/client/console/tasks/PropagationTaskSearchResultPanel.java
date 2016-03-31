@@ -96,7 +96,7 @@ public abstract class PropagationTaskSearchResultPanel extends TaskSearchResultP
         columns.add(new PropertyColumn<PropagationTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new ActionColumn<PropagationTaskTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<PropagationTaskTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 

@@ -148,7 +148,7 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
             }
         }
 
-        columns.add(new ActionColumn<AnyTypeClassTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AnyTypeClassTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 906457126287899096L;
 

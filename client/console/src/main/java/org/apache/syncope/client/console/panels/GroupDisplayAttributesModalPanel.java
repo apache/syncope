@@ -35,7 +35,7 @@ public class GroupDisplayAttributesModalPanel<T extends Serializable> extends Di
 
     private static final long serialVersionUID = 5194630813773543054L;
 
-    public static final String[] GROUP_DEFAULT_SELECTION = { "key", "name" };
+    public static final String[] DEFAULT_SELECTION = { "key", "name" };
 
     public GroupDisplayAttributesModalPanel(
             final BaseModal<T> modal,
@@ -46,22 +46,22 @@ public class GroupDisplayAttributesModalPanel<T extends Serializable> extends Di
     }
 
     @Override
-    public String getPrefDetailView() {
+    protected String getPrefDetailView() {
         return Constants.PREF_GROUP_DETAILS_VIEW;
     }
 
     @Override
-    public String getPrefAttributeView() {
+    protected String getPrefPlainAttributeView() {
         return Constants.PREF_GROUP_PLAIN_ATTRS_VIEW;
     }
 
     @Override
-    public String getPrefDerivedAttributeView() {
+    protected String getPrefDerivedAttributeView() {
         return Constants.PREF_GROUP_DER_ATTRS_VIEW;
     }
 
     @Override
-    public Class<GroupTO> getTOClass() {
+    protected Class<GroupTO> getTOClass() {
         return GroupTO.class;
     }
 }

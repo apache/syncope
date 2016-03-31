@@ -26,16 +26,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import org.apache.syncope.client.console.panels.AnyObjectDisplayAttributesModalPage;
+import org.apache.syncope.client.console.panels.AnyObjectDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.panels.AnySearchResultPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
@@ -51,28 +55,36 @@ public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends Any
 
     private static final long serialVersionUID = -1100228004207271272L;
 
-    protected AnySelectionSearchResultPanel(final String id, final AnySearchResultPanel.Builder<T> builder) {
+    private final Class<T> reference;
+
+    protected AnySelectionSearchResultPanel(
+            final String id, final AnySearchResultPanel.Builder<T> builder, final Class<T> reference) {
+
         super(id, builder);
+        this.reference = reference;
     }
 
     @Override
     protected List<IColumn<T, String>> getColumns() {
-
         final List<IColumn<T, String>> columns = new ArrayList<>();
 
         for (String name : prefMan.getList(getRequest(), getPrefDetailsView())) {
             final Field field = ReflectionUtils.findField(AnyObjectTO.class, name);
 
-            if ("token".equalsIgnoreCase(name)) {
-                columns.add(new PropertyColumn<T, String>(new ResourceModel(name, name), name, name));
+            if (reference == UserTO.class && "token".equalsIgnoreCase(name)) {
+                columns.add(new TokenColumn<T>(new ResourceModel(name, name), name));
+            } else if (field != null
+                    && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {
+
+                columns.add(new BooleanPropertyColumn<T>(new ResourceModel(name, name), name, name));
             } else if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new PropertyColumn<T, String>(new ResourceModel(name, name), name, name));
+                columns.add(new DatePropertyColumn<T>(new ResourceModel(name, name), name, name));
             } else {
                 columns.add(new PropertyColumn<T, String>(new ResourceModel(name, name), name, name));
             }
         }
 
-        for (String name : prefMan.getList(getRequest(), getPrefAttributesView())) {
+        for (String name : prefMan.getList(getRequest(), getPrefPlainAttributesView())) {
             if (pSchemaNames.contains(name)) {
                 columns.add(new AttrColumn<T>(name, SchemaType.PLAIN));
             }
@@ -86,15 +98,14 @@ public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends Any
 
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
-            for (String name : getDislayAttributes()) {
+            for (String name : getDisplayAttributes()) {
                 columns.add(new PropertyColumn<T, String>(new ResourceModel(name, name), name, name));
             }
 
-            prefMan.setList(getRequest(), getResponse(), getPrefDetailsView(),
-                    Arrays.asList(getDislayAttributes()));
+            prefMan.setList(getRequest(), getResponse(), getPrefDetailsView(), Arrays.asList(getDisplayAttributes()));
         }
 
-        columns.add(new ActionColumn<T, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<T, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
@@ -128,11 +139,11 @@ public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends Any
                             @Override
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 // still missing content
-                                target.add(altDefaultModal.setContent(new AnyObjectDisplayAttributesModalPage<>(
+                                target.add(altDefaultModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
                                         altDefaultModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
-                                
+
                                 altDefaultModal.addSumbitButton();
-                                altDefaultModal.header(new ResourceModel("any.attr.display", ""));
+                                altDefaultModal.header(new ResourceModel("any.attr.display"));
                                 altDefaultModal.show(true);
                             }
                         }, ActionLink.ActionType.CHANGE_VIEW, String.format("%s_%s", type, AnyEntitlement.READ)).
@@ -159,17 +170,17 @@ public abstract class AnySelectionSearchResultPanel<T extends AnyTO> extends Any
         return Collections.<ActionLink.ActionType>emptyList();
     }
 
-    protected abstract String[] getDislayAttributes();
+    protected abstract String[] getDisplayAttributes();
 
     protected abstract String getPrefDetailsView();
 
-    protected abstract String getPrefAttributesView();
+    protected abstract String getPrefPlainAttributesView();
 
     protected abstract String getPrefDerivedAttributesView();
 
     public abstract static class Builder<T extends AnyTO> extends AnySearchResultPanel.Builder<T> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 5460024856989891156L;
 
         public Builder(
                 final List<AnyTypeClassTO> anyTypeClassTOs,

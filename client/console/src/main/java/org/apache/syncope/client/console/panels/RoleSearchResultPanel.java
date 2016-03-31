@@ -82,7 +82,7 @@ public class RoleSearchResultPanel
         columns.add(new PropertyColumn<RoleTO, String>(
                 new ResourceModel("realms"), null, "realms"));
 
-        columns.add(new ActionColumn<RoleTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<RoleTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 

@@ -179,7 +179,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
             }
         }
 
-        columns.add(new ActionColumn<AbstractSchemaTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AbstractSchemaTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 906457126287899096L;
 

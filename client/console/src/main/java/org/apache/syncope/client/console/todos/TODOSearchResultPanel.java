@@ -85,7 +85,7 @@ public class TODOSearchResultPanel
         columns.add(new DatePropertyColumn<WorkflowFormTO>(
                 new ResourceModel("dueDate"), "dueDate", "dueDate"));
         columns.add(new PropertyColumn<WorkflowFormTO, String>(new ResourceModel("owner"), "owner", "owner"));
-        columns.add(new ActionColumn<WorkflowFormTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<WorkflowFormTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863133L;
 

@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.UserDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
@@ -31,10 +32,8 @@ public final class UserSelectionSearchResultPanel extends AnySelectionSearchResu
 
     private static final long serialVersionUID = -1100228004207271272L;
 
-    public static final String[] USER_DEFAULT_SELECTION = { "key", "username", "status" };
-
     private UserSelectionSearchResultPanel(final String id, final Builder builder) {
-        super(id, builder);
+        super(id, builder, UserTO.class);
     }
 
     @Override
@@ -43,8 +42,8 @@ public final class UserSelectionSearchResultPanel extends AnySelectionSearchResu
     }
 
     @Override
-    protected String[] getDislayAttributes() {
-        return USER_DEFAULT_SELECTION;
+    protected String[] getDisplayAttributes() {
+        return UserDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     @Override
@@ -53,7 +52,7 @@ public final class UserSelectionSearchResultPanel extends AnySelectionSearchResu
     }
 
     @Override
-    protected String getPrefAttributesView() {
+    protected String getPrefPlainAttributesView() {
         return Constants.PREF_USERS_PLAIN_ATTRS_VIEW;
     }
 
@@ -64,7 +63,7 @@ public final class UserSelectionSearchResultPanel extends AnySelectionSearchResu
 
     public static final class Builder extends AnySelectionSearchResultPanel.Builder<UserTO> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -1555789797531054422L;
 
         public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
             super(anyTypeClassTOs, new UserRestClient(), type, pageRef);

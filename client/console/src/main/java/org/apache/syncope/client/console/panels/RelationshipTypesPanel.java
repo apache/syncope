@@ -152,7 +152,7 @@ public class RelationshipTypesPanel extends AbstractTypesPanel<RelationshipTypeT
             }
         }
 
-        columns.add(new ActionColumn<RelationshipTypeTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<RelationshipTypeTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 906457126287899096L;
 

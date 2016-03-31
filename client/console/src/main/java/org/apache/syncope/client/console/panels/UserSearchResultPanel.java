@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +34,8 @@ import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
@@ -81,14 +84,19 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
     @Override
     protected List<IColumn<UserTO, String>> getColumns() {
-
         final List<IColumn<UserTO, String>> columns = new ArrayList<>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(UserTO.class, name);
 
-            if (field != null && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {
+            if ("token".equalsIgnoreCase(name)) {
+                columns.add(new TokenColumn<UserTO>(new ResourceModel(name, name), name));
+            } else if (field != null
+                    && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {
+
                 columns.add(new BooleanPropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
+            } else if (field != null && field.getType().equals(Date.class)) {
+                columns.add(new DatePropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
             } else {
                 columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
             }
@@ -108,17 +116,17 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
-            for (String name : UserDisplayAttributesModalPanel.USER_DEFAULT_SELECTION) {
+            for (String name : UserDisplayAttributesModalPanel.DEFAULT_SELECTION) {
                 columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
             }
 
             prefMan.setList(getRequest(), getResponse(), Constants.PREF_USERS_DETAILS_VIEW,
-                    Arrays.asList(UserDisplayAttributesModalPanel.USER_DEFAULT_SELECTION));
+                    Arrays.asList(UserDisplayAttributesModalPanel.DEFAULT_SELECTION));
         }
 
         setWindowClosedReloadCallback(displayAttributeModal);
 
-        columns.add(new ActionColumn<UserTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<UserTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
@@ -151,8 +159,8 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
 
-                        final IModel<AnyHandler<UserTO>> formModel
-                                = new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                        final IModel<AnyHandler<UserTO>> formModel =
+                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
                         target.add(altDefaultModal.setContent(new StatusModal<>(
@@ -239,7 +247,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
                         target.add(displayAttributeModal.setContent(new UserDisplayAttributesModalPanel<>(
                                 displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
 
-                        displayAttributeModal.header(new ResourceModel("any.attr.display", ""));
+                        displayAttributeModal.header(new ResourceModel("any.attr.display"));
                         displayAttributeModal.addSumbitButton();
                         displayAttributeModal.show(true);
                     }

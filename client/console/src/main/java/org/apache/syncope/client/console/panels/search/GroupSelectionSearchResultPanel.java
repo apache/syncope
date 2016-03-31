@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.GroupDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
@@ -31,10 +32,8 @@ public final class GroupSelectionSearchResultPanel extends AnySelectionSearchRes
 
     private static final long serialVersionUID = -1100228004207271271L;
 
-    public static final String[] GROUP_DEFAULT_SELECTION = { "key", "name" };
-
     private GroupSelectionSearchResultPanel(final String id, final Builder builder) {
-        super(id, builder);
+        super(id, builder, GroupTO.class);
     }
 
     @Override
@@ -43,8 +42,8 @@ public final class GroupSelectionSearchResultPanel extends AnySelectionSearchRes
     }
 
     @Override
-    protected String[] getDislayAttributes() {
-        return GROUP_DEFAULT_SELECTION;
+    protected String[] getDisplayAttributes() {
+        return GroupDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     @Override
@@ -53,7 +52,7 @@ public final class GroupSelectionSearchResultPanel extends AnySelectionSearchRes
     }
 
     @Override
-    public String getPrefAttributesView() {
+    public String getPrefPlainAttributesView() {
         return Constants.PREF_GROUP_PLAIN_ATTRS_VIEW;
     }
 
@@ -64,7 +63,7 @@ public final class GroupSelectionSearchResultPanel extends AnySelectionSearchRes
 
     public static final class Builder extends AnySelectionSearchResultPanel.Builder<GroupTO> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -8774023867045850683L;
 
         public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
             super(anyTypeClassTOs, new GroupRestClient(), type, pageRef);

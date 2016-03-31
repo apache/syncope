@@ -151,7 +151,7 @@ public abstract class SchedTaskSearchResultPanel<T extends SchedTaskTO> extends 
 
         columns.addAll(getFieldColumns());
 
-        columns.add(new ActionColumn<T, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<T, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 

@@ -146,7 +146,7 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
             }
         }
 
-        columns.add(new ActionColumn<SecurityQuestionTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<SecurityQuestionTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -8089193528195091515L;
 

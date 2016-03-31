@@ -138,7 +138,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
         columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("schema"), "schema", "schema"));
         columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("values"), "values"));
 
-        columns.add(new ActionColumn<AttrTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AttrTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 906457126287899096L;
 
