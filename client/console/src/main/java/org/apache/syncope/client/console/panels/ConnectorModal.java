@@ -70,9 +70,9 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
         }, new ArrayList<ConnBundleTO>());
 
         //--------------------------------
-        // Connector details panel
+        // Connector details
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("general", "general")) {
+        tabs.add(new AbstractTab(new ResourceModel("general")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
@@ -84,9 +84,9 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
         //--------------------------------
 
         //--------------------------------
-        // Connector configuration panel
+        // Connector configuration
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("configuration", "configuration")) {
+        tabs.add(new AbstractTab(new ResourceModel("configuration")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
@@ -112,9 +112,9 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
         //--------------------------------
 
         //--------------------------------
-        // Connector configuration panel
+        // Connector capabilities
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("capabilities", "capabilities")) {
+        tabs.add(new AbstractTab(new ResourceModel("capabilities")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 

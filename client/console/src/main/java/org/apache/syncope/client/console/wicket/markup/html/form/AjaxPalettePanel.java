@@ -62,7 +62,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         choicesModel = new PaletteLoadableDetachableModel(builder) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -108100712154481840L;
 
             @Override
             protected List<T> getChoices() {
@@ -86,7 +86,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                         ? getFilteredList(choices.getObject(), getFilter().replaceAll("\\*", "\\.\\*"))
                         : choices.getObject();
             }
-        };     
+        };
         initialize(model, builder);
     }
 
@@ -209,7 +209,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         private String availableLabel;
 
         private boolean filtered;
-        
+
         private final AjaxPaletteConf conf = new AjaxPaletteConf();
 
         private String filter = conf.getDefaultFilter();
