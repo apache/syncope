@@ -265,16 +265,14 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         operatorContainer.setOutputMarkupId(true);
         field.add(operatorContainer);
 
-        final BootstrapToggleConfig config = new BootstrapToggleConfig();
-        config
-                .withOnStyle(BootstrapToggleConfig.Style.info).withOffStyle(BootstrapToggleConfig.Style.warning)
-                .withSize(BootstrapToggleConfig.Size.mini)
-                .withOnLabel("AND")
-                .withOffLabel("OR");
+        final BootstrapToggleConfig config = new BootstrapToggleConfig().
+                withOnStyle(BootstrapToggleConfig.Style.info).
+                withOffStyle(BootstrapToggleConfig.Style.warning).
+                withSize(BootstrapToggleConfig.Size.mini);
 
         operatorFragment.add(new BootstrapToggle("operator", new Model<Boolean>() {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -7157802546272668001L;
 
             @Override
             public Boolean getObject() {
@@ -287,16 +285,16 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             }
         }, config) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 2969634208049189343L;
 
             @Override
             protected IModel<String> getOffLabel() {
-                return Model.of(getString("Off", null, "OR"));
+                return Model.of("OR");
             }
 
             @Override
             protected IModel<String> getOnLabel() {
-                return Model.of(getString("On", null, "AND"));
+                return Model.of("AND");
             }
 
             @Override

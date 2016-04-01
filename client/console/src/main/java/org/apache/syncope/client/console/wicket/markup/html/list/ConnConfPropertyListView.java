@@ -143,30 +143,37 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
     }
 
     private FormComponent<?> addCheckboxToggle(final ConnConfProperty property) {
-
-        final BootstrapToggleConfig config = new BootstrapToggleConfig();
-        config
-                .withOnStyle(BootstrapToggleConfig.Style.info).withOffStyle(BootstrapToggleConfig.Style.warning)
-                .withSize(BootstrapToggleConfig.Size.mini)
-                .withOnLabel("Overridable")
-                .withOffLabel("Not Overridable");
+        final BootstrapToggleConfig config = new BootstrapToggleConfig().
+                withOnStyle(BootstrapToggleConfig.Style.success).
+                withOffStyle(BootstrapToggleConfig.Style.danger).
+                withSize(BootstrapToggleConfig.Size.mini);
 
         return new BootstrapToggle("externalAction", new PropertyModel<Boolean>(property, "overridable"), config) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -875219845189261873L;
 
             @Override
             protected CheckBox newCheckBox(final String id, final IModel<Boolean> model) {
                 final CheckBox checkBox = super.newCheckBox(id, model);
                 checkBox.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = -1107858522700306810L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                     }
                 });
                 return checkBox;
+            }
+
+            @Override
+            protected IModel<String> getOnLabel() {
+                return Model.of("Override");
+            }
+
+            @Override
+            protected IModel<String> getOffLabel() {
+                return Model.of("Override?");
             }
 
             @Override

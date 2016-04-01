@@ -45,6 +45,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -77,7 +78,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         //--------------------------------
         // Resource details panel
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("general", "general")) {
+        tabs.add(new AbstractTab(new ResourceModel("general")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
@@ -92,8 +93,8 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         //--------------------------------
         // Resource provision panels
         //--------------------------------
-        final ListViewPanel.Builder<ProvisionTO> builder
-                = new ListViewPanel.Builder<ProvisionTO>(ProvisionTO.class, pageRef) {
+        final ListViewPanel.Builder<ProvisionTO> builder =
+                new ListViewPanel.Builder<ProvisionTO>(ProvisionTO.class, pageRef) {
 
             private static final long serialVersionUID = 4907732721283972943L;
 
@@ -175,7 +176,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
 
         builder.addNewItemPanelBuilder(new ProvisionWizardBuilder("wizard", model.getObject(), pageRef));
 
-        tabs.add(new AbstractTab(new ResourceModel("provisions", "provisions")) {
+        tabs.add(new AbstractTab(new ResourceModel("provisions")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
@@ -189,7 +190,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         //--------------------------------
         // Resource connector configuration panel
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("connectorProperties", "connectorProperties")) {
+        tabs.add(new AbstractTab(new ResourceModel("connectorProperties")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
@@ -197,7 +198,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
             public Panel getPanel(final String panelId) {
                 final ResourceConnConfPanel panel = new ResourceConnConfPanel(panelId, model, createFlag) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = -1128269449868933504L;
 
                     @Override
                     protected void check(final AjaxRequestTarget target) {
@@ -207,6 +208,11 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
                             error(getString("error_connection"));
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                    }
+
+                    @Override
+                    protected void onComponentTag(final ComponentTag tag) {
+                        tag.append("class", "scrollable-tab-content", " ");
                     }
                 };
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE, StandardEntitlement.CONNECTOR_READ);
@@ -218,7 +224,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         //--------------------------------
         // Resource security panel
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("security", "security")) {
+        tabs.add(new AbstractTab(new ResourceModel("security")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 

@@ -161,6 +161,11 @@ div.wicket-modal div.w_content_3 {
   position: relative !important;
 }
 
+.scrollable-tab-content {
+  overflow-y: auto;
+  max-height: 400px;
+}
+
 a.help {
   position: relative;
   display: inline;
@@ -281,6 +286,10 @@ span.overridable div.checkbox {
   float: right; 
   margin: 0px; 
   padding: 0px;
+}
+
+span.overridable div.checkbox label div div.toggle-group label {
+  padding-left: 7px;
 }
 
 div#outer.modal-lg {

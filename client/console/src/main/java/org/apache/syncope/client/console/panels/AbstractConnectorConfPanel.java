@@ -36,11 +36,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
-/**
- * Modal window with Connector form.
- *
- * @param <T> model type.
- */
 public abstract class AbstractConnectorConfPanel<T extends AbstractBaseBean> extends Panel {
 
     private static final long serialVersionUID = -2025535531121434050L;
@@ -52,7 +47,6 @@ public abstract class AbstractConnectorConfPanel<T extends AbstractBaseBean> ext
     protected final IModel<T> model;
 
     public AbstractConnectorConfPanel(final String id, final IModel<T> model) {
-
         super(id, model);
         this.model = model;
         setOutputMarkupId(true);
@@ -74,33 +68,32 @@ public abstract class AbstractConnectorConfPanel<T extends AbstractBaseBean> ext
     }
 
     protected void setConfPropertyListView(final String modelExpression, final boolean withOverridable) {
-
         final ConnConfPropertyListView connPropView = new ConnConfPropertyListView(
                 "connectorProperties",
                 new PropertyModel<List<ConnConfProperty>>(model.getObject(), modelExpression) {
 
-                    private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -7809699384012595307L;
+
+            @Override
+            public List<ConnConfProperty> getObject() {
+                final List<ConnConfProperty> res = new ArrayList<>((Set<ConnConfProperty>) super.getObject());
+
+                // re-order properties
+                Collections.sort(res, new Comparator<ConnConfProperty>() {
 
                     @Override
-                    public List<ConnConfProperty> getObject() {
-                        final List<ConnConfProperty> res = new ArrayList<>((Set<ConnConfProperty>) super.getObject());
-
-                        // re-order properties
-                        Collections.sort(res, new Comparator<ConnConfProperty>() {
-
-                            @Override
-                            public int compare(final ConnConfProperty left, final ConnConfProperty right) {
-                                if (left == null) {
-                                    return -1;
-                                } else {
-                                    return left.compareTo(right);
-                                }
-                            }
-                        });
-
-                        return res;
+                    public int compare(final ConnConfProperty left, final ConnConfProperty right) {
+                        if (left == null) {
+                            return -1;
+                        } else {
+                            return left.compareTo(right);
+                        }
                     }
-                },
+                });
+
+                return res;
+            }
+        },
                 withOverridable
         );
 

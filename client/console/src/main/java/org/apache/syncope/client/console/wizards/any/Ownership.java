@@ -97,16 +97,14 @@ public class Ownership extends WizardStep {
 
         isGroupOwnership = Model.of(groupHandler.getInnerObject().getGroupOwner() != null);
 
-        final BootstrapToggleConfig config = new BootstrapToggleConfig();
-        config
-                .withOnStyle(BootstrapToggleConfig.Style.info).withOffStyle(BootstrapToggleConfig.Style.warning)
-                .withSize(BootstrapToggleConfig.Size.mini)
-                .withOnLabel(AnyTypeKind.GROUP.name())
-                .withOffLabel(AnyTypeKind.USER.name());
+        final BootstrapToggleConfig config = new BootstrapToggleConfig().
+                withOnStyle(BootstrapToggleConfig.Style.info).
+                withOffStyle(BootstrapToggleConfig.Style.warning).
+                withSize(BootstrapToggleConfig.Size.mini);
 
         add(new BootstrapToggle("ownership", new Model<Boolean>() {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 6062041315055645807L;
 
             @Override
             public Boolean getObject() {
@@ -114,16 +112,16 @@ public class Ownership extends WizardStep {
             }
         }, config) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 2969634208049189343L;
 
             @Override
             protected IModel<String> getOffLabel() {
-                return Model.of(getString("Off", null, "USER Owner"));
+                return Model.of("USER Owner");
             }
 
             @Override
             protected IModel<String> getOnLabel() {
-                return Model.of(getString("On", null, "GROUP Owner"));
+                return Model.of("GROUP Owner");
             }
 
             @Override

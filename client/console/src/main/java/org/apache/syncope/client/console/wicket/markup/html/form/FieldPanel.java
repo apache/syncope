@@ -58,10 +58,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
 
     public FieldPanel<T> setTitle(final String title) {
         this.title = title;
-        field.add(AttributeModifier.replace("title", title != null
-                ? title
-                : ""));
-
+        field.add(AttributeModifier.replace("title", title == null ? StringUtils.EMPTY : title));
         return this;
     }
 

@@ -28,9 +28,6 @@ import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.model.IModel;
 
-/**
- * Modal window with Connector form.
- */
 public abstract class ConnectorConfPanel extends AbstractConnectorConfPanel<ConnInstanceTO> {
 
     private static final long serialVersionUID = -2025535531121434050L;
@@ -38,11 +35,10 @@ public abstract class ConnectorConfPanel extends AbstractConnectorConfPanel<Conn
     private final List<ConnBundleTO> bundles;
 
     public ConnectorConfPanel(final String id, final IModel<ConnInstanceTO> model, final List<ConnBundleTO> bundles) {
-
         super(id, model);
         this.bundles = bundles;
 
-        final List<ConnConfProperty> properties = getConnProperties(model.getObject());
+        List<ConnConfProperty> properties = getConnProperties(model.getObject());
         model.getObject().getConf().clear();
         model.getObject().getConf().addAll(properties);
 
@@ -57,7 +53,6 @@ public abstract class ConnectorConfPanel extends AbstractConnectorConfPanel<Conn
      */
     @Override
     protected final List<ConnConfProperty> getConnProperties(final ConnInstanceTO instance) {
-
         final List<ConnConfProperty> res = CollectionUtils.collect(
                 ConnectorModal.getBundle(instance, bundles).getProperties(),
                 new Transformer<ConnConfPropSchema, ConnConfProperty>() {
@@ -67,7 +62,7 @@ public abstract class ConnectorConfPanel extends AbstractConnectorConfPanel<Conn
                 final ConnConfProperty property = new ConnConfProperty();
                 property.setSchema(key);
 
-                if (instance.getKey() != null 
+                if (instance.getKey() != null
                         && instance.getConfMap().containsKey(key.getName())
                         && instance.getConfMap().get(key.getName()).getValues() != null) {
 

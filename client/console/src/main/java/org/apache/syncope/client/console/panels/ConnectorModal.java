@@ -37,6 +37,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -60,8 +61,7 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
 
         super(modal, pageRef);
 
-        this.bundles = CollectionUtils.select(connectorRestClient.getAllBundles(),
-                new Predicate<ConnBundleTO>() {
+        this.bundles = CollectionUtils.select(connectorRestClient.getAllBundles(), new Predicate<ConnBundleTO>() {
 
             @Override
             public boolean evaluate(final ConnBundleTO object) {
@@ -94,7 +94,7 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
             public Panel getPanel(final String panelId) {
                 return new ConnectorConfPanel(panelId, model, bundles) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = -5886691077681158494L;
 
                     @Override
                     protected void check(final AjaxRequestTarget target) {
@@ -104,6 +104,11 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
                             error(getString("error_connection"));
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                    }
+
+                    @Override
+                    protected void onComponentTag(final ComponentTag tag) {
+                        tag.append("class", "scrollable-tab-content", " ");
                     }
 
                 };
