@@ -148,7 +148,6 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
 
     @Override
     protected List<IColumn<AbstractSchemaTO, String>> getColumns() {
-
         final List<IColumn<AbstractSchemaTO, String>> columns = new ArrayList<>();
 
         for (final String field : COL_NAMES.get(schemaType)) {

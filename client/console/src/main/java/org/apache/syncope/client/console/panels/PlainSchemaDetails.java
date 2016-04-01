@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,7 +27,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.PropertyList;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -40,7 +40,6 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -230,7 +229,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         }
         );
 
-        final IModel<List<String>> validatorsList = new LoadableDetachableModel<List<String>>() {
+        IModel<List<String>> validatorsList = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -239,15 +238,13 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getValidators());
             }
         };
-
         final AjaxDropDownChoicePanel<String> validatorClass = new AjaxDropDownChoicePanel<>("validatorClass",
                 getString("validatorClass"), new PropertyModel<String>(schemaTO, "validatorClass"));
         ((DropDownChoice) validatorClass.getField()).setNullValid(true);
         validatorClass.setChoices(validatorsList.getObject());
         schemaForm.add(validatorClass);
 
-        final AutoCompleteTextField<String> mandatoryCondition
-                = new AutoCompleteTextField<String>("mandatoryCondition") {
+        AutoCompleteTextField<String> mandatoryCondition = new AutoCompleteTextField<String>("mandatoryCondition") {
 
             private static final long serialVersionUID = -2428903969518079100L;
 
@@ -276,23 +273,16 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         });
         schemaForm.add(mandatoryCondition);
 
-        final WebMarkupContainer pwdJexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
+        schemaForm.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.right));
 
-        final AjaxLink<Void> pwdQuestionMarkJexlHelp = JexlHelpUtils.getAjaxLink(pwdJexlHelp, "questionMarkJexlHelp");
-        schemaForm.add(pwdQuestionMarkJexlHelp);
-        pwdQuestionMarkJexlHelp.add(pwdJexlHelp);
+        schemaForm.add(new AjaxCheckBoxPanel(
+                "multivalue", getString("multivalue"), new PropertyModel<Boolean>(schemaTO, "multivalue")));
 
-        final AjaxCheckBoxPanel multivalue = new AjaxCheckBoxPanel("multivalue", getString("multivalue"),
-                new PropertyModel<Boolean>(schemaTO, "multivalue"));
-        schemaForm.add(multivalue);
+        schemaForm.add(new AjaxCheckBoxPanel(
+                "readonly", getString("readonly"), new PropertyModel<Boolean>(schemaTO, "readonly")));
 
-        final AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel("readonly", getString("readonly"),
-                new PropertyModel<Boolean>(schemaTO, "readonly"));
-        schemaForm.add(readonly);
-
-        final AjaxCheckBoxPanel uniqueConstraint = new AjaxCheckBoxPanel("uniqueConstraint",
-                getString("uniqueConstraint"), new PropertyModel<Boolean>(schemaTO, "uniqueConstraint"));
-        schemaForm.add(uniqueConstraint);
+        schemaForm.add(new AjaxCheckBoxPanel("uniqueConstraint",
+                getString("uniqueConstraint"), new PropertyModel<Boolean>(schemaTO, "uniqueConstraint")));
 
     }
 

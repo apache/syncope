@@ -29,18 +29,9 @@ under the License.
             <th><wicket:message key="intMappingTypes"/></th>
             <th><wicket:message key="intAttrNames"/></th>
             <th><wicket:message key="extAttrNames"/></th>
-            <th><wicket:message key="mandatoryCondition"/>
-              <a class="help" wicket:id="questionMarkJexlHelp" href="#" alt="Click to help" title="Click to help"><i class="fa fa-question-circle"></i>
-
-                <span wicket:id="jexlHelp" class="help">
-                  <wicket:message key="jexl_info"/>
-                  <ul>
-                    <li><wicket:message key="jexl_ex1"/></li>
-                    <li><wicket:message key="jexl_ex2"/></li>
-                  </ul>
-                  <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
-                </span>
-              </a>
+            <th>
+              <wicket:message key="mandatoryCondition"/>
+              <span id="popover" wicket:id="jexlInfo" class="glyphicon glyphicon-info-sign"></span>
             </th>
             <th><wicket:message key="connObjectKey"/></th>
             <th><label wicket:id="passwordLabel"/></th>

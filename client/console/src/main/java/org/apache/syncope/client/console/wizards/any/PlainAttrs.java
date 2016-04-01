@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -49,10 +48,8 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -108,16 +105,6 @@ public class PlainAttrs extends AbstractAttrs {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             protected void populateItem(final ListItem<AttrTO> item) {
                 final AttrTO attributeTO = (AttrTO) item.getDefaultModelObject();
-
-                final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
-
-                final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
-                item.add(questionMarkJexlHelp);
-                questionMarkJexlHelp.add(jexlHelp);
-
-                if (mode != Mode.TEMPLATE) {
-                    questionMarkJexlHelp.setVisible(false);
-                }
 
                 final FieldPanel panel = getFieldPanel(schemas.get(attributeTO.getSchema()));
 

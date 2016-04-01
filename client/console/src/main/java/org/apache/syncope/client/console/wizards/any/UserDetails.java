@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
@@ -34,7 +33,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -63,15 +61,8 @@ public class UserDetails extends Details<UserTO> {
         final FieldPanel<String> username = new AjaxTextFieldPanel(
                 "username", "username", new PropertyModel<String>(userTO, "username"), false);
 
-        final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("usernameJexlHelp");
-
-        final AjaxLink<?> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "usernameQuestionMarkJexlHelp");
-        add(questionMarkJexlHelp);
-        questionMarkJexlHelp.add(jexlHelp);
-
         if (!templateMode) {
             username.addRequiredLabel();
-            questionMarkJexlHelp.setVisible(false);
         }
         add(username);
         // ------------------------

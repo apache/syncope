@@ -656,3 +656,7 @@ END - Parameters Details
 li.todoitem a {
   cursor: default;
 }
+
+#popover:hover {
+  cursor: pointer;
+}
