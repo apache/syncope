@@ -266,6 +266,11 @@ a.help span a {
   right: 15px;
 }
 
+.wizard-step-title {
+  font-weight: bold; 
+  font-size:medium;
+}
+
 div.realms div.summarize {
   margin: 50px 100px;
 }

@@ -129,6 +129,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
         private static final long serialVersionUID = 5514523040031722256L;
 
         public Entitlements(final RoleTO modelObject) {
+            setTitleModel(new ResourceModel("entitlements"));
             add(new AjaxPalettePanel.Builder<String>().build("entitlements",
                     new PropertyModel<List<String>>(modelObject, "entitlements") {
 
@@ -154,6 +155,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
         private static final long serialVersionUID = 5514523040031722257L;
 
         public Realms(final RoleTO modelObject) {
+            setTitleModel(new ResourceModel("realms"));
             add(new AjaxPalettePanel.Builder<String>().build("realms",
                     new PropertyModel<List<String>>(modelObject, "realms"),
                     new ListModel<>(

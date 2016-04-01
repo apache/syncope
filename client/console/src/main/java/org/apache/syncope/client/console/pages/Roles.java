@@ -41,13 +41,12 @@ public class Roles extends BasePage {
         content.setOutputMarkupId(true);
         body.add(content);
 
-        WizardMgtPanel<RoleHandler> rolesPanel =
-                new RoleDirectoryPanel.Builder(getPageReference()) {
+        WizardMgtPanel<RoleHandler> rolesPanel = new RoleDirectoryPanel.Builder(getPageReference()) {
 
             private static final long serialVersionUID = -5960765294082359003L;
 
         }.disableCheckBoxes().addNewItemPanelBuilder(
-                        new RoleWizardBuilder(BaseModal.CONTENT_ID, new RoleTO(), getPageReference()), true).
+                new RoleWizardBuilder(BaseModal.CONTENT_ID, new RoleTO(), getPageReference()), true).
                 build("rolesPanel");
 
         content.add(rolesPanel);
