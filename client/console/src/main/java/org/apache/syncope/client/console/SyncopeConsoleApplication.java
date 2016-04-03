@@ -70,7 +70,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
             new Locale[] {
-                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR")
+                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru")
             }));
 
     private static final String ACTIVITI_MODELER_CONTEXT = "activiti-modeler";
