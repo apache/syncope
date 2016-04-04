@@ -36,7 +36,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
-public abstract class AbstractConnectorConfPanel<T extends AbstractBaseBean> extends Panel {
+public abstract class AbstractConnConfPanel<T extends AbstractBaseBean> extends Panel {
 
     private static final long serialVersionUID = -2025535531121434050L;
 
@@ -46,7 +46,7 @@ public abstract class AbstractConnectorConfPanel<T extends AbstractBaseBean> ext
 
     protected final IModel<T> model;
 
-    public AbstractConnectorConfPanel(final String id, final IModel<T> model) {
+    public AbstractConnConfPanel(final String id, final IModel<T> model) {
         super(id, model);
         this.model = model;
         setOutputMarkupId(true);

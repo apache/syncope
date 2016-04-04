@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -41,6 +42,7 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
 /**
@@ -125,7 +127,8 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new ConnectorCapabilitiesPanel(panelId, model);
+                return new ConnCapabilitiesPanel(
+                        panelId, new PropertyModel<List<ConnectorCapability>>(model.getObject(), "capabilities"));
             }
         });
         //--------------------------------

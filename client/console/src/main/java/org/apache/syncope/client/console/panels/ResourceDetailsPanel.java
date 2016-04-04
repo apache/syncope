@@ -115,7 +115,7 @@ public class ResourceDetailsPanel extends Panel {
         container.add(new AjaxTextFieldPanel(
                 "connector",
                 new ResourceModel("connector", "connector").getObject(),
-                new Model<String>(model.getObject().getConnectorDisplayName()),
+                new Model<>(model.getObject().getConnectorDisplayName()),
                 false).addRequiredLabel().setEnabled(false));
 
         add(new AnnotatedBeanPanel("systeminformation", model.getObject()).setRenderBodyOnly(true));

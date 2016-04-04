@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.model.IModel;
 
-public abstract class ResourceConnConfPanel extends AbstractConnectorConfPanel<ResourceTO> {
+public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<ResourceTO> {
 
     private static final long serialVersionUID = -7982691107029848579L;
 

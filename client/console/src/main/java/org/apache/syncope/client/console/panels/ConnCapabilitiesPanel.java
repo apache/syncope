@@ -21,18 +21,16 @@ package org.apache.syncope.client.console.panels;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class ConnectorCapabilitiesPanel extends Panel {
+public class ConnCapabilitiesPanel extends Panel {
 
     private static final long serialVersionUID = -2025535531121434050L;
 
-    public ConnectorCapabilitiesPanel(final String id, final IModel<ConnInstanceTO> model) {
+    public ConnCapabilitiesPanel(final String id, final PropertyModel<List<ConnectorCapability>> model) {
         super(id, model);
         setOutputMarkupId(true);
 
@@ -40,7 +38,7 @@ public class ConnectorCapabilitiesPanel extends Panel {
                 new AjaxPalettePanel.Builder<ConnectorCapability>().
                 setAllowMoveAll(true).
                 build("capabilitiesPalette",
-                        new PropertyModel<List<ConnectorCapability>>(model.getObject(), "capabilities"),
+                        model,
                         new ListModel<>(Arrays.asList(ConnectorCapability.values())));
         capabilitiesPalette.hideLabel();
         capabilitiesPalette.setOutputMarkupId(true);

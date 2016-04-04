@@ -222,6 +222,25 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         //--------------------------------
 
         //--------------------------------
+        // Resource connector capabilities panel
+        //--------------------------------
+        tabs.add(new AbstractTab(new ResourceModel("connectorCapabilities")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                ResourceConnCapabilitiesPanel panel = new ResourceConnCapabilitiesPanel(
+                        panelId,
+                        model,
+                        connectorRestClient.read(model.getObject().getConnector()).getCapabilities());
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE, StandardEntitlement.CONNECTOR_READ);
+                return panel;
+            }
+        });
+        //--------------------------------
+
+        //--------------------------------
         // Resource security panel
         //--------------------------------
         tabs.add(new AbstractTab(new ResourceModel("security")) {

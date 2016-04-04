@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.model.IModel;
 
-public abstract class ConnectorConfPanel extends AbstractConnectorConfPanel<ConnInstanceTO> {
+public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInstanceTO> {
 
     private static final long serialVersionUID = -2025535531121434050L;
 
