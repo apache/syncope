@@ -113,6 +113,7 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
             }
         }
 
+        field.setIndex(item.getIndex());
         field.setTitle(property.getSchema().getHelpMessage());
 
         final AbstractFieldPanel<? extends Serializable> fieldPanel;

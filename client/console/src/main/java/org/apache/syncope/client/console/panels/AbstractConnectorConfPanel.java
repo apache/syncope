@@ -68,7 +68,7 @@ public abstract class AbstractConnectorConfPanel<T extends AbstractBaseBean> ext
     }
 
     protected void setConfPropertyListView(final String modelExpression, final boolean withOverridable) {
-        final ConnConfPropertyListView connPropView = new ConnConfPropertyListView(
+        propertiesContainer.add(new ConnConfPropertyListView(
                 "connectorProperties",
                 new PropertyModel<List<ConnConfProperty>>(model.getObject(), modelExpression) {
 
@@ -93,12 +93,7 @@ public abstract class AbstractConnectorConfPanel<T extends AbstractBaseBean> ext
 
                 return res;
             }
-        },
-                withOverridable
-        );
-
-        connPropView.setOutputMarkupId(true);
-        propertiesContainer.add(connPropView);
+        }, withOverridable).setOutputMarkupId(true));
     }
 
     protected abstract void check(final AjaxRequestTarget taget);

@@ -53,7 +53,7 @@ public abstract class ConnectorConfPanel extends AbstractConnectorConfPanel<Conn
      */
     @Override
     protected final List<ConnConfProperty> getConnProperties(final ConnInstanceTO instance) {
-        final List<ConnConfProperty> res = CollectionUtils.collect(
+        return CollectionUtils.collect(
                 ConnectorModal.getBundle(instance, bundles).getProperties(),
                 new Transformer<ConnConfPropSchema, ConnConfProperty>() {
 
@@ -76,7 +76,5 @@ public abstract class ConnectorConfPanel extends AbstractConnectorConfPanel<Conn
                 return property;
             }
         }, new ArrayList<ConnConfProperty>());
-
-        return res;
     }
 }

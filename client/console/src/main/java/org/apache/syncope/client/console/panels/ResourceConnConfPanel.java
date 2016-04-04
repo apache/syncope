@@ -59,9 +59,9 @@ public abstract class ResourceConnConfPanel extends AbstractConnectorConfPanel<R
     @Override
     protected final List<ConnConfProperty> getConnProperties(final ResourceTO resourceTO) {
         List<ConnConfProperty> props = new ArrayList<>();
-        Long connectorKey = resourceTO.getConnector();
-        if (connectorKey != null && connectorKey > 0) {
-            for (ConnConfProperty property : restClient.read(connectorKey).getConf()) {
+
+        if (resourceTO.getConnector() != null && resourceTO.getConnector() > 0) {
+            for (ConnConfProperty property : restClient.read(resourceTO.getConnector()).getConf()) {
                 if (property.isOverridable()) {
                     props.add(property);
                 }
