@@ -121,37 +121,37 @@ public class ConnectorDetailsPanel extends Panel {
             model.getObject().setPoolConf(new ConnPoolConfTO());
         }
 
-        add(new AjaxSpinnerFieldPanel.Builder<Integer>().setMin(0).setMax(Integer.MAX_VALUE).build(
+        add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(
                 "connRequestTimeout",
                 "connRequestTimeout",
                 Integer.class,
                 new PropertyModel<Integer>(model, "connRequestTimeout")));
 
-        add(new AjaxSpinnerFieldPanel.Builder<Integer>().setMin(0).setMax(Integer.MAX_VALUE).build(
+        add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(
                 "poolMaxObjects",
                 "poolMaxObjects",
                 Integer.class,
                 new PropertyModel<Integer>(model.getObject().getPoolConf(), "maxObjects")));
 
-        add(new AjaxSpinnerFieldPanel.Builder<Integer>().setMin(0).setMax(Integer.MAX_VALUE).build(
+        add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(
                 "poolMinIdle",
                 "poolMinIdle",
                 Integer.class,
                 new PropertyModel<Integer>(model.getObject().getPoolConf(), "minIdle")));
 
-        add(new AjaxSpinnerFieldPanel.Builder<Integer>().setMin(0).setMax(Integer.MAX_VALUE).build(
+        add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(
                 "poolMaxIdle",
                 "poolMaxIdle",
                 Integer.class,
                 new PropertyModel<Integer>(model.getObject().getPoolConf(), "maxIdle")));
 
-        add(new AjaxSpinnerFieldPanel.Builder<Long>().setMin(0L).setMax(Long.MAX_VALUE).build(
+        add(new AjaxSpinnerFieldPanel.Builder<Long>().min(0L).max(Long.MAX_VALUE).build(
                 "poolMaxWait",
                 "poolMaxWait",
                 Long.class,
                 new PropertyModel<Long>(model.getObject().getPoolConf(), "maxWait")));
 
-        add(new AjaxSpinnerFieldPanel.Builder<Long>().setMin(0L).setMax(Long.MAX_VALUE).build(
+        add(new AjaxSpinnerFieldPanel.Builder<Long>().min(0L).max(Long.MAX_VALUE).build(
                 "poolMinEvictableIdleTime",
                 "poolMinEvictableIdleTime",
                 Long.class,

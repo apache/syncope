@@ -261,7 +261,7 @@ public class PlainAttrs extends AbstractAttrs {
                 break;
 
             case Double:
-                panel = new AjaxSpinnerFieldPanel.Builder<Double>().setStep(0.1)
+                panel = new AjaxSpinnerFieldPanel.Builder<Double>().step(0.1)
                         .build("panel", schemaTO.getKey(), Double.class, new Model<Double>());
 
                 if (required) {
