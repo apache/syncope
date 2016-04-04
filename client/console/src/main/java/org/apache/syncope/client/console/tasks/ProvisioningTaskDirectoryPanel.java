@@ -62,7 +62,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends AbstractProvision
 
     @Override
     protected void initResultTable() {
-        // DO nothing in order to disable the call performed by the parent
+        // Do nothing in order to disable the call performed by the parent
     }
 
     @Override

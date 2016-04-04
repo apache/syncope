@@ -21,9 +21,13 @@ package org.apache.syncope.client.console.tasks;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DateFormatROModel;
+import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -33,6 +37,7 @@ import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -51,12 +56,27 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
     private final TaskRestClient taskRestClient = new TaskRestClient();
 
-    /**
-     * Construct.
-     *
-     * @param taskTO task
-     * @param pageRef Caller page reference.
-     */
+    private final LoadableDetachableModel<List<String>> realms = new LoadableDetachableModel<List<String>>() {
+
+        private static final long serialVersionUID = 5275935387613157437L;
+
+        @Override
+        protected List<String> load() {
+            List<String> result = CollectionUtils.collect(
+                    new RealmRestClient().list(), new Transformer<RealmTO, String>() {
+
+                @Override
+                public String transform(final RealmTO realm) {
+                    return realm.getFullPath();
+                }
+            }, new ArrayList<String>());
+
+            Collections.sort(result);
+
+            return result;
+        }
+    };
+
     public SchedTaskWizardBuilder(final T taskTO, final PageReference pageRef) {
         super("wizard", taskTO, pageRef);
     }
@@ -120,8 +140,10 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
             final AjaxDropDownChoicePanel<PullMode> pullMode = new AjaxDropDownChoicePanel<>("pullMode", "pullMode",
                     new PropertyModel<PullMode>(taskTO, "pullMode"), false);
-            pullTaskSpecifics.add(pullMode);
             pullMode.setChoices(Arrays.asList(PullMode.values()));
+            pullMode.setRequired(taskTO instanceof PullTaskTO);
+            pullMode.setNullValid(!(taskTO instanceof PullTaskTO));
+            pullTaskSpecifics.add(pullMode);
 
             final AjaxTextFieldPanel filter = new AjaxTextFieldPanel(
                     "reconciliationFilterBuilderClassName", "reconciliationFilterBuilderClassName",
@@ -140,8 +162,12 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
                 }
             });
 
-            final AjaxTextFieldPanel destinationRealm = new AjaxTextFieldPanel("destinationRealm", "destinationRealm",
-                    new PropertyModel<String>(taskTO, "destinationRealm"), false);
+            final AjaxDropDownChoicePanel<String> destinationRealm = new AjaxDropDownChoicePanel<>(
+                    "destinationRealm", "destinationRealm",
+                    new PropertyModel<String>(taskTO, "destinationRealm"), false).
+                    setChoices(realms);
+            destinationRealm.setRequired(taskTO instanceof PullTaskTO);
+            destinationRealm.setNullValid(!(taskTO instanceof PullTaskTO));
             pullTaskSpecifics.add(destinationRealm);
 
             final AjaxDropDownChoicePanel<String> className = new AjaxDropDownChoicePanel<>(
