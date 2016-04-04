@@ -54,13 +54,13 @@ import org.apache.wicket.model.StringResourceModel;
 
 public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3739399543837732640L;
 
     private final ResourceTO resourceTO;
 
     private final LoadableDetachableModel<List<String>> anyTypes = new LoadableDetachableModel<List<String>>() {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
@@ -95,33 +95,29 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
      */
     private final class ObjectType extends WizardStep {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -1657800545799468278L;
 
         private static final String ACCOUNT = "__ACCOUNT__";
 
         private static final String GROUP = "__GROUP__";
 
-        /**
-         * Construct.
-         */
         ObjectType(final ProvisionTO item) {
             super(new ResourceModel("type.title", StringUtils.EMPTY),
-                    new ResourceModel("type.summary", StringUtils.EMPTY), new Model<ProvisionTO>(item));
+                    new ResourceModel("type.summary", StringUtils.EMPTY), new Model<>(item));
 
             final WebMarkupContainer container = new WebMarkupContainer("container");
             container.setOutputMarkupId(true);
             add(container);
 
-            final FieldPanel<String> type = new AjaxDropDownChoicePanel<String>(
+            final FieldPanel<String> type = new AjaxDropDownChoicePanel<>(
                     "type", "type", new PropertyModel<String>(item, "anyType"), false).
                     setChoices(anyTypes).
                     setStyleSheet("form-control").
                     setRequired(true);
             container.add(type);
 
-            final FormComponent<String> clazz = new TextField<String>(
+            final FormComponent<String> clazz = new TextField<>(
                     "class", new PropertyModel<String>(item, "objectClass")).setRequired(true);
-
             container.add(clazz);
 
             type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -147,14 +143,11 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
      */
     private final class Mapping extends WizardStep {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 3454904947720856253L;
 
-        /**
-         * Construct.
-         */
         Mapping(final ProvisionTO item) {
             setTitleModel(new ResourceModel("mapping.title", "Mapping"));
-            setSummaryModel(new StringResourceModel("mapping.summary", this, new Model<ProvisionTO>(item)));
+            setSummaryModel(new StringResourceModel("mapping.summary", this, new Model<>(item)));
 
             add(new ResourceMappingPanel("mapping", resourceTO, item));
         }
@@ -165,11 +158,8 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
      */
     private final class ConnObjectLink extends WizardStep {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 2359955465172450478L;
 
-        /**
-         * Construct.
-         */
         ConnObjectLink(final ProvisionTO item) {
             super(new ResourceModel("link.title", StringUtils.EMPTY),
                     new ResourceModel("link.summary", StringUtils.EMPTY));

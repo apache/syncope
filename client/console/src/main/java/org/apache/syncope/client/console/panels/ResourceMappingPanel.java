@@ -101,6 +101,8 @@ public class ResourceMappingPanel extends Panel {
      */
     private final List<String> schemaNames;
 
+    private final Label passwordLabel;
+
     /**
      * Add mapping button.
      */
@@ -161,12 +163,8 @@ public class ResourceMappingPanel extends Panel {
 
         mappingContainer.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom));
 
-        final Label passwordLabel = new Label("passwordLabel", new ResourceModel("password"));
+        passwordLabel = new Label("passwordLabel", new ResourceModel("password"));
         mappingContainer.add(passwordLabel);
-
-        if (!AnyTypeKind.USER.name().equals(this.provisionTO.getAnyType())) {
-            passwordLabel.setVisible(false);
-        }
 
         Collections.sort(getMapping().getItems(), new Comparator<MappingItemTO>() {
 
@@ -475,6 +473,12 @@ public class ResourceMappingPanel extends Panel {
         addMappingBtn.setDefaultFormProcessing(false);
         addMappingBtn.setEnabled(resourceTO.getConnector() != null && resourceTO.getConnector() > 0);
         mappingContainer.add(addMappingBtn);
+    }
+
+    @Override
+    protected void onBeforeRender() {
+        super.onBeforeRender();
+        passwordLabel.setVisible(AnyTypeKind.USER.name().equals(this.provisionTO.getAnyType()));
     }
 
     private List<String> getSchemaNames(final Long connectorId, final Set<ConnConfProperty> conf) {
