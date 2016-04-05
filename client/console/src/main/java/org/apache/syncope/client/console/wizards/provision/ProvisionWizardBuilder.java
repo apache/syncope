@@ -26,6 +26,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.ProvisionAuxClassesPanel;
 import org.apache.syncope.client.console.panels.ResourceMappingPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -139,6 +140,21 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
     }
 
     /**
+     * AuxClasses definition step.
+     */
+    private final class AuxClasses extends WizardStep {
+
+        private static final long serialVersionUID = 5315236191866427500L;
+
+        AuxClasses(final ProvisionTO item) {
+            setTitleModel(new ResourceModel("auxClasses.title"));
+            setSummaryModel(new StringResourceModel("auxClasses.summary", this, new Model<>(item)));
+
+            add(new ProvisionAuxClassesPanel("auxClasses", item));
+        }
+    }
+
+    /**
      * Mapping definition step.
      */
     private final class Mapping extends WizardStep {
@@ -146,7 +162,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         private static final long serialVersionUID = 3454904947720856253L;
 
         Mapping(final ProvisionTO item) {
-            setTitleModel(new ResourceModel("mapping.title", "Mapping"));
+            setTitleModel(new ResourceModel("mapping.title"));
             setSummaryModel(new StringResourceModel("mapping.summary", this, new Model<>(item)));
 
             add(new ResourceMappingPanel("mapping", resourceTO, item));
@@ -225,6 +241,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
     @Override
     protected WizardModel buildModelSteps(final ProvisionTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new ObjectType(modelObject));
+        wizardModel.add(new AuxClasses(modelObject));
         wizardModel.add(new Mapping(modelObject));
         wizardModel.add(new ConnObjectLink(modelObject));
         return wizardModel;

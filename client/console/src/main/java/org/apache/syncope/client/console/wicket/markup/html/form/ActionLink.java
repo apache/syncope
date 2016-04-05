@@ -41,7 +41,6 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
     public enum ActionType {
 
         MAPPING("update"),
-        ACCOUNT_LINK("update"),
         MUSTCHANGEPASSWORD("update"),
         RESET_TIME("update"),
         CLONE("create"),

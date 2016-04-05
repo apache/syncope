@@ -39,6 +39,8 @@ public class ProvisionTO extends AbstractBaseBean implements EntityTO<Long> {
 
     private String objectClass;
 
+    private final List<String> auxClasses = new ArrayList<>();
+
     private String syncToken;
 
     private MappingTO mapping;
@@ -69,6 +71,13 @@ public class ProvisionTO extends AbstractBaseBean implements EntityTO<Long> {
 
     public void setObjectClass(final String objectClass) {
         this.objectClass = objectClass;
+    }
+
+    @XmlElementWrapper(name = "auxClasses")
+    @XmlElement(name = "class")
+    @JsonProperty("auxClasses")
+    public List<String> getAuxClasses() {
+        return auxClasses;
     }
 
     public String getSyncToken() {

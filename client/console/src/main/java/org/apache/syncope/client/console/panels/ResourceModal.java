@@ -116,7 +116,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         };
 
         builder.setItems(model.getObject().getProvisions());
-        builder.includes("anyType", "objectClass");
+        builder.includes("anyType", "objectClass", "auxClasses");
         builder.setReuseItem(false);
 
         builder.
@@ -130,16 +130,6 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
                                 new AjaxWizard.NewItemActionEvent<>(provisionTO, 2, target));
                     }
                 }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_UPDATE).
-                addAction(new ActionLink<ProvisionTO>() {
-
-                    private static final long serialVersionUID = -3722207913631435514L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                        send(pageRef.getPage(), Broadcast.DEPTH,
-                                new AjaxWizard.NewItemActionEvent<>(provisionTO, 3, target));
-                    }
-                }, ActionLink.ActionType.ACCOUNT_LINK, StandardEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ProvisionTO>() {
 
                     private static final long serialVersionUID = -3722207913631435524L;

@@ -78,7 +78,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         choicesModel = new PaletteLoadableDetachableModel(builder) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -108100712154481840L;
 
             @Override
             protected List<T> getChoices() {
@@ -174,7 +174,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         form.add(new AjaxSubmitLink("search") {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -1765773642975892072L;
 
             @Override
             protected void onAfterSubmit(final AjaxRequestTarget target, final Form<?> form) {
@@ -182,6 +182,10 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                 target.add(palette);
             }
         });
+    }
+
+    public LoadableDetachableModel<List<T>> getChoicesModel() {
+        return choicesModel;
     }
 
     @Override
@@ -196,7 +200,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
     public static class Builder<T extends Serializable> implements Serializable {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 991248996001040352L;
 
         private IChoiceRenderer<T> renderer;
 
@@ -275,7 +279,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
     private abstract class PaletteLoadableDetachableModel extends LoadableDetachableModel<List<T>> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -7745220313769774616L;
 
         private final Builder<T> builder;
 

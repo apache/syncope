@@ -65,7 +65,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
     @Test
     public void editProvisioning() {
         wicketTester.clickLink("body:topologyLI:topology");
-        
+
         Component component = findComponentByProp("key", "body:resources", "ws-target-resource-1");
         assertNotNull(component);
         wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
@@ -76,6 +76,11 @@ public class TopologyITCase extends AbstractConsoleITCase {
 
         wicketTester.clickLink("body:toggle:outerObjectsRepeater:0:outer:form:content:tabbedPanel:panel:container:"
                 + "content:group:beans:0:actions:panelMapping:mappingLink");
+
+        FormTester formTester = wicketTester.newFormTester(
+                "body:toggle:outerObjectsRepeater:0:outer:form:content:tabbedPanel:panel:container:"
+                + "content:wizard:form");
+        formTester.submit("buttons:next");
 
         wicketTester.assertComponent("body:toggle:outerObjectsRepeater:0:outer:form:content:tabbedPanel:panel:"
                 + "container:content:wizard:form:view:mapping:mappingContainer:mappings:1", WebMarkupContainer.class);
@@ -101,7 +106,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
     @Test
     public void editPushTask() {
         wicketTester.clickLink("body:topologyLI:topology");
-        
+
         Component component = findComponentByProp("key", "body:resources", "resource-ldap");
         assertNotNull(component);
         wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
@@ -110,10 +115,9 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
                 + "body:rows:1:cells:9:cell:panelEdit:editLink");
 
-        final FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = wicketTester.newFormTester(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:"
                 + "tasks:firstLevelContainer:first:container:content:wizard:form");
-
         formTester.setValue("view:description:textField", "test");
         formTester.submit("buttons:finish");
 

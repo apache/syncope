@@ -38,7 +38,7 @@ public class ApprovalDetails extends MultilevelPanel.SecondLevel {
         super(MultilevelPanel.SECOND_LEVEL_ID);
 
         final UserTO userTO = new UserRestClient().read(formTO.getUserKey());
-        final List<String> anyTypeClasses = new AnyTypeRestClient().get(AnyTypeKind.USER.name()).getClasses();
+        final List<String> anyTypeClasses = new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses();
 
         final AjaxWizard<AnyHandler<UserTO>> wizard
                 = new UserWizardBuilder("wizard", userTO, anyTypeClasses, pageRef).build(AjaxWizard.Mode.READONLY);

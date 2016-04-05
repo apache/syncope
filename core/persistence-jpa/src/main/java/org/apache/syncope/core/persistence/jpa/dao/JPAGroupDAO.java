@@ -284,7 +284,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     }
 
     @Override
-    public List<TypeExtension> findTypeExtensionByAnyTypeClass(final AnyTypeClass anyTypeClass) {
+    public List<TypeExtension> findTypeExtensions(final AnyTypeClass anyTypeClass) {
         TypedQuery<TypeExtension> query = entityManager().createQuery(
                 "SELECT e FROM " + JPATypeExtension.class.getSimpleName()
                 + " e WHERE :anyTypeClass MEMBER OF e.auxClasses", TypeExtension.class);

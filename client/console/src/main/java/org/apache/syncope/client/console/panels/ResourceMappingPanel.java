@@ -22,13 +22,11 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
@@ -531,32 +529,22 @@ public class ResourceMappingPanel extends Panel {
      * @param toBeUpdated drop down choice to be updated.
      */
     private void setAttrNames(final IntMappingType type, final AjaxDropDownChoicePanel<String> toBeUpdated) {
-
         toBeUpdated.setRequired(true);
         toBeUpdated.setEnabled(true);
 
         if (type == null || type.getAnyTypeKind() == null) {
             toBeUpdated.setChoices(Collections.<String>emptyList());
         } else {
-            Collection<AnyTypeTO> anyTypeTOs = type.getAnyTypeKind() == AnyTypeKind.ANY_OBJECT
-                    ? CollectionUtils.select(anyTypeRestClient.list(), new Predicate<AnyTypeTO>() {
+            AnyTypeTO anyTypeTO = anyTypeRestClient.read(provisionTO.getAnyType());
 
-                        @Override
-                        public boolean evaluate(final AnyTypeTO object) {
-                            return object.getKind() == AnyTypeKind.ANY_OBJECT;
-                        }
-                    })
-                    : Collections.singletonList(anyTypeRestClient.get(type.getAnyTypeKind().name()));
-
-            final List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
-            for (AnyTypeTO anyTypeTO : anyTypeTOs) {
-                anyTypeClassTOs.addAll(anyTypeClassRestClient.list(anyTypeTO.getClasses()));
+            List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
+            anyTypeClassTOs.addAll(anyTypeClassRestClient.list(anyTypeTO.getClasses()));
+            for (String auxClass : provisionTO.getAuxClasses()) {
+                anyTypeClassTOs.add(anyTypeClassRestClient.read(auxClass));
             }
 
             List<String> choices;
-
             switch (type) {
-                // user attribute names
                 case UserPlainSchema:
                 case GroupPlainSchema:
                 case AnyObjectPlainSchema:
@@ -639,14 +627,14 @@ public class ResourceMappingPanel extends Panel {
     /**
      * Get all attribute types from a selected attribute type.
      *
-     * @param entity entity.
+     * @param kind entity.
      * @return all attribute types.
      */
-    private List<IntMappingType> getAttributeTypes(final AnyTypeKind entity) {
+    private List<IntMappingType> getAttributeTypes(final AnyTypeKind kind) {
         final List<IntMappingType> res = new ArrayList<>();
 
-        if (entity != null) {
-            res.addAll(IntMappingType.getAttributeTypes(entity));
+        if (kind != null) {
+            res.addAll(IntMappingType.getAttributeTypes(kind));
         }
 
         return res;

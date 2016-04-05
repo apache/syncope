@@ -28,11 +28,11 @@ public class AnyTypeRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2211371717449597247L;
 
-    public AnyTypeTO get(final String kind) {
+    public AnyTypeTO read(final String key) {
         AnyTypeTO type = null;
 
         try {
-            type = getService(AnyTypeService.class).read(kind);
+            type = getService(AnyTypeService.class).read(key);
         } catch (SyncopeClientException e) {
             LOG.error("While reading all any types", e);
         }

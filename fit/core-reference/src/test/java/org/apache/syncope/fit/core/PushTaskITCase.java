@@ -261,7 +261,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertNotNull(schemaTO);
 
         AnyTypeClassTO typeClass = new AnyTypeClassTO();
-        typeClass.setKey("SYNCOPE-598");
+        typeClass.setKey("SYNCOPE-598" + getUUIDString());
         typeClass.getPlainSchemas().add(schemaTO.getKey());
         anyTypeClassService.create(typeClass);
 
@@ -288,6 +288,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             ProvisionTO provisionTO = new ProvisionTO();
             provisionTO.setAnyType(AnyTypeKind.GROUP.name());
             provisionTO.setObjectClass(ObjectClass.GROUP_NAME);
+            provisionTO.getAuxClasses().add(typeClass.getKey());
             resourceTO.getProvisions().add(provisionTO);
 
             MappingTO mapping = new MappingTO();

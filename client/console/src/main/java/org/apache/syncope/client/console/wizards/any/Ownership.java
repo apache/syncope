@@ -157,7 +157,7 @@ public class Ownership extends WizardStep {
                 new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build("groupsearch");
         groupSearchFragment.add(groupSearchPanel.setRenderBodyOnly(true));
 
-        AnyTypeTO anyTypeTO = anyTypeRestClient.get(AnyTypeKind.GROUP.name());
+        AnyTypeTO anyTypeTO = anyTypeRestClient.read(AnyTypeKind.GROUP.name());
 
         groupDirectoryPanel = GroupSelectionDirectoryPanel.class.cast(new GroupSelectionDirectoryPanel.Builder(
                 anyTypeClassRestClient.list(anyTypeTO.getClasses()),
@@ -171,7 +171,7 @@ public class Ownership extends WizardStep {
                 new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build("usersearch"));
         userSearchFragment.add(userSearchPanel.setRenderBodyOnly(true));
 
-        anyTypeTO = anyTypeRestClient.get(AnyTypeKind.USER.name());
+        anyTypeTO = anyTypeRestClient.read(AnyTypeKind.USER.name());
 
         userDirectoryPanel = UserSelectionDirectoryPanel.class.cast(new UserSelectionDirectoryPanel.Builder(
                 anyTypeClassRestClient.list(anyTypeTO.getClasses()),

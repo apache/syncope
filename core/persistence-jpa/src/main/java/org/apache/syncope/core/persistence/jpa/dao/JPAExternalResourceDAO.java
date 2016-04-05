@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -92,6 +93,16 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
     @Override
     public Provision findProvision(final Long key) {
         return entityManager().find(JPAProvision.class, key);
+    }
+
+    @Override
+    public List<Provision> findProvisionsByAuxClass(final AnyTypeClass anyTypeClass) {
+        TypedQuery<Provision> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAProvision.class.getSimpleName()
+                + " e WHERE :anyTypeClass MEMBER OF e.auxClasses", Provision.class);
+        query.setParameter("anyTypeClass", anyTypeClass);
+
+        return query.getResultList();
     }
 
     private StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {

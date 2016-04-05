@@ -56,7 +56,6 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelManageUsers", "emptyFragment", this));
         super.add(new Fragment("panelManageGroups", "emptyFragment", this));
         super.add(new Fragment("panelMapping", "emptyFragment", this));
-        super.add(new Fragment("panelAccountLink", "emptyFragment", this));
         super.add(new Fragment("panelMustChangePassword", "emptyFragment", this));
         super.add(new Fragment("panelResetTime", "emptyFragment", this));
         super.add(new Fragment("panelClone", "emptyFragment", this));
@@ -179,25 +178,6 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment = new Fragment("panelMapping", "fragmentMapping", this);
 
                 fragment.addOrReplace(new IndicatingAjaxLink<Void>("mappingLink") {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        link.onClick(target, model.getObject());
-                    }
-
-                    @Override
-                    public String getAjaxIndicatorMarkupId() {
-                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
-                    }
-                }.setVisible(link.isEnabled(model.getObject())));
-                break;
-
-            case ACCOUNT_LINK:
-                fragment = new Fragment("panelAccountLink", "fragmentAccountLink", this);
-
-                fragment.addOrReplace(new IndicatingAjaxLink<Void>("accountLinkLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -806,10 +786,6 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
             case MAPPING:
                 super.addOrReplace(new Fragment("panelMapping", "emptyFragment", this));
-                break;
-
-            case ACCOUNT_LINK:
-                super.addOrReplace(new Fragment("panelAccountLink", "emptyFragment", this));
                 break;
 
             case MUSTCHANGEPASSWORD:

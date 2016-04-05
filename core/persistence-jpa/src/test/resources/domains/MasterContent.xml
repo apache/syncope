@@ -819,6 +819,9 @@ under the License.
                connObjectKey="0" password="1" purpose="PROPAGATION"/>
                          
   <Provision id="9" resource_name="resource-csv" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Provision_AnyTypeClass provision_id="9" anyTypeClass_name="csv"/>
+  <Provision_AnyTypeClass provision_id="9" anyTypeClass_name="generic membership"/>
+  <Provision_AnyTypeClass provision_id="9" anyTypeClass_name="minimal group"/>
   <Mapping id="9" provision_id="9"/>
   <MappingItem id="200" extAttrName="id" mapping_id="9"
                intMappingType="Username" mandatoryCondition="true"
@@ -862,6 +865,8 @@ under the License.
                connObjectKey="0" password="1" purpose="BOTH"/>
 
   <Provision id="11" resource_name="resource-ldap" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Provision_AnyTypeClass provision_id="11" anyTypeClass_name="generic membership"/>
+  <Provision_AnyTypeClass provision_id="11" anyTypeClass_name="minimal group"/>
   <Mapping id="11" provision_id="11"
            connObjectLink="&apos;uid=&apos; + username + &apos;,ou=people,o=isp&apos;"/>
   <MappingItem id="311" connObjectKey="1" password="0" mapping_id="11"
