@@ -38,9 +38,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
-/**
- * Modal window with Connector form.
- */
 public class ConnectorDetailsPanel extends Panel {
 
     private static final long serialVersionUID = -2435937897614232137L;
@@ -51,28 +48,23 @@ public class ConnectorDetailsPanel extends Panel {
         super(id, model);
         setOutputMarkupId(true);
 
-        final AjaxTextFieldPanel displayName = new AjaxTextFieldPanel(
+        AjaxTextFieldPanel displayName = new AjaxTextFieldPanel(
                 "displayName", "displayName", new PropertyModel<String>(model.getObject(), "displayName"), false);
         displayName.setOutputMarkupId(true);
         displayName.addRequiredLabel();
         add(displayName);
 
-        final AjaxTextFieldPanel location = new AjaxTextFieldPanel(
-                "location",
-                "location",
-                new PropertyModel<String>(model.getObject(), "location"),
-                false);
-        location.setRequired(true);
+        AjaxTextFieldPanel location = new AjaxTextFieldPanel(
+                "location", "location", new PropertyModel<String>(model.getObject(), "location"), false);
         location.addRequiredLabel();
         location.setOutputMarkupId(true);
         location.setEnabled(false);
         add(location);
 
         final AjaxDropDownChoicePanel<String> bundleName = new AjaxDropDownChoicePanel<>(
-                "connectorName",
-                "connectorName",
+                "bundleName",
+                "bundleName",
                 new PropertyModel<String>(model.getObject(), "bundleName"), false);
-
         ((DropDownChoice<String>) bundleName.getField()).setNullValid(true);
         bundleName.setChoices(CollectionUtils.collect(bundles, new Transformer<ConnBundleTO, String>() {
 
@@ -81,8 +73,6 @@ public class ConnectorDetailsPanel extends Panel {
                 return input.getBundleName();
             }
         }, new ArrayList<String>()));
-
-        bundleName.setRequired(true);
         bundleName.addRequiredLabel();
         bundleName.setOutputMarkupId(true);
         bundleName.setEnabled(model.getObject().getKey() == null || model.getObject().getKey() == 0);
@@ -90,17 +80,11 @@ public class ConnectorDetailsPanel extends Panel {
         add(bundleName);
 
         final AjaxDropDownChoicePanel<String> version = new AjaxDropDownChoicePanel<>(
-                "version",
-                "version",
-                new PropertyModel<String>(model.getObject(), "version"), false);
-
+                "version", "version", new PropertyModel<String>(model.getObject(), "version"), false);
         version.setChoices(getVersions(model.getObject(), bundles));
-
-        version.setRequired(true);
         version.addRequiredLabel();
         version.setEnabled(model.getObject().getBundleName() != null);
         version.setOutputMarkupId(true);
-        version.addRequiredLabel();
         version.getField().setOutputMarkupId(true);
         add(version);
 
@@ -111,8 +95,15 @@ public class ConnectorDetailsPanel extends Panel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 ((DropDownChoice<String>) bundleName.getField()).setNullValid(false);
-                version.setChoices(getVersions(model.getObject(), bundles));
                 version.setEnabled(true);
+
+                List<String> versions = getVersions(model.getObject(), bundles);
+                if (versions.size() == 1) {
+                    model.getObject().setVersion(versions.get(0));
+                    version.getField().setModelObject(versions.get(0));
+                }
+                version.setChoices(versions);
+
                 target.add(version);
             }
         });
@@ -122,39 +113,27 @@ public class ConnectorDetailsPanel extends Panel {
         }
 
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(
-                "connRequestTimeout",
-                "connRequestTimeout",
-                Integer.class,
+                "connRequestTimeout", "connRequestTimeout", Integer.class,
                 new PropertyModel<Integer>(model, "connRequestTimeout")));
 
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(
-                "poolMaxObjects",
-                "poolMaxObjects",
-                Integer.class,
+                "poolMaxObjects", "poolMaxObjects", Integer.class,
                 new PropertyModel<Integer>(model.getObject().getPoolConf(), "maxObjects")));
 
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(
-                "poolMinIdle",
-                "poolMinIdle",
-                Integer.class,
+                "poolMinIdle", "poolMinIdle", Integer.class,
                 new PropertyModel<Integer>(model.getObject().getPoolConf(), "minIdle")));
 
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(
-                "poolMaxIdle",
-                "poolMaxIdle",
-                Integer.class,
+                "poolMaxIdle", "poolMaxIdle", Integer.class,
                 new PropertyModel<Integer>(model.getObject().getPoolConf(), "maxIdle")));
 
         add(new AjaxSpinnerFieldPanel.Builder<Long>().min(0L).max(Long.MAX_VALUE).build(
-                "poolMaxWait",
-                "poolMaxWait",
-                Long.class,
+                "poolMaxWait", "poolMaxWait", Long.class,
                 new PropertyModel<Long>(model.getObject().getPoolConf(), "maxWait")));
 
         add(new AjaxSpinnerFieldPanel.Builder<Long>().min(0L).max(Long.MAX_VALUE).build(
-                "poolMinEvictableIdleTime",
-                "poolMinEvictableIdleTime",
-                Long.class,
+                "poolMinEvictableIdleTime", "poolMinEvictableIdleTime", Long.class,
                 new PropertyModel<Long>(model.getObject().getPoolConf(), "minEvictableIdleTimeMillis")));
     }
 
