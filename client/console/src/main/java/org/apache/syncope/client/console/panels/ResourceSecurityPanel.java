@@ -23,11 +23,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -41,139 +41,97 @@ public class ResourceSecurityPanel extends Panel {
 
     private final PolicyRestClient policyRestClient = new PolicyRestClient();
 
-    private IModel<Map<Long, String>> passwordPolicies = null;
+    private final IModel<Map<Long, String>> passwordPolicies = new LoadableDetachableModel<Map<Long, String>>() {
 
-    private IModel<Map<Long, String>> accountPolicies = null;
+        private static final long serialVersionUID = 5275935387613157437L;
 
-    private IModel<Map<Long, String>> pullPolicies = null;
+        @Override
+        protected Map<Long, String> load() {
+            Map<Long, String> res = new HashMap<>();
+            for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
+                res.put(policyTO.getKey(), policyTO.getDescription());
+            }
+            return res;
+        }
+    };
+
+    private final IModel<Map<Long, String>> accountPolicies = new LoadableDetachableModel<Map<Long, String>>() {
+
+        private static final long serialVersionUID = -2012833443695917883L;
+
+        @Override
+        protected Map<Long, String> load() {
+            Map<Long, String> res = new HashMap<>();
+            for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
+                res.put(policyTO.getKey(), policyTO.getDescription());
+            }
+            return res;
+        }
+    };
+
+    private final IModel<Map<Long, String>> pullPolicies = new LoadableDetachableModel<Map<Long, String>>() {
+
+        private static final long serialVersionUID = -2012833443695917883L;
+
+        @Override
+        protected Map<Long, String> load() {
+            Map<Long, String> res = new HashMap<>();
+            for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PULL)) {
+                res.put(policyTO.getKey(), policyTO.getDescription());
+            }
+            return res;
+        }
+    };
 
     public ResourceSecurityPanel(final String id, final IModel<ResourceTO> model) {
-
         super(id);
+        setOutputMarkupId(true);
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         container.setRenderBodyOnly(true);
         add(container);
 
-        setOutputMarkupId(true);
-
-        passwordPolicies = new LoadableDetachableModel<Map<Long, String>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected Map<Long, String> load() {
-                Map<Long, String> res = new HashMap<>();
-                for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
-                    res.put(policyTO.getKey(), policyTO.getDescription());
-                }
-                return res;
-            }
-        };
-
-        accountPolicies = new LoadableDetachableModel<Map<Long, String>>() {
-
-            private static final long serialVersionUID = -2012833443695917883L;
-
-            @Override
-            protected Map<Long, String> load() {
-                Map<Long, String> res = new HashMap<>();
-                for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
-                    res.put(policyTO.getKey(), policyTO.getDescription());
-                }
-                return res;
-            }
-        };
-
-        pullPolicies = new LoadableDetachableModel<Map<Long, String>>() {
-
-            private static final long serialVersionUID = -2012833443695917883L;
-
-            @Override
-            protected Map<Long, String> load() {
-                Map<Long, String> res = new HashMap<>();
-                for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PULL)) {
-                    res.put(policyTO.getKey(), policyTO.getDescription());
-                }
-                return res;
-            }
-        };
-
         // -------------------------------
-        // Password policy specification
+        // Password policy selection
         // -------------------------------
-        final AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<Long>(
+        AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<>(
                 "passwordPolicy",
                 new ResourceModel("passwordPolicy", "passwordPolicy").getObject(),
                 new PropertyModel<Long>(model, "passwordPolicy"),
                 false);
-
-        passwordPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.PASSWORD));
+        passwordPolicy.setChoiceRenderer(new PolicyRenderer(passwordPolicies));
         passwordPolicy.setChoices(new ArrayList<>(passwordPolicies.getObject().keySet()));
         ((DropDownChoice<?>) passwordPolicy.getField()).setNullValid(true);
         container.add(passwordPolicy);
         // -------------------------------
 
         // -------------------------------
-        // Account policy specification
+        // Account policy selection
         // -------------------------------
-        final AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<Long>(
+        AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<>(
                 "accountPolicy",
                 new ResourceModel("accountPolicy", "accountPolicy").getObject(),
                 new PropertyModel<Long>(model, "accountPolicy"),
                 false);
-
-        accountPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.ACCOUNT));
-        accountPolicy.setChoices(new ArrayList<Long>(accountPolicies.getObject().keySet()));
+        accountPolicy.setChoiceRenderer(new PolicyRenderer(accountPolicies));
+        accountPolicy.setChoices(new ArrayList<>(accountPolicies.getObject().keySet()));
         ((DropDownChoice<?>) accountPolicy.getField()).setNullValid(true);
         container.add(accountPolicy);
         // -------------------------------
 
         // -------------------------------
-        // Pull policy specification
+        // Pull policy selection
         // -------------------------------
         AjaxDropDownChoicePanel<Long> pullPolicy = new AjaxDropDownChoicePanel<>(
                 "pullPolicy",
                 new ResourceModel("pullPolicy", "pullPolicy").getObject(),
                 new PropertyModel<Long>(model, "pullPolicy"),
                 false);
-
-        pullPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.PULL));
-        pullPolicy.setChoices(new ArrayList<Long>(pullPolicies.getObject().keySet()));
+        pullPolicy.setChoiceRenderer(new PolicyRenderer(pullPolicies));
+        pullPolicy.setChoices(new ArrayList<>(pullPolicies.getObject().keySet()));
         ((DropDownChoice<?>) pullPolicy.getField()).setNullValid(true);
         container.add(pullPolicy);
         // -------------------------------
     }
-
-    private class PolicyRenderer extends ChoiceRenderer<Long> {
-
-        private static final long serialVersionUID = 8060500161321947000L;
-
-        private final PolicyType type;
-
-        PolicyRenderer(final PolicyType type) {
-            super();
-            this.type = type;
-        }
-
-        @Override
-        public Object getDisplayValue(final Long object) {
-            switch (type) {
-                case ACCOUNT:
-                    return accountPolicies.getObject().get(object);
-                case PASSWORD:
-                    return passwordPolicies.getObject().get(object);
-                case PULL:
-                    return pullPolicies.getObject().get(object);
-                default:
-                    return "";
-            }
-        }
-
-        @Override
-        public String getIdValue(final Long object, final int index) {
-            return String.valueOf(object != null ? object : 0L);
-        }
-    };
 }

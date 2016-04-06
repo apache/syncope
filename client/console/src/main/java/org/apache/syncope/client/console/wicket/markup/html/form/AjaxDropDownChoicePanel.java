@@ -46,7 +46,6 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
 
         field = new BootstrapSelect<>(
                 "dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<T>());
-
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
         if (enableOnBlur) {
@@ -84,7 +83,7 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
         BootstrapSelect.class.cast(field).setNullValid(validity);
         return this;
     }
-    
+
     @Override
     @SuppressWarnings("unchecked")
     public FieldPanel<T> clone() {

@@ -70,10 +70,10 @@ public class RealmChoicePanel extends Panel {
         this.pageRef = pageRef;
         tree = new HashMap<>();
 
-        final RealmTO def = new RealmTO();
-        def.setName("/");
-        def.setFullPath("/");
-        model = Model.of(def);
+        RealmTO fakeRootRealm = new RealmTO();
+        fakeRootRealm.setName("/");
+        fakeRootRealm.setFullPath("/");
+        model = Model.of(fakeRootRealm);
 
         ldm = new LoadableDetachableModel<List<Pair<String, RealmTO>>>() {
 
@@ -96,8 +96,11 @@ public class RealmChoicePanel extends Panel {
 
             @Override
             protected List<Pair<String, RealmTO>> load() {
+                Map<Long, Pair<RealmTO, List<RealmTO>>> map = reloadRealmParentMap();
+                model.setObject(map.get(1L).getKey());
+
                 final List<Pair<String, RealmTO>> full = new ArrayList<>();
-                getChildren(full, 0L, reloadRealmParentMap(), StringUtils.EMPTY);
+                getChildren(full, 0L, map, StringUtils.EMPTY);
                 return full;
             }
         };
@@ -138,7 +141,7 @@ public class RealmChoicePanel extends Panel {
                             model.setObject(realmTO);
                             label.setDefaultModelObject(model.getObject().getFullPath());
                             target.add(label);
-                            send(pageRef.getPage(), Broadcast.EXACT, new ChoosenRealm<>(realmTO, target));
+                            send(pageRef.getPage(), Broadcast.EXACT, new ChosenRealm<>(realmTO, target));
                         }
                     });
                 }
@@ -232,13 +235,13 @@ public class RealmChoicePanel extends Panel {
         return null;
     }
 
-    public static class ChoosenRealm<T> {
+    public static class ChosenRealm<T> {
 
         private final AjaxRequestTarget target;
 
         private final T obj;
 
-        public ChoosenRealm(final T obj, final AjaxRequestTarget target) {
+        public ChosenRealm(final T obj, final AjaxRequestTarget target) {
             this.obj = obj;
             this.target = target;
         }
