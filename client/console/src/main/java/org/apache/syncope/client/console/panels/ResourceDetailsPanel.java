@@ -18,31 +18,44 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wizards.any.AnnotatedBeanPanel;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.util.ListModel;
 
 public class ResourceDetailsPanel extends Panel {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
+    private final IModel<List<String>> propagationActionsClasses = new LoadableDetachableModel<List<String>>() {
+
+        private static final long serialVersionUID = 5275935387613157437L;
+
+        @Override
+        protected List<String> load() {
+            return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPropagationActions());
+        }
+    };
+
     public ResourceDetailsPanel(
             final String id,
             final IModel<ResourceTO> model,
-            final List<String> actionClassNames,
             final boolean createFlag) {
 
         super(id);
@@ -77,12 +90,12 @@ public class ResourceDetailsPanel extends Panel {
                 new PropertyModel<Boolean>(model, "randomPwdIfNotProvided"),
                 false));
 
-        container.add(new MultiFieldPanel.Builder<>(
-                new PropertyModel<List<String>>(model, "propagationActionsClassNames")).build(
-                "actionsClasses",
-                "actionsClasses",
-                new AjaxDropDownChoicePanel<>("panel", "panel", new Model<String>())
-                .setChoices(actionClassNames).setNullValid(true).setRequired(true)));
+        container.add(new AjaxPalettePanel.Builder<String>().
+                setAllowMoveAll(true).setAllowOrder(true).
+                build("propagationActionsClassNames",
+                        new PropertyModel<List<String>>(model, "propagationActionsClassNames"),
+                        new ListModel<>(propagationActionsClasses.getObject())).
+                setOutputMarkupId(true));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "createTraceLevel",

@@ -22,8 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.NotificationPanel;
-import org.apache.syncope.client.console.rest.UserSelfRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
+import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.WebPage;
@@ -42,8 +42,6 @@ public class MustChangePassword extends WebPage {
     private static final long serialVersionUID = 5889157642852559004L;
 
     private static final Logger LOG = LoggerFactory.getLogger(MustChangePassword.class);
-
-    private final UserSelfRestClient userSelfRestClient = new UserSelfRestClient();
 
     private final StatelessForm<Void> form;
 
@@ -90,7 +88,8 @@ public class MustChangePassword extends WebPage {
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
-                    userSelfRestClient.changePassword(passwordField.getModelObject());
+                    SyncopeConsoleSession.get().getService(UserSelfService.class).
+                            changePassword(passwordField.getModelObject());
 
                     SyncopeConsoleSession.get().invalidate();
 

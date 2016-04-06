@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
@@ -160,16 +159,5 @@ public class SchemaRestClient extends BaseRestClient {
         VirSchemaTO schemaTO = getService(SchemaService.class).read(SchemaType.VIRTUAL, name);
         getService(SchemaService.class).delete(SchemaType.VIRTUAL, name);
         return schemaTO;
-    }
-
-    public List<String> getAllValidatorClasses() {
-        List<String> response = null;
-
-        try {
-            response = new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getValidators());
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting all validators", e);
-        }
-        return response;
     }
 }

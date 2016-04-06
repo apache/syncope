@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.WorkflowTogglePanel;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -57,7 +58,7 @@ public class Workflow extends BasePage {
 
                     @Override
                     protected byte[] getImageData(final IResource.Attributes attributes) {
-                        return wfRestClient.isActivitiEnabledForUsers()
+                        return isActivitiEnabledForUsers()
                                 ? wfRestClient.getDiagram()
                                 : new byte[0];
                     }
@@ -72,7 +73,7 @@ public class Workflow extends BasePage {
         togglePanel.setOutputMarkupId(true);
         workflowDef.add(togglePanel);
 
-        if (wfRestClient.isActivitiEnabledForUsers()) {
+        if (isActivitiEnabledForUsers()) {
             noActivitiEnabledForUsers.setVisible(false);
         } else {
             workflowDef.setVisible(false);
@@ -82,4 +83,7 @@ public class Workflow extends BasePage {
         body.add(workflowDef);
     }
 
+    private boolean isActivitiEnabledForUsers() {
+        return SyncopeConsoleSession.get().getPlatformInfo().getUserWorkflowAdapter().contains("Activiti");
+    }
 }

@@ -84,8 +84,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new ResourceDetailsPanel(panelId, model,
-                        resourceRestClient.getPropagationActionsClasses(), createFlag);
+                return new ResourceDetailsPanel(panelId, model, createFlag);
             }
         });
         //--------------------------------

@@ -18,10 +18,8 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.ResourceDeassociationPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -36,10 +34,6 @@ import org.apache.syncope.common.rest.api.service.ResourceService;
 public class ResourceRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6898907679835668987L;
-
-    public List<String> getPropagationActionsClasses() {
-        return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPropagationActions());
-    }
 
     public List<ResourceTO> getAll() {
         List<ResourceTO> resources = null;

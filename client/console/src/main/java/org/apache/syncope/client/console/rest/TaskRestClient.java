@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -44,18 +43,6 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 public class TaskRestClient extends BaseRestClient implements ExecutionRestClient {
 
     private static final long serialVersionUID = 6284485820911028843L;
-
-    public Set<String> getJobClasses() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getTaskJobs();
-    }
-
-    public Set<String> getPullActionsClasses() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getPullActions();
-    }
-
-    public Set<String> getPushActionsClasses() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getPushActions();
-    }
 
     /**
      * Return the number of tasks.
