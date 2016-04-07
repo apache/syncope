@@ -18,14 +18,21 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
+import static de.agilecoders.wicket.jquery.JQuery.$;
+
+import de.agilecoders.wicket.jquery.function.JavaScriptInlineFunction;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.model.ResourceModel;
 
 public abstract class IndicatingOnConfirmAjaxLink<T> extends IndicatingAjaxLink<T> {
 
     private static final long serialVersionUID = 2228670850922265663L;
 
     private final String msg;
+
+    private final boolean enabled;
 
     public IndicatingOnConfirmAjaxLink(final String id, final boolean enabled) {
         this(id, "confirmDelete", enabled);
@@ -34,8 +41,34 @@ public abstract class IndicatingOnConfirmAjaxLink<T> extends IndicatingAjaxLink<
     public IndicatingOnConfirmAjaxLink(final String id, final String msg, final boolean enabled) {
         super(id);
         this.msg = msg;
+        this.enabled = enabled;
+    }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+
         if (enabled) {
-            this.add(new ConfirmationModalBehavior(msg));
+            response.render(JavaScriptHeaderItem.forScript("proceed = false;", null));
+            response.render($(this).on("click",
+                    new JavaScriptInlineFunction(""
+                            + "var element = $(this);"
+                            + "evt.preventDefault();"
+                            + "if (proceed == false) {"
+                            + "  evt.stopImmediatePropagation();"
+                            + "  bootbox.confirm('" + new ResourceModel(msg).getObject() + "', function(result) {"
+                            + "    if (result == true) {"
+                            + "      proceed = true;"
+                            + "      element.click();"
+                            + "    } else {"
+                            + "      proceed = false;"
+                            + "    }"
+                            + "  return true;"
+                            + "  })"
+                            + "} else {"
+                            + "  proceed = false;"
+                            + "};"
+                    )).asDomReadyScript());
         }
     }
 }

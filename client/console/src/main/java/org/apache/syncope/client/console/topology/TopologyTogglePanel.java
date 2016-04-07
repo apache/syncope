@@ -33,8 +33,8 @@ import org.apache.syncope.client.console.tasks.PropagationTasks;
 import org.apache.syncope.client.console.tasks.PushTasks;
 import org.apache.syncope.client.console.tasks.SchedTasks;
 import org.apache.syncope.client.console.tasks.PullTasks;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -173,9 +173,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     }
 
     private Fragment getConnectorFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "connectorActions", this);
+        Fragment fragment = new Fragment("actions", "connectorActions", this);
 
-        final AjaxLink<String> delete = new IndicatingAjaxLink<String>("delete") {
+        AjaxLink<String> delete = new IndicatingOnConfirmAjaxLink<String>("delete", true) {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -186,19 +186,16 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (SyncopeClientException e) {
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
+                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
         };
-
-        fragment.add(delete);
-        delete.add(new ConfirmationModalBehavior());
-
         MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.CONNECTOR_DELETE);
+        fragment.add(delete);
 
-        final AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
+        AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -221,11 +218,10 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 resourceModal.show(true);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.RESOURCE_CREATE);
         fragment.add(create);
 
-        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.RESOURCE_CREATE);
-
-        final AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
+        AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -246,17 +242,16 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 resourceModal.show(true);
             }
         };
-        fragment.add(edit);
-
         MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.CONNECTOR_UPDATE);
+        fragment.add(edit);
 
         return fragment;
     }
 
     private Fragment getResurceFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "resourceActions", this);
+        Fragment fragment = new Fragment("actions", "resourceActions", this);
 
-        final AjaxLink<String> delete = new IndicatingAjaxLink<String>("delete") {
+        AjaxLink<String> delete = new IndicatingOnConfirmAjaxLink<String>("delete", true) {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -267,19 +262,16 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (SyncopeClientException e) {
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
+                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.RESOURCE_DELETE);
         fragment.add(delete);
 
-        delete.add(new ConfirmationModalBehavior());
-
-        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.RESOURCE_DELETE);
-
-        final AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
+        AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -300,10 +292,10 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 resourceModal.show(true);
             }
         };
-        fragment.add(edit);
         MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+        fragment.add(edit);
 
-        final AjaxLink<String> propagation = new IndicatingAjaxLink<String>("propagation") {
+        AjaxLink<String> propagation = new IndicatingAjaxLink<String>("propagation") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -315,10 +307,10 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 taskModal.show(true);
             }
         };
-        fragment.add(propagation);
         MetaDataRoleAuthorizationStrategy.authorize(propagation, ENABLE, StandardEntitlement.TASK_LIST);
+        fragment.add(propagation);
 
-        final AjaxLink<String> pull = new IndicatingAjaxLink<String>("pull") {
+        AjaxLink<String> pull = new IndicatingAjaxLink<String>("pull") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -329,10 +321,10 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 taskModal.show(true);
             }
         };
-        fragment.add(pull);
         MetaDataRoleAuthorizationStrategy.authorize(pull, ENABLE, StandardEntitlement.TASK_LIST);
+        fragment.add(pull);
 
-        final AjaxLink<String> push = new IndicatingAjaxLink<String>("push") {
+        AjaxLink<String> push = new IndicatingAjaxLink<String>("push") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -343,8 +335,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 taskModal.show(true);
             }
         };
-        fragment.add(push);
         MetaDataRoleAuthorizationStrategy.authorize(push, ENABLE, StandardEntitlement.TASK_LIST);
+        fragment.add(push);
 
         return fragment;
     }
