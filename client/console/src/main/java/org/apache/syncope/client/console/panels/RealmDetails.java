@@ -20,10 +20,13 @@ package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
@@ -38,6 +41,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.util.ListModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +78,16 @@ public class RealmDetails extends Panel {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }
             return res;
+        }
+    };
+
+    private final IModel<List<String>> logicActionsClasses = new LoadableDetachableModel<List<String>>() {
+
+        private static final long serialVersionUID = 5275935387613157437L;
+
+        @Override
+        protected List<String> load() {
+            return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getLogicActions());
         }
     };
 
@@ -125,6 +139,14 @@ public class RealmDetails extends Panel {
         passwordPolicy.setChoices(new ArrayList<>(passwordPolicies.getObject().keySet()));
         ((DropDownChoice<?>) passwordPolicy.getField()).setNullValid(true);
         container.add(passwordPolicy);
+
+        AjaxPalettePanel<String> actionsClassNames = new AjaxPalettePanel.Builder<String>().
+                setAllowMoveAll(true).setAllowOrder(true).
+                build("actionsClassNames",
+                        new PropertyModel<List<String>>(realmTO, "actionsClassNames"),
+                        new ListModel<>(logicActionsClasses.getObject()));
+        actionsClassNames.setOutputMarkupId(true);
+        container.add(actionsClassNames);
 
         if (actions == null) {
             add(new Fragment("actions", "emptyFragment", this).setRenderBodyOnly(true));

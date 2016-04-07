@@ -665,3 +665,8 @@ li.todoitem a {
 #popover:hover {
   cursor: pointer;
 }
+
+.form-palette {
+  display: inline-block;
+  width: 119%;
+}

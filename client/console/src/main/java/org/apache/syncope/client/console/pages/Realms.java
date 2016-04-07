@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -36,6 +37,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Realms extends BasePage {
@@ -66,6 +68,7 @@ public class Realms extends BasePage {
         body.add(content);
 
         modal = new BaseModal<>("modal");
+        modal.size(Modal.Size.Large);
         content.add(modal);
 
         modal.setWindowClosedCallback(new WindowClosedCallback() {
@@ -105,13 +108,12 @@ public class Realms extends BasePage {
 
             @Override
             protected void onClickCreate(final AjaxRequestTarget target) {
-                modal.header(new ResourceModel("createRealm"));
+                modal.header(new ResourceModel("newRealm"));
 
-                final RealmTO newRealmTO = new RealmTO();
-
+                RealmTO newRealmTO = new RealmTO();
                 modal.setFormModel(newRealmTO);
 
-                final RealmModalPanel panel = new RealmModalPanel(
+                RealmModalPanel panel = new RealmModalPanel(
                         modal,
                         Realms.this.getPageReference(),
                         newRealmTO,
@@ -126,11 +128,11 @@ public class Realms extends BasePage {
 
             @Override
             protected void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO) {
-                modal.header(Model.of(realmChoicePanel.getCurrentRealm().getName()));
+                modal.header(new StringResourceModel("editRealm", Model.of(realmTO)));
 
                 modal.setFormModel(realmTO);
 
-                final RealmModalPanel panel = new RealmModalPanel(
+                RealmModalPanel panel = new RealmModalPanel(
                         modal,
                         Realms.this.getPageReference(),
                         realmTO,

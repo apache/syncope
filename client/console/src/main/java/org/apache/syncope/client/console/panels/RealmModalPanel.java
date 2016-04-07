@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.form.Form;
 
 public class RealmModalPanel extends AbstractModalPanel<RealmTO> {
@@ -62,7 +63,8 @@ public class RealmModalPanel extends AbstractModalPanel<RealmTO> {
         this.newRealm = newRealm;
         this.parentPath = parentPath;
 
-        final RealmDetails realmDetail = new RealmDetails("details", realmTO);
+        RealmDetails realmDetail = new RealmDetails("details", realmTO);
+        realmDetail.add(new AttributeAppender("style", "overflow-x:hidden;"));
         if (SyncopeConsoleSession.get().owns(entitlement)) {
             MetaDataRoleAuthorizationStrategy.authorize(realmDetail, ENABLE, entitlement);
         }
