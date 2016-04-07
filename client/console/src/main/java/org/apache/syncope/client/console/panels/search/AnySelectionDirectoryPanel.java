@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -122,7 +123,7 @@ public abstract class AnySelectionDirectoryPanel<T extends AnyTO> extends AnyDir
                         send(AnySelectionDirectoryPanel.this,
                                 Broadcast.BUBBLE, new ItemSelection<>(target, model.getObject()));
                     }
-                }, ActionLink.ActionType.SELECT, String.format("%s_%s", type, AnyEntitlement.READ));
+                }, ActionType.SELECT, AnyEntitlement.READ.getFor(type));
 
                 return panel.build(componentId, model.getObject());
             }
@@ -131,33 +132,31 @@ public abstract class AnySelectionDirectoryPanel<T extends AnyTO> extends AnyDir
             public ActionLinksPanel<T> getHeader(final String componentId) {
                 final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.builder();
 
-                return panel.
-                        add(new ActionLink<T>() {
+                return panel.add(new ActionLink<T>() {
 
-                            private static final long serialVersionUID = -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final T ignore) {
-                                // still missing content
-                                target.add(altDefaultModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
-                                        altDefaultModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final T ignore) {
+                        // still missing content
+                        target.add(altDefaultModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
+                                altDefaultModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
 
-                                altDefaultModal.addSumbitButton();
-                                altDefaultModal.header(new ResourceModel("any.attr.display"));
-                                altDefaultModal.show(true);
-                            }
-                        }, ActionLink.ActionType.CHANGE_VIEW, String.format("%s_%s", type, AnyEntitlement.READ)).
-                        add(new ActionLink<T>() {
+                        altDefaultModal.addSumbitButton();
+                        altDefaultModal.header(new ResourceModel("any.attr.display"));
+                        altDefaultModal.show(true);
+                    }
+                }, ActionType.CHANGE_VIEW, AnyEntitlement.READ.getFor(type)).add(new ActionLink<T>() {
 
-                            private static final long serialVersionUID = -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final T ignore) {
-                                if (target != null) {
-                                    target.add(container);
-                                }
-                            }
-                        }, ActionLink.ActionType.RELOAD, String.format("%s_%s", type, AnyEntitlement.SEARCH)).
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final T ignore) {
+                        if (target != null) {
+                            target.add(container);
+                        }
+                    }
+                }, ActionType.RELOAD, AnyEntitlement.SEARCH.getFor(type)).
                         build(componentId);
             }
         });
@@ -166,8 +165,8 @@ public abstract class AnySelectionDirectoryPanel<T extends AnyTO> extends AnyDir
     }
 
     @Override
-    protected Collection<ActionLink.ActionType> getBulkActions() {
-        return Collections.<ActionLink.ActionType>emptyList();
+    protected Collection<ActionType> getBulkActions() {
+        return Collections.<ActionType>emptyList();
     }
 
     protected abstract String[] getDisplayAttributes();

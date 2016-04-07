@@ -178,8 +178,8 @@ public class AnyPanel extends Panel {
             case ANY_OBJECT:
                 panel = new AnyObjectSearchPanel.Builder(anyTypeTO.getKey(),
                         new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build(id);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER,
-                        String.format("%s_%s", anyTypeTO.getKey(), AnyEntitlement.LIST));
+                MetaDataRoleAuthorizationStrategy.authorize(
+                        panel, WebPage.RENDER, AnyEntitlement.LIST.getFor(anyTypeTO.getKey()));
                 break;
             default:
                 panel = null;
@@ -227,8 +227,8 @@ public class AnyPanel extends Panel {
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).
                         setFiql(fiql).addNewItemPanelBuilder(new AnyObjectWizardBuilder(
                         BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).build(id);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER,
-                        String.format("%s_%s", anyObjectTO.getType(), AnyEntitlement.LIST));
+                MetaDataRoleAuthorizationStrategy.authorize(
+                        panel, WebPage.RENDER, AnyEntitlement.LIST.getFor(anyTypeTO.getKey()));
                 break;
             default:
                 panel = new LabelPanel(id, null);

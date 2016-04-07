@@ -50,19 +50,15 @@ public final class EntitlementsHolder {
         this.values.addAll(values);
     }
 
-    public String getFor(final String anyTypeKey, final AnyEntitlement operation) {
-        return anyTypeKey + "_" + operation.name();
-    }
-
     public void addFor(final String anyType) {
         for (AnyEntitlement operation : AnyEntitlement.values()) {
-            this.values.add(getFor(anyType, operation));
+            this.values.add(operation.getFor(anyType));
         }
     }
 
     public void removeFor(final String anyType) {
         for (AnyEntitlement operation : AnyEntitlement.values()) {
-            this.values.remove(getFor(anyType, operation));
+            this.values.remove(operation.getFor(anyType));
         }
     }
 

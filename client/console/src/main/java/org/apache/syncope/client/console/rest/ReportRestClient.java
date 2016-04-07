@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.rest;
 import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
@@ -69,7 +68,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
 
     @Override
     public List<ExecTO> listRecentExecutions(final int max) {
-        return SyncopeConsoleSession.get().getService(ReportService.class).listRecentExecutions(max);
+        return getService(ReportService.class).listRecentExecutions(max);
     }
 
     public Response exportExecutionResult(final long executionId, final ReportExecExportFormat fmt) {

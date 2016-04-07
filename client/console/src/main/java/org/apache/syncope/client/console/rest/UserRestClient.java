@@ -116,10 +116,10 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         return getService(ResourceService.class).readConnObject(resourceName, AnyTypeKind.USER.name(), id);
     }
 
-    public ProvisioningResult<UserTO> mustChangePassword(final String etag, final Long key) {
+    public ProvisioningResult<UserTO> mustChangePassword(final String etag, final boolean value, final Long key) {
         final UserPatch userPatch = new UserPatch();
         userPatch.setKey(key);
-        userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
+        userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(value).build());
         return update(etag, userPatch);
     }
 

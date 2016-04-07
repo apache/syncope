@@ -41,11 +41,10 @@ under the License.
     <span wicket:id="panelResetTime">[plus]</span>
     <span wicket:id="panelClone">[plus]</span>
     <span wicket:id="panelCreate">[plus]</span>
-    <span wicket:id="panelUserTemplate">[plus]</span>
-    <span wicket:id="panelGroupTemplate">[plus]</span>
     <span wicket:id="panelReset">[plus]</span>
     <span wicket:id="panelEdit">[plus]</span>
     <span wicket:id="panelExport">[plus]</span>
+    <span wicket:id="panelPropagationTasks">[plus]</span>
     <span wicket:id="panelDelete">[plus]</span>
     <span wicket:id="panelSelect">[select]</span>
     <span wicket:id="panelClose">[close]</span>
@@ -63,7 +62,7 @@ under the License.
     <span wicket:id="panelZoomOut">[plus]</span>
 
     <wicket:fragment wicket:id="fragmentMustChangePassword">
-      <a href="#" wicket:id="MustChangePasswordLink" class="btn"><i class="fa fa-lock" alt="must change password icon" title="Force change password"></i></a>
+      <a href="#" wicket:id="MustChangePasswordLink" class="btn"><i class="fa fa-lock" alt="must change password icon" title="Toggle must change password"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentClaim">
@@ -122,12 +121,8 @@ under the License.
       <a href="#" wicket:id="resetLink" class="btn"><img id="actionLink" src="img/actions/reset.png" alt="reset icon" title="Reset sync token"/></a>
     </wicket:fragment>
 
-    <wicket:fragment wicket:id="fragmentUserTemplate">
-      <a href="#" wicket:id="userTemplateLink" class="btn"><img id="actionLink" src="img/actions/user_template.png" alt="user template icon" title="Specify user template"/></a>
-    </wicket:fragment>
-
-    <wicket:fragment wicket:id="fragmentGroupTemplate">
-      <a href="#" wicket:id="groupTemplateLink" class="btn"><img id="actionLink" src="img/actions/groups-icon.png" alt="group template icon"  title="Specify group template"/></a>
+    <wicket:fragment wicket:id="fragmentPropagationTasks">
+      <a href="#" wicket:id="propagationTasksLink" class="btn"><i class="fa fa-arrow-right" alt="PropagationTasks icon" title="PropagationTasks"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentDelete">

@@ -302,7 +302,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             @SuppressWarnings("unchecked")
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new PropagationTasks(taskModal, pageRef, node.getKey().toString())));
+                target.add(taskModal.setContent(new PropagationTasks(taskModal, node.getKey().toString(), pageRef)));
                 taskModal.header(new ResourceModel("task.propagation.list", "Propagation tasks"));
                 taskModal.show(true);
             }

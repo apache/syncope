@@ -297,7 +297,7 @@ span.overridable div.checkbox label div div.toggle-group label {
   padding-left: 7px;
 }
 
-div#outer.modal-lg {
+div#outer.modal-lg, div#utilityModal.modal-lg {
   width: 1200px;
 }
 

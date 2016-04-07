@@ -45,6 +45,7 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -134,8 +135,7 @@ public class Relationships extends WizardStep {
                                                 removeRelationships(relationships, modelObject);
                                                 send(Relationships.this, Broadcast.DEPTH, new ListViewReload(target));
                                             }
-                                        }, ActionLink.ActionType.DELETE,
-                                                String.format("%s_%s", anyTO.getType(), AnyEntitlement.UPDATE)).
+                                        }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).
                                         build(panelId);
                             }
                         };
@@ -165,7 +165,7 @@ public class Relationships extends WizardStep {
                 addFragment.add(new Specification().setRenderBodyOnly(true));
                 target.add(Relationships.this);
             }
-        }, ActionLink.ActionType.CREATE, String.format("%s_%s", anyTO.getType(), AnyEntitlement.UPDATE)).
+        }, ActionType.CREATE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).
                 build("actions"));
 
         return viewFragment;

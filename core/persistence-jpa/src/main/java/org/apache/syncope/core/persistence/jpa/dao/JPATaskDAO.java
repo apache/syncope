@@ -122,7 +122,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
             final TaskType type,
             final ExternalResource resource,
             final AnyTypeKind anyTypeKind,
-            final Long anyTypeKey) {
+            final Long anyKey) {
 
         if (resource != null
                 && type != TaskType.PROPAGATION && type != TaskType.PUSH && type != TaskType.PULL) {
@@ -130,7 +130,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
             throw new IllegalArgumentException(type + " is not related to " + ExternalResource.class.getSimpleName());
         }
 
-        if ((anyTypeKind != null || anyTypeKey != null) && type != TaskType.PROPAGATION) {
+        if ((anyTypeKind != null || anyKey != null) && type != TaskType.PROPAGATION) {
             throw new IllegalArgumentException(type + " is not related to users, groups or any objects");
         }
 
@@ -139,8 +139,8 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
         if (resource != null) {
             queryString.append("AND t.resource=:resource ");
         }
-        if (anyTypeKind != null && anyTypeKey != null) {
-            queryString.append("AND t.anyTypeKind=:anyTypeKind AND t.anyTypeKey=:anyTypeKey ");
+        if (anyTypeKind != null && anyKey != null) {
+            queryString.append("AND t.anyTypeKind=:anyTypeKind AND t.anyKey=:anyKey ");
         }
 
         return queryString;
@@ -172,21 +172,21 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
             final TaskType type,
             final ExternalResource resource,
             final AnyTypeKind anyTypeKind,
-            final Long anyTypeKey,
+            final Long anyKey,
             final int page,
             final int itemsPerPage,
             final List<OrderByClause> orderByClauses) {
 
-        StringBuilder queryString = buildFindAllQuery(type, resource, anyTypeKind, anyTypeKey).
+        StringBuilder queryString = buildFindAllQuery(type, resource, anyTypeKind, anyKey).
                 append(toOrderByStatement(getEntityReference(type), orderByClauses));
 
         Query query = entityManager().createQuery(queryString.toString());
         if (resource != null) {
             query.setParameter("resource", resource);
         }
-        if (anyTypeKind != null && anyTypeKey != null) {
+        if (anyTypeKind != null && anyKey != null) {
             query.setParameter("anyTypeKind", anyTypeKind);
-            query.setParameter("anyTypeKey", anyTypeKey);
+            query.setParameter("anyKey", anyKey);
         }
 
         query.setFirstResult(itemsPerPage * (page <= 0
@@ -205,18 +205,18 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
             final TaskType type,
             final ExternalResource resource,
             final AnyTypeKind anyTypeKind,
-            final Long anyTypeKey) {
+            final Long anyKey) {
 
-        StringBuilder queryString = buildFindAllQuery(type, resource, anyTypeKind, anyTypeKey);
+        StringBuilder queryString = buildFindAllQuery(type, resource, anyTypeKind, anyKey);
 
         Query query = entityManager().createQuery(StringUtils.replaceOnce(
                 queryString.toString(), "SELECT t", "SELECT COUNT(t)"));
         if (resource != null) {
             query.setParameter("resource", resource);
         }
-        if (anyTypeKind != null && anyTypeKey != null) {
+        if (anyTypeKind != null && anyKey != null) {
             query.setParameter("anyTypeKind", anyTypeKind);
-            query.setParameter("anyTypeKey", anyTypeKey);
+            query.setParameter("anyKey", anyKey);
         }
 
         return ((Number) query.getSingleResult()).intValue();

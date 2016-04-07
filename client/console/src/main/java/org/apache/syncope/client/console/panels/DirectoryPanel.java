@@ -146,9 +146,11 @@ public abstract class DirectoryPanel<
         setWindowClosedReloadCallback(modal);
         setWindowClosedReloadCallback(altDefaultModal);
         setWindowClosedReloadCallback(displayAttributeModal);
+        setWindowClosedReloadCallback(utilityModal);
 
         altDefaultModal.size(Modal.Size.Medium);
         displayAttributeModal.size(Modal.Size.Medium);
+        utilityModal.size(Modal.Size.Large);
     }
 
     protected abstract DP dataProvider();
@@ -234,7 +236,6 @@ public abstract class DirectoryPanel<
      * @param resultTableBuilder result table builder.
      */
     protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<T, String> resultTableBuilder) {
-
     }
 
     public DirectoryPanel<T, W, DP, E> disableCheckBoxes() {

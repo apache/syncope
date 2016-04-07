@@ -30,9 +30,11 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.status.StatusModal;
+import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -41,6 +43,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -52,6 +55,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.springframework.util.ReflectionUtils;
 
 public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
@@ -138,50 +142,59 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
 
                         altDefaultModal.show(true);
                     }
-                }, ActionLink.ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).
-                        add(new ActionLink<AnyObjectTO>() {
+                }, ActionType.MANAGE_RESOURCES, AnyEntitlement.READ.getFor(type)).add(new ActionLink<AnyObjectTO>() {
 
-                            private static final long serialVersionUID = -7978723352517770644L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                                send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(
-                                                new AnyHandler<>(new AnyObjectRestClient().read(model.getObject().
-                                                        getKey())),
-                                                target));
-                            }
-                        }, ActionLink.ActionType.EDIT, String.format("%s_%s", type, AnyEntitlement.READ)).
-                        add(new ActionLink<AnyObjectTO>() {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                        send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
+                                new AjaxWizard.EditItemActionEvent<>(
+                                        new AnyHandler<>(new AnyObjectRestClient().read(model.getObject().
+                                                getKey())),
+                                        target));
+                    }
+                }, ActionType.EDIT, AnyEntitlement.READ.getFor(type)).add(new ActionLink<AnyObjectTO>() {
 
-                            private static final long serialVersionUID = -7978723352517770645L;
+                    private static final long serialVersionUID = -7978723352517770645L;
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                                final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
-                                clone.setKey(0L);
-                                send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.NewItemActionEvent<>(new AnyHandler<>(clone), target));
-                            }
-                        }, ActionLink.ActionType.CLONE, StandardEntitlement.USER_CREATE).
-                        add(new ActionLink<AnyObjectTO>() {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                        final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
+                        clone.setKey(0L);
+                        send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
+                                new AjaxWizard.NewItemActionEvent<>(new AnyHandler<>(clone), target));
+                    }
+                }, ActionType.CLONE, AnyEntitlement.CREATE.getFor(type)).add(new ActionLink<AnyObjectTO>() {
 
-                            private static final long serialVersionUID = -7978723352517770646L;
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                                try {
-                                    restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (SyncopeClientException e) {
-                                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                                    error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, String.format("%s_%s", type, AnyEntitlement.DELETE));
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                        target.add(utilityModal.setContent(new AnyPropagationTasks(
+                                utilityModal, AnyTypeKind.ANY_OBJECT, model.getObject().getKey(), pageRef)));
+
+                        utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
+                        utilityModal.show(true);
+                    }
+                }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<AnyObjectTO>() {
+
+                    private static final long serialVersionUID = -7978723352517770646L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                        try {
+                            restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
+                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(container);
+                        } catch (SyncopeClientException e) {
+                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                            error(StringUtils.isBlank(e.getMessage())
+                                    ? e.getClass().getName() : e.getMessage());
+                        }
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                    }
+                }, ActionType.DELETE, AnyEntitlement.DELETE.getFor(type));
 
                 return panel.build(componentId, model.getObject());
             }
@@ -202,7 +215,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                         displayAttributeModal.header(new ResourceModel("any.attr.display"));
                         displayAttributeModal.show(true);
                     }
-                }, ActionLink.ActionType.CHANGE_VIEW, String.format("%s_%s", type, AnyEntitlement.READ)).add(
+                }, ActionType.CHANGE_VIEW, AnyEntitlement.READ.getFor(type)).add(
                         new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
@@ -213,7 +226,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                             target.add(container);
                         }
                     }
-                }, ActionLink.ActionType.RELOAD, String.format("%s_%s", type, AnyEntitlement.SEARCH));
+                }, ActionType.RELOAD, AnyEntitlement.SEARCH.getFor(type));
 
                 return panel.build(componentId);
             }

@@ -22,24 +22,26 @@ import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
-public class PropagationTasks extends AbstractPropagationTasks {
+public class AnyPropagationTasks extends AbstractPropagationTasks {
 
     private static final long serialVersionUID = -4013796607157549641L;
 
-    public <T extends AnyTO> PropagationTasks(
+    public <T extends AnyTO> AnyPropagationTasks(
             final BaseModal<?> baseModal,
-            final String resource,
+            final AnyTypeKind anyTypeKind,
+            final Long anyTypeKey,
             final PageReference pageReference) {
 
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
-        mlp.setFirstLevel(new PropagationTaskDirectoryPanel(baseModal, mlp, resource, pageReference) {
+        mlp.setFirstLevel(new AnyPropagationTaskDirectoryPanel(baseModal, mlp, anyTypeKind, anyTypeKey, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 

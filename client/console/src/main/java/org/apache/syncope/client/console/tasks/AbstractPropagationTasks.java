@@ -16,17 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.client.console.tasks;
 
-public enum AnyEntitlement {
-    SEARCH,
-    LIST,
-    CREATE,
-    READ,
-    UPDATE,
-    DELETE;
+public abstract class AbstractPropagationTasks extends AbstractTasks {
 
-    public String getFor(final String anyTypeKey) {
-        return anyTypeKey + "_" + name();
+    private static final long serialVersionUID = -2138947447603621523L;
+
+    public AbstractPropagationTasks(final String id) {
+        super(id);
     }
+
 }

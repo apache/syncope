@@ -192,7 +192,7 @@ public abstract class PropagationTaskDirectoryPanel
 
     @Override
     protected PropagationTasksProvider dataProvider() {
-        return new PropagationTasksProvider(rows, this.resource);
+        return new PropagationTasksProvider(rows);
     }
 
     @Override
@@ -200,15 +200,12 @@ public abstract class PropagationTaskDirectoryPanel
         return Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS;
     }
 
-    public class PropagationTasksProvider extends TaskDataProvider<PropagationTaskTO> {
+    protected class PropagationTasksProvider extends TaskDataProvider<PropagationTaskTO> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
-        private final String resource;
-
-        public PropagationTasksProvider(final int paginatorRows, final String resource) {
+        public PropagationTasksProvider(final int paginatorRows) {
             super(paginatorRows, TaskType.PROPAGATION, restClient);
-            this.resource = resource;
         }
 
         @Override

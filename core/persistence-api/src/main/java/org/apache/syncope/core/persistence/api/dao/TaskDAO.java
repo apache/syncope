@@ -36,10 +36,10 @@ public interface TaskDAO extends DAO<Task, Long> {
     <T extends Task> List<T> findAll(TaskType type);
 
     <T extends Task> List<T> findAll(
-            TaskType type, ExternalResource resource, AnyTypeKind anyTypeKind, Long anyTypeKey,
+            TaskType type, ExternalResource resource, AnyTypeKind anyTypeKind, Long anyKey,
             int page, int itemsPerPage, List<OrderByClause> orderByClauses);
 
-    int count(TaskType type, ExternalResource resource, AnyTypeKind anyTypeKind, Long anyTypeKey);
+    int count(TaskType type, ExternalResource resource, AnyTypeKind anyTypeKind, Long anyKey);
 
     <T extends Task> T save(T task);
 

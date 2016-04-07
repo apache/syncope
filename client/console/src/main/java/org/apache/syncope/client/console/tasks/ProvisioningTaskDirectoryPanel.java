@@ -98,7 +98,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends AbstractProvision
         return columns;
     }
 
-    public class ProvisioningTasksProvider<T extends AbstractProvisioningTaskTO> extends SchedTasksProvider<T> {
+    protected class ProvisioningTasksProvider<T extends AbstractProvisioningTaskTO> extends SchedTasksProvider<T> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
@@ -111,7 +111,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends AbstractProvision
 
         @Override
         public long size() {
-            return restClient.count(resource, id);
+            return restClient.count(resource, taskType);
         }
 
         @Override

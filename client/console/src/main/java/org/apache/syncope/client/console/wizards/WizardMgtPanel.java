@@ -44,7 +44,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 public abstract class WizardMgtPanel<T extends Serializable> extends Panel implements IEventSource {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -4152438633429194882L;
 
     private final WebMarkupContainer container;
 
@@ -64,12 +64,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     protected boolean showResultPage = false;
 
-    /**
-     * Modal window.
-     */
     protected final BaseModal<T> modal = new BaseModal<T>("modal") {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 389935548143327858L;
 
         @Override
         protected void onConfigure() {
@@ -79,12 +76,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     };
 
-    /**
-     * Modal window.
-     */
     protected final BaseModal<T> altDefaultModal = new BaseModal<>("alternativeDefaultModal");
 
     protected final BaseModal<T> displayAttributeModal = new BaseModal<>("displayAttributeModal");
+
+    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("utilityModal");
 
     protected WizardMgtPanel(final String id) {
         this(id, false);
@@ -99,6 +95,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         super.add(modal);
         super.add(altDefaultModal);
         super.add(displayAttributeModal);
+        super.add(utilityModal);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
