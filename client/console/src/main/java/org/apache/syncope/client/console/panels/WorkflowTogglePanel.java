@@ -55,8 +55,8 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
         container.setOutputMarkupPlaceholderTag(true);
         addInnerObject(container);
 
-        BookmarkablePageLink<Void> activitiModeler = new BookmarkablePageLink<>("activitiModeler",
-                ActivitiModelerPopupPage.class);
+        BookmarkablePageLink<Void> activitiModeler =
+                new BookmarkablePageLink<>("activitiModeler", ActivitiModelerPopupPage.class);
         activitiModeler.setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
         MetaDataRoleAuthorizationStrategy.authorize(activitiModeler, ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
         container.add(activitiModeler);
@@ -78,6 +78,8 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
+                modal.show(false);
+                modal.close(target);
                 target.add(workflowDefDiagram);
             }
         });
@@ -91,7 +93,6 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
                 target.add(modal.setContent(new XMLWorkflowEditorModalPanel(modal, new WorkflowRestClient(), pageRef)));
 
                 modal.header(new ResourceModel("xmlEditorTitle"));
-
                 modal.show(true);
             }
         };
