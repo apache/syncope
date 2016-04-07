@@ -20,14 +20,23 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +48,9 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private AnySearchDAO searchDAO;
 
     @Autowired
     private RealmDataBinder binder;
@@ -88,6 +100,22 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             LOG.error("Could not find realm '" + fullPath + "'");
 
             throw new NotFoundException(fullPath);
+        }
+
+        Set<String> adminRealms = Collections.singleton(realm.getFullPath());
+        AnyCond idCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
+        idCond.setSchema("id");
+        SearchCond allMatchingCond = SearchCond.getLeafCond(idCond);
+        int users = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.USER);
+        int groups = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.GROUP);
+        int anyObjects = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
+
+        if (users + groups + anyObjects > 0) {
+            SyncopeClientException containedAnys = SyncopeClientException.build(ClientExceptionType.AssociatedAnys);
+            containedAnys.getElements().add(users + " user(s)");
+            containedAnys.getElements().add(groups + " group(s)");
+            containedAnys.getElements().add(anyObjects + " anyObject(s)");
+            throw containedAnys;
         }
 
         RealmTO deleted = binder.getRealmTO(realm);
