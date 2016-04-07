@@ -375,7 +375,7 @@ under the License.
     <swagger-core.version>1.5.8</swagger-core.version>    
     <swagger-ui.version>2.1.4</swagger-ui.version>
         
-    <jquery.version>2.2.2</jquery.version>
+    <jquery.version>2.2.3</jquery.version>
     <jquery-ui.version>1.11.4</jquery-ui.version>
     <jquery-slimscroll.version>1.3.3</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
