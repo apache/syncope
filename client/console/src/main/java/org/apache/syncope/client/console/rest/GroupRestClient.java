@@ -25,14 +25,11 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
-import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
@@ -80,11 +77,6 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
                 search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
                         orderBy(toOrderBy(sort)).details(false).build()).
                 getResult();
-    }
-
-    @Override
-    public ConnObjectTO readConnObject(final String resourceName, final Long id) {
-        return getService(ResourceService.class).readConnObject(resourceName, AnyTypeKind.GROUP.name(), id);
     }
 
     public ProvisioningResult<GroupTO> create(final GroupTO groupTO) {

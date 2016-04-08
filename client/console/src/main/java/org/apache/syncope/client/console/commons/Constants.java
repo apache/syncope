@@ -93,6 +93,8 @@ public final class Constants {
 
     public static final String PREF_GROUP_PAGINATOR_ROWS = "group.paginator.rows";
 
+    public static final String PREF_CONNOBJECTS_PAGINATOR_ROWS = "connobjects.paginator.rows";
+
     public static final String PREF_ROLE_PAGINATOR_ROWS = "role.paginator.rows";
 
     public static final String PREF_WORKFLOW_FORM_PAGINATOR_ROWS = "role.paginator.workflow.form";

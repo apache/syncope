@@ -88,7 +88,7 @@ public class Topology extends BasePage {
 
         @Override
         protected List<ResourceTO> load() {
-            return resourceRestClient.getAll();
+            return resourceRestClient.list();
         }
     };
 

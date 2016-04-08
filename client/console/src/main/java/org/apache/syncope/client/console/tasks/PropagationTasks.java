@@ -38,19 +38,19 @@ public class PropagationTasks extends AbstractPropagationTasks {
 
         super(BaseModal.CONTENT_ID);
 
-        final MultilevelPanel mlp = new MultilevelPanel("tasks");
-        mlp.setFirstLevel(new PropagationTaskDirectoryPanel(baseModal, mlp, resource, pageReference) {
+        final MultilevelPanel tasks = new MultilevelPanel("tasks");
+        tasks.setFirstLevel(new PropagationTaskDirectoryPanel(baseModal, tasks, resource, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
             protected void viewTask(final PropagationTaskTO taskTO, final AjaxRequestTarget target) {
-                mlp.next(
+                tasks.next(
                         new StringResourceModel("task.view", this, new Model<>(taskTO)).getObject(),
                         new TaskExecutionDetails<>(baseModal, taskTO, pageReference),
                         target);
             }
         });
-        add(mlp);
+        add(tasks);
     }
 }

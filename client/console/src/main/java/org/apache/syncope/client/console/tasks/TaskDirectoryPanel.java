@@ -79,7 +79,9 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public abstract class TasksProvider<T extends AbstractTaskTO> extends DirectoryDataProvider<T> {
+    protected abstract void viewTask(final T taskTO, final AjaxRequestTarget target);
+
+    protected abstract class TasksProvider<T extends AbstractTaskTO> extends DirectoryDataProvider<T> {
 
         private static final long serialVersionUID = -20112718133295756L;
 
@@ -88,7 +90,6 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
         private final TaskType id;
 
         public TasksProvider(final int paginatorRows, final TaskType id) {
-
             super(paginatorRows);
 
             //Default sorting
@@ -112,5 +113,4 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
         }
     }
 
-    protected abstract void viewTask(final T taskTO, final AjaxRequestTarget target);
 }

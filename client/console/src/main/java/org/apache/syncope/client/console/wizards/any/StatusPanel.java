@@ -32,8 +32,6 @@ import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel.SecondLevel;
-import org.apache.syncope.client.console.rest.GroupRestClient;
-import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -54,10 +52,6 @@ public class StatusPanel extends Panel {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatusPanel.class);
 
-    private final UserRestClient userRestClient = new UserRestClient();
-
-    private final GroupRestClient groupRestClient = new GroupRestClient();
-
     private Map<String, StatusBean> initialStatusBeanMap;
 
     private final StatusUtils statusUtils;
@@ -70,7 +64,7 @@ public class StatusPanel extends Panel {
             final IModel<List<StatusBean>> model,
             final PageReference pageRef) {
         super(id);
-        statusUtils = new StatusUtils(any instanceof GroupTO ? groupRestClient : userRestClient);
+        statusUtils = new StatusUtils();
         init(any, model,
                 CollectionUtils.collect(statusUtils.getConnectorObjects(any),
                         new SerializableTransformer<ConnObjectWrapper, Pair<ConnObjectTO, ConnObjectWrapper>>() {
@@ -92,7 +86,7 @@ public class StatusPanel extends Panel {
             final List<Pair<ConnObjectTO, ConnObjectWrapper>> connObjects,
             final PageReference pageRef) {
         super(id);
-        statusUtils = new StatusUtils(any instanceof GroupTO ? groupRestClient : userRestClient);
+        statusUtils = new StatusUtils();
         init(any, model, connObjects, pageRef);
     }
 

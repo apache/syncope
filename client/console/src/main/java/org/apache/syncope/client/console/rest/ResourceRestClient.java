@@ -18,15 +18,19 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.ResourceDeassociationPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 /**
  * Console client for invoking Rest Resources services.
@@ -35,33 +39,48 @@ public class ResourceRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6898907679835668987L;
 
-    public List<ResourceTO> getAll() {
-        List<ResourceTO> resources = null;
+    public ConnObjectTO readConnObject(final String resource, final String anyTypeKey, final Long anyKey) {
+        return getService(ResourceService.class).readConnObject(resource, anyTypeKey, anyKey);
+    }
 
-        try {
-            resources = getService(ResourceService.class).list();
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading all resources", e);
-        }
+    public List<ConnObjectTO> listConnObjects(
+            final String resource,
+            final String anyTypeKey,
+            final SortParam<String> sort) {
 
-        return resources;
+        ConnObjectTOListQuery.Builder builder = new ConnObjectTOListQuery.Builder().size(100).orderBy(toOrderBy(sort));
+
+        List<ConnObjectTO> result = new ArrayList<>();
+        PagedConnObjectTOResult list;
+        do {
+            list = getService(ResourceService.class).listConnObjects(resource, anyTypeKey, builder.build());
+            result.addAll(list.getResult());
+
+            // TMP - see SYNCOPE-829
+            if (result.size() >= 100) {
+                break;
+            }
+
+            if (list.getPagedResultsCookie() != null) {
+                builder.pagedResultsCookie(list.getPagedResultsCookie());
+            }
+        } while (list.getPagedResultsCookie() != null);
+
+        return result;
+    }
+
+    public ResourceTO read(final String name) {
+        return getService(ResourceService.class).read(name);
+    }
+
+    public List<ResourceTO> list() {
+        return getService(ResourceService.class).list();
     }
 
     public ResourceTO create(final ResourceTO resourceTO) {
         final ResourceService service = getService(ResourceService.class);
         final Response response = service.create(resourceTO);
         return getObject(service, response.getLocation(), ResourceTO.class);
-    }
-
-    public ResourceTO read(final String name) {
-        ResourceTO resourceTO = null;
-
-        try {
-            resourceTO = getService(ResourceService.class).read(name);
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading a resource", e);
-        }
-        return resourceTO;
     }
 
     public void update(final ResourceTO resourceTO) {

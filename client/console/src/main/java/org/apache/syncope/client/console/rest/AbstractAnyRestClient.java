@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
@@ -47,8 +46,6 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
 
     public abstract List<T> search(
             String realm, String fiql, int page, int size, final SortParam<String> sort, final String type);
-
-    public abstract ConnObjectTO readConnObject(String resourceName, Long key);
 
     public abstract T read(final Long key);
 

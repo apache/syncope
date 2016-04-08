@@ -25,7 +25,6 @@ import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
@@ -79,11 +78,6 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
         return getService(AnyObjectService.class).search(
                 new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
                 orderBy(toOrderBy(sort)).details(false).build()).getResult();
-    }
-
-    @Override
-    public ConnObjectTO readConnObject(final String resourceName, final Long key) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

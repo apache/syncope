@@ -215,7 +215,7 @@ public class StatusDirectoryPanel
 
         AttributableStatusProvider() {
             super(statusOnly ? "resourceName" : "connObjectLink");
-            statusUtils = new StatusUtils(restClient);
+            statusUtils = new StatusUtils();
         }
 
         @SuppressWarnings("unchecked")
@@ -225,7 +225,7 @@ public class StatusDirectoryPanel
             final AnyTO actual = restClient.read(anyTO.getKey());
 
             final List<String> resources = new ArrayList<>();
-            for (ResourceTO resourceTO : new ResourceRestClient().getAll()) {
+            for (ResourceTO resourceTO : new ResourceRestClient().list()) {
                 resources.add(resourceTO.getKey());
             }
 

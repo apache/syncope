@@ -58,7 +58,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<>(
                 "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource"));
-        resource.setChoices(CollectionUtils.collect(resourceRestClient.getAll(),
+        resource.setChoices(CollectionUtils.collect(resourceRestClient.list(),
                 EntityTOUtils.<String, ResourceTO>keyTransformer(),
                 new ArrayList<String>()));
 

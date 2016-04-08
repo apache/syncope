@@ -101,11 +101,6 @@ public abstract class PropagationTaskDirectoryPanel
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
-            public String getCssClass() {
-                return "action";
-            }
-
-            @Override
             public ActionLinksPanel<PropagationTaskTO> getActions(
                     final String componentId, final IModel<PropagationTaskTO> model) {
 

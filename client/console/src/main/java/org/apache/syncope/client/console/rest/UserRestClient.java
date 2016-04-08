@@ -28,15 +28,12 @@ import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
-import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
@@ -60,8 +57,9 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     }
 
     @Override
-    public List<UserTO> list(final String realm, final int page, final int size, final SortParam<String> sort,
-            final String type) {
+    public List<UserTO> list(
+            final String realm, final int page, final int size, final SortParam<String> sort, final String type) {
+
         return getService(UserService.class).
                 list(new AnyListQuery.Builder().realm(realm).page(page).size(size).
                         orderBy(toOrderBy(sort)).details(false).build()).getResult();
@@ -109,11 +107,6 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         return getService(UserService.class).
                 search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
                         orderBy(toOrderBy(sort)).details(false).build()).getResult();
-    }
-
-    @Override
-    public ConnObjectTO readConnObject(final String resourceName, final Long id) {
-        return getService(ResourceService.class).readConnObject(resourceName, AnyTypeKind.USER.name(), id);
     }
 
     public ProvisioningResult<UserTO> mustChangePassword(final String etag, final boolean value, final Long key) {

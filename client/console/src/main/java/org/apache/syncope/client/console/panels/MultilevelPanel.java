@@ -85,7 +85,7 @@ public class MultilevelPanel extends Panel implements IHeaderContributor {
         }
     }
 
-    private void prev(final AjaxRequestTarget target) {
+    protected void prev(final AjaxRequestTarget target) {
         if (isFirstLevel) {
             LOG.warn("No further level available");
         } else {
@@ -109,7 +109,7 @@ public class MultilevelPanel extends Panel implements IHeaderContributor {
      * @return the current MultilevelPanel instance.
      */
     public MultilevelPanel setFirstLevel(final Panel panel) {
-        firstLevelContainer.add(panel);
+        firstLevelContainer.addOrReplace(panel);
         return this;
     }
 

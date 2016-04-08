@@ -52,7 +52,7 @@ public class Resources extends WizardStep {
                 entityTO.getResources().clear();
                 entityTO.getResources().addAll(object);
             }
-        }, new ListModel<>(CollectionUtils.collect(new ResourceRestClient().getAll(),
+        }, new ListModel<>(CollectionUtils.collect(new ResourceRestClient().list(),
                         EntityTOUtils.<String, ResourceTO>keyTransformer(),
                         new ArrayList<String>()))).hideLabel().setOutputMarkupId(true));
     }

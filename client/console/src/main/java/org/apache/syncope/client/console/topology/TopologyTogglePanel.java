@@ -24,6 +24,7 @@ import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.ConnObjects;
 import org.apache.syncope.client.console.panels.ConnectorModal;
 import org.apache.syncope.client.console.panels.ResourceModal;
 import org.apache.syncope.client.console.panels.TogglePanel;
@@ -50,6 +51,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 
 public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
@@ -277,9 +279,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                final ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
+                ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
 
-                final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
+                IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
                 resourceModal.setFormModel(model);
 
                 target.add(resourceModal.setContent(new ResourceModal<>(resourceModal, pageRef, model, false)));
@@ -295,6 +297,20 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
         fragment.add(edit);
 
+        AjaxLink<String> explore = new IndicatingAjaxLink<String>("explore") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                target.add(taskModal.setContent(new ConnObjects(taskModal, node.getKey().toString(), pageRef)));
+                taskModal.header(new StringResourceModel("resource.explore.list", Model.of(node)));
+                taskModal.show(true);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(explore, ENABLE, StandardEntitlement.RESOURCE_LIST_CONNOBJECT);
+        fragment.add(explore);
+
         AjaxLink<String> propagation = new IndicatingAjaxLink<String>("propagation") {
 
             private static final long serialVersionUID = 3776750333491622263L;
@@ -303,7 +319,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @SuppressWarnings("unchecked")
             public void onClick(final AjaxRequestTarget target) {
                 target.add(taskModal.setContent(new PropagationTasks(taskModal, node.getKey().toString(), pageRef)));
-                taskModal.header(new ResourceModel("task.propagation.list", "Propagation tasks"));
+                taskModal.header(new ResourceModel("task.propagation.list"));
                 taskModal.show(true);
             }
         };
@@ -331,7 +347,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 target.add(taskModal.setContent(new PushTasks(taskModal, pageRef, node.getKey().toString())));
-                taskModal.header(new ResourceModel("task.push.list", "Push tasks"));
+                taskModal.header(new ResourceModel("task.push.list"));
                 taskModal.show(true);
             }
         };

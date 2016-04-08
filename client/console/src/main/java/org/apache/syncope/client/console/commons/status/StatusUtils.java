@@ -28,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.LabelPanel;
-import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -46,11 +46,7 @@ public class StatusUtils implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatusUtils.class);
 
-    private final AbstractAnyRestClient<?> restClient;
-
-    public StatusUtils(final AbstractAnyRestClient<?> restClient) {
-        this.restClient = restClient;
-    }
+    private final ResourceRestClient restClient = new ResourceRestClient();
 
     public List<ConnObjectWrapper> getConnectorObjects(final AnyTO any) {
         final List<ConnObjectWrapper> objects = new ArrayList<>();
@@ -78,7 +74,7 @@ public class StatusUtils implements Serializable {
         for (String resourceName : resources) {
             ConnObjectTO objectTO = null;
             try {
-                objectTO = restClient.readConnObject(resourceName, any.getKey());
+                objectTO = restClient.readConnObject(resourceName, any.getType(), any.getKey());
             } catch (Exception e) {
                 LOG.warn("ConnObject '{}' not found on resource '{}'", any.getKey(), resourceName);
             }
