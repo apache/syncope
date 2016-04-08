@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -60,13 +59,12 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<AnyTypeClassTO, Any
         super(id, pageRef);
         disableCheckBoxes();
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeClassTO>(
-                BaseModal.CONTENT_ID, new AnyTypeClassTO(), pageRef) {
+        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeClassTO>(new AnyTypeClassTO(), pageRef) {
 
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<AnyTypeClassTO> build(final int index, final AjaxWizard.Mode mode) {
+            public ModalPanel<AnyTypeClassTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 final AnyTypeClassTO modelObject = newModelObject();
                 return new AnyTypeClassModalPanel(modal, modelObject, pageRef) {
 

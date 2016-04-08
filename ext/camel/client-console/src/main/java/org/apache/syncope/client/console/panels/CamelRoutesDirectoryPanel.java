@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.pages.CamelRoutes;
 import org.apache.syncope.client.console.panels.CamelRoutesDirectoryPanel.CamelRoutesProvider;
 import org.apache.syncope.client.console.rest.CamelRoutesRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -77,13 +76,12 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
         modal.size(Modal.Size.Large);
         initResultTable();
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<CamelRouteTO>(
-                BaseModal.CONTENT_ID, new CamelRouteTO(), pageRef) {
+        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<CamelRouteTO>(new CamelRouteTO(), pageRef) {
 
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<CamelRouteTO> build(final int index, final AjaxWizard.Mode mode) {
+            public ModalPanel<CamelRouteTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 final CamelRouteTO modelObject = newModelObject();
                 return new CamelRoutesModalPanel(modal, modelObject, pageRef) {
 

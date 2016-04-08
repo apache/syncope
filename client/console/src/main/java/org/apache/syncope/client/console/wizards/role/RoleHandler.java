@@ -37,9 +37,10 @@ public class RoleHandler implements Serializable {
 
     public RoleHandler(final RoleTO roleTO) {
         this.roleTO = roleTO;
+        getDynClauses();
     }
 
-    public List<SearchClause> getDynClauses() {
+    public final List<SearchClause> getDynClauses() {
         if (this.dynClauses == null) {
             this.dynClauses = SearchUtils.getSearchClauses(this.roleTO.getDynMembershipCond());
         }
@@ -52,7 +53,7 @@ public class RoleHandler implements Serializable {
 
     public String getDynMembershipCond() {
         if (CollectionUtils.isEmpty(this.dynClauses)) {
-            return this.roleTO.getDynMembershipCond();
+            return null;
         } else {
             return getFIQLString(this.dynClauses, SyncopeClient.getUserSearchConditionBuilder());
         }

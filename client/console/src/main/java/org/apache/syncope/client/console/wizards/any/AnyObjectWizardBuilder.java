@@ -35,17 +35,15 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
     /**
      * Construct.
      *
-     * @param id The component id
      * @param anyObjectTO any object TO.
      * @param anyTypeClasses any type classes
      * @param pageRef Caller page reference.
      */
     public AnyObjectWizardBuilder(
-            final String id,
             final AnyObjectTO anyObjectTO,
             final List<String> anyTypeClasses,
             final PageReference pageRef) {
-        super(id, anyObjectTO, anyTypeClasses, pageRef);
+        super(anyObjectTO, anyTypeClasses, pageRef);
     }
 
     @Override

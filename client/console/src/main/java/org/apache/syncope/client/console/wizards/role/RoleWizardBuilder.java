@@ -55,12 +55,11 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
     /**
      * Construct.
      *
-     * @param id The component id
      * @param roleTO role
      * @param pageRef Caller page reference.
      */
-    public RoleWizardBuilder(final String id, final RoleTO roleTO, final PageReference pageRef) {
-        super(id, new RoleHandler(roleTO), pageRef);
+    public RoleWizardBuilder(final RoleTO roleTO, final PageReference pageRef) {
+        super(new RoleHandler(roleTO), pageRef);
     }
 
     /**

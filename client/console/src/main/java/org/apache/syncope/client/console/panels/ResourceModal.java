@@ -92,8 +92,8 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         //--------------------------------
         // Resource provision panels
         //--------------------------------
-        final ListViewPanel.Builder<ProvisionTO> builder =
-                new ListViewPanel.Builder<ProvisionTO>(ProvisionTO.class, pageRef) {
+        final ListViewPanel.Builder<ProvisionTO> builder = new ListViewPanel.Builder<ProvisionTO>(ProvisionTO.class,
+                pageRef) {
 
             private static final long serialVersionUID = 4907732721283972943L;
 
@@ -163,7 +163,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_DELETE);
 
-        builder.addNewItemPanelBuilder(new ProvisionWizardBuilder("wizard", model.getObject(), pageRef));
+        builder.addNewItemPanelBuilder(new ProvisionWizardBuilder(model.getObject(), pageRef));
 
         tabs.add(new AbstractTab(new ResourceModel("provisions")) {
 

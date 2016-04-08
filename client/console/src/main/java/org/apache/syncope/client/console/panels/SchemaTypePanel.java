@@ -38,7 +38,6 @@ import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -89,13 +88,14 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
         this.schemaType = schemaType;
 
         try {
-            this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AbstractSchemaTO>(
-                    BaseModal.CONTENT_ID, schemaType.getToClass().newInstance(), pageRef) {
+            this.addNewItemPanelBuilder(
+                    new AbstractModalPanelBuilder<AbstractSchemaTO>(schemaType.getToClass().newInstance(), pageRef) {
 
                 private static final long serialVersionUID = -6388405037134399367L;
 
                 @Override
-                public ModalPanel<AbstractSchemaTO> build(final int index, final AjaxWizard.Mode mode) {
+                public ModalPanel<AbstractSchemaTO> build(
+                        final String id, final int index, final AjaxWizard.Mode mode) {
                     final AbstractSchemaTO modelObject = newModelObject();
                     return new SchemaModalPanel(modal, modelObject, pageRef) {
 

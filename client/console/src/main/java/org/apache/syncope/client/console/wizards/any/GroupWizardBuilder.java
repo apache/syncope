@@ -41,14 +41,12 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
     /**
      * Construct.
      *
-     * @param id The component id
      * @param groupTO any
      * @param anyTypeClasses any type classes
      * @param pageRef Caller page reference.
      */
-    public GroupWizardBuilder(
-            final String id, final GroupTO groupTO, final List<String> anyTypeClasses, final PageReference pageRef) {
-        super(id, new GroupHandler(groupTO), anyTypeClasses, pageRef);
+    public GroupWizardBuilder(final GroupTO groupTO, final List<String> anyTypeClasses, final PageReference pageRef) {
+        super(new GroupHandler(groupTO), anyTypeClasses, pageRef);
     }
 
     /**

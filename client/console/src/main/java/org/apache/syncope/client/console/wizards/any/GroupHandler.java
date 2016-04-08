@@ -38,9 +38,11 @@ public class GroupHandler extends AnyHandler<GroupTO> {
 
     public GroupHandler(final GroupTO groupTO) {
         super(groupTO);
+        getUDynClauses();
+        getADynClauses();
     }
 
-    public List<SearchClause> getUDynClauses() {
+    public final List<SearchClause> getUDynClauses() {
         if (this.uDynClauses == null) {
             this.uDynClauses = SearchUtils.getSearchClauses(this.anyTO.getUDynMembershipCond());
         }
@@ -51,7 +53,7 @@ public class GroupHandler extends AnyHandler<GroupTO> {
         this.uDynClauses = uDynClauses;
     }
 
-    public Map<String, List<SearchClause>> getADynClauses() {
+    public final Map<String, List<SearchClause>> getADynClauses() {
         if (this.aDynClauses == null) {
             this.aDynClauses = SearchUtils.getSearchClauses(this.anyTO.getADynMembershipConds());
         }
@@ -64,27 +66,24 @@ public class GroupHandler extends AnyHandler<GroupTO> {
 
     public String getUDynMembershipCond() {
         if (CollectionUtils.isEmpty(this.uDynClauses)) {
-            return this.anyTO.getUDynMembershipCond();
+            return null;
         } else {
             return getFIQLString(this.uDynClauses, SyncopeClient.getUserSearchConditionBuilder());
         }
     }
 
     public Map<String, String> getADynMembershipConds() {
-        if (this.aDynClauses == null || this.aDynClauses.isEmpty()) {
-            return this.anyTO.getADynMembershipConds();
-        } else {
-            final Map<String, String> res = new HashMap<>();
-
+        final Map<String, String> res = new HashMap<>();
+        if (this.aDynClauses != null && !this.aDynClauses.isEmpty()) {
             for (Map.Entry<String, List<SearchClause>> entry : this.aDynClauses.entrySet()) {
                 if (CollectionUtils.isNotEmpty(entry.getValue())) {
                     res.put(entry.getKey(), getFIQLString(entry.getValue(),
                             SyncopeClient.getAnyObjectSearchConditionBuilder(entry.getKey())));
                 }
             }
-
-            return res;
         }
+
+        return res;
     }
 
     private String getFIQLString(final List<SearchClause> clauses, final AbstractFiqlSearchConditionBuilder bld) {
@@ -93,6 +92,7 @@ public class GroupHandler extends AnyHandler<GroupTO> {
 
     public GroupTO fillDynamicConditions() {
         this.anyTO.setUDynMembershipCond(this.getUDynMembershipCond());
+        this.anyTO.getADynMembershipConds().clear();
         this.anyTO.getADynMembershipConds().putAll(this.getADynMembershipConds());
         return this.anyTO;
     }

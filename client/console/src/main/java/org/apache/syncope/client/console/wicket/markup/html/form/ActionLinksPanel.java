@@ -61,6 +61,8 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelClone", "emptyFragment", this));
         super.add(new Fragment("panelCreate", "emptyFragment", this));
         super.add(new Fragment("panelEdit", "emptyFragment", this));
+        super.add(new Fragment("panelHtmlEdit", "emptyFragment", this));
+        super.add(new Fragment("panelTextEdit", "emptyFragment", this));
         super.add(new Fragment("panelReset", "emptyFragment", this));
         super.add(new Fragment("panelEnable", "emptyFragment", this));
         super.add(new Fragment("panelNotFound", "emptyFragment", this));
@@ -291,6 +293,44 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment = new Fragment("panelEdit", "fragmentEdit", this);
 
                 fragment.addOrReplace(new IndicatingAjaxLink<Void>("editLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case HTML_EDIT:
+                fragment = new Fragment("panelHtmlEdit", "fragmentHtmlEdit", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("htmlEditLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case TEXT_EDIT:
+                fragment = new Fragment("panelTextEdit", "fragmentTextEdit", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("textEditLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -786,6 +826,14 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
             case EDIT:
                 super.addOrReplace(new Fragment("panelEdit", "emptyFragment", this));
+                break;
+
+            case HTML_EDIT:
+                super.addOrReplace(new Fragment("panelHtmlEdit", "emptyFragment", this));
+                break;
+
+            case TEXT_EDIT:
+                super.addOrReplace(new Fragment("panelTestEdit", "emptyFragment", this));
                 break;
 
             case VIEW:

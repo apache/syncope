@@ -95,13 +95,12 @@ public class ParametersPanel extends DirectoryPanel<
 
         addInnerObject(modalDetails);
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AttrTO>(
-                BaseModal.CONTENT_ID, new AttrTO(), pageRef) {
+        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AttrTO>(new AttrTO(), pageRef) {
 
             private static final long serialVersionUID = 1995192603527154740L;
 
             @Override
-            public ModalPanel<AttrTO> build(final int index, final AjaxWizard.Mode mode) {
+            public ModalPanel<AttrTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 return new ParametersCreateModalPanel(modal, newModelObject(), pageRef);
             }
         }, true);

@@ -34,7 +34,6 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.RelationshipTypesPanel.RelationshipTypeProvider;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -61,13 +60,13 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipType
         super(id, pageRef);
         disableCheckBoxes();
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<RelationshipTypeTO>(
-                BaseModal.CONTENT_ID, new RelationshipTypeTO(), pageRef) {
+        this.addNewItemPanelBuilder(
+                new AbstractModalPanelBuilder<RelationshipTypeTO>(new RelationshipTypeTO(), pageRef) {
 
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<RelationshipTypeTO> build(final int index, final AjaxWizard.Mode mode) {
+            public ModalPanel<RelationshipTypeTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 final RelationshipTypeTO modelObject = newModelObject();
                 return new RelationshipTypeModalPanel(modal, modelObject, pageRef) {
 

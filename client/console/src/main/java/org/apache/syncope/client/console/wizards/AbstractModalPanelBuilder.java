@@ -27,8 +27,6 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
 
     private static final long serialVersionUID = 5241745929825564456L;
 
-    protected final String id;
-
     protected final PageReference pageRef;
 
     private final T defaultItem;
@@ -38,17 +36,23 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
     /**
      * Construct.
      *
-     * @param id The component id
      * @param defaultItem default item.
      * @param pageRef Caller page reference.
      */
-    public AbstractModalPanelBuilder(final String id, final T defaultItem, final PageReference pageRef) {
-        this.id = id;
+    public AbstractModalPanelBuilder(final T defaultItem, final PageReference pageRef) {
         this.defaultItem = defaultItem;
         this.pageRef = pageRef;
     }
 
-    public abstract ModalPanel<T> build(final int index, final AjaxWizard.Mode mode);
+    /**
+     * Build the wizard.
+     *
+     * @param id component id.
+     * @param index step index.
+     * @param mode mode.
+     * @return wizard.
+     */
+    public abstract ModalPanel<T> build(final String id, final int index, final AjaxWizard.Mode mode);
 
     protected void onCancelInternal(final T modelObject) {
     }

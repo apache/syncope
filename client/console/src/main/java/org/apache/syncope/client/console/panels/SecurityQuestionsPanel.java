@@ -35,7 +35,6 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel.SecurityQuestionsProvider;
 import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -70,13 +69,13 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
             }
         }.disableCheckBoxes());
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<SecurityQuestionTO>(
-                BaseModal.CONTENT_ID, new SecurityQuestionTO(), pageRef) {
+        this.addNewItemPanelBuilder(
+                new AbstractModalPanelBuilder<SecurityQuestionTO>(new SecurityQuestionTO(), pageRef) {
 
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<SecurityQuestionTO> build(final int index, final AjaxWizard.Mode mode) {
+            public ModalPanel<SecurityQuestionTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 final SecurityQuestionTO modelObject = newModelObject();
                 return new SecurityQuestionsModalPanel(modal, modelObject, pageRef);
             }

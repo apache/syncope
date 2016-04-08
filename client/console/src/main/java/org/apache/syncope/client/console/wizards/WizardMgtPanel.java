@@ -46,6 +46,10 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     private static final long serialVersionUID = -4152438633429194882L;
 
+    protected static final String WIZARD_ID = "wizard";
+
+    private final String actualId;
+
     private final WebMarkupContainer container;
 
     private final Fragment initialFragment;
@@ -90,6 +94,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         super(id);
         setOutputMarkupId(true);
 
+        this.actualId = wizardInModal ? BaseModal.CONTENT_ID : WIZARD_ID;
         this.wizardInModal = wizardInModal;
 
         super.add(modal);
@@ -131,6 +136,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                 newItemPanelBuilder.setItem(item);
 
                 final ModalPanel<T> modalPanel = newItemPanelBuilder.build(
+                        actualId,
                         ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(),
                         item != null ? AjaxWizard.Mode.EDIT : AjaxWizard.Mode.CREATE);
 

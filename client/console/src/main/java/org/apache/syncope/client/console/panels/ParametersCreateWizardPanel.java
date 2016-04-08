@@ -37,8 +37,8 @@ public class ParametersCreateWizardPanel extends AjaxWizardBuilder<ParametersCre
 
     private static final Logger LOG = LoggerFactory.getLogger(ParametersCreateWizardPanel.class);
 
-    public ParametersCreateWizardPanel(final String id, final ParametersForm defaultItem, final PageReference pageRef) {
-        super(id, defaultItem, pageRef);
+    public ParametersCreateWizardPanel(final ParametersForm defaultItem, final PageReference pageRef) {
+        super(defaultItem, pageRef);
 
     }
 

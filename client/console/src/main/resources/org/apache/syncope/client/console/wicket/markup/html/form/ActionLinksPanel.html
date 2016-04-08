@@ -43,6 +43,8 @@ under the License.
     <span wicket:id="panelCreate">[plus]</span>
     <span wicket:id="panelReset">[plus]</span>
     <span wicket:id="panelEdit">[plus]</span>
+    <span wicket:id="panelHtmlEdit">[plus]</span>
+    <span wicket:id="panelTextEdit">[plus]</span>
     <span wicket:id="panelExport">[plus]</span>
     <span wicket:id="panelPropagationTasks">[plus]</span>
     <span wicket:id="panelDelete">[plus]</span>
@@ -115,6 +117,14 @@ under the License.
 
     <wicket:fragment wicket:id="fragmentEdit">
       <a href="#" wicket:id="editLink" class="btn"><i id="actionLink" class="glyphicon glyphicon-pencil" alt="edit icon" title="Edit"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentHtmlEdit">
+      <a href="#" wicket:id="htmlEditLink" class="btn"><i id="actionLink" class="fa fa-file-code-o" alt="html edit icon" title="HTML Edit"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentTextEdit">
+      <a href="#" wicket:id="textEditLink" class="btn"><i id="actionLink" class="fa fa-file-text-o" alt="text edit icon" title="TEXT Edit"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentReset">

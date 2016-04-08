@@ -81,7 +81,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
     };
 
     public SchedTaskWizardBuilder(final T taskTO, final PageReference pageRef) {
-        super("wizard", taskTO, pageRef);
+        super(taskTO, pageRef);
     }
 
     @Override

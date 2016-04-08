@@ -25,7 +25,6 @@ import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wizards.any.AnyObjectWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.GroupWizardBuilder;
@@ -200,7 +199,7 @@ public class AnyPanel extends Panel {
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).
                         setFiql(fiql).addNewItemPanelBuilder(new UserWizardBuilder(
-                        BaseModal.CONTENT_ID, userTO, anyTypeTO.getClasses(), pageRef)).build(id);
+                        userTO, anyTypeTO.getClasses(), pageRef)).build(id);
                 MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER, StandardEntitlement.USER_LIST);
                 break;
             case GROUP:
@@ -212,7 +211,7 @@ public class AnyPanel extends Panel {
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).
                         setFiql(fiql).addNewItemPanelBuilder(new GroupWizardBuilder(
-                        BaseModal.CONTENT_ID, groupTO, anyTypeTO.getClasses(), pageRef)).build(id);
+                        groupTO, anyTypeTO.getClasses(), pageRef)).build(id);
                 // list of group is available to all authenticated users
                 break;
             case ANY_OBJECT:
@@ -226,7 +225,7 @@ public class AnyPanel extends Panel {
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).
                         setFiql(fiql).addNewItemPanelBuilder(new AnyObjectWizardBuilder(
-                        BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).build(id);
+                        anyObjectTO, anyTypeTO.getClasses(), pageRef)).build(id);
                 MetaDataRoleAuthorizationStrategy.authorize(
                         panel, WebPage.RENDER, AnyEntitlement.LIST.getFor(anyTypeTO.getKey()));
                 break;

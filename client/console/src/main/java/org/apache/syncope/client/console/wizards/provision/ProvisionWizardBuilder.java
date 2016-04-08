@@ -229,12 +229,11 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
     /**
      * Construct.
      *
-     * @param id The component id
      * @param resurceTO external resource to be updated.
      * @param pageRef Caller page reference.
      */
-    public ProvisionWizardBuilder(final String id, final ResourceTO resurceTO, final PageReference pageRef) {
-        super(id, new ProvisionTO(), pageRef);
+    public ProvisionWizardBuilder(final ResourceTO resurceTO, final PageReference pageRef) {
+        super(new ProvisionTO(), pageRef);
         this.resourceTO = resurceTO;
     }
 
