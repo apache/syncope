@@ -1171,7 +1171,7 @@ under the License.
             <container>
               <containerId>tomcat7x</containerId>
               <zipUrlInstaller>
-                <url>http://archive.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</url>
+                <url>http://central.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
                 <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                 <extractDir>${project.build.directory}/cargo/extract</extractDir>
               </zipUrlInstaller>
