@@ -216,7 +216,7 @@ under the License.
             <inherited>true</inherited>
             <executions>
               <execution>
-                <id>sqlgenr</id>
+                <id>sqlgen</id>
                 <phase>process-classes</phase>
                 <goals>
                   <goal>sql</goal>

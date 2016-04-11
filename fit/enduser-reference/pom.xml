@@ -224,6 +224,12 @@ under the License.
         <filtering>true</filtering>
       </resource>
     </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
   </build>
   
   <profiles>
@@ -315,109 +321,27 @@ under the License.
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
-        <plugins>
+        <plugins>          
           <plugin>
-            <groupId>org.zeroturnaround</groupId>
-            <artifactId>jrebel-maven-plugin</artifactId>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
             <inherited>true</inherited>
-            <configuration>
-              <classpath>
-                <fallback>default</fallback>
-                <resources>
-                  <resource>
-                    <directory>${basedir}/../../common/lib/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../common/rest-api/target/classes</directory>
-                  </resource>
-
-                  <resource>
-                    <directory>${basedir}/../../core/logic/target/classes</directory>
-                    <excludes>
-                      <exclude>logicContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/rest-cxf/target/classes</directory>
-                    <excludes>
-                      <exclude>restCXFContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/spring/target/classes</directory>
-                    <excludes>
-                      <exclude>securityContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/persistence-api/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/persistence-jpa/target/classes</directory>
-                    <excludes>
-                      <exclude>persistenceContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/provisioning-api/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/provisioning-java/target/classes</directory>
-                    <excludes>
-                      <exclude>provisioningContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/workflow-api/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/workflow-java/target/classes</directory>
-                    <excludes>
-                      <exclude>workflowContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/workflow-activiti/target/classes</directory>
-                    <excludes>
-                      <exclude>workflowActivitiContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../ext/camel/provisioning-camel/target/classes</directory>
-                    <excludes>
-                      <exclude>provisioningCamelContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  
-                  <resource>
-                    <directory>${basedir}/../../client/enduser/target/classes</directory>
-                  </resource>
-
-                </resources>
-              </classpath>
-              
-              <web>
-                <resources>
-                  <resource>
-                    <target>/</target>
-                    <directory>${basedir}/../../ext/swagger-ui/target/classes/META-INF/resources</directory>
-                  </resource>
-
-                  <resource>
-                    <target>/</target>
-                    <directory>${basedir}/../../client/enduser/target/classes/META-INF/resources/</directory>
-                  </resource>
-                </resources>
-              </web>
-    
-              <alwaysGenerate>true</alwaysGenerate>
-            </configuration>
             <executions>
               <execution>
-                <id>generate-rebel-xml</id>
-                <phase>process-resources</phase>
+                <id>enableJRebelForCoreAndConsole</id>
+                <phase>package</phase>
+                <configuration>
+                  <target>                                               
+                    <copy file="${basedir}/../core-reference/target/test-classes/rebel.xml"
+                          tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/rebel.xml"
+                          overwrite="true" />
+                    <copy file="${basedir}/../console-reference/target/test-classes/rebel.xml"
+                          tofile="${basedir}/../console-reference/target/syncope-fit-console-reference-${project.version}/WEB-INF/classes/rebel.xml"
+                          overwrite="true" />
+                  </target>
+                </configuration>
                 <goals>
-                  <goal>generate</goal>
+                  <goal>run</goal>
                 </goals>
               </execution>
             </executions>
@@ -448,6 +372,16 @@ under the License.
             </executions>
           </plugin>
         </plugins>
+        
+        <resources>
+          <resource>
+            <directory>src/test/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+              <include>rebel.xml</include>
+            </includes>
+          </resource>
+        </resources>
       </build>
     </profile>
     
