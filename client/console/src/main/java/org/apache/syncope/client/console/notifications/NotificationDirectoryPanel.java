@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.notifications;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
