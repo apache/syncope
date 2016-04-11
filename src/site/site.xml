@@ -63,6 +63,7 @@ under the License.
     <menu name="Apache Syncope™" inherit="top">
       <item name="IAM Scenario" href="iam-scenario.html"/>
       <item name="Architecture" href="architecture.html"/>
+      <item name="Demo" href="demo.html"/>
       <item name="Downloads" href="downloads.html"/>
       <item name="Security Advisories" href="security.html"/>
       <item name="Documentation" href="docs/index.html"/>

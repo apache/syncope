@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -186,7 +186,7 @@ public class JobWidget extends BaseWidget {
         }
     }
 
-    private class AvailableJobsPanel extends AbstractSearchResultPanel<
+    private class AvailableJobsPanel extends DirectoryPanel<
         JobTO, JobTO, AvailableJobsProvider, BaseRestClient> {
 
         private static final long serialVersionUID = -8214546246301342868L;
@@ -264,7 +264,7 @@ public class JobWidget extends BaseWidget {
 
     }
 
-    protected final class AvailableJobsProvider extends SearchableDataProvider<JobTO> {
+    protected final class AvailableJobsProvider extends DirectoryDataProvider<JobTO> {
 
         private static final long serialVersionUID = 3191573490219472572L;
 
@@ -293,7 +293,7 @@ public class JobWidget extends BaseWidget {
         }
     }
 
-    private class RecentExecPanel extends AbstractSearchResultPanel<
+    private class RecentExecPanel extends DirectoryPanel<
         ExecTO, ExecTO, RecentExecProvider, BaseRestClient> {
 
         private static final long serialVersionUID = -8214546246301342868L;
@@ -345,7 +345,7 @@ public class JobWidget extends BaseWidget {
 
     }
 
-    protected final class RecentExecProvider extends SearchableDataProvider<ExecTO> {
+    protected final class RecentExecProvider extends DirectoryDataProvider<ExecTO> {
 
         private static final long serialVersionUID = 2835707012690698633L;
 

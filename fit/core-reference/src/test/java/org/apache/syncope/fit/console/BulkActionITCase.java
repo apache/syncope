@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.wicket.Component;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.util.tester.FormTester;

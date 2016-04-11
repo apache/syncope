@@ -45,6 +45,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -77,14 +78,13 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         //--------------------------------
         // Resource details panel
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("general", "general")) {
+        tabs.add(new AbstractTab(new ResourceModel("general")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new ResourceDetailsPanel(panelId, model,
-                        resourceRestClient.getPropagationActionsClasses(), createFlag);
+                return new ResourceDetailsPanel(panelId, model, createFlag);
             }
         });
         //--------------------------------
@@ -92,8 +92,8 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         //--------------------------------
         // Resource provision panels
         //--------------------------------
-        final ListViewPanel.Builder<ProvisionTO> builder
-                = new ListViewPanel.Builder<ProvisionTO>(ProvisionTO.class, pageRef) {
+        final ListViewPanel.Builder<ProvisionTO> builder = new ListViewPanel.Builder<ProvisionTO>(ProvisionTO.class,
+                pageRef) {
 
             private static final long serialVersionUID = 4907732721283972943L;
 
@@ -115,7 +115,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         };
 
         builder.setItems(model.getObject().getProvisions());
-        builder.includes("anyType", "objectClass");
+        builder.includes("anyType", "objectClass", "auxClasses");
         builder.setReuseItem(false);
 
         builder.
@@ -129,16 +129,6 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
                                 new AjaxWizard.NewItemActionEvent<>(provisionTO, 2, target));
                     }
                 }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_UPDATE).
-                addAction(new ActionLink<ProvisionTO>() {
-
-                    private static final long serialVersionUID = -3722207913631435514L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                        send(pageRef.getPage(), Broadcast.DEPTH,
-                                new AjaxWizard.NewItemActionEvent<>(provisionTO, 3, target));
-                    }
-                }, ActionLink.ActionType.ACCOUNT_LINK, StandardEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ProvisionTO>() {
 
                     private static final long serialVersionUID = -3722207913631435524L;
@@ -173,9 +163,9 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_DELETE);
 
-        builder.addNewItemPanelBuilder(new ProvisionWizardBuilder("wizard", model.getObject(), pageRef));
+        builder.addNewItemPanelBuilder(new ProvisionWizardBuilder(model.getObject(), pageRef));
 
-        tabs.add(new AbstractTab(new ResourceModel("provisions", "provisions")) {
+        tabs.add(new AbstractTab(new ResourceModel("provisions")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
@@ -189,7 +179,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         //--------------------------------
         // Resource connector configuration panel
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("connectorProperties", "connectorProperties")) {
+        tabs.add(new AbstractTab(new ResourceModel("connectorProperties")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
@@ -197,7 +187,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
             public Panel getPanel(final String panelId) {
                 final ResourceConnConfPanel panel = new ResourceConnConfPanel(panelId, model, createFlag) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = -1128269449868933504L;
 
                     @Override
                     protected void check(final AjaxRequestTarget target) {
@@ -208,7 +198,31 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
+
+                    @Override
+                    protected void onComponentTag(final ComponentTag tag) {
+                        tag.append("class", "scrollable-tab-content", " ");
+                    }
                 };
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE, StandardEntitlement.CONNECTOR_READ);
+                return panel;
+            }
+        });
+        //--------------------------------
+
+        //--------------------------------
+        // Resource connector capabilities panel
+        //--------------------------------
+        tabs.add(new AbstractTab(new ResourceModel("connectorCapabilities")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                ResourceConnCapabilitiesPanel panel = new ResourceConnCapabilitiesPanel(
+                        panelId,
+                        model,
+                        connectorRestClient.read(model.getObject().getConnector()).getCapabilities());
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE, StandardEntitlement.CONNECTOR_READ);
                 return panel;
             }
@@ -218,7 +232,7 @@ public class ResourceModal<T extends Serializable> extends AbstractResourceModal
         //--------------------------------
         // Resource security panel
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("security", "security")) {
+        tabs.add(new AbstractTab(new ResourceModel("security")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 

@@ -25,13 +25,13 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
@@ -51,9 +51,8 @@ public class StartAtTogglePanel extends TogglePanel<Serializable> {
 
         final Model<Date> startAtDateModel = new Model<>();
 
-        final DateTimeFieldPanel startAtDate =
-                new DateTimeFieldPanel(
-                        "startAtDate", "startAtDate", startAtDateModel, SyncopeConstants.DATE_PATTERNS[3]);
+        final DateTimeFieldPanel startAtDate = new DateTimeFieldPanel(
+                "startAtDate", "startAtDate", startAtDateModel, SyncopeConstants.DATE_PATTERNS[3]);
 
         startAtDate.setReadOnly(true).hideLabel();
         form.add(startAtDate);
@@ -63,7 +62,7 @@ public class StartAtTogglePanel extends TogglePanel<Serializable> {
 
         form.add(startAtCheck);
 
-        startAtCheck.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        startAtCheck.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

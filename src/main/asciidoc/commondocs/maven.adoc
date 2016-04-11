@@ -104,17 +104,18 @@ anonymousKey::
     Provide any pseudo-random string here that will be used as an authentication key for anonymous requests.
 
 Maven will create a project for you (in a newly created directory named after the value of the `artifactId` property 
-specified above) containing three modules: `common`, `core` and `console`.
+specified above) containing four modules: `common`, `core`, `console` and `enduser`.
 
 You are now able to perform the first build via
 
 [source,bash]
 mvn clean install
 
-After downloading all of the needed dependencies, two WAR files will be produced:
+After downloading all of the needed dependencies, three WAR files will be produced:
 
 . `core/target/syncope.war`
 . `console/target/syncope-console.war`
+. `enduser/target/syncope-enduser.war`
 
 If no failures are encountered, your basic Apache Syncope project is now ready to go.
 

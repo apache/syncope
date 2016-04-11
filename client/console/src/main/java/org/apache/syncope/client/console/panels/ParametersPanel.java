@@ -27,7 +27,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.ParametersPanel.ParametersProvider;
 import org.apache.syncope.client.console.rest.BaseRestClient;
@@ -36,6 +36,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -54,7 +55,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class ParametersPanel extends AbstractSearchResultPanel<
+public class ParametersPanel extends DirectoryPanel<
         AttrTO, AttrTO, ParametersProvider, BaseRestClient> {
 
     private static final long serialVersionUID = 2765863608539154422L;
@@ -94,13 +95,12 @@ public class ParametersPanel extends AbstractSearchResultPanel<
 
         addInnerObject(modalDetails);
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AttrTO>(
-                BaseModal.CONTENT_ID, new AttrTO(), pageRef) {
+        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AttrTO>(new AttrTO(), pageRef) {
 
             private static final long serialVersionUID = 1995192603527154740L;
 
             @Override
-            public ModalPanel<AttrTO> build(final int index, final boolean edit) {
+            public ModalPanel<AttrTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 return new ParametersCreateModalPanel(modal, newModelObject(), pageRef);
             }
         }, true);
@@ -137,7 +137,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
         columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("schema"), "schema", "schema"));
         columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("values"), "values"));
 
-        columns.add(new ActionColumn<AttrTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AttrTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 906457126287899096L;
 
@@ -205,7 +205,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
         return columns;
     }
 
-    protected final class ParametersProvider extends SearchableDataProvider<AttrTO> {
+    protected final class ParametersProvider extends DirectoryDataProvider<AttrTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 

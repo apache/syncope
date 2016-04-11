@@ -93,9 +93,9 @@ public class ResourceITCase extends AbstractITCase {
         item = new MappingItemTO();
         item.setExtAttrName("fullname");
         item.setIntAttrName("cn");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
+        item.setIntMappingType(IntMappingType.UserDerivedSchema);
         item.setConnObjectKey(false);
-        item.setPurpose(MappingPurpose.BOTH);
+        item.setPurpose(MappingPurpose.PROPAGATION);
         mapping.add(item);
 
         return resourceTO;
@@ -153,9 +153,9 @@ public class ResourceITCase extends AbstractITCase {
         item = new MappingItemTO();
         item.setExtAttrName("fullname");
         item.setIntAttrName("cn");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
+        item.setIntMappingType(IntMappingType.UserDerivedSchema);
         item.setConnObjectKey(false);
-        item.setPurpose(MappingPurpose.BOTH);
+        item.setPurpose(MappingPurpose.PROPAGATION);
         mapping.add(item);
 
         resourceTO.setKey(resourceName);
@@ -262,8 +262,10 @@ public class ResourceITCase extends AbstractITCase {
             createResource(resourceTO);
             fail("Create should not have worked");
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
-            assertEquals("intAttrName", e.getElements().iterator().next());
+            assertEquals(ClientExceptionType.Composite, e.getType());
+            SyncopeClientException rvm = e.asComposite().getException(ClientExceptionType.RequiredValuesMissing);
+            assertNotNull(rvm);
+            assertEquals("intAttrName", rvm.getElements().iterator().next());
         }
     }
 
@@ -644,7 +646,6 @@ public class ResourceITCase extends AbstractITCase {
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidExternalResource, e.getType());
-
             assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }

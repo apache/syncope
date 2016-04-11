@@ -55,12 +55,11 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
     /**
      * Construct.
      *
-     * @param id The component id
      * @param roleTO role
      * @param pageRef Caller page reference.
      */
-    public RoleWizardBuilder(final String id, final RoleTO roleTO, final PageReference pageRef) {
-        super(id, new RoleHandler(roleTO), pageRef);
+    public RoleWizardBuilder(final RoleTO roleTO, final PageReference pageRef) {
+        super(new RoleHandler(roleTO), pageRef);
     }
 
     /**
@@ -129,6 +128,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
         private static final long serialVersionUID = 5514523040031722256L;
 
         public Entitlements(final RoleTO modelObject) {
+            setTitleModel(new ResourceModel("entitlements"));
             add(new AjaxPalettePanel.Builder<String>().build("entitlements",
                     new PropertyModel<List<String>>(modelObject, "entitlements") {
 
@@ -154,6 +154,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
         private static final long serialVersionUID = 5514523040031722257L;
 
         public Realms(final RoleTO modelObject) {
+            setTitleModel(new ResourceModel("realms"));
             add(new AjaxPalettePanel.Builder<String>().build("realms",
                     new PropertyModel<List<String>>(modelObject, "realms"),
                     new ListModel<>(

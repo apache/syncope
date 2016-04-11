@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -49,8 +48,8 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -81,7 +80,7 @@ public class PlainAttrs extends AbstractAttrs {
 
             @Override
             protected List<AttrTO> load() {
-                setSchemas(CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
+                setPlainSchemas(CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
                         EntityTOUtils.<String, AnyTypeClassTO>keyTransformer(),
                         new ArrayList<>(Arrays.asList(anyTypeClass))));
                 setAttrs();
@@ -94,19 +93,18 @@ public class PlainAttrs extends AbstractAttrs {
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
+            public void renderHead(final IHeaderResponse response) {
+                super.renderHead(response);
+                if (plainAttrTOs.getObject().isEmpty()) {
+                    response.render(OnDomReadyHeaderItem.forScript(
+                            String.format("$('#emptyPlaceholder').append(\"%s\")", getString("attribute.empty.list"))));
+                }
+            }
+
+            @Override
             @SuppressWarnings({ "unchecked", "rawtypes" })
             protected void populateItem(final ListItem<AttrTO> item) {
                 final AttrTO attributeTO = (AttrTO) item.getDefaultModelObject();
-
-                final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
-
-                final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
-                item.add(questionMarkJexlHelp);
-                questionMarkJexlHelp.add(jexlHelp);
-
-                if (mode != Mode.TEMPLATE) {
-                    questionMarkJexlHelp.setVisible(false);
-                }
 
                 final FieldPanel panel = getFieldPanel(schemas.get(attributeTO.getSchema()));
 
@@ -124,23 +122,25 @@ public class PlainAttrs extends AbstractAttrs {
         });
     }
 
-    private void setSchemas(final List<String> anyTypeClasses) {
-
-        AttrTO attrLayout = null;
-        final List<PlainSchemaTO> schemaTOs =
-                schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeClasses.toArray(new String[] {}));
+    private void setPlainSchemas(final List<String> anyTypeClasses) {
+        List<PlainSchemaTO> plainSchemas = Collections.emptyList();
+        if (!anyTypeClasses.isEmpty()) {
+            plainSchemas = schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeClasses.toArray(new String[] {}));
+        }
 
         schemas.clear();
 
+        // SYNCOPE-790
+        AttrTO attrLayout = null;
         if (attrLayout != null && mode != Mode.TEMPLATE) {
             // 1. remove attributes not selected for display
-            schemaRestClient.filter(schemaTOs, attrLayout.getValues(), true);
+            schemaRestClient.filter(plainSchemas, attrLayout.getValues(), true);
             // 2. sort remainig attributes according to configuration, e.g. attrLayout
             final Map<String, Integer> attrLayoutMap = new HashMap<>(attrLayout.getValues().size());
             for (int i = 0; i < attrLayout.getValues().size(); i++) {
                 attrLayoutMap.put(attrLayout.getValues().get(i), i);
             }
-            Collections.sort(schemaTOs, new Comparator<PlainSchemaTO>() {
+            Collections.sort(plainSchemas, new Comparator<PlainSchemaTO>() {
 
                 @Override
                 public int compare(final PlainSchemaTO schema1, final PlainSchemaTO schema2) {
@@ -156,7 +156,7 @@ public class PlainAttrs extends AbstractAttrs {
                 }
             });
         }
-        for (PlainSchemaTO schemaTO : schemaTOs) {
+        for (PlainSchemaTO schemaTO : plainSchemas) {
             schemas.put(schemaTO.getKey(), schemaTO);
         }
     }
@@ -215,7 +215,7 @@ public class PlainAttrs extends AbstractAttrs {
                 if (required) {
                     panel.addRequiredLabel();
                 }
-                
+
                 break;
             case Enum:
                 panel = new AjaxDropDownChoicePanel<>("panel", schemaTO.getKey(), new Model<String>(), false);
@@ -261,7 +261,7 @@ public class PlainAttrs extends AbstractAttrs {
                 break;
 
             case Double:
-                panel = new AjaxSpinnerFieldPanel.Builder<Double>().setStep(0.1)
+                panel = new AjaxSpinnerFieldPanel.Builder<Double>().step(0.1)
                         .build("panel", schemaTO.getKey(), Double.class, new Model<Double>());
 
                 if (required) {

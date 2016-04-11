@@ -108,10 +108,10 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_DELETE + "')")
-    public ConnInstanceTO delete(final Long connInstanceKey) {
-        ConnInstance connInstance = connInstanceDAO.find(connInstanceKey);
+    public ConnInstanceTO delete(final Long key) {
+        ConnInstance connInstance = connInstanceDAO.find(key);
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + connInstanceKey + "'");
+            throw new NotFoundException("Connector '" + key + "'");
         }
 
         if (!connInstance.getResources().isEmpty()) {
@@ -123,11 +123,9 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
             throw associatedResources;
         }
 
-        ConnInstanceTO connToDelete = binder.getConnInstanceTO(connInstance);
-
-        connInstanceDAO.delete(connInstanceKey);
-
-        return connToDelete;
+        ConnInstanceTO deleted = binder.getConnInstanceTO(connInstance);
+        connInstanceDAO.delete(key);
+        return deleted;
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_LIST + "')")
@@ -157,12 +155,12 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
-    public ConnInstanceTO read(final Long connInstanceKey, final String lang) {
+    public ConnInstanceTO read(final Long key, final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
 
-        ConnInstance connInstance = connInstanceDAO.find(connInstanceKey);
+        ConnInstance connInstance = connInstanceDAO.find(key);
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + connInstanceKey + "'");
+            throw new NotFoundException("Connector '" + key + "'");
         }
 
         return binder.getConnInstanceTO(connInstance);

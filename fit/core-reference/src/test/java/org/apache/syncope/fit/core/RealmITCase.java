@@ -185,4 +185,15 @@ public class RealmITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
     }
+
+    @Test
+    public void deleteNonEmpty() {
+        try {
+            realmService.delete("/even/two");
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.AssociatedAnys, e.getType());
+            assertEquals(3, e.getElements().size());
+        }
+    }
 }

@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.IntMappingType;
-import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -33,9 +33,11 @@ public interface ExternalResourceDAO extends DAO<ExternalResource, String> {
 
     Provision findProvision(Long key);
 
+    List<Provision> findProvisionsByAuxClass(AnyTypeClass anyTypeClass);
+
     List<ExternalResource> findByPolicy(Policy policy);
 
-    List<ExternalResource> findWithoutPolicy(PolicyType type);
+    List<ExternalResource> findWithoutPolicy(Class<? extends Policy> policyClass);
 
     List<ExternalResource> findAll();
 

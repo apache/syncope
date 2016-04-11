@@ -24,9 +24,8 @@ import com.pingunaut.wicket.chartjs.data.sets.BarDataSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.wicket.model.Model;
 
 public class AnyByRealmWidget extends BaseWidget {
@@ -88,7 +87,7 @@ public class AnyByRealmWidget extends BaseWidget {
         List<Integer> any1Values = new ArrayList<>();
         List<Integer> any2Values = new ArrayList<>();
 
-        List<RealmTO> realms = SyncopeConsoleSession.get().getService(RealmService.class).list();
+        List<RealmTO> realms = new RealmRestClient().list();
         for (int i = 0; i < realms.size() && i < MAX_REALMS; i++) {
             RealmTO realm = realms.get(i);
 

@@ -44,7 +44,6 @@ public class UserSelfPasswordReset extends AbstractBaseResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
 
         try {
@@ -63,19 +62,19 @@ public class UserSelfPasswordReset extends AbstractBaseResource {
                 username = parameters.get("username")[0];
             }
 
-            if (request.getHeader("captcha") == null || !captchaCheck(request.getHeader("captcha"), request.
-                    getSession().getAttribute(SyncopeEnduserConstants.CAPTCHA_SESSION_KEY).
-                    toString())) {
-                LOG.error("Entered captcha is not matching");
-                throw new Exception("Entered captcha is not matching");
+            if (request.getHeader("captcha") == null
+                    || !captchaCheck(
+                            request.getHeader("captcha"),
+                            request.getSession().getAttribute(SyncopeEnduserConstants.CAPTCHA_SESSION_KEY))) {
+
+                throw new IllegalArgumentException("Entered captcha is not matching");
             }
 
             if (SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions()) {
                 if (parameters.get("securityanswer") == null || parameters.get("securityanswer").length == 0) {
                     throw new Exception("A correct security answer should be provided");
                 }
-                userSelfService.requestPasswordReset(username,
-                        parameters.get("securityanswer")[0]);
+                userSelfService.requestPasswordReset(username, parameters.get("securityanswer")[0]);
             } else {
                 userSelfService.requestPasswordReset(username, null);
             }
@@ -94,11 +93,12 @@ public class UserSelfPasswordReset extends AbstractBaseResource {
 
         } catch (final Exception e) {
             LOG.error("Error while updating user", e);
-            response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
-                    .append("ErrorMessage{{ ")
-                    .append(e.getMessage())
-                    .append(" }}")
-                    .toString());
+            response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
+                    new StringBuilder().
+                    append("ErrorMessage{{ ").
+                    append(e.getMessage()).
+                    append(" }}").
+                    toString());
         }
         return response;
     }

@@ -44,7 +44,11 @@ import org.apache.wicket.model.StringResourceModel;
 
 public abstract class WizardMgtPanel<T extends Serializable> extends Panel implements IEventSource {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -4152438633429194882L;
+
+    protected static final String WIZARD_ID = "wizard";
+
+    private final String actualId;
 
     private final WebMarkupContainer container;
 
@@ -64,12 +68,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     protected boolean showResultPage = false;
 
-    /**
-     * Modal window.
-     */
     protected final BaseModal<T> modal = new BaseModal<T>("modal") {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 389935548143327858L;
 
         @Override
         protected void onConfigure() {
@@ -79,12 +80,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     };
 
-    /**
-     * Modal window.
-     */
     protected final BaseModal<T> altDefaultModal = new BaseModal<>("alternativeDefaultModal");
-    
+
     protected final BaseModal<T> displayAttributeModal = new BaseModal<>("displayAttributeModal");
+
+    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("utilityModal");
 
     protected WizardMgtPanel(final String id) {
         this(id, false);
@@ -94,11 +94,13 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         super(id);
         setOutputMarkupId(true);
 
+        this.actualId = wizardInModal ? BaseModal.CONTENT_ID : WIZARD_ID;
         this.wizardInModal = wizardInModal;
 
         super.add(modal);
         super.add(altDefaultModal);
         super.add(displayAttributeModal);
+        super.add(utilityModal);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
@@ -134,7 +136,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                 newItemPanelBuilder.setItem(item);
 
                 final ModalPanel<T> modalPanel = newItemPanelBuilder.build(
-                        ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(), item != null);
+                        actualId,
+                        ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(),
+                        item != null ? AjaxWizard.Mode.EDIT : AjaxWizard.Mode.CREATE);
 
                 if (wizardInModal) {
                     final IModel<T> model = new CompoundPropertyModel<>(item);

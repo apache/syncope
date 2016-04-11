@@ -28,7 +28,6 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -76,7 +75,7 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void findByType() {
-        List<? extends Policy> policies = policyDAO.find(PolicyType.PULL);
+        List<PullPolicy> policies = policyDAO.find(PullPolicy.class);
         assertNotNull("findById did not work", policies);
         assertFalse(policies.isEmpty());
     }
@@ -99,7 +98,6 @@ public class PolicyTest extends AbstractTest {
         policy = policyDAO.save(policy);
 
         assertNotNull(policy);
-        assertEquals(PolicyType.PULL, policy.getType());
         assertEquals(pullURuleName,
                 policy.getSpecification().getCorrelationRules().get(anyTypeDAO.findUser().getKey()));
         assertEquals(pullGRuleName,
@@ -120,7 +118,6 @@ public class PolicyTest extends AbstractTest {
         policy = policyDAO.save(policy);
 
         assertNotNull(policy);
-        assertEquals(PolicyType.PASSWORD, policy.getType());
         assertEquals(((DefaultPasswordRuleConf) policy.getRuleConfs().get(1)).getMaxLength(), 8);
         assertEquals(((DefaultPasswordRuleConf) policy.getRuleConfs().get(1)).getMinLength(), 6);
     }

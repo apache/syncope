@@ -101,7 +101,7 @@ public class UserResultManager extends CommonsResultManager {
         }
     }
 
-    public void printUndeletedUsers(final Map<String, String> users) {
+    public void printFailedUsers(final Map<String, String> users) {
         final Table.TableBuilder tableBuilder =
                 new Table.TableBuilder("Users not deleted").header("user id").header("cause");
         for (final Map.Entry<String, String> entrySet : users.entrySet()) {

@@ -272,24 +272,24 @@ public class ReconciliationReportlet extends AbstractReportlet {
             for (final ExternalResource resource : anyUtils.getAllResources(any)) {
                 Provision provision = resource.getProvision(any.getType());
                 MappingItem connObjectKeyItem = MappingManagerImpl.getConnObjectKeyItem(provision);
-                if (provision != null && connObjectKeyItem != null) {
-                    // 1. build connObjectKeyValue
-                    final String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision);
-
-                    // 2. read from the underlying connector
+                final String connObjectKeyValue = connObjectKeyItem == null
+                        ? StringUtils.EMPTY
+                        : mappingManager.getConnObjectKeyValue(any, provision);
+                if (provision != null && connObjectKeyItem != null && StringUtils.isNotBlank(connObjectKeyValue)) {
+                    // 1. read from the underlying connector
                     Connector connector = connFactory.getConnector(resource);
                     ConnectorObject connectorObject = connector.getObject(provision.getObjectClass(),
                             new Uid(connObjectKeyValue),
                             MappingManagerImpl.buildOperationOptions(provision.getMapping().getItems().iterator()));
 
                     if (connectorObject == null) {
-                        // 3. not found on resource?
+                        // 2. not found on resource?
                         LOG.error("Object {} with class {} not found on resource {}",
                                 connObjectKeyValue, provision.getObjectClass(), resource);
 
                         missing.add(new Missing(resource.getKey(), connObjectKeyValue));
                     } else {
-                        // 4. found but misaligned?
+                        // 3. found but misaligned?
                         Pair<String, Set<Attribute>> preparedAttrs =
                                 mappingManager.prepareAttrs(any, null, false, null, provision);
                         preparedAttrs.getRight().add(AttributeBuilder.build(

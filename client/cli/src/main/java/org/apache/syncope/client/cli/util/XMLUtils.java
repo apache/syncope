@@ -20,7 +20,7 @@ package org.apache.syncope.client.cli.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.SequenceInputStream;
+import java.io.InputStream;
 import java.io.StringReader;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -34,12 +34,12 @@ import org.xml.sax.SAXException;
 
 public final class XMLUtils {
 
-    public static void createXMLFile(final SequenceInputStream sis, final String filePath)
+    public static void createXMLFile(final InputStream sis, final String filePath)
             throws TransformerException, SAXException, IOException, ParserConfigurationException {
 
-        TransformerFactory.newInstance().newTransformer()
-                .transform(new DOMSource(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
-                                        new InputSource(new StringReader(IOUtils.toString(sis))))),
+        TransformerFactory.newInstance().newTransformer().
+                transform(new DOMSource(DocumentBuilderFactory.newInstance().newDocumentBuilder().
+                        parse(new InputSource(new StringReader(IOUtils.toString(sis))))),
                         new StreamResult(new File(filePath)));
     }
 

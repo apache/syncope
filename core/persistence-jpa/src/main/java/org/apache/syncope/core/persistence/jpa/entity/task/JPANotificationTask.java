@@ -35,7 +35,6 @@ import javax.persistence.Lob;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 
@@ -78,7 +77,6 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
     public JPANotificationTask() {
         super();
 
-        type = TaskType.NOTIFICATION;
         recipients = new HashSet<>();
         executed = getBooleanAsInteger(false);
     }

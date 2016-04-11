@@ -29,7 +29,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.types.PolicyType;
 
 @XmlRootElement(name = "abstractPolicy")
 @XmlType
@@ -43,21 +42,9 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean {
 
     private String description;
 
-    private final PolicyType type;
-
     private final List<String> usedByResources = new ArrayList<>();
 
     private final List<String> usedByRealms = new ArrayList<>();
-
-    private AbstractPolicyTO() {
-        super();
-        throw new UnsupportedOperationException("No-arg constructor is just to keep JAXB from complaining");
-    }
-
-    protected AbstractPolicyTO(final PolicyType type) {
-        super();
-        this.type = type;
-    }
 
     public long getKey() {
         return key;
@@ -74,10 +61,6 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean {
 
     public void setDescription(final String description) {
         this.description = description;
-    }
-
-    public PolicyType getType() {
-        return type;
     }
 
     @XmlElementWrapper(name = "usedByResources")

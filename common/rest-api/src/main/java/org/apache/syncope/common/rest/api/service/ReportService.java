@@ -57,7 +57,7 @@ public interface ReportService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     ReportTO read(@NotNull @PathParam("key") Long key);
 
     /**
@@ -66,7 +66,7 @@ public interface ReportService extends JAXRSService {
      * @return paged list of existing reports matching the given query
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<ReportTO> list();
 
     /**
@@ -76,7 +76,7 @@ public interface ReportService extends JAXRSService {
      * @return Response object featuring Location header of created report
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull ReportTO reportTO);
 
     /**
@@ -86,7 +86,7 @@ public interface ReportService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull ReportTO reportTO);
 
     /**
@@ -106,7 +106,7 @@ public interface ReportService extends JAXRSService {
      */
     @GET
     @Path("executions/recent")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<ExecTO> listRecentExecutions(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
 
     /**
@@ -137,7 +137,7 @@ public interface ReportService extends JAXRSService {
      */
     @POST
     @Path("{key}/execute")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     ExecTO execute(@BeanParam ExecuteQuery query);
 
     /**
@@ -149,7 +149,7 @@ public interface ReportService extends JAXRSService {
      */
     @GET
     @Path("executions/{executionKey}/stream")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response exportExecutionResult(
             @NotNull @PathParam("executionKey") Long executionKey,
             @QueryParam("format") ReportExecExportFormat fmt);
@@ -161,7 +161,7 @@ public interface ReportService extends JAXRSService {
      */
     @GET
     @Path("jobs")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<JobTO> listJobs();
 
     /**

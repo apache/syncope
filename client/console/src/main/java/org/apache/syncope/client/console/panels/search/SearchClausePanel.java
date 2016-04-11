@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.SearchClause.Comparator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Operator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Type;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
@@ -43,7 +44,6 @@ import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -265,16 +265,14 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         operatorContainer.setOutputMarkupId(true);
         field.add(operatorContainer);
 
-        final BootstrapToggleConfig config = new BootstrapToggleConfig();
-        config
-                .withOnStyle(BootstrapToggleConfig.Style.info).withOffStyle(BootstrapToggleConfig.Style.warning)
-                .withSize(BootstrapToggleConfig.Size.mini)
-                .withOnLabel("AND")
-                .withOffLabel("OR");
+        final BootstrapToggleConfig config = new BootstrapToggleConfig().
+                withOnStyle(BootstrapToggleConfig.Style.info).
+                withOffStyle(BootstrapToggleConfig.Style.warning).
+                withSize(BootstrapToggleConfig.Size.mini);
 
         operatorFragment.add(new BootstrapToggle("operator", new Model<Boolean>() {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -7157802546272668001L;
 
             @Override
             public Boolean getObject() {
@@ -287,22 +285,22 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             }
         }, config) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 2969634208049189343L;
 
             @Override
             protected IModel<String> getOffLabel() {
-                return Model.of(getString("Off", null, "OR"));
+                return Model.of("OR");
             }
 
             @Override
             protected IModel<String> getOnLabel() {
-                return Model.of(getString("On", null, "AND"));
+                return Model.of("AND");
             }
 
             @Override
             protected CheckBox newCheckBox(final String id, final IModel<Boolean> model) {
                 final CheckBox checkBox = super.newCheckBox(id, model);
-                checkBox.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                checkBox.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = 1L;
 
@@ -324,7 +322,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 "property", "property", new PropertyModel<String>(searchClause, "property"));
         property.hideLabel().setRequired(required).setOutputMarkupId(true);
         property.setChoices(properties);
-        property.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        property.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -350,7 +348,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         final AjaxDropDownChoicePanel<SearchClause.Type> type = new AjaxDropDownChoicePanel<>(
                 "type", "type", new PropertyModel<SearchClause.Type>(searchClause, "type"));
         type.setChoices(types).hideLabel().setRequired(required).setOutputMarkupId(true);
-        type.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -368,7 +366,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         });
         field.add(type);
 
-        comparator.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        comparator.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

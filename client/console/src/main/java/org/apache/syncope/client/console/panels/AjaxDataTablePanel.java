@@ -29,7 +29,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.console.bulk.BulkActionModal;
 import org.apache.syncope.client.console.bulk.BulkContent;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel.EventDataWrapper;
+import org.apache.syncope.client.console.panels.DirectoryPanel.EventDataWrapper;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -215,7 +215,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                     target.add(bulkModal.setContent(new BulkActionModal<>(
                             bulkModal,
                             builder.pageRef,
-                            new ArrayList<T>(group.getModelObject()),
+                            new ArrayList<>(group.getModelObject()),
                             // serialization problem with sublist only
                             new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),
                             builder.bulkActions,
@@ -224,14 +224,17 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
                     bulkModal.show(true);
                 } else {
-                    builder.multiLevelPanel.next("bulk.action", new BulkContent<>(
-                            builder.baseModal,
-                            new ArrayList<T>(group.getModelObject()),
-                            // serialization problem with sublist only
-                            new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),
-                            builder.bulkActions,
-                            builder.bulkActionExecutor,
-                            builder.itemKeyField), target);
+                    builder.multiLevelPanel.next(
+                            getString("bulk.action"),
+                            new BulkContent<>(
+                                    builder.baseModal,
+                                    new ArrayList<>(group.getModelObject()),
+                                    // serialization problem with sublist only
+                                    new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),
+                                    builder.bulkActions,
+                                    builder.bulkActionExecutor,
+                                    builder.itemKeyField),
+                            target);
                 }
                 group.setModelObject(Collections.<T>emptyList());
                 target.add(group);

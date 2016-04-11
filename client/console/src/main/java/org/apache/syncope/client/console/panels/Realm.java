@@ -105,7 +105,7 @@ public abstract class Realm extends Panel {
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.REALM_DELETE).
                         build("actions");
 
-                final RealmDetails panel = new RealmDetails(panelId, realmTO, actionLinksPanel, false);
+                RealmDetails panel = new RealmDetails(panelId, realmTO, actionLinksPanel, false);
                 panel.setContentEnabled(false);
                 actionLinksPanel.setEnabled(true);
                 return panel;

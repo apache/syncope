@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 
 public enum ClientExceptionType {
 
+    AssociatedAnys(Response.Status.BAD_REQUEST),
     AssociatedResources(Response.Status.BAD_REQUEST),
     Composite(Response.Status.BAD_REQUEST),
     ConcurrentModification(Response.Status.PRECONDITION_FAILED),

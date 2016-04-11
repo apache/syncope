@@ -20,6 +20,7 @@ package org.apache.syncope.client.cli.commands.configuration;
 
 import java.util.LinkedList;
 import javax.xml.ws.WebServiceException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -30,8 +31,8 @@ public class ConfigurationUpdate extends AbstractConfigurationCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationUpdate.class);
 
-    private static final String UPDATE_HELP_MESSAGE
-            = "configuration --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]";
+    private static final String UPDATE_HELP_MESSAGE =
+            "configuration --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]";
 
     private final Input input;
 
@@ -41,25 +42,23 @@ public class ConfigurationUpdate extends AbstractConfigurationCommand {
 
     public void update() {
         if (input.parameterNumber() >= 1) {
-            Input.PairParameter pairParameter = null;
-            AttrTO attrTO;
-            final LinkedList<AttrTO> attrList = new LinkedList<>();
+            LinkedList<AttrTO> attrList = new LinkedList<>();
             boolean failed = false;
-            for (final String parameter : input.getParameters()) {
+            for (String parameter : input.getParameters()) {
+                Pair<String, String> pairParameter = input.toPairParameter(parameter);
                 try {
-                    pairParameter = input.toPairParameter(parameter);
-                    attrTO = configurationSyncopeOperations.get(pairParameter.getKey());
+                    AttrTO attrTO = configurationSyncopeOperations.get(pairParameter.getKey());
                     attrTO.getValues().clear();
                     attrTO.getValues().add(pairParameter.getValue());
                     configurationSyncopeOperations.set(attrTO);
                     attrList.add(attrTO);
-                } catch (final IllegalArgumentException ex) {
+                } catch (IllegalArgumentException ex) {
                     LOG.error("Error updating configuration", ex);
                     configurationResultManager.genericError(ex.getMessage());
                     configurationResultManager.genericError(UPDATE_HELP_MESSAGE);
                     failed = true;
                     break;
-                } catch (final SyncopeClientException | WebServiceException ex) {
+                } catch (SyncopeClientException | WebServiceException ex) {
                     LOG.error("Error updating configuration", ex);
                     if (ex.getMessage().startsWith("NotFound")) {
                         configurationResultManager.notFoundError("Configuration", pairParameter.getKey());

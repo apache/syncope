@@ -46,7 +46,7 @@ public interface ReportTemplateService extends JAXRSService {
      * @return list of all report templates.
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<ReportTemplateTO> list();
 
     /**
@@ -56,7 +56,7 @@ public interface ReportTemplateService extends JAXRSService {
      * @return Response object featuring Location header of created report template
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull ReportTemplateTO reportTemplateTO);
 
     /**
@@ -67,7 +67,7 @@ public interface ReportTemplateService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     ReportTemplateTO read(@NotNull @PathParam("key") String key);
 
     /**

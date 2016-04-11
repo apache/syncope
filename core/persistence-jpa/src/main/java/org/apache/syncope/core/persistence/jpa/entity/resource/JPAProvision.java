@@ -18,11 +18,16 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.resource;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -30,11 +35,13 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncToken;
 
@@ -58,6 +65,13 @@ public class JPAProvision extends AbstractEntity<Long> implements Provision {
 
     @NotNull
     private String objectClass;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(joinColumns =
+            @JoinColumn(name = "provision_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "anyTypeClass_name"))
+    private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Lob
     private String serializedSyncToken;
@@ -102,6 +116,17 @@ public class JPAProvision extends AbstractEntity<Long> implements Provision {
     @Override
     public void setObjectClass(final ObjectClass objectClass) {
         this.objectClass = objectClass == null ? null : objectClass.getObjectClassValue();
+    }
+
+    @Override
+    public boolean add(final AnyTypeClass auxClass) {
+        checkType(auxClass, JPAAnyTypeClass.class);
+        return auxClasses.contains((JPAAnyTypeClass) auxClass) || auxClasses.add((JPAAnyTypeClass) auxClass);
+    }
+
+    @Override
+    public List<? extends AnyTypeClass> getAuxClasses() {
+        return auxClasses;
     }
 
     @Override

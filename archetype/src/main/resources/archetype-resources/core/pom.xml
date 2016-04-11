@@ -48,7 +48,7 @@ under the License.
     
     <dependency>
       <groupId>${groupId}</groupId>
-      <artifactId>common</artifactId>
+      <artifactId>syncope-common</artifactId>
       <version>${project.version}</version>
     </dependency>
     
@@ -64,12 +64,7 @@ under the License.
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-persistence-jpa</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-workflow-activiti</artifactId>
-    </dependency>
-      
+  
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -148,5 +143,93 @@ under the License.
       </testResource>
     </testResources>
   </build>
+
+  <profiles>
+    <profile>
+      <id>all</id>
+      
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-workflow-activiti</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.ext.camel</groupId>
+          <artifactId>syncope-ext-camel-rest-cxf</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.camel</groupId>
+          <artifactId>syncope-ext-camel-persistence-jpa</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.camel</groupId>
+          <artifactId>syncope-ext-camel-provisioning</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+        
+        <dependency>
+          <groupId>org.apache.syncope.ext</groupId>
+          <artifactId>syncope-ext-swagger-ui</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+      </dependencies>
+      
+      <build>
+        <plugins>
+          <!-- Adds Activiti test content -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>xml-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>transform</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <transformationSets>
+                <transformationSet>
+                  <dir>${project.build.directory}/test-classes</dir>
+                  <includes>
+                    <include>domains/MasterContent.xml</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/classes</outputDir>
+                  <stylesheet>${basedir}/src/test/resources/addActivitiToContent.xsl</stylesheet>
+                  <outputProperties>
+                    <outputProperty>
+                      <name>indent</name>
+                      <value>yes</value>
+                    </outputProperty>
+                  </outputProperties>
+                </transformationSet>
+              </transformationSets>
+            </configuration>
+          </plugin>                    
+        </plugins>
+        
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <excludes>
+              <exclude>workflow.properties</exclude>
+              <exclude>provisioning.properties</exclude>
+            </excludes>
+          </resource>
+          <resource>
+            <directory>src/main/resources/all</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+  </profiles>
 
 </project>

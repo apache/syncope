@@ -29,12 +29,11 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.RelationshipTypesPanel.RelationshipTypeProvider;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -53,7 +52,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class RelationshipTypesPanel extends AbstractTypesPanel<RelationshipTypeTO, RelationshipTypeProvider> {
+public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipTypeTO, RelationshipTypeProvider> {
 
     private static final long serialVersionUID = -3731778000138547357L;
 
@@ -61,13 +60,13 @@ public class RelationshipTypesPanel extends AbstractTypesPanel<RelationshipTypeT
         super(id, pageRef);
         disableCheckBoxes();
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<RelationshipTypeTO>(
-                BaseModal.CONTENT_ID, new RelationshipTypeTO(), pageRef) {
+        this.addNewItemPanelBuilder(
+                new AbstractModalPanelBuilder<RelationshipTypeTO>(new RelationshipTypeTO(), pageRef) {
 
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<RelationshipTypeTO> build(final int index, final boolean edit) {
+            public ModalPanel<RelationshipTypeTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 final RelationshipTypeTO modelObject = newModelObject();
                 return new RelationshipTypeModalPanel(modal, modelObject, pageRef) {
 
@@ -152,7 +151,7 @@ public class RelationshipTypesPanel extends AbstractTypesPanel<RelationshipTypeT
             }
         }
 
-        columns.add(new ActionColumn<RelationshipTypeTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<RelationshipTypeTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 906457126287899096L;
 
@@ -216,7 +215,7 @@ public class RelationshipTypesPanel extends AbstractTypesPanel<RelationshipTypeT
         return columns;
     }
 
-    protected final class RelationshipTypeProvider extends SearchableDataProvider<RelationshipTypeTO> {
+    protected final class RelationshipTypeProvider extends DirectoryDataProvider<RelationshipTypeTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 

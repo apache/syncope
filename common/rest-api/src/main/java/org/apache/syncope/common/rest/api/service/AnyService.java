@@ -54,7 +54,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      */
     @GET
     @Path("{key}/{schemaType}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Set<AttrTO> read(@NotNull @PathParam("key") Long key, @NotNull @PathParam("schemaType") SchemaType schemaType);
 
     /**
@@ -67,7 +67,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      */
     @GET
     @Path("{key}/{schemaType}/{schema}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     AttrTO read(
             @NotNull @PathParam("key") Long key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
@@ -81,7 +81,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     TO read(@NotNull @PathParam("key") Long key);
 
     /**
@@ -92,7 +92,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      */
     @GET
     @Path("search")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     PagedResult<TO> search(@BeanParam AnySearchQuery searchQuery);
 
     /**
@@ -103,8 +103,8 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * object itself enriched with propagation status information - ProvisioningResult as Entity
      */
     @POST
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull TO anyTO);
 
     /**
@@ -116,8 +116,8 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      */
     @PATCH
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull P anyPatch);
 
     /**
@@ -130,8 +130,8 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      */
     @PUT
     @Path("{key}/{schemaType}/{schema}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(
             @NotNull @PathParam("key") Long key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
@@ -146,8 +146,8 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      */
     @PUT
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull TO anyTO);
 
     /**
@@ -159,8 +159,8 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      */
     @DELETE
     @Path("{key}/{schemaType}/{schema}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void delete(
             @NotNull @PathParam("key") Long key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
@@ -175,8 +175,8 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      */
     @DELETE
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete(@NotNull @PathParam("key") Long key);
 
     /**
@@ -187,8 +187,8 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      */
     @POST
     @Path("{key}/deassociate/{action}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response deassociate(@NotNull DeassociationPatch patch);
 
     /**
@@ -199,8 +199,8 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      */
     @POST
     @Path("{key}/associate/{action}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response associate(@NotNull AssociationPatch patch);
 
     /**
@@ -211,7 +211,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      */
     @POST
     @Path("bulk")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     BulkActionResult bulk(@NotNull BulkAction bulkAction);
 }

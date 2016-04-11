@@ -43,15 +43,10 @@ import org.apache.syncope.client.cli.commands.report.ReportCommand;
 import org.apache.syncope.client.cli.commands.role.RoleCommand;
 import org.apache.syncope.client.cli.commands.user.UserCommand;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.core.ExceptionMapperITCase;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class CLIITCase extends AbstractITCase {
@@ -65,7 +60,7 @@ public class CLIITCase extends AbstractITCase {
         Properties props = new Properties();
         InputStream propStream = null;
         try {
-            propStream = ExceptionMapperITCase.class.getResourceAsStream("/cli-test.properties");
+            propStream = CLIITCase.class.getResourceAsStream("/cli-test.properties");
             props.load(propStream);
 
             File workDir = new File(props.getProperty("cli-work.dir"));

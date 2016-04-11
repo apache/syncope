@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.validation.EqualPasswordInputValidator;
@@ -43,12 +40,6 @@ public class PasswordPanel extends Panel {
 
         final Form<?> form = new Form<>("passwordInnerForm");
         add(form);
-
-        final WebMarkupContainer pwdJexlHelp = JexlHelpUtils.getJexlHelpWebContainer("pwdJexlHelp");
-
-        final AjaxLink<?> pwdQuestionMarkJexlHelp = JexlHelpUtils.getAjaxLink(pwdJexlHelp, "pwdQuestionMarkJexlHelp");
-        form.add(pwdQuestionMarkJexlHelp);
-        pwdQuestionMarkJexlHelp.add(pwdJexlHelp);
 
         FieldPanel<String> passwordField = new AjaxPasswordFieldPanel(
                 "password", "password", new PropertyModel<String>(userTO, "password"), false);
@@ -72,8 +63,6 @@ public class PasswordPanel extends Panel {
             confirmPasswordField.setEnabled(false);
             confirmPasswordField.setVisible(false);
         } else {
-            pwdQuestionMarkJexlHelp.setVisible(false);
-
             ((PasswordTextField) passwordField.getField()).setResetPassword(resetPassword);
 
             if (!resetPassword) {

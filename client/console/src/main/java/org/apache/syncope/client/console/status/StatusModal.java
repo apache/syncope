@@ -37,7 +37,7 @@ public class StatusModal<T extends AnyTO> extends Panel implements ModalPanel<An
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("status");
-        add(mlp.setFirstLevel(new StatusSearchResultPanel(baseModal, mlp, pageReference, anyTO, statusOnly)));
+        add(mlp.setFirstLevel(new StatusDirectoryPanel(baseModal, mlp, pageReference, anyTO, statusOnly)));
     }
 
     @Override

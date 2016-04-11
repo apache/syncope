@@ -38,7 +38,7 @@ under the License.
 
     <conf.directory>${CATALINA_HOME}/webapps/syncope/WEB-INF/classes</conf.directory>
     <connid.location>connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}</connid.location>
-    <log.directory>./logs</log.directory>
+    <log.directory>${sys:catalina.home}/logs</log.directory>
     <test.csvdir.path>./test-csvdir</test.csvdir.path>
 
     <work.dir>${project.build.directory}/standalone</work.dir>

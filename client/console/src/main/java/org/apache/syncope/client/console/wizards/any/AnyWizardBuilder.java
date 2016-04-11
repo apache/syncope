@@ -46,31 +46,27 @@ public abstract class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilde
     /**
      * Construct.
      *
-     * @param id The component id
      * @param anyTO any
      * @param anyTypeClasses any type classes
      * @param pageRef Caller page reference.
      */
-    public AnyWizardBuilder(
-            final String id, final T anyTO, final List<String> anyTypeClasses, final PageReference pageRef) {
-        super(id, new AnyHandler<>(anyTO), pageRef);
+    public AnyWizardBuilder(final T anyTO, final List<String> anyTypeClasses, final PageReference pageRef) {
+        super(new AnyHandler<>(anyTO), pageRef);
         this.anyTypeClasses = anyTypeClasses;
     }
 
     /**
      * Construct.
      *
-     * @param id The component id
      * @param handler any handler
      * @param anyTypeClasses any type classes
      * @param pageRef Caller page reference.
      */
     public AnyWizardBuilder(
-            final String id,
             final AnyHandler<T> handler,
             final List<String> anyTypeClasses,
             final PageReference pageRef) {
-        super(id, handler, pageRef);
+        super(handler, pageRef);
         this.anyTypeClasses = anyTypeClasses;
     }
 
@@ -106,7 +102,7 @@ public abstract class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilde
         wizardModel.add(new Resources(modelObject.getInnerObject()));
         return wizardModel;
     }
-    
+
     protected AnyWizardBuilder<T> addOptionalDetailsPanel(
             final AnyHandler<T> modelObject, final WizardModel wizardModel) {
         if (modelObject.getInnerObject().getKey() != null && modelObject.getInnerObject().getKey() > 0) {

@@ -61,17 +61,7 @@ under the License.
       <div class="form-group">
         <label for="mandatoryCondition"><wicket:message key="mandatoryCondition"/></label>
         <input type="text" id="mandatoryCondition" class="form-control col-xs-4" wicket:id="mandatoryCondition"/>
-        <a class="tooltips" wicket:id="questionMarkJexlHelp" href="#" alt="Click to help" title="Click to help">
-          <span class="glyphicon glyphicon-info-sign"></span>
-          <span wicket:id="jexlHelp" class="tooltips">
-            <wicket:message key="jexl_info"/>
-            <ul>
-              <li><wicket:message key="jexl_ex1"/></li>
-              <li><wicket:message key="jexl_ex2"/></li>
-            </ul>
-            <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
-          </span>
-        </a>
+        <span id="popover" wicket:id="jexlInfo" class="glyphicon glyphicon-info-sign"></span>
       </div>
       <div class="form-group">
         <div class="form-group">

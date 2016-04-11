@@ -68,8 +68,7 @@ under the License.
   <CPlainAttr id="8" owner_id="1" schema_name="passwordReset.securityQuestion"/>
   <CPlainAttrValue id="8" attribute_id="8" booleanValue="1"/>
 
-  <PlainSchema name="authentication.statuses" type="String"
-               mandatoryCondition="true" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="authentication.statuses" type="String" multivalue="1" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="9" owner_id="1" schema_name="authentication.statuses"/>
   <CPlainAttrValue id="9" attribute_id="9" stringValue="created"/>
   <CPlainAttrValue id="10" attribute_id="9" stringValue="active"/>
@@ -106,34 +105,28 @@ under the License.
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
   
   <!-- sample policies -->
-  <PullPolicy id="1" description="a pull policy" type="PULL" 
-              specification='{"conflictResolutionAction":"IGNORE"'/>
-  <PasswordPolicy id="2" description="a password policy" type="PASSWORD" 
-                  historyLength="1" allowNullPassword="1"/> 
+  <PullPolicy id="1" description="a pull policy" specification='{"conflictResolutionAction":"IGNORE"}'/>
+  <PasswordPolicy id="2" description="a password policy" historyLength="1" allowNullPassword="1"/> 
   <PasswordRuleConfInstance id="2" passwordPolicy_id="2"
                             serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
-  <PullPolicy id="3" description="pull policy 2" type="PULL" 
+  <PullPolicy id="3" description="pull policy 2"
               specification='{"conflictResolutionAction":"ALL","correlationRules":{"USER":"[\"username\",\"firstname\"]"}}'/>
-  <PasswordPolicy id="4" description="sample password policy" type="PASSWORD"
-                  historyLength="0"  allowNullPassword="1"/> 
+  <PasswordPolicy id="4" description="sample password policy" historyLength="0"  allowNullPassword="1"/> 
   <PasswordRuleConfInstance id="4" passwordPolicy_id="4"
                             serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
-  <AccountPolicy id="5" description="an account policy" type="ACCOUNT"
+  <AccountPolicy id="5" description="an account policy"
                  propagateSuspension="0" maxAuthenticationAttempts="0"/>
   <AccountRuleConfInstance id="5" accountPolicy_id="5"
                            serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
-  <AccountPolicy id="6" description="sample account policy" type="ACCOUNT"
+  <AccountPolicy id="6" description="sample account policy"
                  propagateSuspension="0" maxAuthenticationAttempts="3"/>
   <AccountRuleConfInstance id="6" accountPolicy_id="6"
                            serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
-  <PullPolicy id="7" description="pull policy 1" type="PULL" 
-              specification='{"conflictResolutionAction":"IGNORE"}'/>
-  <PasswordPolicy id="8" description="sample password policy" type="PASSWORD"
-                  historyLength="0" allowNullPassword="0"/> 
+  <PullPolicy id="7" description="pull policy 1" specification='{"conflictResolutionAction":"IGNORE"}'/>
+  <PasswordPolicy id="8" description="sample password policy" historyLength="0" allowNullPassword="0"/> 
   <PasswordRuleConfInstance id="8" passwordPolicy_id="8"
                             serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
-  <PullPolicy id="9" description="pull policy for java rule" type="PULL" 
-              specification='{"conflictResolutionAction":"IGNORE"}'/>
+  <PullPolicy id="9" description="pull policy for java rule" specification='{"conflictResolutionAction":"IGNORE"}'/>
 
   <RelationshipType name="inclusion" description="Models the act that an object is included in another"/>
   <RelationshipType name="neighborhood"/>
@@ -826,6 +819,9 @@ under the License.
                connObjectKey="0" password="1" purpose="PROPAGATION"/>
                          
   <Provision id="9" resource_name="resource-csv" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Provision_AnyTypeClass provision_id="9" anyTypeClass_name="csv"/>
+  <Provision_AnyTypeClass provision_id="9" anyTypeClass_name="generic membership"/>
+  <Provision_AnyTypeClass provision_id="9" anyTypeClass_name="minimal group"/>
   <Mapping id="9" provision_id="9"/>
   <MappingItem id="200" extAttrName="id" mapping_id="9"
                intMappingType="Username" mandatoryCondition="true"
@@ -869,6 +865,8 @@ under the License.
                connObjectKey="0" password="1" purpose="BOTH"/>
 
   <Provision id="11" resource_name="resource-ldap" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Provision_AnyTypeClass provision_id="11" anyTypeClass_name="generic membership"/>
+  <Provision_AnyTypeClass provision_id="11" anyTypeClass_name="minimal group"/>
   <Mapping id="11" provision_id="11"
            connObjectLink="&apos;uid=&apos; + username + &apos;,ou=people,o=isp&apos;"/>
   <MappingItem id="311" connObjectKey="1" password="0" mapping_id="11"
@@ -970,127 +968,127 @@ under the License.
                intAttrName="location" intMappingType="AnyObjectPlainSchema"
                mandatoryCondition="false" connObjectKey="0" password="0" purpose="BOTH"/>
     
-  <Task DTYPE="PropagationTask" type="PROPAGATION" id="1" operation="UPDATE"
+  <Task DTYPE="PropagationTask" id="1" operation="UPDATE"
         objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" anyTypeKind="USER" anyKey="1"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
   <TaskExec id="1" task_id="1" startDate="2015-12-17 09:40:00.506" endDate="2015-12-17 09:42:00.506" status="SUCCESS"/>
-  <Task DTYPE="PropagationTask" type="PROPAGATION" id="2" operation="CREATE"
+  <Task DTYPE="PropagationTask" id="2" operation="CREATE"
         objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" anyTypeKind="USER" anyKey="1"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
-  <Task DTYPE="PropagationTask" type="PROPAGATION" id="3" operation="DELETE"
+  <Task DTYPE="PropagationTask" id="3" operation="DELETE"
         objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" anyTypeKind="USER" anyKey="1"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"type","value":["type"]}]'/>
-  <Task DTYPE="PullTask" type="PULL" id="4" name="CSV (update matching; assign unmatching)" resource_name="resource-csv"
+  <Task DTYPE="PullTask" id="4" name="CSV (update matching; assign unmatching)" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" pullStatus="1"
         pullMode="INCREMENTAL" unmatchingRule="ASSIGN" matchingRule="UPDATE" active="1"/>
   <AnyTemplatePullTask id="41" pullTask_id="4" anyType_name="USER"
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["csv"],"derAttrs":[{"schema":"cn","readonly":false,"values":[""]}],"virAttrs":[],"resources":["resource-testdb"],"relationships":[],"memberships":[{"leftType":null,"leftKey":0,"rightType":"GROUP","rightKey":8,"groupName":null}],"dynGroups":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}]}'/>
   <AnyTemplatePullTask id="42" pullTask_id="4" anyType_name="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
-  <Task DTYPE="SchedTask" type="SCHEDULED" id="5" name="SampleJob Task"  active="1"
+  <Task DTYPE="SchedTask" id="5" name="SampleJob Task"  active="1"
         jobDelegateClassName="org.apache.syncope.fit.core.reference.TestSampleJobDelegate" cronExpression="0 0 0 1 * ?"/>
-  <Task DTYPE="PropagationTask" type="PROPAGATION" id="6" operation="UPDATE"
+  <Task DTYPE="PropagationTask" id="6" operation="UPDATE"
         objectClassName="__ACCOUNT__" resource_name="ws-target-resource-nopropagation" anyTypeKind="USER" anyKey="1"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
   <TaskExec id="6" task_id="6" startDate="2015-12-17 09:40:00.506" endDate="2015-12-17 09:42:00.506" status="SUCCESS"/>
-  <Task DTYPE="PullTask" type="PULL" id="7" name="TestDB Task" resource_name="resource-testdb"
+  <Task DTYPE="PullTask" id="7" name="TestDB Task" resource_name="resource-testdb"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="0" pullStatus="1" pullMode="FULL_RECONCILIATION"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
   <AnyTemplatePullTask id="71" pullTask_id="7" anyType_name="USER"
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"relationships":[],"memberships":[],"dynGroups":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","readonly":false,"values":["&apos;type a&apos;"]},{"schema":"userId","readonly":false,"values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;surname&apos;"]}]}'/>
   <AnyTemplatePullTask id="72" pullTask_id="7" anyType_name="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
-  <Task DTYPE="NotificationTask" type="NOTIFICATION" id="8" sender="admin@prova.org" subject="Notification for PULLOPE-81" 
+  <Task DTYPE="NotificationTask" id="8" sender="admin@prova.org" subject="Notification for PULLOPE-81" 
         textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
-  <Task DTYPE="PullTask" type="PULL" id="9" name="TestDB2 Task" resource_name="resource-testdb2"
+  <Task DTYPE="PullTask" id="9" name="TestDB2 Task" resource_name="resource-testdb2"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="0" pullStatus="1" pullMode="FULL_RECONCILIATION"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
-  <Task DTYPE="PullTask" type="PULL" id="10" name="TestDB Pull Task" resource_name="resource-db-pull"
+  <Task DTYPE="PullTask" id="10" name="TestDB Pull Task" resource_name="resource-db-pull"
         destinationRealm_id="1" pullMode="FULL_RECONCILIATION" performCreate="1" performDelete="1" performUpdate="1" pullStatus="0"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
-  <Task DTYPE="PullTask" type="PULL" id="11" name="LDAP Pull Task" resource_name="resource-ldap"
+  <Task DTYPE="PullTask" id="11" name="LDAP Pull Task" resource_name="resource-ldap"
         destinationRealm_id="1" pullMode="FULL_RECONCILIATION" performCreate="1" performDelete="1" performUpdate="1" pullStatus="0"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
   <AnyTemplatePullTask id="1" pullTask_id="11" anyType_name="USER"
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","readonly":true,"values":[""]}],"resources":["resource-ldap"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynGroups":[],"plainAttrs":[]}'/>
   <AnyTemplatePullTask id="2" pullTask_id="11" anyType_name="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[{"schema":"show","readonly":false,"values":["true"]}]}'/>
-  <PullTask_actionsClassNames PullTask_id="11" actionClassName="org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions"/>
-  <Task DTYPE="PullTask" type="PULL" id="12" name="VirAttrCache test" resource_name="resource-csv"
+  <PullTask_actionsClassNames pullTask_id="11" actionClassName="org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions"/>
+  <Task DTYPE="PullTask" id="12" name="VirAttrCache test" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="0" performUpdate="1" performDelete="0" pullStatus="0" pullMode="FULL_RECONCILIATION"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
-  <Task DTYPE="PushTask" type="PUSH" id="13" name="Export on resource-testdb2" resource_name="resource-testdb2"
+  <Task DTYPE="PushTask" id="13" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" pullStatus="1"         
         unmatchingRule="ASSIGN" matchingRule="IGNORE" active="1"/>  
   <PushTaskAnyFilter id="131" anyType_name="USER" pushTask_id="13" fiql="surname==Vivaldi"/>
   <PushTaskAnyFilter id="132" anyType_name="GROUP" pushTask_id="13" fiql="name==_NO_ONE_"/>
-  <Task DTYPE="PushTask" type="PUSH" id="14" name="Export on resource-testdb2" resource_name="resource-testdb2"
+  <Task DTYPE="PushTask" id="14" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" pullStatus="1"         
         unmatchingRule="PROVISION" matchingRule="IGNORE" active="1"/>
   <PushTaskAnyFilter id="141" anyType_name="USER" pushTask_id="14" fiql="surname==Bellini"/>
   <PushTaskAnyFilter id="142" anyType_name="GROUP" pushTask_id="14" fiql="name==_NO_ONE_"/>
-  <Task DTYPE="PushTask" type="PUSH" id="15" name="Export on resource-testdb2" resource_name="resource-testdb2"
+  <Task DTYPE="PushTask" id="15" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" pullStatus="1"        
         unmatchingRule="UNLINK" matchingRule="IGNORE" active="1"/>
   <PushTaskAnyFilter id="151" anyType_name="USER" pushTask_id="15" fiql="surname==Puccini"/>
   <PushTaskAnyFilter id="152" anyType_name="GROUP" pushTask_id="15" fiql="name==_NO_ONE_"/>
-  <Task DTYPE="PushTask" type="PUSH" id="16" name="Export on resource-testdb2" resource_name="resource-testdb2"
+  <Task DTYPE="PushTask" id="16" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" pullStatus="1"         
         unmatchingRule="IGNORE" matchingRule="IGNORE" active="1"/>
   <PushTaskAnyFilter id="161" anyType_name="USER" pushTask_id="16" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="162" anyType_name="GROUP" pushTask_id="16" fiql="name==_NO_ONE_"/>
-  <Task DTYPE="PushTask" type="PUSH" id="17" name="Export on resource-testdb2" resource_name="resource-testdb2"
+  <Task DTYPE="PushTask" id="17" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" pullStatus="1"        
         unmatchingRule="ASSIGN" matchingRule="UPDATE" active="1"/>
   <PushTaskAnyFilter id="171" anyType_name="USER" pushTask_id="17" fiql="username==_NO_ONE_"/>
   <PushTaskAnyFilter id="172" anyType_name="GROUP" pushTask_id="17" fiql="name==_NO_ONE_"/>
-  <Task DTYPE="PushTask" type="PUSH" id="18" name="Export on resource-testdb2" resource_name="resource-testdb2"
+  <Task DTYPE="PushTask" id="18" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" pullStatus="1"        
         unmatchingRule="IGNORE" matchingRule="DEPROVISION" active="1"/>
   <PushTaskAnyFilter id="181" anyType_name="USER" pushTask_id="18" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="182" anyType_name="GROUP" pushTask_id="18" fiql="name==_NO_ONE_"/>
-  <Task DTYPE="PushTask" type="PUSH" id="19" name="Export on resource-testdb2" resource_name="resource-testdb2"
+  <Task DTYPE="PushTask" id="19" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" pullStatus="1"        
         unmatchingRule="IGNORE" matchingRule="UNASSIGN" active="1"/>
   <PushTaskAnyFilter id="191" anyType_name="USER" pushTask_id="19" fiql="surname==Rossini"/>
   <PushTaskAnyFilter id="192" anyType_name="GROUP" pushTask_id="19" fiql="name==_NO_ONE_"/>
-  <Task DTYPE="PushTask" type="PUSH" id="20" name="Export on resource-testdb2" resource_name="resource-testdb2"
+  <Task DTYPE="PushTask" id="20" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" pullStatus="1"        
         unmatchingRule="IGNORE" matchingRule="LINK" active="1"/>
   <PushTaskAnyFilter id="201" anyType_name="USER" pushTask_id="20" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="202" anyType_name="GROUP" pushTask_id="20" fiql="name==_NO_ONE_"/>
-  <Task DTYPE="PushTask" type="PUSH" id="21" name="Export on resource-testdb2" resource_name="resource-testdb2"
+  <Task DTYPE="PushTask" id="21" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" pullStatus="1"        
         unmatchingRule="IGNORE" matchingRule="UNLINK" active="1"/>
   <PushTaskAnyFilter id="211" anyType_name="USER" pushTask_id="21" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="212" anyType_name="GROUP" pushTask_id="21" fiql="name==_NO_ONE_"/>
-  <Task DTYPE="PushTask" type="PUSH" id="22" name="Export on resource-testdb2" resource_name="resource-testdb2"
+  <Task DTYPE="PushTask" id="22" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" pullStatus="1"        
         unmatchingRule="IGNORE" matchingRule="UPDATE"  active="1"/>
   <PushTaskAnyFilter id="221" anyType_name="USER" pushTask_id="22" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="222" anyType_name="GROUP" pushTask_id="22" fiql="name==_NO_ONE_"/>
-  <Task DTYPE="PushTask" type="PUSH" id="23" name="Export on resource-ldap" resource_name="resource-ldap"
+  <Task DTYPE="PushTask" id="23" name="Export on resource-ldap" resource_name="resource-ldap"
         performCreate="1" performUpdate="1" performDelete="1" pullStatus="1"        
         unmatchingRule="ASSIGN" matchingRule="UNLINK" active="1"/>
   <PushTaskAnyFilter id="231" anyType_name="USER" pushTask_id="23" fiql="username==_NO_ONE_"/>
   <PushTaskAnyFilter id="232" anyType_name="GROUP" pushTask_id="23" fiql="name==citizen"/>
-  <Task DTYPE="PullTask" type="PULL" id="24" name="CSV Task (update matching; provision unmatching)" resource_name="resource-csv"
+  <Task DTYPE="PullTask" id="24" name="CSV Task (update matching; provision unmatching)" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" pullStatus="1" pullMode="INCREMENTAL"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
   <AnyTemplatePullTask id="3" pullTask_id="24" anyType_name="USER"
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":["resource-testdb"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynGroups":[],"plainAttrs":[{"schema":"firstname","readonly":false,"values":[""]},{"schema":"userId","readonly":false,"values":["&apos;test&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;test&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;test&apos;"]}]}'/>
   <AnyTemplatePullTask id="4" pullTask_id="24" anyType_name="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
-  <Task DTYPE="PullTask" type="PULL" id="25" name="CSV (unlink matching; ignore unmatching)" resource_name="resource-csv"
+  <Task DTYPE="PullTask" id="25" name="CSV (unlink matching; ignore unmatching)" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" pullStatus="1" pullMode="INCREMENTAL"
         unmatchingRule="IGNORE" matchingRule="UNLINK" active="1"/>
-  <Task DTYPE="PullTask" type="PULL" id="26" name="CSV (ignore matching; assign unmatching)" resource_name="resource-csv"
+  <Task DTYPE="PullTask" id="26" name="CSV (ignore matching; assign unmatching)" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" pullStatus="1" pullMode="INCREMENTAL"
         unmatchingRule="ASSIGN" matchingRule="IGNORE" active="1"/>
-  <Task DTYPE="PropagationTask" type="PROPAGATION" id="27" operation="CREATE"
+  <Task DTYPE="PropagationTask" id="27" operation="CREATE"
         objectClassName="__ACCOUNT__" resource_name="resource-testdb" anyTypeKind="USER" anyKey="1"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
-  <Task DTYPE="PullTask" type="PULL" id="28" name="Scripted SQL" resource_name="resource-db-scripted"
+  <Task DTYPE="PullTask" id="28" name="Scripted SQL" resource_name="resource-db-scripted"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" pullStatus="0" pullMode="INCREMENTAL"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
 

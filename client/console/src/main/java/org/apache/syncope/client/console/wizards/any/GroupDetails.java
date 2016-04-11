@@ -19,13 +19,10 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.List;
-import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
@@ -46,15 +43,8 @@ public class GroupDetails extends Details<GroupTO> {
         final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name",
                 new PropertyModel<String>(groupTO, "name"), false);
 
-        final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
-
-        final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
-        this.add(questionMarkJexlHelp);
-        questionMarkJexlHelp.add(jexlHelp);
-
         if (!templateMode) {
             name.addRequiredLabel();
-            questionMarkJexlHelp.setVisible(false);
         }
         this.add(name);
     }

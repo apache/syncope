@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.model.IModel;
 
-public abstract class ResourceConnConfPanel extends AbstractConnectorConfPanel<ResourceTO> {
+public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<ResourceTO> {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
@@ -59,9 +59,9 @@ public abstract class ResourceConnConfPanel extends AbstractConnectorConfPanel<R
     @Override
     protected final List<ConnConfProperty> getConnProperties(final ResourceTO resourceTO) {
         List<ConnConfProperty> props = new ArrayList<>();
-        Long connectorKey = resourceTO.getConnector();
-        if (connectorKey != null && connectorKey > 0) {
-            for (ConnConfProperty property : restClient.read(connectorKey).getConf()) {
+
+        if (resourceTO.getConnector() != null && resourceTO.getConnector() > 0) {
+            for (ConnConfProperty property : restClient.read(resourceTO.getConnector()).getConf()) {
                 if (property.isOverridable()) {
                     props.add(property);
                 }

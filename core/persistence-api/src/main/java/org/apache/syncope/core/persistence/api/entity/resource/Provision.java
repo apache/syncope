@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.entity.resource;
 
+import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncToken;
@@ -36,6 +38,10 @@ public interface Provision extends Entity<Long> {
     ObjectClass getObjectClass();
 
     void setObjectClass(ObjectClass objectClass);
+
+    boolean add(AnyTypeClass anyTypeClass);
+
+    List<? extends AnyTypeClass> getAuxClasses();
 
     SyncToken getSyncToken();
 

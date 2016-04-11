@@ -169,10 +169,7 @@ under the License.
       </resource>
       <resource>
         <directory>../fit/core-reference/src/main/resources/all</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
-        <includes>
-          <include>workflow.properties</include>
-        </includes>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources/all</targetPath>
       </resource>
       <resource>
         <directory>../fit/core-reference/src/test/resources/scriptedsql</directory>
@@ -195,6 +192,13 @@ under the License.
       <resource>
         <directory>../fit/core-reference/src/main/webapp/WEB-INF</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/webapp/WEB-INF</targetPath>
+      </resource>
+      <resource>
+        <directory>../fit/core-reference/src/test/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
+        <includes>
+          <include>addActivitiToContent.xsl</include>
+        </includes>
       </resource>
             
       <resource>

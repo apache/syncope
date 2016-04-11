@@ -25,18 +25,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.search.AnySelectionSearchResultPanel;
+import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
-import org.apache.syncope.client.console.panels.search.GroupSelectionSearchResultPanel;
+import org.apache.syncope.client.console.panels.search.GroupSelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
-import org.apache.syncope.client.console.panels.search.UserSelectionSearchResultPanel;
+import org.apache.syncope.client.console.panels.search.UserSelectionDirectoryPanel;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -46,7 +47,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
@@ -79,7 +79,7 @@ public class Ownership extends WizardStep {
 
     private final Fragment groupSearchFragment;
 
-    private final GroupSelectionSearchResultPanel groupSearchResultPanel;
+    private final GroupSelectionDirectoryPanel groupDirectoryPanel;
 
     private final UserSearchPanel userSearchPanel;
 
@@ -87,7 +87,7 @@ public class Ownership extends WizardStep {
 
     private final Fragment userSearchFragment;
 
-    private final UserSelectionSearchResultPanel userSearchResultPanel;
+    private final UserSelectionDirectoryPanel userDirectoryPanel;
 
     private final Model<Boolean> isGroupOwnership;
 
@@ -97,16 +97,14 @@ public class Ownership extends WizardStep {
 
         isGroupOwnership = Model.of(groupHandler.getInnerObject().getGroupOwner() != null);
 
-        final BootstrapToggleConfig config = new BootstrapToggleConfig();
-        config
-                .withOnStyle(BootstrapToggleConfig.Style.info).withOffStyle(BootstrapToggleConfig.Style.warning)
-                .withSize(BootstrapToggleConfig.Size.mini)
-                .withOnLabel(AnyTypeKind.GROUP.name())
-                .withOffLabel(AnyTypeKind.USER.name());
+        final BootstrapToggleConfig config = new BootstrapToggleConfig().
+                withOnStyle(BootstrapToggleConfig.Style.info).
+                withOffStyle(BootstrapToggleConfig.Style.warning).
+                withSize(BootstrapToggleConfig.Size.mini);
 
         add(new BootstrapToggle("ownership", new Model<Boolean>() {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 6062041315055645807L;
 
             @Override
             public Boolean getObject() {
@@ -114,22 +112,22 @@ public class Ownership extends WizardStep {
             }
         }, config) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 2969634208049189343L;
 
             @Override
             protected IModel<String> getOffLabel() {
-                return Model.of(getString("Off", null, "USER Owner"));
+                return Model.of("USER Owner");
             }
 
             @Override
             protected IModel<String> getOnLabel() {
-                return Model.of(getString("On", null, "GROUP Owner"));
+                return Model.of("GROUP Owner");
             }
 
             @Override
             protected CheckBox newCheckBox(final String id, final IModel<Boolean> model) {
                 final CheckBox checkBox = super.newCheckBox(id, model);
-                checkBox.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                checkBox.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = 1L;
 
@@ -138,10 +136,10 @@ public class Ownership extends WizardStep {
                         isGroupOwnership.setObject(!isGroupOwnership.getObject());
                         if (isGroupOwnership.getObject()) {
                             ownerContainer.addOrReplace(groupSearchFragment);
-                            groupSearchResultPanel.search(null, target);
+                            groupDirectoryPanel.search(null, target);
                         } else {
                             ownerContainer.addOrReplace(userSearchFragment);
-                            userSearchResultPanel.search(null, target);
+                            userDirectoryPanel.search(null, target);
                         }
                         target.add(ownerContainer);
                     }
@@ -159,28 +157,28 @@ public class Ownership extends WizardStep {
                 new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build("groupsearch");
         groupSearchFragment.add(groupSearchPanel.setRenderBodyOnly(true));
 
-        AnyTypeTO anyTypeTO = anyTypeRestClient.get(AnyTypeKind.GROUP.name());
+        AnyTypeTO anyTypeTO = anyTypeRestClient.read(AnyTypeKind.GROUP.name());
 
-        groupSearchResultPanel = GroupSelectionSearchResultPanel.class.cast(new GroupSelectionSearchResultPanel.Builder(
+        groupDirectoryPanel = GroupSelectionDirectoryPanel.class.cast(new GroupSelectionDirectoryPanel.Builder(
                 anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                 anyTypeTO.getKey(),
                 pageRef).build("searchResult"));
 
-        groupSearchFragment.add(groupSearchResultPanel);
+        groupSearchFragment.add(groupDirectoryPanel);
 
         userSearchFragment = new Fragment("search", "userSearchFragment", this);
         userSearchPanel = UserSearchPanel.class.cast(new UserSearchPanel.Builder(
                 new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build("usersearch"));
         userSearchFragment.add(userSearchPanel.setRenderBodyOnly(true));
 
-        anyTypeTO = anyTypeRestClient.get(AnyTypeKind.USER.name());
+        anyTypeTO = anyTypeRestClient.read(AnyTypeKind.USER.name());
 
-        userSearchResultPanel = UserSelectionSearchResultPanel.class.cast(new UserSelectionSearchResultPanel.Builder(
+        userDirectoryPanel = UserSelectionDirectoryPanel.class.cast(new UserSelectionDirectoryPanel.Builder(
                 anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                 anyTypeTO.getKey(),
                 pageRef).build("searchResult"));
 
-        userSearchFragment.add(userSearchResultPanel);
+        userSearchFragment.add(userDirectoryPanel);
 
         if (isGroupOwnership.getObject()) {
             ownerContainer.add(groupSearchFragment);
@@ -231,7 +229,7 @@ public class Ownership extends WizardStep {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 send(Ownership.this, Broadcast.EXACT,
-                        new GroupSelectionSearchResultPanel.ItemSelection<GroupTO>(target, null));
+                        new GroupSelectionDirectoryPanel.ItemSelection<GroupTO>(target, null));
             }
         };
         userSearchFragment.add(userOwnerReset);
@@ -279,7 +277,7 @@ public class Ownership extends WizardStep {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 send(Ownership.this, Broadcast.EXACT,
-                        new GroupSelectionSearchResultPanel.ItemSelection<GroupTO>(target, null));
+                        new GroupSelectionDirectoryPanel.ItemSelection<GroupTO>(target, null));
             }
         };
         groupSearchFragment.add(groupOwnerReset);
@@ -292,25 +290,25 @@ public class Ownership extends WizardStep {
             if (Ownership.this.isGroupOwnership.getObject()) {
                 final String fiql = SearchUtils.buildFIQL(
                         groupSearchPanel.getModel().getObject(), SyncopeClient.getGroupSearchConditionBuilder());
-                groupSearchResultPanel.search(fiql, target);
+                groupDirectoryPanel.search(fiql, target);
             } else {
                 final String fiql = SearchUtils.buildFIQL(
                         userSearchPanel.getModel().getObject(), SyncopeClient.getUserSearchConditionBuilder());
-                userSearchResultPanel.search(fiql, target);
+                userDirectoryPanel.search(fiql, target);
             }
-        } else if (event.getPayload() instanceof AnySelectionSearchResultPanel.ItemSelection) {
-            final AnyTO sel = ((AnySelectionSearchResultPanel.ItemSelection) event.getPayload()).getSelection();
+        } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
+            final AnyTO sel = ((AnySelectionDirectoryPanel.ItemSelection) event.getPayload()).getSelection();
             if (sel == null) {
                 handler.getInnerObject().setUserOwner(null);
                 handler.getInnerObject().setGroupOwner(null);
             } else if (sel instanceof UserTO) {
                 handler.getInnerObject().setUserOwner(sel.getKey());
                 handler.getInnerObject().setGroupOwner(null);
-                ((UserSelectionSearchResultPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
+                ((UserSelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
             } else if (sel instanceof GroupTO) {
                 handler.getInnerObject().setGroupOwner(sel.getKey());
                 handler.getInnerObject().setUserOwner(null);
-                ((GroupSelectionSearchResultPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
+                ((GroupSelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
             }
         } else {
             super.onEvent(event);

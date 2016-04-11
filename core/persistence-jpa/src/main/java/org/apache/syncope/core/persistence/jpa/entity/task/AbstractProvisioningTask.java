@@ -27,7 +27,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.MatchingRule;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
@@ -80,16 +79,14 @@ public abstract class AbstractProvisioningTask extends JPASchedTask implements P
     @Enumerated(EnumType.STRING)
     protected MatchingRule matchingRule;
 
-    public AbstractProvisioningTask(final TaskType type, final String jobDelegateClassName) {
-        super();
-
-        this.type = type;
-        super.setJobDelegateClassName(jobDelegateClassName);
+    @Override
+    public String getJobDelegateClassName() {
+        return null;
     }
 
     @Override
-    public void setJobDelegateClassName(final String jobClassName) {
-        // fixed to PullJob, cannot be changed
+    public void setJobDelegateClassName(final String jobDelegateClassName) {
+        // fixed, cannot be changed
     }
 
     @Override

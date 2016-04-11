@@ -18,20 +18,21 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -42,18 +43,23 @@ import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 
 @Component
 public class ResourceDataBinderImpl implements ResourceDataBinder {
@@ -73,6 +79,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     @Autowired
     private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
+    private AnyTypeClassDAO anyTypeClassDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -127,6 +136,23 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 }
                 provision.setObjectClass(new ObjectClass(provisionTO.getObjectClass()));
 
+                // add all classes contained in the TO
+                for (String name : provisionTO.getAuxClasses()) {
+                    AnyTypeClass anyTypeClass = anyTypeClassDAO.find(name);
+                    if (anyTypeClass == null) {
+                        LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), name);
+                    } else {
+                        provision.add(anyTypeClass);
+                    }
+                }
+                // remove all classes not contained in the TO
+                for (Iterator<? extends AnyTypeClass> itor = provision.getAuxClasses().iterator(); itor.hasNext();) {
+                    AnyTypeClass anyTypeClass = itor.next();
+                    if (!provisionTO.getAuxClasses().contains(anyTypeClass.getKey())) {
+                        itor.remove();
+                    }
+                }
+
                 if (provisionTO.getSyncToken() == null) {
                     provision.setSyncToken(null);
                 }
@@ -142,7 +168,29 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     } else {
                         mapping.getItems().clear();
                     }
-                    populateMapping(provisionTO.getMapping(), mapping, entityFactory.newEntity(MappingItem.class));
+
+                    AnyTypeClassTO allowedSchemas = new AnyTypeClassTO();
+                    for (Iterator<AnyTypeClass> itor = IteratorUtils.chainedIterator(
+                            provision.getAnyType().getClasses().iterator(),
+                            provision.getAuxClasses().iterator()); itor.hasNext();) {
+
+                        AnyTypeClass anyTypeClass = itor.next();
+                        allowedSchemas.getPlainSchemas().addAll(
+                                CollectionUtils.collect(anyTypeClass.getPlainSchemas(),
+                                        EntityUtils.<String, PlainSchema>keyTransformer()));
+                        allowedSchemas.getDerSchemas().addAll(
+                                CollectionUtils.collect(anyTypeClass.getDerSchemas(),
+                                        EntityUtils.<String, DerSchema>keyTransformer()));
+                        allowedSchemas.getVirSchemas().addAll(
+                                CollectionUtils.collect(anyTypeClass.getVirSchemas(),
+                                        EntityUtils.<String, VirSchema>keyTransformer()));
+                    }
+
+                    populateMapping(
+                            provisionTO.getMapping(),
+                            mapping,
+                            entityFactory.newEntity(MappingItem.class),
+                            allowedSchemas);
                 }
 
                 if (provisionTO.getVirSchemas().isEmpty()) {
@@ -201,70 +249,92 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         return resource;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void populateMapping(final MappingTO mappingTO, final Mapping mapping, final MappingItem prototype) {
+    private void populateMapping(
+            final MappingTO mappingTO,
+            final Mapping mapping,
+            final MappingItem prototype,
+            final AnyTypeClassTO allowedSchemas) {
+
         mapping.setConnObjectLink(mappingTO.getConnObjectLink());
 
-        for (MappingItem item : getMappingItems(mappingTO.getItems(), prototype)) {
-            item.setMapping(mapping);
-            if (item.isConnObjectKey()) {
-                mapping.setConnObjectKeyItem(item);
-            } else {
-                mapping.add(item);
-            }
-        }
-    }
-
-    private Set<MappingItem> getMappingItems(final Collection<MappingItemTO> itemTOs, final MappingItem prototype) {
-        Set<MappingItem> items = new HashSet<>(itemTOs.size());
-        for (MappingItemTO itemTO : itemTOs) {
-            items.add(getMappingItem(itemTO, prototype));
-        }
-
-        return items;
-    }
-
-    private MappingItem getMappingItem(final MappingItemTO itemTO, final MappingItem prototype) {
-        if (itemTO == null || itemTO.getIntMappingType() == null) {
-            LOG.error("Null mappingTO provided");
-            return null;
-        }
-
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
+        SyncopeClientException invalidMapping = SyncopeClientException.build(ClientExceptionType.InvalidMapping);
+        SyncopeClientException requiredValuesMissing =
+                SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
-        SyncopeClientException requiredValuesMissing = SyncopeClientException.build(
-                ClientExceptionType.RequiredValuesMissing);
-
-        if (itemTO.getIntAttrName() == null) {
-            if (IntMappingType.getEmbedded().contains(itemTO.getIntMappingType())) {
-                itemTO.setIntAttrName(itemTO.getIntMappingType().toString());
+        for (MappingItemTO itemTO : mappingTO.getItems()) {
+            if (itemTO == null || itemTO.getIntMappingType() == null) {
+                LOG.error("Null {} or missing {}",
+                        MappingItemTO.class.getSimpleName(), IntMappingType.class.getSimpleName());
+                invalidMapping.getElements().add(
+                        "Null " + MappingItemTO.class.getSimpleName()
+                        + " or missing " + IntMappingType.class.getSimpleName());
             } else {
-                requiredValuesMissing.getElements().add("intAttrName");
+                if (itemTO.getIntAttrName() == null) {
+                    if (IntMappingType.getEmbedded().contains(itemTO.getIntMappingType())) {
+                        itemTO.setIntAttrName(itemTO.getIntMappingType().toString());
+                    } else {
+                        requiredValuesMissing.getElements().add("intAttrName");
+                        scce.addException(requiredValuesMissing);
+                    }
+                }
+
+                boolean allowed;
+                switch (itemTO.getIntMappingType()) {
+                    case UserPlainSchema:
+                    case GroupPlainSchema:
+                    case AnyObjectPlainSchema:
+                        allowed = allowedSchemas.getPlainSchemas().contains(itemTO.getIntAttrName());
+                        break;
+
+                    case UserDerivedSchema:
+                    case GroupDerivedSchema:
+                    case AnyObjectDerivedSchema:
+                        allowed = allowedSchemas.getDerSchemas().contains(itemTO.getIntAttrName());
+                        break;
+
+                    case UserVirtualSchema:
+                    case GroupVirtualSchema:
+                    case AnyObjectVirtualSchema:
+                        allowed = allowedSchemas.getVirSchemas().contains(itemTO.getIntAttrName());
+                        break;
+
+                    default:
+                        allowed = true;
+                }
+
+                if (allowed) {
+                    // no mandatory condition implies mandatory condition false
+                    if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
+                            ? "false" : itemTO.getMandatoryCondition())) {
+
+                        SyncopeClientException invalidMandatoryCondition =
+                                SyncopeClientException.build(ClientExceptionType.InvalidValues);
+                        invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
+                        scce.addException(invalidMandatoryCondition);
+                    }
+
+                    MappingItem item = SerializationUtils.clone(prototype);
+                    BeanUtils.copyProperties(itemTO, item, MAPPINGITEM_IGNORE_PROPERTIES);
+                    item.setMapping(mapping);
+                    if (item.isConnObjectKey()) {
+                        mapping.setConnObjectKeyItem(item);
+                    } else {
+                        mapping.add(item);
+                    }
+                } else {
+                    LOG.error("{} not allowed", itemTO.getIntAttrName());
+                    invalidMapping.getElements().add(itemTO.getIntAttrName() + " not allowed");
+                }
             }
         }
 
-        // Throw composite exception if there is at least one element set in the composing exceptions
-        if (!requiredValuesMissing.isEmpty()) {
-            scce.addException(requiredValuesMissing);
+        if (!invalidMapping.getElements().isEmpty()) {
+            scce.addException(invalidMapping);
         }
-
-        // no mandatory condition implies mandatory condition false
-        if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
-                ? "false" : itemTO.getMandatoryCondition())) {
-
-            SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
-                    ClientExceptionType.InvalidValues);
-            invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
-            scce.addException(invalidMandatoryCondition);
-        }
-
         if (scce.hasExceptions()) {
             throw scce;
         }
-
-        MappingItem item = SerializationUtils.clone(prototype);
-        BeanUtils.copyProperties(itemTO, item, MAPPINGITEM_IGNORE_PROPERTIES);
-        return item;
     }
 
     private void populateMappingTO(final Mapping mapping, final MappingTO mappingTO) {
@@ -308,6 +378,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             provisionTO.setKey(provision.getKey());
             provisionTO.setAnyType(provision.getAnyType().getKey());
             provisionTO.setObjectClass(provision.getObjectClass().getObjectClassValue());
+            provisionTO.getAuxClasses().addAll(CollectionUtils.collect(
+                    provision.getAuxClasses(), EntityUtils.<String, AnyTypeClass>keyTransformer()));
             provisionTO.setSyncToken(provision.getSerializedSyncToken());
 
             if (provision.getMapping() != null) {

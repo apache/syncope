@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.resources;
 
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.wicket.extensions.markup.html.captcha.CaptchaImageResource;
 import org.apache.wicket.request.cycle.RequestCycle;
@@ -31,26 +32,14 @@ public class CaptchaResource extends CaptchaImageResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(CaptchaResource.class);
 
-    public static int randomInt(final int min, final int max) {
-        return (int) (Math.random() * (max - min) + min);
-    }
-
-    public static String randomString(final int min, final int max) {
-        int num = randomInt(min, max);
-        byte[] b = new byte[num];
-        for (int i = 0; i < num; i++) {
-            b[i] = (byte) randomInt('a', 'z');
-        }
-        return new String(b);
-    }
-
     @Override
     protected byte[] render() {
-        LOG.info("Generate captcha");
-        final String captcha = randomString(6, 8);
-        HttpServletRequest httpRequest = ((HttpServletRequest) RequestCycle.get().getRequest().getContainerRequest());
+        LOG.debug("Generate captcha");
+
+        String captcha = RandomStringUtils.randomAlphabetic(6);
+        HttpServletRequest request = ((HttpServletRequest) RequestCycle.get().getRequest().getContainerRequest());
         // store the captcha in the current session
-        httpRequest.getSession().setAttribute(SyncopeEnduserConstants.CAPTCHA_SESSION_KEY, captcha);
+        request.getSession().setAttribute(SyncopeEnduserConstants.CAPTCHA_SESSION_KEY, captcha);
 
         getChallengeIdModel().setObject(captcha);
         return super.render();

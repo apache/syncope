@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity.policy;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.policy.PushPolicySpec;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
@@ -36,11 +35,6 @@ public class JPAPushPolicy extends AbstractPolicy implements PushPolicy {
 
     @Lob
     private String specification;
-
-    public JPAPushPolicy() {
-        super();
-        this.type = PolicyType.PUSH;
-    }
 
     @Override
     public PushPolicySpec getSpecification() {

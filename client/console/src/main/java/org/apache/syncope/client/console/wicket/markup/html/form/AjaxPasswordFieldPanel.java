@@ -19,8 +19,8 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -41,7 +41,7 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
         add(field.setLabel(new ResourceModel(name, name)).setRequired(false).setOutputMarkupId(true));
 
         if (enableOnChange && !isReadOnly()) {
-            field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 

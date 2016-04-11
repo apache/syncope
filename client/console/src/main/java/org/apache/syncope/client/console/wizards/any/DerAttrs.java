@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
@@ -58,12 +59,15 @@ public class DerAttrs extends AbstractAttrs {
 
             @Override
             protected List<AttrTO> load() {
-                final List<String> classes = CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
+                List<String> anyTypeClasses = CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
                         EntityTOUtils.<String, AnyTypeClassTO>keyTransformer(),
                         new ArrayList<>(Arrays.asList(anyTypeClass)));
 
-                final List<DerSchemaTO> derSchemas =
-                        schemaRestClient.getSchemas(SchemaType.DERIVED, classes.toArray(new String[] {}));
+                List<DerSchemaTO> derSchemas = Collections.emptyList();
+                if (!anyTypeClasses.isEmpty()) {
+                    derSchemas =
+                            schemaRestClient.getSchemas(SchemaType.DERIVED, anyTypeClasses.toArray(new String[] {}));
+                }
 
                 final Map<String, AttrTO> currents = entityTO.getDerAttrMap();
                 entityTO.getDerAttrs().clear();
@@ -118,7 +122,7 @@ public class DerAttrs extends AbstractAttrs {
                 if (values == null || values.isEmpty()) {
                     model = new ResourceModel("derived.emptyvalue.message", StringUtils.EMPTY);
                 } else {
-                    model = new Model<String>(values.get(0));
+                    model = new Model<>(values.get(0));
                 }
 
                 final AjaxTextFieldPanel panel = new AjaxTextFieldPanel(

@@ -17,27 +17,14 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
-  <body>
-    <wicket:panel>
-      <div wicket:id="schemas">
-        <div class="form-group">
-          <span wicket:id="panel">
-            [panel for dynamic input type markup]
-          </span>
-          <a class="tooltips" wicket:id="questionMarkJexlHelp" href="#" alt="Click to help" title="Click to help">
-            <img src="img/help.png"/>
-            <span wicket:id="jexlHelp" class="tooltips">
-              <wicket:message key="jexl_info"/>
-              <ul>
-                <li><wicket:message key="jexl_ex1"/></li>
-                <li><wicket:message key="jexl_ex2"/></li>
-              </ul>
-              <a href="#" wicket:id="jexlLink" target="_blank"><wicket:message key="jexl_syntax_url"/></a>
-            </span>
-          </a>
-        </div>
+  <wicket:panel>
+    <div id="emptyPlaceholder"/>
+    <div wicket:id="schemas">
+      <div class="form-group">
+        <span wicket:id="panel">
+          [panel for dynamic input type markup]
+        </span>
       </div>
-    </wicket:panel>
-  </body>
+    </div>
+  </wicket:panel>
 </html>

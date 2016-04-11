@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Policy;
@@ -28,7 +27,7 @@ public interface PolicyDAO extends DAO<Policy, Long> {
 
     <T extends Policy> T find(Long key);
 
-    <T extends Policy> List<T> find(PolicyType type);
+    <T extends Policy> List<T> find(Class<T> reference);
 
     List<AccountPolicy> findByResource(ExternalResource resource);
 

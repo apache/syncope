@@ -38,7 +38,7 @@ public class PushTasks extends AbstractTasks {
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new PushTaskSearchResultPanel(baseModal, mlp, resource, pageReference) {
+        mlp.setFirstLevel(new PushTaskDirectoryPanel(baseModal, mlp, resource, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 

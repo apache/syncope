@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.Realm;
 import org.apache.syncope.client.console.panels.RealmModalPanel;
 import org.apache.syncope.client.console.panels.RealmChoicePanel;
-import org.apache.syncope.client.console.panels.RealmChoicePanel.ChoosenRealm;
+import org.apache.syncope.client.console.panels.RealmChoicePanel.ChosenRealm;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -36,6 +37,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Realms extends BasePage {
@@ -66,6 +68,7 @@ public class Realms extends BasePage {
         body.add(content);
 
         modal = new BaseModal<>("modal");
+        modal.size(Modal.Size.Large);
         content.add(modal);
 
         modal.setWindowClosedCallback(new WindowClosedCallback() {
@@ -75,6 +78,7 @@ public class Realms extends BasePage {
             @Override
             public void onClose(final AjaxRequestTarget target) {
                 target.add(realmChoicePanel.reloadRealmTree(target));
+                target.add(content);
                 modal.show(false);
             }
         });
@@ -86,9 +90,9 @@ public class Realms extends BasePage {
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
 
-        if (event.getPayload() instanceof ChoosenRealm) {
+        if (event.getPayload() instanceof ChosenRealm) {
             @SuppressWarnings("unchecked")
-            final ChoosenRealm<RealmTO> choosenRealm = ChoosenRealm.class.cast(event.getPayload());
+            final ChosenRealm<RealmTO> choosenRealm = ChosenRealm.class.cast(event.getPayload());
             updateRealmContent(choosenRealm.getObj());
             choosenRealm.getTarget().add(content);
         }
@@ -104,13 +108,12 @@ public class Realms extends BasePage {
 
             @Override
             protected void onClickCreate(final AjaxRequestTarget target) {
-                modal.header(new ResourceModel("createRealm"));
+                modal.header(new ResourceModel("newRealm"));
 
-                final RealmTO newRealmTO = new RealmTO();
-
+                RealmTO newRealmTO = new RealmTO();
                 modal.setFormModel(newRealmTO);
 
-                final RealmModalPanel panel = new RealmModalPanel(
+                RealmModalPanel panel = new RealmModalPanel(
                         modal,
                         Realms.this.getPageReference(),
                         newRealmTO,
@@ -125,11 +128,11 @@ public class Realms extends BasePage {
 
             @Override
             protected void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO) {
-                modal.header(Model.of(realmChoicePanel.getCurrentRealm().getName()));
+                modal.header(new StringResourceModel("editRealm", Model.of(realmTO)));
 
                 modal.setFormModel(realmTO);
 
-                final RealmModalPanel panel = new RealmModalPanel(
+                RealmModalPanel panel = new RealmModalPanel(
                         modal,
                         Realms.this.getPageReference(),
                         realmTO,
@@ -151,10 +154,10 @@ public class Realms extends BasePage {
                     realmRestClient.delete(realmTO.getFullPath());
                     RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
                     target.add(realmChoicePanel.reloadRealmTree(target));
-                    
+
                     info(getString(Constants.OPERATION_SUCCEEDED));
                     updateRealmContent(parent);
-                    target.add(content);                  
+                    target.add(content);
                 } catch (Exception e) {
                     LOG.error("While deleting realm", e);
                     // Escape line breaks

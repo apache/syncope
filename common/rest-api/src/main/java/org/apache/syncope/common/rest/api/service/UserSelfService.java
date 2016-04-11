@@ -47,7 +47,7 @@ public interface UserSelfService extends JAXRSService {
      * {@link org.apache.syncope.common.rest.api.RESTHeaders#OWNED_ENTITLEMENTS}
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response read();
 
     /**
@@ -59,8 +59,8 @@ public interface UserSelfService extends JAXRSService {
      * itself - ProvisioningResult as Entity
      */
     @POST
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull UserTO userTO,
             @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
 
@@ -72,8 +72,8 @@ public interface UserSelfService extends JAXRSService {
      */
     @PATCH
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull UserPatch patch);
 
     /**
@@ -84,8 +84,8 @@ public interface UserSelfService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(@NotNull UserTO user);
 
     /**
@@ -94,7 +94,7 @@ public interface UserSelfService extends JAXRSService {
      * @return Response object featuring the deleted user - ProvisioningResult as Entity
      */
     @DELETE
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response delete();
 
     /**
@@ -106,7 +106,7 @@ public interface UserSelfService extends JAXRSService {
      */
     @POST
     @Path("changePassword")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response changePassword(@NotNull @QueryParam("password") String password);
 
     /**

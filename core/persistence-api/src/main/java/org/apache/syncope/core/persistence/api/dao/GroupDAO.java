@@ -63,7 +63,7 @@ public interface GroupDAO extends AnyDAO<Group> {
      */
     Map<Long, PropagationByResource> findUsersWithTransitiveResources(Long groupKey);
 
-    List<TypeExtension> findTypeExtensionByAnyTypeClass(AnyTypeClass anyTypeClass);
+    List<TypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
 
     void refreshDynMemberships(AnyObject anyObject);
 

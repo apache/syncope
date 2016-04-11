@@ -63,7 +63,7 @@ public interface TaskService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     <T extends AbstractTaskTO> T read(
             @NotNull @PathParam("key") Long key,
             @QueryParam(JAXRSService.PARAM_DETAILS) @DefaultValue("true") boolean details);
@@ -76,7 +76,7 @@ public interface TaskService extends JAXRSService {
      * @return paged list of existing tasks matching the given query
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     <T extends AbstractTaskTO> PagedResult<T> list(@BeanParam TaskQuery query);
 
     /**
@@ -86,7 +86,7 @@ public interface TaskService extends JAXRSService {
      * @return Response object featuring Location header of created task
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull SchedTaskTO taskTO);
 
     /**
@@ -96,7 +96,7 @@ public interface TaskService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull AbstractTaskTO taskTO);
 
     /**
@@ -116,7 +116,7 @@ public interface TaskService extends JAXRSService {
      */
     @GET
     @Path("{key}/executions")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     PagedResult<ExecTO> listExecutions(@BeanParam TaskExecQuery query);
 
     /**
@@ -127,7 +127,7 @@ public interface TaskService extends JAXRSService {
      */
     @GET
     @Path("executions/recent")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<ExecTO> listRecentExecutions(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
 
     /**
@@ -158,7 +158,7 @@ public interface TaskService extends JAXRSService {
      */
     @POST
     @Path("{key}/execute")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     ExecTO execute(@BeanParam ExecuteQuery query);
 
     /**
@@ -169,8 +169,8 @@ public interface TaskService extends JAXRSService {
      */
     @POST
     @Path("bulk")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     BulkActionResult bulk(@NotNull BulkAction bulkAction);
 
     /**
@@ -180,7 +180,7 @@ public interface TaskService extends JAXRSService {
      */
     @GET
     @Path("jobs")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<JobTO> listJobs();
 
     /**

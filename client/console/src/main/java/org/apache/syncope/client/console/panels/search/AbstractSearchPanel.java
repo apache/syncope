@@ -166,7 +166,7 @@ public abstract class AbstractSearchPanel extends Panel {
             @Override
             protected List<String> load() {
                 return CollectionUtils.collect(
-                        schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeRestClient.get(type).getClasses().
+                        schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeRestClient.read(type).getClasses().
                                 toArray(new String[] {})),
                         EntityTOUtils.<String, AbstractSchemaTO>keyTransformer(),
                         new ArrayList<String>());
@@ -179,7 +179,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return CollectionUtils.collect(resourceRestClient.getAll(),
+                return CollectionUtils.collect(resourceRestClient.list(),
                         EntityTOUtils.<String, ResourceTO>keyTransformer(),
                         new ArrayList<String>());
             }

@@ -455,6 +455,35 @@ public class VirAttrITCase extends AbstractITCase {
 
         try {
             // -------------------------------------------
+            // Create a VirAttrITCase ad-hoc
+            // -------------------------------------------
+            VirSchemaTO rvirtualdata;
+            try {
+                rvirtualdata = schemaService.read(SchemaType.VIRTUAL, "rvirtualdata");
+            } catch (SyncopeClientException e) {
+                LOG.warn("rvirtualdata not found, re-creating", e);
+
+                rvirtualdata = new VirSchemaTO();
+                rvirtualdata.setKey("rvirtualdata");
+                rvirtualdata.setExtAttrName("businessCategory");
+                rvirtualdata.setProvision(20);
+
+                rvirtualdata = createSchema(SchemaType.VIRTUAL, rvirtualdata);
+            }
+            assertNotNull(rvirtualdata);
+
+            if (!"minimal group".equals(rvirtualdata.getAnyTypeClass())) {
+                LOG.warn("rvirtualdata not in minimal group, restoring");
+
+                AnyTypeClassTO minimalGroup = anyTypeClassService.read("minimal group");
+                minimalGroup.getVirSchemas().add(rvirtualdata.getKey());
+                anyTypeClassService.update(minimalGroup);
+
+                rvirtualdata = schemaService.read(SchemaType.VIRTUAL, rvirtualdata.getKey());
+                assertEquals("minimal group", rvirtualdata.getAnyTypeClass());
+            }
+
+            // -------------------------------------------
             // Create a resource ad-hoc
             // -------------------------------------------
             ResourceTO resourceTO = new ResourceTO();
@@ -465,6 +494,7 @@ public class VirAttrITCase extends AbstractITCase {
             ProvisionTO provisionTO = new ProvisionTO();
             provisionTO.setAnyType(AnyTypeKind.USER.name());
             provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+            provisionTO.getAuxClasses().add("minimal group");
             resourceTO.getProvisions().add(provisionTO);
 
             MappingTO mapping = new MappingTO();
@@ -495,34 +525,6 @@ public class VirAttrITCase extends AbstractITCase {
             assertNotNull(getObject(
                     resourceService.create(resourceTO).getLocation(), ResourceService.class, ResourceTO.class));
             // -------------------------------------------
-            // -------------------------------------------
-            // Create a VirAttrITCase ad-hoc
-            // -------------------------------------------
-            VirSchemaTO rvirtualdata;
-            try {
-                rvirtualdata = schemaService.read(SchemaType.VIRTUAL, "rvirtualdata");
-            } catch (SyncopeClientException e) {
-                LOG.warn("rvirtualdata not found, re-creating", e);
-
-                rvirtualdata = new VirSchemaTO();
-                rvirtualdata.setKey("rvirtualdata");
-                rvirtualdata.setExtAttrName("businessCategory");
-                rvirtualdata.setProvision(20);
-
-                rvirtualdata = createSchema(SchemaType.VIRTUAL, rvirtualdata);
-            }
-            assertNotNull(rvirtualdata);
-
-            if (!"minimal group".equals(rvirtualdata.getAnyTypeClass())) {
-                LOG.warn("rvirtualdata not in minimal group, restoring");
-
-                AnyTypeClassTO minimalGroup = anyTypeClassService.read("minimal group");
-                minimalGroup.getVirSchemas().add(rvirtualdata.getKey());
-                anyTypeClassService.update(minimalGroup);
-
-                rvirtualdata = schemaService.read(SchemaType.VIRTUAL, rvirtualdata.getKey());
-                assertEquals("minimal group", rvirtualdata.getAnyTypeClass());
-            }
 
             GroupTO groupTO = new GroupTO();
             groupTO.setName(groupName);

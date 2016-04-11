@@ -20,8 +20,8 @@ package org.apache.syncope.client.cli.commands.configuration;
 
 public abstract class AbstractConfigurationCommand {
 
-    protected final ConfigurationSyncopeOperations configurationSyncopeOperations
-            = new ConfigurationSyncopeOperations();
+    protected final ConfigurationSyncopeOperations configurationSyncopeOperations =
+            new ConfigurationSyncopeOperations();
 
     protected final ConfigurationResultManager configurationResultManager = new ConfigurationResultManager();
 

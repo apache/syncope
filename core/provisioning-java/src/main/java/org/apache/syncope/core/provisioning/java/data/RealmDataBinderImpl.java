@@ -134,24 +134,29 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         realm.setName(realmTO.getName());
         realm.setParent(realmTO.getParent() == 0 ? null : realmDAO.find(realmTO.getParent()));
 
-        if (realmTO.getPasswordPolicy() != null) {
-            Policy policy = policyDAO.find(realmTO.getPasswordPolicy());
-            if (policy instanceof PasswordPolicy) {
-                realm.setPasswordPolicy((PasswordPolicy) policy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + PasswordPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
-        if (realmTO.getAccountPolicy() != null) {
+        if (realmTO.getAccountPolicy() == null) {
+            realm.setAccountPolicy(null);
+        } else {
             Policy policy = policyDAO.find(realmTO.getAccountPolicy());
             if (policy instanceof AccountPolicy) {
                 realm.setAccountPolicy((AccountPolicy) policy);
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
                 sce.getElements().add("Expected " + AccountPolicy.class.getSimpleName()
+                        + ", found " + policy.getClass().getSimpleName());
+                throw sce;
+            }
+        }
+
+        if (realmTO.getPasswordPolicy() == null) {
+            realm.setPasswordPolicy(null);
+        } else {
+            Policy policy = policyDAO.find(realmTO.getPasswordPolicy());
+            if (policy instanceof PasswordPolicy) {
+                realm.setPasswordPolicy((PasswordPolicy) policy);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+                sce.getElements().add("Expected " + PasswordPolicy.class.getSimpleName()
                         + ", found " + policy.getClass().getSimpleName());
                 throw sce;
             }

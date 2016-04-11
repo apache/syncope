@@ -20,8 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.service.PolicyService;
@@ -66,17 +64,5 @@ public class PolicyRestClient extends BaseRestClient {
 
     public void delete(final Long id, final Class<? extends AbstractPolicyTO> policyClass) {
         getService(PolicyService.class).delete(id);
-    }
-
-    public Set<String> getCorrelationRuleClasses() {
-        Set<String> rules = null;
-
-        try {
-            rules = SyncopeConsoleSession.get().getPlatformInfo().getPullCorrelationRules();
-        } catch (Exception e) {
-            LOG.error("While getting all correlation rule classes", e);
-        }
-
-        return rules;
     }
 }

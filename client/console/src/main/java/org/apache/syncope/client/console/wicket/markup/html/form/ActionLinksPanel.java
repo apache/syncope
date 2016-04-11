@@ -56,15 +56,14 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelManageUsers", "emptyFragment", this));
         super.add(new Fragment("panelManageGroups", "emptyFragment", this));
         super.add(new Fragment("panelMapping", "emptyFragment", this));
-        super.add(new Fragment("panelAccountLink", "emptyFragment", this));
         super.add(new Fragment("panelMustChangePassword", "emptyFragment", this));
         super.add(new Fragment("panelResetTime", "emptyFragment", this));
         super.add(new Fragment("panelClone", "emptyFragment", this));
         super.add(new Fragment("panelCreate", "emptyFragment", this));
         super.add(new Fragment("panelEdit", "emptyFragment", this));
+        super.add(new Fragment("panelHtmlEdit", "emptyFragment", this));
+        super.add(new Fragment("panelTextEdit", "emptyFragment", this));
         super.add(new Fragment("panelReset", "emptyFragment", this));
-        super.add(new Fragment("panelUserTemplate", "emptyFragment", this));
-        super.add(new Fragment("panelGroupTemplate", "emptyFragment", this));
         super.add(new Fragment("panelEnable", "emptyFragment", this));
         super.add(new Fragment("panelNotFound", "emptyFragment", this));
         super.add(new Fragment("panelView", "emptyFragment", this));
@@ -85,6 +84,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelAssign", "emptyFragment", this));
         super.add(new Fragment("panelDeprovision", "emptyFragment", this));
         super.add(new Fragment("panelProvision", "emptyFragment", this));
+        super.add(new Fragment("panelPropagationTasks", "emptyFragment", this));
         super.add(new Fragment("panelZoomIn", "emptyFragment", this));
         super.add(new Fragment("panelZoomOut", "emptyFragment", this));
     }
@@ -179,25 +179,6 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment = new Fragment("panelMapping", "fragmentMapping", this);
 
                 fragment.addOrReplace(new IndicatingAjaxLink<Void>("mappingLink") {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        link.onClick(target, model.getObject());
-                    }
-
-                    @Override
-                    public String getAjaxIndicatorMarkupId() {
-                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
-                    }
-                }.setVisible(link.isEnabled(model.getObject())));
-                break;
-
-            case ACCOUNT_LINK:
-                fragment = new Fragment("panelAccountLink", "fragmentAccountLink", this);
-
-                fragment.addOrReplace(new IndicatingAjaxLink<Void>("accountLinkLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -327,10 +308,10 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 }.setVisible(link.isEnabled(model.getObject())));
                 break;
 
-            case USER_TEMPLATE:
-                fragment = new Fragment("panelUserTemplate", "fragmentUserTemplate", this);
+            case HTML_EDIT:
+                fragment = new Fragment("panelHtmlEdit", "fragmentHtmlEdit", this);
 
-                fragment.addOrReplace(new IndicatingAjaxLink<Void>("userTemplateLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("htmlEditLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -346,10 +327,10 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 }.setVisible(link.isEnabled(model.getObject())));
                 break;
 
-            case GROUP_TEMPLATE:
-                fragment = new Fragment("panelGroupTemplate", "fragmentGroupTemplate", this);
+            case TEXT_EDIT:
+                fragment = new Fragment("panelTextEdit", "fragmentTextEdit", this);
 
-                fragment.addOrReplace(new IndicatingAjaxLink<Void>("groupTemplateLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("textEditLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -719,7 +700,26 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
                 fragment.addOrReplace(new IndicatingAjaxLink<Void>("provisionLink") {
 
-                    private static final long serialVersionUID = -6957616042924610305L;
+                    private static final long serialVersionUID = -1876519166660008562L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case PROPAGATION_TASKS:
+                fragment = new Fragment("panelPropagationTasks", "fragmentPropagationTasks", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("propagationTasksLink") {
+
+                    private static final long serialVersionUID = -1876519166660008562L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -808,10 +808,6 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 super.addOrReplace(new Fragment("panelMapping", "emptyFragment", this));
                 break;
 
-            case ACCOUNT_LINK:
-                super.addOrReplace(new Fragment("panelAccountLink", "emptyFragment", this));
-                break;
-
             case MUSTCHANGEPASSWORD:
                 super.addOrReplace(new Fragment("panelMustChangePassword", "emptyFragment", this));
                 break;
@@ -832,8 +828,12 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 super.addOrReplace(new Fragment("panelEdit", "emptyFragment", this));
                 break;
 
-            case USER_TEMPLATE:
-                super.addOrReplace(new Fragment("panelUserTemplate", "emptyFragment", this));
+            case HTML_EDIT:
+                super.addOrReplace(new Fragment("panelHtmlEdit", "emptyFragment", this));
+                break;
+
+            case TEXT_EDIT:
+                super.addOrReplace(new Fragment("panelTestEdit", "emptyFragment", this));
                 break;
 
             case VIEW:
@@ -907,12 +907,15 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
             case PROVISION:
                 super.addOrReplace(new Fragment("panelProvision", "emptyFragment", this));
                 break;
+
             case ZOOM_IN:
                 super.addOrReplace(new Fragment("panelZoomIn", "emptyFragment", this));
                 break;
+
             case ZOOM_OUT:
                 super.addOrReplace(new Fragment("panelZoomOut", "emptyFragment", this));
                 break;
+
             default:
             // do nothing
         }

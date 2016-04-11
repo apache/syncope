@@ -161,6 +161,11 @@ div.wicket-modal div.w_content_3 {
   position: relative !important;
 }
 
+.scrollable-tab-content {
+  overflow-y: auto;
+  max-height: 400px;
+}
+
 a.help {
   position: relative;
   display: inline;
@@ -261,6 +266,11 @@ a.help span a {
   right: 15px;
 }
 
+.wizard-step-title {
+  font-weight: bold; 
+  font-size:medium;
+}
+
 div.realms div.summarize {
   margin: 50px 100px;
 }
@@ -283,7 +293,11 @@ span.overridable div.checkbox {
   padding: 0px;
 }
 
-div#outer.modal-lg {
+span.overridable div.checkbox label div div.toggle-group label {
+  padding-left: 7px;
+}
+
+div#outer.modal-lg, div#utilityModal.modal-lg, section#notifications .modal-lg {
   width: 1200px;
 }
 
@@ -489,6 +503,22 @@ div.listview-actions a {
 .btn-circle i, .circular-actions a i {
   margin: 0px;
 }
+
+.multipanel-btn-minus {
+  padding: 0px 0px 0px 6px;
+  border: 0 none !important;
+}
+
+.multipanel-btn-plus {
+  padding: 15px 0px 8px 6px;
+  border: 0 none !important;
+}
+
+.multipanel-box {
+  padding: 5px;
+  display: inline-table;
+  margin: 0px;
+}
 /**
 END - Actions
 */
@@ -643,3 +673,36 @@ div#parametersForm{
 /**
 END - Parameters Details
 */
+
+li.todoitem a {
+  cursor: default;
+}
+
+#popover:hover {
+  cursor: pointer;
+}
+
+.form-palette {
+  display: inline-block;
+  width: 119%;
+}
+
+.form-group-inline {
+  display: inline-table;
+  width: 100%;
+}
+
+div#userFilter #title{
+  margin: 10px 0 0 8px;
+  font-weight: bold;
+}
+
+div#userFilter  #warning{
+  margin: 1px 0 5px 8px;
+  color: #e00000;
+  font-size: 9px;
+}
+
+div#userFilter  #check {
+  margin: 1px 0 5px 8px;
+}

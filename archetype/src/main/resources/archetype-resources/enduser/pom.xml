@@ -49,7 +49,7 @@ under the License.
 
     <dependency>
       <groupId>${groupId}</groupId>
-      <artifactId>common</artifactId>
+      <artifactId>syncope-common</artifactId>
       <version>${project.version}</version>
     </dependency>  
     
@@ -217,6 +217,12 @@ under the License.
                   <location>../core/target/syncope</location>
                   <properties>
                     <context>syncope</context>
+                  </properties>
+                </deployable>
+                <deployable>
+                  <location>../console/target/syncope-console</location>
+                  <properties>
+                    <context>syncope-console</context>
                   </properties>
                 </deployable>
                 <deployable>

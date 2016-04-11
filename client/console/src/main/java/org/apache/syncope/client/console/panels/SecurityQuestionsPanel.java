@@ -30,12 +30,11 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel.SecurityQuestionsProvider;
 import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -54,7 +53,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
+public class SecurityQuestionsPanel extends DirectoryPanel<
         SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionsProvider, SecurityQuestionRestClient> {
 
     private static final long serialVersionUID = 3323019773236588850L;
@@ -70,13 +69,13 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
             }
         }.disableCheckBoxes());
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<SecurityQuestionTO>(
-                BaseModal.CONTENT_ID, new SecurityQuestionTO(), pageRef) {
+        this.addNewItemPanelBuilder(
+                new AbstractModalPanelBuilder<SecurityQuestionTO>(new SecurityQuestionTO(), pageRef) {
 
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<SecurityQuestionTO> build(final int index, final boolean edit) {
+            public ModalPanel<SecurityQuestionTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 final SecurityQuestionTO modelObject = newModelObject();
                 return new SecurityQuestionsModalPanel(modal, modelObject, pageRef);
             }
@@ -146,7 +145,7 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
             }
         }
 
-        columns.add(new ActionColumn<SecurityQuestionTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<SecurityQuestionTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -8089193528195091515L;
 
@@ -210,7 +209,7 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
         return columns;
     }
 
-    protected final class SecurityQuestionsProvider extends SearchableDataProvider<SecurityQuestionTO> {
+    protected final class SecurityQuestionsProvider extends DirectoryDataProvider<SecurityQuestionTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -223,8 +222,8 @@ public class SecurityQuestionsPanel extends AbstractSearchResultPanel<
 
         @Override
         public Iterator<SecurityQuestionTO> iterator(final long first, final long count) {
-            final List<SecurityQuestionTO> list =
-                    SyncopeConsoleSession.get().getService(SecurityQuestionService.class).list();
+            final List<SecurityQuestionTO> list = SyncopeConsoleSession.get().getService(SecurityQuestionService.class).
+                    list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }

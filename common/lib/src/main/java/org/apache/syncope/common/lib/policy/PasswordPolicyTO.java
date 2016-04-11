@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.types.PolicyType;
 
 @XmlRootElement(name = "passwordPolicy")
 @XmlType
@@ -38,10 +37,6 @@ public class PasswordPolicyTO extends AbstractPolicyTO {
     private int historyLength;
 
     private final List<AbstractPasswordRuleConf> ruleConfs = new ArrayList<>();
-
-    public PasswordPolicyTO() {
-        super(PolicyType.PASSWORD);
-    }
 
     public boolean isAllowNullPassword() {
         return allowNullPassword;

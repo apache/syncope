@@ -20,8 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -31,6 +29,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
@@ -45,37 +44,26 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     private static final long serialVersionUID = 6284485820911028843L;
 
-    public Set<String> getJobClasses() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getTaskJobs();
-    }
-
-    public Set<String> getPullActionsClasses() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getPullActions();
-    }
-
-    public Set<String> getPushActionsClasses() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getPushActions();
-    }
-
-    /**
-     * Return the number of tasks.
-     *
-     * @param kind of task (propagation, sched, sync).
-     * @return number of stored tasks.
-     */
     public int count(final TaskType kind) {
-        return getService(TaskService.class).
-                list(new TaskQuery.Builder().type(kind).page(1).size(1).build()).getTotalCount();
+        return getService(TaskService.class).list(
+                new TaskQuery.Builder().type(kind).page(1).size(1).build()).getTotalCount();
     }
 
     public int count(final String resource, final TaskType kind) {
-        return getService(TaskService.class).
-                list(new TaskQuery.Builder().resource(resource).type(kind).page(1).size(1).build()).getTotalCount();
+        return getService(TaskService.class).list(
+                new TaskQuery.Builder().resource(resource).type(kind).page(1).size(1).
+                build()).getTotalCount();
     }
 
-    public int countExecutions(final Long taskId) {
+    public int count(final AnyTypeKind anyTypeKind, final Long anyTypeKey, final TaskType kind) {
+        return getService(TaskService.class).list(
+                new TaskQuery.Builder().anyTypeKind(anyTypeKind).anyTypeKey(anyTypeKey).type(kind).page(1).size(1).
+                build()).getTotalCount();
+    }
+
+    public int countExecutions(final Long taskKey) {
         return getService(TaskService.class).
-                listExecutions(new TaskExecQuery.Builder().key(taskId).page(1).size(1).build()).getTotalCount();
+                listExecutions(new TaskExecQuery.Builder().key(taskKey).page(1).size(1).build()).getTotalCount();
     }
 
     public List<PropagationTaskTO> listPropagationTasks(
@@ -84,6 +72,18 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return getService(TaskService.class).
                 <PropagationTaskTO>list(new TaskQuery.Builder().type(TaskType.PROPAGATION).
                         resource(resource).
+                        page(page).size(size).
+                        orderBy(toOrderBy(sort)).build()).
+                getResult();
+    }
+
+    public List<PropagationTaskTO> listPropagationTasks(
+            final AnyTypeKind anyTypeKind, final Long anyTypeKey,
+            final int page, final int size, final SortParam<String> sort) {
+
+        return getService(TaskService.class).
+                <PropagationTaskTO>list(new TaskQuery.Builder().type(TaskType.PROPAGATION).
+                        anyTypeKind(anyTypeKind).anyTypeKey(anyTypeKey).
                         page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
                 getResult();
@@ -167,7 +167,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     @Override
     public List<ExecTO> listRecentExecutions(final int max) {
-        return SyncopeConsoleSession.get().getService(TaskService.class).listRecentExecutions(max);
+        return getService(TaskService.class).listRecentExecutions(max);
     }
 
     public void create(final SchedTaskTO taskTO) {

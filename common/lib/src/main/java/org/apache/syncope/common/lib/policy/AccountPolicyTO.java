@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.types.PolicyType;
 
 @XmlRootElement(name = "accountPolicy")
 @XmlType
@@ -40,10 +39,6 @@ public class AccountPolicyTO extends AbstractPolicyTO {
     private final List<AbstractAccountRuleConf> ruleConfs = new ArrayList<>();
 
     private final List<String> resources = new ArrayList<>();
-
-    public AccountPolicyTO() {
-        super(PolicyType.ACCOUNT);
-    }
 
     public boolean isPropagateSuspension() {
         return propagateSuspension;

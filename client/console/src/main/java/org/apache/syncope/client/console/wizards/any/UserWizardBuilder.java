@@ -45,17 +45,15 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
     /**
      * Construct.
      *
-     * @param id The component id
      * @param userTO any
      * @param anyTypeClasses any type classes
      * @param pageRef Caller page reference.
      */
     public UserWizardBuilder(
-            final String id,
             final UserTO userTO,
             final List<String> anyTypeClasses,
             final PageReference pageRef) {
-        super(id, userTO, anyTypeClasses, pageRef);
+        super(userTO, anyTypeClasses, pageRef);
         statusModel = new ListModel<>(new ArrayList<StatusBean>());
     }
 

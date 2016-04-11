@@ -75,7 +75,7 @@ public final class UserSearchPanel extends AnyObjectSearchPanel {
 
     @Override
     protected List<SearchClause.Type> getAvailableTypes() {
-        List<SearchClause.Type> result = new ArrayList<SearchClause.Type>();
+        List<SearchClause.Type> result = new ArrayList<>();
         result.add(SearchClause.Type.ATTRIBUTE);
         result.add(SearchClause.Type.ROLE_MEMBERSHIP);
         result.add(SearchClause.Type.GROUP_MEMBERSHIP);

@@ -26,9 +26,9 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel.SecondLevel;
@@ -53,7 +53,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public abstract class TaskExecutions
-        extends AbstractSearchResultPanel<ExecTO, ExecTO, TaskExecProvider, TaskRestClient> {
+        extends DirectoryPanel<ExecTO, ExecTO, TaskExecProvider, TaskRestClient> {
 
     private static final long serialVersionUID = 2039393934721149162L;
 
@@ -98,7 +98,7 @@ public abstract class TaskExecutions
 
         columns.add(new PropertyColumn<ExecTO, String>(new ResourceModel("status"), "status", "status"));
 
-        columns.add(new ActionColumn<ExecTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<ExecTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
@@ -178,7 +178,7 @@ public abstract class TaskExecutions
         return bulkActions;
     }
 
-    protected class TaskExecProvider extends SearchableDataProvider<ExecTO> {
+    protected class TaskExecProvider extends DirectoryDataProvider<ExecTO> {
 
         private static final long serialVersionUID = 8943636537120648961L;
 

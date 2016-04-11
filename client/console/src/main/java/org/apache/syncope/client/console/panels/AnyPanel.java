@@ -25,7 +25,6 @@ import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wizards.any.AnyObjectWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.GroupWizardBuilder;
@@ -75,7 +74,7 @@ public class AnyPanel extends Panel {
 
     private AbstractSearchPanel searchPanel;
 
-    private final Panel searchResultPanel;
+    private final Panel directoryPanel;
 
     @SuppressWarnings({ "unchecked", "unchecked" })
     public AnyPanel(
@@ -128,8 +127,8 @@ public class AnyPanel extends Panel {
         accordion.setOutputMarkupId(true);
         add(accordion);
 
-        searchResultPanel = getSearchResultPanel("searchResult");
-        add(searchResultPanel);
+        directoryPanel = getDirectoryPanel("searchResult");
+        add(directoryPanel);
         // ------------------------
     }
 
@@ -140,23 +139,23 @@ public class AnyPanel extends Panel {
 
             switch (anyTypeTO.getKind()) {
                 case USER:
-                    UserSearchResultPanel.class.cast(AnyPanel.this.searchResultPanel).search(SearchUtils.buildFIQL(
+                    UserDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(SearchUtils.buildFIQL(
                             AnyPanel.this.searchPanel.getModel().getObject(),
                             SyncopeClient.getUserSearchConditionBuilder()), target);
                     break;
                 case GROUP:
-                    GroupSearchResultPanel.class.cast(AnyPanel.this.searchResultPanel).search(SearchUtils.buildFIQL(
+                    GroupDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(SearchUtils.buildFIQL(
                             AnyPanel.this.searchPanel.getModel().getObject(),
                             SyncopeClient.getGroupSearchConditionBuilder()), target);
                     break;
                 case ANY_OBJECT:
-                    AnyObjectSearchResultPanel.class.cast(AnyPanel.this.searchResultPanel).search(SearchUtils.buildFIQL(
+                    AnyObjectDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(SearchUtils.buildFIQL(
                             AnyPanel.this.searchPanel.getModel().getObject(),
                             SyncopeClient.getAnyObjectSearchConditionBuilder(anyTypeTO.getKey())), target);
                     break;
                 default:
             }
-            target.add(searchResultPanel);
+            target.add(directoryPanel);
         } else {
             super.onEvent(event);
         }
@@ -178,8 +177,8 @@ public class AnyPanel extends Panel {
             case ANY_OBJECT:
                 panel = new AnyObjectSearchPanel.Builder(anyTypeTO.getKey(),
                         new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build(id);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER,
-                        String.format("%s_%s", anyTypeTO.getKey(), AnyEntitlement.LIST));
+                MetaDataRoleAuthorizationStrategy.authorize(
+                        panel, WebPage.RENDER, AnyEntitlement.LIST.getFor(anyTypeTO.getKey()));
                 break;
             default:
                 panel = null;
@@ -187,7 +186,7 @@ public class AnyPanel extends Panel {
         return panel;
     }
 
-    private Panel getSearchResultPanel(final String id) {
+    private Panel getDirectoryPanel(final String id) {
         final Panel panel;
         final String fiql;
         switch (anyTypeTO.getKind()) {
@@ -195,24 +194,24 @@ public class AnyPanel extends Panel {
                 fiql = SyncopeClient.getUserSearchConditionBuilder().is("key").greaterThan(0).query();
                 final UserTO userTO = new UserTO();
                 userTO.setRealm(realmTO.getFullPath());
-                panel = new UserSearchResultPanel.Builder(
+                panel = new UserDirectoryPanel.Builder(
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).
                         setFiql(fiql).addNewItemPanelBuilder(new UserWizardBuilder(
-                        BaseModal.CONTENT_ID, userTO, anyTypeTO.getClasses(), pageRef)).build(id);
+                        userTO, anyTypeTO.getClasses(), pageRef)).build(id);
                 MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER, StandardEntitlement.USER_LIST);
                 break;
             case GROUP:
                 fiql = SyncopeClient.getGroupSearchConditionBuilder().is("key").greaterThan(0).query();
                 final GroupTO groupTO = new GroupTO();
                 groupTO.setRealm(realmTO.getFullPath());
-                panel = new GroupSearchResultPanel.Builder(
+                panel = new GroupDirectoryPanel.Builder(
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).
                         setFiql(fiql).addNewItemPanelBuilder(new GroupWizardBuilder(
-                        BaseModal.CONTENT_ID, groupTO, anyTypeTO.getClasses(), pageRef)).build(id);
+                        groupTO, anyTypeTO.getClasses(), pageRef)).build(id);
                 // list of group is available to all authenticated users
                 break;
             case ANY_OBJECT:
@@ -221,14 +220,14 @@ public class AnyPanel extends Panel {
                 final AnyObjectTO anyObjectTO = new AnyObjectTO();
                 anyObjectTO.setRealm(realmTO.getFullPath());
                 anyObjectTO.setType(anyTypeTO.getKey());
-                panel = new AnyObjectSearchResultPanel.Builder(
+                panel = new AnyObjectDirectoryPanel.Builder(
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).
                         setFiql(fiql).addNewItemPanelBuilder(new AnyObjectWizardBuilder(
-                        BaseModal.CONTENT_ID, anyObjectTO, anyTypeTO.getClasses(), pageRef)).build(id);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER,
-                        String.format("%s_%s", anyObjectTO.getType(), AnyEntitlement.LIST));
+                        anyObjectTO, anyTypeTO.getClasses(), pageRef)).build(id);
+                MetaDataRoleAuthorizationStrategy.authorize(
+                        panel, WebPage.RENDER, AnyEntitlement.LIST.getFor(anyTypeTO.getKey()));
                 break;
             default:
                 panel = new LabelPanel(id, null);

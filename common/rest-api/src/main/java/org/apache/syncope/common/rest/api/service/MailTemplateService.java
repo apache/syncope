@@ -46,7 +46,7 @@ public interface MailTemplateService extends JAXRSService {
      * @return list of all mail templates.
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<MailTemplateTO> list();
 
     /**
@@ -56,7 +56,7 @@ public interface MailTemplateService extends JAXRSService {
      * @return Response object featuring Location header of created mail template
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull MailTemplateTO mailTemplateTO);
 
     /**
@@ -67,7 +67,7 @@ public interface MailTemplateService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     MailTemplateTO read(@NotNull @PathParam("key") String key);
 
     /**

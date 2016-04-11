@@ -33,6 +33,11 @@ under the License.
     <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css"/>
 
     <script type="text/javascript" src="webjars/bootbox/${bootbox.version}/bootbox.js"></script>
+    <script type="text/javascript" src="webjars/jQuery-slimScroll/${jquery-slimscroll.version}/jquery.slimscroll.min.js"></script>
+    <script type="text/javascript">
+      // global variable for IndicatingOnConfirmAjaxLink
+      var proceed = false;
+    </script>
   </head>
   <body class="skin-green-light hold-transition sidebar-mini" wicket:id="body">
 
@@ -52,16 +57,8 @@ under the License.
           <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
 
-              <li class="dropdown tasks-menu" wicket:id="todosContainer">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                  <i class="fa fa-flag-o"></i>
-                  <span class="label label-danger" wicket:id="todos"></span>
-                </a>
-                <ul class="dropdown-menu">
-                  <li class="footer">
-                    <a href="#">View all TODOs</a>
-                  </li>
-                </ul>
+              <li class="dropdown tasks-menu">
+                <span wicket:id="approvalsWidget"/>
               </li>
 
               <li class="dropdown user user-menu">

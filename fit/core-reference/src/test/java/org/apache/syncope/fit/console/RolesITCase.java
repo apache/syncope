@@ -29,8 +29,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import static org.junit.Assert.assertNull;
-
 @FixMethodOrder(MethodSorters.JVM)
 public class RolesITCase extends AbstractConsoleITCase {
 

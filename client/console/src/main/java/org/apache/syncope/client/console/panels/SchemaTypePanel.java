@@ -32,13 +32,12 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -62,7 +61,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, SchemaProvider> {
+public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, SchemaProvider> {
 
     private static final long serialVersionUID = 3905038169553185171L;
 
@@ -89,13 +88,14 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
         this.schemaType = schemaType;
 
         try {
-            this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AbstractSchemaTO>(
-                    BaseModal.CONTENT_ID, schemaType.getToClass().newInstance(), pageRef) {
+            this.addNewItemPanelBuilder(
+                    new AbstractModalPanelBuilder<AbstractSchemaTO>(schemaType.getToClass().newInstance(), pageRef) {
 
                 private static final long serialVersionUID = -6388405037134399367L;
 
                 @Override
-                public ModalPanel<AbstractSchemaTO> build(final int index, final boolean edit) {
+                public ModalPanel<AbstractSchemaTO> build(
+                        final String id, final int index, final AjaxWizard.Mode mode) {
                     final AbstractSchemaTO modelObject = newModelObject();
                     return new SchemaModalPanel(modal, modelObject, pageRef) {
 
@@ -148,7 +148,6 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
 
     @Override
     protected List<IColumn<AbstractSchemaTO, String>> getColumns() {
-
         final List<IColumn<AbstractSchemaTO, String>> columns = new ArrayList<>();
 
         for (final String field : COL_NAMES.get(schemaType)) {
@@ -179,7 +178,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
             }
         }
 
-        columns.add(new ActionColumn<AbstractSchemaTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AbstractSchemaTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 906457126287899096L;
 
@@ -223,7 +222,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(StringUtils.isBlank(e.getMessage()) 
+                                    error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
@@ -255,7 +254,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
         return columns;
     }
 
-    protected final class SchemaProvider extends SearchableDataProvider<AbstractSchemaTO> {
+    protected final class SchemaProvider extends DirectoryDataProvider<AbstractSchemaTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 

@@ -298,9 +298,13 @@ public class PullUtils {
             pullRule = getCorrelationRule(provision, pullPolicySpec);
         }
 
-        return pullRule == null
-                ? findByConnObjectKeyItem(uid, provision, anyUtils)
-                : findByCorrelationRule(connObj, pullRule, anyUtils.getAnyTypeKind());
+        try {
+            return pullRule == null
+                    ? findByConnObjectKeyItem(uid, provision, anyUtils)
+                    : findByCorrelationRule(connObj, pullRule, anyUtils.getAnyTypeKind());
+        } catch (RuntimeException e) {
+            return Collections.<Long>emptyList();
+        }
     }
 
     public Boolean readEnabled(final ConnectorObject connectorObject, final ProvisioningTask task) {

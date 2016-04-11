@@ -18,24 +18,23 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -56,8 +55,6 @@ import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -101,6 +98,8 @@ public class ResourceMappingPanel extends Panel {
      * Resource schema name.
      */
     private final List<String> schemaNames;
+
+    private final Label passwordLabel;
 
     /**
      * Add mapping button.
@@ -160,18 +159,10 @@ public class ResourceMappingPanel extends Panel {
             schemaNames = Collections.<String>emptyList();
         }
 
-        final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
+        mappingContainer.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom));
 
-        AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
-        mappingContainer.add(questionMarkJexlHelp);
-        questionMarkJexlHelp.add(jexlHelp);
-
-        final Label passwordLabel = new Label("passwordLabel", new ResourceModel("password"));
+        passwordLabel = new Label("passwordLabel", new ResourceModel("password"));
         mappingContainer.add(passwordLabel);
-
-        if (!AnyTypeKind.USER.name().equals(this.provisionTO.getAnyType())) {
-            passwordLabel.setVisible(false);
-        }
 
         Collections.sort(getMapping().getItems(), new Comparator<MappingItemTO>() {
 
@@ -373,7 +364,7 @@ public class ResourceMappingPanel extends Panel {
                 item.add(actions.build("toRemove"));
                 // -------------------------------
 
-                entitiesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                entitiesPanel.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -390,7 +381,7 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                intMappingTypes.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                intMappingTypes.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -404,7 +395,7 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                intAttrNames.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                intAttrNames.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -413,7 +404,7 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                connObjectKey.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                connObjectKey.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -430,7 +421,7 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                password.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                password.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -480,6 +471,12 @@ public class ResourceMappingPanel extends Panel {
         addMappingBtn.setDefaultFormProcessing(false);
         addMappingBtn.setEnabled(resourceTO.getConnector() != null && resourceTO.getConnector() > 0);
         mappingContainer.add(addMappingBtn);
+    }
+
+    @Override
+    protected void onBeforeRender() {
+        super.onBeforeRender();
+        passwordLabel.setVisible(AnyTypeKind.USER.name().equals(this.provisionTO.getAnyType()));
     }
 
     private List<String> getSchemaNames(final Long connectorId, final Set<ConnConfProperty> conf) {
@@ -532,32 +529,22 @@ public class ResourceMappingPanel extends Panel {
      * @param toBeUpdated drop down choice to be updated.
      */
     private void setAttrNames(final IntMappingType type, final AjaxDropDownChoicePanel<String> toBeUpdated) {
-
         toBeUpdated.setRequired(true);
         toBeUpdated.setEnabled(true);
 
         if (type == null || type.getAnyTypeKind() == null) {
             toBeUpdated.setChoices(Collections.<String>emptyList());
         } else {
-            Collection<AnyTypeTO> anyTypeTOs = type.getAnyTypeKind() == AnyTypeKind.ANY_OBJECT
-                    ? CollectionUtils.select(anyTypeRestClient.list(), new Predicate<AnyTypeTO>() {
+            AnyTypeTO anyTypeTO = anyTypeRestClient.read(provisionTO.getAnyType());
 
-                        @Override
-                        public boolean evaluate(final AnyTypeTO object) {
-                            return object.getKind() == AnyTypeKind.ANY_OBJECT;
-                        }
-                    })
-                    : Collections.singletonList(anyTypeRestClient.get(type.getAnyTypeKind().name()));
-
-            final List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
-            for (AnyTypeTO anyTypeTO : anyTypeTOs) {
-                anyTypeClassTOs.addAll(anyTypeClassRestClient.list(anyTypeTO.getClasses()));
+            List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
+            anyTypeClassTOs.addAll(anyTypeClassRestClient.list(anyTypeTO.getClasses()));
+            for (String auxClass : provisionTO.getAuxClasses()) {
+                anyTypeClassTOs.add(anyTypeClassRestClient.read(auxClass));
             }
 
             List<String> choices;
-
             switch (type) {
-                // user attribute names
                 case UserPlainSchema:
                 case GroupPlainSchema:
                 case AnyObjectPlainSchema:
@@ -640,14 +627,14 @@ public class ResourceMappingPanel extends Panel {
     /**
      * Get all attribute types from a selected attribute type.
      *
-     * @param entity entity.
+     * @param kind entity.
      * @return all attribute types.
      */
-    private List<IntMappingType> getAttributeTypes(final AnyTypeKind entity) {
+    private List<IntMappingType> getAttributeTypes(final AnyTypeKind kind) {
         final List<IntMappingType> res = new ArrayList<>();
 
-        if (entity != null) {
-            res.addAll(IntMappingType.getAttributeTypes(entity));
+        if (kind != null) {
+            res.addAll(IntMappingType.getAttributeTypes(kind));
         }
 
         return res;

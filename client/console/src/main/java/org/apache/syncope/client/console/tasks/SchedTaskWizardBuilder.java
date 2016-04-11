@@ -21,29 +21,37 @@ package org.apache.syncope.client.console.tasks;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.DateFormatROModel;
+import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.util.ListModel;
 
 public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBuilder<T> {
 
@@ -51,14 +59,29 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
     private final TaskRestClient taskRestClient = new TaskRestClient();
 
-    /**
-     * Construct.
-     *
-     * @param taskTO task
-     * @param pageRef Caller page reference.
-     */
+    private final LoadableDetachableModel<List<String>> realms = new LoadableDetachableModel<List<String>>() {
+
+        private static final long serialVersionUID = 5275935387613157437L;
+
+        @Override
+        protected List<String> load() {
+            List<String> result = CollectionUtils.collect(
+                    new RealmRestClient().list(), new Transformer<RealmTO, String>() {
+
+                @Override
+                public String transform(final RealmTO realm) {
+                    return realm.getFullPath();
+                }
+            }, new ArrayList<String>());
+
+            Collections.sort(result);
+
+            return result;
+        }
+    };
+
     public SchedTaskWizardBuilder(final T taskTO, final PageReference pageRef) {
-        super("wizard", taskTO, pageRef);
+        super(taskTO, pageRef);
     }
 
     @Override
@@ -82,124 +105,174 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
         private static final long serialVersionUID = -3043839139187792810L;
 
-        private final IModel<List<String>> classNames = new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> taskJobClasses = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                return new ArrayList<>(new TaskRestClient().getJobClasses());
+                return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getTaskJobs());
+            }
+        };
+
+        private final IModel<List<String>> reconciliationFilterBuilderClasses =
+                new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getReconciliationFilterBuilders());
+            }
+        };
+
+        private final IModel<List<String>> pullActionsClasses = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPullActions());
+            }
+        };
+
+        private final IModel<List<String>> pushActionsClasses = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPushActions());
             }
         };
 
         public Profile(final SchedTaskTO taskTO) {
-            final AjaxTextFieldPanel name =
+            AjaxTextFieldPanel name =
                     new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(taskTO, "name"), false);
+            name.addRequiredLabel();
             name.setEnabled(true);
             add(name);
 
-            final AjaxTextFieldPanel description = new AjaxTextFieldPanel("description", "description",
-                    new PropertyModel<String>(taskTO, "description"), false);
+            AjaxTextFieldPanel description = new AjaxTextFieldPanel(
+                    "description", "description", new PropertyModel<String>(taskTO, "description"), false);
             description.setEnabled(true);
             add(description);
 
-            final AjaxCheckBoxPanel active = new AjaxCheckBoxPanel("active", "active",
-                    new PropertyModel<Boolean>(taskTO, "active"), false);
+            AjaxCheckBoxPanel active =
+                    new AjaxCheckBoxPanel("active", "active", new PropertyModel<Boolean>(taskTO, "active"), false);
             add(active);
 
-            final WebMarkupContainer pullTaskSpecifics = new WebMarkupContainer("pullTaskSpecifics");
+            AjaxDropDownChoicePanel<String> jobDelegateClassName = new AjaxDropDownChoicePanel<>(
+                    "jobDelegateClassName", "jobDelegateClassName",
+                    new PropertyModel<String>(taskTO, "jobDelegateClassName"), false);
+            jobDelegateClassName.setChoices(taskJobClasses.getObject());
+            jobDelegateClassName.addRequiredLabel();
+            jobDelegateClassName.setEnabled(taskTO.getKey() == null || taskTO.getKey() == 0L);
+            jobDelegateClassName.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
+            add(jobDelegateClassName);
+
+            // ------------------------------
+            // Only for pull tasks
+            // ------------------------------            
+            WebMarkupContainer pullTaskSpecifics = new WebMarkupContainer("pullTaskSpecifics");
             add(pullTaskSpecifics.setRenderBodyOnly(true));
 
             boolean isFiltered = false;
-
             if (taskTO instanceof PullTaskTO) {
                 isFiltered = PullTaskTO.class.cast(taskTO).getPullMode() == PullMode.FILTERED_RECONCILIATION;
             } else {
                 pullTaskSpecifics.setEnabled(false).setVisible(false);
             }
 
-            final AjaxDropDownChoicePanel<PullMode> pullMode = new AjaxDropDownChoicePanel<>("pullMode", "pullMode",
-                    new PropertyModel<PullMode>(taskTO, "pullMode"), false);
-            pullTaskSpecifics.add(pullMode);
+            final AjaxDropDownChoicePanel<PullMode> pullMode = new AjaxDropDownChoicePanel<>(
+                    "pullMode", "pullMode", new PropertyModel<PullMode>(taskTO, "pullMode"), false);
             pullMode.setChoices(Arrays.asList(PullMode.values()));
+            if (taskTO instanceof PullTaskTO) {
+                pullMode.addRequiredLabel();
+            }
+            pullMode.setNullValid(!(taskTO instanceof PullTaskTO));
+            pullTaskSpecifics.add(pullMode);
 
-            final AjaxTextFieldPanel filter = new AjaxTextFieldPanel(
+            final AjaxDropDownChoicePanel<String> reconciliationFilterBuilderClassName = new AjaxDropDownChoicePanel<>(
                     "reconciliationFilterBuilderClassName", "reconciliationFilterBuilderClassName",
                     new PropertyModel<String>(taskTO, "reconciliationFilterBuilderClassName"), false);
-            pullTaskSpecifics.add(filter);
-            filter.setEnabled(isFiltered);
+            reconciliationFilterBuilderClassName.setChoices(reconciliationFilterBuilderClasses.getObject());
+            reconciliationFilterBuilderClassName.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
+            reconciliationFilterBuilderClassName.setEnabled(isFiltered);
+            reconciliationFilterBuilderClassName.setRequired(isFiltered);
+            pullTaskSpecifics.add(reconciliationFilterBuilderClassName);
 
-            pullMode.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            pullMode.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    filter.setEnabled(pullMode.getModelObject() == PullMode.FILTERED_RECONCILIATION);
-                    target.add(filter);
+                    reconciliationFilterBuilderClassName.setEnabled(
+                            pullMode.getModelObject() == PullMode.FILTERED_RECONCILIATION);
+                    reconciliationFilterBuilderClassName.setRequired(
+                            pullMode.getModelObject() == PullMode.FILTERED_RECONCILIATION);
+                    target.add(reconciliationFilterBuilderClassName);
                 }
             });
 
-            final AjaxTextFieldPanel destinationRealm = new AjaxTextFieldPanel("destinationRealm", "destinationRealm",
-                    new PropertyModel<String>(taskTO, "destinationRealm"), false);
+            AjaxDropDownChoicePanel<String> destinationRealm = new AjaxDropDownChoicePanel<>(
+                    "destinationRealm", "destinationRealm",
+                    new PropertyModel<String>(taskTO, "destinationRealm"), false).
+                    setChoices(realms);
+            if (taskTO instanceof PullTaskTO) {
+                destinationRealm.addRequiredLabel();
+            }
+            destinationRealm.setNullValid(!(taskTO instanceof PullTaskTO));
             pullTaskSpecifics.add(destinationRealm);
 
-            final AjaxDropDownChoicePanel<String> className = new AjaxDropDownChoicePanel<>(
-                    "jobDelegateClassName",
-                    getString("jobDelegateClassName"),
-                    new PropertyModel<String>(taskTO, "jobDelegateClassName"), false);
-
-            className.setChoices(classNames.getObject());
-            className.addRequiredLabel();
-            className.setEnabled(taskTO.getKey() == null || taskTO.getKey() == 0L);
-            className.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
-            add(className);
-
-            final WebMarkupContainer provisioningTaskSpecifics = new WebMarkupContainer("provisioningTaskSpecifics");
+            // ------------------------------
+            // For push and pull tasks
+            // ------------------------------            
+            WebMarkupContainer provisioningTaskSpecifics = new WebMarkupContainer("provisioningTaskSpecifics");
             add(provisioningTaskSpecifics.setRenderBodyOnly(true));
 
-            final AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
-                    "matchingRule", "matchingRule", new PropertyModel<MatchingRule>(taskTO, "matchingRule"), false);
-            provisioningTaskSpecifics.add(matchingRule);
-            matchingRule.setChoices(Arrays.asList(MatchingRule.values()));
-
-            final AjaxDropDownChoicePanel<UnmatchingRule> unmatchingRule = new AjaxDropDownChoicePanel<>(
-                    "unmatchingRule", "unmatchingRule", new PropertyModel<UnmatchingRule>(taskTO, "unmatchingRule"),
-                    false);
-            provisioningTaskSpecifics.add(unmatchingRule);
-            unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
-
-            final AjaxCheckBoxPanel performCreate = new AjaxCheckBoxPanel(
-                    "performCreate", "performCreate", new PropertyModel<Boolean>(taskTO, "performCreate"), false);
-            provisioningTaskSpecifics.add(performCreate);
-
-            final AjaxCheckBoxPanel performUpdate = new AjaxCheckBoxPanel(
-                    "performUpdate", "performUpdate", new PropertyModel<Boolean>(taskTO, "performUpdate"), false);
-            provisioningTaskSpecifics.add(performUpdate);
-
-            final AjaxCheckBoxPanel performDelete = new AjaxCheckBoxPanel(
-                    "performDelete", "performDelete", new PropertyModel<Boolean>(taskTO, "performDelete"), false);
-            provisioningTaskSpecifics.add(performDelete);
-
-            final AjaxCheckBoxPanel pullStatus = new AjaxCheckBoxPanel(
-                    "pullStatus", "pullStatus", new PropertyModel<Boolean>(taskTO, "pullStatus"), false);
-            provisioningTaskSpecifics.add(pullStatus);
-
             if (taskTO instanceof AbstractProvisioningTaskTO) {
-                className.setEnabled(false).setVisible(false);
+                jobDelegateClassName.setEnabled(false).setVisible(false);
             } else {
                 provisioningTaskSpecifics.setEnabled(false).setVisible(false);
             }
 
-            final AjaxTextFieldPanel lastExec = new AjaxTextFieldPanel("lastExec", "lastExec",
-                    new DateFormatROModel(new PropertyModel<String>(taskTO, "lastExec")));
-            lastExec.setEnabled(false);
-            add(lastExec);
+            AjaxPalettePanel<String> actionsClassNames = new AjaxPalettePanel.Builder<String>().
+                    setAllowMoveAll(true).setAllowOrder(true).
+                    build("actionsClassNames",
+                            new PropertyModel<List<String>>(taskTO, "actionsClassNames"),
+                            new ListModel<>(taskTO instanceof PushTaskTO
+                                    ? pushActionsClasses.getObject() : pullActionsClasses.getObject()));
+            actionsClassNames.setOutputMarkupId(true);
+            provisioningTaskSpecifics.add(actionsClassNames);
 
-            final AjaxTextFieldPanel nextExec = new AjaxTextFieldPanel("nextExec", "nextExec",
-                    new DateFormatROModel(new PropertyModel<String>(taskTO, "nextExec")));
-            nextExec.setEnabled(false);
-            add(nextExec);
+            AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
+                    "matchingRule", "matchingRule", new PropertyModel<MatchingRule>(taskTO, "matchingRule"), false);
+            matchingRule.setChoices(Arrays.asList(MatchingRule.values()));
+            provisioningTaskSpecifics.add(matchingRule);
+
+            AjaxDropDownChoicePanel<UnmatchingRule> unmatchingRule = new AjaxDropDownChoicePanel<>(
+                    "unmatchingRule", "unmatchingRule", new PropertyModel<UnmatchingRule>(taskTO, "unmatchingRule"),
+                    false);
+            unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
+            provisioningTaskSpecifics.add(unmatchingRule);
+
+            AjaxCheckBoxPanel performCreate = new AjaxCheckBoxPanel(
+                    "performCreate", "performCreate", new PropertyModel<Boolean>(taskTO, "performCreate"), false);
+            provisioningTaskSpecifics.add(performCreate);
+
+            AjaxCheckBoxPanel performUpdate = new AjaxCheckBoxPanel(
+                    "performUpdate", "performUpdate", new PropertyModel<Boolean>(taskTO, "performUpdate"), false);
+            provisioningTaskSpecifics.add(performUpdate);
+
+            AjaxCheckBoxPanel performDelete = new AjaxCheckBoxPanel(
+                    "performDelete", "performDelete", new PropertyModel<Boolean>(taskTO, "performDelete"), false);
+            provisioningTaskSpecifics.add(performDelete);
+
+            AjaxCheckBoxPanel pullStatus = new AjaxCheckBoxPanel(
+                    "pullStatus", "pullStatus", new PropertyModel<Boolean>(taskTO, "pullStatus"), false);
+            provisioningTaskSpecifics.add(pullStatus);
         }
     }
 

@@ -29,28 +29,47 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
     /**
      * Construct.
      *
-     * @param id The component id
      * @param defaultItem default item.
      * @param pageRef Caller page reference.
      */
-    public AjaxWizardBuilder(final String id, final T defaultItem, final PageReference pageRef) {
-        super(id, defaultItem, pageRef);
+    public AjaxWizardBuilder(final T defaultItem, final PageReference pageRef) {
+        super(defaultItem, pageRef);
     }
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
-    public AjaxWizard<T> build(final int index, final boolean edit) {
-        final AjaxWizard<T> wizard = build(edit);
+    public AjaxWizard<T> build(final String id, final int index, final AjaxWizard.Mode mode) {
+        final AjaxWizard<T> wizard = build(id, mode);
         for (int i = 1; i < index; i++) {
             wizard.getWizardModel().next();
         }
         return wizard;
     }
 
-    public AjaxWizard<T> build(final boolean edit) {
+    /**
+     * Build the wizard with a default wizard id.
+     *
+     * @param mode wizard mode.
+     * @return wizard.
+     */
+    public AjaxWizard<T> build(final AjaxWizard.Mode mode) {
+        return build(WizardMgtPanel.WIZARD_ID, mode);
+    }
+
+    /**
+     * Build the wizard.
+     *
+     * @param id component id.
+     * @param mode wizard mode.
+     * @return wizard.
+     */
+    public AjaxWizard<T> build(final String id, final AjaxWizard.Mode mode) {
         // ge the specified item if available
         final T modelObject = newModelObject();
 
-        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), edit) {
+        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode) {
 
             private static final long serialVersionUID = 1L;
 

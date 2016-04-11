@@ -23,7 +23,9 @@ import org.apache.syncope.core.persistence.api.entity.Policy;
 
 public interface PolicyDataBinder {
 
-    <T extends Policy> T getPolicy(T policy, AbstractPolicyTO policyTO);
+    <T extends Policy> T create(AbstractPolicyTO policyTO);
+
+    <T extends Policy> T update(T policy, AbstractPolicyTO policyTO);
 
     <T extends AbstractPolicyTO> T getPolicyTO(Policy policy);
 

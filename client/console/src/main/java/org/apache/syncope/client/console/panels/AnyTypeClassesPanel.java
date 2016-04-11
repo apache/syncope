@@ -29,11 +29,10 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -52,7 +51,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyTypeClassesPanel.AnyTypeClassProvider> {
+public class AnyTypeClassesPanel extends TypesDirectoryPanel<AnyTypeClassTO, AnyTypeClassesPanel.AnyTypeClassProvider> {
 
     private static final long serialVersionUID = -2356760296223908382L;
 
@@ -60,13 +59,12 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
         super(id, pageRef);
         disableCheckBoxes();
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeClassTO>(
-                BaseModal.CONTENT_ID, new AnyTypeClassTO(), pageRef) {
+        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeClassTO>(new AnyTypeClassTO(), pageRef) {
 
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<AnyTypeClassTO> build(final int index, final boolean edit) {
+            public ModalPanel<AnyTypeClassTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 final AnyTypeClassTO modelObject = newModelObject();
                 return new AnyTypeClassModalPanel(modal, modelObject, pageRef) {
 
@@ -148,7 +146,7 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
             }
         }
 
-        columns.add(new ActionColumn<AnyTypeClassTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AnyTypeClassTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 906457126287899096L;
 
@@ -212,7 +210,7 @@ public class AnyTypeClassesPanel extends AbstractTypesPanel<AnyTypeClassTO, AnyT
         return columns;
     }
 
-    protected final class AnyTypeClassProvider extends SearchableDataProvider<AnyTypeClassTO> {
+    protected final class AnyTypeClassProvider extends DirectoryDataProvider<AnyTypeClassTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 

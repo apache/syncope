@@ -24,10 +24,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -71,7 +71,7 @@ public class ReconciliationDetailsModalPanel extends AbstractModalPanel<Any> {
         add(new DiffPanel("diff", pageRef));
     }
 
-    private class DiffPanel extends AbstractSearchResultPanel<
+    private class DiffPanel extends DirectoryPanel<
         Misaligned, Misaligned, DetailsProvider, BaseRestClient> {
 
         private static final long serialVersionUID = -8214546246301342868L;
@@ -146,7 +146,7 @@ public class ReconciliationDetailsModalPanel extends AbstractModalPanel<Any> {
         }
     }
 
-    protected final class DetailsProvider extends SearchableDataProvider<Misaligned> {
+    protected final class DetailsProvider extends DirectoryDataProvider<Misaligned> {
 
         private static final long serialVersionUID = -1500081449932597854L;
 

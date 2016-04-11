@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverBehavior;
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig;
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
@@ -58,10 +61,12 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
 
     public FieldPanel<T> setTitle(final String title) {
         this.title = title;
-        field.add(AttributeModifier.replace("title", title != null
-                ? title
-                : ""));
-
+        field.add(new PopoverBehavior(
+                Model.<String>of(),
+                title == null ? Model.<String>of() : Model.of(title),
+                new PopoverConfig().withHoverTrigger().withPlacement(
+                        index.getObject() != null && index.getObject() == 0
+                                ? TooltipConfig.Placement.bottom : TooltipConfig.Placement.top)));
         return this;
     }
 

@@ -31,19 +31,21 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SerializableTransformer;
-import org.apache.syncope.client.console.panels.AnyObjectSearchResultPanel;
+import org.apache.syncope.client.console.panels.AnyObjectDirectoryPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
-import org.apache.syncope.client.console.panels.search.AnyObjectSelectionSearchResultPanel;
-import org.apache.syncope.client.console.panels.search.AnySelectionSearchResultPanel;
+import org.apache.syncope.client.console.panels.search.AnyObjectSelectionDirectoryPanel;
+import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -60,7 +62,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -134,8 +135,7 @@ public class Relationships extends WizardStep {
                                                 removeRelationships(relationships, modelObject);
                                                 send(Relationships.this, Broadcast.DEPTH, new ListViewReload(target));
                                             }
-                                        }, ActionLink.ActionType.DELETE,
-                                                String.format("%s_%s", anyTO.getType(), AnyEntitlement.UPDATE)).
+                                        }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).
                                         build(panelId);
                             }
                         };
@@ -165,7 +165,7 @@ public class Relationships extends WizardStep {
                 addFragment.add(new Specification().setRenderBodyOnly(true));
                 target.add(Relationships.this);
             }
-        }, ActionLink.ActionType.CREATE, String.format("%s_%s", anyTO.getType(), AnyEntitlement.UPDATE)).
+        }, ActionType.CREATE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).
                 build("actions"));
 
         return viewFragment;
@@ -218,7 +218,7 @@ public class Relationships extends WizardStep {
 
         private AnyObjectSearchPanel anyObjectSearchPanel;
 
-        private WizardMgtPanel<AnyHandler<AnyObjectTO>> anyObjectSearchResultPanel;
+        private WizardMgtPanel<AnyHandler<AnyObjectTO>> anyObjectDirectoryPanel;
 
         public Specification() {
             super("specification");
@@ -298,7 +298,7 @@ public class Relationships extends WizardStep {
             Fragment emptyFragment = new Fragment("searchPanel", "emptyFragment", this);
             container.add(emptyFragment.setRenderBodyOnly(true));
 
-            type.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
@@ -312,7 +312,7 @@ public class Relationships extends WizardStep {
                 }
             });
 
-            rightType.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            rightType.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
@@ -333,14 +333,14 @@ public class Relationships extends WizardStep {
                                 build("searchPanel");
                         fragment.add(anyObjectSearchPanel.setRenderBodyOnly(true));
 
-                        anyObjectSearchResultPanel = new AnyObjectSelectionSearchResultPanel.Builder(
+                        anyObjectDirectoryPanel = new AnyObjectSelectionDirectoryPanel.Builder(
                                 anyTypeClassRestClient.list(anyType.getClasses()),
                                 anyType.getKey(),
                                 pageRef).setFiltered(true).
                                 setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
                                         is("key").notNullValue().query()).
                                 build("searchResultPanel");
-                        fragment.add(anyObjectSearchResultPanel.setRenderBodyOnly(true));
+                        fragment.add(anyObjectDirectoryPanel.setRenderBodyOnly(true));
                     }
                     target.add(container);
                 }
@@ -354,12 +354,12 @@ public class Relationships extends WizardStep {
                         getTarget();
                 final String fiql = SearchUtils.buildFIQL(anyObjectSearchPanel.getModel().getObject(),
                         SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectSearchPanel.getBackObjectType()));
-                AnyObjectSearchResultPanel.class.cast(anyObjectSearchResultPanel).search(fiql, target);
-            } else if (event.getPayload() instanceof AnySelectionSearchResultPanel.ItemSelection) {
-                final AjaxRequestTarget target = AnySelectionSearchResultPanel.ItemSelection.class.cast(event.
+                AnyObjectDirectoryPanel.class.cast(anyObjectDirectoryPanel).search(fiql, target);
+            } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
+                final AjaxRequestTarget target = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.
                         getPayload()).getTarget();
 
-                AnyTO right = AnySelectionSearchResultPanel.ItemSelection.class.cast(event.getPayload()).getSelection();
+                AnyTO right = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.getPayload()).getSelection();
                 rel.setRightKey(right.getKey());
 
                 Relationships.this.addNewRelationships(rel);

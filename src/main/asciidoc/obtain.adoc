@@ -28,7 +28,7 @@ Tomcat-based environment that can be easily grabbed and put at work on any moder
 
 [CAUTION]
 .Target Audience
-First approach, especially with administration console; does not require technical skills. +
+First approach, especially with administration console and end-user; does not require technical skills. +
 *Not meant for any production environment.*
 
 Getting ready in a few easy steps:
@@ -104,6 +104,9 @@ CAUTION: The following assumes that the Java EE container is reachable on host `
 | http://localhost:9080/syncope-console/ +
 Credentials: `admin` / `password`
 
+| End-user UI
+| http://localhost:9080/syncope-enduser/
+
 |===
 
 include::commondocs/maven.adoc[]
@@ -122,9 +125,9 @@ made are lost.
 From the top-level directory of your project, execute:
 
 [source,bash]
-mvn clean install
+mvn -P all clean install
 
-then, from the `console` subdirectory, execute:
+then, from the `enduser` subdirectory, execute:
 
 [source,bash]
 mvn -P embedded
@@ -135,10 +138,10 @@ mvn -P embedded
 |===
 
 | Log files
-| Available under `core/target/log` and `console/target/log`
+| Available under `core/target/log`, `console/target/log` and `enduser/target/log`
 
 | ConnId bundles
-| Available under `console/target/bundles`
+| Available under `core/target/bundles`
 
 | Complete REST API reference
 | http://localhost:9080/syncope/index.html
@@ -149,6 +152,9 @@ mvn -P embedded
 | Administration console
 | http://localhost:9080/syncope-console/ +
 Credentials: `admin` / `password`
+
+| End-user UI
+| http://localhost:9080/syncope-enduser/
 
 | Internal storage
 | A SQL web interface is available at http://localhost:9080/syncope/db.jsp +

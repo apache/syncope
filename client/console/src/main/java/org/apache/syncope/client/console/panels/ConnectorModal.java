@@ -33,13 +33,16 @@ import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
 /**
@@ -60,8 +63,7 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
 
         super(modal, pageRef);
 
-        this.bundles = CollectionUtils.select(connectorRestClient.getAllBundles(),
-                new Predicate<ConnBundleTO>() {
+        this.bundles = CollectionUtils.select(connectorRestClient.getAllBundles(), new Predicate<ConnBundleTO>() {
 
             @Override
             public boolean evaluate(final ConnBundleTO object) {
@@ -70,9 +72,9 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
         }, new ArrayList<ConnBundleTO>());
 
         //--------------------------------
-        // Connector details panel
+        // Connector details
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("general", "general")) {
+        tabs.add(new AbstractTab(new ResourceModel("general")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
@@ -84,9 +86,9 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
         //--------------------------------
 
         //--------------------------------
-        // Connector configuration panel
+        // Connector configuration
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("configuration", "configuration")) {
+        tabs.add(new AbstractTab(new ResourceModel("configuration")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
@@ -94,7 +96,7 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
             public Panel getPanel(final String panelId) {
                 return new ConnectorConfPanel(panelId, model, bundles) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = -5886691077681158494L;
 
                     @Override
                     protected void check(final AjaxRequestTarget target) {
@@ -106,21 +108,27 @@ public class ConnectorModal extends AbstractResourceModal<Serializable> {
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
 
+                    @Override
+                    protected void onComponentTag(final ComponentTag tag) {
+                        tag.append("class", "scrollable-tab-content", " ");
+                    }
+
                 };
             }
         });
         //--------------------------------
 
         //--------------------------------
-        // Connector configuration panel
+        // Connector capabilities
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("capabilities", "capabilities")) {
+        tabs.add(new AbstractTab(new ResourceModel("capabilities")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new ConnectorCapabilitiesPanel(panelId, model);
+                return new ConnCapabilitiesPanel(
+                        panelId, new PropertyModel<List<ConnectorCapability>>(model.getObject(), "capabilities"));
             }
         });
         //--------------------------------

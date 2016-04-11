@@ -22,7 +22,6 @@ import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 
@@ -36,11 +35,6 @@ public class JPAPullPolicy extends AbstractPolicy implements PullPolicy {
 
     @Lob
     private String specification;
-
-    public JPAPullPolicy() {
-        super();
-        this.type = PolicyType.PULL;
-    }
 
     @Override
     public PullPolicySpec getSpecification() {
