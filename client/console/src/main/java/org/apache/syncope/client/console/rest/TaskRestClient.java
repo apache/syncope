@@ -46,18 +46,18 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     public int count(final TaskType kind) {
         return getService(TaskService.class).list(
-                new TaskQuery.Builder().type(kind).page(1).size(1).build()).getTotalCount();
+                new TaskQuery.Builder(kind).page(1).size(1).build()).getTotalCount();
     }
 
     public int count(final String resource, final TaskType kind) {
         return getService(TaskService.class).list(
-                new TaskQuery.Builder().resource(resource).type(kind).page(1).size(1).
+                new TaskQuery.Builder(kind).resource(resource).page(1).size(1).
                 build()).getTotalCount();
     }
 
     public int count(final AnyTypeKind anyTypeKind, final Long anyTypeKey, final TaskType kind) {
         return getService(TaskService.class).list(
-                new TaskQuery.Builder().anyTypeKind(anyTypeKind).anyTypeKey(anyTypeKey).type(kind).page(1).size(1).
+                new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).anyTypeKey(anyTypeKey).page(1).size(1).
                 build()).getTotalCount();
     }
 
@@ -70,7 +70,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             final String resource, final int page, final int size, final SortParam<String> sort) {
 
         return getService(TaskService.class).
-                <PropagationTaskTO>list(new TaskQuery.Builder().type(TaskType.PROPAGATION).
+                <PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).
                         resource(resource).
                         page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
@@ -82,7 +82,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             final int page, final int size, final SortParam<String> sort) {
 
         return getService(TaskService.class).
-                <PropagationTaskTO>list(new TaskQuery.Builder().type(TaskType.PROPAGATION).
+                <PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).
                         anyTypeKind(anyTypeKind).anyTypeKey(anyTypeKey).
                         page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
@@ -94,7 +94,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             final Class<T> reference, final int page, final int size, final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
-                list(new TaskQuery.Builder().type(getTaskType(reference)).page(page).size(size).
+                list(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
                 getResult();
     }
@@ -108,7 +108,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
-                list(new TaskQuery.Builder().type(getTaskType(reference)).page(page).size(size).resource(resource).
+                list(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).resource(resource).
                         orderBy(toOrderBy(sort)).build()).
                 getResult();
     }

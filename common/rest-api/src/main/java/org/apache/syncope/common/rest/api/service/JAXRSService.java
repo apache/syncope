@@ -30,6 +30,8 @@ public interface JAXRSService {
 
     String PARAM_RESOURCE = "resource";
 
+    String PARAM_NOTIFICATION = "notification";
+
     String PARAM_ANYTYPE_KIND = "anyTypeKind";
 
     String PARAM_ANYTYPE_KEY = "anyTypeKey";

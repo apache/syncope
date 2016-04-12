@@ -102,8 +102,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void list() {
-        PagedResult<PullTaskTO> tasks = taskService.list(
-                new TaskQuery.Builder().type(TaskType.PULL).build());
+        PagedResult<PullTaskTO> tasks = taskService.list(new TaskQuery.Builder(TaskType.PULL).build());
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
             if (!(task instanceof PullTaskTO)) {

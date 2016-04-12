@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.MatchingRule;
@@ -79,7 +80,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
     private static final String[] IGNORE_TASK_PROPERTIES = {
-        "destinationRealm", "templates", "filters", "executions", "resource", "matchingRule", "unmatchingRule" };
+        "destinationRealm", "templates", "filters", "executions", "resource", "matchingRule", "unmatchingRule",
+        "notification" };
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "key", "task" };
 
@@ -318,27 +320,15 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
         switch (taskUtils.getType()) {
             case PROPAGATION:
-                if (!(task instanceof PropagationTask)) {
-                    throw new IllegalArgumentException("taskUtils is type Propagation but task is not PropagationTask: "
-                            + task.getClass().getName());
-                }
                 ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getKey());
                 ((PropagationTaskTO) taskTO).setAttributes(((PropagationTask) task).getSerializedAttributes());
                 break;
 
             case SCHEDULED:
-                if (!(task instanceof SchedTask)) {
-                    throw new IllegalArgumentException("taskUtils is type Sched but task is not SchedTask: "
-                            + task.getClass().getName());
-                }
                 setExecTime((SchedTaskTO) taskTO, task);
                 break;
 
             case PULL:
-                if (!(task instanceof PullTask)) {
-                    throw new IllegalArgumentException("taskUtils is type Pull but task is not PullTask: "
-                            + task.getClass().getName());
-                }
                 setExecTime((SchedTaskTO) taskTO, task);
                 ((PullTaskTO) taskTO).setDestinationRealm(((PullTask) task).getDestinatioRealm().getFullPath());
                 ((PullTaskTO) taskTO).setResource(((PullTask) task).getResource().getKey());
@@ -353,10 +343,6 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 break;
 
             case PUSH:
-                if (!(task instanceof PushTask)) {
-                    throw new IllegalArgumentException("taskUtils is type Push but task is not PushTask: "
-                            + task.getClass().getName());
-                }
                 setExecTime((SchedTaskTO) taskTO, task);
                 ((PushTaskTO) taskTO).setResource(((PushTask) task).getResource().getKey());
                 ((PushTaskTO) taskTO).setMatchingRule(((PushTask) task).getMatchingRule() == null
@@ -370,6 +356,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 break;
 
             case NOTIFICATION:
+                ((NotificationTaskTO) taskTO).setNotification(((NotificationTask) task).getNotification().getKey());
+                ((NotificationTaskTO) taskTO).setAnyTypeKind(((NotificationTask) task).getAnyTypeKind());
+                ((NotificationTaskTO) taskTO).setAnyKey(((NotificationTask) task).getAnyKey());
                 if (((NotificationTask) task).isExecuted() && StringUtils.isBlank(taskTO.getLatestExecStatus())) {
                     taskTO.setLatestExecStatus("[EXECUTED]");
                 }

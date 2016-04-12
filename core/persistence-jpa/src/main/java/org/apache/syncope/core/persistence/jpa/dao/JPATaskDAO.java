@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
@@ -115,12 +116,13 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     @Transactional(readOnly = true)
     @Override
     public <T extends Task> List<T> findAll(final TaskType type) {
-        return findAll(type, null, null, null, -1, -1, Collections.<OrderByClause>emptyList());
+        return findAll(type, null, null, null, null, -1, -1, Collections.<OrderByClause>emptyList());
     }
 
     private StringBuilder buildFindAllQuery(
             final TaskType type,
             final ExternalResource resource,
+            final Notification notification,
             final AnyTypeKind anyTypeKind,
             final Long anyKey) {
 
@@ -138,6 +140,9 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
 
         if (resource != null) {
             queryString.append("AND t.resource=:resource ");
+        }
+        if (notification != null) {
+            queryString.append("AND t.notification=:notification ");
         }
         if (anyTypeKind != null && anyKey != null) {
             queryString.append("AND t.anyTypeKind=:anyTypeKind AND t.anyKey=:anyKey ");
@@ -171,18 +176,22 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     public <T extends Task> List<T> findAll(
             final TaskType type,
             final ExternalResource resource,
+            final Notification notification,
             final AnyTypeKind anyTypeKind,
             final Long anyKey,
             final int page,
             final int itemsPerPage,
             final List<OrderByClause> orderByClauses) {
 
-        StringBuilder queryString = buildFindAllQuery(type, resource, anyTypeKind, anyKey).
+        StringBuilder queryString = buildFindAllQuery(type, resource, notification, anyTypeKind, anyKey).
                 append(toOrderByStatement(getEntityReference(type), orderByClauses));
 
         Query query = entityManager().createQuery(queryString.toString());
         if (resource != null) {
             query.setParameter("resource", resource);
+        }
+        if (notification != null) {
+            query.setParameter("notification", notification);
         }
         if (anyTypeKind != null && anyKey != null) {
             query.setParameter("anyTypeKind", anyTypeKind);
@@ -204,15 +213,19 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     public int count(
             final TaskType type,
             final ExternalResource resource,
+            final Notification notification,
             final AnyTypeKind anyTypeKind,
             final Long anyKey) {
 
-        StringBuilder queryString = buildFindAllQuery(type, resource, anyTypeKind, anyKey);
+        StringBuilder queryString = buildFindAllQuery(type, resource, notification, anyTypeKind, anyKey);
 
         Query query = entityManager().createQuery(StringUtils.replaceOnce(
                 queryString.toString(), "SELECT t", "SELECT COUNT(t)"));
         if (resource != null) {
             query.setParameter("resource", resource);
+        }
+        if (notification != null) {
+            query.setParameter("notification", notification);
         }
         if (anyTypeKind != null && anyKey != null) {
             query.setParameter("anyTypeKind", anyTypeKind);
@@ -246,7 +259,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     @Override
     public void deleteAll(final ExternalResource resource, final TaskType type) {
         IterableUtils.forEach(
-                findAll(type, resource, null, null, -1, -1, Collections.<OrderByClause>emptyList()),
+                findAll(type, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList()),
                 new Closure<Task>() {
 
             @Override
