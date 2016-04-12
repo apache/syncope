@@ -56,6 +56,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.logic.notification.NotificationJobDelegate;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
@@ -77,6 +78,9 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    private NotificationDAO notificationDAO;
 
     @Autowired
     private TaskDataBinder binder;
@@ -143,49 +147,58 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
     public int count(
-            final TaskType type, final String resource, final AnyTypeKind anyTypeKind, final Long anyTypeKey) {
+            final TaskType type,
+            final String resource,
+            final Long notification,
+            final AnyTypeKind anyTypeKind,
+            final Long anyTypeKey) {
 
-        return taskDAO.count(type, resourceDAO.find(resource), anyTypeKind, anyTypeKey);
+        return taskDAO.count(
+                type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, anyTypeKey);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
     @SuppressWarnings("unchecked")
     public <T extends AbstractTaskTO> List<T> list(
-            final TaskType type, final String resource, final AnyTypeKind anyTypeKind, final Long anyTypeKey,
-            final int page, final int size, final List<OrderByClause> orderByClauses, final boolean details) {
-
-        final TaskUtils taskUtils = taskUtilsFactory.getInstance(type);
+            final TaskType type,
+            final String resource,
+            final Long notification,
+            final AnyTypeKind anyTypeKind,
+            final Long anyTypeKey,
+            final int page,
+            final int size,
+            final List<OrderByClause> orderByClauses,
+            final boolean details) {
 
         return CollectionUtils.collect(taskDAO.findAll(
-                type, resourceDAO.find(resource), anyTypeKind, anyTypeKey, page, size, orderByClauses),
-                new Transformer<Task, T>() {
+                type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, anyTypeKey,
+                page, size, orderByClauses), new Transformer<Task, T>() {
 
             @Override
             public T transform(final Task task) {
-                return (T) binder.getTaskTO(task, taskUtils, details);
+                return (T) binder.getTaskTO(task, taskUtilsFactory.getInstance(type), details);
             }
         }, new ArrayList<T>());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
-    public <T extends AbstractTaskTO> T read(final Long taskKey, final boolean details) {
-        Task task = taskDAO.find(taskKey);
+    public <T extends AbstractTaskTO> T read(final Long key, final boolean details) {
+        Task task = taskDAO.find(key);
         if (task == null) {
-            throw new NotFoundException("Task " + taskKey);
+            throw new NotFoundException("Task " + key);
         }
         return binder.getTaskTO(task, taskUtilsFactory.getInstance(task), details);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
-    public ExecTO execute(final Long taskKey, final Date startAt, final boolean dryRun) {
-        Task task = taskDAO.find(taskKey);
+    public ExecTO execute(final Long key, final Date startAt, final boolean dryRun) {
+        Task task = taskDAO.find(key);
         if (task == null) {
-            throw new NotFoundException("Task " + taskKey);
+            throw new NotFoundException("Task " + key);
         }
-        TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
 
         ExecTO result = null;
-        switch (taskUtils.getType()) {
+        switch (taskUtilsFactory.getInstance(task).getType()) {
             case PROPAGATION:
                 TaskExec propExec = taskExecutor.execute((PropagationTask) task);
                 result = binder.getExecTO(propExec);
@@ -201,7 +214,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
             case PUSH:
                 if (!((SchedTask) task).isActive()) {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
-                    sce.getElements().add("Task " + taskKey + " is not active");
+                    sce.getElements().add("Task " + key + " is not active");
                     throw sce;
                 }
 
@@ -242,10 +255,10 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
-    public <T extends AbstractTaskTO> T delete(final Long taskKey) {
-        Task task = taskDAO.find(taskKey);
+    public <T extends AbstractTaskTO> T delete(final Long key) {
+        Task task = taskDAO.find(key);
         if (task == null) {
-            throw new NotFoundException("Task " + taskKey);
+            throw new NotFoundException("Task " + key);
         }
         TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
 
@@ -263,17 +276,17 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
-    public int countExecutions(final Long taskId) {
-        return taskExecDAO.count(taskId);
+    public int countExecutions(final Long key) {
+        return taskExecDAO.count(key);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
     public List<ExecTO> listExecutions(
-            final Long taskKey, final int page, final int size, final List<OrderByClause> orderByClauses) {
+            final Long key, final int page, final int size, final List<OrderByClause> orderByClauses) {
 
-        Task task = taskDAO.find(taskKey);
+        Task task = taskDAO.find(key);
         if (task == null) {
-            throw new NotFoundException("Task " + taskKey);
+            throw new NotFoundException("Task " + key);
         }
 
         return CollectionUtils.collect(taskExecDAO.findAll(task, page, size, orderByClauses),
@@ -311,12 +324,12 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
     public BulkActionResult deleteExecutions(
-            final Long taskKey,
+            final Long key,
             final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
 
-        Task task = taskDAO.find(taskKey);
+        Task task = taskDAO.find(key);
         if (task == null) {
-            throw new NotFoundException("Task " + taskKey);
+            throw new NotFoundException("Task " + key);
         }
 
         BulkActionResult result = new BulkActionResult();
@@ -326,7 +339,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
                 taskExecDAO.delete(exec);
                 result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.SUCCESS);
             } catch (Exception e) {
-                LOG.error("Error deleting execution {} of task {}", exec.getKey(), taskKey, e);
+                LOG.error("Error deleting execution {} of task {}", exec.getKey(), key, e);
                 result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.FAILURE);
             }
         }

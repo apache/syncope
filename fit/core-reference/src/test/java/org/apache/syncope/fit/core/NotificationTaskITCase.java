@@ -47,8 +47,10 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.core.logic.notification.NotificationJob;
 import org.apache.syncope.fit.core.reference.TestNotificationRecipientsProvider;
@@ -139,6 +141,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         String recipient = createNotificationTask(true, true, TraceLevel.ALL, sender, subject);
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
@@ -188,6 +191,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
             createNotificationTask(true, true, TraceLevel.ALL, sender, subject);
             NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
             assertNotNull(taskTO);
+            assertNotNull(taskTO.getNotification());
             assertTrue(taskTO.getExecutions().isEmpty());
 
             // 4. verify notification could not be delivered
@@ -214,6 +218,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         createNotificationTask(true, true, TraceLevel.ALL, sender, "Test notification");
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
         // generate an execution in order to verify the deletion of a notification task with one or more executions
@@ -235,6 +240,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // 2. get NotificationTaskTO for user just created
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
         try {
@@ -259,6 +265,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         String recipient = createNotificationTask(true, true, TraceLevel.NONE, sender, subject);
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
         taskService.execute(new ExecuteQuery.Builder().key(taskTO.getKey()).build());
@@ -286,6 +293,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
                 true, true, TraceLevel.ALL, sender, subject, "syncope445@syncope.apache.org");
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
@@ -339,8 +347,14 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // 3. verify
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getRecipients().containsAll(
                 new TestNotificationRecipientsProvider().provideRecipients(null)));
+
+        NotificationTaskTO foundViaList = taskService.<NotificationTaskTO>list(
+                new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification.getKey()).build()).
+                getResult().get(0);
+        assertEquals(taskTO, foundViaList);
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
 
@@ -357,8 +371,13 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         assertNull(findNotificationTaskBySender(sender));
     }
 
-    private String createNotificationTask(final boolean active, final boolean includeAbout, final TraceLevel traceLevel,
-            final String sender, final String subject, final String... staticRecipients) {
+    private String createNotificationTask(
+            final boolean active,
+            final boolean includeAbout,
+            final TraceLevel traceLevel,
+            final String sender,
+            final String subject,
+            final String... staticRecipients) {
 
         // 1. Create notification
         NotificationTO notification = new NotificationTO();

@@ -33,29 +33,62 @@ public class TaskQuery extends AbstractQuery {
 
     public static class Builder extends AbstractQuery.Builder<TaskQuery, Builder> {
 
+        public Builder(final TaskType type) {
+            super();
+            getInstance().setType(type);
+        }
+
         @Override
         protected TaskQuery newInstance() {
             return new TaskQuery();
         }
 
-        public Builder type(final TaskType type) {
-            getInstance().setType(type);
-            return this;
+        public Builder resource(final String resource) {
+            switch (getInstance().getType()) {
+                case PROPAGATION:
+                case PULL:
+                case PUSH:
+                    getInstance().setResource(resource);
+                    return this;
+
+                default:
+                    throw new IllegalArgumentException("resource not allowed for " + getInstance().getType());
+            }
         }
 
-        public Builder resource(final String resource) {
-            getInstance().setResource(resource);
-            return this;
+        public Builder notification(final Long notification) {
+            switch (getInstance().getType()) {
+                case NOTIFICATION:
+                    getInstance().setNotification(notification);
+                    return this;
+
+                default:
+                    throw new IllegalArgumentException("notification not allowed for " + getInstance().getType());
+            }
         }
 
         public Builder anyTypeKind(final AnyTypeKind anyTypeKind) {
-            getInstance().setAnyTypeKind(anyTypeKind);
-            return this;
+            switch (getInstance().getType()) {
+                case PROPAGATION:
+                case NOTIFICATION:
+                    getInstance().setAnyTypeKind(anyTypeKind);
+                    return this;
+
+                default:
+                    throw new IllegalArgumentException("anyTypeKind not allowed for " + getInstance().getType());
+            }
         }
 
         public Builder anyTypeKey(final Long anyTypeKey) {
-            getInstance().setAnyTypeKey(anyTypeKey);
-            return this;
+            switch (getInstance().getType()) {
+                case PROPAGATION:
+                case NOTIFICATION:
+                    getInstance().setAnyTypeKey(anyTypeKey);
+                    return this;
+
+                default:
+                    throw new IllegalArgumentException("anyTypeKey not allowed for " + getInstance().getType());
+            }
         }
 
         public Builder details(final boolean details) {
@@ -76,6 +109,8 @@ public class TaskQuery extends AbstractQuery {
     private TaskType type;
 
     private String resource;
+
+    private Long notification;
 
     private AnyTypeKind anyTypeKind;
 
@@ -100,6 +135,15 @@ public class TaskQuery extends AbstractQuery {
     @QueryParam(JAXRSService.PARAM_RESOURCE)
     public void setResource(final String resource) {
         this.resource = resource;
+    }
+
+    public Long getNotification() {
+        return notification;
+    }
+
+    @QueryParam(JAXRSService.PARAM_NOTIFICATION)
+    public void setNotification(final Long notification) {
+        this.notification = notification;
     }
 
     public AnyTypeKind getAnyTypeKind() {

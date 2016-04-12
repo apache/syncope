@@ -80,6 +80,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
                 logic.list(
                         query.getType(),
                         query.getResource(),
+                        query.getNotification(),
                         query.getAnyTypeKind(),
                         query.getAnyTypeKey(),
                         query.getPage(),
@@ -91,6 +92,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
                 logic.count(
                         query.getType(),
                         query.getResource(),
+                        query.getNotification(),
                         query.getAnyTypeKind(),
                         query.getAnyTypeKey()));
     }

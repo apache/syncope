@@ -112,7 +112,7 @@ public class TaskTest extends AbstractTest {
 
         resource = resourceDAO.find("ws-target-resource-1");
         assertTrue(taskDAO.findAll(
-                TaskType.PROPAGATION, resource, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
+                TaskType.PROPAGATION, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
                 contains(task));
     }
 

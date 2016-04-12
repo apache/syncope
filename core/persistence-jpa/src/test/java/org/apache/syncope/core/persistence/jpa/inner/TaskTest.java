@@ -68,7 +68,7 @@ public class TaskTest extends AbstractTest {
     @Test
     public void findPaginated() {
         List<Task> tasks = taskDAO.findAll(
-                TaskType.PROPAGATION, null, null, null, 1, 2, Collections.<OrderByClause>emptyList());
+                TaskType.PROPAGATION, null, null, null, null, 1, 2, Collections.<OrderByClause>emptyList());
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
 
@@ -77,7 +77,7 @@ public class TaskTest extends AbstractTest {
         }
 
         tasks = taskDAO.findAll(
-                TaskType.PROPAGATION, null, null, null, 2, 2, Collections.<OrderByClause>emptyList());
+                TaskType.PROPAGATION, null, null, null, null, 2, 2, Collections.<OrderByClause>emptyList());
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
 
@@ -86,11 +86,11 @@ public class TaskTest extends AbstractTest {
         }
 
         tasks = taskDAO.findAll(
-                TaskType.PROPAGATION, null, null, null, 1000, 2, Collections.<OrderByClause>emptyList());
+                TaskType.PROPAGATION, null, null, null, null, 1000, 2, Collections.<OrderByClause>emptyList());
         assertNotNull(tasks);
         assertTrue(tasks.isEmpty());
 
-        assertEquals(5, taskDAO.count(TaskType.PROPAGATION, null, null, null));
+        assertEquals(5, taskDAO.count(TaskType.PROPAGATION, null, null, null, null));
     }
 
     @Test
@@ -144,7 +144,7 @@ public class TaskTest extends AbstractTest {
         resource = resourceDAO.find(resource.getKey());
         assertNotNull(resource);
         assertFalse(taskDAO.findAll(
-                TaskType.PROPAGATION, resource, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
+                TaskType.PROPAGATION, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
                 contains(task));
     }
 }

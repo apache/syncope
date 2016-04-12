@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 
@@ -36,10 +37,11 @@ public interface TaskDAO extends DAO<Task, Long> {
     <T extends Task> List<T> findAll(TaskType type);
 
     <T extends Task> List<T> findAll(
-            TaskType type, ExternalResource resource, AnyTypeKind anyTypeKind, Long anyKey,
+            TaskType type, ExternalResource resource, Notification notification, AnyTypeKind anyTypeKind, Long anyKey,
             int page, int itemsPerPage, List<OrderByClause> orderByClauses);
 
-    int count(TaskType type, ExternalResource resource, AnyTypeKind anyTypeKind, Long anyKey);
+    int count(
+            TaskType type, ExternalResource resource, Notification notification, AnyTypeKind anyTypeKind, Long anyKey);
 
     <T extends Task> T save(T task);
 

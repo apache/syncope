@@ -648,7 +648,7 @@ under the License.
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   
-  <!-- The following three resources have been added to verify the issue PULLOPE-68 -->
+  <!-- The following three resources have been added to verify the issue SYNCOPE-68 -->
   <ExternalResource name="ws-target-resource-nopropagation2" connector_id="103" 
                     enforceMandatoryCondition="1" overrideCapabilities="0"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" pullTraceLevel="ALL"
@@ -665,7 +665,7 @@ under the License.
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
                     
-  <!-- External resource for issue PULLOPE-230 -->
+  <!-- External resource for issue SYNCOPE-230 -->
   <ExternalResource name="resource-db-pull" connector_id="107"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" pullTraceLevel="ALL" updateTraceLevel="ALL"
                     enforceMandatoryCondition="0" 
@@ -673,7 +673,7 @@ under the License.
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
                     
-  <!-- External resource for issue PULLOPE-267 -->
+  <!-- External resource for issue SYNCOPE-267 -->
   <ExternalResource name="resource-db-virattr" connector_id="107"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" pullTraceLevel="ALL" updateTraceLevel="ALL"
                     enforceMandatoryCondition="0" 
@@ -688,7 +688,7 @@ under the License.
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
 
-  <!-- Use resource-testdb for passthrough authentication (PULLOPE-164) -->
+  <!-- Use resource-testdb for passthrough authentication (SYNCOPE-164) -->
   <AccountPolicy_ExternalResource accountPolicy_id="5" resource_name="resource-testdb"/>
     
   <SyncopeUser_ExternalResource user_id="1" resource_name="resource-testdb2"/>
@@ -998,8 +998,6 @@ under the License.
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"relationships":[],"memberships":[],"dynGroups":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","readonly":false,"values":["&apos;type a&apos;"]},{"schema":"userId","readonly":false,"values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;surname&apos;"]}]}'/>
   <AnyTemplatePullTask id="72" pullTask_id="7" anyType_name="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
-  <Task DTYPE="NotificationTask" id="8" sender="admin@prova.org" subject="Notification for PULLOPE-81" 
-        textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
   <Task DTYPE="PullTask" id="9" name="TestDB2 Task" resource_name="resource-testdb2"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="0" pullStatus="1" pullMode="FULL_RECONCILIATION"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
@@ -1194,22 +1192,24 @@ $$ }&#10;
                 sender="admin@syncope.apache.org" subject="Password Reset request" template_name="requestPasswordReset" 
                 traceLevel="FAILURES"/> 
   <AnyAbout id="1" anyType_name="USER" notification_id="1" filter="token!=$null"/>
-  <Notification_events Notification_id="1" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
+  <Notification_events notification_id="1" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
+  <Task DTYPE="NotificationTask" id="8" notification_id="1"
+        sender="admin@prova.org" subject="Notification for PULLOPE-81" 
+        textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
+  <NotificationTask_recipients notificationtask_id="8" address="recipient@prova.org"/>  
   
   <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset successful" template_name="confirmPasswordReset" 
                 traceLevel="FAILURES"/> 
-  <Notification_events Notification_id="2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
+  <Notification_events notification_id="2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
 
   <Notification id="10" sender="test@syncope.apache.org" subject="Test subject" template_name="test" selfAsRecipient="0" 
                 traceLevel="FAILURES"
                 recipientsFIQL="$groups==7"
                 recipientAttrType="UserPlainSchema" recipientAttrName="email" active="1"/>
   <AnyAbout id="10" anyType_name="USER" notification_id="10" filter="fullname==*o*;fullname==*i*"/>
-  <Notification_events Notification_id="10" event="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
-  <Notification_events Notification_id="10" event="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
-    
-  <NotificationTask_recipients notificationtask_id="8" address="recipient@prova.org"/>  
+  <Notification_events notification_id="10" event="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
+  <Notification_events notification_id="10" event="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
 
   <ReportTemplate name="empty"/>  
   <ReportTemplate name="sample"

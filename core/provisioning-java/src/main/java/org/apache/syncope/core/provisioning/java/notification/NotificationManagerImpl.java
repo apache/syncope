@@ -216,6 +216,11 @@ public class NotificationManagerImpl implements NotificationManager {
         jexlVars.put("events", notification.getEvents());
 
         NotificationTask task = entityFactory.newEntity(NotificationTask.class);
+        task.setNotification(notification);
+        if (any != null) {
+            task.setAnyKey(any.getKey());
+            task.setAnyTypeKind(any.getType().getKind());
+        }
         task.setTraceLevel(notification.getTraceLevel());
         task.getRecipients().addAll(recipientEmails);
         task.setSender(notification.getSender());

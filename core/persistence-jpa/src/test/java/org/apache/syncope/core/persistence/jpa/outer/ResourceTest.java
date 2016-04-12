@@ -224,7 +224,7 @@ public class ResourceTest extends AbstractTest {
 
         // Get tasks
         List<PropagationTask> propagationTasks = taskDAO.findAll(
-                TaskType.PROPAGATION, resource, null, null, -1, -1, Collections.<OrderByClause>emptyList());
+                TaskType.PROPAGATION, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList());
         assertFalse(propagationTasks.isEmpty());
 
         // delete resource

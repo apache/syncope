@@ -45,11 +45,11 @@ public class TaskSyncopeOperations {
     }
 
     public List<AbstractTaskTO> list(final String type) {
-        return taskService.list(new TaskQuery.Builder().type(TaskType.valueOf(type)).build()).getResult();
+        return taskService.list(new TaskQuery.Builder(TaskType.valueOf(type)).build()).getResult();
     }
 
     public List<AbstractTaskTO> listPropagationTask() {
-        return taskService.list(new TaskQuery.Builder().type(TaskType.PROPAGATION).build()).getResult();
+        return taskService.list(new TaskQuery.Builder(TaskType.PROPAGATION).build()).getResult();
     }
 
     public void deleteExecution(final String executionKey) {
