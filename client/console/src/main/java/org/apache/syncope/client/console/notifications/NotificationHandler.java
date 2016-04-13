@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
@@ -53,8 +52,9 @@ public class NotificationHandler implements Serializable {
     public List<Pair<String, List<SearchClause>>> getAboutClauses() {
         if (this.aboutClauses == null) {
             this.aboutClauses = new ArrayList<>();
-            for (Map.Entry<String, String> entry : this.notificationTO.getAbouts().entrySet()) {
-                this.aboutClauses.add(Pair.of(entry.getKey(), SearchUtils.getSearchClauses(entry.getValue())));
+            for (Map.Entry<String, List<SearchClause>> entry
+                    : SearchUtils.getSearchClauses(this.notificationTO.getAbouts()).entrySet()) {
+                this.aboutClauses.add(Pair.of(entry.getKey(), (entry.getValue())));
             }
         }
 
@@ -104,7 +104,7 @@ public class NotificationHandler implements Serializable {
 
     private String getRecipientsFIQL() {
         if (CollectionUtils.isEmpty(this.recipientClauses)) {
-            return StringUtils.EMPTY;
+            return null;
         } else {
             return getFIQLString(this.recipientClauses, SyncopeClient.getUserSearchConditionBuilder());
         }

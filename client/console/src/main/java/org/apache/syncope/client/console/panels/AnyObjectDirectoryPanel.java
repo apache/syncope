@@ -28,6 +28,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
@@ -130,8 +131,8 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                        final IModel<AnyHandler<AnyObjectTO>> formModel =
-                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                        final IModel<AnyHandler<AnyObjectTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(
+                                model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
                         target.add(altDefaultModal.setContent(new StatusModal<>(
@@ -150,8 +151,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                     public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                         send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<>(
-                                        new AnyHandler<>(new AnyObjectRestClient().read(model.getObject().
-                                                getKey())),
+                                        new AnyHandler<>(new AnyObjectRestClient().read(model.getObject().getKey())),
                                         target));
                     }
                 }, ActionType.EDIT, AnyEntitlement.READ.getFor(type)).add(new ActionLink<AnyObjectTO>() {
@@ -178,6 +178,18 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                         utilityModal.show(true);
                     }
                 }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<AnyObjectTO>() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                        target.add(utilityModal.setContent(
+                                new NotificationTasks(AnyTypeKind.ANY_OBJECT, model.getObject().getKey(), pageRef)));
+                        utilityModal.header(new StringResourceModel("any.notification.tasks", model));
+                        utilityModal.show(true);
+                        target.add(utilityModal);
+                    }
+                }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<AnyObjectTO>() {
 
                     private static final long serialVersionUID = -7978723352517770646L;
 

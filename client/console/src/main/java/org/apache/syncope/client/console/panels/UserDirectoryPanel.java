@@ -29,6 +29,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
@@ -164,8 +165,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
 
-                        final IModel<AnyHandler<UserTO>> formModel =
-                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                        final IModel<AnyHandler<UserTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(model.
+                                getObject()));
                         altDefaultModal.setFormModel(formModel);
 
                         target.add(altDefaultModal.setContent(new StatusModal<>(
@@ -231,6 +232,18 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                         utilityModal.show(true);
                     }
                 }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<UserTO>() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                        target.add(utilityModal.setContent(
+                                new NotificationTasks(AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
+                        utilityModal.header(new StringResourceModel("any.notification.tasks", model));
+                        utilityModal.show(true);
+                        target.add(utilityModal);
+                    }
+                }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<UserTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 

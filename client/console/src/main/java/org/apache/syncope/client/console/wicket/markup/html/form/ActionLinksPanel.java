@@ -85,6 +85,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelDeprovision", "emptyFragment", this));
         super.add(new Fragment("panelProvision", "emptyFragment", this));
         super.add(new Fragment("panelPropagationTasks", "emptyFragment", this));
+        super.add(new Fragment("panelNotificationTasks", "emptyFragment", this));
         super.add(new Fragment("panelZoomIn", "emptyFragment", this));
         super.add(new Fragment("panelZoomOut", "emptyFragment", this));
     }
@@ -733,6 +734,25 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 }.setVisible(link.isEnabled(model.getObject())));
                 break;
 
+            case NOTIFICATION_TASKS:
+                fragment = new Fragment("panelNotificationTasks", "fragmentNotificationTasks", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("notificationTasksLink") {
+
+                    private static final long serialVersionUID = -1876519166660008562L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
             case ZOOM_IN:
                 fragment = new Fragment("panelZoomIn", "fragmentZoomIn", this);
 
@@ -906,6 +926,14 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
             case PROVISION:
                 super.addOrReplace(new Fragment("panelProvision", "emptyFragment", this));
+                break;
+
+            case PROPAGATION_TASKS:
+                super.addOrReplace(new Fragment("panelPropagationTasks", "emptyFragment", this));
+                break;
+
+            case NOTIFICATION_TASKS:
+                super.addOrReplace(new Fragment("panelNotificationTasks", "emptyFragment", this));
                 break;
 
             case ZOOM_IN:

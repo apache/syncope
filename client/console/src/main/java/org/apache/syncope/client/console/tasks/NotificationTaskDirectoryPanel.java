@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -41,6 +40,7 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -57,11 +57,22 @@ public abstract class NotificationTaskDirectoryPanel
 
     private static final long serialVersionUID = 4984337552918213290L;
 
+    private final Long notification;
+
+    private final AnyTypeKind anyTypeKind;
+
+    private final Long anyTypeKey;
+
     protected NotificationTaskDirectoryPanel(
-            final BaseModal<?> baseModal,
+            final Long notification,
+            final AnyTypeKind anyTypeKind,
+            final Long anyTypeKey,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef) {
-        super(baseModal, multiLevelPanelRef, pageRef);
+        super(null, multiLevelPanelRef, pageRef);
+        this.notification = notification;
+        this.anyTypeKind = anyTypeKind;
+        this.anyTypeKey = anyTypeKey;
         initResultTable();
     }
 
@@ -178,7 +189,7 @@ public abstract class NotificationTaskDirectoryPanel
 
     @Override
     protected NotificationTasksProvider dataProvider() {
-        return new NotificationTasksProvider(rows);
+        return new NotificationTasksProvider(notification, anyTypeKind, anyTypeKey, rows);
     }
 
     @Override
@@ -190,16 +201,29 @@ public abstract class NotificationTaskDirectoryPanel
 
         private static final long serialVersionUID = 4725679400450513556L;
 
-        public NotificationTasksProvider(final int paginatorRows) {
+        private final Long notification;
+
+        private final AnyTypeKind anyTypeKind;
+
+        private final Long anyTypeKey;
+
+        public NotificationTasksProvider(
+                final Long notification,
+                final AnyTypeKind anyTypeKind,
+                final Long anyTypeKey,
+                final int paginatorRows) {
             super(paginatorRows, TaskType.PROPAGATION, restClient);
+            this.notification = notification;
+            this.anyTypeKind = anyTypeKind;
+            this.anyTypeKey = anyTypeKey;
         }
 
         @Override
         public Iterator<NotificationTaskTO> iterator(final long first, final long count) {
             final int page = ((int) first / paginatorRows);
 
-            final List<NotificationTaskTO> tasks = restClient.list(
-                    NotificationTaskTO.class, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
+            final List<NotificationTaskTO> tasks = restClient.listNotificationTasks(
+                    notification, anyTypeKind, anyTypeKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
 
             Collections.sort(tasks, getComparator());
             return tasks.iterator();

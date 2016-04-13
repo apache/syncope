@@ -376,8 +376,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         || type.getModelObject() == SearchClause.Type.RELATIONSHIP) {
                     if (comparator.getModelObject() == SearchClause.Comparator.IS_NULL
                             || comparator.getModelObject() == SearchClause.Comparator.IS_NOT_NULL) {
-
-                        value.setModelObject(null);
+                        value.setModelObject(StringUtils.EMPTY);
                         value.setEnabled(false);
                     } else {
                         value.setEnabled(true);
@@ -426,27 +425,30 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         comparator.setRequired(true);
                     }
 
-                    value.setEnabled(comparator.getModelObject() != SearchClause.Comparator.IS_NULL
-                            && comparator.getModelObject() != SearchClause.Comparator.IS_NOT_NULL);
+                    if (comparator.getModelObject() == SearchClause.Comparator.IS_NULL
+                            || comparator.getModelObject() == SearchClause.Comparator.IS_NOT_NULL) {
+                        value.setEnabled(false);
+                        value.setModelObject(StringUtils.EMPTY);
+                    }
                     property.setChoiceRenderer(new DefaultChoiceRender());
                     break;
 
                 case ROLE_MEMBERSHIP:
                     property.setChoiceRenderer(new DefaultChoiceRender());
                     value.setEnabled(false);
-                    value.setModelObject("");
+                    value.setModelObject(StringUtils.EMPTY);
                     break;
 
                 case GROUP_MEMBERSHIP:
                     property.setChoiceRenderer(new GroupChoiceRender());
                     value.setEnabled(false);
-                    value.setModelObject("");
+                    value.setModelObject(StringUtils.EMPTY);
                     break;
 
                 case RESOURCE:
                     property.setChoiceRenderer(new DefaultChoiceRender());
                     value.setEnabled(false);
-                    value.setModelObject("");
+                    value.setModelObject(StringUtils.EMPTY);
                     break;
 
                 case RELATIONSHIP:
@@ -454,7 +456,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     if (comparator.getModelObject() == SearchClause.Comparator.IS_NULL
                             || comparator.getModelObject() == SearchClause.Comparator.IS_NOT_NULL) {
                         value.setEnabled(false);
-                        value.setModelObject("");
+                        value.setModelObject(StringUtils.EMPTY);
                         property.setEnabled(true);
                     } else {
                         value.setEnabled(true);

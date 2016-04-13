@@ -106,13 +106,13 @@ public class NotificationDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
-                        target.add(utilityModal.setContent(new NotificationTasks(
-                                utilityModal, pageRef, model.getObject())));
-                        utilityModal.header(new ResourceModel("notification.executions", "Tasks"));
+                        target.add(utilityModal.setContent(
+                                new NotificationTasks(model.getObject().getKey(), pageRef)));
+                        utilityModal.header(new StringResourceModel("notification.tasks", model));
                         utilityModal.show(true);
                         target.add(utilityModal);
                     }
-                }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_LIST);
+                }, ActionLink.ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
 
                 panel.add(new ActionLink<NotificationTO>() {
 

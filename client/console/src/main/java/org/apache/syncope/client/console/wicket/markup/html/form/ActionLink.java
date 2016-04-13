@@ -74,6 +74,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         MANAGE_USERS("update"),
         MANAGE_GROUPS("update"),
         PROPAGATION_TASKS("read"),
+        NOTIFICATION_TASKS("read"),
         ZOOM_IN("zoomin"),
         ZOOM_OUT("zoomout");
 
