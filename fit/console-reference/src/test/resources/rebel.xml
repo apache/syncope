@@ -36,7 +36,7 @@ under the License.
       </dir>
     </link>
     <link target="/">
-      <dir name="${basedir}/../../client/console/target/classes>
+      <dir name="${basedir}/../../client/console/target/classes">
       </dir>
     </link>
     <link target="/">

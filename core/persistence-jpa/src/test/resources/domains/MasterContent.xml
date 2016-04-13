@@ -1194,7 +1194,7 @@ $$ }&#10;
   <AnyAbout id="1" anyType_name="USER" notification_id="1" filter="token!=$null"/>
   <Notification_events notification_id="1" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   <Task DTYPE="NotificationTask" id="8" notification_id="1"
-        sender="admin@prova.org" subject="Notification for PULLOPE-81" 
+        sender="admin@prova.org" subject="Notification for SYNCOPE-81" 
         textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
   <NotificationTask_recipients notificationtask_id="8" address="recipient@prova.org"/>  
   

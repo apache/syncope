@@ -28,6 +28,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
@@ -124,8 +125,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                        final IModel<AnyHandler<GroupTO>> formModel =
-                                new CompoundPropertyModel<>(new AnyHandler<>(model.getObject()));
+                        final IModel<AnyHandler<GroupTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(
+                                model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
                         target.add(altDefaultModal.setContent(new StatusModal<>(
@@ -171,6 +172,18 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                         utilityModal.show(true);
                     }
                 }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<GroupTO>() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                        target.add(utilityModal.setContent(
+                                new NotificationTasks(AnyTypeKind.GROUP, model.getObject().getKey(), pageRef)));
+                        utilityModal.header(new StringResourceModel("any.notification.tasks", model));
+                        utilityModal.show(true);
+                        target.add(utilityModal);
+                    }
+                }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<GroupTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 

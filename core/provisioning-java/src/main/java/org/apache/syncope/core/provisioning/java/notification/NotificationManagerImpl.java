@@ -65,8 +65,10 @@ import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
+import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationRecipientsProvider;
 import org.slf4j.Logger;
@@ -143,6 +145,9 @@ public class NotificationManagerImpl implements NotificationManager {
     private GroupDataBinder groupDataBinder;
 
     @Autowired
+    private AnyObjectDataBinder anyObjectDataBinder;
+
+    @Autowired
     private EntityFactory entityFactory;
 
     @Transactional(readOnly = true)
@@ -201,8 +206,8 @@ public class NotificationManagerImpl implements NotificationManager {
 
         if (notification.getRecipientsProviderClassName() != null) {
             try {
-                NotificationRecipientsProvider recipientsProvider =
-                        (NotificationRecipientsProvider) ApplicationContextProvider.getBeanFactory().
+                NotificationRecipientsProvider recipientsProvider
+                        = (NotificationRecipientsProvider) ApplicationContextProvider.getBeanFactory().
                         createBean(Class.forName(notification.getRecipientsProviderClassName()),
                                 AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
                 recipientEmails.addAll(recipientsProvider.provideRecipients(notification));
@@ -259,18 +264,24 @@ public class NotificationManagerImpl implements NotificationManager {
 
         if (before instanceof UserTO) {
             any = userDAO.find(((UserTO) before).getKey());
+        } else if (output instanceof UserTO) {
+            any = userDAO.find(((UserTO) output).getKey());
         } else if (output instanceof ProvisioningResult
                 && ((ProvisioningResult) output).getAny() instanceof UserTO) {
 
             any = userDAO.find(((ProvisioningResult) output).getAny().getKey());
         } else if (before instanceof AnyObjectTO) {
             any = anyObjectDAO.find(((AnyObjectTO) before).getKey());
+        } else if (output instanceof AnyObjectTO) {
+            any = anyObjectDAO.find(((AnyObjectTO) output).getKey());
         } else if (output instanceof ProvisioningResult
                 && ((ProvisioningResult) output).getAny() instanceof AnyObjectTO) {
 
             any = anyObjectDAO.find(((ProvisioningResult) output).getAny().getKey());
         } else if (before instanceof GroupTO) {
             any = groupDAO.find(((GroupTO) before).getKey());
+        } else if (output instanceof GroupTO) {
+            any = groupDAO.find(((GroupTO) output).getKey());
         } else if (output instanceof ProvisioningResult
                 && ((ProvisioningResult) output).getAny() instanceof GroupTO) {
 
@@ -313,6 +324,8 @@ public class NotificationManagerImpl implements NotificationManager {
                         model.put("user", userDataBinder.getUserTO((User) any, true));
                     } else if (any instanceof Group) {
                         model.put("group", groupDataBinder.getGroupTO((Group) any, true));
+                    } else if (any instanceof AnyObject) {
+                        model.put("group", anyObjectDataBinder.getAnyObjectTO((AnyObject) any, true));
                     }
 
                     NotificationTask notificationTask = getNotificationTask(notification, any, model);

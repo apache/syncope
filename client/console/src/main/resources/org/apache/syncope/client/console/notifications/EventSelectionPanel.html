@@ -24,7 +24,7 @@ under the License.
         width: 100%;
       }
 
-      .labrut {
+      .eventLabel {
         font-size: 12px;
         vertical-align: middle;
         font-family: Verdana,Tahoma,sans-serif;
@@ -33,7 +33,7 @@ under the License.
         height: 20px;
       }
 
-      .divtableheaderlabrut {
+      .divtableheadereventLabel {
         font-weight: bold;
         float: left;
         margin-left: 5px;
@@ -67,13 +67,13 @@ under the License.
     <div class="eventSelectionWidzard">
       <div class="container">
         <div style="display:inline-table;">
-          <div class="labrut">
+          <div class="eventLabel">
             &nbsp;
           </div>
           <div style="display: table-cell">
             <div class="divtableheadercell">
-              <div class="divtableheaderlabrut">
-                <labrut wicket:id="successLabel"/>
+              <div class="divtableheadereventLabel">
+                <eventLabel wicket:id="successLabel"/>
               </div>
               <div style="display: table-cell">
                 <input type="checkbox" wicket:id="successSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
@@ -82,8 +82,8 @@ under the License.
           </div>
           <div style="display: table-cell">
             <div class="divtableheadercell">
-              <div class="divtableheaderlabrut">
-                <labrut wicket:id="failureLabel"/>
+              <div class="divtableheadereventLabel">
+                <eventLabel wicket:id="failureLabel"/>
               </div>
               <div style="display: table-cell">
                 <input type="checkbox" wicket:id="failureSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
@@ -94,9 +94,9 @@ under the License.
       </div>
 
       <div class="container">
-        <div class="labrut">
-          <div id="divtablerow-labrut" wicket:id="categoryView">
-            <div class="labrut">
+        <div class="eventLabel">
+          <div id="divtablerow-eventLabel" wicket:id="categoryView">
+            <div class="eventLabel">
               <span wicket:id="subcategory">[subcategory]</span>
             </div>
           </div>
@@ -105,7 +105,7 @@ under the License.
         <div id="divtablerow-success" class="divtablecheckcolumn">
           <span wicket:id="successGroup">
             <div wicket:id="successView" class="divtablecheck">
-              <div class="divtableheaderlabrut">&nbsp;</div>
+              <div class="divtableheadereventLabel">&nbsp;</div>
               <input type="checkbox" wicket:id="successCheck"/>
             </div>
           </span>
@@ -114,7 +114,7 @@ under the License.
         <div id="divtablerow-failure" class="divtablecheckcolumn">
           <span wicket:id="failureGroup">
             <div wicket:id="failureView" class="divtablecheck">
-              <div class="divtableheaderlabrut">&nbsp;</div>
+              <div class="divtableheadereventLabel">&nbsp;</div>
               <input type="checkbox" wicket:id="failureCheck"/>
             </div>
           </span>

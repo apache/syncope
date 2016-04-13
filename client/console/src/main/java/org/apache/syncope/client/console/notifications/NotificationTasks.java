@@ -26,29 +26,51 @@ import org.apache.syncope.client.console.tasks.TaskExecutionDetails;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 
 public class NotificationTasks extends Panel implements ModalPanel<Serializable> {
 
     private static final long serialVersionUID = 1066124171682570083L;
 
     public NotificationTasks(
-            final BaseModal<?> baseModal, final PageReference pageReference, final NotificationTO notificationTO) {
+            final AnyTypeKind anyTypeKind,
+            final Long anyTypeKey,
+            final PageReference pageReference) {
+        this(null, anyTypeKind, anyTypeKey, pageReference);
+    }
+
+    public NotificationTasks(
+            final Long notification,
+            final PageReference pageReference) {
+        this(notification, null, null, pageReference);
+    }
+
+    private NotificationTasks(
+            final Long notification,
+            final AnyTypeKind anyTypeKind,
+            final Long anyTypeKey,
+            final PageReference pageReference) {
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new NotificationTaskDirectoryPanel(null, mlp, pageReference) {
+        mlp.setFirstLevel(
+                new NotificationTaskDirectoryPanel(notification, anyTypeKind, anyTypeKey, mlp, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
             protected void viewTask(final NotificationTaskTO taskTO, final AjaxRequestTarget target) {
-                mlp.next("task.view", new TaskExecutionDetails<>(null, taskTO, pageReference), target);
+                mlp.next(
+                        new StringResourceModel("task.view", this, new Model<>(taskTO)).getObject(),
+                        new TaskExecutionDetails<>(null, taskTO, pageReference), target);
             }
         });
     }

@@ -90,6 +90,32 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     @SuppressWarnings("unchecked")
+    public <T extends AbstractTaskTO> List<T> listNotificationTasks(
+            final Long notification,
+            final AnyTypeKind anyTypeKind,
+            final Long anyTypeKey,
+            final int page,
+            final int size,
+            final SortParam<String> sort) {
+
+        final TaskQuery.Builder builder = new TaskQuery.Builder(TaskType.NOTIFICATION);
+        if (notification != null) {
+            builder.notification(notification);
+        }
+
+        if (anyTypeKind != null) {
+            builder.anyTypeKind(anyTypeKind);
+        }
+
+        if (anyTypeKey != null) {
+            builder.anyTypeKey(anyTypeKey);
+        }
+
+        return (List<T>) getService(TaskService.class).
+                list(builder.page(page).size(size).orderBy(toOrderBy(sort)).build()).getResult();
+    }
+
+    @SuppressWarnings("unchecked")
     public <T extends AbstractTaskTO> List<T> list(
             final Class<T> reference, final int page, final int size, final SortParam<String> sort) {
 

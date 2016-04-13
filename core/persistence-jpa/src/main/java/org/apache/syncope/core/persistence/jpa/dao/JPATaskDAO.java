@@ -132,7 +132,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
             throw new IllegalArgumentException(type + " is not related to " + ExternalResource.class.getSimpleName());
         }
 
-        if ((anyTypeKind != null || anyKey != null) && type != TaskType.PROPAGATION) {
+        if ((anyTypeKind != null || anyKey != null) && type != TaskType.PROPAGATION && type != TaskType.NOTIFICATION) {
             throw new IllegalArgumentException(type + " is not related to users, groups or any objects");
         }
 
