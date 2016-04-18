@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wizards.any.AnyHandler;
 import org.apache.syncope.client.console.wizards.any.StatusPanel;
@@ -70,11 +71,16 @@ public abstract class AnyDirectoryPanel<T extends AnyTO>
      */
     protected final String type;
 
+    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
+
     protected AnyDirectoryPanel(final String id, final Builder<T> builder) {
         super(id, builder);
         this.realm = builder.realm;
         this.type = builder.type;
         this.fiql = builder.fiql;
+
+        addOuterObject(utilityModal);
+        setWindowClosedReloadCallback(utilityModal);
 
         modal.size(Modal.Size.Large);
         altDefaultModal.size(Modal.Size.Large);

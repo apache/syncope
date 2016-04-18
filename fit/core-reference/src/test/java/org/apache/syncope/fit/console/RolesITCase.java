@@ -35,18 +35,18 @@ public class RolesITCase extends AbstractConsoleITCase {
     private void createRole(final String name) {
         wicketTester.clickLink("body:content:rolesPanel:container:content:add");
 
-        wicketTester.assertComponent("body:content:rolesPanel:modal", Modal.class);
+        wicketTester.assertComponent("body:content:rolesPanel:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:rolesPanel:modal:form");
+        FormTester formTester = wicketTester.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:key:textField", name);
         formTester.submit("content:form:buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:rolesPanel:modal:form");
+        formTester = wicketTester.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:entitlements:paletteField:recorder",
                 "WORKFLOW_DEF_READ,NOTIFICATION_UPDATE,RELATIONSHIPTYPE_READ,RELATIONSHIPTYPE_LIST");
         formTester.submit("content:form:buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:rolesPanel:modal:form");
+        formTester = wicketTester.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
@@ -85,16 +85,16 @@ public class RolesITCase extends AbstractConsoleITCase {
         wicketTester.clickLink(
                 result.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
 
-        FormTester formTester = wicketTester.newFormTester("body:content:rolesPanel:modal:form");
+        FormTester formTester = wicketTester.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:key:textField", "updateRole");
         formTester.submit("content:form:buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:rolesPanel:modal:form");
+        formTester = wicketTester.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:entitlements:paletteField:recorder",
                 "WORKFLOW_DEF_READ,NOTIFICATION_UPDATE");
         formTester.submit("content:form:buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:rolesPanel:modal:form");
+        formTester = wicketTester.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
         wicketTester.assertInfoMessages("Operation executed successfully");

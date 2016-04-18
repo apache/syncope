@@ -75,7 +75,8 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleHandler, Role
     protected List<IColumn<RoleTO, String>> getColumns() {
         final List<IColumn<RoleTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<RoleTO, String>(new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn<RoleTO, String>(
+                new ResourceModel("key"), "key", "key"));
         columns.add(new PropertyColumn<RoleTO, String>(
                 new ResourceModel("entitlements", "Entitlements"), null, "entitlements"));
         columns.add(new PropertyColumn<RoleTO, String>(

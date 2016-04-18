@@ -35,7 +35,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -96,6 +95,10 @@ public abstract class DirectoryPanel<
 
     protected String itemKeyFieldName = "key";
 
+    protected final BaseModal<W> altDefaultModal = new BaseModal<>("outer");
+
+    protected final BaseModal<W> displayAttributeModal = new BaseModal<>("outer");
+
     /**
      * Create simple unfiltered search result panel.
      * Use the available builder for powerfull configuration options.
@@ -128,6 +131,9 @@ public abstract class DirectoryPanel<
         super(id, wizardInModal);
         setOutputMarkupId(true);
 
+        addOuterObject(altDefaultModal);
+        addOuterObject(displayAttributeModal);
+
         this.page = (BasePage) builder.getPageRef().getPage();
 
         this.filtered = builder.filtered;
@@ -146,11 +152,9 @@ public abstract class DirectoryPanel<
         setWindowClosedReloadCallback(modal);
         setWindowClosedReloadCallback(altDefaultModal);
         setWindowClosedReloadCallback(displayAttributeModal);
-        setWindowClosedReloadCallback(utilityModal);
 
         altDefaultModal.size(Modal.Size.Medium);
         displayAttributeModal.size(Modal.Size.Medium);
-        utilityModal.size(Modal.Size.Large);
     }
 
     protected abstract DP dataProvider();
@@ -261,22 +265,12 @@ public abstract class DirectoryPanel<
         super.onEvent(event);
     }
 
-    protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                modal.show(false);
-
-                final EventDataWrapper data = new EventDataWrapper();
-                data.setTarget(target);
-                data.setRows(rows);
-
-                send(getParent(), Broadcast.BREADTH, data);
-            }
-        });
+    @Override
+    protected void customActionOnCloseCallback(final AjaxRequestTarget target) {
+        final EventDataWrapper data = new EventDataWrapper();
+        data.setTarget(target);
+        data.setRows(rows);
+        send(getParent(), Broadcast.BREADTH, data);
     }
 
     public static class EventDataWrapper {

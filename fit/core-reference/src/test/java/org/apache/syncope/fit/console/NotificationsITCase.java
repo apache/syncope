@@ -36,17 +36,17 @@ public class NotificationsITCase extends AbstractConsoleITCase {
     private void createNotification(final String sender, final String subject) {
         wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        wicketTester.assertComponent("body:content:tabbedPanel:panel:modal", Modal.class);
+        wicketTester.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
+        FormTester formTester = wicketTester.newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
 
         // -------------------------------
         // generate event to populate recipientAttrName
         // -------------------------------
         formTester.setValue("content:form:view:recipientAttrType:dropDownChoiceField", "3");
-        wicketTester.executeAjaxEvent(
-                "body:content:tabbedPanel:panel:modal:form:content:form:view:recipientAttrType:dropDownChoiceField",
-                Constants.ON_CHANGE);
+        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:"
+                + "form:view:recipientAttrType:dropDownChoiceField", Constants.ON_CHANGE);
         // -------------------------------
 
         formTester.select("content:form:view:recipientAttrType:dropDownChoiceField", 3);
@@ -61,13 +61,13 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         formTester.submit("content:form:buttons:next");
         wicketTester.assertNoErrorMessage();
 
-        formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
+        formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
 
         // -------------------------------
         // generate event to populate eventsPanel
         // -------------------------------
         formTester.setValue("content:form:view:eventSelection:categoryContainer:category:dropDownChoiceField", "0");
-        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:modal:form:"
+        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:"
                 + "content:form:view:eventSelection:categoryContainer:category:dropDownChoiceField",
                 Constants.ON_CHANGE);
         // -------------------------------
@@ -76,7 +76,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         // select event template
         // -------------------------------
         formTester.setValue("content:form:view:eventSelection:eventsContainer:eventsPanel:successGroup", "check0");
-        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:modal:form:content:"
+        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:"
                 + "form:view:eventSelection:eventsContainer:eventsPanel:successGroup",
                 Constants.ON_CLICK);
         // -------------------------------
@@ -88,15 +88,15 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         formTester.submit("content:form:buttons:next");
         wicketTester.assertNoErrorMessage();
 
-        formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
+        formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         wicketTester.cleanupFeedbackMessages();
         formTester.submit("content:form:buttons:next");
         wicketTester.assertNoErrorMessage();
         wicketTester.assertNoInfoMessage();
 
-        formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
-        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:modal:form:content:form:view:staticRecipients:"
-                + "multiValueContainer:innerForm:content:panelPlus:add", Constants.ON_CLICK);
+        formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:form:"
+                + "view:staticRecipients:multiValueContainer:innerForm:content:panelPlus:add", Constants.ON_CLICK);
         formTester.setValue("content:form:view:staticRecipients:multiValueContainer:innerForm:content:view:0:panel:"
                 + "textField", "recipient@syncope.org");
         formTester.setValue("content:form:view:selfAsRecipient:checkboxField", true);
@@ -135,7 +135,8 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink(
                 result.getPageRelativePath() + ":cells:7:cell:panelEdit:editLink");
 
-        FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
+        FormTester formTester = wicketTester.newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
         wicketTester.assertInfoMessages("Operation executed successfully");

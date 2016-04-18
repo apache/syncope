@@ -38,14 +38,15 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:securityQuestionPanel:container:content:add");
 
         wicketTester.assertComponent(
-                "body:content:securityQuestionPanel:modal", Modal.class);
+                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:securityQuestionPanel"
-                + ":modal:form");
+        FormTester formTester
+                = wicketTester.newFormTester("body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
                 name);
 
-        wicketTester.clickLink("body:content:securityQuestionPanel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink(
+                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
         wicketTester.cleanupFeedbackMessages();
@@ -90,11 +91,13 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
 
         wicketTester.clickLink(result.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink");
 
-        FormTester formTester = wicketTester.newFormTester("body:content:securityQuestionPanel:modal:form");
+        FormTester formTester
+                = wicketTester.newFormTester("body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
                 "What's your favorite car?");
 
-        wicketTester.clickLink("body:content:securityQuestionPanel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink(
+                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
         wicketTester.cleanupFeedbackMessages();

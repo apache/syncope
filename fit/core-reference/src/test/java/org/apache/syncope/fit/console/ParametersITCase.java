@@ -50,12 +50,13 @@ public class ParametersITCase extends AbstractConsoleITCase {
         wicketTester.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
 
         wicketTester.clickLink("body:content:parametersPanel:container:content:add");
-        wicketTester.assertComponent("body:content:parametersPanel:modal", Modal.class);
+        wicketTester.assertComponent("body:content:parametersPanel:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:parametersPanel:modal:form");
+        FormTester formTester
+                = wicketTester.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:parametersPanel:modal:form");
+        formTester = wicketTester.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:schema:textField", "testParam");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:attrs:0:panel:textField", "test");
 
@@ -92,12 +93,13 @@ public class ParametersITCase extends AbstractConsoleITCase {
         wicketTester.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
 
         wicketTester.clickLink("body:content:parametersPanel:container:content:add");
-        wicketTester.assertComponent("body:content:parametersPanel:modal", Modal.class);
+        wicketTester.assertComponent("body:content:parametersPanel:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:parametersPanel:modal:form");
+        FormTester formTester
+                = wicketTester.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:parametersPanel:modal:form");
+        formTester = wicketTester.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:schema:textField", "deleteParam");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:attrs:0:panel:textField", "test");
 

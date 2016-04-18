@@ -126,8 +126,7 @@ public class AuxClasses extends WizardStep {
                 }
             }).hideLabel().setOutputMarkupId(true));
 
-            final ArrayList<String> dynamics = CollectionUtils.collect(dyngroups,
-                    new Transformer<Long, String>() {
+            final ArrayList<String> dynamics = CollectionUtils.collect(dyngroups, new Transformer<Long, String>() {
 
                 @Override
                 public String transform(final Long input) {

@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.notifications;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,6 +35,7 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -58,9 +60,14 @@ public class MailTemplateDirectoryPanel
 
     private static final long serialVersionUID = -3789392431954221446L;
 
+    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
+
     public MailTemplateDirectoryPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, true);
         disableCheckBoxes();
+
+        addOuterObject(utilityModal);
+        setWindowClosedReloadCallback(utilityModal);
 
         modal.size(Modal.Size.Small);
         modal.addSumbitButton();
@@ -132,7 +139,7 @@ public class MailTemplateDirectoryPanel
                                         model.getObject().getKey(), MailTemplateFormat.TEXT);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.TEXT));
-                        
+
                         utilityModal.setFormModel(content);
                         utilityModal.header(new ResourceModel("mail.template.text", "TEXT Content"));
                         utilityModal.setContent(new MailTemplateContentModal(utilityModal, content, pageRef));

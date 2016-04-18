@@ -53,8 +53,7 @@ public class AnyTypesITCase extends AbstractTypesITCase {
         wicketTester.clickLink(
                 result.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
 
-        wicketTester.assertComponent(
-                "body:content:tabbedPanel:panel:modal", BaseModal.class);
+        wicketTester.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", BaseModal.class);
     }
 
     @Test
@@ -64,15 +63,15 @@ public class AnyTypesITCase extends AbstractTypesITCase {
 
         wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        wicketTester.assertComponent(
-                "body:content:tabbedPanel:panel:modal", Modal.class);
+        wicketTester.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
+        final FormTester formTester = wicketTester.newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:anyTypeDetailsPanel:container:form:key:textField", anyTypeTest);
-        formTester.setValue(
-                "content:anyTypeDetailsPanel:container:form:classes:paletteField:recorder", "csv");
+        formTester.setValue("content:anyTypeDetailsPanel:container:form:classes:paletteField:recorder", "csv");
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.clearFeedbackMessages();
@@ -102,12 +101,13 @@ public class AnyTypesITCase extends AbstractTypesITCase {
                 DATATABLE_PATH
                 + ":tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:4:cell:panelEdit:editLink");
 
-        final FormTester formTester =
-                wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
+        final FormTester formTester = wicketTester.newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue(
                 "content:anyTypeDetailsPanel:container:form:classes:paletteField:recorder", name + ",minimal group");
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
     }
 

@@ -70,7 +70,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
         wicketTester.clickLink(component.getPageRelativePath() + ":cells:3:cell:panelClone:cloneLink");
 
-        FormTester formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
+        FormTester formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
 
         formTester.submit("buttons:cancel");
@@ -87,38 +87,38 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
         wicketTester.clickLink(component.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink");
 
-        wicketTester.assertComponent(tabPanel + "modal:form:content:form:view:status:resources:firstLevelContainer:"
-                + "first:container:content:group:beans:0:fields:0", ListItem.class);
+        wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:0:outer:form:content:form:view:status:"
+                + "resources:firstLevelContainer:first:container:content:group:beans:0:fields:0", ListItem.class);
 
-        FormTester formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
+        FormTester formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
         wicketTester.cleanupFeedbackMessages();
 
-        formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.assertComponent(tabPanel
-                + "modal:form:content:customResultBody:resources:firstLevelContainer:first:container:content:"
-                + "group:beans:0:fields:0:field", Label.class);
+                + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:"
+                + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", Label.class);
 
-        wicketTester.clickLink(tabPanel + "modal:form:content:action:panelClose:closeLink");
+        wicketTester.clickLink(tabPanel + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
 
         component = findComponentByProp("key", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", 1L);
