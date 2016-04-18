@@ -35,7 +35,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPARelationshipTypeDAO extends AbstractDAO<RelationshipType, String> implements RelationshipTypeDAO {
+public class JPARelationshipTypeDAO extends AbstractDAO<RelationshipType> implements RelationshipTypeDAO {
 
     @Override
     public RelationshipType find(final String key) {

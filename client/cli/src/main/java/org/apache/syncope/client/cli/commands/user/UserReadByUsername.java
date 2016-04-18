@@ -44,8 +44,7 @@ public class UserReadByUsername extends AbstractUserCommand {
             final List<UserTO> userTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    final String userId = userSyncopeOperations.getIdFromUsername(parameter);
-                    userTOs.add(userSyncopeOperations.read(userId));
+                    userTOs.add(userSyncopeOperations.read(parameter));
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     LOG.error("Error reading user", ex);
                     if (ex.getMessage().startsWith("NotFound")) {

@@ -63,7 +63,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
 
         final UserTO inner = modelObject.getInnerObject();
 
-        if (inner.getKey() == null || inner.getKey() == 0) {
+        if (inner.getKey() == null) {
             actual = userRestClient.create(inner, StringUtils.isNotBlank(inner.getPassword()));
         } else {
             final UserPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
@@ -86,9 +86,10 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
     @Override
     protected UserWizardBuilder addOptionalDetailsPanel(
             final AnyHandler<UserTO> modelObject, final WizardModel wizardModel) {
+
         wizardModel.add(new UserDetails(
                 modelObject, statusModel, false, false, pageRef,
-                modelObject.getInnerObject().getKey() != null && modelObject.getInnerObject().getKey() > 0));
+                modelObject.getInnerObject().getKey() != null));
         return this;
     }
 

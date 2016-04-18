@@ -65,7 +65,7 @@ public interface TaskService extends JAXRSService {
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     <T extends AbstractTaskTO> T read(
-            @NotNull @PathParam("key") Long key,
+            @NotNull @PathParam("key") String key,
             @QueryParam(JAXRSService.PARAM_DETAILS) @DefaultValue("true") boolean details);
 
     /**
@@ -106,7 +106,7 @@ public interface TaskService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") Long key);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Returns a paged list of task executions matching the given query.
@@ -137,7 +137,7 @@ public interface TaskService extends JAXRSService {
      */
     @DELETE
     @Path("executions/{executionKey}")
-    void deleteExecution(@NotNull @PathParam("executionKey") Long executionKey);
+    void deleteExecution(@NotNull @PathParam("executionKey") String executionKey);
 
     /**
      * Deletes the task executions belonging matching the given query.
@@ -191,5 +191,5 @@ public interface TaskService extends JAXRSService {
      */
     @POST
     @Path("jobs/{key}")
-    void actionJob(@NotNull @PathParam("key") Long key, @QueryParam("action") JobAction action);
+    void actionJob(@NotNull @PathParam("key") String key, @QueryParam("action") JobAction action);
 }

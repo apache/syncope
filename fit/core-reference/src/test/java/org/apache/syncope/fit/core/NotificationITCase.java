@@ -61,7 +61,8 @@ public class NotificationITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        NotificationTO notificationTO = notificationService.read(10L);
+        NotificationTO notificationTO = notificationService.read(
+                "9e2b911c-25de-4c77-bcea-b86ed9451050");
         assertNotNull(notificationTO);
     }
 
@@ -78,7 +79,8 @@ public class NotificationITCase extends AbstractITCase {
     @Test
     public void create() {
         NotificationTO notificationTO = buildNotificationTO();
-        notificationTO.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
+        notificationTO.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().
+                inGroups("bf825fe1-7320-4a54-bd64-143b5c18ab97").query());
 
         Response response = notificationService.create(notificationTO);
         NotificationTO actual = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
@@ -91,8 +93,10 @@ public class NotificationITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        NotificationTO notificationTO = notificationService.read(10L);
-        notificationTO.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
+        NotificationTO notificationTO = notificationService.read(
+                "9e2b911c-25de-4c77-bcea-b86ed9451050");
+        notificationTO.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().inGroups(
+                "bf825fe1-7320-4a54-bd64-143b5c18ab97").query());
 
         notificationService.update(notificationTO);
         NotificationTO actual = notificationService.read(notificationTO.getKey());

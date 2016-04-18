@@ -25,7 +25,7 @@ under the License.
   
   <persistence-unit name="Master">
     <mapping-file>META-INF/spring-orm.xml</mapping-file>
-    <validation-mode>NONE</validation-mode>    
+    <validation-mode>NONE</validation-mode>
   </persistence-unit>
   
 </persistence>

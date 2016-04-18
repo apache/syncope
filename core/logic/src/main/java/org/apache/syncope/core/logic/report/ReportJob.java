@@ -37,7 +37,7 @@ public class ReportJob extends AbstractInterruptableJob {
     /**
      * Key, set by the caller, for identifying the report to be executed.
      */
-    private Long reportKey;
+    private String reportKey;
 
     @Autowired
     private ReportJobDelegate delegate;
@@ -47,7 +47,7 @@ public class ReportJob extends AbstractInterruptableJob {
      *
      * @param reportKey to be set
      */
-    public void setReportKey(final Long reportKey) {
+    public void setReportKey(final String reportKey) {
         this.reportKey = reportKey;
     }
 

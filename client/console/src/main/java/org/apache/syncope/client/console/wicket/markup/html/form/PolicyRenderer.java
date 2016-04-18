@@ -22,24 +22,24 @@ import java.util.Map;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.model.IModel;
 
-public class PolicyRenderer extends ChoiceRenderer<Long> {
+public class PolicyRenderer extends ChoiceRenderer<String> {
 
     private static final long serialVersionUID = 8060500161321947000L;
 
-    private final IModel<Map<Long, String>> policies;
+    private final IModel<Map<String, String>> policies;
 
-    public PolicyRenderer(final IModel<Map<Long, String>> policies) {
+    public PolicyRenderer(final IModel<Map<String, String>> policies) {
         super();
         this.policies = policies;
     }
 
     @Override
-    public Object getDisplayValue(final Long object) {
+    public Object getDisplayValue(final String object) {
         return policies.getObject().get(object);
     }
 
     @Override
-    public String getIdValue(final Long object, final int index) {
+    public String getIdValue(final String object, final int index) {
         return String.valueOf(object != null ? object : 0L);
     }
 }

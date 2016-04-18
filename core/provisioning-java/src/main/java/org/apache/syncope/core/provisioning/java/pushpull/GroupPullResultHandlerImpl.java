@@ -40,10 +40,10 @@ import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 
 public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implements GroupPullResultHandler {
 
-    protected final Map<Long, String> groupOwnerMap = new HashMap<>();
+    protected final Map<String, String> groupOwnerMap = new HashMap<>();
 
     @Override
-    public Map<Long, String> getGroupOwnerMap() {
+    public Map<String, String> getGroupOwnerMap() {
         return this.groupOwnerMap;
     }
 
@@ -63,7 +63,7 @@ public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implem
     }
 
     @Override
-    protected Any<?> getAny(final long key) {
+    protected Any<?> getAny(final String key) {
         try {
             return groupDAO.authFind(key);
         } catch (Exception e) {
@@ -73,19 +73,19 @@ public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implem
     }
 
     @Override
-    protected AnyTO getAnyTO(final long key) {
+    protected AnyTO getAnyTO(final String key) {
         return groupDataBinder.getGroupTO(key);
     }
 
     @Override
-    protected AnyPatch newPatch(final long key) {
+    protected AnyPatch newPatch(final String key) {
         GroupPatch patch = new GroupPatch();
         patch.setKey(key);
         return patch;
     }
 
     @Override
-    protected WorkflowResult<Long> update(final AnyPatch patch) {
+    protected WorkflowResult<String> update(final AnyPatch patch) {
         return gwfAdapter.update((GroupPatch) patch);
     }
 
@@ -93,7 +93,7 @@ public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implem
     protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningReport result) {
         GroupTO groupTO = GroupTO.class.cast(anyTO);
 
-        Map.Entry<Long, List<PropagationStatus>> created = groupProvisioningManager.create(
+        Map.Entry<String, List<PropagationStatus>> created = groupProvisioningManager.create(
                 groupTO,
                 groupOwnerMap,
                 Collections.singleton(profile.getTask().getResource().getKey()),
@@ -114,7 +114,7 @@ public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implem
 
         GroupPatch groupPatch = GroupPatch.class.cast(anyPatch);
 
-        Map.Entry<Long, List<PropagationStatus>> updated = groupProvisioningManager.update(groupPatch, true);
+        Map.Entry<String, List<PropagationStatus>> updated = groupProvisioningManager.update(groupPatch, true);
 
         String groupOwner = null;
         for (AttrPatch attrPatch : groupPatch.getPlainAttrs()) {

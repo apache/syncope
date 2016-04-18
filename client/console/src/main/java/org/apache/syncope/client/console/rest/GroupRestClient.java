@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.List;
 import javax.ws.rs.core.GenericType;
-
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -53,8 +52,9 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
     }
 
     @Override
-    public List<GroupTO> list(final String realm, final int page, final int size, final SortParam<String> sort,
-            final String type) {
+    public List<GroupTO> list(
+            final String realm, final int page, final int size, final SortParam<String> sort, final String type) {
+
         return getService(GroupService.class).
                 list(new AnyListQuery.Builder().realm(realm).page(page).size(size).
                         orderBy(toOrderBy(sort)).details(false).build()).
@@ -86,7 +86,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
     }
 
     @Override
-    public GroupTO read(final Long key) {
+    public GroupTO read(final String key) {
         return getService(GroupService.class).read(key);
     }
 
@@ -102,7 +102,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
     }
 
     @Override
-    public ProvisioningResult<GroupTO> delete(final String etag, final Long key) {
+    public ProvisioningResult<GroupTO> delete(final String etag, final String key) {
         return delete(GroupService.class, GroupTO.class, etag, key);
     }
 

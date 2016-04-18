@@ -27,7 +27,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPADomainDAO extends AbstractDAO<Domain, String> implements DomainDAO {
+public class JPADomainDAO extends AbstractDAO<Domain> implements DomainDAO {
 
     @Transactional(readOnly = true)
     @Override

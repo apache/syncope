@@ -29,7 +29,6 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -52,17 +51,14 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.RealmCheck;
 
 @Entity
 @Table(name = JPARealm.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "name", "parent_id" }))
+        @UniqueConstraint(columnNames = { "key", "parent_key" }))
 @Cacheable
 @RealmCheck
-public class JPARealm extends AbstractEntity<Long> implements Realm {
+public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
 
     private static final long serialVersionUID = 5533247460239909964L;
 
     public static final String TABLE = "Realm";
-
-    @Id
-    private Long id;
 
     @Size(min = 1)
     private String name;
@@ -80,16 +76,11 @@ public class JPARealm extends AbstractEntity<Long> implements Realm {
     @Column(name = "actionClassName")
     @CollectionTable(name = "Realm_actionsClassNames",
             joinColumns =
-            @JoinColumn(name = "realm_id", referencedColumnName = "id"))
+            @JoinColumn(name = "realm_key", referencedColumnName = "key"))
     private Set<String> actionsClassNames = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "realm")
     private List<JPAAnyTemplateRealm> templates = new ArrayList<>();
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public String getName() {

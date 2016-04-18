@@ -53,10 +53,10 @@ public class GroupTest extends AbstractTest {
 
     @Test
     public void find() {
-        Group group = groupDAO.find("root");
+        Group group = groupDAO.findByName("root");
         assertNotNull("did not find expected group", group);
 
-        group = groupDAO.find("additional");
+        group = groupDAO.findByName("additional");
         assertNotNull(group);
         assertEquals(1, group.getTypeExtensions().size());
         assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).getAuxClasses().size());
@@ -66,7 +66,7 @@ public class GroupTest extends AbstractTest {
     public void save() {
         Group group = entityFactory.newEntity(Group.class);
         group.setName("secondChild");
-        group.setRealm(realmDAO.find(SyncopeConstants.ROOT_REALM));
+        group.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM));
 
         group = groupDAO.save(group);
 
@@ -76,10 +76,10 @@ public class GroupTest extends AbstractTest {
 
     @Test
     public void delete() {
-        Group group = groupDAO.find(4L);
+        Group group = groupDAO.find("8fb2d51e-c605-4e80-a72b-13ffecf1aa9a");
         groupDAO.delete(group.getKey());
 
-        Group actual = groupDAO.find(4L);
+        Group actual = groupDAO.find("8fb2d51e-c605-4e80-a72b-13ffecf1aa9a");
         assertNull("delete did not work", actual);
     }
 }

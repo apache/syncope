@@ -35,7 +35,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
      */
-    WorkflowResult<Pair<Long, Boolean>> create(UserTO userTO, boolean storePassword);
+    WorkflowResult<Pair<String, Boolean>> create(UserTO userTO, boolean storePassword);
 
     /**
      * Create an user, optionally disabling password policy check.
@@ -45,7 +45,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
      */
-    WorkflowResult<Pair<Long, Boolean>> create(
+    WorkflowResult<Pair<String, Boolean>> create(
             UserTO userTO, boolean disablePwdPolicyCheck, boolean storePassword);
 
     /**
@@ -57,7 +57,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
      */
-    WorkflowResult<Pair<Long, Boolean>> create(
+    WorkflowResult<Pair<String, Boolean>> create(
             UserTO userTO, boolean disablePwdPolicyCheck, final Boolean enabled, boolean storePassword);
 
     /**
@@ -67,7 +67,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param taskId to be executed
      * @return user just updated
      */
-    WorkflowResult<Long> execute(UserTO userTO, String taskId);
+    WorkflowResult<String> execute(UserTO userTO, String taskId);
 
     /**
      * Activate an user.
@@ -76,7 +76,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param token to be verified for activation
      * @return user just updated
      */
-    WorkflowResult<Long> activate(Long userKey, String token);
+    WorkflowResult<String> activate(String userKey, String token);
 
     /**
      * Update an user.
@@ -92,7 +92,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param key to be suspended
      * @return user just suspended
      */
-    WorkflowResult<Long> suspend(Long key);
+    WorkflowResult<String> suspend(String key);
 
     /**
      * Suspend an user (used by internal authentication process)
@@ -100,7 +100,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param key to be suspended
      * @return user just suspended and information whether to propagate suspension
      */
-    Pair<WorkflowResult<Long>, Boolean> internalSuspend(Long key);
+    Pair<WorkflowResult<String>, Boolean> internalSuspend(String key);
 
     /**
      * Reactivate an user.
@@ -108,14 +108,14 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userKey user to be reactivated
      * @return user just reactivated
      */
-    WorkflowResult<Long> reactivate(Long userKey);
+    WorkflowResult<String> reactivate(String userKey);
 
     /**
      * Request password reset for an user.
      *
      * @param userKey user requesting password reset
      */
-    void requestPasswordReset(Long userKey);
+    void requestPasswordReset(String userKey);
 
     /**
      * Confirm password reset for an user.
@@ -125,12 +125,12 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param password new password value
      * @return user just updated and propagations to be performed
      */
-    WorkflowResult<Pair<UserPatch, Boolean>> confirmPasswordReset(Long userKey, String token, String password);
+    WorkflowResult<Pair<UserPatch, Boolean>> confirmPasswordReset(String userKey, String token, String password);
 
     /**
      * Delete an user.
      *
      * @param userKey user to be deleted
      */
-    void delete(Long userKey);
+    void delete(String userKey);
 }

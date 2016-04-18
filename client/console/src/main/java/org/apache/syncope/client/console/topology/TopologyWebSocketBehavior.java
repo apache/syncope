@@ -51,9 +51,9 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     private final Set<String> runningResCheck = new HashSet<>();
 
-    private final Map<Long, String> connectors = new HashMap<>();
+    private final Map<String, String> connectors = new HashMap<>();
 
-    private final Set<Long> runningConnCheck = new HashSet<>();
+    private final Set<String> runningConnCheck = new HashSet<>();
 
     private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
 
@@ -66,7 +66,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
             switch (Topology.SupportedOperation.valueOf(obj.get("kind").asText())) {
                 case CHECK_CONNECTOR:
-                    final Long ckey = obj.get("target").asLong();
+                    final String ckey = obj.get("target").asText();
 
                     if (connectors.containsKey(ckey)) {
                         handler.push(connectors.get(ckey));
@@ -122,13 +122,13 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     class ConnCheck implements Runnable {
 
-        private final Long key;
+        private final String key;
 
         private final Application application;
 
         private final Session session;
 
-        ConnCheck(final Long key) {
+        ConnCheck(final String key) {
             this.key = key;
             this.application = Application.get();
             this.session = Session.exists() ? Session.get() : null;

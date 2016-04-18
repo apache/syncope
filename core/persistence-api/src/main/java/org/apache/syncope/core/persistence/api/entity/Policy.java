@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-public interface Policy extends Entity<Long> {
+public interface Policy extends Entity {
 
     String getDescription();
 

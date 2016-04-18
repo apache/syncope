@@ -29,8 +29,8 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     protected static final String PLAIN_DATATABLE_PATH = "body:content:tabbedPanel:panel:"
             + "accordionPanel:tabs:0:body:content:container:content:searchContainer:resultTable";
 
-    protected static final String DATATABLE_PATH
-            = "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable";
+    protected static final String DATATABLE_PATH =
+            "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable";
 
     @Before
     public void login() {

@@ -32,21 +32,21 @@ public class TaskExecQuery extends AbstractQuery {
             return new TaskExecQuery();
         }
 
-        public Builder key(final Long key) {
+        public Builder key(final String key) {
             getInstance().setKey(key);
             return this;
         }
     }
 
-    private Long key;
+    private String key;
 
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @NotNull
     @PathParam("key")
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

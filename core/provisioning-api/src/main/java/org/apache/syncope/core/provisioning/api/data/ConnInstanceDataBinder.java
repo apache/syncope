@@ -31,6 +31,6 @@ public interface ConnInstanceDataBinder {
 
     ConnInstanceTO getConnInstanceTO(ConnInstance connInstance);
 
-    ConnInstance update(Long key, ConnInstanceTO connInstanceTO);
+    ConnInstance update(String key, ConnInstanceTO connInstanceTO);
 
 }

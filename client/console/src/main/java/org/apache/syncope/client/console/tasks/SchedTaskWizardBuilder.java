@@ -86,7 +86,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
     @Override
     protected Serializable onApplyInternal(final SchedTaskTO modelObject) {
-        if (modelObject.getKey() == null || modelObject.getKey() == 0L) {
+        if (modelObject.getKey() == null) {
             taskRestClient.create(modelObject);
         } else {
             taskRestClient.update(modelObject);
@@ -167,7 +167,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
                     new PropertyModel<String>(taskTO, "jobDelegateClassName"), false);
             jobDelegateClassName.setChoices(taskJobClasses.getObject());
             jobDelegateClassName.addRequiredLabel();
-            jobDelegateClassName.setEnabled(taskTO.getKey() == null || taskTO.getKey() == 0L);
+            jobDelegateClassName.setEnabled(taskTO.getKey() == null);
             jobDelegateClassName.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
             add(jobDelegateClassName);
 

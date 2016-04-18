@@ -29,7 +29,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.Exec;
 
 @MappedSuperclass
-public abstract class AbstractExec extends AbstractEntity<Long> implements Exec {
+public abstract class AbstractExec extends AbstractGeneratedKeyEntity implements Exec {
 
     private static final long serialVersionUID = -812344822970166317L;
 

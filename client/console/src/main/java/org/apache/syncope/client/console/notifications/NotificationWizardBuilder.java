@@ -94,9 +94,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
         modelObject.fillRecipientConditions();
         modelObject.fillAboutConditions();
 
-        final boolean createFlag
-                = modelObject.getInnerObject().getKey() == null || modelObject.getInnerObject().getKey() <= 0;
-
+        final boolean createFlag = modelObject.getInnerObject().getKey() == null;
         if (createFlag) {
             restClient.create(modelObject.getInnerObject());
         } else {
@@ -121,7 +119,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
 
         public Details(final NotificationHandler modelObject) {
             final NotificationTO notificationTO = modelObject.getInnerObject();
-            final boolean createFlag = notificationTO.getKey() == null || notificationTO.getKey() <= 0;
+            final boolean createFlag = notificationTO.getKey() == null;
 
             final AjaxTextFieldPanel sender = new AjaxTextFieldPanel("sender", getString("sender"),
                     new PropertyModel<String>(notificationTO, "sender"));
@@ -134,18 +132,18 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
             subject.addRequiredLabel();
             add(subject);
 
-            final AjaxDropDownChoicePanel<IntMappingType> recipientAttrType
-                    = new AjaxDropDownChoicePanel<IntMappingType>(
+            final AjaxDropDownChoicePanel<IntMappingType> recipientAttrType =
+                    new AjaxDropDownChoicePanel<>(
                             "recipientAttrType",
                             new ResourceModel("recipientAttrType", "recipientAttrType").getObject(),
                             new PropertyModel<IntMappingType>(notificationTO, "recipientAttrType"));
             recipientAttrType.setChoices(
-                    new ArrayList<IntMappingType>(IntMappingType.getAttributeTypes(AnyTypeKind.USER,
+                    new ArrayList<>(IntMappingType.getAttributeTypes(AnyTypeKind.USER,
                             EnumSet.of(IntMappingType.UserKey, IntMappingType.Password))));
             recipientAttrType.addRequiredLabel();
             add(recipientAttrType);
 
-            final AjaxDropDownChoicePanel<String> recipientAttrName = new AjaxDropDownChoicePanel<String>(
+            final AjaxDropDownChoicePanel<String> recipientAttrName = new AjaxDropDownChoicePanel<>(
                     "recipientAttrName", new ResourceModel("recipientAttrName", "recipientAttrName").getObject(),
                     new PropertyModel<String>(notificationTO, "recipientAttrName"));
             recipientAttrName.setChoices(getSchemaNames(recipientAttrType.getModelObject()));
@@ -163,7 +161,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
                 }
             });
 
-            final AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<String>(
+            final AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<>(
                     "template", getString("template"),
                     new PropertyModel<String>(notificationTO, "template"));
 
@@ -179,7 +177,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
             template.addRequiredLabel();
             add(template);
 
-            final AjaxDropDownChoicePanel<TraceLevel> traceLevel = new AjaxDropDownChoicePanel<TraceLevel>(
+            final AjaxDropDownChoicePanel<TraceLevel> traceLevel = new AjaxDropDownChoicePanel<>(
                     "traceLevel", getString("traceLevel"),
                     new PropertyModel<TraceLevel>(notificationTO, "traceLevel"));
             traceLevel.setChoices(Arrays.asList(TraceLevel.values()));
@@ -236,11 +234,10 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
 
             final List<String> anyTypeTOs = CollectionUtils.collect(
                     new AnyTypeRestClient().list(),
-                    EntityTOUtils.<String, AnyTypeTO>keyTransformer(),
-                    new ArrayList<String>());
+                    EntityTOUtils.<AnyTypeTO>keyTransformer(), new ArrayList<String>());
 
-            final AjaxDropDownChoicePanel<String> type
-                    = new AjaxDropDownChoicePanel<String>("about", "about", new Model<String>() {
+            final AjaxDropDownChoicePanel<String> type =
+                    new AjaxDropDownChoicePanel<>("about", "about", new Model<String>() {
 
                         private static final long serialVersionUID = -2350296434572623272L;
 
@@ -323,8 +320,8 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
             aboutContainer.setOutputMarkupId(true);
             add(aboutContainer);
 
-            final IModel<List<Pair<String, List<SearchClause>>>> model
-                    = new PropertyModel<List<Pair<String, List<SearchClause>>>>(modelObject, "aboutClauses");
+            final IModel<List<Pair<String, List<SearchClause>>>> model =
+                    new PropertyModel<>(modelObject, "aboutClauses");
 
             aboutContainer.add(new MultiPanel<Pair<String, List<SearchClause>>>("abouts", "abouts", model, false) {
 
@@ -368,13 +365,13 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
 
         public Recipients(final NotificationHandler modelObject) {
             final NotificationTO notificationTO = modelObject.getInnerObject();
-            final boolean createFlag = notificationTO.getKey() == null || notificationTO.getKey() <= 0;
+            final boolean createFlag = notificationTO.getKey() == null;
 
-            final AjaxTextFieldPanel staticRecipientsFieldPanel
-                    = new AjaxTextFieldPanel("panel", "staticRecipients", new Model<String>());
+            final AjaxTextFieldPanel staticRecipientsFieldPanel =
+                    new AjaxTextFieldPanel("panel", "staticRecipients", new Model<String>());
             staticRecipientsFieldPanel.addValidator(EmailAddressValidator.getInstance());
 
-            final MultiFieldPanel<String> staticRecipients = new MultiFieldPanel.Builder<String>(
+            final MultiFieldPanel<String> staticRecipients = new MultiFieldPanel.Builder<>(
                     new PropertyModel<List<String>>(notificationTO, "staticRecipients")).
                     build("staticRecipients", "staticRecipients", staticRecipientsFieldPanel);
 
@@ -406,19 +403,19 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
                 case UserPlainSchema:
                     result = CollectionUtils.collect(
                             schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, AnyTypeKind.USER.name()),
-                            EntityTOUtils.<String, PlainSchemaTO>keyTransformer(), new ArrayList<String>());
+                            EntityTOUtils.<PlainSchemaTO>keyTransformer(), new ArrayList<String>());
                     break;
 
                 case UserDerivedSchema:
                     result = CollectionUtils.collect(
                             schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, AnyTypeKind.USER.name()),
-                            EntityTOUtils.<String, DerSchemaTO>keyTransformer(), new ArrayList<String>());
+                            EntityTOUtils.<DerSchemaTO>keyTransformer(), new ArrayList<String>());
                     break;
 
                 case UserVirtualSchema:
                     result = CollectionUtils.collect(
                             schemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, AnyTypeKind.USER.name()),
-                            EntityTOUtils.<String, VirSchemaTO>keyTransformer(), new ArrayList<String>());
+                            EntityTOUtils.<VirSchemaTO>keyTransformer(), new ArrayList<String>());
                     break;
 
                 case Username:

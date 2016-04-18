@@ -25,18 +25,18 @@ public class ResourceCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = 466054166309460002L;
 
-    private String resourceName;
+    private String resourceKey;
 
-    public String getResourceName() {
-        return resourceName;
+    public String getResourceKey() {
+        return resourceKey;
     }
 
-    public void setResourceName(final String resourceName) {
-        this.resourceName = resourceName;
+    public void setResourceKey(final String resourceKey) {
+        this.resourceKey = resourceKey;
     }
 
     @Override
     public final boolean isValid() {
-        return resourceName != null;
+        return resourceKey != null;
     }
 }

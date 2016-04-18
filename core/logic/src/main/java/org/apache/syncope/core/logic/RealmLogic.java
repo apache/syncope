@@ -26,12 +26,14 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
@@ -57,7 +59,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REALM_LIST + "')")
     public List<RealmTO> list(final String fullPath) {
-        Realm realm = realmDAO.find(fullPath);
+        Realm realm = realmDAO.findByFullPath(fullPath);
         if (realm == null) {
             LOG.error("Could not find realm '" + fullPath + "'");
 
@@ -75,12 +77,17 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REALM_CREATE + "')")
     public RealmTO create(final String parentPath, final RealmTO realmTO) {
+        String fullPath = StringUtils.appendIfMissing(parentPath, "/") + realmTO.getName();
+        if (realmDAO.findByFullPath(fullPath) != null) {
+            throw new DuplicateException(fullPath);
+        }
+
         return binder.getRealmTO(realmDAO.save(binder.create(parentPath, realmTO)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REALM_UPDATE + "')")
     public RealmTO update(final RealmTO realmTO) {
-        Realm realm = realmDAO.find(realmTO.getFullPath());
+        Realm realm = realmDAO.findByFullPath(realmTO.getFullPath());
         if (realm == null) {
             LOG.error("Could not find realm '" + realmTO.getFullPath() + "'");
 
@@ -95,17 +102,21 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REALM_DELETE + "')")
     public RealmTO delete(final String fullPath) {
-        Realm realm = realmDAO.find(fullPath);
+        Realm realm = realmDAO.findByFullPath(fullPath);
         if (realm == null) {
             LOG.error("Could not find realm '" + fullPath + "'");
 
             throw new NotFoundException(fullPath);
         }
 
+        if (!realmDAO.findChildren(realm).isEmpty()) {
+            throw SyncopeClientException.build(ClientExceptionType.HasChildren);
+        }
+
         Set<String> adminRealms = Collections.singleton(realm.getFullPath());
-        AnyCond idCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
-        idCond.setSchema("id");
-        SearchCond allMatchingCond = SearchCond.getLeafCond(idCond);
+        AnyCond keyCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
+        keyCond.setSchema("key");
+        SearchCond allMatchingCond = SearchCond.getLeafCond(keyCond);
         int users = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.USER);
         int groups = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.GROUP);
         int anyObjects = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
@@ -141,7 +152,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         if (fullPath != null) {
             try {
-                return binder.getRealmTO(realmDAO.find(fullPath));
+                return binder.getRealmTO(realmDAO.findByFullPath(fullPath));
             } catch (Throwable e) {
                 LOG.debug("Unresolved reference", e);
                 throw new UnresolvedReferenceException(e);

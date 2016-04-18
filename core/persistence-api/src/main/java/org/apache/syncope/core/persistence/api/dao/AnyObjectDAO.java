@@ -48,7 +48,7 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     Collection<Group> findAllGroups(AnyObject anyObject);
 
-    Collection<Long> findAllGroupKeys(AnyObject anyObject);
+    Collection<String> findAllGroupKeys(AnyObject anyObject);
 
     Collection<ExternalResource> findAllResources(AnyObject anyObject);
 

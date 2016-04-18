@@ -24,7 +24,6 @@ import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -35,19 +34,16 @@ import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
 @Table(name = JPAMapping.TABLE)
 @Cacheable
-public class JPAMapping extends AbstractEntity<Long> implements Mapping {
+public class JPAMapping extends AbstractGeneratedKeyEntity implements Mapping {
 
     private static final long serialVersionUID = 4316047254916259158L;
 
     public static final String TABLE = "Mapping";
-
-    @Id
-    private Long id;
 
     @NotNull
     @OneToOne
@@ -60,11 +56,6 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
      * A JEXL expression for determining how to find the connector object link in external resource's space.
      */
     private String connObjectLink;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public Provision getProvision() {

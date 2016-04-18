@@ -21,7 +21,6 @@ package org.apache.syncope.core.workflow.activiti;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.GroupQuery;
@@ -34,7 +33,7 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
 
     private final GroupDAO groupDAO;
 
-    private Long groupId;
+    private String groupId;
 
     private List<Group> result;
 
@@ -45,7 +44,7 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
     @Override
     public GroupQuery groupId(final String groupId) {
         try {
-            this.groupId = Long.valueOf(groupId);
+            this.groupId = groupId;
         } catch (NumberFormatException e) {
             // ignore
         }
@@ -99,12 +98,12 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
     }
 
     private Group fromSyncopeGroup(final org.apache.syncope.core.persistence.api.entity.group.Group group) {
-        return new GroupEntity(group.getKey().toString());
+        return new GroupEntity(group.getKey());
     }
 
     private void execute() {
         if (groupId != null) {
-            org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup = groupDAO.find(groupId);
+            org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup = groupDAO.findByName(groupId);
             if (syncopeGroup == null) {
                 result = Collections.emptyList();
             } else {

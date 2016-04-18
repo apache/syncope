@@ -33,11 +33,11 @@ public interface NotificationManager {
     /**
      * Count the number of task executions of a given task with a given status.
      *
-     * @param taskId task id
+     * @param taskKey task
      * @param status status
      * @return number of task executions
      */
-    long countExecutionsWithStatus(final Long taskId, final String status);
+    long countExecutionsWithStatus(final String taskKey, final String status);
 
     /**
      * Create notification tasks for each notification matching the given user id and (some of) tasks performed.
@@ -67,10 +67,10 @@ public interface NotificationManager {
     /**
      * Set execution state of NotificationTask with provided id.
      *
-     * @param taskId task to be updated
+     * @param taskKey task to be updated
      * @param executed execution state
      */
-    void setTaskExecuted(final Long taskId, final boolean executed);
+    void setTaskExecuted(final String taskKey, final boolean executed);
 
     /**
      * Store execution of a NotificationTask.

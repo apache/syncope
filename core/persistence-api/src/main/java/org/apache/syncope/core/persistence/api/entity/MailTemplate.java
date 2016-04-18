@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-public interface MailTemplate extends Entity<String> {
-
-    void setKey(String key);
+public interface MailTemplate extends ProvidedKeyEntity {
 
     String getTextTemplate();
 

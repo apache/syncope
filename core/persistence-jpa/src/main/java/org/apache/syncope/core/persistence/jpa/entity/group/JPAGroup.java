@@ -25,7 +25,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -65,9 +64,6 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
 
     public static final String TABLE = "SyncopeGroup";
 
-    @Id
-    private Long id;
-
     @Column(unique = true)
     @NotNull
     private String name;
@@ -84,17 +80,17 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "group_id"),
+            @JoinColumn(name = "group_key"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_name"))
+            @JoinColumn(name = "resource_key"))
     @Valid
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "group_id"),
+            @JoinColumn(name = "group_key"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_name"))
+            @JoinColumn(name = "anyTypeClass_key"))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "group")
@@ -106,11 +102,6 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "group")
     private List<JPATypeExtension> typeExtensions = new ArrayList<>();
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public AnyType getType() {

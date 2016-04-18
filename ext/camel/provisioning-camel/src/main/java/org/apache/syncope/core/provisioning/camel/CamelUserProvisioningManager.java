@@ -45,19 +45,19 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     private static final Logger LOG = LoggerFactory.getLogger(CamelUserProvisioningManager.class);
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> create(final UserTO userTO, final boolean nullPriorityAsync) {
         return create(userTO, true, false, null, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(
+    public Pair<String, List<PropagationStatus>> create(
             final UserTO userTO, final boolean storePassword, final boolean nullPriorityAsync) {
 
         return create(userTO, storePassword, false, null, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(
+    public Pair<String, List<PropagationStatus>> create(
             final UserTO userTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         return create(userTO, false, false, null, excludedResources, nullPriorityAsync);
@@ -65,7 +65,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> create(
+    public Pair<String, List<PropagationStatus>> create(
             final UserTO userTO,
             final boolean storePassword,
             final boolean disablePwdPolicyCheck,
@@ -95,7 +95,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> update(final UserPatch userPatch, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> update(final UserPatch userPatch, final boolean nullPriorityAsync) {
         PollingConsumer pollingConsumer = getConsumer("direct:updatePort");
 
         Map<String, Object> props = new HashMap<>();
@@ -113,21 +113,21 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(
+    public Pair<String, List<PropagationStatus>> update(
             final UserPatch anyPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         return update(anyPatch, new ProvisioningReport(), null, excludedResources, nullPriorityAsync);
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long key, final boolean nullPriorityAsync) {
+    public List<PropagationStatus> delete(final String key, final boolean nullPriorityAsync) {
         return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> delete(
-            final Long key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+            final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:deletePort");
 
@@ -147,7 +147,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public Long unlink(final UserPatch userPatch) {
+    public String unlink(final UserPatch userPatch) {
         PollingConsumer pollingConsumer = getConsumer("direct:unlinkPort");
 
         sendMessage("direct:unlinkUser", userPatch);
@@ -159,12 +159,12 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         }
 
         exchange.getIn().setBody((exchange.getIn().getBody(UserPatch.class).getKey()));
-        return exchange.getIn().getBody(Long.class);
+        return exchange.getIn().getBody(String.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> activate(
+    public Pair<String, List<PropagationStatus>> activate(
             final StatusPatch statusPatch, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
@@ -178,7 +178,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         if (statusPatch.isOnSyncope()) {
             sendMessage("direct:activateUser", statusPatch.getKey(), props);
         } else {
-            WorkflowResult<Long> updated =
+            WorkflowResult<String> updated =
                     new WorkflowResult<>(statusPatch.getKey(), null, statusPatch.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
@@ -194,7 +194,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> reactivate(
+    public Pair<String, List<PropagationStatus>> reactivate(
             final StatusPatch statusPatch, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
@@ -207,7 +207,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         if (statusPatch.isOnSyncope()) {
             sendMessage("direct:reactivateUser", statusPatch.getKey(), props);
         } else {
-            WorkflowResult<Long> updated =
+            WorkflowResult<String> updated =
                     new WorkflowResult<>(statusPatch.getKey(), null, statusPatch.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
@@ -223,7 +223,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> suspend(
+    public Pair<String, List<PropagationStatus>> suspend(
             final StatusPatch statusPatch, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
@@ -236,7 +236,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         if (statusPatch.isOnSyncope()) {
             sendMessage("direct:suspendUser", statusPatch.getKey(), props);
         } else {
-            WorkflowResult<Long> updated =
+            WorkflowResult<String> updated =
                     new WorkflowResult<>(statusPatch.getKey(), null, statusPatch.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
@@ -251,7 +251,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public Long link(final UserPatch anyPatch) {
+    public String link(final UserPatch anyPatch) {
         PollingConsumer pollingConsumer = getConsumer("direct:linkPort");
 
         sendMessage("direct:linkUser", anyPatch);
@@ -263,13 +263,13 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         }
 
         exchange.getIn().setBody((exchange.getIn().getBody(UserPatch.class).getKey()));
-        return exchange.getIn().getBody(Long.class);
+        return exchange.getIn().getBody(String.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> provision(
-            final Long key,
+            final String key,
             final boolean changePwd,
             final String password,
             final Collection<String> resources,
@@ -298,7 +298,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> deprovision(
-            final Long user, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String user, final Collection<String> resources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:deprovisionPort");
 
@@ -319,7 +319,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> update(
+    public Pair<String, List<PropagationStatus>> update(
             final UserPatch userPatch,
             final ProvisioningReport result,
             final Boolean enabled,
@@ -358,7 +358,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public void internalSuspend(final Long key) {
+    public void internalSuspend(final String key) {
         PollingConsumer pollingConsumer = getConsumer("direct:internalSuspendUserPort");
 
         sendMessage("direct:internalSuspendUser", key);
@@ -371,7 +371,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public void requestPasswordReset(final Long key) {
+    public void requestPasswordReset(final String key) {
         PollingConsumer pollingConsumer = getConsumer("direct:requestPwdResetPort");
 
         sendMessage("direct:requestPwdReset", key);
@@ -384,7 +384,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public void confirmPasswordReset(final Long key, final String token, final String password) {
+    public void confirmPasswordReset(final String key, final String token, final String password) {
         PollingConsumer pollingConsumer = getConsumer("direct:confirmPwdResetPort");
 
         Map<String, Object> props = new HashMap<>();

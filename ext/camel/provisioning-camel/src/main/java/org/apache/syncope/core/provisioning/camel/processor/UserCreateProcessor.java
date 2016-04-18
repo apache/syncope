@@ -51,7 +51,7 @@ public class UserCreateProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         if ((exchange.getIn().getBody() instanceof WorkflowResult)) {
-            WorkflowResult<Pair<Long, Boolean>> created = (WorkflowResult) exchange.getIn().getBody();
+            WorkflowResult<Pair<String, Boolean>> created = (WorkflowResult) exchange.getIn().getBody();
             UserTO actual = exchange.getProperty("actual", UserTO.class);
             Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
             Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);

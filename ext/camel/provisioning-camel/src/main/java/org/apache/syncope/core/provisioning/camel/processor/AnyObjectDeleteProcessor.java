@@ -46,7 +46,7 @@ public class AnyObjectDeleteProcessor implements Processor {
 
     @Override
     public void process(final Exchange exchange) throws Exception {
-        Long key = exchange.getIn().getBody(Long.class);
+        String key = exchange.getIn().getBody(String.class);
         @SuppressWarnings("unchecked")
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);

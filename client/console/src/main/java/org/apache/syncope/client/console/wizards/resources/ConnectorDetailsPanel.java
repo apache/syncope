@@ -73,7 +73,7 @@ public class ConnectorDetailsPanel extends WizardStep {
         }, new ArrayList<String>()));
         bundleName.addRequiredLabel();
         bundleName.setOutputMarkupId(true);
-        bundleName.setEnabled(connInstanceTO.getKey() == null || connInstanceTO.getKey() == 0);
+        bundleName.setEnabled(connInstanceTO.getKey() == null);
         bundleName.getField().setOutputMarkupId(true);
         add(bundleName);
 

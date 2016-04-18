@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.persistence.Basic;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -55,13 +54,13 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
     @Enumerated(EnumType.STRING)
     private AnyTypeKind anyTypeKind;
 
-    private Long anyKey;
+    private String anyKey;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "address")
     @CollectionTable(name = "NotificationTask_recipients",
             joinColumns =
-            @JoinColumn(name = "notificationTask_id", referencedColumnName = "id"))
+            @JoinColumn(name = "notificationTask_key", referencedColumnName = "key"))
     private Set<String> recipients = new HashSet<>();
 
     @NotNull
@@ -109,12 +108,12 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
     }
 
     @Override
-    public Long getAnyKey() {
+    public String getAnyKey() {
         return anyKey;
     }
 
     @Override
-    public void setAnyKey(final Long anyKey) {
+    public void setAnyKey(final String anyKey) {
         this.anyKey = anyKey;
     }
 

@@ -313,7 +313,7 @@ public class SearchCond extends AbstractSearchCond {
             case LEAF:
             case NOT_LEAF:
                 if (anyTypeCond != null) {
-                    anyTypeName = anyTypeCond.getAnyTypeName();
+                    anyTypeName = anyTypeCond.getAnyTypeKey();
                 }
                 break;
 

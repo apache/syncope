@@ -81,9 +81,9 @@ public interface RealmService extends JAXRSService {
     void update(@NotNull RealmTO realmTO);
 
     /**
-     * Deletes the notification matching the given key.
+     * Deletes the realm under the given path.
      *
-     * @param fullPath key for notification to be deleted
+     * @param fullPath realm path
      */
     @DELETE
     @Path("{fullPath:.*}")

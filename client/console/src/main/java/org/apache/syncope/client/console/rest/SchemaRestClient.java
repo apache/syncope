@@ -77,8 +77,7 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             CollectionUtils.collect(getSchemas(schemaType),
-                    EntityTOUtils.<String, AbstractSchemaTO>keyTransformer(),
-                    schemaNames);
+                    EntityTOUtils.<AbstractSchemaTO>keyTransformer(), schemaNames);
         } catch (SyncopeClientException e) {
             LOG.error("While getting all user schema names", e);
         }

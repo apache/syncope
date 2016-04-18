@@ -23,10 +23,8 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -42,26 +40,6 @@ import org.apache.syncope.common.rest.api.beans.AnyListQuery;
  */
 @Path("users")
 public interface UserService extends AnyService<UserTO, UserPatch> {
-
-    /**
-     * Gives the username for the provided user key.
-     *
-     * @param key user key
-     * @return Response object featuring HTTP header with username matching the given key
-     */
-    @OPTIONS
-    @Path("{key}/username")
-    Response getUsername(@NotNull @PathParam("key") Long key);
-
-    /**
-     * Gives the user key for the provided username.
-     *
-     * @param username username
-     * @return Response object featuring HTTP header with key matching the given username
-     */
-    @OPTIONS
-    @Path("{username}/key")
-    Response getUserKey(@NotNull @PathParam("username") String username);
 
     /**
      * Returns a paged list of existing users matching the given query.

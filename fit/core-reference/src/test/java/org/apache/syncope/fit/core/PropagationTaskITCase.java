@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
@@ -71,7 +72,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void read() {
-        final PropagationTaskTO taskTO = taskService.read(3L, true);
+        PropagationTaskTO taskTO = taskService.read("316285cc-ae52-4ea2-a33b-7355e189ac3f", true);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
         assertTrue(taskTO.getExecutions().isEmpty());
@@ -79,38 +80,36 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void bulkAction() {
-        PagedResult<PropagationTaskTO> before = taskService.list(
-                new TaskQuery.Builder(TaskType.PROPAGATION).build());
-
         // create user with testdb resource
         UserTO userTO = UserITCase.getUniqueSampleTO("taskBulk@apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
-        createUser(userTO);
+        userTO = createUser(userTO).getAny();
 
-        List<PropagationTaskTO> after = new ArrayList<>(
-                taskService.<PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).build()).
+        List<PropagationTaskTO> tasks = new ArrayList<>(
+                taskService.<PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).
+                        anyTypeKind(AnyTypeKind.USER).anyTypeKey(userTO.getKey()).build()).
                 getResult());
-        after.removeAll(before.getResult());
-        assertFalse(after.isEmpty());
+        assertFalse(tasks.isEmpty());
 
         BulkAction bulkAction = new BulkAction();
         bulkAction.setType(BulkAction.Type.DELETE);
-
-        for (PropagationTaskTO taskTO : after) {
-            bulkAction.getTargets().add(String.valueOf(taskTO.getKey()));
+        for (PropagationTaskTO taskTO : tasks) {
+            bulkAction.getTargets().add(taskTO.getKey());
         }
 
         taskService.bulk(bulkAction);
 
-        assertFalse(taskService.list(new TaskQuery.Builder(TaskType.PROPAGATION).build()).getResult().
-                containsAll(after));
+        assertFalse(taskService.list(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(100).build()).
+                getResult().containsAll(tasks));
     }
 
     @Test
     public void issueSYNCOPE741() {
         for (int i = 0; i < 3; i++) {
-            taskService.execute(new ExecuteQuery.Builder().key(1L).build());
-            taskService.execute(new ExecuteQuery.Builder().key(2L).build());
+            taskService.execute(new ExecuteQuery.Builder().
+                    key("1e697572-b896-484c-ae7f-0c8f63fcbc6c").build());
+            taskService.execute(new ExecuteQuery.Builder().
+                    key("316285cc-ae52-4ea2-a33b-7355e189ac3f").build());
         }
         try {
             Thread.sleep(3000);
@@ -132,19 +131,20 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         }
 
         // check read
-        PropagationTaskTO task = taskService.read(1L, false);
+        PropagationTaskTO task = taskService.read("1e697572-b896-484c-ae7f-0c8f63fcbc6c", false);
         assertNotNull(task);
-        assertEquals(1L, task.getKey(), 0);
+        assertEquals("1e697572-b896-484c-ae7f-0c8f63fcbc6c", task.getKey());
         assertTrue(task.getExecutions().isEmpty());
 
-        task = taskService.read(1L, true);
+        task = taskService.read("1e697572-b896-484c-ae7f-0c8f63fcbc6c", true);
         assertNotNull(task);
-        assertEquals(1L, task.getKey(), 0);
+        assertEquals("1e697572-b896-484c-ae7f-0c8f63fcbc6c", task.getKey());
         assertFalse(task.getExecutions().isEmpty());
 
         // check list executions
         PagedResult<ExecTO> execs = taskService.listExecutions(
-                new TaskExecQuery.Builder().key(1L).page(1).size(2).build());
+                new TaskExecQuery.Builder().key("1e697572-b896-484c-ae7f-0c8f63fcbc6c").
+                page(1).size(2).build());
         assertTrue(execs.getTotalCount() >= execs.getResult().size());
     }
 }

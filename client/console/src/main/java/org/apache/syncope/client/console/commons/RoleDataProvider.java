@@ -41,9 +41,9 @@ public class RoleDataProvider extends DirectoryDataProvider<RoleTO> {
 
     @Override
     public Iterator<RoleTO> iterator(final long first, final long count) {
-        final List<RoleTO> result = restClient.list();
+        List<RoleTO> result = restClient.list();
         Collections.sort(result, comparator);
-        return result.iterator();
+        return result.subList((int) first, (int) first + (int) count).iterator();
     }
 
     @Override

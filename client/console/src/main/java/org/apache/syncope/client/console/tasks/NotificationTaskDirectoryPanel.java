@@ -49,26 +49,24 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-/**
- * Tasks page.
- */
 public abstract class NotificationTaskDirectoryPanel
         extends TaskDirectoryPanel<NotificationTaskTO> implements ModalPanel<NotificationTaskTO> {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    private final Long notification;
+    private final String notification;
 
     private final AnyTypeKind anyTypeKind;
 
-    private final Long anyTypeKey;
+    private final String anyTypeKey;
 
     protected NotificationTaskDirectoryPanel(
-            final Long notification,
+            final String notification,
             final AnyTypeKind anyTypeKind,
-            final Long anyTypeKey,
+            final String anyTypeKey,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef) {
+
         super(null, multiLevelPanelRef, pageRef);
         this.notification = notification;
         this.anyTypeKind = anyTypeKind;
@@ -201,17 +199,18 @@ public abstract class NotificationTaskDirectoryPanel
 
         private static final long serialVersionUID = 4725679400450513556L;
 
-        private final Long notification;
+        private final String notification;
 
         private final AnyTypeKind anyTypeKind;
 
-        private final Long anyTypeKey;
+        private final String anyTypeKey;
 
         public NotificationTasksProvider(
-                final Long notification,
+                final String notification,
                 final AnyTypeKind anyTypeKind,
-                final Long anyTypeKey,
+                final String anyTypeKey,
                 final int paginatorRows) {
+
             super(paginatorRows, TaskType.PROPAGATION, restClient);
             this.notification = notification;
             this.anyTypeKind = anyTypeKind;

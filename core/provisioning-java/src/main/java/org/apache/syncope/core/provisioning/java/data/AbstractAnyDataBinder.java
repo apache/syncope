@@ -160,7 +160,7 @@ abstract class AbstractAnyDataBinder {
 
     protected void setRealm(final Any<?> any, final AnyPatch anyPatch) {
         if (anyPatch.getRealm() != null && StringUtils.isNotBlank(anyPatch.getRealm().getValue())) {
-            Realm newRealm = realmDAO.find(anyPatch.getRealm().getValue());
+            Realm newRealm = realmDAO.findByFullPath(anyPatch.getRealm().getValue());
             if (newRealm == null) {
                 LOG.debug("Invalid realm specified: {}, ignoring", anyPatch.getRealm().getValue());
             } else {
@@ -317,15 +317,15 @@ abstract class AbstractAnyDataBinder {
                         plainAttrValueDAO.delete(attr.getUniqueValue().getKey(), anyUtils.plainAttrUniqueValueClass());
                     }
                 } else {
-                    Collection<Long> valuesToBeRemoved = CollectionUtils.collect(attr.getValues(),
-                            new Transformer<PlainAttrValue, Long>() {
+                    Collection<String> valuesToBeRemoved = CollectionUtils.collect(attr.getValues(),
+                            new Transformer<PlainAttrValue, String>() {
 
                         @Override
-                        public Long transform(final PlainAttrValue input) {
+                        public String transform(final PlainAttrValue input) {
                             return input.getKey();
                         }
                     });
-                    for (Long attrValueKey : valuesToBeRemoved) {
+                    for (String attrValueKey : valuesToBeRemoved) {
                         plainAttrValueDAO.delete(attrValueKey, anyUtils.plainAttrValueClass());
                     }
                 }
@@ -516,7 +516,7 @@ abstract class AbstractAnyDataBinder {
 
         anyTO.setRealm(realmFullPath);
 
-        CollectionUtils.collect(auxClasses, EntityUtils.<String, AnyTypeClass>keyTransformer(), anyTO.getAuxClasses());
+        CollectionUtils.collect(auxClasses, EntityUtils.<AnyTypeClass>keyTransformer(), anyTO.getAuxClasses());
 
         for (PlainAttr<?> plainAttr : plainAttrs) {
             AttrTO attrTO = new AttrTO();

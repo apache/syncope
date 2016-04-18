@@ -48,9 +48,9 @@ public interface PropagationTask extends Task {
 
     void setOperation(ResourceOperation operation);
 
-    Long getAnyKey();
+    String getAnyKey();
 
-    void setAnyKey(Long anyKey);
+    void setAnyKey(String anyKey);
 
     AnyTypeKind getAnyTypeKind();
 

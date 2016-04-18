@@ -36,14 +36,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPANotificationDAO extends AbstractDAO<Notification, Long> implements NotificationDAO {
+public class JPANotificationDAO extends AbstractDAO<Notification> implements NotificationDAO {
 
     @Autowired
     private TaskDAO taskDAO;
 
     @Transactional(readOnly = true)
     @Override
-    public Notification find(final Long key) {
+    public Notification find(final String key) {
         return entityManager().find(JPANotification.class, key);
     }
 
@@ -71,7 +71,7 @@ public class JPANotificationDAO extends AbstractDAO<Notification, Long> implemen
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         Notification notification = find(key);
         if (notification == null) {
             return;

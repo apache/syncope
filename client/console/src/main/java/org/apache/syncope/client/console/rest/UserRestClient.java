@@ -83,12 +83,12 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     }
 
     @Override
-    public ProvisioningResult<UserTO> delete(final String etag, final Long key) {
+    public ProvisioningResult<UserTO> delete(final String etag, final String key) {
         return delete(UserService.class, UserTO.class, etag, key);
     }
 
     @Override
-    public UserTO read(final Long key) {
+    public UserTO read(final String key) {
         return getService(UserService.class).read(key);
     }
 
@@ -109,14 +109,14 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
                         orderBy(toOrderBy(sort)).details(false).build()).getResult();
     }
 
-    public ProvisioningResult<UserTO> mustChangePassword(final String etag, final boolean value, final Long key) {
+    public ProvisioningResult<UserTO> mustChangePassword(final String etag, final boolean value, final String key) {
         final UserPatch userPatch = new UserPatch();
         userPatch.setKey(key);
         userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(value).build());
         return update(etag, userPatch);
     }
 
-    public void suspend(final String etag, final long userKey, final List<StatusBean> statuses) {
+    public void suspend(final String etag, final String userKey, final List<StatusBean> statuses) {
         StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses, false);
         statusPatch.setKey(userKey);
         statusPatch.setType(StatusPatchType.SUSPEND);
@@ -127,7 +127,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         }
     }
 
-    public void reactivate(final String etag, final long userKey, final List<StatusBean> statuses) {
+    public void reactivate(final String etag, final String userKey, final List<StatusBean> statuses) {
         StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses, true);
         statusPatch.setKey(userKey);
         statusPatch.setType(StatusPatchType.REACTIVATE);

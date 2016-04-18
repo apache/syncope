@@ -73,7 +73,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
     @Transactional(readOnly = true)
     @Override
-    public AnyObjectTO read(final Long key) {
+    public AnyObjectTO read(final String key) {
         return binder.getAnyObjectTO(key);
     }
 
@@ -146,7 +146,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
                 before.getLeft().getRealm());
         securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
 
-        Pair<Long, List<PropagationStatus>> created = provisioningManager.create(before.getLeft(), nullPriorityAsync);
+        Pair<String, List<PropagationStatus>> created = provisioningManager.create(before.getLeft(), nullPriorityAsync);
 
         return after(binder.getAnyObjectTO(created.getKey()), created.getRight(), before.getRight());
     }
@@ -167,13 +167,13 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
                 realm);
         securityChecks(effectiveRealms, realm, before.getLeft().getKey());
 
-        Pair<Long, List<PropagationStatus>> updated = provisioningManager.update(anyObjectPatch, nullPriorityAsync);
+        Pair<String, List<PropagationStatus>> updated = provisioningManager.update(anyObjectPatch, nullPriorityAsync);
 
         return after(binder.getAnyObjectTO(updated.getKey()), updated.getRight(), before.getRight());
     }
 
     @Override
-    public ProvisioningResult<AnyObjectTO> delete(final Long key, final boolean nullPriorityAsync) {
+    public ProvisioningResult<AnyObjectTO> delete(final String key, final boolean nullPriorityAsync) {
         AnyObjectTO anyObject = binder.getAnyObjectTO(key);
         Pair<AnyObjectTO, List<LogicActions>> before = beforeDelete(anyObject);
 
@@ -191,7 +191,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
     }
 
     @Override
-    public AnyObjectTO unlink(final Long key, final Collection<String> resources) {
+    public AnyObjectTO unlink(final String key, final Collection<String> resources) {
         // security checks
         AnyObjectTO anyObjectTO = binder.getAnyObjectTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
@@ -213,7 +213,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
     }
 
     @Override
-    public AnyObjectTO link(final Long key, final Collection<String> resources) {
+    public AnyObjectTO link(final String key, final Collection<String> resources) {
         // security checks
         AnyObjectTO anyObjectTO = binder.getAnyObjectTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
@@ -236,7 +236,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
     @Override
     public ProvisioningResult<AnyObjectTO> unassign(
-            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
         // security checks
         AnyObjectTO anyObjectTO = binder.getAnyObjectTO(key);
@@ -260,7 +260,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
     @Override
     public ProvisioningResult<AnyObjectTO> assign(
-            final Long key,
+            final String key,
             final Collection<String> resources,
             final boolean changepwd,
             final String password,
@@ -288,7 +288,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
     @Override
     public ProvisioningResult<AnyObjectTO> deprovision(
-            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
         // security checks
         AnyObjectTO anyObjectTO = binder.getAnyObjectTO(key);
@@ -307,7 +307,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
     @Override
     public ProvisioningResult<AnyObjectTO> provision(
-            final Long key,
+            final String key,
             final Collection<String> resources,
             final boolean changePwd,
             final String password,
@@ -332,12 +332,12 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
     protected AnyObjectTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long key = null;
+        String key = null;
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
-                    key = (Long) args[i];
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
                 } else if (args[i] instanceof AnyObjectTO) {
                     key = ((AnyObjectTO) args[i]).getKey();
                 } else if (args[i] instanceof AnyObjectPatch) {
@@ -346,7 +346,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
             }
         }
 
-        if ((key != null) && !key.equals(0L)) {
+        if (key != null) {
             try {
                 return binder.getAnyObjectTO(key);
             } catch (Throwable ignore) {

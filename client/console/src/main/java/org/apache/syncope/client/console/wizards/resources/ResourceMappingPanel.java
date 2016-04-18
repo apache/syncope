@@ -152,7 +152,7 @@ public class ResourceMappingPanel extends Panel {
         this.mappingContainer.setOutputMarkupId(true);
         add(this.mappingContainer);
 
-        if (resourceTO.getConnector() != null && resourceTO.getConnector() > 0) {
+        if (resourceTO.getConnector() != null) {
             schemaNames = getSchemaNames(resourceTO.getConnector(), resourceTO.getConfOverride());
             setEnabled();
         } else {
@@ -469,7 +469,7 @@ public class ResourceMappingPanel extends Panel {
             }
         };
         addMappingBtn.setDefaultFormProcessing(false);
-        addMappingBtn.setEnabled(resourceTO.getConnector() != null && resourceTO.getConnector() > 0);
+        addMappingBtn.setEnabled(resourceTO.getConnector() != null);
         mappingContainer.add(addMappingBtn);
     }
 
@@ -479,9 +479,9 @@ public class ResourceMappingPanel extends Panel {
         passwordLabel.setVisible(AnyTypeKind.USER.name().equals(this.provisionTO.getAnyType()));
     }
 
-    private List<String> getSchemaNames(final Long connectorId, final Set<ConnConfProperty> conf) {
+    private List<String> getSchemaNames(final String connectorKey, final Set<ConnConfProperty> conf) {
         final ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setKey(connectorId);
+        connInstanceTO.setKey(connectorKey);
         connInstanceTO.getConf().addAll(conf);
 
         // SYNCOPE-156: use provided info to give schema names (and type!) by ObjectClass

@@ -23,9 +23,9 @@ import java.util.Map;
 
 public interface GroupableTO {
 
-    Map<Long, MembershipTO> getMembershipMap();
+    Map<String, MembershipTO> getMembershipMap();
 
     List<MembershipTO> getMemberships();
 
-    List<Long> getDynGroups();
+    List<String> getDynGroups();
 }

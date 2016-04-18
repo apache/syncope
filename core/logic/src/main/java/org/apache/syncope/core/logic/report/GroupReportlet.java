@@ -175,8 +175,8 @@ public class GroupReportlet extends AbstractReportlet {
                 String value = null;
                 switch (feature) {
                     case key:
-                        type = ReportXMLConst.XSD_LONG;
-                        value = String.valueOf(group.getKey());
+                        type = ReportXMLConst.XSD_STRING;
+                        value = group.getKey();
                         break;
 
                     case name:
@@ -185,13 +185,13 @@ public class GroupReportlet extends AbstractReportlet {
                         break;
 
                     case groupOwner:
-                        type = ReportXMLConst.XSD_LONG;
-                        value = String.valueOf(group.getGroupOwner());
+                        type = ReportXMLConst.XSD_STRING;
+                        value = group.getGroupOwner().getKey();
                         break;
 
                     case userOwner:
-                        type = ReportXMLConst.XSD_LONG;
-                        value = String.valueOf(group.getUserOwner());
+                        type = ReportXMLConst.XSD_STRING;
+                        value = group.getUserOwner().getKey();
                         break;
 
                     default:
@@ -221,8 +221,8 @@ public class GroupReportlet extends AbstractReportlet {
                 for (UMembership memb : groupDAO.findUMemberships(group)) {
                     atts.clear();
 
-                    atts.addAttribute("", "", "key", ReportXMLConst.XSD_LONG,
-                            String.valueOf(memb.getLeftEnd().getKey()));
+                    atts.addAttribute("", "", "key", ReportXMLConst.XSD_STRING,
+                            memb.getLeftEnd().getKey());
                     atts.addAttribute("", "", "username", ReportXMLConst.XSD_STRING,
                             String.valueOf(memb.getLeftEnd().getUsername()));
 

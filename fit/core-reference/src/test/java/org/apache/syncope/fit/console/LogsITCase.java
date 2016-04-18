@@ -41,7 +41,8 @@ public class LogsITCase extends AbstractConsoleITCase {
     @Before
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        browsingToLogs();
+        wicketTester.clickLink("body:configurationLI:configurationUL:logsLI:logs");
+        wicketTester.assertRenderedPage(Logs.class);
     }
 
     @Test
@@ -112,10 +113,5 @@ public class LogsITCase extends AbstractConsoleITCase {
                     }
                 });
         return result;
-    }
-
-    private void browsingToLogs() {
-        wicketTester.clickLink("body:configurationLI:configurationUL:logsLI:logs");
-        wicketTester.assertRenderedPage(Logs.class);
     }
 }

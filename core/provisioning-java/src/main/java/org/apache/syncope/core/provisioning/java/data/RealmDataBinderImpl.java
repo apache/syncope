@@ -97,7 +97,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         Realm realm = entityFactory.newEntity(Realm.class);
 
         realm.setName(realmTO.getName());
-        realm.setParent(realmDAO.find(parentPath));
+        realm.setParent(realmDAO.findByFullPath(parentPath));
 
         if (realmTO.getPasswordPolicy() != null) {
             Policy policy = policyDAO.find(realmTO.getPasswordPolicy());
@@ -132,7 +132,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
     @Override
     public void update(final Realm realm, final RealmTO realmTO) {
         realm.setName(realmTO.getName());
-        realm.setParent(realmTO.getParent() == 0 ? null : realmDAO.find(realmTO.getParent()));
+        realm.setParent(realmTO.getParent() == null ? null : realmDAO.find(realmTO.getParent()));
 
         if (realmTO.getAccountPolicy() == null) {
             realm.setAccountPolicy(null);
@@ -174,7 +174,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
         realmTO.setKey(realm.getKey());
         realmTO.setName(realm.getName());
-        realmTO.setParent(realm.getParent() == null ? 0 : realm.getParent().getKey());
+        realmTO.setParent(realm.getParent() == null ? null : realm.getParent().getKey());
         realmTO.setFullPath(realm.getFullPath());
         realmTO.setAccountPolicy(realm.getAccountPolicy() == null ? null : realm.getAccountPolicy().getKey());
         realmTO.setPasswordPolicy(realm.getPasswordPolicy() == null ? null : realm.getPasswordPolicy().getKey());

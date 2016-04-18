@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 
-public interface Schema extends Entity<String> {
+public interface Schema extends ProvidedKeyEntity {
 
     AnyTypeClass getAnyTypeClass();
 
@@ -35,7 +35,5 @@ public interface Schema extends Entity<String> {
     boolean isReadonly();
 
     boolean isUniqueConstraint();
-
-    void setKey(String name);
 
 }

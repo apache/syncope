@@ -41,7 +41,7 @@ public class ResourceDeassociationPatch extends AbstractBaseBean {
 
     private ResourceDeassociationAction action;
 
-    private final List<Long> anyKyes = new ArrayList<>();
+    private final List<String> anyKyes = new ArrayList<>();
 
     public String getKey() {
         return key;
@@ -73,7 +73,7 @@ public class ResourceDeassociationPatch extends AbstractBaseBean {
     @XmlElementWrapper(name = "anyKyes")
     @XmlElement(name = "key")
     @JsonProperty("anyKyes")
-    public List<Long> getAnyKyes() {
+    public List<String> getAnyKyes() {
         return anyKyes;
     }
 

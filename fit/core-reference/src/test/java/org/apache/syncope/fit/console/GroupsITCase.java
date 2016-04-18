@@ -64,7 +64,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "root");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "secretary");
         assertNotNull(component);
 
         wicketTester.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelClone:cloneLink");
@@ -74,7 +74,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
         FormTester formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
-        
+
         formTester.submit("buttons:cancel");
     }
 
@@ -84,7 +84,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "root");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "secretary");
         assertNotNull(component);
 
         wicketTester.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
@@ -134,9 +134,8 @@ public class GroupsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink(tabPanel + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
 
         component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "root");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "secretary");
         assertNotNull(component);
-
     }
 
     @Test
@@ -145,7 +144,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "root");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "secretary");
         assertNotNull(component);
 
         wicketTester.assertComponent(component.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink",

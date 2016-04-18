@@ -176,16 +176,16 @@ public final class SearchUtils implements Serializable {
 
                 switch (clause.getType()) {
                     case GROUP_MEMBERSHIP:
-                        Long groupId = NumberUtils.toLong(clause.getProperty().split(" ")[0]);
+                        String groupKey = clause.getProperty().split(" ")[0];
 
                         if (builder instanceof UserFiqlSearchConditionBuilder) {
                             condition = clause.getComparator() == SearchClause.Comparator.EQUALS
-                                    ? ((UserFiqlSearchConditionBuilder) builder).inGroups(groupId)
-                                    : ((UserFiqlSearchConditionBuilder) builder).notInGroups(groupId);
+                                    ? ((UserFiqlSearchConditionBuilder) builder).inGroups(groupKey)
+                                    : ((UserFiqlSearchConditionBuilder) builder).notInGroups(groupKey);
                         } else {
                             condition = clause.getComparator() == SearchClause.Comparator.EQUALS
-                                    ? ((AnyObjectFiqlSearchConditionBuilder) builder).inGroups(groupId)
-                                    : ((AnyObjectFiqlSearchConditionBuilder) builder).notInGroups(groupId);
+                                    ? ((AnyObjectFiqlSearchConditionBuilder) builder).inGroups(groupKey)
+                                    : ((AnyObjectFiqlSearchConditionBuilder) builder).notInGroups(groupKey);
                         }
                         break;
 
@@ -271,11 +271,11 @@ public final class SearchUtils implements Serializable {
                                     break;
                                 case EQUALS:
                                     condition = ((UserFiqlSearchConditionBuilder) builder).
-                                            inRelationships(Long.parseLong(value));
+                                            inRelationships(value);
                                     break;
                                 case NOT_EQUALS:
                                     condition = ((UserFiqlSearchConditionBuilder) builder).
-                                            notInRelationships(Long.parseLong(value));
+                                            notInRelationships(value);
                                     break;
                                 default:
                                     break;
@@ -292,11 +292,11 @@ public final class SearchUtils implements Serializable {
                                     break;
                                 case EQUALS:
                                     condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
-                                            inRelationships(Long.parseLong(value));
+                                            inRelationships(value);
                                     break;
                                 case NOT_EQUALS:
                                     condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
-                                            notInRelationships(Long.parseLong(value));
+                                            notInRelationships(value);
                                     break;
                                 default:
                                     break;

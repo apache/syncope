@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -38,9 +37,6 @@ public class JPAReportExec extends AbstractExec implements ReportExec {
 
     public static final String TABLE = "ReportExec";
 
-    @Id
-    private Long id;
-
     /**
      * The referred report.
      */
@@ -53,11 +49,6 @@ public class JPAReportExec extends AbstractExec implements ReportExec {
     @Lob
     @Basic(fetch = FetchType.LAZY)
     private Byte[] execResult;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public Report getReport() {

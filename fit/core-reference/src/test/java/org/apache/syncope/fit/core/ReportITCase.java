@@ -83,7 +83,7 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        ReportTO reportTO = reportService.read(1L);
+        ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
 
         assertNotNull(reportTO);
         assertNotNull(reportTO.getExecutions());
@@ -148,7 +148,7 @@ public class ReportITCase extends AbstractITCase {
         }
     }
 
-    private Long execute(final Long reportKey) {
+    private String execute(final String reportKey) {
         ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
         assertNotNull(execution);
 
@@ -177,8 +177,8 @@ public class ReportITCase extends AbstractITCase {
         return reportTO.getExecutions().get(0).getKey();
     }
 
-    private void checkExport(final Long execId, final ReportExecExportFormat fmt) throws IOException {
-        Response response = reportService.exportExecutionResult(execId, fmt);
+    private void checkExport(final String execKey, final ReportExecExportFormat fmt) throws IOException {
+        Response response = reportService.exportExecutionResult(execKey, fmt);
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
         assertNotNull(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));
@@ -192,8 +192,8 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void executeAndExport() throws IOException {
-        ReportTO reportTO = reportService.read(1L);
-        reportTO.setKey(0L);
+        ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+        reportTO.setKey(null);
         reportTO.setName("executeAndExport" + getUUIDString());
         reportTO.setActive(false);
         reportTO.getExecutions().clear();
@@ -211,7 +211,7 @@ public class ReportITCase extends AbstractITCase {
         reportTO.setActive(true);
         reportService.update(reportTO);
 
-        long execKey = execute(reportTO.getKey());
+        String execKey = execute(reportTO.getKey());
 
         checkExport(execKey, ReportExecExportFormat.XML);
         checkExport(execKey, ReportExecExportFormat.HTML);
@@ -228,15 +228,15 @@ public class ReportITCase extends AbstractITCase {
         } catch (InterruptedException e) {
         }
 
-        ReportTO reportTO = reportService.read(1L);
-        reportTO.setKey(0L);
+        ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+        reportTO.setKey(null);
         reportTO.setName("deleteExecutions" + getUUIDString());
         reportTO.getExecutions().clear();
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 
-        Long execId = execute(reportTO.getKey());
-        assertNotNull(execId);
+        String execKey = execute(reportTO.getKey());
+        assertNotNull(execKey);
 
         try {
             Thread.sleep(1000);
@@ -249,7 +249,7 @@ public class ReportITCase extends AbstractITCase {
         assertNotNull(result);
 
         assertEquals(1, result.getResults().size());
-        assertEquals(execId.toString(), result.getResults().keySet().iterator().next());
+        assertEquals(execKey, result.getResults().keySet().iterator().next());
         assertEquals(BulkActionResult.Status.SUCCESS, result.getResults().entrySet().iterator().next().getValue());
     }
 
@@ -275,7 +275,7 @@ public class ReportITCase extends AbstractITCase {
             report.setTemplate("sample");
             report = createReport(report);
 
-            long execKey = execute(report.getKey());
+            String execKey = execute(report.getKey());
             checkExport(execKey, ReportExecExportFormat.XML);
 
             report = reportService.read(report.getKey());
@@ -315,8 +315,8 @@ public class ReportITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE102() throws IOException {
         // Create
-        ReportTO reportTO = reportService.read(1L);
-        reportTO.setKey(0L);
+        ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+        reportTO.setKey(null);
         reportTO.setName("issueSYNCOPE102" + getUUIDString());
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);

@@ -96,7 +96,7 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
     protected final List<ConnConfProperty> getConnProperties(final ResourceTO resourceTO) {
         List<ConnConfProperty> props = new ArrayList<>();
 
-        if (resourceTO.getConnector() != null && resourceTO.getConnector() > 0) {
+        if (resourceTO.getConnector() != null) {
             for (ConnConfProperty property : restClient.read(resourceTO.getConnector()).getConf()) {
                 if (property.isOverridable()) {
                     props.add(property);

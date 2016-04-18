@@ -100,7 +100,7 @@ public class PullUtils {
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
 
-    public Long findMatchingAnyKey(
+    public String findMatchingAnyKey(
             final AnyType anyType,
             final String name,
             final ExternalResource resource,
@@ -111,7 +111,7 @@ public class PullUtils {
             return null;
         }
 
-        Long result = null;
+        String result = null;
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
 
@@ -124,8 +124,7 @@ public class PullUtils {
             public boolean handle(final ConnectorObject obj) {
                 return found.add(obj);
             }
-        },
-                MappingManagerImpl.buildOperationOptions(MappingManagerImpl.getPullMappingItems(provision).iterator()));
+        }, MappingManagerImpl.buildOperationOptions(MappingManagerImpl.getPullMappingItems(provision).iterator()));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", provision.getObjectClass(), resource, name);
@@ -137,7 +136,7 @@ public class PullUtils {
 
             ConnectorObject connObj = found.iterator().next();
             try {
-                List<Long> anyKeys = findExisting(connObj.getUid().getUidValue(), connObj, provision, anyUtils);
+                List<String> anyKeys = findExisting(connObj.getUid().getUidValue(), connObj, provision, anyUtils);
                 if (anyKeys.isEmpty()) {
                     LOG.debug("No matching {} found for {}, aborting", anyUtils.getAnyTypeKind(), connObj);
                 } else {
@@ -163,10 +162,10 @@ public class PullUtils {
                         : groupDAO;
     }
 
-    private List<Long> findByConnObjectKeyItem(
+    private List<String> findByConnObjectKeyItem(
             final String uid, final Provision provision, final AnyUtils anyUtils) {
 
-        List<Long> result = new ArrayList<>();
+        List<String> result = new ArrayList<>();
 
         MappingItem connObjectKeyItem = MappingManagerImpl.getConnObjectKeyItem(provision);
 
@@ -215,21 +214,21 @@ public class PullUtils {
             case UserKey:
             case GroupKey:
             case AnyObjectKey:
-                Any<?> any = getAnyDAO(connObjectKeyItem).find(Long.parseLong(transfUid));
+                Any<?> any = getAnyDAO(connObjectKeyItem).find(transfUid);
                 if (any != null) {
                     result.add(any.getKey());
                 }
                 break;
 
             case Username:
-                User user = userDAO.find(transfUid);
+                User user = userDAO.findByUsername(transfUid);
                 if (user != null) {
                     result.add(user.getKey());
                 }
                 break;
 
             case GroupName:
-                Group group = groupDAO.find(transfUid);
+                Group group = groupDAO.findByName(transfUid);
                 if (group != null) {
                     result.add(group.getKey());
                 }
@@ -242,10 +241,10 @@ public class PullUtils {
         return result;
     }
 
-    private List<Long> findByCorrelationRule(
+    private List<String> findByCorrelationRule(
             final ConnectorObject connObj, final PullCorrelationRule rule, final AnyTypeKind type) {
 
-        List<Long> result = new ArrayList<>();
+        List<String> result = new ArrayList<>();
         for (Any<?> any : searchDAO.search(rule.getSearchCond(connObj), type)) {
             result.add(any.getKey());
         }
@@ -282,7 +281,7 @@ public class PullUtils {
      * @param anyUtils any util
      * @return list of matching users / groups
      */
-    public List<Long> findExisting(
+    public List<String> findExisting(
             final String uid,
             final ConnectorObject connObj,
             final Provision provision,
@@ -303,7 +302,7 @@ public class PullUtils {
                     ? findByConnObjectKeyItem(uid, provision, anyUtils)
                     : findByCorrelationRule(connObj, pullRule, anyUtils.getAnyTypeKind());
         } catch (RuntimeException e) {
-            return Collections.<Long>emptyList();
+            return Collections.<String>emptyList();
         }
     }
 

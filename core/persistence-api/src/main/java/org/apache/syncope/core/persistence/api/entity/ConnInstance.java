@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
-public interface ConnInstance extends Entity<Long> {
+public interface ConnInstance extends Entity {
 
     void setConnectorName(String connectorName);
 

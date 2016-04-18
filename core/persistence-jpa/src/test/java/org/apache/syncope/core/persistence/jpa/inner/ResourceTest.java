@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import java.util.UUID;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -73,7 +74,7 @@ public class ResourceTest extends AbstractTest {
 
             @Override
             public boolean evaluate(final MappingItem item) {
-                return 100 == item.getKey();
+                return "7f55b09c-b573-41dc-a9eb-ccd80bd3ea7a".equals(item.getKey());
             }
         }));
     }

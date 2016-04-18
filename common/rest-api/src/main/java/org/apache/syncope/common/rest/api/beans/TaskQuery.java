@@ -56,7 +56,7 @@ public class TaskQuery extends AbstractQuery {
             }
         }
 
-        public Builder notification(final Long notification) {
+        public Builder notification(final String notification) {
             switch (getInstance().getType()) {
                 case NOTIFICATION:
                     getInstance().setNotification(notification);
@@ -79,7 +79,7 @@ public class TaskQuery extends AbstractQuery {
             }
         }
 
-        public Builder anyTypeKey(final Long anyTypeKey) {
+        public Builder anyTypeKey(final String anyTypeKey) {
             switch (getInstance().getType()) {
                 case PROPAGATION:
                 case NOTIFICATION:
@@ -110,11 +110,11 @@ public class TaskQuery extends AbstractQuery {
 
     private String resource;
 
-    private Long notification;
+    private String notification;
 
     private AnyTypeKind anyTypeKind;
 
-    private Long anyTypeKey;
+    private String anyTypeKey;
 
     private Boolean details;
 
@@ -137,12 +137,12 @@ public class TaskQuery extends AbstractQuery {
         this.resource = resource;
     }
 
-    public Long getNotification() {
+    public String getNotification() {
         return notification;
     }
 
     @QueryParam(JAXRSService.PARAM_NOTIFICATION)
-    public void setNotification(final Long notification) {
+    public void setNotification(final String notification) {
         this.notification = notification;
     }
 
@@ -155,13 +155,13 @@ public class TaskQuery extends AbstractQuery {
         this.anyTypeKind = anyTypeKind;
     }
 
-    public Long getAnyTypeKey() {
+    public String getAnyTypeKey() {
         return anyTypeKey;
     }
 
     @Min(1)
     @QueryParam(JAXRSService.PARAM_ANYTYPE_KEY)
-    public void setAnyTypeKey(final Long anyTypeKey) {
+    public void setAnyTypeKey(final String anyTypeKey) {
         this.anyTypeKey = anyTypeKey;
     }
 

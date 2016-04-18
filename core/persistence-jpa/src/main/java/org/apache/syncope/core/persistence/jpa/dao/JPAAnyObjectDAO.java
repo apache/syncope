@@ -184,8 +184,8 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public Collection<Long> findAllGroupKeys(final AnyObject anyObject) {
-        return CollectionUtils.collect(findAllGroups(anyObject), EntityUtils.<Long, Group>keyTransformer());
+    public Collection<String> findAllGroupKeys(final AnyObject anyObject) {
+        return CollectionUtils.collect(findAllGroups(anyObject), EntityUtils.<Group>keyTransformer());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -204,7 +204,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public Collection<String> findAllResourceNames(final AnyObject anyObject) {
         return CollectionUtils.collect(
-                findAllResources(anyObject), EntityUtils.<String, ExternalResource>keyTransformer());
+                findAllResources(anyObject), EntityUtils.<ExternalResource>keyTransformer());
     }
 
 }

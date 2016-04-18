@@ -21,15 +21,15 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 
-public interface PlainAttrValueDAO extends DAO<PlainAttrValue, Long> {
+public interface PlainAttrValueDAO extends DAO<PlainAttrValue> {
 
-    <T extends PlainAttrValue> T find(Long key, Class<T> reference);
+    <T extends PlainAttrValue> T find(String key, Class<T> reference);
 
     <T extends PlainAttrValue> List<T> findAll(Class<T> reference);
 
     <T extends PlainAttrValue> T save(T attributeValue);
 
-    <T extends PlainAttrValue> void delete(Long key, Class<T> reference);
+    <T extends PlainAttrValue> void delete(String key, Class<T> reference);
 
     <T extends PlainAttrValue> void delete(T attributeValue);
 }

@@ -177,13 +177,13 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         AnyTypeClass anyTypeClass = itor.next();
                         allowedSchemas.getPlainSchemas().addAll(
                                 CollectionUtils.collect(anyTypeClass.getPlainSchemas(),
-                                        EntityUtils.<String, PlainSchema>keyTransformer()));
+                                        EntityUtils.<PlainSchema>keyTransformer()));
                         allowedSchemas.getDerSchemas().addAll(
                                 CollectionUtils.collect(anyTypeClass.getDerSchemas(),
-                                        EntityUtils.<String, DerSchema>keyTransformer()));
+                                        EntityUtils.<DerSchema>keyTransformer()));
                         allowedSchemas.getVirSchemas().addAll(
                                 CollectionUtils.collect(anyTypeClass.getVirSchemas(),
-                                        EntityUtils.<String, VirSchema>keyTransformer()));
+                                        EntityUtils.<VirSchema>keyTransformer()));
                     }
 
                     populateMapping(
@@ -357,12 +357,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
     public ResourceTO getResourceTO(final ExternalResource resource) {
         ResourceTO resourceTO = new ResourceTO();
 
-        // set sys info
-        resourceTO.setCreator(resource.getCreator());
-        resourceTO.setCreationDate(resource.getCreationDate());
-        resourceTO.setLastModifier(resource.getLastModifier());
-        resourceTO.setLastChangeDate(resource.getLastChangeDate());
-
         // set the resource name
         resourceTO.setKey(resource.getKey());
 
@@ -379,7 +373,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             provisionTO.setAnyType(provision.getAnyType().getKey());
             provisionTO.setObjectClass(provision.getObjectClass().getObjectClassValue());
             provisionTO.getAuxClasses().addAll(CollectionUtils.collect(
-                    provision.getAuxClasses(), EntityUtils.<String, AnyTypeClass>keyTransformer()));
+                    provision.getAuxClasses(), EntityUtils.<AnyTypeClass>keyTransformer()));
             provisionTO.setSyncToken(provision.getSerializedSyncToken());
 
             if (provision.getMapping() != null) {

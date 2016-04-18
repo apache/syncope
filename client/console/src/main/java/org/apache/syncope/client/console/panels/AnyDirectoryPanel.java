@@ -79,6 +79,7 @@ public abstract class AnyDirectoryPanel<T extends AnyTO>
         this.type = builder.type;
         this.fiql = builder.fiql;
 
+        utilityModal.size(Modal.Size.Large);
         addOuterObject(utilityModal);
         setWindowClosedReloadCallback(utilityModal);
 

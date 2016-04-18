@@ -35,7 +35,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPARoleDAO extends AbstractDAO<Role, String> implements RoleDAO {
+public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
     @Autowired
     private AnySearchDAO searchDAO;

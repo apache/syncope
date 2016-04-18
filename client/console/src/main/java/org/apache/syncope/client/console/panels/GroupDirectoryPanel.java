@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -80,7 +81,9 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
         for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(GroupTO.class, name);
 
-            if (field != null && field.getType().equals(Date.class)) {
+            if ("key".equalsIgnoreCase(name)) {
+                columns.add(new KeyPropertyColumn<GroupTO>(new ResourceModel(name, name), name, name));
+            } else if (field != null && field.getType().equals(Date.class)) {
                 columns.add(new DatePropertyColumn<GroupTO>(new ResourceModel(name, name), name, name));
             } else {
                 columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
@@ -155,7 +158,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                         final GroupTO clone = SerializationUtils.clone(model.getObject());
-                        clone.setKey(0L);
+                        clone.setKey(null);
                         send(GroupDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.NewItemActionEvent<>(new GroupHandler(clone), target));
                     }

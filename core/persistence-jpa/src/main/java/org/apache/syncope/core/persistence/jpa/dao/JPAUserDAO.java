@@ -69,6 +69,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Repository;
@@ -161,12 +162,12 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public User authFind(final String username) {
+    public User authFindByUsername(final String username) {
         if (username == null) {
             throw new NotFoundException("Null username");
         }
 
-        User user = find(username);
+        User user = findByUsername(username);
         if (user == null) {
             throw new NotFoundException("User " + username);
         }
@@ -177,7 +178,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     }
 
     @Override
-    public User find(final String username) {
+    public User findByUsername(final String username) {
         TypedQuery<User> query = entityManager().createQuery("SELECT e FROM " + JPAUser.class.getSimpleName()
                 + " e WHERE e.username = :username", User.class);
         query.setParameter("username", username);
@@ -458,14 +459,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public Collection<Long> findAllGroupKeys(final User user) {
-        return CollectionUtils.collect(findAllGroups(user), new Transformer<Group, Long>() {
-
-            @Override
-            public Long transform(final Group input) {
-                return input.getKey();
-            }
-        });
+    public Collection<String> findAllGroupKeys(final User user) {
+        return CollectionUtils.collect(findAllGroups(user), EntityUtils.<Group>keyTransformer());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

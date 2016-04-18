@@ -726,3 +726,7 @@ div#userFilter  #warning{
 div#userFilter  #check {
   margin: 1px 0 5px 8px;
 }
+
+.keyColumn {
+  width: 20px;
+}

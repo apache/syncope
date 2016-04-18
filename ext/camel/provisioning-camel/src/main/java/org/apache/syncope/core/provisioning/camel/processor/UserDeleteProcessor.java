@@ -49,7 +49,7 @@ public class UserDeleteProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) throws Exception {
-        Long key = (Long) exchange.getIn().getBody();
+        String key = exchange.getIn().getBody(String.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 

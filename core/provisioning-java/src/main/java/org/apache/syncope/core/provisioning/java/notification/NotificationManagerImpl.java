@@ -206,8 +206,8 @@ public class NotificationManagerImpl implements NotificationManager {
 
         if (notification.getRecipientsProviderClassName() != null) {
             try {
-                NotificationRecipientsProvider recipientsProvider
-                        = (NotificationRecipientsProvider) ApplicationContextProvider.getBeanFactory().
+                NotificationRecipientsProvider recipientsProvider =
+                        (NotificationRecipientsProvider) ApplicationContextProvider.getBeanFactory().
                         createBean(Class.forName(notification.getRecipientsProviderClassName()),
                                 AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
                 recipientEmails.addAll(recipientsProvider.provideRecipients(notification));
@@ -393,14 +393,14 @@ public class NotificationManagerImpl implements NotificationManager {
     }
 
     @Override
-    public void setTaskExecuted(final Long taskKey, final boolean executed) {
+    public void setTaskExecuted(final String taskKey, final boolean executed) {
         NotificationTask task = taskDAO.find(taskKey);
         task.setExecuted(executed);
         taskDAO.save(task);
     }
 
     @Override
-    public long countExecutionsWithStatus(final Long taskKey, final String status) {
+    public long countExecutionsWithStatus(final String taskKey, final String status) {
         NotificationTask task = taskDAO.find(taskKey);
         long count = 0;
         for (TaskExec taskExec : task.getExecs()) {

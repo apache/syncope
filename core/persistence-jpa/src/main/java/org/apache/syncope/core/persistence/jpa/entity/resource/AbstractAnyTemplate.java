@@ -25,12 +25,12 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 
 @MappedSuperclass
-public abstract class AbstractAnyTemplate extends AbstractEntity<Long> implements AnyTemplate {
+public abstract class AbstractAnyTemplate extends AbstractGeneratedKeyEntity implements AnyTemplate {
 
     private static final long serialVersionUID = -5280310945358790780L;
 

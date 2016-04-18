@@ -41,13 +41,13 @@ public class ResourceSecurityPanel extends WizardStep {
 
     private final PolicyRestClient policyRestClient = new PolicyRestClient();
 
-    private final IModel<Map<Long, String>> passwordPolicies = new LoadableDetachableModel<Map<Long, String>>() {
+    private final IModel<Map<String, String>> passwordPolicies = new LoadableDetachableModel<Map<String, String>>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
-        protected Map<Long, String> load() {
-            Map<Long, String> res = new HashMap<>();
+        protected Map<String, String> load() {
+            Map<String, String> res = new HashMap<>();
             for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }
@@ -55,13 +55,13 @@ public class ResourceSecurityPanel extends WizardStep {
         }
     };
 
-    private final IModel<Map<Long, String>> accountPolicies = new LoadableDetachableModel<Map<Long, String>>() {
+    private final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<Map<String, String>>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
-        protected Map<Long, String> load() {
-            Map<Long, String> res = new HashMap<>();
+        protected Map<String, String> load() {
+            Map<String, String> res = new HashMap<>();
             for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }
@@ -69,13 +69,13 @@ public class ResourceSecurityPanel extends WizardStep {
         }
     };
 
-    private final IModel<Map<Long, String>> pullPolicies = new LoadableDetachableModel<Map<Long, String>>() {
+    private final IModel<Map<String, String>> pullPolicies = new LoadableDetachableModel<Map<String, String>>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
-        protected Map<Long, String> load() {
-            Map<Long, String> res = new HashMap<>();
+        protected Map<String, String> load() {
+            Map<String, String> res = new HashMap<>();
             for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PULL)) {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }
@@ -95,10 +95,10 @@ public class ResourceSecurityPanel extends WizardStep {
         // -------------------------------
         // Password policy selection
         // -------------------------------
-        AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<>(
+        AjaxDropDownChoicePanel<String> passwordPolicy = new AjaxDropDownChoicePanel<>(
                 "passwordPolicy",
                 new ResourceModel("passwordPolicy", "passwordPolicy").getObject(),
-                new PropertyModel<Long>(resourceTO, "passwordPolicy"),
+                new PropertyModel<String>(resourceTO, "passwordPolicy"),
                 false);
         passwordPolicy.setChoiceRenderer(new PolicyRenderer(passwordPolicies));
         passwordPolicy.setChoices(new ArrayList<>(passwordPolicies.getObject().keySet()));
@@ -109,10 +109,10 @@ public class ResourceSecurityPanel extends WizardStep {
         // -------------------------------
         // Account policy selection
         // -------------------------------
-        AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<>(
+        AjaxDropDownChoicePanel<String> accountPolicy = new AjaxDropDownChoicePanel<>(
                 "accountPolicy",
                 new ResourceModel("accountPolicy", "accountPolicy").getObject(),
-                new PropertyModel<Long>(resourceTO, "accountPolicy"),
+                new PropertyModel<String>(resourceTO, "accountPolicy"),
                 false);
         accountPolicy.setChoiceRenderer(new PolicyRenderer(accountPolicies));
         accountPolicy.setChoices(new ArrayList<>(accountPolicies.getObject().keySet()));
@@ -123,10 +123,10 @@ public class ResourceSecurityPanel extends WizardStep {
         // -------------------------------
         // Pull policy selection
         // -------------------------------
-        AjaxDropDownChoicePanel<Long> pullPolicy = new AjaxDropDownChoicePanel<>(
+        AjaxDropDownChoicePanel<String> pullPolicy = new AjaxDropDownChoicePanel<>(
                 "pullPolicy",
                 new ResourceModel("pullPolicy", "pullPolicy").getObject(),
-                new PropertyModel<Long>(resourceTO, "pullPolicy"),
+                new PropertyModel<String>(resourceTO, "pullPolicy"),
                 false);
         pullPolicy.setChoiceRenderer(new PolicyRenderer(pullPolicies));
         pullPolicy.setChoices(new ArrayList<>(pullPolicies.getObject().keySet()));

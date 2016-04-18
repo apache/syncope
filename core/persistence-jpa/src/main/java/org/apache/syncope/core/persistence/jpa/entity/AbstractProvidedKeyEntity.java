@@ -16,22 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.patch;
+package org.apache.syncope.core.persistence.jpa.entity;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
-@XmlRootElement(name = "longReplacePatchItem")
-@XmlType
-public class LongReplacePatchItem extends AbstractReplacePatchItem<Long> {
+@MappedSuperclass
+public abstract class AbstractProvidedKeyEntity extends AbstractEntity implements ProvidedKeyEntity {
 
-    private static final long serialVersionUID = -2468696387745469136L;
+    private static final long serialVersionUID = 821537874069666593L;
 
-    public static class Builder extends AbstractReplacePatchItem.Builder<Long, LongReplacePatchItem, Builder> {
+    @Id
+    private String key;
 
-        @Override
-        protected LongReplacePatchItem newInstance() {
-            return new LongReplacePatchItem();
-        }
+    @Override
+    public String getKey() {
+        return key;
     }
+
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
 }

@@ -138,7 +138,7 @@ public class ConnObjectUtils {
 
             List<PasswordRuleConf> ruleConfs = new ArrayList<>();
 
-            Realm realm = realmDAO.find(userTO.getRealm());
+            Realm realm = realmDAO.findByFullPath(userTO.getRealm());
             if (realm != null) {
                 for (Realm ancestor : realmDAO.findAncestors(realm)) {
                     if (ancestor.getPasswordPolicy() != null) {
@@ -182,7 +182,7 @@ public class ConnObjectUtils {
      */
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
-    public <T extends AnyPatch> T getAnyPatch(final Long key, final ConnectorObject obj,
+    public <T extends AnyPatch> T getAnyPatch(final String key, final ConnectorObject obj,
             final AnyTO original, final PullTask pullTask, final Provision provision, final AnyUtils anyUtils) {
 
         AnyTO updated = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);

@@ -64,11 +64,11 @@ public class SyncopeGroupManager implements GroupIdentityManager, SyncopeSession
     @Override
     public List<Group> findGroupsByUser(final String userId) {
         List<Group> result = Collections.emptyList();
-        User user = userDAO.find(userId);
+        User user = userDAO.findByUsername(userId);
         if (user != null) {
             result = new ArrayList<>();
-            for (Long groupId : userDAO.findAllGroupKeys(user)) {
-                result.add(new GroupEntity(groupId.toString()));
+            for (String groupKey : userDAO.findAllGroupKeys(user)) {
+                result.add(new GroupEntity(groupKey));
             }
         }
 

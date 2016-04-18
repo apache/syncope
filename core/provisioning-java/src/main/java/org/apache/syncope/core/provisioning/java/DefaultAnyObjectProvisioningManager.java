@@ -61,15 +61,17 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     protected AnyObjectDAO anyObjectDAO;
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final AnyObjectTO anyObjectTO, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> create(
+            final AnyObjectTO anyObjectTO, final boolean nullPriorityAsync) {
+
         return create(anyObjectTO, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(
+    public Pair<String, List<PropagationStatus>> create(
             final AnyObjectTO anyObjectTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
-        WorkflowResult<Long> created = awfAdapter.create(anyObjectTO);
+        WorkflowResult<String> created = awfAdapter.create(anyObjectTO);
 
         List<PropagationTask> tasks = propagationManager.getCreateTasks(
                 AnyTypeKind.ANY_OBJECT,
@@ -85,17 +87,17 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(
+    public Pair<String, List<PropagationStatus>> update(
             final AnyObjectPatch anyObjectPatch, final boolean nullPriorityAsync) {
 
         return update(anyObjectPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(
+    public Pair<String, List<PropagationStatus>> update(
             final AnyObjectPatch anyObjectPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
-        WorkflowResult<Long> updated = awfAdapter.update(anyObjectPatch);
+        WorkflowResult<String> updated = awfAdapter.update(anyObjectPatch);
 
         List<PropagationTask> tasks = propagationManager.getUpdateTasks(
                 AnyTypeKind.ANY_OBJECT,
@@ -113,13 +115,13 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long key, final boolean nullPriorityAsync) {
+    public List<PropagationStatus> delete(final String key, final boolean nullPriorityAsync) {
         return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     public List<PropagationStatus> delete(
-            final Long key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+            final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         List<PropagationTask> tasks = propagationManager.getDeleteTasks(
                 AnyTypeKind.ANY_OBJECT,
@@ -136,18 +138,18 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     }
 
     @Override
-    public Long unlink(final AnyObjectPatch anyObjectPatch) {
+    public String unlink(final AnyObjectPatch anyObjectPatch) {
         return awfAdapter.update(anyObjectPatch).getResult();
     }
 
     @Override
-    public Long link(final AnyObjectPatch anyObjectPatch) {
+    public String link(final AnyObjectPatch anyObjectPatch) {
         return awfAdapter.update(anyObjectPatch).getResult();
     }
 
     @Override
     public List<PropagationStatus> provision(
-            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.UPDATE, resources);
@@ -169,7 +171,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
     @Override
     public List<PropagationStatus> deprovision(
-            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.DELETE, resources);

@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 
-public interface LoggerDAO extends DAO<Logger, String> {
+public interface LoggerDAO extends DAO<Logger> {
 
     Logger find(String key);
 

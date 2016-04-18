@@ -24,7 +24,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public interface RelatableTO {
 
-    Map<Pair<String, Long>, RelationshipTO> getRelationshipMap();
+    Map<Pair<String, String>, RelationshipTO> getRelationshipMap();
 
     List<RelationshipTO> getRelationships();
 }

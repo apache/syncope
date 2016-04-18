@@ -77,7 +77,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
             final List<String> res = new ArrayList<>();
 
             CollectionUtils.filter(CollectionUtils.collect(new AnyTypeRestClient().list(),
-                    EntityTOUtils.<String, AnyTypeTO>keyTransformer(), res),
+                    EntityTOUtils.<AnyTypeTO>keyTransformer(), res),
                     new Predicate<String>() {
 
                 @Override

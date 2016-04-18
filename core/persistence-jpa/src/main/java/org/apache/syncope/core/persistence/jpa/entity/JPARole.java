@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,7 +29,6 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -40,49 +38,37 @@ import javax.validation.Valid;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.validation.entity.RoleCheck;
 
 @Entity
 @Table(name = JPARole.TABLE)
 @Cacheable
 @RoleCheck
-public class JPARole extends AbstractEntity<String> implements Role {
+public class JPARole extends AbstractProvidedKeyEntity implements Role {
 
     private static final long serialVersionUID = -7657701119422588832L;
 
     public static final String TABLE = "SyncopeRole";
 
-    @Id
-    private String name;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "entitlement")
     @CollectionTable(name = "SyncopeRole_entitlements",
             joinColumns =
-            @JoinColumn(name = "role_name", referencedColumnName = "name"))
+            @JoinColumn(name = "role_key", referencedColumnName = "key"))
     private Set<String> entitlements = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "role_name"),
+            @JoinColumn(name = "role_key"),
             inverseJoinColumns =
-            @JoinColumn(name = "realm_id"))
+            @JoinColumn(name = "realm_key"))
     @Valid
     private List<JPARealm> realms = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "role")
     @Valid
     private JPADynRoleMembership dynMembership;
-
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String name) {
-        this.name = name;
-    }
 
     @Override
     public Set<String> getEntitlements() {

@@ -70,7 +70,8 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 2L || user.getKey() == 3L;
+                return "74cd8ece-715a-44a4-a736-e17b46c4e7e6".equals(user.getKey())
+                        || "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee".equals(user.getKey());
             }
         });
         assertEquals(2, found.size());
@@ -85,7 +86,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
         assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
-        assertEquals(1L, matchingUsers.getResult().iterator().next().getKey(), 0);
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matchingUsers.getResult().iterator().next().getKey());
     }
 
     @Test
@@ -93,18 +94,20 @@ public class SearchITCase extends AbstractITCase {
         PagedResult<GroupTO> groups = groupService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().
-                        is("name").equalTo("root").and("key").lessThan(2).query()).build());
+                        is("name").equalTo("root").and("key").equalTo("37d15e4c-cdc1-460b-a591-8505c8133806").
+                        query()).build());
         assertNotNull(groups);
         assertEquals(1, groups.getResult().size());
         assertEquals("root", groups.getResult().iterator().next().getName());
-        assertEquals(1L, groups.getResult().iterator().next().getKey(), 0);
+        assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.getResult().iterator().next().getKey());
     }
 
     @Test
     public void searchByGroup() {
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(1L).query()).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        inGroups("37d15e4c-cdc1-460b-a591-8505c8133806").query()).
                 build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
@@ -113,7 +116,7 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 1;
+                return "1417acbe-cbf6-4277-9372-e75e04f97000".equals(user.getKey());
             }
         }));
     }
@@ -136,7 +139,7 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 4;
+                return "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey());
             }
         }));
     }
@@ -154,7 +157,7 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 1;
+                return "1417acbe-cbf6-4277-9372-e75e04f97000".equals(user.getKey());
             }
         }));
     }
@@ -178,7 +181,7 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 4;
+                return "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey());
             }
         }));
     }
@@ -196,7 +199,7 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 2;
+                return "74cd8ece-715a-44a4-a736-e17b46c4e7e6".equals(user.getKey());
             }
         }));
     }
@@ -253,10 +256,13 @@ public class SearchITCase extends AbstractITCase {
     public void searchByRelationshipAnyCond() {
         PagedResult<GroupTO> groups = groupService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getGroupSearchConditionBuilder().is("userOwner").equalTo(5).query()).build());
+                fiql(SyncopeClient.getGroupSearchConditionBuilder().
+                        is("userOwner").equalTo("823074dc-d280-436d-a7dd-07399fae48ec").query()).build());
         assertNotNull(groups);
         assertEquals(1, groups.getResult().size());
-        assertEquals(6L, groups.getResult().iterator().next().getKey(), 0);
+        assertEquals(
+                "ebf97068-aa4b-4a85-9f01-680e8c4cf227",
+                groups.getResult().iterator().next().getKey());
     }
 
     @Test
@@ -297,27 +303,28 @@ public class SearchITCase extends AbstractITCase {
         PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
-                        inRelationships(2L).query()).
+                        inRelationships("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").query()).
                 build());
         assertNotNull(anyObjects);
         assertTrue(IterableUtils.matchesAny(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
 
             @Override
             public boolean evaluate(final AnyObjectTO anyObject) {
-                return anyObject.getKey() == 1L;
+                return "fc6dbc3a-6c07-4965-8781-921e7401a4a5".equals(anyObject.getKey());
             }
         }));
 
         PagedResult<UserTO> users = userService.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inRelationships(1L).query()).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        inRelationships("fc6dbc3a-6c07-4965-8781-921e7401a4a5").query()).
                 build());
         assertNotNull(users);
         assertTrue(IterableUtils.matchesAny(users.getResult(), new Predicate<UserTO>() {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 4L;
+                return "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey());
             }
         }));
     }
@@ -334,14 +341,14 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final AnyObjectTO anyObject) {
-                return anyObject.getKey() == 1L;
+                return "fc6dbc3a-6c07-4965-8781-921e7401a4a5".equals(anyObject.getKey());
             }
         }));
         assertTrue(IterableUtils.matchesAny(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
 
             @Override
             public boolean evaluate(final AnyObjectTO anyObject) {
-                return anyObject.getKey() == 2L;
+                return "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(anyObject.getKey());
             }
         }));
 
@@ -354,7 +361,7 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 4L;
+                return "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey());
             }
         }));
     }
@@ -371,14 +378,14 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final GroupTO group) {
-                return group.getKey() == 15L;
+                return "034740a9-fa10-453b-af37-dc7897e98fb1".equals(group.getKey());
             }
         }));
         assertFalse(IterableUtils.matchesAny(groups.getResult(), new Predicate<GroupTO>() {
 
             @Override
             public boolean evaluate(final GroupTO group) {
-                return group.getKey() == 16L;
+                return "e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed".equals(group.getKey());
             }
         }));
 
@@ -392,7 +399,7 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final AnyObjectTO anyObject) {
-                return anyObject.getKey() == 3L;
+                return "9e1d130c-d6a3-48b1-98b3-182477ed0688".equals(anyObject.getKey());
             }
         }));
     }

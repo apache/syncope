@@ -143,15 +143,15 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                                 throw new IllegalArgumentException("Invalid bulk action executor");
                             }
 
-                            final AbstractAnyRestClient<?> anyRestClient
-                                    = AbstractAnyRestClient.class.cast(bulkActionExecutor);
+                            final AbstractAnyRestClient<?> anyRestClient =
+                                    AbstractAnyRestClient.class.cast(bulkActionExecutor);
 
                             if (items.isEmpty() || !(items.iterator().next() instanceof StatusBean)) {
                                 throw new IllegalArgumentException("Invalid items");
                             }
 
                             // Group bean information by anyKey
-                            final Map<Long, List<StatusBean>> beans = new HashMap<>();
+                            final Map<String, List<StatusBean>> beans = new HashMap<>();
                             for (T bean : items) {
                                 final StatusBean sb = StatusBean.class.cast(bean);
                                 final List<StatusBean> sblist;
@@ -164,7 +164,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                                 sblist.add(sb);
                             }
 
-                            for (Map.Entry<Long, List<StatusBean>> entry : beans.entrySet()) {
+                            for (Map.Entry<String, List<StatusBean>> entry : beans.entrySet()) {
                                 final String etag = anyRestClient.read(entry.getKey()).getETagValue();
                                 try {
                                     switch (ResourceDeassociationAction.valueOf(actionToBeAddresed.name())) {

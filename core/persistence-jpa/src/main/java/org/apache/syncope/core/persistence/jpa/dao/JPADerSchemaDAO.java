@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements DerSchemaDAO {
+public class JPADerSchemaDAO extends AbstractDAO<DerSchema> implements DerSchemaDAO {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -49,7 +49,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
                 append(JPADerSchema.class.getSimpleName()).
                 append(" e WHERE ");
         for (AnyTypeClass anyTypeClass : anyTypeClasses) {
-            queryString.append("e.anyTypeClass.name='").append(anyTypeClass.getKey()).append("' OR ");
+            queryString.append("e.anyTypeClass.key='").append(anyTypeClass.getKey()).append("' OR ");
         }
 
         TypedQuery<DerSchema> query = entityManager().createQuery(

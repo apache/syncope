@@ -34,13 +34,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
 @Repository
-public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskExecDAO {
+public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO {
 
     @Autowired
     private TaskDAO taskDAO;
 
     @Override
-    public TaskExec find(final Long key) {
+    public TaskExec find(final String key) {
         return entityManager().find(JPATaskExec.class, key);
     }
 
@@ -117,9 +117,9 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
     }
 
     @Override
-    public int count(final Long taskKey) {
+    public int count(final String taskKey) {
         Query countQuery = entityManager().createNativeQuery(
-                "SELECT COUNT(e.id) FROM " + JPATaskExec.TABLE + " e WHERE e.task_id=?1");
+                "SELECT COUNT(e.key) FROM " + JPATaskExec.TABLE + " e WHERE e.task_key=?1");
         countQuery.setParameter(1, taskKey);
 
         return ((Number) countQuery.getSingleResult()).intValue();
@@ -136,7 +136,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
         }
 
         if (statement.length() == 0) {
-            statement.append("ORDER BY e.id DESC");
+            statement.append("ORDER BY e.key DESC");
         } else {
             statement.insert(0, "ORDER BY ");
         }
@@ -171,15 +171,15 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
 
     @Override
     @Transactional(rollbackFor = { Throwable.class })
-    public void saveAndAdd(final Long taskId, final TaskExec execution) {
-        Task task = taskDAO.find(taskId);
+    public void saveAndAdd(final String taskKey, final TaskExec execution) {
+        Task task = taskDAO.find(taskKey);
         task.add(execution);
         taskDAO.save(task);
     }
 
     @Override
-    public void delete(final Long id) {
-        TaskExec execution = find(id);
+    public void delete(final String key) {
+        TaskExec execution = find(key);
         if (execution == null) {
             return;
         }

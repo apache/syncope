@@ -51,7 +51,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     private NotificationDataBinder binder;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_READ + "')")
-    public NotificationTO read(final Long key) {
+    public NotificationTO read(final String key) {
         Notification notification = notificationDAO.find(key);
         if (notification == null) {
             LOG.error("Could not find notification '" + key + "'");
@@ -93,7 +93,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_DELETE + "')")
-    public NotificationTO delete(final Long key) {
+    public NotificationTO delete(final String key) {
         Notification notification = notificationDAO.find(key);
         if (notification == null) {
             LOG.error("Could not find notification '" + key + "'");
@@ -107,9 +107,9 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     }
 
     @Override
-    protected Triple<JobType, Long, String> getReference(final JobKey jobKey) {
+    protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
         return JobManager.NOTIFICATION_JOB.equals(jobKey)
-                ? Triple.of(JobType.NOTIFICATION, 0L, NotificationJob.class.getSimpleName())
+                ? Triple.of(JobType.NOTIFICATION, (String) null, NotificationJob.class.getSimpleName())
                 : null;
     }
 
@@ -127,19 +127,19 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     protected NotificationTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long key = null;
+        String key = null;
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
-                    key = (Long) args[i];
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
                 } else if (args[i] instanceof NotificationTO) {
                     key = ((NotificationTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((key != null) && !key.equals(0L)) {
+        if (key != null) {
             try {
                 return binder.getNotificationTO(notificationDAO.find(key));
             } catch (Throwable ignore) {

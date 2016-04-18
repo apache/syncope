@@ -37,11 +37,11 @@ public class TaskSyncopeOperations {
     }
 
     public <T extends AbstractTaskTO> T read(final String taskKey) {
-        return taskService.read(Long.valueOf(taskKey), true);
+        return taskService.read(taskKey, true);
     }
 
     public void delete(final String taskKey) {
-        taskService.delete(Long.valueOf(taskKey));
+        taskService.delete(taskKey);
     }
 
     public List<AbstractTaskTO> list(final String type) {
@@ -53,10 +53,11 @@ public class TaskSyncopeOperations {
     }
 
     public void deleteExecution(final String executionKey) {
-        taskService.deleteExecution(Long.valueOf(executionKey));
+        taskService.deleteExecution(executionKey);
     }
 
     public ExecTO execute(final String executionKey, final boolean dryRun) {
-        return taskService.execute(new ExecuteQuery.Builder().key(Long.valueOf(executionKey)).dryRun(dryRun).build());
+        return taskService.execute(
+                new ExecuteQuery.Builder().key(executionKey).dryRun(dryRun).build());
     }
 }

@@ -55,13 +55,13 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 build()).getTotalCount();
     }
 
-    public int count(final AnyTypeKind anyTypeKind, final Long anyTypeKey, final TaskType kind) {
+    public int count(final AnyTypeKind anyTypeKind, final String anyTypeKey, final TaskType kind) {
         return getService(TaskService.class).list(
                 new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).anyTypeKey(anyTypeKey).page(1).size(1).
                 build()).getTotalCount();
     }
 
-    public int countExecutions(final Long taskKey) {
+    public int countExecutions(final String taskKey) {
         return getService(TaskService.class).
                 listExecutions(new TaskExecQuery.Builder().key(taskKey).page(1).size(1).build()).getTotalCount();
     }
@@ -78,7 +78,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     public List<PropagationTaskTO> listPropagationTasks(
-            final AnyTypeKind anyTypeKind, final Long anyTypeKey,
+            final AnyTypeKind anyTypeKind, final String anyTypeKey,
             final int page, final int size, final SortParam<String> sort) {
 
         return getService(TaskService.class).
@@ -91,9 +91,9 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     @SuppressWarnings("unchecked")
     public <T extends AbstractTaskTO> List<T> listNotificationTasks(
-            final Long notification,
+            final String notification,
             final AnyTypeKind anyTypeKind,
-            final Long anyTypeKey,
+            final String anyTypeKey,
             final int page,
             final int size,
             final SortParam<String> sort) {
@@ -139,9 +139,9 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 getResult();
     }
 
-    public List<ExecTO> listExecutions(final Long taskId, final int page, final int size) {
+    public List<ExecTO> listExecutions(final String taskKey, final int page, final int size) {
         return getService(TaskService.class).
-                listExecutions(new TaskExecQuery.Builder().key(taskId).page(page).size(size).build()).getResult();
+                listExecutions(new TaskExecQuery.Builder().key(taskKey).page(page).size(size).build()).getResult();
     }
 
     private TaskType getTaskType(final Class<?> reference) {
@@ -160,35 +160,35 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return result;
     }
 
-    public PropagationTaskTO readPropagationTask(final Long taskKey) {
+    public PropagationTaskTO readPropagationTask(final String taskKey) {
         return getService(TaskService.class).read(taskKey, false);
     }
 
-    public NotificationTaskTO readNotificationTask(final Long taskKey) {
+    public NotificationTaskTO readNotificationTask(final String taskKey) {
         return getService(TaskService.class).read(taskKey, false);
     }
 
-    public <T extends SchedTaskTO> T readSchedTask(final Class<T> reference, final Long taskKey) {
+    public <T extends SchedTaskTO> T readSchedTask(final Class<T> reference, final String taskKey) {
         return getService(TaskService.class).read(taskKey, false);
     }
 
-    public void delete(final Long taskKey, final Class<? extends AbstractTaskTO> taskToClass) {
+    public void delete(final String taskKey, final Class<? extends AbstractTaskTO> taskToClass) {
         getService(TaskService.class).delete(taskKey);
     }
 
     @Override
-    public void startExecution(final long taskKey, final Date start) {
+    public void startExecution(final String taskKey, final Date start) {
         startExecution(taskKey, start, false);
     }
 
-    public void startExecution(final long taskKey, final Date start, final boolean dryRun) {
+    public void startExecution(final String taskKey, final Date start, final boolean dryRun) {
         getService(TaskService.class).execute(
                 new ExecuteQuery.Builder().key(taskKey).startAt(start).dryRun(dryRun).build());
     }
 
     @Override
-    public void deleteExecution(final long taskExecId) {
-        getService(TaskService.class).deleteExecution(taskExecId);
+    public void deleteExecution(final String taskExecKey) {
+        getService(TaskService.class).deleteExecution(taskExecKey);
     }
 
     @Override

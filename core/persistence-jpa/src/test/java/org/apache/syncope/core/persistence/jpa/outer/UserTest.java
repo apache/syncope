@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.UUID;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
@@ -73,65 +74,75 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void delete() {
-        List<UMembership> memberships = groupDAO.findUMemberships(groupDAO.find(7L));
+        List<UMembership> memberships = groupDAO.findUMemberships(groupDAO.findByName("managingDirector"));
         assertFalse(memberships.isEmpty());
-        List<URelationship> relationships = anyObjectDAO.findURelationships(anyObjectDAO.find(1L));
+        List<URelationship> relationships = anyObjectDAO.findURelationships(
+                anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5"));
         assertFalse(relationships.isEmpty());
 
-        userDAO.delete(4L);
+        userDAO.delete("c9b2dec2-00a7-4855-97c0-d854842b4b24");
 
         userDAO.flush();
 
-        assertNull(userDAO.find(4L));
-        assertNull(plainAttrDAO.find(550L, UPlainAttr.class));
-        assertNull(plainAttrValueDAO.find(22L, UPlainAttrValue.class));
+        assertNull(userDAO.findByUsername("bellini"));
+        assertNull(plainAttrDAO.find(UUID.randomUUID().toString(), UPlainAttr.class));
+        assertNull(plainAttrValueDAO.find(UUID.randomUUID().toString(), UPlainAttrValue.class));
         assertNotNull(plainSchemaDAO.find("loginDate"));
 
-        memberships = groupDAO.findUMemberships(groupDAO.find(7L));
+        memberships = groupDAO.findUMemberships(groupDAO.findByName("managingDirector"));
         assertTrue(memberships.isEmpty());
-        relationships = anyObjectDAO.findURelationships(anyObjectDAO.find(1L));
+        relationships = anyObjectDAO.findURelationships(
+                anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5"));
         assertTrue(relationships.isEmpty());
     }
 
     @Test
     public void ships() {
-        User user = userDAO.find(4L);
+        User user = userDAO.findByUsername("bellini");
         assertNotNull(user);
         assertEquals(1, user.getMemberships().size());
-        assertEquals(7L, user.getMemberships().get(0).getRightEnd().getKey(), 0);
+        assertEquals(
+                "bf825fe1-7320-4a54-bd64-143b5c18ab97",
+                user.getMemberships().get(0).getRightEnd().getKey());
 
         user.getMemberships().remove(0);
 
         UMembership newM = entityFactory.newEntity(UMembership.class);
         newM.setLeftEnd(user);
-        newM.setRightEnd(groupDAO.find(13L));
+        newM.setRightEnd(groupDAO.find("ba9ed509-b1f5-48ab-a334-c8530a6422dc"));
         user.add(newM);
 
         userDAO.save(user);
 
         userDAO.flush();
 
-        user = userDAO.find(4L);
+        user = userDAO.findByUsername("bellini");
         assertEquals(1, user.getMemberships().size());
-        assertEquals(13L, user.getMemberships().get(0).getRightEnd().getKey(), 0);
+        assertEquals(
+                "ba9ed509-b1f5-48ab-a334-c8530a6422dc",
+                user.getMemberships().get(0).getRightEnd().getKey());
         assertEquals(1, user.getRelationships().size());
-        assertEquals(1L, user.getRelationships().get(0).getRightEnd().getKey(), 0);
+        assertEquals(
+                "fc6dbc3a-6c07-4965-8781-921e7401a4a5",
+                user.getRelationships().get(0).getRightEnd().getKey());
 
         user.getRelationships().remove(0);
 
         URelationship newR = entityFactory.newEntity(URelationship.class);
         newR.setType(relationshipTypeDAO.find("neighborhood"));
         newR.setLeftEnd(user);
-        newR.setRightEnd(anyObjectDAO.find(2L));
+        newR.setRightEnd(anyObjectDAO.find("8559d14d-58c2-46eb-a2d4-a7d35161e8f8"));
         user.add(newR);
 
         userDAO.save(user);
 
         userDAO.flush();
 
-        user = userDAO.find(4L);
+        user = userDAO.findByUsername("bellini");
         assertEquals(1, user.getRelationships().size());
-        assertEquals(2L, user.getRelationships().get(0).getRightEnd().getKey(), 0);
+        assertEquals(
+                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8",
+                user.getRelationships().get(0).getRightEnd().getKey());
     }
 
     @Test // search by derived attribute
@@ -141,7 +152,7 @@ public class UserTest extends AbstractTest {
         prefix.setKey("kprefix");
         prefix.setExpression("'k' + firstname");
 
-        prefix = derSchemaDAO.save(prefix);
+        derSchemaDAO.save(prefix);
         derSchemaDAO.flush();
 
         // create derived attribute (literal as suffix)
@@ -149,11 +160,11 @@ public class UserTest extends AbstractTest {
         suffix.setKey("ksuffix");
         suffix.setExpression("firstname + 'k'");
 
-        suffix = derSchemaDAO.save(suffix);
+        derSchemaDAO.save(suffix);
         derSchemaDAO.flush();
 
         // add derived attributes to user
-        User owner = userDAO.find(3L);
+        User owner = userDAO.findByUsername("vivaldi");
         assertNotNull("did not get expected user", owner);
 
         String firstname = owner.getPlainAttr("firstname").getValuesAsStrings().iterator().next();

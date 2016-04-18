@@ -318,7 +318,8 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         notification.getAbouts().put(AnyTypeKind.GROUP.name(),
                 SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo(groupName).query());
 
-        notification.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().inGroups(8L).query());
+        notification.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().
+                inGroups("f779c0d4-633b-4be5-8f57-32eb478a3ca5").query());
         notification.setSelfAsRecipient(false);
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
@@ -386,10 +387,12 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
 
         if (includeAbout) {
             notification.getAbouts().put(AnyTypeKind.USER.name(),
-                    SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
+                    SyncopeClient.getUserSearchConditionBuilder().
+                    inGroups("bf825fe1-7320-4a54-bd64-143b5c18ab97").query());
         }
 
-        notification.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().inGroups(8L).query());
+        notification.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().
+                inGroups("f779c0d4-633b-4be5-8f57-32eb478a3ca5").query());
         notification.setSelfAsRecipient(true);
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
@@ -408,7 +411,8 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
 
         // 2. create user
         UserTO userTO = UserITCase.getUniqueSampleTO(MAIL_ADDRESS);
-        userTO.getMemberships().add(new MembershipTO.Builder().group(7L).build());
+        userTO.getMemberships().add(
+                new MembershipTO.Builder().group("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
 
         userTO = createUser(userTO).getAny();
         assertNotNull(userTO);

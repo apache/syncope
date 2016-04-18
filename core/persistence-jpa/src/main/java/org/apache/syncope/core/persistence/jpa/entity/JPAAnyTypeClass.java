@@ -23,7 +23,6 @@ import java.util.List;
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -35,14 +34,11 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 @Entity
 @Table(name = JPAAnyTypeClass.TABLE)
 @Cacheable
-public class JPAAnyTypeClass extends AbstractEntity<String> implements AnyTypeClass {
+public class JPAAnyTypeClass extends AbstractProvidedKeyEntity implements AnyTypeClass {
 
     private static final long serialVersionUID = -1750247153774475453L;
 
     public static final String TABLE = "AnyTypeClass";
-
-    @Id
-    private String name;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "classes")
     private List<JPAAnyType> types = new ArrayList<>();
@@ -55,16 +51,6 @@ public class JPAAnyTypeClass extends AbstractEntity<String> implements AnyTypeCl
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "anyTypeClass")
     private List<JPAVirSchema> virSchemas = new ArrayList<>();
-
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String name) {
-        this.name = name;
-    }
 
     @Override
     public boolean add(final PlainSchema schema) {

@@ -28,12 +28,10 @@ import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
 
 /**
  * Abstract wrapper for common system information.
- *
- * @param <KEY> the type of the key of this entity
  */
 @MappedSuperclass
 @EntityListeners(value = AnnotatedEntityListener.class)
-public abstract class AbstractAnnotatedEntity<KEY> extends AbstractEntity<KEY> implements AnnotatedEntity<KEY> {
+public abstract class AbstractAnnotatedEntity extends AbstractGeneratedKeyEntity implements AnnotatedEntity {
 
     private static final long serialVersionUID = -4801685541488201219L;
 

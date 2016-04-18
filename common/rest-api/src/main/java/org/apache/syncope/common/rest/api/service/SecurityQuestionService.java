@@ -56,7 +56,7 @@ public interface SecurityQuestionService extends JAXRSService {
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    SecurityQuestionTO read(@NotNull @PathParam("key") Long key);
+    SecurityQuestionTO read(@NotNull @PathParam("key") String key);
 
     /**
      * Creates a new security question.
@@ -85,7 +85,7 @@ public interface SecurityQuestionService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") Long key);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Ask for security question configured for the user matching the given username, if any.

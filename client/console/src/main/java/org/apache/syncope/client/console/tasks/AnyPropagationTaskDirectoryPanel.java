@@ -33,13 +33,13 @@ public abstract class AnyPropagationTaskDirectoryPanel extends PropagationTaskDi
 
     private final AnyTypeKind anyTypeKind;
 
-    private final Long anyTypeKey;
+    private final String anyTypeKey;
 
     protected AnyPropagationTaskDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final AnyTypeKind anyTypeKind,
-            final Long anyTypeKey,
+            final String anyTypeKey,
             final PageReference pageRef) {
 
         super(baseModal, multiLevelPanelRef, null, pageRef);

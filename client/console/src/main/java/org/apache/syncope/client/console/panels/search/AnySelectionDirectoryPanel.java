@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
@@ -72,7 +73,9 @@ public abstract class AnySelectionDirectoryPanel<T extends AnyTO> extends AnyDir
         for (String name : prefMan.getList(getRequest(), getPrefDetailsView())) {
             final Field field = ReflectionUtils.findField(AnyObjectTO.class, name);
 
-            if (reference == UserTO.class && "token".equalsIgnoreCase(name)) {
+            if ("key".equalsIgnoreCase(name)) {
+                columns.add(new KeyPropertyColumn<T>(new ResourceModel(name, name), name, name));
+            } else if (reference == UserTO.class && "token".equalsIgnoreCase(name)) {
                 columns.add(new TokenColumn<T>(new ResourceModel(name, name), name));
             } else if (field != null
                     && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {

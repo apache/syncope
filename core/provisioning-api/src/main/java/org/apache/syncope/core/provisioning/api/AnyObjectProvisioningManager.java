@@ -26,5 +26,5 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 
 public interface AnyObjectProvisioningManager extends ProvisioningManager<AnyObjectTO, AnyObjectPatch> {
 
-    List<PropagationStatus> provision(Long key, Collection<String> resources, boolean nullPriorityAsync);
+    List<PropagationStatus> provision(String key, Collection<String> resources, boolean nullPriorityAsync);
 }

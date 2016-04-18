@@ -31,11 +31,11 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 
 @XmlRootElement(name = "mappingItem")
 @XmlType
-public class MappingItemTO extends AbstractBaseBean implements EntityTO<Long> {
+public class MappingItemTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = 2983498836767176862L;
 
-    private Long key;
+    private String key;
 
     /**
      * Attribute schema to be mapped. Consider that we can associate tha same attribute schema more than once, with
@@ -92,12 +92,12 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO<Long> {
     }
 
     @Override
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @Override
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

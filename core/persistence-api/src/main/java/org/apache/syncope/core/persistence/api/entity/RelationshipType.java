@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-public interface RelationshipType extends Entity<String> {
-
-    void setKey(String key);
+public interface RelationshipType extends ProvidedKeyEntity {
 
     String getDescription();
 

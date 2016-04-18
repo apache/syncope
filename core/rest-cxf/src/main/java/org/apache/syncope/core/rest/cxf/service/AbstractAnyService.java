@@ -58,10 +58,10 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
     protected abstract AbstractAnyLogic<TO, P> getAnyLogic();
 
-    protected abstract P newPatch(Long key);
+    protected abstract P newPatch(String key);
 
     @Override
-    public Set<AttrTO> read(final Long key, final SchemaType schemaType) {
+    public Set<AttrTO> read(final String key, final SchemaType schemaType) {
         TO any = read(key);
         Set<AttrTO> result;
         switch (schemaType) {
@@ -82,7 +82,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public AttrTO read(final Long key, final SchemaType schemaType, final String schema) {
+    public AttrTO read(final String key, final SchemaType schemaType, final String schema) {
         TO any = read(key);
         AttrTO result;
         switch (schemaType) {
@@ -107,7 +107,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public TO read(final Long key) {
+    public TO read(final String key) {
         return getAnyLogic().read(key);
     }
 
@@ -164,7 +164,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     private void addUpdateOrReplaceAttr(
-            final Long key, final SchemaType schemaType, final AttrTO attrTO, final PatchOperation operation) {
+            final String key, final SchemaType schemaType, final AttrTO attrTO, final PatchOperation operation) {
 
         if (attrTO.getSchema() == null) {
             throw new NotFoundException("Must specify schema");
@@ -189,7 +189,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public Response update(final Long key, final SchemaType schemaType, final AttrTO attrTO) {
+    public Response update(final String key, final SchemaType schemaType, final AttrTO attrTO) {
         addUpdateOrReplaceAttr(key, schemaType, attrTO, PatchOperation.ADD_REPLACE);
         return modificationResponse(read(key, schemaType, attrTO.getSchema()));
     }
@@ -206,12 +206,12 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public void delete(final Long key, final SchemaType schemaType, final String schema) {
+    public void delete(final String key, final SchemaType schemaType, final String schema) {
         addUpdateOrReplaceAttr(key, schemaType, new AttrTO.Builder().schema(schema).build(), PatchOperation.DELETE);
     }
 
     @Override
-    public Response delete(final Long key) {
+    public Response delete(final String key) {
         TO group = getAnyLogic().read(key);
 
         checkETag(group.getETagValue());
@@ -334,11 +334,11 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                     for (String key : bulkAction.getTargets()) {
                         try {
                             final UserPatch userPatch = new UserPatch();
-                            userPatch.setKey(Long.valueOf(key));
+                            userPatch.setKey(key);
                             userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
 
                             result.getResults().put(
-                                    String.valueOf(((UserLogic) logic).update(userPatch, false).getAny().getKey()),
+                                    ((UserLogic) logic).update(userPatch, false).getAny().getKey(),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing delete for user {}", key, e);
@@ -354,8 +354,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 for (String key : bulkAction.getTargets()) {
                     try {
                         result.getResults().put(
-                                String.valueOf(logic.delete(Long.valueOf(key), isNullPriorityAsync()).
-                                        getAny().getKey()),
+                                logic.delete(key, isNullPriorityAsync()).getAny().getKey(),
                                 BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing delete for user {}", key, e);
@@ -368,12 +367,12 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 if (logic instanceof UserLogic) {
                     for (String key : bulkAction.getTargets()) {
                         StatusPatch statusPatch = new StatusPatch();
-                        statusPatch.setKey(Long.valueOf(key));
+                        statusPatch.setKey(key);
                         statusPatch.setType(StatusPatchType.SUSPEND);
                         try {
                             result.getResults().put(
-                                    String.valueOf(((UserLogic) logic).
-                                            status(statusPatch, isNullPriorityAsync()).getAny().getKey()),
+                                    ((UserLogic) logic).
+                                    status(statusPatch, isNullPriorityAsync()).getAny().getKey(),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing suspend for user {}", key, e);
@@ -389,12 +388,12 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 if (logic instanceof UserLogic) {
                     for (String key : bulkAction.getTargets()) {
                         StatusPatch statusPatch = new StatusPatch();
-                        statusPatch.setKey(Long.valueOf(key));
+                        statusPatch.setKey(key);
                         statusPatch.setType(StatusPatchType.REACTIVATE);
                         try {
                             result.getResults().put(
-                                    String.valueOf(((UserLogic) logic).
-                                            status(statusPatch, isNullPriorityAsync()).getAny().getKey()),
+                                    ((UserLogic) logic).
+                                    status(statusPatch, isNullPriorityAsync()).getAny().getKey(),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing reactivate for user {}", key, e);

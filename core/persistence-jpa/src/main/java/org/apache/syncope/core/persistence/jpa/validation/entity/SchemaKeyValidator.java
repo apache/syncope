@@ -36,18 +36,18 @@ import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
-public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Object> {
+public class SchemaKeyValidator extends AbstractValidator<SchemaKeyCheck, Object> {
 
-    private static final Set<String> UNALLOWED_SCHEMA_NAMES = new HashSet<>();
+    private static final Set<String> UNALLOWED_SCHEMA_KEYS = new HashSet<>();
 
     static {
-        initUnallowedSchemaNames(JPAAnyObject.class, UNALLOWED_SCHEMA_NAMES);
-        initUnallowedSchemaNames(JPAGroup.class, UNALLOWED_SCHEMA_NAMES);
-        initUnallowedSchemaNames(JPAUser.class, UNALLOWED_SCHEMA_NAMES);
-        initUnallowedSchemaNames(JPAConf.class, UNALLOWED_SCHEMA_NAMES);
+        initUnallowedSchemaKeys(JPAAnyObject.class, UNALLOWED_SCHEMA_KEYS);
+        initUnallowedSchemaKeys(JPAGroup.class, UNALLOWED_SCHEMA_KEYS);
+        initUnallowedSchemaKeys(JPAUser.class, UNALLOWED_SCHEMA_KEYS);
+        initUnallowedSchemaKeys(JPAConf.class, UNALLOWED_SCHEMA_KEYS);
     }
 
-    private static void initUnallowedSchemaNames(final Class<?> entityClass, final Set<String> names) {
+    private static void initUnallowedSchemaKeys(final Class<?> entityClass, final Set<String> keys) {
         List<Class<?>> classes = ClassUtils.getAllSuperclasses(entityClass);
         if (!classes.contains(JPAUser.class)) {
             classes.add(JPAUser.class);
@@ -57,7 +57,7 @@ public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Obje
                 if (!Collection.class.isAssignableFrom(field.getType())
                         && !Map.class.isAssignableFrom(field.getType())) {
 
-                    names.add(field.getName());
+                    keys.add(field.getName());
                 }
             }
         }
@@ -66,7 +66,7 @@ public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Obje
     @Override
     public boolean isValid(final Object object, final ConstraintValidatorContext context) {
         String schemaName;
-        Set<String> unallowedNames = UNALLOWED_SCHEMA_NAMES;
+        Set<String> unallowedNames = UNALLOWED_SCHEMA_KEYS;
         if (object instanceof PlainSchema) {
             schemaName = ((PlainSchema) object).getKey();
         } else if (object instanceof DerSchema) {

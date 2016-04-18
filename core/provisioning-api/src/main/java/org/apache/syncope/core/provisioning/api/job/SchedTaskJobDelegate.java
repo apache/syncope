@@ -22,5 +22,5 @@ import org.quartz.JobExecutionException;
 
 public interface SchedTaskJobDelegate {
 
-    void execute(Long taskKey, boolean dryRun) throws JobExecutionException;
+    void execute(String taskKey, boolean dryRun) throws JobExecutionException;
 }

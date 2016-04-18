@@ -31,7 +31,7 @@ public class PolicyRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    public <T extends AbstractPolicyTO> T getPolicy(final Long key) {
+    public <T extends AbstractPolicyTO> T getPolicy(final String key) {
         T policy = null;
         try {
             policy = getService(PolicyService.class).read(key);
@@ -62,7 +62,7 @@ public class PolicyRestClient extends BaseRestClient {
         getService(PolicyService.class).update(policy);
     }
 
-    public void delete(final Long id, final Class<? extends AbstractPolicyTO> policyClass) {
-        getService(PolicyService.class).delete(id);
+    public void delete(final String key, final Class<? extends AbstractPolicyTO> policyClass) {
+        getService(PolicyService.class).delete(key);
     }
 }

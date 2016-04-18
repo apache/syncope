@@ -151,7 +151,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             pullTask.setPullMode(pullTaskTO.getPullMode());
             pullTask.setReconciliationFilterBuilderClassName(pullTaskTO.getReconciliationFilterBuilderClassName());
 
-            pullTask.setDestinationRealm(realmDAO.find(pullTaskTO.getDestinationRealm()));
+            pullTask.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()));
 
             pullTask.setJobDelegateClassName(PullJobDelegate.class.getName());
 

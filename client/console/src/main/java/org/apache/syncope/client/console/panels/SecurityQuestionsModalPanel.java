@@ -51,7 +51,7 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
-            if (securityQuestionTO.getKey() == null || securityQuestionTO.getKey() == 0) {
+            if (securityQuestionTO.getKey() == null) {
                 SyncopeConsoleSession.get().getService(SecurityQuestionService.class).create(securityQuestionTO);
             } else {
                 SyncopeConsoleSession.get().getService(SecurityQuestionService.class).update(securityQuestionTO);

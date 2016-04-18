@@ -148,7 +148,7 @@ public class Realms extends BasePage {
             @Override
             protected void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO) {
                 try {
-                    if (realmTO.getKey() == null || realmTO.getKey() == 0) {
+                    if (realmTO.getKey() == null) {
                         throw new Exception("Root realm cannot be deleted");
                     }
                     realmRestClient.delete(realmTO.getFullPath());

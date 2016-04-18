@@ -31,7 +31,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -55,13 +54,13 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractAnnotatedEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
-import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 
 /**
  * Resource for propagation and pull.
@@ -69,17 +68,11 @@ import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 @Entity
 @Table(name = JPAExternalResource.TABLE)
 @ExternalResourceCheck
-public class JPAExternalResource extends AbstractAnnotatedEntity<String> implements ExternalResource {
+public class JPAExternalResource extends AbstractProvidedKeyEntity implements ExternalResource {
 
     private static final long serialVersionUID = -6937712883512073278L;
 
     public static final String TABLE = "ExternalResource";
-
-    /**
-     * The resource identifier is the name.
-     */
-    @Id
-    private String name;
 
     /**
      * Should this resource enforce the mandatory constraints?
@@ -156,7 +149,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     @Column(name = "capabilityOverride")
     @CollectionTable(name = "ExternalResource_capOverride",
             joinColumns =
-            @JoinColumn(name = "resource_name", referencedColumnName = "name"))
+            @JoinColumn(name = "resource_key", referencedColumnName = "key"))
     private Set<ConnectorCapability> capabilitiesOverride = new HashSet<>();
 
     /**
@@ -166,7 +159,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     @Column(name = "actionClassName")
     @CollectionTable(name = "ExternalResource_PropActions",
             joinColumns =
-            @JoinColumn(name = "resource_name", referencedColumnName = "name"))
+            @JoinColumn(name = "resource_key", referencedColumnName = "key"))
     private List<String> propagationActionsClassNames = new ArrayList<>();
 
     public JPAExternalResource() {
@@ -257,16 +250,6 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     @Override
     public void setRandomPwdIfNotProvided(final boolean randomPwdIfNotProvided) {
         this.randomPwdIfNotProvided = getBooleanAsInteger(randomPwdIfNotProvided);
-    }
-
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String name) {
-        this.name = name;
     }
 
     @Override

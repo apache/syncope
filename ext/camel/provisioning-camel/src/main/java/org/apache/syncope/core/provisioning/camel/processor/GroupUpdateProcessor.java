@@ -54,7 +54,7 @@ public class GroupUpdateProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<String> updated = (WorkflowResult) exchange.getIn().getBody();
         GroupPatch groupPatch = exchange.getProperty("anyPatch", GroupPatch.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);

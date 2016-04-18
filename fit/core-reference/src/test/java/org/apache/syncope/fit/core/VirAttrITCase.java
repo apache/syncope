@@ -73,7 +73,8 @@ public class VirAttrITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue16@apache.org");
         userTO.getVirAttrs().add(attrTO("virtualdata", "virtualvalue"));
         userTO.getResources().add(RESOURCE_NAME_DBVIRATTR);
-        userTO.getMemberships().add(new MembershipTO.Builder().group(8L).build());
+        userTO.getMemberships().add(
+                new MembershipTO.Builder().group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
         // 1. create user
         userTO = createUser(userTO).getAny();
@@ -450,7 +451,7 @@ public class VirAttrITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE453() {
         String resourceName = "issueSYNCOPE453-Res-" + getUUIDString();
-        Long groupKey = null;
+        String groupKey = null;
         String groupName = "issueSYNCOPE453-Group-" + getUUIDString();
 
         try {
@@ -466,7 +467,7 @@ public class VirAttrITCase extends AbstractITCase {
                 rvirtualdata = new VirSchemaTO();
                 rvirtualdata.setKey("rvirtualdata");
                 rvirtualdata.setExtAttrName("businessCategory");
-                rvirtualdata.setProvision(20);
+                rvirtualdata.setProvision("20a75199-3f2e-4b9a-9510-c68dd7fc7b3d");
 
                 rvirtualdata = createSchema(SchemaType.VIRTUAL, rvirtualdata);
             }
@@ -489,7 +490,7 @@ public class VirAttrITCase extends AbstractITCase {
             ResourceTO resourceTO = new ResourceTO();
 
             resourceTO.setKey(resourceName);
-            resourceTO.setConnector(107L);
+            resourceTO.setConnector("be24b061-019d-4e3e-baf0-0a6d0a45cb9c");
 
             ProvisionTO provisionTO = new ProvisionTO();
             provisionTO.setAnyType(AnyTypeKind.USER.name());
@@ -501,7 +502,7 @@ public class VirAttrITCase extends AbstractITCase {
             provisionTO.setMapping(mapping);
 
             MappingItemTO item = new MappingItemTO();
-            item.setIntAttrName("aLong");
+            item.setIntAttrName("fullname");
             item.setIntMappingType(IntMappingType.UserPlainSchema);
             item.setExtAttrName("ID");
             item.setPurpose(MappingPurpose.PROPAGATION);
@@ -541,7 +542,7 @@ public class VirAttrITCase extends AbstractITCase {
             // Create new user
             // -------------------------------------------
             UserTO userTO = UserITCase.getUniqueSampleTO("syncope453@syncope.apache.org");
-            userTO.getPlainAttrs().add(attrTO("aLong", "123"));
+            userTO.getPlainAttrs().add(attrTO("fullname", "123"));
             userTO.getResources().clear();
             userTO.getResources().add(resourceName);
             userTO.getVirAttrs().clear();
@@ -560,9 +561,9 @@ public class VirAttrITCase extends AbstractITCase {
 
             Map<String, Object> actuals = jdbcTemplate.queryForMap(
                     "SELECT id, surname, email FROM testpull WHERE id=?",
-                    new Object[] { Integer.parseInt(userTO.getPlainAttrMap().get("aLong").getValues().get(0)) });
+                    new Object[] { userTO.getPlainAttrMap().get("fullname").getValues().get(0) });
 
-            assertEquals(userTO.getPlainAttrMap().get("aLong").getValues().get(0), actuals.get("id").toString());
+            assertEquals(userTO.getPlainAttrMap().get("fullname").getValues().get(0), actuals.get("id").toString());
             assertEquals("ml@group.it", actuals.get("email"));
             // -------------------------------------------
         } finally {

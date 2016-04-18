@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -30,14 +29,11 @@ import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 
 @Entity
 @Table(name = JPACamelRoute.TABLE)
-public class JPACamelRoute extends AbstractEntity<String> implements CamelRoute {
+public class JPACamelRoute extends AbstractProvidedKeyEntity implements CamelRoute {
 
     private static final long serialVersionUID = -2767606675667839161L;
 
     public static final String TABLE = "CamelRoute";
-
-    @Id
-    private String name;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -45,16 +41,6 @@ public class JPACamelRoute extends AbstractEntity<String> implements CamelRoute 
 
     @Lob
     private String content;
-
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String name) {
-        this.name = name;
-    }
 
     @Override
     public AnyTypeKind getAnyTypeKind() {

@@ -70,7 +70,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final IModel<List<String>> dnames;
 
-    private final IModel<Map<Long, String>> groupNames;
+    private final IModel<Map<String, String>> groupNames;
 
     private final IModel<List<String>> roleNames;
 
@@ -96,7 +96,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final IModel<List<SearchClause.Type>> types,
             final IModel<List<String>> anames,
             final IModel<List<String>> dnames,
-            final IModel<Map<Long, String>> groupNames,
+            final IModel<Map<String, String>> groupNames,
             final IModel<List<String>> roleNames,
             final IModel<List<String>> resourceNames
     ) {
@@ -190,7 +190,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case GROUP_MEMBERSHIP:
                         final List<String> groups = CollectionUtils.collect(groupNames.getObject().keySet(),
-                                StringValueTransformer.<Long>stringValueTransformer(), new ArrayList<String>());
+                                StringValueTransformer.<String>stringValueTransformer(), new ArrayList<String>());
 
                         Collections.sort(groups);
                         return groups;

@@ -36,9 +36,9 @@ public interface UserDAO extends AnyDAO<User> {
 
     Map<String, Integer> countByStatus();
 
-    User authFind(String username);
+    User authFindByUsername(String username);
 
-    User find(String username);
+    User findByUsername(String username);
 
     User findByToken(String token);
 
@@ -52,7 +52,7 @@ public interface UserDAO extends AnyDAO<User> {
 
     Collection<Group> findAllGroups(User user);
 
-    Collection<Long> findAllGroupKeys(User user);
+    Collection<String> findAllGroupKeys(User user);
 
     Collection<ExternalResource> findAllResources(User user);
 

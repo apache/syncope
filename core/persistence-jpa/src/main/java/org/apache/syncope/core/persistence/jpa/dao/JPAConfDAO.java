@@ -33,7 +33,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
+public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
+
+    private static final String KEY = "cd64d66f-6fff-4008-b966-a06b1cc1436d";
 
     @Autowired
     private PlainSchemaDAO schemaDAO;
@@ -43,10 +45,10 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
 
     @Override
     public Conf get() {
-        Conf instance = entityManager().find(JPAConf.class, 1L);
+        Conf instance = entityManager().find(JPAConf.class, KEY);
         if (instance == null) {
             instance = new JPAConf();
-            instance.setKey(1L);
+            instance.setKey(KEY);
 
             instance = entityManager().merge(instance);
         }

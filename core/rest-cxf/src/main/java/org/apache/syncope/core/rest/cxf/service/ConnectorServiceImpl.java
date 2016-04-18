@@ -48,7 +48,7 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         logic.delete(key);
     }
 
@@ -70,7 +70,7 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public ConnInstanceTO read(final Long key, final String lang) {
+    public ConnInstanceTO read(final String key, final String lang) {
         return logic.read(key, lang);
     }
 
@@ -101,8 +101,7 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
         if (bulkAction.getType() == BulkAction.Type.DELETE) {
             for (String key : bulkAction.getTargets()) {
                 try {
-                    result.getResults().put(
-                            String.valueOf(logic.delete(Long.valueOf(key)).getKey()), BulkActionResult.Status.SUCCESS);
+                    result.getResults().put(logic.delete(key).getKey(), BulkActionResult.Status.SUCCESS);
                 } catch (Exception e) {
                     LOG.error("Error performing delete for connector {}", key, e);
                     result.getResults().put(key, BulkActionResult.Status.FAILURE);

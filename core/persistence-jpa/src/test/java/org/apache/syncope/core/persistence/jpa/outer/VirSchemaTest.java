@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.UUID;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -45,7 +46,7 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void deal() {
-        Provision provision = resourceDAO.findProvision(15L);
+        Provision provision = resourceDAO.findProvision("209ea85f-f964-49c7-a498-6c9c2baa3bd8");
         assertNotNull(provision);
         assertTrue(virSchemaDAO.findByProvision(provision).isEmpty());
 
@@ -63,7 +64,7 @@ public class VirSchemaTest extends AbstractTest {
         assertTrue(virSchema.isReadonly());
         assertEquals("EXT_ATTR", virSchema.getExtAttrName());
 
-        provision = resourceDAO.findProvision(15L);
+        provision = resourceDAO.findProvision("209ea85f-f964-49c7-a498-6c9c2baa3bd8");
         assertNotNull(provision);
         assertFalse(virSchemaDAO.findByProvision(provision).isEmpty());
         assertTrue(virSchemaDAO.findByProvision(provision).contains(virSchema));

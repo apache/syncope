@@ -44,7 +44,7 @@ public class GroupProvisionProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        Long key = exchange.getIn().getBody(Long.class);
+        String key = exchange.getIn().getBody(String.class);
         List<String> resources = exchange.getProperty("resources", List.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 

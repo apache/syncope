@@ -41,7 +41,7 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
     }
 
     @Override
-    protected Any<?> getAny(final long key) {
+    protected Any<?> getAny(final String key) {
         try {
             return groupDAO.authFind(key);
         } catch (Exception e) {
@@ -51,19 +51,19 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
     }
 
     @Override
-    protected AnyTO getAnyTO(final long key) {
+    protected AnyTO getAnyTO(final String key) {
         return groupDataBinder.getGroupTO(key);
     }
 
     @Override
-    protected AnyPatch newPatch(final long key) {
+    protected AnyPatch newPatch(final String key) {
         GroupPatch patch = new GroupPatch();
         patch.setKey(key);
         return patch;
     }
 
     @Override
-    protected WorkflowResult<Long> update(final AnyPatch patch) {
+    protected WorkflowResult<String> update(final AnyPatch patch) {
         return gwfAdapter.update((GroupPatch) patch);
     }
 

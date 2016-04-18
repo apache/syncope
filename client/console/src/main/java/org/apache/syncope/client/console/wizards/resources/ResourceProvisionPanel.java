@@ -95,7 +95,7 @@ public class ResourceProvisionPanel extends WizardStep {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
                         final ProvisionTO clone = SerializationUtils.clone(provisionTO);
-                        clone.setKey(0L);
+                        clone.setKey(null);
                         clone.setAnyType(null);
                         clone.setObjectClass(null);
                         send(pageRef.getPage(), Broadcast.DEPTH, new AjaxWizard.NewItemActionEvent<>(clone, target));

@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.api.job;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.quartz.JobKey;
@@ -31,14 +32,14 @@ public final class JobNamer {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobNamer.class);
 
-    private static Long getKeyFromJobName(final String name, final String pattern, final int prefixLength) {
-        Long result = null;
+    private static String getKeyFromJobName(final String name, final String pattern, final int prefixLength) {
+        String result = null;
 
         Matcher jobMatcher = Pattern.compile(pattern).matcher(name);
         if (jobMatcher.matches()) {
             try {
-                result = Long.valueOf(name.substring(prefixLength));
-            } catch (NumberFormatException e) {
+                result = name.substring(prefixLength);
+            } catch (IllegalArgumentException e) {
                 LOG.error("Unparsable id: {}", name.substring(prefixLength), e);
             }
         }
@@ -46,12 +47,12 @@ public final class JobNamer {
         return result;
     }
 
-    public static Long getTaskKeyFromJobName(final String name) {
-        return getKeyFromJobName(name, "taskJob[0-9]+", 7);
+    public static String getTaskKeyFromJobName(final String name) {
+        return getKeyFromJobName(name, "taskJob" + SyncopeConstants.UUID_REGEX, 7);
     }
 
-    public static Long getReportKeyFromJobName(final String name) {
-        return getKeyFromJobName(name, "reportJob[0-9]+", 9);
+    public static String getReportKeyFromJobName(final String name) {
+        return getKeyFromJobName(name, "reportJob" + SyncopeConstants.UUID_REGEX, 9);
     }
 
     public static JobKey getJobKey(final Task task) {

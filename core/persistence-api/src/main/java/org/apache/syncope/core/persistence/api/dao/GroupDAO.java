@@ -35,11 +35,13 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     Map<String, Integer> countByRealm();
 
-    Group find(String name);
+    Group findByName(String name);
 
-    List<Group> findOwnedByUser(Long userKey);
+    Group authFindByName(String name);
 
-    List<Group> findOwnedByGroup(Long groupKey);
+    List<Group> findOwnedByUser(String userKey);
+
+    List<Group> findOwnedByGroup(String groupKey);
 
     List<AMembership> findAMemberships(Group group);
 
@@ -52,7 +54,7 @@ public interface GroupDAO extends AnyDAO<Group> {
      * @return map containing pairs with any object key and operations to be performed on those resources (DELETE,
      * typically).
      */
-    Map<Long, PropagationByResource> findAnyObjectsWithTransitiveResources(Long groupKey);
+    Map<String, PropagationByResource> findAnyObjectsWithTransitiveResources(String groupKey);
 
     /**
      * Finds users having resources assigned exclusively because of memberships of the given group.
@@ -61,7 +63,7 @@ public interface GroupDAO extends AnyDAO<Group> {
      * @return map containing pairs with user key and operations to be performed on those resources (DELETE,
      * typically).
      */
-    Map<Long, PropagationByResource> findUsersWithTransitiveResources(Long groupKey);
+    Map<String, PropagationByResource> findUsersWithTransitiveResources(String groupKey);
 
     List<TypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
 

@@ -74,11 +74,11 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void update() {
-        SchedTaskTO task = taskService.read(SCHED_TASK_ID, true);
+        SchedTaskTO task = taskService.read(SCHED_TASK_KEY, true);
         assertNotNull(task);
 
         SchedTaskTO taskMod = new SchedTaskTO();
-        taskMod.setKey(SCHED_TASK_ID);
+        taskMod.setKey(SCHED_TASK_KEY);
         taskMod.setName(task.getName());
         taskMod.setCronExpression(null);
 

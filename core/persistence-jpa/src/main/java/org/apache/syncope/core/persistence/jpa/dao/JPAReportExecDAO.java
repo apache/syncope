@@ -29,10 +29,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements ReportExecDAO {
+public class JPAReportExecDAO extends AbstractDAO<ReportExec> implements ReportExecDAO {
 
     @Override
-    public ReportExec find(final Long key) {
+    public ReportExec find(final String key) {
         return entityManager().find(JPAReportExec.class, key);
     }
 
@@ -115,7 +115,7 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         ReportExec execution = find(key);
         if (execution == null) {
             return;

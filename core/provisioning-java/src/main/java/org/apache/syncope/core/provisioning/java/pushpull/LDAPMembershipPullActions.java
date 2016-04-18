@@ -101,7 +101,7 @@ public class LDAPMembershipPullActions extends DefaultPullActions {
     @Autowired
     private PullUtils pullUtils;
 
-    protected Map<Long, Long> membersBeforeGroupUpdate = Collections.<Long, Long>emptyMap();
+    protected Map<String, String> membersBeforeGroupUpdate = Collections.<String, String>emptyMap();
 
     /**
      * Allows easy subclassing for the ConnId AD connector bundle.
@@ -160,7 +160,7 @@ public class LDAPMembershipPullActions extends DefaultPullActions {
      * @param groupTO group for adding membership
      * @return UserPatch for user update
      */
-    protected UserPatch getUserPatch(final Long userKey, final GroupTO groupTO) {
+    protected UserPatch getUserPatch(final String userKey, final GroupTO groupTO) {
         UserPatch userPatch = new UserPatch();
         // no actual modification takes place when user has already the group assigned
         if (membersBeforeGroupUpdate.containsKey(userKey)) {
@@ -218,7 +218,7 @@ public class LDAPMembershipPullActions extends DefaultPullActions {
      * @param resourceName resource to be propagated for changes
      */
     protected void userUpdate(final UserPatch userPatch, final String resourceName) {
-        if (userPatch.getKey() == 0) {
+        if (userPatch.getKey() == null) {
             return;
         }
 
@@ -280,7 +280,7 @@ public class LDAPMembershipPullActions extends DefaultPullActions {
         Connector connector = profile.getConnector();
 
         for (Object membValue : getMembAttrValues(delta, connector)) {
-            Long userKey = pullUtils.findMatchingAnyKey(
+            String userKey = pullUtils.findMatchingAnyKey(
                     anyTypeDAO.findUser(),
                     membValue.toString(),
                     profile.getTask().getResource(),
@@ -292,7 +292,7 @@ public class LDAPMembershipPullActions extends DefaultPullActions {
         }
 
         // finally remove any residual membership that was present before group update but not any more
-        for (Map.Entry<Long, Long> member : membersBeforeGroupUpdate.entrySet()) {
+        for (Map.Entry<String, String> member : membersBeforeGroupUpdate.entrySet()) {
             UserPatch userPatch = new UserPatch();
             userPatch.setKey(member.getKey());
 

@@ -38,15 +38,15 @@ INSERT INTO test2 VALUES ('verdi', 'password321', 'true');
 -- this table is for issueSYNCOPE230
 DROP TABLE testpull IF EXISTS;
 CREATE TABLE testpull (
-id NUMBER(10) PRIMARY KEY,
+id CHAR(36) PRIMARY KEY,
 username VARCHAR(80),
 surname VARCHAR(80),
 email VARCHAR(80));
 
-INSERT INTO testpull VALUES (965, 'issuesyncope230', 'Surname', 'syncope230@syncope.apache.org');
+INSERT INTO testpull VALUES ('a54b3794-b231-47be-b24a-11e1a42949f6', 'issuesyncope230', 'Surname', 'syncope230@syncope.apache.org');
 
 DROP TABLE testPRINTER IF EXISTS;
 CREATE TABLE testPRINTER (
-id VARCHAR(10) PRIMARY KEY,
+id CHAR(36) PRIMARY KEY,
 location VARCHAR(80),
 lastModification TIMESTAMP);

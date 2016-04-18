@@ -149,9 +149,9 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     public int count(
             final TaskType type,
             final String resource,
-            final Long notification,
+            final String notification,
             final AnyTypeKind anyTypeKind,
-            final Long anyTypeKey) {
+            final String anyTypeKey) {
 
         return taskDAO.count(
                 type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, anyTypeKey);
@@ -162,9 +162,9 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     public <T extends AbstractTaskTO> List<T> list(
             final TaskType type,
             final String resource,
-            final Long notification,
+            final String notification,
             final AnyTypeKind anyTypeKind,
-            final Long anyTypeKey,
+            final String anyTypeKey,
             final int page,
             final int size,
             final List<OrderByClause> orderByClauses,
@@ -182,7 +182,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
-    public <T extends AbstractTaskTO> T read(final Long key, final boolean details) {
+    public <T extends AbstractTaskTO> T read(final String key, final boolean details) {
         Task task = taskDAO.find(key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
@@ -191,7 +191,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
-    public ExecTO execute(final Long key, final Date startAt, final boolean dryRun) {
+    public ExecTO execute(final String key, final Date startAt, final boolean dryRun) {
         Task task = taskDAO.find(key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
@@ -255,7 +255,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
-    public <T extends AbstractTaskTO> T delete(final Long key) {
+    public <T extends AbstractTaskTO> T delete(final String key) {
         Task task = taskDAO.find(key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
@@ -276,13 +276,13 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
-    public int countExecutions(final Long key) {
+    public int countExecutions(final String key) {
         return taskExecDAO.count(key);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
     public List<ExecTO> listExecutions(
-            final Long key, final int page, final int size, final List<OrderByClause> orderByClauses) {
+            final String key, final int page, final int size, final List<OrderByClause> orderByClauses) {
 
         Task task = taskDAO.find(key);
         if (task == null) {
@@ -311,7 +311,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
-    public ExecTO deleteExecution(final Long execKey) {
+    public ExecTO deleteExecution(final String execKey) {
         TaskExec taskExec = taskExecDAO.find(execKey);
         if (taskExec == null) {
             throw new NotFoundException("Task execution " + execKey);
@@ -324,7 +324,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
     public BulkActionResult deleteExecutions(
-            final Long key,
+            final String key,
             final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
 
         Task task = taskDAO.find(key);
@@ -348,8 +348,8 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @Override
-    protected Triple<JobType, Long, String> getReference(final JobKey jobKey) {
-        Long key = JobNamer.getTaskKeyFromJobName(jobKey.getName());
+    protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
+        String key = JobNamer.getTaskKeyFromJobName(jobKey.getName());
 
         Task task = taskDAO.find(key);
         return task == null || !(task instanceof SchedTask)
@@ -364,7 +364,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
-    public void actionJob(final Long key, final JobAction action) {
+    public void actionJob(final String key, final JobAction action) {
         Task task = taskDAO.find(key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
@@ -377,21 +377,21 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     protected AbstractTaskTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long key = null;
+        String key = null;
 
         if (ArrayUtils.isNotEmpty(args)
                 && !"deleteExecution".equals(method.getName()) && !"readExecution".equals(method.getName())) {
 
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
-                    key = (Long) args[i];
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
                 } else if (args[i] instanceof AbstractTaskTO) {
                     key = ((AbstractTaskTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((key != null) && !key.equals(0L)) {
+        if (key != null) {
             try {
                 final Task task = taskDAO.find(key);
                 return binder.getTaskTO(task, taskUtilsFactory.getInstance(task), false);

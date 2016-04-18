@@ -23,7 +23,7 @@ import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 
-public interface Realm extends Entity<Long> {
+public interface Realm extends Entity {
 
     String getName();
 

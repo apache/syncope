@@ -24,15 +24,15 @@ import org.apache.syncope.common.lib.types.JobType;
 
 @XmlRootElement(name = "exec")
 @XmlType()
-public class ExecTO extends AbstractStartEndBean implements EntityTO<Long> {
+public class ExecTO extends AbstractStartEndBean implements EntityTO {
 
     private static final long serialVersionUID = -4621191979198357081L;
 
-    private Long key;
+    private String key;
 
     private JobType jobType;
 
-    private Long refKey;
+    private String refKey;
 
     private String refDesc;
 
@@ -41,12 +41,12 @@ public class ExecTO extends AbstractStartEndBean implements EntityTO<Long> {
     private String message;
 
     @Override
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @Override
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -58,11 +58,11 @@ public class ExecTO extends AbstractStartEndBean implements EntityTO<Long> {
         this.jobType = jobType;
     }
 
-    public Long getRefKey() {
+    public String getRefKey() {
         return refKey;
     }
 
-    public void setRefKey(final Long refKey) {
+    public void setRefKey(final String refKey) {
         this.refKey = refKey;
     }
 

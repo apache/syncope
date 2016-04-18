@@ -63,7 +63,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Long> implements AnyDAO<A> {
+public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> implements AnyDAO<A> {
 
     @Autowired
     protected PlainSchemaDAO plainSchemaDAO;
@@ -91,7 +91,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
 
     @Transactional(readOnly = true)
     @Override
-    public A authFind(final Long key) {
+    public A authFind(final String key) {
         if (key == null) {
             throw new NotFoundException("Null key");
         }
@@ -110,7 +110,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
     @Transactional(readOnly = true)
     @Override
     @SuppressWarnings("unchecked")
-    public A find(final Long key) {
+    public A find(final String key) {
         return (A) entityManager().find(getAnyUtils().anyClass(), key);
     }
 
@@ -133,7 +133,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
 
     private Query findByAttrValueQuery(final String entityName) {
         return entityManager().createQuery("SELECT e FROM " + entityName + " e"
-                + " WHERE e.attribute.schema.name = :schemaName AND (e.stringValue IS NOT NULL"
+                + " WHERE e.attribute.schema.key = :schemaKey AND (e.stringValue IS NOT NULL"
                 + " AND e.stringValue = :stringValue)"
                 + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
                 + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
@@ -143,10 +143,10 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<A> findByAttrValue(final String schemaName, final PlainAttrValue attrValue) {
-        PlainSchema schema = plainSchemaDAO.find(schemaName);
+    public List<A> findByAttrValue(final String schemaKey, final PlainAttrValue attrValue) {
+        PlainSchema schema = plainSchemaDAO.find(schemaKey);
         if (schema == null) {
-            LOG.error("Invalid schema name '{}'", schemaName);
+            LOG.error("Invalid schema name '{}'", schemaKey);
             return Collections.<A>emptyList();
         }
 
@@ -154,7 +154,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
                 ? getAnyUtils().plainAttrUniqueValueClass().getName()
                 : getAnyUtils().plainAttrValueClass().getName();
         Query query = findByAttrValueQuery(entityName);
-        query.setParameter("schemaName", schemaName);
+        query.setParameter("schemaKey", schemaKey);
         query.setParameter("stringValue", attrValue.getStringValue());
         query.setParameter("booleanValue", attrValue.getBooleanValue() == null
                 ? null
@@ -179,18 +179,18 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
     }
 
     @Override
-    public A findByAttrUniqueValue(final String schemaName, final PlainAttrValue attrUniqueValue) {
-        PlainSchema schema = plainSchemaDAO.find(schemaName);
+    public A findByAttrUniqueValue(final String schemaKey, final PlainAttrValue attrUniqueValue) {
+        PlainSchema schema = plainSchemaDAO.find(schemaKey);
         if (schema == null) {
-            LOG.error("Invalid schema name '{}'", schemaName);
+            LOG.error("Invalid schema name '{}'", schemaKey);
             return null;
         }
         if (!schema.isUniqueConstraint()) {
-            LOG.error("This schema has not unique constraint: '{}'", schemaName);
+            LOG.error("This schema has not unique constraint: '{}'", schemaKey);
             return null;
         }
 
-        List<A> result = findByAttrValue(schemaName, attrUniqueValue);
+        List<A> result = findByAttrValue(schemaKey, attrUniqueValue);
         return result.isEmpty()
                 ? null
                 : result.iterator().next();
@@ -294,8 +294,8 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
                 // verify schema existence and get schema type
                 PlainSchema schema = plainSchemaDAO.find(identifiers.get(i));
                 if (schema == null) {
-                    LOG.error("Invalid schema name '{}'", identifiers.get(i));
-                    throw new IllegalArgumentException("Invalid schema name " + identifiers.get(i));
+                    LOG.error("Invalid schema key '{}'", identifiers.get(i));
+                    throw new IllegalArgumentException("Invalid schema key " + identifiers.get(i));
                 }
 
                 // clear builder
@@ -304,13 +304,13 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
                 bld.append("(");
 
                 // set schema name
-                bld.append("s.name = '").append(identifiers.get(i)).append("'");
+                bld.append("s.key = '").append(identifiers.get(i)).append("'");
 
                 bld.append(" AND ");
 
-                bld.append("s.name = a.schema_name").append(" AND ");
+                bld.append("s.key = a.schema_key").append(" AND ");
 
-                bld.append("a.id = v.attribute_id");
+                bld.append("a.key = v.attribute_key");
 
                 bld.append(" AND ");
 
@@ -346,10 +346,10 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
     }
 
     @Override
-    public List<A> findByDerAttrValue(final String schemaName, final String value) {
-        DerSchema schema = derSchemaDAO.find(schemaName);
+    public List<A> findByDerAttrValue(final String schemaKey, final String value) {
+        DerSchema schema = derSchemaDAO.find(schemaKey);
         if (schema == null) {
-            LOG.error("Invalid schema name '{}'", schemaName);
+            LOG.error("Invalid schema name '{}'", schemaKey);
             return Collections.<A>emptyList();
         }
 
@@ -360,10 +360,10 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
         for (String clause : getWhereClause(schema.getExpression(), value)) {
             if (querystring.length() > 0) {
                 subquery = true;
-                querystring.append(" AND a.owner_id IN ( ");
+                querystring.append(" AND a.owner_key IN ( ");
             }
 
-            querystring.append("SELECT a.owner_id ").
+            querystring.append("SELECT a.owner_key ").
                     append("FROM ").append(getAnyUtils().plainAttrClass().getSimpleName().substring(3)).append(" a, ").
                     append(getAnyUtils().plainAttrValueClass().getSimpleName().substring(3)).append(" v, ").
                     append(PlainSchema.class.getSimpleName()).append(" s ").
@@ -378,7 +378,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
 
         List<A> result = new ArrayList<>();
         for (Object anyKey : query.getResultList()) {
-            A any = find(Long.parseLong(anyKey.toString()));
+            A any = find(anyKey.toString());
             if (!result.contains(any)) {
                 result.add(any);
             }
@@ -405,7 +405,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
 
     private SearchCond getAllMatchingCond() {
         AnyCond idCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
-        idCond.setSchema("id");
+        idCond.setSchema("key");
         return SearchCond.getLeafCond(idCond);
     }
 
@@ -464,7 +464,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         A any = find(key);
         if (any == null) {
             return;

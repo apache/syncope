@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-public interface ReportTemplate extends Entity<String> {
-
-    void setKey(String key);
+public interface ReportTemplate extends ProvidedKeyEntity {
 
     String getFOTemplate();
 

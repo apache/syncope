@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -31,29 +30,16 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.DomainCheck;
 @Entity
 @Table(name = JPADomain.TABLE)
 @DomainCheck
-public class JPADomain extends AbstractEntity<String> implements Domain {
+public class JPADomain extends AbstractProvidedKeyEntity implements Domain {
 
     private static final long serialVersionUID = -5891241943464285840L;
 
     public static final String TABLE = "SyncopeDomain";
 
-    @Id
-    private String name;
-
     private String adminPwd;
 
     @Enumerated(EnumType.STRING)
     private CipherAlgorithm adminCipherAlgorithm;
-
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String name) {
-        this.name = name;
-    }
 
     @Override
     public String getAdminPwd() {

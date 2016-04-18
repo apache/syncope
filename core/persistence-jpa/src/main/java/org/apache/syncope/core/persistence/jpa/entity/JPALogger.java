@@ -30,7 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.Logger;
 
 @Entity
 @Table(name = JPALogger.TABLE)
-public class JPALogger extends AbstractEntity<String> implements Logger {
+public class JPALogger extends AbstractEntity implements Logger {
 
     private static final long serialVersionUID = 943012777014416027L;
 
@@ -38,7 +38,7 @@ public class JPALogger extends AbstractEntity<String> implements Logger {
 
     @Id
     @Column(name = "logName")
-    private String name;
+    private String key;
 
     @Column(name = "logLevel", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -50,12 +50,12 @@ public class JPALogger extends AbstractEntity<String> implements Logger {
 
     @Override
     public String getKey() {
-        return name;
+        return key;
     }
 
     @Override
     public void setKey(final String name) {
-        this.name = name;
+        this.key = name;
     }
 
     @Override

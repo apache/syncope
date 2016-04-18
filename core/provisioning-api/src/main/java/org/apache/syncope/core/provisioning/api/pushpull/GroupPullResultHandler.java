@@ -22,5 +22,5 @@ import java.util.Map;
 
 public interface GroupPullResultHandler extends SyncopePullResultHandler {
 
-    Map<Long, String> getGroupOwnerMap();
+    Map<String, String> getGroupOwnerMap();
 }

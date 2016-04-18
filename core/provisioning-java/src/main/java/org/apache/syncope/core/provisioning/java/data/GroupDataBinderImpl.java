@@ -27,6 +27,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -101,7 +102,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         // realm
-        Realm realm = realmDAO.find(groupTO.getRealm());
+        Realm realm = realmDAO.findByFullPath(groupTO.getRealm());
         if (realm == null) {
             SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             noRealm.getElements().add("Invalid or null realm specified: " + groupTO.getRealm());
@@ -355,7 +356,9 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
     @Transactional(readOnly = true)
     @Override
-    public GroupTO getGroupTO(final Long key) {
-        return getGroupTO(groupDAO.authFind(key), true);
+    public GroupTO getGroupTO(final String key) {
+        return SyncopeConstants.UUID_PATTERN.matcher(key).matches()
+                ? getGroupTO(groupDAO.authFind(key), true)
+                : getGroupTO(groupDAO.authFindByName(key), true);
     }
 }

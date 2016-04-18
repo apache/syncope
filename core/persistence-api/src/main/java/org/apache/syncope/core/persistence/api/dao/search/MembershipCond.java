@@ -22,13 +22,13 @@ public class MembershipCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = -728155256293925989L;
 
-    private Long groupKey;
+    private String groupKey;
 
-    public Long getGroupKey() {
+    public String getGroupKey() {
         return groupKey;
     }
 
-    public void setGroupKey(final Long groupKey) {
+    public void setGroupKey(final String groupKey) {
         this.groupKey = groupKey;
     }
 

@@ -35,18 +35,18 @@ public class DeassociationPatch extends AbstractBaseBean {
 
     private static final long serialVersionUID = 6295778399633883767L;
 
-    private long key;
+    private String key;
 
     private ResourceDeassociationAction action;
 
     private final List<String> resources = new ArrayList<>();
 
-    public long getKey() {
+    public String getKey() {
         return key;
     }
 
     @PathParam("key")
-    public void setKey(final long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

@@ -81,8 +81,7 @@ public class PlainAttrs extends AbstractAttrs {
             @Override
             protected List<AttrTO> load() {
                 setPlainSchemas(CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
-                        EntityTOUtils.<String, AnyTypeClassTO>keyTransformer(),
-                        new ArrayList<>(Arrays.asList(anyTypeClass))));
+                        EntityTOUtils.<AnyTypeClassTO>keyTransformer(), new ArrayList<>(Arrays.asList(anyTypeClass))));
                 setAttrs();
                 return new ArrayList<>(entityTO.getPlainAttrs());
             }

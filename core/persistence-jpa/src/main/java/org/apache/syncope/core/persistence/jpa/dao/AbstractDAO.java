@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 
 @Configurable
-public abstract class AbstractDAO<E extends Entity<KEY>, KEY> implements DAO<E, KEY> {
+public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DAO.class);
 

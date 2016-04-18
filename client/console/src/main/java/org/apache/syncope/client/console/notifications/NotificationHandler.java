@@ -45,7 +45,7 @@ public class NotificationHandler implements Serializable {
         this.notificationTO = notificationTO;
     }
 
-    public final Long getKey() {
+    public final String getKey() {
         return this.notificationTO.getKey();
     }
 

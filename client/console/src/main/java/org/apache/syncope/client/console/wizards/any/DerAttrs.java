@@ -60,8 +60,7 @@ public class DerAttrs extends AbstractAttrs {
             @Override
             protected List<AttrTO> load() {
                 List<String> anyTypeClasses = CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
-                        EntityTOUtils.<String, AnyTypeClassTO>keyTransformer(),
-                        new ArrayList<>(Arrays.asList(anyTypeClass)));
+                        EntityTOUtils.<AnyTypeClassTO>keyTransformer(), new ArrayList<>(Arrays.asList(anyTypeClass)));
 
                 List<DerSchemaTO> derSchemas = Collections.emptyList();
                 if (!anyTypeClasses.isEmpty()) {

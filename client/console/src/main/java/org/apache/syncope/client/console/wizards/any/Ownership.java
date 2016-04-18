@@ -200,7 +200,7 @@ public class Ownership extends WizardStep {
                     if (userTO == null) {
                         return StringUtils.EMPTY;
                     } else {
-                        return String.format("[%d] %s", userTO.getKey(), userTO.getUsername());
+                        return String.format("[%s] %s", userTO.getKey(), userTO.getUsername());
                     }
                 }
             }
@@ -212,7 +212,7 @@ public class Ownership extends WizardStep {
                 } else {
                     final Matcher matcher = owner.matcher(object);
                     if (matcher.matches()) {
-                        groupHandler.getInnerObject().setUserOwner(Long.parseLong(matcher.group(1)));
+                        groupHandler.getInnerObject().setUserOwner(matcher.group(1));
                     }
                 }
             }
@@ -248,7 +248,7 @@ public class Ownership extends WizardStep {
                     if (groupTO == null) {
                         return StringUtils.EMPTY;
                     } else {
-                        return String.format("[%d] %s", groupTO.getKey(), groupTO.getName());
+                        return String.format("[%s] %s", groupTO.getKey(), groupTO.getName());
                     }
                 }
             }
@@ -260,7 +260,7 @@ public class Ownership extends WizardStep {
                 } else {
                     final Matcher matcher = owner.matcher(object);
                     if (matcher.matches()) {
-                        groupHandler.getInnerObject().setGroupOwner(Long.parseLong(matcher.group(1)));
+                        groupHandler.getInnerObject().setGroupOwner(matcher.group(1));
                     }
                 }
             }

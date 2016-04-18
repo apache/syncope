@@ -58,7 +58,7 @@ public interface ReportService extends JAXRSService {
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    ReportTO read(@NotNull @PathParam("key") Long key);
+    ReportTO read(@NotNull @PathParam("key") String key);
 
     /**
      * Returns a list of all existing reports.
@@ -96,7 +96,7 @@ public interface ReportService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") Long key);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Returns the list of recently completed report executions, ordered by end date descendent.
@@ -116,7 +116,7 @@ public interface ReportService extends JAXRSService {
      */
     @DELETE
     @Path("executions/{executionKey}")
-    void deleteExecution(@NotNull @PathParam("executionKey") Long executionKey);
+    void deleteExecution(@NotNull @PathParam("executionKey") String executionKey);
 
     /**
      * Deletes the report executions belonging matching the given query.
@@ -151,7 +151,7 @@ public interface ReportService extends JAXRSService {
     @Path("executions/{executionKey}/stream")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response exportExecutionResult(
-            @NotNull @PathParam("executionKey") Long executionKey,
+            @NotNull @PathParam("executionKey") String executionKey,
             @QueryParam("format") ReportExecExportFormat fmt);
 
     /**
@@ -172,5 +172,5 @@ public interface ReportService extends JAXRSService {
      */
     @POST
     @Path("jobs/{key}")
-    void actionJob(@NotNull @PathParam("key") Long key, @QueryParam("action") JobAction action);
+    void actionJob(@NotNull @PathParam("key") String key, @QueryParam("action") JobAction action);
 }

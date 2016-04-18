@@ -47,12 +47,12 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
     public abstract List<T> search(
             String realm, String fiql, int page, int size, final SortParam<String> sort, final String type);
 
-    public abstract T read(final Long key);
+    public abstract T read(final String key);
 
-    public abstract ProvisioningResult<T> delete(String etag, Long key);
+    public abstract ProvisioningResult<T> delete(String etag, String key);
 
     protected <E extends AnyService<T, ?>> ProvisioningResult<T> delete(
-            final Class<E> serviceClass, final Class<T> objectType, final String etag, final Long key) {
+            final Class<E> serviceClass, final Class<T> objectType, final String etag, final String key) {
         ProvisioningResult<T> result;
         synchronized (this) {
             final E service = getService(etag, serviceClass);
@@ -67,7 +67,7 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
 
     protected abstract Class<? extends AnyService<?, ?>> getAnyServiceClass();
 
-    public BulkActionResult unlink(final String etag, final long key, final List<StatusBean> statuses) {
+    public BulkActionResult unlink(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
             AnyService<?, ?> service = getService(etag, getAnyServiceClass());
@@ -84,7 +84,7 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
         return result;
     }
 
-    public BulkActionResult link(final String etag, final long key, final List<StatusBean> statuses) {
+    public BulkActionResult link(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
             AnyService<?, ?> service = getService(etag, getAnyServiceClass());
@@ -104,7 +104,7 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
         return result;
     }
 
-    public BulkActionResult deprovision(final String etag, final long key, final List<StatusBean> statuses) {
+    public BulkActionResult deprovision(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
             AnyService<?, ?> service = getService(etag, getAnyServiceClass());
@@ -121,7 +121,7 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
         return result;
     }
 
-    public BulkActionResult provision(final String etag, final long key, final List<StatusBean> statuses) {
+    public BulkActionResult provision(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
             AnyService<?, ?> service = getService(etag, getAnyServiceClass());
@@ -141,7 +141,7 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
         return result;
     }
 
-    public BulkActionResult unassign(final String etag, final long key, final List<StatusBean> statuses) {
+    public BulkActionResult unassign(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
             AnyService<?, ?> service = getService(etag, getAnyServiceClass());
@@ -158,7 +158,7 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
         return result;
     }
 
-    public BulkActionResult assign(final String etag, final long key, final List<StatusBean> statuses) {
+    public BulkActionResult assign(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
             AnyService<?, ?> service = getService(etag, getAnyServiceClass());

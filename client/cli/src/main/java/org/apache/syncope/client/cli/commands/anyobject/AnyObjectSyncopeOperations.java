@@ -35,19 +35,19 @@ public class AnyObjectSyncopeOperations {
         return anyObjectService.list(type, new AnyListQuery()).getResult();
     }
 
-    public AnyObjectTO read(final String anyId) {
-        return anyObjectService.read(Long.valueOf(anyId));
+    public AnyObjectTO read(final String anyKey) {
+        return anyObjectService.read(anyKey);
     }
 
-    public Set<AttrTO> readAttributes(final String anyId, final String schemaType) {
-        return anyObjectService.read(Long.valueOf(anyId), SchemaType.valueOf(schemaType));
+    public Set<AttrTO> readAttributes(final String anyKey, final String schemaType) {
+        return anyObjectService.read(anyKey, SchemaType.valueOf(schemaType));
     }
 
-    public AttrTO readAttribute(final String anyId, final String schemaType, final String schema) {
-        return anyObjectService.read(Long.valueOf(anyId), SchemaType.valueOf(schemaType), schema);
+    public AttrTO readAttribute(final String anyKey, final String schemaType, final String schema) {
+        return anyObjectService.read(anyKey, SchemaType.valueOf(schemaType), schema);
     }
 
-    public void delete(final String anyId) {
-        anyObjectService.delete(Long.valueOf(anyId));
+    public void delete(final String anyKey) {
+        anyObjectService.delete(anyKey);
     }
 }

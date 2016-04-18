@@ -53,7 +53,7 @@ public abstract class AbstractAttrs extends WizardStep {
 
     protected Set<String> getAllAuxClasses() {
         final List<MembershipTO> memberships;
-        final List<Long> dyngroups;
+        final List<String> dyngroups;
         if (entityTO instanceof UserTO) {
             memberships = UserTO.class.cast(entityTO).getMemberships();
             dyngroups = UserTO.class.cast(entityTO).getDynGroups();
@@ -62,7 +62,7 @@ public abstract class AbstractAttrs extends WizardStep {
             dyngroups = AnyObjectTO.class.cast(entityTO).getDynGroups();
         } else {
             memberships = Collections.<MembershipTO>emptyList();
-            dyngroups = Collections.<Long>emptyList();
+            dyngroups = Collections.<String>emptyList();
         }
 
         final List<GroupTO> groups = new ArrayList<>();
@@ -75,10 +75,10 @@ public abstract class AbstractAttrs extends WizardStep {
             }
         }, groups);
 
-        CollectionUtils.collect(dyngroups, new Transformer<Long, GroupTO>() {
+        CollectionUtils.collect(dyngroups, new Transformer<String, GroupTO>() {
 
             @Override
-            public GroupTO transform(final Long input) {
+            public GroupTO transform(final String input) {
                 return groupRestClient.read(input);
             }
         }, groups);

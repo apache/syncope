@@ -64,7 +64,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         logic.delete(key);
     }
 
@@ -98,7 +98,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public <T extends AbstractTaskTO> T read(final Long key, final boolean details) {
+    public <T extends AbstractTaskTO> T read(final String key, final boolean details) {
         return logic.read(key, details);
     }
 
@@ -130,7 +130,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public void deleteExecution(final Long executionKey) {
+    public void deleteExecution(final String executionKey) {
         logic.deleteExecution(executionKey);
     }
 
@@ -152,9 +152,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
             case DELETE:
                 for (String key : bulkAction.getTargets()) {
                     try {
-                        result.getResults().put(
-                                String.valueOf(logic.delete(Long.valueOf(key)).getKey()),
-                                BulkActionResult.Status.SUCCESS);
+                        result.getResults().put(logic.delete(key).getKey(), BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing delete for task {}", key, e);
                         result.getResults().put(key, BulkActionResult.Status.FAILURE);
@@ -165,7 +163,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
             case DRYRUN:
                 for (String key : bulkAction.getTargets()) {
                     try {
-                        logic.execute(Long.valueOf(key), null, true);
+                        logic.execute(key, null, true);
                         result.getResults().put(key, BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing dryrun for task {}", key, e);
@@ -177,7 +175,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
             case EXECUTE:
                 for (String key : bulkAction.getTargets()) {
                     try {
-                        logic.execute(Long.valueOf(key), null, false);
+                        logic.execute(key, null, false);
                         result.getResults().put(key, BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing execute for task {}", key, e);
@@ -198,7 +196,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public void actionJob(final Long key, final JobAction action) {
+    public void actionJob(final String key, final JobAction action) {
         logic.actionJob(key, action);
     }
 }

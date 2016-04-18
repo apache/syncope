@@ -23,7 +23,6 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -45,9 +44,6 @@ public class JPAGPlainAttr extends AbstractPlainAttr<Group> implements GPlainAtt
 
     public static final String TABLE = "GPlainAttr";
 
-    @Id
-    private Long id;
-
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAGroup owner;
 
@@ -58,11 +54,6 @@ public class JPAGPlainAttr extends AbstractPlainAttr<Group> implements GPlainAtt
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
     @Valid
     private JPAGPlainAttrUniqueValue uniqueValue;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public Group getOwner() {

@@ -22,13 +22,13 @@ public class RelationshipCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = 6865985945516722103L;
 
-    private Long anyObjectKey;
+    private String anyObjectKey;
 
-    public Long getAnyObjectKey() {
+    public String getAnyObjectKey() {
         return anyObjectKey;
     }
 
-    public void setAnyObjectKey(final Long anyObjectKey) {
+    public void setAnyObjectKey(final String anyObjectKey) {
         this.anyObjectKey = anyObjectKey;
     }
 

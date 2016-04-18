@@ -58,7 +58,7 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void findByKey() {
-        PullPolicy policy = policyDAO.find(3L);
+        PullPolicy policy = policyDAO.find("880f8553-069b-4aed-9930-2cd53873f544");
         assertNotNull("findById did not work", policy);
 
         PullPolicySpec spec = policy.getSpecification();
@@ -110,7 +110,7 @@ public class PolicyTest extends AbstractTest {
         ruleConf.setMaxLength(8);
         ruleConf.setMinLength(6);
 
-        PasswordPolicy policy = policyDAO.find(2L);
+        PasswordPolicy policy = policyDAO.find("ce93fcda-dc3a-4369-a7b0-a6108c261c85");
         assertNotNull(policy);
         assertEquals(1, policy.getRuleConfs().size());
         policy.add(ruleConf);
@@ -124,12 +124,12 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void delete() {
-        Policy policy = policyDAO.find(1L);
+        Policy policy = policyDAO.find("66691e96-285f-4464-bc19-e68384ea4c85");
         assertNotNull("find to delete did not work", policy);
 
         policyDAO.delete(policy);
 
-        Policy actual = policyDAO.find(1L);
+        Policy actual = policyDAO.find("66691e96-285f-4464-bc19-e68384ea4c85");
         assertNull("delete did not work", actual);
     }
 }

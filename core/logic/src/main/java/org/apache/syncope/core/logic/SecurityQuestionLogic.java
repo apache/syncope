@@ -53,20 +53,20 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         return CollectionUtils.collect(securityQuestionDAO.findAll(),
                 new Transformer<SecurityQuestion, SecurityQuestionTO>() {
 
-                    @Override
-                    public SecurityQuestionTO transform(final SecurityQuestion input) {
-                        return binder.getSecurityQuestionTO(input);
-                    }
-                }, new ArrayList<SecurityQuestionTO>());
+            @Override
+            public SecurityQuestionTO transform(final SecurityQuestion input) {
+                return binder.getSecurityQuestionTO(input);
+            }
+        }, new ArrayList<SecurityQuestionTO>());
     }
 
     @PreAuthorize("isAuthenticated()")
-    public SecurityQuestionTO read(final Long securityQuestionId) {
-        SecurityQuestion securityQuestion = securityQuestionDAO.find(securityQuestionId);
+    public SecurityQuestionTO read(final String key) {
+        SecurityQuestion securityQuestion = securityQuestionDAO.find(key);
         if (securityQuestion == null) {
-            LOG.error("Could not find security question '" + securityQuestionId + "'");
+            LOG.error("Could not find security question '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(securityQuestionId));
+            throw new NotFoundException(String.valueOf(key));
         }
 
         return binder.getSecurityQuestionTO(securityQuestion);
@@ -93,25 +93,25 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.SECURITY_QUESTION_DELETE + "')")
-    public SecurityQuestionTO delete(final Long securityQuestionId) {
-        SecurityQuestion securityQuestion = securityQuestionDAO.find(securityQuestionId);
+    public SecurityQuestionTO delete(final String key) {
+        SecurityQuestion securityQuestion = securityQuestionDAO.find(key);
         if (securityQuestion == null) {
-            LOG.error("Could not find security question '" + securityQuestionId + "'");
+            LOG.error("Could not find security question '" + key + "'");
 
-            throw new NotFoundException(String.valueOf(securityQuestionId));
+            throw new NotFoundException(String.valueOf(key));
         }
 
         SecurityQuestionTO deleted = binder.getSecurityQuestionTO(securityQuestion);
-        securityQuestionDAO.delete(securityQuestionId);
+        securityQuestionDAO.delete(key);
         return deleted;
     }
 
     @PreAuthorize("isAnonymous() or hasRole('" + StandardEntitlement.ANONYMOUS + "')")
-    public SecurityQuestionTO read(final String username) {
+    public SecurityQuestionTO readForUsername(final String username) {
         if (username == null) {
             throw new NotFoundException("Null username");
         }
-        User user = userDAO.find(username);
+        User user = userDAO.findByUsername(username);
         if (user == null) {
             throw new NotFoundException("User " + username);
         }
@@ -129,19 +129,19 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
     protected SecurityQuestionTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long key = null;
+        String key = null;
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
-                    key = (Long) args[i];
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
                 } else if (args[i] instanceof SecurityQuestionTO) {
                     key = ((SecurityQuestionTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((key != null) && !key.equals(0L)) {
+        if (key != null) {
             try {
                 return binder.getSecurityQuestionTO(securityQuestionDAO.find(key));
             } catch (Throwable ignore) {

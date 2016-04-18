@@ -23,9 +23,9 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 
-public interface PolicyDAO extends DAO<Policy, Long> {
+public interface PolicyDAO extends DAO<Policy> {
 
-    <T extends Policy> T find(Long key);
+    <T extends Policy> T find(String key);
 
     <T extends Policy> List<T> find(Class<T> reference);
 

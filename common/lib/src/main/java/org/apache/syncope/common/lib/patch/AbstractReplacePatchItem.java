@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.types.PatchOperation;
  * @param <T> {@code String}, {@code Long} or {@code Boolean}
  */
 @XmlType
-@XmlSeeAlso({ BooleanReplacePatchItem.class, LongReplacePatchItem.class, StringReplacePatchItem.class })
+@XmlSeeAlso({ BooleanReplacePatchItem.class, StringReplacePatchItem.class })
 public abstract class AbstractReplacePatchItem<T> extends AbstractPatchItem<T> {
 
     private static final long serialVersionUID = 2027599764019829563L;

@@ -23,7 +23,6 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -45,9 +44,6 @@ public class JPAAPlainAttr extends AbstractPlainAttr<AnyObject> implements APlai
 
     public static final String TABLE = "APlainAttr";
 
-    @Id
-    private Long id;
-
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAAnyObject owner;
 
@@ -58,11 +54,6 @@ public class JPAAPlainAttr extends AbstractPlainAttr<AnyObject> implements APlai
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
     @Valid
     private JPAAPlainAttrUniqueValue uniqueValue;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public AnyObject getOwner() {

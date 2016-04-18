@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity.group;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
@@ -39,17 +38,9 @@ public class JPAGPlainAttrValue extends AbstractPlainAttrValue implements GPlain
 
     public static final String TABLE = "GPlainAttrValue";
 
-    @Id
-    private Long id;
-
     @ManyToOne
     @NotNull
     private JPAGPlainAttr attribute;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public GPlainAttr getAttr() {

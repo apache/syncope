@@ -59,7 +59,7 @@ public interface ResourceService extends JAXRSService {
     ConnObjectTO readConnObject(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("anyTypeKey") String anyTypeKey,
-            @NotNull @PathParam("anyKey") Long anyKey);
+            @NotNull @PathParam("anyKey") String anyKey);
 
     /**
      * Returns a paged list of connector objects from external resource, for the given type, matching

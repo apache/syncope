@@ -41,6 +41,7 @@ under the License.
     </dir>
     <dir name="${basedir}/../../core/persistence-jpa/target/classes">
       <exclude name="persistenceContext.xml"/>
+      <exclude name="org/apache/syncope/core/persistence/jpa/entity/**"/>
     </dir>
     <dir name="${basedir}/../../core/provisioning-api/target/classes">
     </dir>

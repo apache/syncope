@@ -91,7 +91,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     private String activitiModelerDirectory;
 
-    private Long reconciliationReportKey;
+    private String reconciliationReportKey;
 
     private SyncopeClientFactoryBean clientFactory;
 
@@ -198,7 +198,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         Args.notNull(activitiModelerDirectory, "<activitiModelerDirectory> not set");
 
         try {
-            reconciliationReportKey = Long.valueOf(props.getProperty("reconciliationReportKey"));
+            reconciliationReportKey = props.getProperty("reconciliationReportKey");
         } catch (NumberFormatException e) {
             LOG.error("While parsing reconciliationReportKey", e);
         }
@@ -285,7 +285,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         return activitiModelerDirectory;
     }
 
-    public Long getReconciliationReportKey() {
+    public String getReconciliationReportKey() {
         return reconciliationReportKey;
     }
 

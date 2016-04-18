@@ -598,7 +598,12 @@ under the License.
         <artifactId>openjpa-persistence-jdbc</artifactId>
         <version>${openjpa.version}</version>
       </dependency>
-    
+      <dependency>
+        <groupId>com.fasterxml.uuid</groupId>
+        <artifactId>java-uuid-generator</artifactId>
+        <version>3.1.4</version>
+      </dependency>
+
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-dbcp2</artifactId>
@@ -1854,7 +1859,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.5</version>
+            <version>3.5.1</version>
             <dependencies>
               <dependency>
                 <groupId>org.apache.velocity</groupId>

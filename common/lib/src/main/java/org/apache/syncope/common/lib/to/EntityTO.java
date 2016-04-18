@@ -20,9 +20,9 @@ package org.apache.syncope.common.lib.to;
 
 import java.io.Serializable;
 
-public interface EntityTO<KEY> extends Serializable {
+public interface EntityTO extends Serializable {
 
-    KEY getKey();
+    String getKey();
 
-    void setKey(KEY key);
+    void setKey(String key);
 }

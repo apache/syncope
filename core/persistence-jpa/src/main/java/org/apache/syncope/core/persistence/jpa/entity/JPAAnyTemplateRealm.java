@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -29,23 +28,15 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.AbstractAnyTempla
 
 @Entity
 @Table(name = JPAAnyTemplateRealm.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "realm_id", "anyType_name" }))
+        @UniqueConstraint(columnNames = { "realm_key", "anyType_key" }))
 public class JPAAnyTemplateRealm extends AbstractAnyTemplate implements AnyTemplateRealm {
 
     public static final String TABLE = "AnyTemplateRealm";
 
     private static final long serialVersionUID = 1863029633568957907L;
 
-    @Id
-    private Long id;
-
     @ManyToOne
     private JPARealm realm;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public Realm getRealm() {

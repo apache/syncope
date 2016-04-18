@@ -46,7 +46,7 @@ public class NotificationServiceImpl extends AbstractServiceImpl implements Noti
     }
 
     @Override
-    public NotificationTO read(final Long key) {
+    public NotificationTO read(final String key) {
         return logic.read(key);
     }
 
@@ -61,7 +61,7 @@ public class NotificationServiceImpl extends AbstractServiceImpl implements Noti
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         logic.delete(key);
     }
 

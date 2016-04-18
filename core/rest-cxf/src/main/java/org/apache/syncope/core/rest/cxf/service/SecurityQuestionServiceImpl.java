@@ -40,7 +40,7 @@ public class SecurityQuestionServiceImpl extends AbstractServiceImpl implements 
     }
 
     @Override
-    public SecurityQuestionTO read(final Long key) {
+    public SecurityQuestionTO read(final String key) {
         return logic.read(key);
     }
 
@@ -60,7 +60,7 @@ public class SecurityQuestionServiceImpl extends AbstractServiceImpl implements 
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         logic.delete(key);
     }
 

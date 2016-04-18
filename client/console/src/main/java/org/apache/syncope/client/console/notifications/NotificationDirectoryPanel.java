@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -83,8 +84,8 @@ public class NotificationDirectoryPanel
     @Override
     protected List<IColumn<NotificationTO, String>> getColumns() {
 
-        final List<IColumn<NotificationTO, String>> columns = new ArrayList<IColumn<NotificationTO, String>>();
-        columns.add(new PropertyColumn<NotificationTO, String>(
+        List<IColumn<NotificationTO, String>> columns = new ArrayList<>();
+        columns.add(new KeyPropertyColumn<NotificationTO>(
                 new StringResourceModel("key", this, null), "key", "key"));
         columns.add(new CollectionPropertyColumn<NotificationTO>(
                 new StringResourceModel("events", this, null), "events", "events"));
@@ -181,7 +182,7 @@ public class NotificationDirectoryPanel
         public NotificationProvider(final int paginatorRows) {
             super(paginatorRows);
             setSort("key", SortOrder.ASCENDING);
-            comparator = new SortableDataProviderComparator<NotificationTO>(this);
+            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override

@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.task;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface Task extends Entity<Long> {
+public interface Task extends Entity {
 
     boolean add(TaskExec exec);
 

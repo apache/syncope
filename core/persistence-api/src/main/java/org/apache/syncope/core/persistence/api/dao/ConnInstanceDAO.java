@@ -21,13 +21,13 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 
-public interface ConnInstanceDAO extends DAO<ConnInstance, Long> {
+public interface ConnInstanceDAO extends DAO<ConnInstance> {
 
-    ConnInstance find(Long key);
+    ConnInstance find(String key);
 
     List<ConnInstance> findAll();
 
     ConnInstance save(ConnInstance connector);
 
-    void delete(Long key);
+    void delete(String key);
 }

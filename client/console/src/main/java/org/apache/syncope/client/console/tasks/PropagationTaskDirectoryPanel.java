@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
@@ -72,7 +73,7 @@ public abstract class PropagationTaskDirectoryPanel
     protected List<IColumn<PropagationTaskTO, String>> getColumns() {
         final List<IColumn<PropagationTaskTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<PropagationTaskTO, String>(
+        columns.add(new KeyPropertyColumn<PropagationTaskTO>(
                 new StringResourceModel("key", this, null), "key", "key"));
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(new StringResourceModel(

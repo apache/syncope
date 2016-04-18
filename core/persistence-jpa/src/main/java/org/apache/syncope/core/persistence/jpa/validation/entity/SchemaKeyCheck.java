@@ -29,9 +29,9 @@ import javax.validation.Payload;
 
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = SchemaNameValidator.class)
+@Constraint(validatedBy = SchemaKeyValidator.class)
 @Documented
-public @interface SchemaNameCheck {
+public @interface SchemaKeyCheck {
 
     String message() default "{org.apache.syncope.core.persistence.validation.schema}";
 

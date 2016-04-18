@@ -55,7 +55,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @GET
     @Path("{key}/{schemaType}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Set<AttrTO> read(@NotNull @PathParam("key") Long key, @NotNull @PathParam("schemaType") SchemaType schemaType);
+    Set<AttrTO> read(@NotNull @PathParam("key") String key, @NotNull @PathParam("schemaType") SchemaType schemaType);
 
     /**
      * Reads the attribute, owned by the given any object, for the given schema type and schema.
@@ -69,7 +69,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @Path("{key}/{schemaType}/{schema}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     AttrTO read(
-            @NotNull @PathParam("key") Long key,
+            @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
             @NotNull @PathParam("schema") String schema);
 
@@ -82,7 +82,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    TO read(@NotNull @PathParam("key") Long key);
+    TO read(@NotNull @PathParam("key") String key);
 
     /**
      * Returns a paged list of any objects matching the given query.
@@ -133,7 +133,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(
-            @NotNull @PathParam("key") Long key,
+            @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
             @NotNull AttrTO attrTO);
 
@@ -162,7 +162,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void delete(
-            @NotNull @PathParam("key") Long key,
+            @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
             @NotNull @PathParam("schema") String schema);
 
@@ -177,7 +177,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("key") Long key);
+    Response delete(@NotNull @PathParam("key") String key);
 
     /**
      * Executes resource-related operations on given any object.

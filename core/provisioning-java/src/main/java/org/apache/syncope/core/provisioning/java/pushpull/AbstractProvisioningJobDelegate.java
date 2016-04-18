@@ -293,76 +293,76 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         if (traceLevel == TraceLevel.FAILURES || traceLevel == TraceLevel.ALL) {
             if (!uFailCreate.isEmpty()) {
                 report.append("\n\nUsers failed to create: ");
-                report.append(ProvisioningReport.produceReport(uFailCreate, traceLevel));
+                report.append(ProvisioningReport.generate(uFailCreate, traceLevel));
             }
             if (!uFailUpdate.isEmpty()) {
                 report.append("\nUsers failed to update: ");
-                report.append(ProvisioningReport.produceReport(uFailUpdate, traceLevel));
+                report.append(ProvisioningReport.generate(uFailUpdate, traceLevel));
             }
             if (!uFailDelete.isEmpty()) {
                 report.append("\nUsers failed to delete: ");
-                report.append(ProvisioningReport.produceReport(uFailDelete, traceLevel));
+                report.append(ProvisioningReport.generate(uFailDelete, traceLevel));
             }
 
             if (!gFailCreate.isEmpty()) {
                 report.append("\n\nGroups failed to create: ");
-                report.append(ProvisioningReport.produceReport(gFailCreate, traceLevel));
+                report.append(ProvisioningReport.generate(gFailCreate, traceLevel));
             }
             if (!gFailUpdate.isEmpty()) {
                 report.append("\nGroups failed to update: ");
-                report.append(ProvisioningReport.produceReport(gFailUpdate, traceLevel));
+                report.append(ProvisioningReport.generate(gFailUpdate, traceLevel));
             }
             if (!gFailDelete.isEmpty()) {
                 report.append("\nGroups failed to delete: ");
-                report.append(ProvisioningReport.produceReport(gFailDelete, traceLevel));
+                report.append(ProvisioningReport.generate(gFailDelete, traceLevel));
             }
 
             if (!aFailCreate.isEmpty()) {
                 report.append("\nAny objects failed to create: ");
-                report.append(ProvisioningReport.produceReport(aFailCreate, traceLevel));
+                report.append(ProvisioningReport.generate(aFailCreate, traceLevel));
             }
             if (!aFailUpdate.isEmpty()) {
                 report.append("\nAny objects failed to update: ");
-                report.append(ProvisioningReport.produceReport(aFailUpdate, traceLevel));
+                report.append(ProvisioningReport.generate(aFailUpdate, traceLevel));
             }
             if (!aFailDelete.isEmpty()) {
                 report.append("\nAny objects failed to delete: ");
-                report.append(ProvisioningReport.produceReport(aFailDelete, traceLevel));
+                report.append(ProvisioningReport.generate(aFailDelete, traceLevel));
             }
         }
 
         // Succeeded, only if on 'ALL' level
         if (traceLevel == TraceLevel.ALL) {
             report.append("\n\nUsers created:\n").
-                    append(ProvisioningReport.produceReport(uSuccCreate, traceLevel)).
+                    append(ProvisioningReport.generate(uSuccCreate, traceLevel)).
                     append("\nUsers updated:\n").
-                    append(ProvisioningReport.produceReport(uSuccUpdate, traceLevel)).
+                    append(ProvisioningReport.generate(uSuccUpdate, traceLevel)).
                     append("\nUsers deleted:\n").
-                    append(ProvisioningReport.produceReport(uSuccDelete, traceLevel)).
+                    append(ProvisioningReport.generate(uSuccDelete, traceLevel)).
                     append("\nUsers no operation:\n").
-                    append(ProvisioningReport.produceReport(uSuccNone, traceLevel)).
+                    append(ProvisioningReport.generate(uSuccNone, traceLevel)).
                     append("\nUsers ignored:\n").
-                    append(ProvisioningReport.produceReport(uIgnore, traceLevel));
+                    append(ProvisioningReport.generate(uIgnore, traceLevel));
             report.append("\n\nGroups created:\n").
-                    append(ProvisioningReport.produceReport(gSuccCreate, traceLevel)).
+                    append(ProvisioningReport.generate(gSuccCreate, traceLevel)).
                     append("\nGroups updated:\n").
-                    append(ProvisioningReport.produceReport(gSuccUpdate, traceLevel)).
+                    append(ProvisioningReport.generate(gSuccUpdate, traceLevel)).
                     append("\nGroups deleted:\n").
-                    append(ProvisioningReport.produceReport(gSuccDelete, traceLevel)).
+                    append(ProvisioningReport.generate(gSuccDelete, traceLevel)).
                     append("\nGroups no operation:\n").
-                    append(ProvisioningReport.produceReport(gSuccNone, traceLevel)).
+                    append(ProvisioningReport.generate(gSuccNone, traceLevel)).
                     append("\nGroups ignored:\n").
-                    append(ProvisioningReport.produceReport(gSuccNone, traceLevel));
+                    append(ProvisioningReport.generate(gSuccNone, traceLevel));
             report.append("\n\nAny objects created:\n").
-                    append(ProvisioningReport.produceReport(aSuccCreate, traceLevel)).
+                    append(ProvisioningReport.generate(aSuccCreate, traceLevel)).
                     append("\nAny objects updated:\n").
-                    append(ProvisioningReport.produceReport(aSuccUpdate, traceLevel)).
+                    append(ProvisioningReport.generate(aSuccUpdate, traceLevel)).
                     append("\nAny objects deleted:\n").
-                    append(ProvisioningReport.produceReport(aSuccDelete, traceLevel)).
+                    append(ProvisioningReport.generate(aSuccDelete, traceLevel)).
                     append("\nAny objects no operation:\n").
-                    append(ProvisioningReport.produceReport(aSuccNone, traceLevel)).
+                    append(ProvisioningReport.generate(aSuccNone, traceLevel)).
                     append("\nAny objects ignored:\n").
-                    append(ProvisioningReport.produceReport(aSuccNone, traceLevel));
+                    append(ProvisioningReport.generate(aSuccNone, traceLevel));
         }
 
         return report.toString();

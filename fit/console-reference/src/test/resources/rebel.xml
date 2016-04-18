@@ -36,11 +36,11 @@ under the License.
       </dir>
     </link>
     <link target="/">
-      <dir name="${basedir}/../../client/console/target/classes">
+      <dir name="${basedir}/../../client/console/target/classes/META-INF/resources">
       </dir>
     </link>
     <link target="/">
-      <dir name="${basedir}/../../ext/camel/client-console/target/classes">
+      <dir name="${basedir}/../../ext/camel/client-console/target/classes/META-INF/resources">
       </dir>
     </link>
   </web>

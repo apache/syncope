@@ -84,7 +84,7 @@ public interface ConnectorService extends JAXRSService {
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    ConnInstanceTO read(@NotNull @PathParam("key") Long key, @QueryParam("lang") String lang);
+    ConnInstanceTO read(@NotNull @PathParam("key") String key, @QueryParam("lang") String lang);
 
     /**
      * Returns connector instance for matching resource.
@@ -138,7 +138,7 @@ public interface ConnectorService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") Long key);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Checks whether the connection to resource could be established.

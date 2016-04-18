@@ -24,9 +24,9 @@ import org.apache.syncope.common.lib.to.ExecTO;
 
 public interface ExecutionRestClient {
 
-    void startExecution(long executionCollectorKey, Date start);
+    void startExecution(String executionCollectorKey, Date start);
 
-    void deleteExecution(long executionKeyI);
+    void deleteExecution(String executionKey);
 
     List<ExecTO> listRecentExecutions(final int max);
 }

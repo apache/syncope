@@ -38,7 +38,7 @@ public class SecurityQuestionRestClient extends BaseRestClient {
         getService(SecurityQuestionService.class).update(securityQuestionTO);
     }
 
-    public void delete(final Long securityQuestionKey) {
+    public void delete(final String securityQuestionKey) {
         getService(SecurityQuestionService.class).delete(securityQuestionKey);
     }
 

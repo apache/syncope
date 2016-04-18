@@ -94,8 +94,7 @@ public class MailTemplateDirectoryPanel
 
     @Override
     protected List<IColumn<MailTemplateTO, String>> getColumns() {
-
-        final List<IColumn<MailTemplateTO, String>> columns = new ArrayList<IColumn<MailTemplateTO, String>>();
+        List<IColumn<MailTemplateTO, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<MailTemplateTO, String>(
                 new StringResourceModel("key", this, null), "key", "key"));
 
@@ -115,8 +114,8 @@ public class MailTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        MailTemplateContentModal.MailTemplateContentTO content
-                                = new MailTemplateContentModal.MailTemplateContentTO(
+                        MailTemplateContentModal.MailTemplateContentTO content =
+                                new MailTemplateContentModal.MailTemplateContentTO(
                                         model.getObject().getKey(), MailTemplateFormat.HTML);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.HTML));
@@ -134,8 +133,8 @@ public class MailTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        MailTemplateContentModal.MailTemplateContentTO content
-                                = new MailTemplateContentModal.MailTemplateContentTO(
+                        MailTemplateContentModal.MailTemplateContentTO content =
+                                new MailTemplateContentModal.MailTemplateContentTO(
                                         model.getObject().getKey(), MailTemplateFormat.TEXT);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.TEXT));
@@ -196,7 +195,7 @@ public class MailTemplateDirectoryPanel
         public MailTemplateProvider(final int paginatorRows) {
             super(paginatorRows);
             setSort("key", SortOrder.ASCENDING);
-            comparator = new SortableDataProviderComparator<MailTemplateTO>(this);
+            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override

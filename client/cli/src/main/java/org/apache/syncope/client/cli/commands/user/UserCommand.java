@@ -29,7 +29,7 @@ import org.apache.syncope.client.cli.commands.AbstractCommand;
 public class UserCommand extends AbstractCommand {
 
     private final UserResultManager userResultManager = new UserResultManager();
-    
+
     @Override
     public void execute(final Input input) {
         if (StringUtils.isBlank(input.getOption())) {
@@ -42,12 +42,6 @@ public class UserCommand extends AbstractCommand {
                 break;
             case LIST:
                 new UserList(input).list();
-                break;
-            case GET_BY_KEY:
-                new UserGetKey(input).get();
-                break;
-            case GET_BY_USERNAME:
-                new UserGetUsername(input).get();
                 break;
             case READ_BY_ID:
                 new UserReadByUserId(input).read();
@@ -91,8 +85,6 @@ public class UserCommand extends AbstractCommand {
         HELP("--help"),
         DETAILS("--details"),
         LIST("--list"),
-        GET_BY_KEY("--get-user-key"),
-        GET_BY_USERNAME("--get-username"),
         READ_BY_ID("--read-by-userid"),
         READ_BY_USERNAME("--read-by-username"),
         SEARCH_BY_ATTRIBUTE("--search-by-attribute"),

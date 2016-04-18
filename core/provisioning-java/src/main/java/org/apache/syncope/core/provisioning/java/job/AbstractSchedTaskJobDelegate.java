@@ -73,7 +73,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
 
     @Transactional
     @Override
-    public void execute(final Long taskKey, final boolean dryRun) throws JobExecutionException {
+    public void execute(final String taskKey, final boolean dryRun) throws JobExecutionException {
         task = taskDAO.find(taskKey);
         if (task == null) {
             throw new JobExecutionException("Task " + taskKey + " not found");
@@ -94,7 +94,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
             execution.setStatus(TaskJob.Status.SUCCESS.name());
             result = AuditElements.Result.SUCCESS;
         } catch (JobExecutionException e) {
-            LOG.error("While executing task {}" , taskKey, e);
+            LOG.error("While executing task {}", taskKey, e);
             result = AuditElements.Result.FAILURE;
 
             execution.setMessage(ExceptionUtils2.getFullStackTrace(e));
