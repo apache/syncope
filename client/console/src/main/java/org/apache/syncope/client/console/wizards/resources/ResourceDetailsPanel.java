@@ -53,7 +53,6 @@ public class ResourceDetailsPanel extends WizardStep {
     };
 
     public ResourceDetailsPanel(final ResourceTO resourceTO, final boolean createFlag) {
-
         super();
         setOutputMarkupId(true);
 
@@ -63,8 +62,8 @@ public class ResourceDetailsPanel extends WizardStep {
         add(container);
 
         container.add(new AjaxTextFieldPanel(
-                "name",
-                new ResourceModel("name", "name").
+                "key",
+                new ResourceModel("key", "key").
                 getObject(),
                 new PropertyModel<String>(resourceTO, "key"),
                 false).addRequiredLabel().setEnabled(createFlag));

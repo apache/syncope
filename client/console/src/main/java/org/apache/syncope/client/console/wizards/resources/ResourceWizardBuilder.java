@@ -56,9 +56,9 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
     }
 
     @Override
-    public AjaxWizard<Serializable> build(final AjaxWizard.Mode mode) {
+    public AjaxWizard<Serializable> build(final String id, final AjaxWizard.Mode mode) {
         this.createFlag = mode == AjaxWizard.Mode.CREATE;
-        return super.build(mode);
+        return super.build(id, mode);
     }
 
     @Override
