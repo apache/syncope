@@ -83,7 +83,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         for (int i = 0; i < 10; i++) {
             String cUserName = "test" + i;
             try {
-                UserTO cUserTO = readUser(cUserName);
+                UserTO cUserTO = userService.read(cUserName);
                 userService.delete(cUserTO.getKey());
             } catch (Exception e) {
                 // Ignore

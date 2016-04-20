@@ -452,7 +452,7 @@ public class AuthenticationITCase extends AbstractITCase {
         role.getEntitlements().add(anyTypeKey + "_CREATE");
         role = createRole(role);
 
-        UserTO bellini = readUser("bellini");
+        UserTO bellini = userService.read("bellini");
         UserPatch patch = new UserPatch();
         patch.setKey(bellini.getKey());
         patch.getRoles().add(new StringPatchItem.Builder().

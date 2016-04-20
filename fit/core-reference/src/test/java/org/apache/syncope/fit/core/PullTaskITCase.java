@@ -194,7 +194,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertFalse(userTO.getResources().contains(RESOURCE_NAME_CSV));
 
             // check for user template
-            userTO = readUser("test7");
+            userTO = userService.read("test7");
             assertNotNull(userTO);
             assertEquals("TYPE_OTHER", userTO.getPlainAttrMap().get("ctype").getValues().get(0));
             assertEquals(3, userTO.getResources().size());
@@ -213,13 +213,13 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 }
             }));
 
-            userTO = readUser("test8");
+            userTO = userService.read("test8");
             assertNotNull(userTO);
             assertEquals("TYPE_8", userTO.getPlainAttrMap().get("ctype").getValues().get(0));
 
             // Check for ignored user - SYNCOPE-663
             try {
-                readUser("test2");
+                userService.read("test2");
                 fail();
             } catch (SyncopeClientException e) {
                 assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
@@ -235,11 +235,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // Check for issue 215:
             // * expected disabled user test1
             // * expected enabled user test3
-            userTO = readUser("test1");
+            userTO = userService.read("test1");
             assertNotNull(userTO);
             assertEquals("suspended", userTO.getStatus());
 
-            userTO = readUser("test3");
+            userTO = userService.read("test3");
             assertNotNull(userTO);
             assertEquals("active", userTO.getStatus());
 
@@ -249,8 +249,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
             execProvisioningTasks(taskService, otherPullTaskKeys, 50, false);
 
             // Matching --> UNLINK
-            assertFalse(readUser("test9").getResources().contains(RESOURCE_NAME_CSV));
-            assertFalse(readUser("test7").getResources().contains(RESOURCE_NAME_CSV));
+            assertFalse(userService.read("test9").getResources().contains(RESOURCE_NAME_CSV));
+            assertFalse(userService.read("test7").getResources().contains(RESOURCE_NAME_CSV));
         } finally {
             removeTestUsers();
         }
@@ -274,7 +274,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(execution.getStatus());
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
-            userTO = readUser("testuser1");
+            userTO = userService.read("testuser1");
             assertNotNull(userTO);
             assertEquals("reconciled@syncope.apache.org", userTO.getPlainAttrMap().get("userId").getValues().get(0));
             assertEquals("suspended", userTO.getStatus());
@@ -288,7 +288,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(execution.getStatus());
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
-            userTO = readUser("testuser1");
+            userTO = userService.read("testuser1");
             assertNotNull(userTO);
             assertEquals("active", userTO.getStatus());
         } finally {
@@ -488,11 +488,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             // 4. verify that only enabled user was pulled
-            userTO = readUser("user2");
+            userTO = userService.read("user2");
             assertNotNull(userTO);
 
             try {
-                readUser("user1");
+                userService.read("user1");
                 fail();
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -567,7 +567,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             ExecTO execution = execProvisioningTask(taskService, actual.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
-            userTO = readUser("testuser2");
+            userTO = userService.read("testuser2");
             assertNotNull(userTO);
             assertEquals("testuser2@syncope.apache.org", userTO.getPlainAttrMap().get("userId").getValues().get(0));
             assertEquals(2, userTO.getMemberships().size());
@@ -584,7 +584,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         execProvisioningTask(taskService, "7c2242f4-14af-4ab5-af31-cdae23783655", 50, false);
 
         // 3. read e-mail address for user created by the PullTask first execution
-        UserTO userTO = readUser("issuesyncope230");
+        UserTO userTO = userService.read("issuesyncope230");
         assertNotNull(userTO);
         String email = userTO.getPlainAttrMap().get("email").getValues().iterator().next();
         assertNotNull(email);
@@ -597,7 +597,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         execProvisioningTask(taskService, "7c2242f4-14af-4ab5-af31-cdae23783655", 50, false);
 
         // 6. verify that the e-mail was updated
-        userTO = readUser("issuesyncope230");
+        userTO = userService.read("issuesyncope230");
         assertNotNull(userTO);
         email = userTO.getPlainAttrMap().get("email").getValues().iterator().next();
         assertNotNull(email);

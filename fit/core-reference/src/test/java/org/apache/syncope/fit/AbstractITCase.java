@@ -314,10 +314,6 @@ public abstract class AbstractITCase {
         return getObject(response.getLocation(), RoleService.class, RoleTO.class);
     }
 
-    protected UserTO readUser(final String username) {
-        return userService.read(username);
-    }
-
     protected ProvisioningResult<UserTO> createUser(final UserTO userTO) {
         return createUser(userTO, true);
     }
