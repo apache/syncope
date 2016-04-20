@@ -412,7 +412,7 @@ under the License.
     <momentjs.version>2.12.0</momentjs.version>
     <moment-jdateformatparser.version>1.0.0</moment-jdateformatparser.version>
     
-    <izpack.version>5.0.6</izpack.version>
+    <izpack.version>5.0.8</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
     <maven-invoker.version>2.1.1</maven-invoker.version>
 
