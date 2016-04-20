@@ -180,7 +180,6 @@ under the License.
           <include>installer.properties</include>
           <include>modelerPom.xml</include>
         </includes>
-        <filtering>true</filtering>
       </resource>
       <resource>
         <directory>${basedir}/../fit/core-reference/src/main/resources/jboss/domains</directory>
