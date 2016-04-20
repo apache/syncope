@@ -32,18 +32,18 @@ public class MembershipTO extends RelationshipTO {
 
         private final MembershipTO instance = new MembershipTO();
 
-        public Builder left(final String leftType, final long leftKey) {
+        public Builder left(final String leftType, final String leftKey) {
             instance.setLeftType(leftType);
             instance.setLeftKey(leftKey);
             return this;
         }
 
-        public Builder group(final long groupKey) {
+        public Builder group(final String groupKey) {
             instance.setRightKey(groupKey);
             return this;
         }
 
-        public Builder group(final long groupKey, final String groupName) {
+        public Builder group(final String groupKey, final String groupName) {
             instance.setRightKey(groupKey);
             instance.setGroupName(groupName);
             return this;

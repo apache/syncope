@@ -23,7 +23,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface RoleDAO extends DAO<Role, String> {
+public interface RoleDAO extends DAO<Role> {
 
     int count();
 

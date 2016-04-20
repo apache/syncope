@@ -39,7 +39,7 @@ public class NotificationRestClient extends BaseRestClient {
         return getService(NotificationService.class).list();
     }
 
-    public NotificationTO read(final Long key) {
+    public NotificationTO read(final String key) {
         return getService(NotificationService.class).read(key);
     }
 
@@ -51,7 +51,7 @@ public class NotificationRestClient extends BaseRestClient {
         getService(NotificationService.class).update(notificationTO);
     }
 
-    public void delete(final Long key) {
+    public void delete(final String key) {
         getService(NotificationService.class).delete(key);
     }
 

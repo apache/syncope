@@ -36,6 +36,7 @@ import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.tasks.TaskExecutions.TaskExecProvider;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -90,7 +91,7 @@ public abstract class TaskExecutions
     protected List<IColumn<ExecTO, String>> getColumns() {
         final List<IColumn<ExecTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<ExecTO, String>(new ResourceModel("key"), "key", "key"));
+        columns.add(new KeyPropertyColumn<ExecTO>(new ResourceModel("key"), "key", "key"));
 
         columns.add(new DatePropertyColumn<ExecTO>(new ResourceModel("start"), "start", "start"));
 
@@ -184,11 +185,11 @@ public abstract class TaskExecutions
 
         private final SortableDataProviderComparator<ExecTO> comparator;
 
-        private final Long taskId;
+        private final String taskKey;
 
-        public TaskExecProvider(final Long taskId, final int paginatorRows) {
+        public TaskExecProvider(final String taskKey, final int paginatorRows) {
             super(paginatorRows);
-            this.taskId = taskId;
+            this.taskKey = taskKey;
             comparator = new SortableDataProviderComparator<>(this);
         }
 
@@ -199,14 +200,14 @@ public abstract class TaskExecutions
         @Override
         public Iterator<ExecTO> iterator(final long first, final long count) {
             final int page = ((int) first / paginatorRows);
-            List<ExecTO> list = taskRestClient.listExecutions(taskId, (page < 0 ? 0 : page) + 1, paginatorRows);
+            List<ExecTO> list = taskRestClient.listExecutions(taskKey, (page < 0 ? 0 : page) + 1, paginatorRows);
             Collections.sort(list, comparator);
             return list.iterator();
         }
 
         @Override
         public long size() {
-            return taskRestClient.countExecutions(taskId);
+            return taskRestClient.countExecutions(taskKey);
         }
 
         @Override

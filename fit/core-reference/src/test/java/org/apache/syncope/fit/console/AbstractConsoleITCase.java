@@ -86,8 +86,6 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
 
                     @Override
                     public void component(final ListItem<?> object, final IVisit<Component> visit) {
-                        System.out.println("EEEEEEEEEEE " + object.getPath());
-                        
                         try {
                             Method getter = PropertyResolver.getPropertyGetter(property, object.getModelObject());
                             if (getter != null && getter.invoke(object.getModelObject()).equals(key)) {

@@ -33,7 +33,7 @@ public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
      * @param anyObjectTO anyObject to be created and whether to propagate it as active
      * @return anyObject just created
      */
-    WorkflowResult<Long> create(AnyObjectTO anyObjectTO);
+    WorkflowResult<String> create(AnyObjectTO anyObjectTO);
 
     /**
      * Execute a task on a anyObject.
@@ -42,7 +42,7 @@ public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
      * @param taskId to be executed
      * @return anyObject just updated
      */
-    WorkflowResult<Long> execute(AnyObjectTO anyObjectTO, String taskId);
+    WorkflowResult<String> execute(AnyObjectTO anyObjectTO, String taskId);
 
     /**
      * Update a anyObject.
@@ -50,12 +50,12 @@ public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
      * @param anyObjectPatch modification set to be performed
      * @return anyObject just updated and propagations to be performed
      */
-    WorkflowResult<Long> update(AnyObjectPatch anyObjectPatch);
+    WorkflowResult<String> update(AnyObjectPatch anyObjectPatch);
 
     /**
      * Delete a anyObject.
      *
      * @param anyObjectKey anyObject to be deleted
      */
-    void delete(Long anyObjectKey);
+    void delete(String anyObjectKey);
 }

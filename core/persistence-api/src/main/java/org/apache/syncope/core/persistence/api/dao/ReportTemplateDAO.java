@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 
-public interface ReportTemplateDAO extends DAO<ReportTemplate, String> {
+public interface ReportTemplateDAO extends DAO<ReportTemplate> {
 
     ReportTemplate find(String key);
 

@@ -26,26 +26,36 @@ import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 
-public interface TaskDAO extends DAO<Task, Long> {
+public interface TaskDAO extends DAO<Task> {
 
     Class<? extends Task> getEntityReference(TaskType type);
 
-    <T extends Task> T find(Long key);
+    <T extends Task> T find(String key);
 
     <T extends Task> List<T> findToExec(TaskType type);
 
     <T extends Task> List<T> findAll(TaskType type);
 
     <T extends Task> List<T> findAll(
-            TaskType type, ExternalResource resource, Notification notification, AnyTypeKind anyTypeKind, Long anyKey,
-            int page, int itemsPerPage, List<OrderByClause> orderByClauses);
+            TaskType type,
+            ExternalResource resource,
+            Notification notification,
+            AnyTypeKind anyTypeKind,
+            String anyKey,
+            int page,
+            int itemsPerPage,
+            List<OrderByClause> orderByClauses);
 
     int count(
-            TaskType type, ExternalResource resource, Notification notification, AnyTypeKind anyTypeKind, Long anyKey);
+            TaskType type,
+            ExternalResource resource,
+            Notification notification,
+            AnyTypeKind anyTypeKind,
+            String anyKey);
 
     <T extends Task> T save(T task);
 
-    void delete(Long key);
+    void delete(String key);
 
     void delete(Task task);
 

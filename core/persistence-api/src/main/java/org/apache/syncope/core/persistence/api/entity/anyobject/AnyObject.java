@@ -27,9 +27,9 @@ public interface AnyObject extends Any<APlainAttr> {
 
     boolean add(ARelationship relationship);
 
-    ARelationship getRelationship(RelationshipType relationshipType, Long anyObjectKey);
+    ARelationship getRelationship(RelationshipType relationshipType, String anyObjectKey);
 
-    Collection<? extends ARelationship> getRelationships(Long anyObjectKey);
+    Collection<? extends ARelationship> getRelationships(String anyObjectKey);
 
     Collection<? extends ARelationship> getRelationships(RelationshipType relationshipType);
 
@@ -37,7 +37,7 @@ public interface AnyObject extends Any<APlainAttr> {
 
     boolean add(AMembership membership);
 
-    AMembership getMembership(Long membershipKey);
+    AMembership getMembership(String membershipKey);
 
     List<? extends AMembership> getMemberships();
 

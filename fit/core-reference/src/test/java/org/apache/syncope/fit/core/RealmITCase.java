@@ -85,13 +85,13 @@ public class RealmITCase extends AbstractITCase {
         assertNotNull(actual.getKey());
         assertEquals("last", actual.getName());
         assertEquals("/even/two/last", actual.getFullPath());
-        assertEquals(actual.getParent(), getRealm("/even/two").getKey(), 0);
+        assertEquals(actual.getParent(), getRealm("/even/two").getKey());
         assertNull(realm.getAccountPolicy());
         assertNull(realm.getPasswordPolicy());
 
         // 2. update setting policies
-        actual.setAccountPolicy(6L);
-        actual.setPasswordPolicy(4L);
+        actual.setAccountPolicy("06e2ed52-6966-44aa-a177-a0ca7434201f");
+        actual.setPasswordPolicy("986d1236-3ac5-4a19-810c-5ab21d79cba1");
         realmService.update(actual);
 
         actual = getRealm(actual.getFullPath());
@@ -127,7 +127,7 @@ public class RealmITCase extends AbstractITCase {
             realmService.create("/odd", realm);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.DataIntegrityViolation, e.getType());
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
     }
 
@@ -155,7 +155,7 @@ public class RealmITCase extends AbstractITCase {
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);
         RealmTO actual = actuals[0];
-        assertEquals(policy.getKey(), actual.getAccountPolicy(), 0);
+        assertEquals(policy.getKey(), actual.getAccountPolicy());
 
         // 3. remove policy
         policyService.delete(policy.getKey());

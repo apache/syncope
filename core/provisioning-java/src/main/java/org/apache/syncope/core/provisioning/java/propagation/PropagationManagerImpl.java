@@ -114,7 +114,7 @@ public class PropagationManagerImpl implements PropagationManager {
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
-    protected Any<?> find(final AnyTypeKind kind, final Long key) {
+    protected Any<?> find(final AnyTypeKind kind, final String key) {
         AnyDAO<? extends Any<?>> dao;
         switch (kind) {
             case ANY_OBJECT:
@@ -136,7 +136,7 @@ public class PropagationManagerImpl implements PropagationManager {
     @Override
     public List<PropagationTask> getCreateTasks(
             final AnyTypeKind kind,
-            final Long key,
+            final String key,
             final PropagationByResource propByRes,
             final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceNames) {
@@ -146,7 +146,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
     @Override
     public List<PropagationTask> getUserCreateTasks(
-            final Long key,
+            final String key,
             final String password,
             final Boolean enable,
             final PropagationByResource propByRes,
@@ -178,7 +178,7 @@ public class PropagationManagerImpl implements PropagationManager {
     @Override
     public List<PropagationTask> getUpdateTasks(
             final AnyTypeKind kind,
-            final Long key,
+            final String key,
             final boolean changePwd,
             final Boolean enable,
             final PropagationByResource propByRes,
@@ -279,7 +279,7 @@ public class PropagationManagerImpl implements PropagationManager {
     @Override
     public List<PropagationTask> getDeleteTasks(
             final AnyTypeKind kind,
-            final Long key,
+            final String key,
             final PropagationByResource propByRes,
             final Collection<String> noPropResourceNames) {
 

@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.UUID;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -46,7 +47,7 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Test
     public void deleteCascade() {
-        ConnInstance connInstance = connInstanceDAO.find(103L);
+        ConnInstance connInstance = connInstanceDAO.find("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b");
         assertNotNull(connInstance);
 
         List<? extends ExternalResource> resources = connInstance.getResources();
@@ -57,7 +58,7 @@ public class ConnInstanceTest extends AbstractTest {
 
         connInstanceDAO.flush();
 
-        ConnInstance actual = connInstanceDAO.find(103L);
+        ConnInstance actual = connInstanceDAO.find("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b");
         assertNull(actual);
 
         for (ExternalResource resource : resources) {
@@ -65,14 +66,9 @@ public class ConnInstanceTest extends AbstractTest {
         }
     }
 
-    /**
-     * Connector change used to miss connector bean registration.
-     *
-     * http://code.google.com/p/syncope/issues/detail?id=176
-     */
     @Test
     public void issue176() {
-        ConnInstance connInstance = connInstanceDAO.find(103L);
+        ConnInstance connInstance = connInstanceDAO.find("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b");
         assertNotNull(connInstance);
         assertTrue(connInstance.getCapabilities().isEmpty());
 

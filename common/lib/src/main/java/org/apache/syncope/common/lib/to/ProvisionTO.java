@@ -29,11 +29,11 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "provision")
 @XmlType
-public class ProvisionTO extends AbstractBaseBean implements EntityTO<Long> {
+public class ProvisionTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = 8298910216218007927L;
 
-    private Long key;
+    private String key;
 
     private String anyType;
 
@@ -48,12 +48,12 @@ public class ProvisionTO extends AbstractBaseBean implements EntityTO<Long> {
     private final List<String> virSchemas = new ArrayList<>();
 
     @Override
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @Override
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

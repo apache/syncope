@@ -76,7 +76,7 @@ public class ResourceDataBinderTest extends AbstractTest {
 
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setKey("resource-issue42");
-        resourceTO.setConnector(100L);
+        resourceTO.setConnector("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
         resourceTO.setEnforceMandatoryCondition(true);
 
         ProvisionTO provisionTO = new ProvisionTO();

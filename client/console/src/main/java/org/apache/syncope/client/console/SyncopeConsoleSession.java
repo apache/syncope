@@ -104,8 +104,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         domains = new ArrayList<>();
         domains.add(SyncopeConstants.MASTER_DOMAIN);
         CollectionUtils.collect(anonymousClient.getService(DomainService.class).list(),
-                EntityTOUtils.<String, DomainTO>keyTransformer(),
-                domains);
+                EntityTOUtils.<DomainTO>keyTransformer(), domains);
     }
 
     public void execute(final Runnable command) {

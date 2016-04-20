@@ -125,7 +125,7 @@ public class RoleITCase extends AbstractITCase {
 
     @Test
     public void dynMembership() {
-        assertTrue(userService.read(4L).getDynRoles().isEmpty());
+        assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynRoles().isEmpty());
 
         RoleTO role = getSampleRoleTO("dynMembership");
         role.setDynMembershipCond("cool==true");
@@ -133,11 +133,12 @@ public class RoleITCase extends AbstractITCase {
         role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
         assertNotNull(role);
 
-        assertTrue(userService.read(4L).getDynRoles().contains(role.getKey()));
+        assertTrue(userService.read(
+                "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynRoles().contains(role.getKey()));
 
         role.setDynMembershipCond("cool==false");
         roleService.update(role);
 
-        assertTrue(userService.read(4L).getDynGroups().isEmpty());
+        assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynGroups().isEmpty());
     }
 }

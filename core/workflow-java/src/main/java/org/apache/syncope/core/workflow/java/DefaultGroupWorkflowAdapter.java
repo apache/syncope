@@ -39,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
 
     @Override
-    public WorkflowResult<Long> create(final GroupTO groupTO) {
+    public WorkflowResult<String> create(final GroupTO groupTO) {
         Group group = entityFactory.newEntity(Group.class);
         dataBinder.create(group, groupTO);
         group = groupDAO.save(group);
@@ -51,7 +51,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doUpdate(final Group group, final GroupPatch groupPatch) {
+    protected WorkflowResult<String> doUpdate(final Group group, final GroupPatch groupPatch) {
         PropagationByResource propByRes = dataBinder.update(group, groupPatch);
 
         Group updated = groupDAO.save(group);
@@ -65,7 +65,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Long> execute(final GroupTO group, final String taskId) {
+    public WorkflowResult<String> execute(final GroupTO group, final String taskId) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 

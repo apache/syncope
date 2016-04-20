@@ -46,7 +46,7 @@ public class AnyObjectCreateProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        WorkflowResult<Long> created = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<String> created = (WorkflowResult) exchange.getIn().getBody();
         AnyObjectTO any = exchange.getProperty("any", AnyObjectTO.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);

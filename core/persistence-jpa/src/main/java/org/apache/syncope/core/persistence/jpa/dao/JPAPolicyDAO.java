@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO {
+public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
     @Autowired
     private RealmDAO realmDAO;
@@ -57,7 +57,7 @@ public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends Policy> T find(final Long key) {
+    public <T extends Policy> T find(final String key) {
         return (T) entityManager().find(AbstractPolicy.class, key);
     }
 

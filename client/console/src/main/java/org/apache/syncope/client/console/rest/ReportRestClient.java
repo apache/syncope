@@ -31,7 +31,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
 
     private static final long serialVersionUID = 1644689667998953604L;
 
-    public ReportTO read(final Long reportKey) {
+    public ReportTO read(final String reportKey) {
         return getService(ReportService.class).read(reportKey);
     }
 
@@ -52,17 +52,17 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
      *
      * @param reportKey report to delete
      */
-    public void delete(final long reportKey) {
+    public void delete(final String reportKey) {
         getService(ReportService.class).delete(reportKey);
     }
 
     @Override
-    public void startExecution(final long reportKey, final Date start) {
+    public void startExecution(final String reportKey, final Date start) {
         getService(ReportService.class).execute(new ExecuteQuery.Builder().key(reportKey).startAt(start).build());
     }
 
     @Override
-    public void deleteExecution(final long reportExecKey) {
+    public void deleteExecution(final String reportExecKey) {
         getService(ReportService.class).deleteExecution(reportExecKey);
     }
 
@@ -71,7 +71,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
         return getService(ReportService.class).listRecentExecutions(max);
     }
 
-    public Response exportExecutionResult(final long executionId, final ReportExecExportFormat fmt) {
-        return getService(ReportService.class).exportExecutionResult(executionId, fmt);
+    public Response exportExecutionResult(final String executionKey, final ReportExecExportFormat fmt) {
+        return getService(ReportService.class).exportExecutionResult(executionKey, fmt);
     }
 }

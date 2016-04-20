@@ -20,11 +20,15 @@ package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.wizard.WizardModel;
 
 public abstract class AjaxWizardBuilder<T extends Serializable> extends AbstractModalPanelBuilder<T> {
 
     private static final long serialVersionUID = 5241745929825564456L;
+
+    protected AjaxWizard.Mode mode = AjaxWizard.Mode.CREATE;
 
     /**
      * Construct.
@@ -66,6 +70,8 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
      * @return wizard.
      */
     public AjaxWizard<T> build(final String id, final AjaxWizard.Mode mode) {
+        this.mode = mode;
+
         // ge the specified item if available
         final T modelObject = newModelObject();
 
@@ -79,11 +85,51 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
             }
 
             @Override
-            protected Serializable onApplyInternal() {
-                return AjaxWizardBuilder.this.onApplyInternal(modelObject);
+            protected Serializable onApplyInternal(final AjaxRequestTarget target) {
+                final Serializable res = AjaxWizardBuilder.this.onApplyInternal(modelObject);
+
+                Serializable payload;
+                switch (mode) {
+                    case CREATE:
+                        payload = getCreateCustomPayloadEvent(res, target);
+                        break;
+                    case EDIT:
+                        payload = getEditCustomPayloadEvent(res, target);
+                        break;
+                    default:
+                        payload = null;
+                }
+
+                if (payload != null) {
+                    send(pageRef.getPage(), Broadcast.BUBBLE, payload);
+                }
+
+                return res;
             }
         };
     }
 
     protected abstract WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel);
+
+    /**
+     * Override to send custom events after create.
+     *
+     * @param afterObject after applied changes object.
+     * @param target
+     * @return payload to be sent.
+     */
+    protected Serializable getCreateCustomPayloadEvent(final Serializable afterObject, final AjaxRequestTarget target) {
+        return null;
+    }
+
+    /**
+     * Override to send custom events after edit.
+     *
+     * @param afterObject after applied changes object.
+     * @param target
+     * @return payload to be sent.
+     */
+    protected Serializable getEditCustomPayloadEvent(final Serializable afterObject, final AjaxRequestTarget target) {
+        return null;
+    }
 }

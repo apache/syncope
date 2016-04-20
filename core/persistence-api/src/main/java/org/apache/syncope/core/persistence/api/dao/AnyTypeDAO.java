@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 
-public interface AnyTypeDAO extends DAO<AnyType, String> {
+public interface AnyTypeDAO extends DAO<AnyType> {
 
     AnyType find(String key);
 

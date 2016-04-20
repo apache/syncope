@@ -163,7 +163,14 @@ div.wicket-modal div.w_content_3 {
 
 .scrollable-tab-content {
   overflow-y: auto;
-  max-height: 400px;
+  max-height: 480px;
+}
+
+.inner-scrollable-tab-content {
+  height: 440px;
+  margin-top: 40px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 a.help {
@@ -227,6 +234,19 @@ a.help span a {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0px 5px 0px 5px;
+}
+
+div.wizard-view div.wizard-view{
+  max-height: 380px;
+  height: 380px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 50px 20px 50px 20px;
+}
+
+.wizard-view .wizard-form{
+  max-height: 450px;
+  height: 450px;
 }
 
 .modal-body .tab-content .wizard-view {
@@ -705,4 +725,8 @@ div#userFilter  #warning{
 
 div#userFilter  #check {
   margin: 1px 0 5px 8px;
+}
+
+.keyColumn {
+  width: 20px;
 }

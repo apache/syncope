@@ -33,6 +33,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.RelationshipPatch;
@@ -122,14 +123,14 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         String authUsername = AuthContextUtils.getUsername();
         if (anonymousUser.equals(authUsername)) {
             authUserTO = new UserTO();
-            authUserTO.setKey(-2L);
+            authUserTO.setKey(null);
             authUserTO.setUsername(anonymousUser);
         } else if (adminUser.equals(authUsername)) {
             authUserTO = new UserTO();
-            authUserTO.setKey(-1L);
+            authUserTO.setKey(null);
             authUserTO.setUsername(adminUser);
         } else {
-            User authUser = userDAO.find(authUsername);
+            User authUser = userDAO.findByUsername(authUsername);
             authUserTO = getUserTO(authUser, true);
         }
 
@@ -139,7 +140,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Transactional(readOnly = true)
     @Override
     public boolean verifyPassword(final String username, final String password) {
-        return verifyPassword(userDAO.authFind(username), password);
+        return verifyPassword(userDAO.authFindByUsername(username), password);
     }
 
     @Transactional(readOnly = true)
@@ -179,7 +180,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         // realm
-        Realm realm = realmDAO.find(userTO.getRealm());
+        Realm realm = realmDAO.findByFullPath(userTO.getRealm());
         if (realm == null) {
             SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             noRealm.getElements().add("Invalid or null realm specified: " + userTO.getRealm());
@@ -518,8 +519,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         if (details) {
             // roles
             CollectionUtils.collect(user.getRoles(),
-                    EntityUtils.<String, Role>keyTransformer(),
-                    userTO.getRoles());
+                    EntityUtils.<Role>keyTransformer(), userTO.getRoles());
 
             // relationships
             CollectionUtils.collect(user.getRelationships(), new Transformer<URelationship, RelationshipTO>() {
@@ -542,11 +542,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             // dynamic memberships
             CollectionUtils.collect(userDAO.findDynRoleMemberships(user),
-                    EntityUtils.<String, Role>keyTransformer(),
-                    userTO.getDynRoles());
+                    EntityUtils.<Role>keyTransformer(), userTO.getDynRoles());
             CollectionUtils.collect(userDAO.findDynGroupMemberships(user),
-                    EntityUtils.<Long, Group>keyTransformer(),
-                    userTO.getDynGroups());
+                    EntityUtils.<Group>keyTransformer(), userTO.getDynGroups());
         }
 
         return userTO;
@@ -554,14 +552,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     @Transactional(readOnly = true)
     @Override
-    public UserTO getUserTO(final String username) {
-        return getUserTO(userDAO.authFind(username), true);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public UserTO getUserTO(final Long key) {
-        return getUserTO(userDAO.authFind(key), true);
+    public UserTO getUserTO(final String key) {
+        return SyncopeConstants.UUID_PATTERN.matcher(key).matches()
+                ? getUserTO(userDAO.authFind(key), true)
+                : getUserTO(userDAO.authFindByUsername(key), true);
     }
 
 }

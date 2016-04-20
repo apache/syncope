@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface MappingItem extends Entity<Long> {
+public interface MappingItem extends Entity {
 
     Mapping getMapping();
 

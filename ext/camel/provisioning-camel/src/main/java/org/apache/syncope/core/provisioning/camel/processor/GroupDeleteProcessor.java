@@ -53,7 +53,7 @@ public class GroupDeleteProcessor implements Processor {
 
     @Override
     public void process(final Exchange exchange) throws Exception {
-        Long key = exchange.getIn().getBody(Long.class);
+        String key = exchange.getIn().getBody(String.class);
         @SuppressWarnings("unchecked")
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
@@ -62,7 +62,7 @@ public class GroupDeleteProcessor implements Processor {
 
         // Generate propagation tasks for deleting users from group resources, if they are on those resources only
         // because of the reason being deleted (see SYNCOPE-357)
-        for (Map.Entry<Long, PropagationByResource> entry
+        for (Map.Entry<String, PropagationByResource> entry
                 : groupDAO.findUsersWithTransitiveResources(key).entrySet()) {
 
             tasks.addAll(propagationManager.getDeleteTasks(
@@ -71,7 +71,7 @@ public class GroupDeleteProcessor implements Processor {
                     entry.getValue(),
                     excludedResources));
         }
-        for (Map.Entry<Long, PropagationByResource> entry
+        for (Map.Entry<String, PropagationByResource> entry
                 : groupDAO.findAnyObjectsWithTransitiveResources(key).entrySet()) {
 
             tasks.addAll(propagationManager.getDeleteTasks(

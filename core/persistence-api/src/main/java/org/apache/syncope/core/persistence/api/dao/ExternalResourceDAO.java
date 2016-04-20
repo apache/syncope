@@ -25,13 +25,13 @@ import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 
-public interface ExternalResourceDAO extends DAO<ExternalResource, String> {
+public interface ExternalResourceDAO extends DAO<ExternalResource> {
 
     int count();
 
     ExternalResource find(String key);
 
-    Provision findProvision(Long key);
+    Provision findProvision(String key);
 
     List<Provision> findProvisionsByAuxClass(AnyTypeClass anyTypeClass);
 

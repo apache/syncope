@@ -27,15 +27,15 @@ public class NotificationSyncopeOperations {
 
     private final NotificationService notificationService = SyncopeServices.get(NotificationService.class);
 
-    public NotificationTO read(final String notificationId) {
-        return notificationService.read(Long.valueOf(notificationId));
+    public NotificationTO read(final String notificationKey) {
+        return notificationService.read(notificationKey);
     }
 
     public List<NotificationTO> list() {
         return notificationService.list();
     }
 
-    public void delete(final String notificationId) {
-        notificationService.delete(Long.valueOf(notificationId));
+    public void delete(final String notificationKey) {
+        notificationService.delete(notificationKey);
     }
 }

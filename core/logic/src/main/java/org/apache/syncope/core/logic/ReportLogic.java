@@ -146,7 +146,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
-    public ReportTO read(final Long key) {
+    public ReportTO read(final String key) {
         Report report = reportDAO.find(key);
         if (report == null) {
             throw new NotFoundException("Report " + key);
@@ -155,7 +155,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
-    public ExecTO execute(final Long key, final Date startAt) {
+    public ExecTO execute(final String key, final Date startAt) {
         Report report = reportDAO.find(key);
         if (report == null) {
             throw new NotFoundException("Report " + key);
@@ -194,7 +194,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
-    public ReportExec getReportExec(final Long executionKey) {
+    public ReportExec getReportExec(final String executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionKey);
@@ -280,7 +280,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
-    public ReportTO delete(final Long key) {
+    public ReportTO delete(final String key) {
         Report report = reportDAO.find(key);
         if (report == null) {
             throw new NotFoundException("Report " + key);
@@ -304,7 +304,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
-    public ExecTO deleteExecution(final Long executionKey) {
+    public ExecTO deleteExecution(final String executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionKey);
@@ -317,7 +317,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
     public BulkActionResult deleteExecutions(
-            final Long key,
+            final String key,
             final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
 
         Report report = reportDAO.find(key);
@@ -341,8 +341,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @Override
-    protected Triple<JobType, Long, String> getReference(final JobKey jobKey) {
-        Long key = JobNamer.getReportKeyFromJobName(jobKey.getName());
+    protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
+        String key = JobNamer.getReportKeyFromJobName(jobKey.getName());
 
         Report report = reportDAO.find(key);
         return report == null
@@ -357,7 +357,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
-    public void actionJob(final Long key, final JobAction action) {
+    public void actionJob(final String key, final JobAction action) {
         Report report = reportDAO.find(key);
         if (report == null) {
             throw new NotFoundException("Report " + key);
@@ -370,21 +370,21 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     protected ReportTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long key = null;
+        String key = null;
 
         if (ArrayUtils.isNotEmpty(args) && ("create".equals(method.getName())
                 || "update".equals(method.getName())
                 || "delete".equals(method.getName()))) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
-                    key = (Long) args[i];
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
                 } else if (args[i] instanceof ReportTO) {
                     key = ((ReportTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((key != null) && !key.equals(0L)) {
+        if (key != null) {
             try {
                 return binder.getReportTO(reportDAO.find(key));
             } catch (Throwable ignore) {

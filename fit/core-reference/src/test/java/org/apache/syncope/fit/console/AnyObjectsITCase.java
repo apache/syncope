@@ -24,13 +24,13 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.wicket.markup.html.form.TextField;
+import org.junit.Before;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class AnyObjectsITCase extends AbstractConsoleITCase {
@@ -65,12 +65,13 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
 
         Component component = findComponentByProp("key", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", 1L);
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
+                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
         wicketTester.clickLink(component.getPageRelativePath() + ":cells:3:cell:panelClone:cloneLink");
 
-        FormTester formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
+        FormTester formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
 
         formTester.submit("buttons:cancel");
@@ -82,46 +83,48 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
 
         Component component = findComponentByProp("key", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", 1L);
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
+                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
         wicketTester.clickLink(component.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink");
 
-        wicketTester.assertComponent(tabPanel + "modal:form:content:form:view:status:resources:firstLevelContainer:"
-                + "first:container:content:group:beans:0:fields:0", ListItem.class);
+        wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:0:outer:form:content:form:view:status:"
+                + "resources:firstLevelContainer:first:container:content:group:beans:0:fields:0", ListItem.class);
 
-        FormTester formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
+        FormTester formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
         wicketTester.cleanupFeedbackMessages();
 
-        formTester = wicketTester.newFormTester(tabPanel + "modal:form:content:form");
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.assertComponent(tabPanel
-                + "modal:form:content:customResultBody:resources:firstLevelContainer:first:container:content:"
-                + "group:beans:0:fields:0:field", Label.class);
+                + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:"
+                + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", Label.class);
 
-        wicketTester.clickLink(tabPanel + "modal:form:content:action:panelClose:closeLink");
+        wicketTester.clickLink(tabPanel + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
 
         component = findComponentByProp("key", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", 1L);
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
+                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
     }
 
@@ -131,7 +134,8 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
 
         Component component = findComponentByProp("key", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", 1L);
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
+                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
         wicketTester.assertComponent(component.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink",

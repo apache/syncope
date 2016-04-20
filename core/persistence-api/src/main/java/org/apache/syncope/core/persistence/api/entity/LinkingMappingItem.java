@@ -39,8 +39,8 @@ public class LinkingMappingItem implements MappingItem {
     }
 
     @Override
-    public Long getKey() {
-        return -1L;
+    public String getKey() {
+        return null;
     }
 
     @Override

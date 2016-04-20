@@ -99,7 +99,7 @@ public class JPAAnyUtils implements AnyUtils {
 
     @Override
     public <T extends PlainAttr<?>> Class<T> plainAttrClass() {
-        Class result = null;
+        Class result;
 
         switch (anyTypeKind) {
             case GROUP:

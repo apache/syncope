@@ -29,7 +29,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPAAnyTypeDAO extends AbstractDAO<AnyType, String> implements AnyTypeDAO {
+public class JPAAnyTypeDAO extends AbstractDAO<AnyType> implements AnyTypeDAO {
 
     @Transactional(readOnly = true)
     @Override

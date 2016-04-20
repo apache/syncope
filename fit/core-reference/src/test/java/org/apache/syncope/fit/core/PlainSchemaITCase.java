@@ -265,7 +265,8 @@ public class PlainSchemaITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         UserTO newUserTO = SerializationUtils.clone(userTO);
-        newUserTO.getMemberships().add(new MembershipTO.Builder().group(2L).build());
+        newUserTO.getMemberships().add(
+                new MembershipTO.Builder().group("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build());
 
         userTO = userService.update(newUserTO).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getAny();

@@ -25,7 +25,6 @@ import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -58,9 +57,6 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
 
     public static final String TABLE = "AnyObject";
 
-    @Id
-    private Long id;
-
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPAAnyType type;
@@ -71,16 +67,16 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "anyObject_id"),
+            @JoinColumn(name = "anyObject_key"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_name"))
+            @JoinColumn(name = "resource_key"))
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "anyObject_id"),
+            @JoinColumn(name = "anyObject_key"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_name"))
+            @JoinColumn(name = "anyTypeClass_key"))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "leftEnd")
@@ -90,11 +86,6 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "leftEnd")
     @Valid
     private List<JPAAMembership> memberships = new ArrayList<>();
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public AnyType getType() {
@@ -141,7 +132,7 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
     }
 
     @Override
-    public ARelationship getRelationship(final RelationshipType relationshipType, final Long anyObjectKey) {
+    public ARelationship getRelationship(final RelationshipType relationshipType, final String anyObjectKey) {
         return IterableUtils.find(getRelationships(), new Predicate<ARelationship>() {
 
             @Override
@@ -165,7 +156,7 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
     }
 
     @Override
-    public Collection<? extends ARelationship> getRelationships(final Long anyObjectKey) {
+    public Collection<? extends ARelationship> getRelationships(final String anyObjectKey) {
         return CollectionUtils.select(getRelationships(), new Predicate<ARelationship>() {
 
             @Override
@@ -187,7 +178,7 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
     }
 
     @Override
-    public AMembership getMembership(final Long groupKey) {
+    public AMembership getMembership(final String groupKey) {
         return IterableUtils.find(getMemberships(), new Predicate<AMembership>() {
 
             @Override

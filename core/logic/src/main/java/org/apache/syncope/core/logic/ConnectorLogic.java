@@ -108,7 +108,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_DELETE + "')")
-    public ConnInstanceTO delete(final Long key) {
+    public ConnInstanceTO delete(final String key) {
         ConnInstance connInstance = connInstanceDAO.find(key);
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + key + "'");
@@ -155,7 +155,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
-    public ConnInstanceTO read(final Long key, final String lang) {
+    public ConnInstanceTO read(final String key, final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
 
         ConnInstance connInstance = connInstanceDAO.find(key);
@@ -262,19 +262,19 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     protected ConnInstanceTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long key = null;
+        String key = null;
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
-                    key = (Long) args[i];
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
                 } else if (args[i] instanceof ConnInstanceTO) {
                     key = ((ConnInstanceTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((key != null) && !key.equals(0L)) {
+        if (key != null) {
             try {
                 return binder.getConnInstanceTO(connInstanceDAO.find(key));
             } catch (Throwable ignore) {

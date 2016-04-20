@@ -55,7 +55,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String> implements ExternalResourceDAO {
+public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implements ExternalResourceDAO {
 
     @Autowired
     private TaskDAO taskDAO;
@@ -91,7 +91,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
     }
 
     @Override
-    public Provision findProvision(final Long key) {
+    public Provision findProvision(final String key) {
         return entityManager().find(JPAProvision.class, key);
     }
 
@@ -176,11 +176,11 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
         query.setParameter("intAttrName", intAttrName);
         query.setParameter("intMappingType", intMappingType);
 
-        Set<Long> itemKeys = new HashSet<>();
+        Set<String> itemKeys = new HashSet<>();
         for (MappingItem item : query.getResultList()) {
             itemKeys.add(item.getKey());
         }
-        for (Long itemKey : itemKeys) {
+        for (String itemKey : itemKeys) {
             MappingItem item = entityManager().find(JPAMappingItem.class, itemKey);
             if (item != null) {
                 item.getMapping().getItems().remove(item);

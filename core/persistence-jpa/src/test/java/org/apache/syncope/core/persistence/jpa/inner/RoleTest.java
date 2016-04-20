@@ -68,7 +68,7 @@ public class RoleTest extends AbstractTest {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.find("/even/two"));
+        role.add(realmDAO.findByFullPath("/even/two"));
         role.getEntitlements().add(StandardEntitlement.LOG_LIST);
         role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
 

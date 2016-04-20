@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.Date;
 
-public interface Exec extends Entity<Long> {
+public interface Exec extends Entity {
 
     /**
      * Set a message for this execution, taking care of replacing every null character with newline.

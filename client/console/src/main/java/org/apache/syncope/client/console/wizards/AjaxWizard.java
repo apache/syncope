@@ -96,7 +96,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
 
     protected abstract void onCancelInternal();
 
-    protected abstract Serializable onApplyInternal();
+    protected abstract Serializable onApplyInternal(final AjaxRequestTarget target);
 
     /**
      * @see org.apache.wicket.extensions.wizard.Wizard#onCancel()
@@ -121,7 +121,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
     public final void onFinish() {
         final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         try {
-            final Serializable res = onApplyInternal();
+            final Serializable res = onApplyInternal(target);
             send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(res));
         } catch (Exception e) {
             LOG.error("Wizard error on finish", e);
@@ -252,7 +252,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        onApplyInternal();
+        onApplyInternal(target);
     }
 
     @Override

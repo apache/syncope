@@ -35,29 +35,19 @@ public class GroupSyncopeOperations {
         return groupService.list(new AnyListQuery()).getResult();
     }
 
-    public GroupTO read(final String groupId) {
-        return groupService.read(Long.valueOf(groupId));
+    public GroupTO read(final String groupKey) {
+        return groupService.read(groupKey);
     }
 
-    public Set<AttrTO> readAttributes(final String groupId, final String schemaType) {
-        return groupService.read(Long.valueOf(groupId), SchemaType.valueOf(schemaType));
+    public Set<AttrTO> readAttributes(final String groupKey, final String schemaType) {
+        return groupService.read(groupKey, SchemaType.valueOf(schemaType));
     }
 
-    public AttrTO readAttribute(final String groupId, final String schemaType, final String schema) {
-        return groupService.read(Long.valueOf(groupId), SchemaType.valueOf(schemaType), schema);
+    public AttrTO readAttribute(final String groupKey, final String schemaType, final String schema) {
+        return groupService.read(groupKey, SchemaType.valueOf(schemaType), schema);
     }
 
-    public void delete(final String groupId) {
-        groupService.delete(Long.valueOf(groupId));
-    }
-
-    public boolean exists(final String realm) {
-        boolean exists = false;
-        for (final GroupTO list : list()) {
-            if (list.getName().equals(realm)) {
-                exists = true;
-            }
-        }
-        return exists;
+    public void delete(final String groupKey) {
+        groupService.delete(groupKey);
     }
 }

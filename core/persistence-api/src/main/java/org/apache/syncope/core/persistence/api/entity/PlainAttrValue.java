@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.entity;
 import java.util.Date;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 
-public interface PlainAttrValue extends Entity<Long> {
+public interface PlainAttrValue extends Entity {
 
     PlainAttr<?> getAttr();
 

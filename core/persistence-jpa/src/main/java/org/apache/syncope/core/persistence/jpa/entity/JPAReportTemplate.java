@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
@@ -28,14 +27,11 @@ import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 @Entity
 @Table(name = JPAReportTemplate.TABLE)
 @Cacheable
-public class JPAReportTemplate extends AbstractEntity<String> implements ReportTemplate {
+public class JPAReportTemplate extends AbstractProvidedKeyEntity implements ReportTemplate {
 
     private static final long serialVersionUID = 7755855927366231089L;
 
     public static final String TABLE = "ReportTemplate";
-
-    @Id
-    private String name;
 
     @Lob
     private String foTemplate;
@@ -45,16 +41,6 @@ public class JPAReportTemplate extends AbstractEntity<String> implements ReportT
 
     @Lob
     private String htmlTemplate;
-
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String name) {
-        this.name = name;
-    }
 
     @Override
     public String getFOTemplate() {

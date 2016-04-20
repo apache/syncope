@@ -23,7 +23,6 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -45,9 +44,6 @@ public class JPAUPlainAttr extends AbstractPlainAttr<User> implements UPlainAttr
 
     public static final String TABLE = "UPlainAttr";
 
-    @Id
-    private Long id;
-
     /**
      * The owner of this attribute.
      */
@@ -67,11 +63,6 @@ public class JPAUPlainAttr extends AbstractPlainAttr<User> implements UPlainAttr
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
     @Valid
     private JPAUPlainAttrUniqueValue uniqueValue;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public User getOwner() {

@@ -37,6 +37,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
@@ -94,7 +95,9 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(UserTO.class, name);
 
-            if ("token".equalsIgnoreCase(name)) {
+            if ("key".equalsIgnoreCase(name)) {
+                columns.add(new KeyPropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
+            } else if ("token".equalsIgnoreCase(name)) {
                 columns.add(new TokenColumn<UserTO>(new ResourceModel(name, name), name));
             } else if (field != null
                     && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {
@@ -214,7 +217,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                         UserTO clone = SerializationUtils.clone(model.getObject());
-                        clone.setKey(0L);
+                        clone.setKey(null);
                         clone.setUsername(model.getObject().getUsername() + "_clone");
                         send(UserDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.NewItemActionEvent<>(new AnyHandler<>(clone), target));

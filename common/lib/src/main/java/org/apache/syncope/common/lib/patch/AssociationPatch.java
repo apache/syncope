@@ -29,16 +29,16 @@ public class AssociationPatch extends PasswordPatch {
 
     private static final long serialVersionUID = 6295778399633883767L;
 
-    private long key;
+    private String key;
 
     private ResourceAssociationAction action;
 
-    public long getKey() {
+    public String getKey() {
         return key;
     }
 
     @PathParam("key")
-    public void setKey(final long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
@@ -98,7 +99,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
     protected List<IColumn<T, String>> getFieldColumns() {
         final List<IColumn<T, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<T, String>(
+        columns.add(new KeyPropertyColumn<T>(
                 new StringResourceModel("key", this, null), "key", "key"));
 
         columns.add(new PropertyColumn<T, String>(
@@ -195,7 +196,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                             @Override
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 final T clone = SerializationUtils.clone(model.getObject());
-                                clone.setKey(0L);
+                                clone.setKey(null);
                                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
                                         new AjaxWizard.EditItemActionEvent<>(clone, target));
                             }

@@ -105,7 +105,7 @@ public class TemplateUtils {
         anyTO.getAuxClasses().addAll(template.getAuxClasses());
     }
 
-    private void fillRelationships(final Map<Pair<String, Long>, RelationshipTO> anyRelMap,
+    private void fillRelationships(final Map<Pair<String, String>, RelationshipTO> anyRelMap,
             final List<RelationshipTO> anyRels, final List<RelationshipTO> templateRels) {
 
         for (RelationshipTO memb : templateRels) {
@@ -115,7 +115,7 @@ public class TemplateUtils {
         }
     }
 
-    private void fillMemberships(final Map<Long, MembershipTO> anyMembMap,
+    private void fillMemberships(final Map<String, MembershipTO> anyMembMap,
             final List<MembershipTO> anyMembs, final List<MembershipTO> templateMembs) {
 
         for (MembershipTO memb : templateMembs) {

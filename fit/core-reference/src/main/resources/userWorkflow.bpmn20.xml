@@ -35,15 +35,16 @@ under the License.
     <exclusiveGateway id="createGW"/>
     <sequenceFlow id="createAsAnonymous2Approval" sourceRef="createGW" targetRef="createApproval">
       <conditionExpression xsi:type="tFormalExpression">
-        <![CDATA[${wfExecutor == 'anonymous' || activitiUtils.isUserIngroup(user, 9)}]]>
+        <![CDATA[${wfExecutor == 'anonymous' || activitiUtils.isUserIngroup(user, '0cbcabd2-4410-4b6b-8f05-a052b451d18f')}]]>
       </conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="create2Activate" sourceRef="createGW" targetRef="enableGW">
       <conditionExpression xsi:type="tFormalExpression">
-        <![CDATA[${!activitiUtils.isUserIngroup(user, 9)}]]>
+        <![CDATA[${!activitiUtils.isUserIngroup(user, '0cbcabd2-4410-4b6b-8f05-a052b451d18f')}]]>
       </conditionExpression>
     </sequenceFlow>
-    <userTask id="createApproval" name="Create approval" activiti:candidateGroups="7" activiti:formKey="createApproval">
+    <userTask id="createApproval" name="Create approval"
+              activiti:candidateGroups="bf825fe1-7320-4a54-bd64-143b5c18ab97" activiti:formKey="createApproval">
       <extensionElements>
         <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
         <activiti:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
@@ -61,7 +62,7 @@ under the License.
     <exclusiveGateway id="enableGW"/>
     <sequenceFlow id="createApprovalGW2OptIn" sourceRef="enableGW" targetRef="generateToken">
       <conditionExpression xsi:type="tFormalExpression">
-        <![CDATA[${activitiUtils.isUserIngroup(user, 11)}]]>
+        <![CDATA[${activitiUtils.isUserIngroup(user, '268fed79-f440-4390-9435-b273768eb5d6')}]]>
       </conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="createApprovalGW2Activate" sourceRef="enableGW" targetRef="activate">

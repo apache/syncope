@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPALogger;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPALoggerDAO extends AbstractDAO<Logger, String> implements LoggerDAO {
+public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
 
     @Override
     public Logger find(final String key) {

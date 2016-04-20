@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.fit;
 
-import static org.junit.Assert.assertNotNull;
-
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Locale;
@@ -53,7 +51,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -317,10 +314,6 @@ public abstract class AbstractITCase {
         return getObject(response.getLocation(), RoleService.class, RoleTO.class);
     }
 
-    protected UserTO readUser(final String username) {
-        return userService.read(Long.valueOf(userService.getUserKey(username).getHeaderString(RESTHeaders.USER_KEY)));
-    }
-
     protected ProvisioningResult<UserTO> createUser(final UserTO userTO) {
         return createUser(userTO, true);
     }
@@ -343,7 +336,7 @@ public abstract class AbstractITCase {
                 });
     }
 
-    protected ProvisioningResult<UserTO> deleteUser(final Long key) {
+    protected ProvisioningResult<UserTO> deleteUser(final String key) {
         return userService.delete(key).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 });
@@ -367,7 +360,7 @@ public abstract class AbstractITCase {
                 });
     }
 
-    protected ProvisioningResult<AnyObjectTO> deleteAnyObject(final Long key) {
+    protected ProvisioningResult<AnyObjectTO> deleteAnyObject(final String key) {
         return anyObjectService.delete(key).
                 readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
                 });
@@ -391,7 +384,7 @@ public abstract class AbstractITCase {
                 });
     }
 
-    protected ProvisioningResult<GroupTO> deleteGroup(final Long key) {
+    protected ProvisioningResult<GroupTO> deleteGroup(final String key) {
         return groupService.delete(key).
                 readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
                 });

@@ -35,9 +35,9 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
@@ -83,8 +83,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @FixMethodOrder(MethodSorters.JVM)
 public class AuthenticationITCase extends AbstractITCase {
 
-    private int getFailedLogins(final UserService userService, final long userId) {
-        UserTO readUserTO = userService.read(userId);
+    private int getFailedLogins(final UserService userService, final String userKey) {
+        UserTO readUserTO = userService.read(userKey);
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
         return readUserTO.getFailedLogins();
@@ -179,13 +179,13 @@ public class AuthenticationITCase extends AbstractITCase {
         UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
 
-        UserTO readUserTO = userService2.read(1L);
+        UserTO readUserTO = userService2.read("1417acbe-cbf6-4277-9372-e75e04f97000");
         assertNotNull(readUserTO);
 
         UserService userService3 = clientFactory.create("puccini", ADMIN_PWD).getService(UserService.class);
 
         try {
-            userService3.read(3L);
+            userService3.read("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
             fail();
         } catch (SyncopeClientException e) {
             assertNotNull(e);
@@ -206,31 +206,25 @@ public class AuthenticationITCase extends AbstractITCase {
         UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
 
-        PagedResult<UserTO> matchedUsers = userService2.search(
+        PagedResult<UserTO> matchingUsers = userService2.search(
                 new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("key").query()).build());
-        assertNotNull(matchedUsers);
-        assertFalse(matchedUsers.getResult().isEmpty());
-        Set<Long> matchedUserKeys = CollectionUtils.collect(matchedUsers.getResult(),
-                new Transformer<UserTO, Long>() {
-
-            @Override
-            public Long transform(final UserTO input) {
-                return input.getKey();
-            }
-        }, new HashSet<Long>());
-        assertTrue(matchedUserKeys.contains(1L));
-        assertFalse(matchedUserKeys.contains(2L));
-        assertFalse(matchedUserKeys.contains(5L));
+        assertNotNull(matchingUsers);
+        assertFalse(matchingUsers.getResult().isEmpty());
+        Set<String> matchingUserKeys = CollectionUtils.collect(matchingUsers.getResult(),
+                EntityTOUtils.<UserTO>keyTransformer(), new HashSet<String>());
+        assertTrue(matchingUserKeys.contains("1417acbe-cbf6-4277-9372-e75e04f97000"));
+        assertFalse(matchingUserKeys.contains("74cd8ece-715a-44a4-a736-e17b46c4e7e6"));
+        assertFalse(matchingUserKeys.contains("823074dc-d280-436d-a7dd-07399fae48ec"));
 
         // 2. user assigned to role 4, with search entitlement on realm /even/two
         UserService userService3 = clientFactory.create("puccini", ADMIN_PWD).getService(UserService.class);
 
-        matchedUsers = userService3.search(
+        matchingUsers = userService3.search(
                 new AnySearchQuery.Builder().realm("/even/two").
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
-        assertNotNull(matchedUsers);
-        assertTrue(IterableUtils.matchesAll(matchedUsers.getResult(), new Predicate<UserTO>() {
+        assertNotNull(matchingUsers);
+        assertTrue(IterableUtils.matchesAll(matchingUsers.getResult(), new Predicate<UserTO>() {
 
             @Override
             public boolean evaluate(final UserTO matched) {
@@ -242,7 +236,7 @@ public class AuthenticationITCase extends AbstractITCase {
     @Test
     public void delegatedUserCRUD() {
         String roleKey = null;
-        Long delegatedAdminKey = null;
+        String delegatedAdminKey = null;
         try {
             // 1. create role for full user administration, under realm /even/two
             RoleTO role = new RoleTO();
@@ -335,22 +329,22 @@ public class AuthenticationITCase extends AbstractITCase {
 
         userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
-        long userId = userTO.getKey();
+        String userKey = userTO.getKey();
 
         UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
-        assertEquals(0, getFailedLogins(userService2, userId));
+        assertEquals(0, getFailedLogins(userService2, userKey));
 
         // authentications failed ...
         SyncopeClient badPwdClient = clientFactory.create(userTO.getUsername(), "wrongpwd1");
         assertReadFails(badPwdClient);
         assertReadFails(badPwdClient);
 
-        assertEquals(2, getFailedLogins(userService, userId));
+        assertEquals(2, getFailedLogins(userService, userKey));
 
         UserService userService4 = clientFactory.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
-        assertEquals(0, getFailedLogins(userService4, userId));
+        assertEquals(0, getFailedLogins(userService4, userKey));
     }
 
     @Test
@@ -360,7 +354,7 @@ public class AuthenticationITCase extends AbstractITCase {
         userTO.getRoles().add("User manager");
 
         userTO = createUser(userTO).getAny();
-        long userKey = userTO.getKey();
+        String userKey = userTO.getKey();
         assertNotNull(userTO);
 
         assertEquals(0, getFailedLogins(userService, userKey));
@@ -458,7 +452,7 @@ public class AuthenticationITCase extends AbstractITCase {
         role.getEntitlements().add(anyTypeKey + "_CREATE");
         role = createRole(role);
 
-        UserTO bellini = readUser("bellini");
+        UserTO bellini = userService.read("bellini");
         UserPatch patch = new UserPatch();
         patch.setKey(bellini.getKey());
         patch.getRoles().add(new StringPatchItem.Builder().
@@ -476,7 +470,8 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 1. create user with group 9 (users with group 9 are defined in workflow as subject to approval)
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
-        userTO.getMemberships().add(new MembershipTO.Builder().group(9L).build());
+        userTO.getMemberships().add(
+                new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
 
         userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
@@ -551,7 +546,7 @@ public class AuthenticationITCase extends AbstractITCase {
     public void issueSYNCOPE706() {
         String username = getUUIDString();
         try {
-            userService.getUserKey(username);
+            userService.read(username);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());

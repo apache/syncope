@@ -74,15 +74,15 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.groupNames = new LoadableDetachableModel<Map<Long, String>>() {
+        this.groupNames = new LoadableDetachableModel<Map<String, String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected Map<Long, String> load() {
+            protected Map<String, String> load() {
                 List<GroupTO> groupTOs = groupRestClient.list("/", -1, -1, new SortParam<>("name", true), null);
 
-                final Map<Long, String> result = new HashMap<>(groupTOs.size());
+                final Map<String, String> result = new HashMap<>(groupTOs.size());
                 for (GroupTO group : groupTOs) {
                     result.put(group.getKey(), group.getName());
                 }

@@ -147,7 +147,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public boolean handle(final long anyKey) {
+    public boolean handle(final String anyKey) {
         Any<?> any = null;
         try {
             any = getAny(anyKey);

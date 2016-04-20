@@ -43,9 +43,9 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
-    private Map<Long, String> anys = new HashMap<>();
+    private Map<String, String> anys = new HashMap<>();
 
-    private final AjaxDropDownChoicePanel<Long> provision;
+    private final AjaxDropDownChoicePanel<String> provision;
 
     public VirSchemaDetails(final String id,
             final PageReference pageReference,
@@ -59,15 +59,14 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<>(
                 "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource"));
         resource.setChoices(CollectionUtils.collect(resourceRestClient.list(),
-                EntityTOUtils.<String, ResourceTO>keyTransformer(),
-                new ArrayList<String>()));
+                EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>()));
 
         resource.setOutputMarkupId(true);
         resource.addRequiredLabel();
         schemaForm.add(resource);
 
         provision = new AjaxDropDownChoicePanel<>(
-                "provision", getString("provision"), new PropertyModel<Long>(schemaTO, "provision"));
+                "provision", getString("provision"), new PropertyModel<String>(schemaTO, "provision"));
 
         provision.setChoices(new ArrayList<>(anys.keySet()));
         provision.setChoiceRenderer(new AnyTypeRenderer());
@@ -98,14 +97,14 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
                     }
                 }
                 provision.setChoices(new ArrayList<>(anys.keySet()));
-                provision.setModelObject(0L);
+                provision.setModelObject(null);
                 provision.setVisible(true);
                 target.add(provision);
             }
         });
     }
 
-    private class AnyTypeRenderer extends ChoiceRenderer<Long> {
+    private class AnyTypeRenderer extends ChoiceRenderer<String> {
 
         private static final long serialVersionUID = 2840364232128308553L;
 
@@ -114,12 +113,12 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         }
 
         @Override
-        public Object getDisplayValue(final Long object) {
+        public Object getDisplayValue(final String object) {
             return anys.get(object);
         }
 
         @Override
-        public String getIdValue(final Long object, final int index) {
+        public String getIdValue(final String object, final int index) {
             return String.valueOf(object != null ? object : 0L);
         }
     }

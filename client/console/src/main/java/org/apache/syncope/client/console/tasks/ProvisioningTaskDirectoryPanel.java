@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -67,9 +68,9 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends AbstractProvision
 
     @Override
     protected List<IColumn<T, String>> getFieldColumns() {
-        final List<IColumn<T, String>> columns = new ArrayList<>();
+        List<IColumn<T, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<T, String>(
+        columns.add(new KeyPropertyColumn<T>(
                 new StringResourceModel("key", this, null), "key", "key"));
 
         columns.add(new PropertyColumn<T, String>(

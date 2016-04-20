@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.jpa.validation.entity.RelationshipTypeCheck;
@@ -29,26 +28,13 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.RelationshipTyp
 @Table(name = JPARelationshipType.TABLE)
 @RelationshipTypeCheck
 @Cacheable
-public class JPARelationshipType extends AbstractEntity<String> implements RelationshipType {
+public class JPARelationshipType extends AbstractProvidedKeyEntity implements RelationshipType {
 
     private static final long serialVersionUID = -753673974614737065L;
 
     public static final String TABLE = "RelationshipType";
 
-    @Id
-    private String name;
-
     private String description;
-
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String name) {
-        this.name = name;
-    }
 
     @Override
     public String getDescription() {

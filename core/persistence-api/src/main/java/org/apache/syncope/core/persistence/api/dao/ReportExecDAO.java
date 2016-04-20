@@ -23,9 +23,9 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 
-public interface ReportExecDAO extends DAO<ReportExec, Long> {
+public interface ReportExecDAO extends DAO<ReportExec> {
 
-    ReportExec find(Long key);
+    ReportExec find(String key);
 
     List<ReportExec> findRecent(int max);
 
@@ -37,7 +37,7 @@ public interface ReportExecDAO extends DAO<ReportExec, Long> {
 
     ReportExec save(ReportExec execution);
 
-    void delete(Long key);
+    void delete(String key);
 
     void delete(ReportExec execution);
 }

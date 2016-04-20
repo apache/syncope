@@ -26,7 +26,6 @@ import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -69,20 +68,12 @@ public class UserSyncopeOperations {
         return userService.list(new AnyListQuery());
     }
 
-    public UserTO read(final String userId) {
-        return userService.read(Long.valueOf(userId));
+    public UserTO read(final String userKey) {
+        return userService.read(userKey);
     }
 
-    public String getUsernameFromId(final String userId) {
-        return userService.getUsername(Long.valueOf(userId)).getHeaderString(RESTHeaders.USERNAME);
-    }
-
-    public String getIdFromUsername(final String username) {
-        return userService.getUserKey(username).getHeaderString(RESTHeaders.USER_KEY);
-    }
-
-    public void delete(final String userId) {
-        userService.delete(Long.valueOf(userId));
+    public void delete(final String userKey) {
+        userService.delete(userKey);
     }
 
     public Map<String, BulkActionResult.Status> deleteByAttribute(

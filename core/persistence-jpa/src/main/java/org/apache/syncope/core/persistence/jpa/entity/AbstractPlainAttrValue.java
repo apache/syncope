@@ -33,7 +33,6 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -42,7 +41,7 @@ import org.apache.syncope.core.spring.security.Encryptor;
 
 @MappedSuperclass
 @PlainAttrValueCheck
-public abstract class AbstractPlainAttrValue extends AbstractEntity<Long> implements PlainAttrValue {
+public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity implements PlainAttrValue {
 
     private static final long serialVersionUID = -9141923816611244785L;
 
@@ -232,10 +231,7 @@ public abstract class AbstractPlainAttrValue extends AbstractEntity<Long> implem
 
     @Override
     public String getValueAsString(final AttrSchemaType type) {
-        Exception exception = null;
-
-        String result = null;
-
+        String result;
         switch (type) {
 
             case Boolean:
@@ -260,8 +256,8 @@ public abstract class AbstractPlainAttrValue extends AbstractEntity<Long> implem
                 result = getAttr() == null || getAttr().getSchema() == null
                         || getAttr().getSchema().getConversionPattern() == null
                                 ? FormatUtils.format(getDateValue())
-                                : FormatUtils.format(getDateValue(), false, getAttr().getSchema().
-                                        getConversionPattern());
+                                : FormatUtils.format(
+                                        getDateValue(), false, getAttr().getSchema().getConversionPattern());
                 break;
 
             case Binary:
@@ -274,11 +270,6 @@ public abstract class AbstractPlainAttrValue extends AbstractEntity<Long> implem
             default:
                 result = getStringValue();
                 break;
-        }
-
-        if (exception != null) {
-            throw new InvalidPlainAttrValueException(
-                    "While trying to format '" + getValue() + "' as " + type, exception);
         }
 
         return result;

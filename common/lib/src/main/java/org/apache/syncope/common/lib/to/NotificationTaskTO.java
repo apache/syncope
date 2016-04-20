@@ -21,7 +21,6 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -35,11 +34,11 @@ public class NotificationTaskTO extends AbstractTaskTO {
 
     private static final long serialVersionUID = 371671242591093846L;
 
-    private Long notification;
+    private String notification;
 
     private AnyTypeKind anyTypeKind;
 
-    private Long anyKey;
+    private String anyKey;
 
     private final Set<String> recipients = new HashSet<>();
 
@@ -55,11 +54,11 @@ public class NotificationTaskTO extends AbstractTaskTO {
 
     private TraceLevel traceLevel;
 
-    public Long getNotification() {
+    public String getNotification() {
         return notification;
     }
 
-    public void setNotification(final Long notification) {
+    public void setNotification(final String notification) {
         this.notification = notification;
     }
 
@@ -71,11 +70,11 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.anyTypeKind = anyTypeKind;
     }
 
-    public Long getAnyKey() {
+    public String getAnyKey() {
         return anyKey;
     }
 
-    public void setAnyKey(final Long anyKey) {
+    public void setAnyKey(final String anyKey) {
         this.anyKey = anyKey;
     }
 

@@ -28,7 +28,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPACamelRouteDAO extends AbstractDAO<CamelRoute, String> implements CamelRouteDAO {
+public class JPACamelRouteDAO extends AbstractDAO<CamelRoute> implements CamelRouteDAO {
 
     @Override
     public CamelRoute find(final String key) {

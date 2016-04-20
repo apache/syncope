@@ -23,7 +23,6 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
@@ -39,7 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -47,15 +46,12 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 
 @Entity
 @Table(name = JPAProvision.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "resource_name", "anyType_name" }))
-public class JPAProvision extends AbstractEntity<Long> implements Provision {
+        @UniqueConstraint(columnNames = { "resource_key", "anyType_key" }))
+public class JPAProvision extends AbstractGeneratedKeyEntity implements Provision {
 
     private static final long serialVersionUID = -1807889487945989443L;
 
     public static final String TABLE = "Provision";
-
-    @Id
-    private Long id;
 
     @ManyToOne
     private JPAExternalResource resource;
@@ -68,9 +64,9 @@ public class JPAProvision extends AbstractEntity<Long> implements Provision {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "provision_id"),
+            @JoinColumn(name = "provision_key"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_name"))
+            @JoinColumn(name = "anyTypeClass_key"))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Lob
@@ -78,11 +74,6 @@ public class JPAProvision extends AbstractEntity<Long> implements Provision {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "provision")
     private JPAMapping mapping;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public ExternalResource getResource() {

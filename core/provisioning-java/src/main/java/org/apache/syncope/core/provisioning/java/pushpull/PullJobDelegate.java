@@ -67,7 +67,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> {
     protected PullUtils pullUtils;
 
     protected void setGroupOwners(final GroupPullResultHandler ghandler) {
-        for (Map.Entry<Long, String> entry : ghandler.getGroupOwnerMap().entrySet()) {
+        for (Map.Entry<String, String> entry : ghandler.getGroupOwnerMap().entrySet()) {
             Group group = groupDAO.find(entry.getKey());
             if (group == null) {
                 throw new NotFoundException("Group " + entry.getKey());
@@ -77,14 +77,14 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> {
                 group.setGroupOwner(null);
                 group.setUserOwner(null);
             } else {
-                Long userKey = pullUtils.findMatchingAnyKey(
+                String userKey = pullUtils.findMatchingAnyKey(
                         anyTypeDAO.findUser(),
                         entry.getValue(),
                         ghandler.getProfile().getTask().getResource(),
                         ghandler.getProfile().getConnector());
 
                 if (userKey == null) {
-                    Long groupKey = pullUtils.findMatchingAnyKey(
+                    String groupKey = pullUtils.findMatchingAnyKey(
                             anyTypeDAO.findGroup(),
                             entry.getValue(),
                             ghandler.getProfile().getTask().getResource(),

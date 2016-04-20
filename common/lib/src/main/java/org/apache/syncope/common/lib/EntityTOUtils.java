@@ -41,11 +41,11 @@ public final class EntityTOUtils {
         ANY_FIELDS = Collections.unmodifiableList(anyFields);
     }
 
-    public static <KEY, E extends EntityTO<KEY>> Transformer<E, KEY> keyTransformer() {
-        return new Transformer<E, KEY>() {
+    public static <E extends EntityTO> Transformer<E, String> keyTransformer() {
+        return new Transformer<E, String>() {
 
             @Override
-            public KEY transform(final E input) {
+            public String transform(final E input) {
                 return input.getKey();
             }
         };

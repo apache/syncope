@@ -135,8 +135,8 @@ public class ReconciliationReportlet extends AbstractReportlet {
             String value = null;
             switch (feature) {
                 case key:
-                    type = ReportXMLConst.XSD_LONG;
-                    value = String.valueOf(any.getKey());
+                    type = ReportXMLConst.XSD_STRING;
+                    value = any.getKey();
                     break;
 
                 case username:
@@ -154,8 +154,8 @@ public class ReconciliationReportlet extends AbstractReportlet {
                     break;
 
                 case workflowId:
-                    type = ReportXMLConst.XSD_LONG;
-                    value = String.valueOf(any.getWorkflowId());
+                    type = ReportXMLConst.XSD_STRING;
+                    value = any.getWorkflowId();
                     break;
 
                 case status:
@@ -421,7 +421,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
         for (AnyType anyType : anyTypeDAO.findAll()) {
             if (!anyType.equals(anyTypeDAO.findUser()) && !anyType.equals(anyTypeDAO.findGroup())) {
                 AnyTypeCond anyTypeCond = new AnyTypeCond();
-                anyTypeCond.setAnyTypeName(anyType.getKey());
+                anyTypeCond.setAnyTypeKey(anyType.getKey());
                 SearchCond cond = StringUtils.isBlank(this.conf.getAnyObjectMatchingCond())
                         ? SearchCond.getLeafCond(anyTypeCond)
                         : SearchCond.getAndCond(

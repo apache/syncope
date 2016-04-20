@@ -46,17 +46,17 @@ public abstract class AbstractAnyObjectWorkflowAdapter implements AnyObjectWorkf
         return null;
     }
 
-    protected abstract WorkflowResult<Long> doUpdate(AnyObject anyObject, AnyObjectPatch anyObjectPatch);
+    protected abstract WorkflowResult<String> doUpdate(AnyObject anyObject, AnyObjectPatch anyObjectPatch);
 
     @Override
-    public WorkflowResult<Long> update(final AnyObjectPatch anyObjectPatch) {
+    public WorkflowResult<String> update(final AnyObjectPatch anyObjectPatch) {
         return doUpdate(anyObjectDAO.authFind(anyObjectPatch.getKey()), anyObjectPatch);
     }
 
     protected abstract void doDelete(AnyObject anyObject);
 
     @Override
-    public void delete(final Long anyObjectKey) {
+    public void delete(final String anyObjectKey) {
         doDelete(anyObjectDAO.authFind(anyObjectKey));
     }
 }

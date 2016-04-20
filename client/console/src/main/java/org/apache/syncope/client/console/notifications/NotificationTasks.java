@@ -40,21 +40,22 @@ public class NotificationTasks extends Panel implements ModalPanel<Serializable>
 
     public NotificationTasks(
             final AnyTypeKind anyTypeKind,
-            final Long anyTypeKey,
+            final String anyTypeKey,
             final PageReference pageReference) {
+
         this(null, anyTypeKind, anyTypeKey, pageReference);
     }
 
     public NotificationTasks(
-            final Long notification,
+            final String notification,
             final PageReference pageReference) {
         this(notification, null, null, pageReference);
     }
 
     private NotificationTasks(
-            final Long notification,
+            final String notification,
             final AnyTypeKind anyTypeKind,
-            final Long anyTypeKey,
+            final String anyTypeKey,
             final PageReference pageReference) {
         super(BaseModal.CONTENT_ID);
 

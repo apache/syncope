@@ -71,7 +71,7 @@ public class ConnectorRestClient extends BaseRestClient {
      * @param key the id
      * @return ConnInstanceTO
      */
-    public ConnInstanceTO read(final Long key) {
+    public ConnInstanceTO read(final String key) {
         ConnInstanceTO connectorTO = null;
 
         try {
@@ -91,7 +91,7 @@ public class ConnectorRestClient extends BaseRestClient {
         getService(ConnectorService.class).update(connectorTO);
     }
 
-    public ConnInstanceTO delete(final Long key) {
+    public ConnInstanceTO delete(final String key) {
         ConnInstanceTO connectorTO = getService(ConnectorService.class).
                 read(key, SyncopeConsoleSession.get().getLocale().toString());
         getService(ConnectorService.class).delete(key);

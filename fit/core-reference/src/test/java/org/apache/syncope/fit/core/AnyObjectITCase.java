@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Set;
+import java.util.UUID;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -78,7 +79,8 @@ public class AnyObjectITCase extends AbstractITCase {
         // 1. create anyObject in realm /odd and attempt to assign group 15, from realm /even => exception
         AnyObjectTO anyObjectTO = getSampleTO("createInvalidMembership");
         anyObjectTO.setRealm("/odd");
-        anyObjectTO.getMemberships().add(new MembershipTO.Builder().group(15L).build());
+        anyObjectTO.getMemberships().add(
+                new MembershipTO.Builder().group("034740a9-fa10-453b-af37-dc7897e98fb1").build());
 
         try {
             createAnyObject(anyObjectTO);
@@ -91,13 +93,13 @@ public class AnyObjectITCase extends AbstractITCase {
         anyObjectTO.setRealm("/even/two");
 
         anyObjectTO = createAnyObject(anyObjectTO).getAny();
-        assertTrue(anyObjectTO.getMembershipMap().containsKey(15L));
+        assertTrue(anyObjectTO.getMembershipMap().containsKey("034740a9-fa10-453b-af37-dc7897e98fb1"));
     }
 
     @Test
     public void delete() {
         try {
-            anyObjectService.delete(0L);
+            anyObjectService.delete(UUID.randomUUID().toString());
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -131,7 +133,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        AnyObjectTO anyObjectTO = anyObjectService.read(1L);
+        AnyObjectTO anyObjectTO = anyObjectService.read("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
         assertNotNull(anyObjectTO);
         assertNotNull(anyObjectTO.getPlainAttrs());
         assertFalse(anyObjectTO.getPlainAttrs().isEmpty());
@@ -200,7 +202,8 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE756() {
         AnyObjectTO anyObjectTO = getSampleTO("issueSYNCOPE756");
-        anyObjectTO.getRelationships().add(new RelationshipTO.Builder().right(AnyTypeKind.USER.name(), 1).build());
+        anyObjectTO.getRelationships().add(new RelationshipTO.Builder().right(
+                AnyTypeKind.USER.name(), "1417acbe-cbf6-4277-9372-e75e04f97000").build());
 
         try {
             createAnyObject(anyObjectTO).getAny();

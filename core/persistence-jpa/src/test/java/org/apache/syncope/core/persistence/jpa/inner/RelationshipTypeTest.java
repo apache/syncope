@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.UUID;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
@@ -89,7 +90,7 @@ public class RelationshipTypeTest extends AbstractTest {
         RelationshipType neighborhood = relationshipTypeDAO.find("neighborhood");
         assertNotNull(neighborhood);
 
-        AnyObject anyObject = anyObjectDAO.find(1L);
+        AnyObject anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
         assertNotNull(anyObject);
         assertNotNull(anyObject.getRelationships(neighborhood));
         assertFalse(anyObject.getRelationships(neighborhood).isEmpty());
@@ -98,7 +99,7 @@ public class RelationshipTypeTest extends AbstractTest {
 
         relationshipTypeDAO.flush();
 
-        anyObject = anyObjectDAO.find(1L);
+        anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
         assertNotNull(anyObject);
         assertTrue(anyObject.getRelationships().isEmpty());
     }

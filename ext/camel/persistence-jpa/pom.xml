@@ -64,7 +64,7 @@ under the License.
           </dependency>
         </dependencies>
         <configuration>
-          <persistenceXmlFile>${rootpom.basedir}/core/persistence-jpa/src/test/resources/META-INF/persistence-enhance.xml</persistenceXmlFile> 
+          <persistenceXmlFile>${rootpom.basedir}/core/persistence-jpa/src/main/resources/persistence-enhance.xml</persistenceXmlFile> 
           <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
           <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
           <connectionProperties>

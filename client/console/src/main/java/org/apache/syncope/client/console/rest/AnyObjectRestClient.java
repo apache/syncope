@@ -81,7 +81,7 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
     }
 
     @Override
-    public AnyObjectTO read(final Long key) {
+    public AnyObjectTO read(final String key) {
         return getService(AnyObjectService.class).read(key);
     }
 
@@ -103,7 +103,7 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
     }
 
     @Override
-    public ProvisioningResult<AnyObjectTO> delete(final String etag, final Long key) {
+    public ProvisioningResult<AnyObjectTO> delete(final String etag, final String key) {
         return delete(AnyObjectService.class, AnyObjectTO.class, etag, key);
     }
 

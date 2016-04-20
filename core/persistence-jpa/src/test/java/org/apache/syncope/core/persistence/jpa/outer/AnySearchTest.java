@@ -77,7 +77,7 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(1, users.size());
 
-        assertEquals(4L, users.get(0).getKey(), 0);
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
     }
 
     @Test
@@ -86,7 +86,7 @@ public class AnySearchTest extends AbstractTest {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.find("/even/two"));
+        role.add(realmDAO.findByFullPath("/even/two"));
         role.getEntitlements().add(StandardEntitlement.LOG_LIST);
         role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
 
@@ -108,6 +108,6 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(SearchCond.getLeafCond(roleCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals(4L, users.get(0).getKey(), 0);
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
     }
 }

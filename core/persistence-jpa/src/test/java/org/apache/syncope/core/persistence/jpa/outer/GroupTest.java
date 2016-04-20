@@ -91,10 +91,10 @@ public class GroupTest extends AbstractTest {
 
     @Test(expected = InvalidEntityException.class)
     public void saveWithTwoOwners() {
-        Group root = groupDAO.find("root");
+        Group root = groupDAO.findByName("root");
         assertNotNull("did not find expected group", root);
 
-        User user = userDAO.find(1L);
+        User user = userDAO.findByUsername("rossini");
         assertNotNull("did not find expected user", user);
 
         Group group = entityFactory.newEntity(Group.class);
@@ -108,10 +108,10 @@ public class GroupTest extends AbstractTest {
 
     @Test
     public void findByOwner() {
-        Group group = groupDAO.find(6L);
+        Group group = groupDAO.find("ebf97068-aa4b-4a85-9f01-680e8c4cf227");
         assertNotNull("did not find expected group", group);
 
-        User user = userDAO.find(5L);
+        User user = userDAO.find("823074dc-d280-436d-a7dd-07399fae48ec");
         assertNotNull("did not find expected user", user);
 
         assertEquals(user, group.getUserOwner());
@@ -140,7 +140,7 @@ public class GroupTest extends AbstractTest {
 
         groupDAO.flush();
 
-        group = groupDAO.find("new");
+        group = groupDAO.findByName("new");
         assertNotNull(group);
         assertEquals(1, group.getTypeExtensions().size());
         assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).getAuxClasses().size());
@@ -148,14 +148,16 @@ public class GroupTest extends AbstractTest {
 
     @Test
     public void delete() {
-        groupDAO.delete(2L);
+        groupDAO.delete("b1f7c12d-ec83-441f-a50e-1691daaedf3b");
 
         groupDAO.flush();
 
-        assertNull(groupDAO.find(2L));
-        assertEquals(userDAO.findAllGroups(userDAO.find(2L)).size(), 2);
-        assertNull(plainAttrDAO.find(700L, GPlainAttr.class));
-        assertNull(plainAttrValueDAO.find(41L, GPlainAttrValue.class));
+        assertNull(groupDAO.find("b1f7c12d-ec83-441f-a50e-1691daaedf3b"));
+        assertEquals(userDAO.findAllGroups(userDAO.findByUsername("verdi")).size(), 2);
+        assertNull(plainAttrDAO.find(
+                "f82fc61f-8e74-4a4b-9f9e-b8a41f38aad9", GPlainAttr.class));
+        assertNull(plainAttrValueDAO.find(
+                "49f35879-2510-4f11-a901-24152f753538", GPlainAttrValue.class));
         assertNotNull(plainSchemaDAO.find("icon"));
     }
 
@@ -178,7 +180,7 @@ public class GroupTest extends AbstractTest {
         // 0. create user matching the condition below
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.find("/even/two"));
+        user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.add(anyTypeClassDAO.find("other"));
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
@@ -188,7 +190,7 @@ public class GroupTest extends AbstractTest {
         user.add(attr);
 
         user = userDAO.save(user);
-        Long newUserKey = user.getKey();
+        String newUserKey = user.getKey();
         assertNotNull(newUserKey);
 
         // 1. create group with dynamic membership
@@ -216,12 +218,12 @@ public class GroupTest extends AbstractTest {
 
         // 3. verify that expected users have the created group dynamically assigned
         assertEquals(2, actual.getUDynMembership().getMembers().size());
-        assertEquals(new HashSet<>(Arrays.asList(4L, newUserKey)),
+        assertEquals(new HashSet<>(Arrays.asList("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey)),
                 CollectionUtils.collect(actual.getUDynMembership().getMembers(),
-                        EntityUtils.<Long, User>keyTransformer(),
-                        new HashSet<Long>()));
+                        EntityUtils.<User>keyTransformer(),
+                        new HashSet<String>()));
 
-        user = userDAO.find(4L);
+        user = userDAO.findByUsername("bellini");
         assertNotNull(user);
         Collection<Group> dynGroupMemberships = findDynGroupMemberships(user);
         assertEquals(1, dynGroupMemberships.size());
@@ -234,10 +236,12 @@ public class GroupTest extends AbstractTest {
 
         actual = groupDAO.find(actual.getKey());
         assertEquals(1, actual.getUDynMembership().getMembers().size());
-        assertEquals(4L, actual.getUDynMembership().getMembers().get(0).getKey(), 0);
+        assertEquals(
+                "c9b2dec2-00a7-4855-97c0-d854842b4b24",
+                actual.getUDynMembership().getMembers().get(0).getKey());
 
         // 5. delete group and verify that dynamic membership was also removed
-        Long dynMembershipKey = actual.getUDynMembership().getKey();
+        String dynMembershipKey = actual.getUDynMembership().getKey();
 
         groupDAO.delete(actual);
 
@@ -268,7 +272,7 @@ public class GroupTest extends AbstractTest {
         // 0. create any object matching the condition below
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         anyObject.setType(anyTypeDAO.find("PRINTER"));
-        anyObject.setRealm(realmDAO.find("/even/two"));
+        anyObject.setRealm(realmDAO.findByFullPath("/even/two"));
 
         APlainAttr attr = entityFactory.newEntity(APlainAttr.class);
         attr.setOwner(anyObject);
@@ -277,7 +281,7 @@ public class GroupTest extends AbstractTest {
         anyObject.add(attr);
 
         anyObject = anyObjectDAO.save(anyObject);
-        Long newAnyObjectKey = anyObject.getKey();
+        String newAnyObjectKey = anyObject.getKey();
         assertNotNull(newAnyObjectKey);
 
         // 1. create group with dynamic membership
@@ -306,12 +310,13 @@ public class GroupTest extends AbstractTest {
 
         // 3. verify that expected any objects have the created group dynamically assigned
         assertEquals(2, actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers().size());
-        assertEquals(new HashSet<>(Arrays.asList(1L, newAnyObjectKey)),
+        assertEquals(new HashSet<>(Arrays.asList(
+                "fc6dbc3a-6c07-4965-8781-921e7401a4a5", newAnyObjectKey)),
                 CollectionUtils.collect(actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers(),
-                        EntityUtils.<Long, AnyObject>keyTransformer(),
-                        new HashSet<Long>()));
+                        EntityUtils.<AnyObject>keyTransformer(),
+                        new HashSet<String>()));
 
-        anyObject = anyObjectDAO.find(1L);
+        anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
         assertNotNull(anyObject);
         Collection<Group> dynGroupMemberships = findDynGroupMemberships(anyObject);
         assertEquals(1, dynGroupMemberships.size());
@@ -324,10 +329,12 @@ public class GroupTest extends AbstractTest {
 
         actual = groupDAO.find(actual.getKey());
         assertEquals(1, actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers().size());
-        assertEquals(1L, actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers().get(0).getKey(), 0);
+        assertEquals(
+                "fc6dbc3a-6c07-4965-8781-921e7401a4a5",
+                actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers().get(0).getKey());
 
         // 5. delete group and verify that dynamic membership was also removed
-        Long dynMembershipKey = actual.getADynMembership(anyTypeDAO.find("PRINTER")).getKey();
+        String dynMembershipKey = actual.getADynMembership(anyTypeDAO.find("PRINTER")).getKey();
 
         groupDAO.delete(actual);
 

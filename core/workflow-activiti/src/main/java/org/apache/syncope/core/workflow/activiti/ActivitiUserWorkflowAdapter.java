@@ -213,19 +213,19 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final boolean storePassword) {
 
         return create(userTO, disablePwdPolicyCheck, null, storePassword);
     }
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean storePassword) {
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean storePassword) {
         return create(userTO, false, storePassword);
     }
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final Boolean enabled, final boolean storePassword) {
 
         Map<String, Object> variables = new HashMap<>();
@@ -270,7 +270,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         Set<String> tasks = getPerformedTasks(user);
 
-        return new WorkflowResult<Pair<Long, Boolean>>(
+        return new WorkflowResult<Pair<String, Boolean>>(
                 new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, tasks);
     }
 
@@ -313,7 +313,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doActivate(final User user, final String token) {
+    protected WorkflowResult<String> doActivate(final User user, final String token) {
         Set<String> tasks = doExecuteTask(user, "activate", Collections.singletonMap(TOKEN, (Object) token));
 
         updateStatus(user);
@@ -345,7 +345,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doSuspend(final User user) {
+    protected WorkflowResult<String> doSuspend(final User user) {
         Set<String> performedTasks = doExecuteTask(user, "suspend", null);
         updateStatus(user);
         User updated = userDAO.save(user);
@@ -354,7 +354,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doReactivate(final User user) {
+    protected WorkflowResult<String> doReactivate(final User user) {
         Set<String> performedTasks = doExecuteTask(user, "reactivate", null);
         updateStatus(user);
 
@@ -424,7 +424,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Long> execute(final UserTO userTO, final String taskId) {
+    public WorkflowResult<String> execute(final UserTO userTO, final String taskId) {
         User user = userDAO.authFind(userTO.getKey());
 
         final Map<String, Object> variables = new HashMap<>();
@@ -678,18 +678,18 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             forms.addAll(getForms(engine.getTaskService().createTaskQuery().
                     taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
         } else {
-            User user = userDAO.find(authUser);
+            User user = userDAO.findByUsername(authUser);
             if (user == null) {
                 throw new NotFoundException("Syncope User " + authUser);
             }
 
             forms.addAll(getForms(engine.getTaskService().createTaskQuery().
                     taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).
-                    taskCandidateOrAssigned(user.getKey().toString())));
+                    taskCandidateOrAssigned(user.getKey())));
 
             List<String> candidateGroups = new ArrayList<>();
-            for (Long groupId : userDAO.findAllGroupKeys(user)) {
-                candidateGroups.add(groupId.toString());
+            for (String groupKey : userDAO.findAllGroupKeys(user)) {
+                candidateGroups.add(groupKey);
             }
             if (!candidateGroups.isEmpty()) {
                 forms.addAll(getForms(engine.getTaskService().createTaskQuery().
@@ -766,7 +766,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         if (!adminUser.equals(authUser)) {
-            User user = userDAO.find(authUser);
+            User user = userDAO.findByUsername(authUser);
             if (user == null) {
                 throw new NotFoundException("Syncope User " + authUser);
             }

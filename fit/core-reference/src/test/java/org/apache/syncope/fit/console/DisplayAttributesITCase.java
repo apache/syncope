@@ -45,7 +45,7 @@ public class DisplayAttributesITCase extends AbstractConsoleITCase {
                 + "toolbars:1:headers:3:header:label:panelChangeView:changeViewLink");
 
         wicketTester.assertComponent(
-                "body:content:body:tabbedPanel:panel:searchResult:displayAttributeModal", Modal.class);
+                "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer", Modal.class);
     }
 
     @Test
@@ -57,15 +57,16 @@ public class DisplayAttributesITCase extends AbstractConsoleITCase {
                 + "toolbars:1:headers:3:header:label:panelChangeView:changeViewLink");
 
         wicketTester.assertComponent(
-                "body:content:body:tabbedPanel:panel:searchResult:displayAttributeModal", Modal.class);
+                "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer", Modal.class);
 
         final FormTester formTester = wicketTester.newFormTester(
-                "body:content:body:tabbedPanel:panel:searchResult:displayAttributeModal:form");
+                "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer:form");
 
         formTester.setValue("content:container:details:paletteField:recorder", "status");
 
         wicketTester.clickLink(
-                "body:content:body:tabbedPanel:panel:searchResult:displayAttributeModal:dialog:footer:inputs:0:submit");
+                "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer:dialog:footer:"
+                + "inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.clearFeedbackMessages();

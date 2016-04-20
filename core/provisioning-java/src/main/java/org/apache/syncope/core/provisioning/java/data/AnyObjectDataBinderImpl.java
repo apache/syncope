@@ -73,7 +73,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
     @Transactional(readOnly = true)
     @Override
-    public AnyObjectTO getAnyObjectTO(final Long key) {
+    public AnyObjectTO getAnyObjectTO(final String key) {
         return getAnyObjectTO(anyObjectDAO.authFind(key), true);
     }
 
@@ -113,8 +113,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
             // dynamic memberships
             CollectionUtils.collect(anyObjectDAO.findDynGroupMemberships(anyObject),
-                    EntityUtils.<Long, Group>keyTransformer(),
-                    anyObjectTO.getDynGroups());
+                    EntityUtils.<Group>keyTransformer(), anyObjectTO.getDynGroups());
         }
 
         return anyObjectTO;
@@ -133,7 +132,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // realm
-        Realm realm = realmDAO.find(anyObjectTO.getRealm());
+        Realm realm = realmDAO.findByFullPath(anyObjectTO.getRealm());
         if (realm == null) {
             SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             noRealm.getElements().add("Invalid or null realm specified: " + anyObjectTO.getRealm());

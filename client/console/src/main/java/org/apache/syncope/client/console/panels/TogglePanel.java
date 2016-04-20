@@ -19,20 +19,15 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T>
  */
-public abstract class TogglePanel<T extends Serializable> extends Panel {
+public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel<T> {
 
     private static final long serialVersionUID = -2025535531121434056L;
 
@@ -59,15 +54,14 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
 
     private final Label header;
 
-    private List<Component> outerObjects = new ArrayList<>();
-
     public TogglePanel(final String id) {
-        super(id);
+        super(id, true);
         setRenderBodyOnly(true);
         setOutputMarkupId(true);
+        disableContainerAutoRefresh();
 
         container = new WebMarkupContainer("togglePanelContainer");
-        add(container.setMarkupId(id));
+        super.addInnerObject(container.setMarkupId(id));
 
         header = new Label("label", StringUtils.EMPTY);
         header.setOutputMarkupId(true);
@@ -96,31 +90,6 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
                 // do nothing
             }
         }));
-
-        add(new ListView<Component>("outerObjectsRepeater", outerObjects) {
-
-            private static final long serialVersionUID = -9180479401817023838L;
-
-            @Override
-            protected void populateItem(final ListItem<Component> item) {
-                item.add(item.getModelObject());
-            }
-
-        });
-
-    }
-
-    /**
-     * Add object outside the main container.
-     * Use this method just to be not influenced by specific inner object css'.
-     * Be sure to provide <tt>outer</tt> as id.
-     *
-     * @param childs components to be added.
-     * @return the current panel instance.
-     */
-    public TogglePanel<T> addOuterObject(final Component... childs) {
-        outerObjects.addAll(Arrays.asList(childs));
-        return this;
     }
 
     /**
@@ -129,6 +98,7 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
      * @param childs components to be added.
      * @return the current panel instance.
      */
+    @Override
     public TogglePanel<T> addInnerObject(final Component... childs) {
         container.addOrReplace(childs);
         return this;

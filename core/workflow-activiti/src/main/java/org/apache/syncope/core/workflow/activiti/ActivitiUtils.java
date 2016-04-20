@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ActivitiUtils {
 
     @Transactional(readOnly = true)
-    public boolean isUserIngroup(final User user, final Long groupKey) {
+    public boolean isUserIngroup(final User user, final String groupKey) {
         return IterableUtils.matchesAny(user.getMemberships(), new Predicate<UMembership>() {
 
             @Override

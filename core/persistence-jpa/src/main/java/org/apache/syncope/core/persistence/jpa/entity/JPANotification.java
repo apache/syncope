@@ -29,7 +29,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -50,20 +49,17 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.NotificationChe
 @Entity
 @Table(name = JPANotification.TABLE)
 @NotificationCheck
-public class JPANotification extends AbstractEntity<Long> implements Notification {
+public class JPANotification extends AbstractGeneratedKeyEntity implements Notification {
 
     private static final long serialVersionUID = 3112582296912757537L;
 
     public static final String TABLE = "Notification";
 
-    @Id
-    private Long id;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "event")
     @CollectionTable(name = "Notification_events",
             joinColumns =
-            @JoinColumn(name = "notification_id", referencedColumnName = "id"))
+            @JoinColumn(name = "notification_key", referencedColumnName = "key"))
     private List<String> events;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "notification")
@@ -74,7 +70,7 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "Notification_staticRecipients",
             joinColumns =
-            @JoinColumn(name = "notification_id", referencedColumnName = "id"))
+            @JoinColumn(name = "notification_key", referencedColumnName = "key"))
     @Column(name = "staticRecipients")
     private List<String> staticRecipients;
 
@@ -100,7 +96,7 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     private String subject;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "template_name")
+    @JoinColumn(name = "template_key")
     private JPAMailTemplate template;
 
     @NotNull
@@ -120,11 +116,6 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
         selfAsRecipient = getBooleanAsInteger(false);
         active = getBooleanAsInteger(true);
         traceLevel = TraceLevel.ALL;
-    }
-
-    @Override
-    public Long getKey() {
-        return id;
     }
 
     @Override

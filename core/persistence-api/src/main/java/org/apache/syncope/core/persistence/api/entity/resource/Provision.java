@@ -25,7 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncToken;
 
-public interface Provision extends Entity<Long> {
+public interface Provision extends Entity {
 
     ExternalResource getResource();
 

@@ -75,7 +75,7 @@ public class ReportJobDelegate {
     private ImplementationLookup implementationLookup;
 
     @Transactional
-    public void execute(final Long reportKey) throws JobExecutionException {
+    public void execute(final String reportKey) throws JobExecutionException {
         Report report = reportDAO.find(reportKey);
         if (report == null) {
             throw new JobExecutionException("Report " + reportKey + " not found");

@@ -39,7 +39,7 @@ public class ResourceRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6898907679835668987L;
 
-    public ConnObjectTO readConnObject(final String resource, final String anyTypeKey, final Long anyKey) {
+    public ConnObjectTO readConnObject(final String resource, final String anyTypeKey, final String anyKey) {
         return getService(ResourceService.class).readConnObject(resource, anyTypeKey, anyKey);
     }
 
@@ -97,7 +97,7 @@ public class ResourceRestClient extends BaseRestClient {
 
     public BulkActionResult bulkAssociationAction(
             final String resourceName, final String anyTypeName,
-            final ResourceDeassociationAction action, final List<Long> anyKeys) {
+            final ResourceDeassociationAction action, final List<String> anyKeys) {
 
         ResourceDeassociationPatch patch = new ResourceDeassociationPatch();
         patch.setKey(resourceName);

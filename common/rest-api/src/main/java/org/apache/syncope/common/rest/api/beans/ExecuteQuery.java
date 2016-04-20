@@ -33,7 +33,7 @@ public class ExecuteQuery extends AbstractBaseBean {
 
         private final ExecuteQuery instance = new ExecuteQuery();
 
-        public Builder key(final long key) {
+        public Builder key(final String key) {
             instance.setKey(key);
             return this;
         }
@@ -53,19 +53,19 @@ public class ExecuteQuery extends AbstractBaseBean {
         }
     }
 
-    private Long key;
+    private String key;
 
     private Date startAt;
 
     private Boolean dryRun;
 
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @NotNull
     @PathParam("key")
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

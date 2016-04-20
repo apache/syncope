@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-public interface Relationship<L extends Any<?>, R extends Any<?>> extends Entity<Long> {
+public interface Relationship<L extends Any<?>, R extends Any<?>> extends Entity {
 
     RelationshipType getType();
 

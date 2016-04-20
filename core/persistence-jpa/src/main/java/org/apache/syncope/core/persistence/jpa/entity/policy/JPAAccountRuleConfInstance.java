@@ -19,36 +19,27 @@
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
 @Table(name = JPAAccountRuleConfInstance.TABLE)
-public class JPAAccountRuleConfInstance extends AbstractEntity<Long> {
+public class JPAAccountRuleConfInstance extends AbstractGeneratedKeyEntity {
 
     private static final long serialVersionUID = -2436055132955674610L;
 
     public static final String TABLE = "AccountRuleConfInstance";
-
-    @Id
-    private Long id;
 
     @Lob
     private String serializedInstance;
 
     @ManyToOne
     private JPAAccountPolicy accountPolicy;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     public AccountPolicy getAccountPolicy() {
         return accountPolicy;

@@ -45,19 +45,19 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private ConfDAO confDAO;
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean storePassword) {
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean storePassword) {
         return create(userTO, false, true);
     }
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final boolean storePassword) {
 
         return create(userTO, disablePwdPolicyCheck, null, storePassword);
     }
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final Boolean enabled, final boolean storePassword) {
 
         User user = entityFactory.newEntity(User.class);
@@ -87,12 +87,12 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceNames(user));
 
-        return new WorkflowResult<Pair<Long, Boolean>>(
+        return new WorkflowResult<Pair<String, Boolean>>(
                 new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, "create");
     }
 
     @Override
-    protected WorkflowResult<Long> doActivate(final User user, final String token) {
+    protected WorkflowResult<String> doActivate(final User user, final String token) {
         if (!user.checkToken(token)) {
             throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
         }
@@ -115,7 +115,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doSuspend(final User user) {
+    protected WorkflowResult<String> doSuspend(final User user) {
         user.setStatus("suspended");
         User updated = userDAO.save(user);
 
@@ -123,7 +123,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doReactivate(final User user) {
+    protected WorkflowResult<String> doReactivate(final User user) {
         user.setStatus("active");
         User updated = userDAO.save(user);
 
@@ -162,7 +162,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Long> execute(final UserTO userTO, final String taskId) {
+    public WorkflowResult<String> execute(final UserTO userTO, final String taskId) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 

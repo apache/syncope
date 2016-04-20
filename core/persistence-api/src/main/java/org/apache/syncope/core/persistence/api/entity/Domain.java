@@ -20,9 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 
-public interface Domain extends Entity<String> {
-
-    void setKey(String name);
+public interface Domain extends ProvidedKeyEntity {
 
     String getAdminPwd();
 

@@ -46,7 +46,7 @@ public class GroupCreateProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        WorkflowResult<Long> created = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<String> created = (WorkflowResult) exchange.getIn().getBody();
         GroupTO any = exchange.getProperty("any", GroupTO.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
@@ -61,8 +61,7 @@ public class GroupCreateProcessor implements Processor {
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
 
-        exchange.getOut().setBody(new ImmutablePair<>(
-                created.getResult(), propagationReporter.getStatuses()));
+        exchange.getOut().setBody(new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses()));
     }
 
 }

@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.notifications;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,6 +35,8 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
@@ -57,9 +60,14 @@ public class NotificationDirectoryPanel
 
     private static final long serialVersionUID = -3789392431954221446L;
 
+    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
+
     public NotificationDirectoryPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, true);
         disableCheckBoxes();
+
+        addOuterObject(utilityModal);
+        setWindowClosedReloadCallback(utilityModal);
 
         modal.size(Modal.Size.Large);
         altDefaultModal.size(Modal.Size.Large);
@@ -76,8 +84,8 @@ public class NotificationDirectoryPanel
     @Override
     protected List<IColumn<NotificationTO, String>> getColumns() {
 
-        final List<IColumn<NotificationTO, String>> columns = new ArrayList<IColumn<NotificationTO, String>>();
-        columns.add(new PropertyColumn<NotificationTO, String>(
+        List<IColumn<NotificationTO, String>> columns = new ArrayList<>();
+        columns.add(new KeyPropertyColumn<NotificationTO>(
                 new StringResourceModel("key", this, null), "key", "key"));
         columns.add(new CollectionPropertyColumn<NotificationTO>(
                 new StringResourceModel("events", this, null), "events", "events"));
@@ -174,7 +182,7 @@ public class NotificationDirectoryPanel
         public NotificationProvider(final int paginatorRows) {
             super(paginatorRows);
             setSort("key", SortOrder.ASCENDING);
-            comparator = new SortableDataProviderComparator<NotificationTO>(this);
+            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override

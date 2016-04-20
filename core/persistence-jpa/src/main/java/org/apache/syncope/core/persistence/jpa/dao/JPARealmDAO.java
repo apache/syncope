@@ -42,7 +42,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
+public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
     @Autowired
     private RoleDAO roleDAO;
@@ -63,13 +63,13 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
     }
 
     @Override
-    public Realm find(final Long key) {
+    public Realm find(final String key) {
         return entityManager().find(JPARealm.class, key);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Realm find(final String fullPath) {
+    public Realm findByFullPath(final String fullPath) {
         if (SyncopeConstants.ROOT_REALM.equals(fullPath)) {
             return getRoot();
         }
@@ -202,7 +202,7 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         Realm realm = find(key);
         if (realm == null) {
             return;

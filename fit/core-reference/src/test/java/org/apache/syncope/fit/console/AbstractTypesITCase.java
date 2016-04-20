@@ -24,7 +24,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Before;
 
-public abstract class AbstractTypesITCase extends AbstractConsoleITCase{
+public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
 
     protected static final String PLAIN_DATATABLE_PATH = "body:content:tabbedPanel:panel:"
             + "accordionPanel:tabs:0:body:content:container:content:searchContainer:resultTable";
@@ -79,15 +79,16 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase{
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:container:content:add");
 
         wicketTester.assertComponent(
-                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:modal", Modal.class);
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer",
+                Modal.class);
 
         final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:modal:form");
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:details:form:key:textField", key);
         formTester.setValue("content:details:form:type:dropDownChoiceField", "3");
 
         wicketTester.clickLink("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:modal:dialog:footer:inputs:0:submit");
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
 
@@ -98,13 +99,14 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase{
         browsingToAnyTypeClasses();
 
         wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
-        wicketTester.assertComponent(
-                "body:content:tabbedPanel:panel:modal", Modal.class);
+        wicketTester.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
+        final FormTester formTester = wicketTester.newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:anyTypeClassDetailsPanel:form:key:textField", name);
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.clearFeedbackMessages();
@@ -114,13 +116,14 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase{
         browsingToAnyTypes();
 
         wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
-        wicketTester.assertComponent(
-                "body:content:tabbedPanel:panel:modal", Modal.class);
+        wicketTester.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
+        final FormTester formTester = wicketTester.newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:anyTypeDetailsPanel:container:form:key:textField", name);
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.clearFeedbackMessages();
@@ -131,15 +134,16 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase{
 
         wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        wicketTester.assertComponent(
-                "body:content:tabbedPanel:panel:modal", Modal.class);
+        wicketTester.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
+        final FormTester formTester = wicketTester.newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:relationshipTypeDetails:container:form:key:textField", name);
         formTester.setValue(
                 "content:relationshipTypeDetails:container:form:description:textField", "test relationshipType");
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.clearFeedbackMessages();

@@ -92,11 +92,11 @@ public abstract class AbstractQuery extends AbstractBaseBean {
         this.size = size;
     }
 
-    @QueryParam(JAXRSService.PARAM_ORDERBY)
     public String getOrderBy() {
         return orderBy;
     }
 
+    @QueryParam(JAXRSService.PARAM_ORDERBY)
     public void setOrderBy(final String orderBy) {
         this.orderBy = orderBy;
     }

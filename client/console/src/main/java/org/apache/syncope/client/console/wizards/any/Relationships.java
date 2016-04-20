@@ -226,8 +226,7 @@ public class Relationships extends WizardStep {
 
             final ArrayList<String> availableRels = CollectionUtils.collect(
                     SyncopeConsoleSession.get().getService(RelationshipTypeService.class).list(),
-                    EntityTOUtils.<String, RelationshipTypeTO>keyTransformer(),
-                    new ArrayList<String>());
+                    EntityTOUtils.<RelationshipTypeTO>keyTransformer(), new ArrayList<String>());
 
             final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>(
                     "type", "type", new PropertyModel<String>(rel, "type"));

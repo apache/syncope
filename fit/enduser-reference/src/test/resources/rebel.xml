@@ -34,7 +34,7 @@ under the License.
       </dir>
     </link>
     <link target="/">
-      <dir name="${basedir}/../../client/enduser/target/classes">
+      <dir name="${basedir}/../../client/enduser/target/classes/META-INF/resources">
       </dir>
     </link>
   </web>

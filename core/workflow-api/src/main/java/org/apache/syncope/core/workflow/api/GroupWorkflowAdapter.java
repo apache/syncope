@@ -33,7 +33,7 @@ public interface GroupWorkflowAdapter extends WorkflowAdapter {
      * @param groupTO group to be created and whether to propagate it as active
      * @return group just created
      */
-    WorkflowResult<Long> create(GroupTO groupTO);
+    WorkflowResult<String> create(GroupTO groupTO);
 
     /**
      * Execute a task on a group.
@@ -42,7 +42,7 @@ public interface GroupWorkflowAdapter extends WorkflowAdapter {
      * @param taskId to be executed
      * @return group just updated
      */
-    WorkflowResult<Long> execute(GroupTO groupTO, String taskId);
+    WorkflowResult<String> execute(GroupTO groupTO, String taskId);
 
     /**
      * Update a group.
@@ -50,12 +50,12 @@ public interface GroupWorkflowAdapter extends WorkflowAdapter {
      * @param groupPatch modification set to be performed
      * @return group just updated and propagations to be performed
      */
-    WorkflowResult<Long> update(GroupPatch groupPatch);
+    WorkflowResult<String> update(GroupPatch groupPatch);
 
     /**
      * Delete a group.
      *
      * @param groupKey group to be deleted
      */
-    void delete(Long groupKey);
+    void delete(String groupKey);
 }

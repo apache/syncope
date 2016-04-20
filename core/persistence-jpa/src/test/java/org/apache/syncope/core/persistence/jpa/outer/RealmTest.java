@@ -47,11 +47,11 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void test() {
-        Realm realm = realmDAO.find("/odd");
+        Realm realm = realmDAO.findByFullPath("/odd");
         assertNotNull(realm);
 
         // need to remove this group in order to remove the realm, which is otherwise empty
-        Group group = groupDAO.find(16L);
+        Group group = groupDAO.findByName("fake");
         assertNotNull(group);
         assertEquals(realm, group.getRealm());
         groupDAO.delete(group);

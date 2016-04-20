@@ -29,9 +29,9 @@ public interface NotificationTask extends Task {
 
     void setNotification(Notification notification);
 
-    Long getAnyKey();
+    String getAnyKey();
 
-    void setAnyKey(Long anyKey);
+    void setAnyKey(String anyKey);
 
     AnyTypeKind getAnyTypeKind();
 

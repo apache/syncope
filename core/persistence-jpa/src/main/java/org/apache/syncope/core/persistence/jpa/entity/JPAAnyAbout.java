@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -30,15 +29,12 @@ import org.apache.syncope.core.persistence.api.entity.Notification;
 
 @Entity
 @Table(name = JPAAnyAbout.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "notification_id", "anyType_name" }))
-public class JPAAnyAbout extends AbstractEntity<Long> implements AnyAbout {
+        @UniqueConstraint(columnNames = { "notification_key", "anyType_key" }))
+public class JPAAnyAbout extends AbstractGeneratedKeyEntity implements AnyAbout {
 
     private static final long serialVersionUID = 3517381731849788407L;
 
     public static final String TABLE = "AnyAbout";
-
-    @Id
-    private Long id;
 
     @ManyToOne
     private JPANotification notification;
@@ -48,11 +44,6 @@ public class JPAAnyAbout extends AbstractEntity<Long> implements AnyAbout {
 
     @Lob
     private String filter;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public Notification getNotification() {

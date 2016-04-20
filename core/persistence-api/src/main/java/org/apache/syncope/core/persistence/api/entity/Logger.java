@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.entity;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
 
-public interface Logger extends Entity<String> {
+public interface Logger extends Entity {
 
     void setKey(String name);
 

@@ -25,7 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public interface GroupDataBinder {
 
-    GroupTO getGroupTO(Long key);
+    GroupTO getGroupTO(String key);
 
     GroupTO getGroupTO(Group group, boolean details);
 

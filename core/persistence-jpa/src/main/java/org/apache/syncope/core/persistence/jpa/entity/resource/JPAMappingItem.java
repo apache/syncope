@@ -29,7 +29,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -40,19 +39,16 @@ import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
 @Table(name = JPAMappingItem.TABLE)
 @Cacheable
-public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem {
+public class JPAMappingItem extends AbstractGeneratedKeyEntity implements MappingItem {
 
     private static final long serialVersionUID = 7383601853619332424L;
 
     public static final String TABLE = "MappingItem";
-
-    @Id
-    private Long id;
 
     @ManyToOne
     private JPAMapping mapping;
@@ -105,7 +101,7 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
     @Column(name = "transformerClassName")
     @CollectionTable(name = "MappingItem_Transformer",
             joinColumns =
-            @JoinColumn(name = "mappingItem_id", referencedColumnName = "id"))
+            @JoinColumn(name = "mappingItem_key", referencedColumnName = "key"))
     private List<String> mappingItemTransformerClassNames = new ArrayList<>();
 
     public JPAMappingItem() {
@@ -115,11 +111,6 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
 
         connObjectKey = getBooleanAsInteger(false);
         password = getBooleanAsInteger(false);
-    }
-
-    @Override
-    public Long getKey() {
-        return id;
     }
 
     @Override
@@ -161,7 +152,7 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
             case UserKey:
             case GroupKey:
             case AnyObjectKey:
-                name = "id";
+                name = "key";
                 break;
 
             case Username:

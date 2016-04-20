@@ -25,7 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.DynMembership;
 
 @MappedSuperclass
 public abstract class AbstractDynMembership<A extends Any<?>>
-        extends AbstractEntity<Long> implements DynMembership<A> {
+        extends AbstractGeneratedKeyEntity implements DynMembership<A> {
 
     private static final long serialVersionUID = 921821654690948787L;
 

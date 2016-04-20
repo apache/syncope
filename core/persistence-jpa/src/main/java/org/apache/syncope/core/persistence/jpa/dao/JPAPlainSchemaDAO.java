@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implements PlainSchemaDAO {
+public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements PlainSchemaDAO {
 
     @Autowired
     private PlainAttrDAO plainAttrDAO;
@@ -55,7 +55,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
                 append(JPAPlainSchema.class.getSimpleName()).
                 append(" e WHERE ");
         for (AnyTypeClass anyTypeClass : anyTypeClasses) {
-            queryString.append("e.anyTypeClass.name='").append(anyTypeClass.getKey()).append("' OR ");
+            queryString.append("e.anyTypeClass.key='").append(anyTypeClass.getKey()).append("' OR ");
         }
 
         TypedQuery<PlainSchema> query = entityManager().createQuery(

@@ -38,15 +38,10 @@ public class ResourceResultManager extends CommonsResultManager {
     private void printResource(final ResourceTO resourceTO) {
         System.out.println(" > RESOURCE ID: " + resourceTO.getKey());
         System.out.println("    connector dispaly name: " + resourceTO.getConnectorDisplayName());
-        System.out.println("    etag value: " + resourceTO.getETagValue());
         System.out.println("    connector id: " + resourceTO.getConnector());
         System.out.println("    account policy id: " + resourceTO.getAccountPolicy());
         System.out.println("    password policy id: " + resourceTO.getPasswordPolicy());
         System.out.println("    pull policy id: " + resourceTO.getPullPolicy());
-        System.out.println("    creator: " + resourceTO.getCreator());
-        System.out.println("    creation date: " + resourceTO.getCreationDate());
-        System.out.println("    last modifier: " + resourceTO.getLastModifier());
-        System.out.println("    last change date: " + resourceTO.getLastChangeDate());
         System.out.println("    propagation actions class: " + resourceTO.getPropagationActionsClassNames());
         System.out.println("    propagation priority: " + resourceTO.getPropagationPriority());
         System.out.println("    PROVISIONS:");

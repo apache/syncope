@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.UUID;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
@@ -70,7 +71,7 @@ public class JSONTest {
     @Test
     public void patch() throws IOException {
         UserPatch patch = new UserPatch();
-        patch.setKey(12L);
+        patch.setKey(UUID.randomUUID().toString());
         patch.setUsername(new StringReplacePatchItem.Builder().value("newusername").build());
         assertNotNull(patch.getUsername().getValue());
         patch.setPassword(new PasswordPatch.Builder().

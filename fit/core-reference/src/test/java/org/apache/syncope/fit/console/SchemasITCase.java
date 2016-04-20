@@ -55,7 +55,7 @@ public class SchemasITCase extends AbstractTypesITCase {
 
         wicketTester.assertComponent(
                 "body:content:tabbedPanel:"
-                + "panel:accordionPanel:tabs:0:body:content:modal:"
+                + "panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:"
                 + "form:content:kindForm:kind:dropDownChoiceField", DropDownChoice.class);
     }
 
@@ -66,15 +66,16 @@ public class SchemasITCase extends AbstractTypesITCase {
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:container:content:add");
 
         wicketTester.assertComponent(
-                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:modal", Modal.class);
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer",
+                Modal.class);
 
         final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:modal:form");
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:details:form:key:textField", "zBoolean");
         formTester.setValue("content:details:form:type:dropDownChoiceField", "3");
 
         wicketTester.clickLink("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:modal:dialog:footer:inputs:0:submit");
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
 
@@ -96,15 +97,16 @@ public class SchemasITCase extends AbstractTypesITCase {
 
         wicketTester.assertComponent(
                 "body:content:tabbedPanel:"
-                + "panel:accordionPanel:tabs:0:body:content:modal:"
+                + "panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:"
                 + "form:content:kindForm:kind:dropDownChoiceField", DropDownChoice.class);
 
         FormTester formTester = wicketTester.newFormTester(
-                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:modal:form");
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:details:form:multivalue:checkboxField", "true");
 
         wicketTester.clickLink("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:modal:dialog:footer:inputs:0:submit", true);
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit",
+                true);
 
         wicketTester.assertInfoMessages("Operation executed successfully");
     }
@@ -118,15 +120,16 @@ public class SchemasITCase extends AbstractTypesITCase {
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:container:content:add");
 
         wicketTester.assertComponent(
-                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:modal", Modal.class);
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer",
+                Modal.class);
 
         final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:modal:form");
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:details:form:key:textField", schemaName);
         formTester.setValue("content:details:form:type:dropDownChoiceField", "0");
 
         wicketTester.clickLink("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:modal:dialog:footer:inputs:0:submit");
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
         wicketTester.assertInfoMessages("Operation executed successfully");;
 

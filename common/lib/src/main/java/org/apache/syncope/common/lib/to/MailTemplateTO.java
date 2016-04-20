@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "mailTemplate")
 @XmlType
-public class MailTemplateTO extends AbstractBaseBean implements EntityTO<String> {
+public class MailTemplateTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = 8389755049666062735L;
 

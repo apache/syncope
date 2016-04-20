@@ -27,11 +27,11 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 
-public interface AnyDAO<A extends Any<?>> extends DAO<A, Long> {
+public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
-    A authFind(Long key);
+    A authFind(String key);
 
-    A find(Long key);
+    A find(String key);
 
     A findByWorkflowId(String workflowId);
 
@@ -78,7 +78,7 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A, Long> {
 
     A save(A any);
 
-    void delete(Long key);
+    void delete(String key);
 
     void delete(A any);
 

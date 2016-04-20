@@ -35,21 +35,21 @@ import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlRootElement(name = "realm")
 @XmlType
-public class RealmTO extends AbstractBaseBean implements EntityTO<Long> {
+public class RealmTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = 516330662956254391L;
 
-    private Long key;
+    private String key;
 
     private String name;
 
-    private long parent;
+    private String parent;
 
     private String fullPath;
 
-    private Long accountPolicy;
+    private String accountPolicy;
 
-    private Long passwordPolicy;
+    private String passwordPolicy;
 
     private final Set<String> actionsClassNames = new HashSet<>();
 
@@ -58,12 +58,12 @@ public class RealmTO extends AbstractBaseBean implements EntityTO<Long> {
     private final Map<String, AnyTO> templates = new HashMap<>();
 
     @Override
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @Override
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -75,11 +75,11 @@ public class RealmTO extends AbstractBaseBean implements EntityTO<Long> {
         this.name = name;
     }
 
-    public long getParent() {
+    public String getParent() {
         return parent;
     }
 
-    public void setParent(final long parent) {
+    public void setParent(final String parent) {
         this.parent = parent;
     }
 
@@ -92,19 +92,19 @@ public class RealmTO extends AbstractBaseBean implements EntityTO<Long> {
         this.fullPath = fullPath;
     }
 
-    public Long getAccountPolicy() {
+    public String getAccountPolicy() {
         return accountPolicy;
     }
 
-    public void setAccountPolicy(final Long accountPolicy) {
+    public void setAccountPolicy(final String accountPolicy) {
         this.accountPolicy = accountPolicy;
     }
 
-    public Long getPasswordPolicy() {
+    public String getPasswordPolicy() {
         return passwordPolicy;
     }
 
-    public void setPasswordPolicy(final Long passwordPolicy) {
+    public void setPasswordPolicy(final String passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
     }
 

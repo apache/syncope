@@ -40,6 +40,7 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -61,6 +62,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObjectDAO {
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Autowired
     private GroupDAO groupDAO;
@@ -154,6 +158,19 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
             group.getADynMembership(any.getType()).getMembers().remove(any);
         }
 
+        for (ARelationship relationship : findARelationships(any)) {
+            relationship.getLeftEnd().getRelationships().remove(relationship);
+            save(relationship.getLeftEnd());
+
+            entityManager().remove(relationship);
+        }
+        for (URelationship relationship : findURelationships(any)) {
+            relationship.getLeftEnd().getRelationships().remove(relationship);
+            userDAO.save(relationship.getLeftEnd());
+
+            entityManager().remove(relationship);
+        }
+
         entityManager().remove(any);
     }
 
@@ -184,8 +201,8 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public Collection<Long> findAllGroupKeys(final AnyObject anyObject) {
-        return CollectionUtils.collect(findAllGroups(anyObject), EntityUtils.<Long, Group>keyTransformer());
+    public Collection<String> findAllGroupKeys(final AnyObject anyObject) {
+        return CollectionUtils.collect(findAllGroups(anyObject), EntityUtils.<Group>keyTransformer());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -204,7 +221,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public Collection<String> findAllResourceNames(final AnyObject anyObject) {
         return CollectionUtils.collect(
-                findAllResources(anyObject), EntityUtils.<String, ExternalResource>keyTransformer());
+                findAllResources(anyObject), EntityUtils.<ExternalResource>keyTransformer());
     }
 
 }

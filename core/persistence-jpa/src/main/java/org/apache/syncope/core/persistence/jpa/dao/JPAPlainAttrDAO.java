@@ -33,7 +33,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>, Long> implements PlainAttrDAO {
+public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>> implements PlainAttrDAO {
 
     public <T extends PlainAttr<?>> Class<? extends AbstractPlainAttr<?>> getEntityReference(
             final Class<T> reference) {
@@ -50,12 +50,12 @@ public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>, Long> implements 
     }
 
     @Override
-    public <T extends PlainAttr<?>> T find(final Long key, final Class<T> reference) {
+    public <T extends PlainAttr<?>> T find(final String key, final Class<T> reference) {
         return reference.cast(entityManager().find(getEntityReference(reference), key));
     }
 
     @Override
-    public <T extends PlainAttr<?>> void delete(final Long key, final Class<T> reference) {
+    public <T extends PlainAttr<?>> void delete(final String key, final Class<T> reference) {
         T attribute = find(key, reference);
         if (attribute == null) {
             return;

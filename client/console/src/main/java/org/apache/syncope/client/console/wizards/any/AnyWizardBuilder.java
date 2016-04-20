@@ -105,7 +105,7 @@ public abstract class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilde
 
     protected AnyWizardBuilder<T> addOptionalDetailsPanel(
             final AnyHandler<T> modelObject, final WizardModel wizardModel) {
-        if (modelObject.getInnerObject().getKey() != null && modelObject.getInnerObject().getKey() > 0) {
+        if (modelObject.getInnerObject().getKey() != null) {
             wizardModel.add(new Details<>(
                     modelObject, new ListModel<>(Collections.<StatusBean>emptyList()), pageRef, true));
         }

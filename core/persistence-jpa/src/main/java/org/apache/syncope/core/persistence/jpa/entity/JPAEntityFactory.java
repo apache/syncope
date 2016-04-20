@@ -127,127 +127,127 @@ public class JPAEntityFactory implements EntityFactory {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <KEY, T extends Entity<KEY>> T newEntity(final Class<T> reference) {
-        T result;
+    public <E extends Entity> E newEntity(final Class<E> reference) {
+        E result;
 
         if (reference.equals(Domain.class)) {
-            result = (T) new JPADomain();
+            result = (E) new JPADomain();
         } else if (reference.equals(Realm.class)) {
-            result = (T) new JPARealm();
+            result = (E) new JPARealm();
         } else if (reference.equals(AnyTemplateRealm.class)) {
-            result = (T) new JPAAnyTemplateRealm();
+            result = (E) new JPAAnyTemplateRealm();
         } else if (reference.equals(AccountPolicy.class)) {
-            result = (T) new JPAAccountPolicy();
+            result = (E) new JPAAccountPolicy();
         } else if (reference.equals(PasswordPolicy.class)) {
-            result = (T) new JPAPasswordPolicy();
+            result = (E) new JPAPasswordPolicy();
         } else if (reference.equals(PushPolicy.class)) {
-            result = (T) new JPAPushPolicy();
+            result = (E) new JPAPushPolicy();
         } else if (reference.equals(PullPolicy.class)) {
-            result = (T) new JPAPullPolicy();
+            result = (E) new JPAPullPolicy();
         } else if (reference.equals(AnyTypeClass.class)) {
-            result = (T) new JPAAnyTypeClass();
+            result = (E) new JPAAnyTypeClass();
         } else if (reference.equals(AnyType.class)) {
-            result = (T) new JPAAnyType();
+            result = (E) new JPAAnyType();
         } else if (reference.equals(AnyObject.class)) {
-            result = (T) new JPAAnyObject();
+            result = (E) new JPAAnyObject();
         } else if (reference.equals(Role.class)) {
-            result = (T) new JPARole();
+            result = (E) new JPARole();
         } else if (reference.equals(User.class)) {
-            result = (T) new JPAUser();
+            result = (E) new JPAUser();
         } else if (reference.equals(Group.class)) {
-            result = (T) new JPAGroup();
+            result = (E) new JPAGroup();
         } else if (reference.equals(TypeExtension.class)) {
-            result = (T) new JPATypeExtension();
+            result = (E) new JPATypeExtension();
         } else if (reference.equals(RelationshipType.class)) {
-            result = (T) new JPARelationshipType();
+            result = (E) new JPARelationshipType();
         } else if (reference.equals(ARelationship.class)) {
-            result = (T) new JPAARelationship();
+            result = (E) new JPAARelationship();
         } else if (reference.equals(URelationship.class)) {
-            result = (T) new JPAURelationship();
+            result = (E) new JPAURelationship();
         } else if (reference.equals(AMembership.class)) {
-            result = (T) new JPAAMembership();
+            result = (E) new JPAAMembership();
         } else if (reference.equals(UMembership.class)) {
-            result = (T) new JPAUMembership();
+            result = (E) new JPAUMembership();
         } else if (reference.equals(Conf.class)) {
-            result = (T) new JPAConf();
+            result = (E) new JPAConf();
         } else if (reference.equals(AnyAbout.class)) {
-            result = (T) new JPAAnyAbout();
+            result = (E) new JPAAnyAbout();
         } else if (reference.equals(MailTemplate.class)) {
-            result = (T) new JPAMailTemplate();
+            result = (E) new JPAMailTemplate();
         } else if (reference.equals(Notification.class)) {
-            result = (T) new JPANotification();
+            result = (E) new JPANotification();
         } else if (reference.equals(ExternalResource.class)) {
-            result = (T) new JPAExternalResource();
+            result = (E) new JPAExternalResource();
         } else if (reference.equals(Provision.class)) {
-            result = (T) new JPAProvision();
+            result = (E) new JPAProvision();
         } else if (reference.equals(ConnInstance.class)) {
-            result = (T) new JPAConnInstance();
+            result = (E) new JPAConnInstance();
         } else if (reference.equals(PlainSchema.class)) {
-            result = (T) new JPAPlainSchema();
+            result = (E) new JPAPlainSchema();
         } else if (reference.equals(APlainAttr.class)) {
-            result = (T) new JPAAPlainAttr();
+            result = (E) new JPAAPlainAttr();
         } else if (reference.equals(APlainAttrValue.class)) {
-            result = (T) new JPAAPlainAttrValue();
+            result = (E) new JPAAPlainAttrValue();
         } else if (reference.equals(APlainAttrUniqueValue.class)) {
-            result = (T) new JPAAPlainAttrUniqueValue();
+            result = (E) new JPAAPlainAttrUniqueValue();
         } else if (reference.equals(UPlainAttr.class)) {
-            result = (T) new JPAUPlainAttr();
+            result = (E) new JPAUPlainAttr();
         } else if (reference.equals(UPlainAttrValue.class)) {
-            result = (T) new JPAUPlainAttrValue();
+            result = (E) new JPAUPlainAttrValue();
         } else if (reference.equals(UPlainAttrUniqueValue.class)) {
-            result = (T) new JPAUPlainAttrUniqueValue();
+            result = (E) new JPAUPlainAttrUniqueValue();
         } else if (reference.equals(DerSchema.class)) {
-            result = (T) new JPADerSchema();
+            result = (E) new JPADerSchema();
         } else if (reference.equals(VirSchema.class)) {
-            result = (T) new JPAVirSchema();
+            result = (E) new JPAVirSchema();
         } else if (reference.equals(Mapping.class)) {
-            result = (T) new JPAMapping();
+            result = (E) new JPAMapping();
         } else if (reference.equals(MappingItem.class)) {
-            result = (T) new JPAMappingItem();
+            result = (E) new JPAMappingItem();
         } else if (reference.equals(GPlainAttr.class)) {
-            result = (T) new JPAGPlainAttr();
+            result = (E) new JPAGPlainAttr();
         } else if (reference.equals(GPlainAttrValue.class)) {
-            result = (T) new JPAGPlainAttrValue();
+            result = (E) new JPAGPlainAttrValue();
         } else if (reference.equals(GPlainAttrUniqueValue.class)) {
-            result = (T) new JPAGPlainAttrUniqueValue();
+            result = (E) new JPAGPlainAttrUniqueValue();
         } else if (reference.equals(CPlainAttr.class)) {
-            result = (T) new JPACPlainAttr();
+            result = (E) new JPACPlainAttr();
         } else if (reference.equals(CPlainAttrValue.class)) {
-            result = (T) new JPACPlainAttrValue();
+            result = (E) new JPACPlainAttrValue();
         } else if (reference.equals(CPlainAttrUniqueValue.class)) {
-            result = (T) new JPACPlainAttrUniqueValue();
+            result = (E) new JPACPlainAttrUniqueValue();
         } else if (reference.equals(Report.class)) {
-            result = (T) new JPAReport();
+            result = (E) new JPAReport();
         } else if (reference.equals(ReportTemplate.class)) {
-            result = (T) new JPAReportTemplate();
+            result = (E) new JPAReportTemplate();
         } else if (reference.equals(ReportExec.class)) {
-            result = (T) new JPAReportExec();
+            result = (E) new JPAReportExec();
         } else if (reference.equals(NotificationTask.class)) {
-            result = (T) new JPANotificationTask();
+            result = (E) new JPANotificationTask();
         } else if (reference.equals(PropagationTask.class)) {
-            result = (T) new JPAPropagationTask();
+            result = (E) new JPAPropagationTask();
         } else if (reference.equals(PushTask.class)) {
-            result = (T) new JPAPushTask();
+            result = (E) new JPAPushTask();
         } else if (reference.equals(PullTask.class)) {
-            result = (T) new JPAPullTask();
+            result = (E) new JPAPullTask();
         } else if (reference.equals(SchedTask.class)) {
-            result = (T) new JPASchedTask();
+            result = (E) new JPASchedTask();
         } else if (reference.equals(TaskExec.class)) {
-            result = (T) new JPATaskExec();
+            result = (E) new JPATaskExec();
         } else if (reference.equals(PushTaskAnyFilter.class)) {
-            result = (T) new JPAPushTaskAnyFilter();
+            result = (E) new JPAPushTaskAnyFilter();
         } else if (reference.equals(AnyTemplatePullTask.class)) {
-            result = (T) new JPAAnyTemplatePullTask();
+            result = (E) new JPAAnyTemplatePullTask();
         } else if (reference.equals(SecurityQuestion.class)) {
-            result = (T) new JPASecurityQuestion();
+            result = (E) new JPASecurityQuestion();
         } else if (reference.equals(Logger.class)) {
-            result = (T) new JPALogger();
+            result = (E) new JPALogger();
         } else if (reference.equals(DynRoleMembership.class)) {
-            result = (T) new JPADynRoleMembership();
+            result = (E) new JPADynRoleMembership();
         } else if (reference.equals(ADynGroupMembership.class)) {
-            result = (T) new JPAADynGroupMembership();
+            result = (E) new JPAADynGroupMembership();
         } else if (reference.equals(UDynGroupMembership.class)) {
-            result = (T) new JPAUDynGroupMembership();
+            result = (E) new JPAUDynGroupMembership();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

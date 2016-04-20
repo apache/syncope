@@ -61,7 +61,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected IModel<List<SearchClause.Type>> types;
 
-    protected IModel<Map<Long, String>> groupNames;
+    protected IModel<Map<String, String>> groupNames;
 
     protected IModel<List<String>> roleNames;
 
@@ -168,8 +168,7 @@ public abstract class AbstractSearchPanel extends Panel {
                 return CollectionUtils.collect(
                         schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeRestClient.read(type).getClasses().
                                 toArray(new String[] {})),
-                        EntityTOUtils.<String, AbstractSchemaTO>keyTransformer(),
-                        new ArrayList<String>());
+                        EntityTOUtils.<AbstractSchemaTO>keyTransformer(), new ArrayList<String>());
             }
         };
 
@@ -180,8 +179,7 @@ public abstract class AbstractSearchPanel extends Panel {
             @Override
             protected List<String> load() {
                 return CollectionUtils.collect(resourceRestClient.list(),
-                        EntityTOUtils.<String, ResourceTO>keyTransformer(),
-                        new ArrayList<String>());
+                        EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>());
             }
         };
     }

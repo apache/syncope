@@ -83,7 +83,7 @@ public class RoleTest extends AbstractTest {
         // 0. create user matching the condition below
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.find("/even/two"));
+        user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.add(anyTypeClassDAO.find("other"));
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
@@ -93,14 +93,14 @@ public class RoleTest extends AbstractTest {
         user.add(attr);
 
         user = userDAO.save(user);
-        Long newUserKey = user.getKey();
+        String newUserKey = user.getKey();
         assertNotNull(newUserKey);
 
         // 1. create role with dynamic membership
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.find("/even/two"));
+        role.add(realmDAO.findByFullPath("/even/two"));
         role.getEntitlements().add(StandardEntitlement.LOG_LIST);
         role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
 
@@ -124,12 +124,12 @@ public class RoleTest extends AbstractTest {
 
         // 3. verify that expected users have the created role dynamically assigned
         assertEquals(2, actual.getDynMembership().getMembers().size());
-        assertEquals(new HashSet<>(Arrays.asList(4L, newUserKey)),
+        assertEquals(new HashSet<>(Arrays.asList("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey)),
                 CollectionUtils.collect(actual.getDynMembership().getMembers(),
-                        EntityUtils.<Long, User>keyTransformer(),
-                        new HashSet<Long>()));
+                        EntityUtils.<User>keyTransformer(),
+                        new HashSet<String>()));
 
-        user = userDAO.find(4L);
+        user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
         assertNotNull(user);
         Collection<Role> dynRoleMemberships = findDynRoleMemberships(user);
         assertEquals(1, dynRoleMemberships.size());
@@ -142,10 +142,10 @@ public class RoleTest extends AbstractTest {
 
         actual = roleDAO.find(actual.getKey());
         assertEquals(1, actual.getDynMembership().getMembers().size());
-        assertEquals(4L, actual.getDynMembership().getMembers().get(0).getKey(), 0);
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", actual.getDynMembership().getMembers().get(0).getKey());
 
         // 5. delete role and verify that dynamic membership was also removed
-        Long dynMembershipKey = actual.getDynMembership().getKey();
+        String dynMembershipKey = actual.getDynMembership().getKey();
 
         roleDAO.delete(actual);
 
@@ -163,7 +163,7 @@ public class RoleTest extends AbstractTest {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.find("/even/two"));
+        role.add(realmDAO.findByFullPath("/even/two"));
         role.getEntitlements().add(StandardEntitlement.LOG_LIST);
         role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
 
@@ -173,7 +173,7 @@ public class RoleTest extends AbstractTest {
         // 1. create user and assign that role
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.find("/even/two"));
+        user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.add(role);
 
         user = userDAO.save(user);

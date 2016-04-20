@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
 
-public interface PlainAttr<A extends Any<?>> extends Entity<Long> {
+public interface PlainAttr<A extends Any<?>> extends Entity {
 
     A getOwner();
 

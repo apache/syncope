@@ -109,13 +109,13 @@ public class LDAPPasswordPullActions extends DefaultPullActions {
             final ProvisioningReport result) throws JobExecutionException {
 
         if (any instanceof UserTO && encodedPassword != null && cipher != null) {
-            User syncopeUser = userDAO.find(any.getKey());
-            if (syncopeUser != null) {
+            User user = userDAO.find(any.getKey());
+            if (user != null) {
                 byte[] encodedPasswordBytes = Base64.decode(encodedPassword.getBytes());
                 char[] encodedHex = Hex.encode(encodedPasswordBytes);
                 String encodedHexStr = new String(encodedHex).toUpperCase();
 
-                syncopeUser.setEncodedPassword(encodedHexStr, cipher);
+                user.setEncodedPassword(encodedHexStr, cipher);
             }
             encodedPassword = null;
             cipher = null;

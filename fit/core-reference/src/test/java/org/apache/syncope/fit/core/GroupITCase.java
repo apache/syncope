@@ -29,6 +29,7 @@ import java.security.AccessControlException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
@@ -47,7 +48,6 @@ import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.patch.LongReplacePatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -108,7 +108,7 @@ public class GroupITCase extends AbstractITCase {
     public void create() {
         GroupTO groupTO = getSampleTO("lastGroup");
         groupTO.getVirAttrs().add(attrTO("rvirtualdata", "rvirtualvalue"));
-        groupTO.setGroupOwner(8L);
+        groupTO.setGroupOwner("f779c0d4-633b-4be5-8f57-32eb478a3ca5");
 
         groupTO = createGroup(groupTO).getAny();
         assertNotNull(groupTO);
@@ -128,7 +128,7 @@ public class GroupITCase extends AbstractITCase {
         // SYNCOPE-515: remove ownership
         GroupPatch groupPatch = new GroupPatch();
         groupPatch.setKey(groupTO.getKey());
-        groupPatch.setGroupOwner(new LongReplacePatchItem());
+        groupPatch.setGroupOwner(new StringReplacePatchItem());
 
         assertNull(updateGroup(groupPatch).getAny().getGroupOwner());
     }
@@ -136,7 +136,7 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void delete() {
         try {
-            groupService.delete(0L);
+            groupService.delete(UUID.randomUUID().toString());
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -173,7 +173,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        GroupTO groupTO = groupService.read(1L);
+        GroupTO groupTO = groupService.read("37d15e4c-cdc1-460b-a591-8505c8133806");
 
         assertNotNull(groupTO);
         assertNotNull(groupTO.getPlainAttrs());
@@ -182,16 +182,16 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void selfRead() {
-        UserTO userTO = userService.read(1L);
+        UserTO userTO = userService.read("1417acbe-cbf6-4277-9372-e75e04f97000");
         assertNotNull(userTO);
 
-        assertTrue(userTO.getMembershipMap().containsKey(1L));
-        assertFalse(userTO.getMembershipMap().containsKey(3L));
+        assertTrue(userTO.getMembershipMap().containsKey("37d15e4c-cdc1-460b-a591-8505c8133806"));
+        assertFalse(userTO.getMembershipMap().containsKey("29f96485-729e-4d31-88a1-6fc60e4677f3"));
 
         GroupService groupService2 = clientFactory.create("rossini", ADMIN_PWD).getService(GroupService.class);
 
         try {
-            groupService2.read(3L);
+            groupService2.read("29f96485-729e-4d31-88a1-6fc60e4677f3");
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
@@ -203,7 +203,7 @@ public class GroupITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final GroupTO group) {
-                return 1L == group.getKey();
+                return "37d15e4c-cdc1-460b-a591-8505c8133806".equals(group.getKey());
             }
         }));
     }
@@ -266,7 +266,7 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void updateAsGroupOwner() {
         // 1. read group as admin
-        GroupTO groupTO = groupService.read(6L);
+        GroupTO groupTO = groupService.read("ebf97068-aa4b-4a85-9f01-680e8c4cf227");
 
         // issue SYNCOPE-15
         assertNotNull(groupTO.getCreationDate());
@@ -582,21 +582,22 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void uDynMembership() {
-        assertTrue(userService.read(4L).getDynGroups().isEmpty());
+        assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynGroups().isEmpty());
 
         GroupTO group = getBasicSampleTO("uDynMembership");
         group.setUDynMembershipCond("cool==true");
         group = createGroup(group).getAny();
         assertNotNull(group);
 
-        assertTrue(userService.read(4L).getDynGroups().contains(group.getKey()));
+        assertTrue(userService.read(
+                "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynGroups().contains(group.getKey()));
 
         GroupPatch patch = new GroupPatch();
         patch.setKey(group.getKey());
         patch.setUDynMembershipCond("cool==false");
         groupService.update(patch);
 
-        assertTrue(userService.read(4L).getDynGroups().isEmpty());
+        assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynGroups().isEmpty());
     }
 
     @Test
@@ -617,8 +618,10 @@ public class GroupITCase extends AbstractITCase {
         newAny.getResources().clear();
         newAny = createAnyObject(newAny).getAny();
         assertNotNull(newAny.getPlainAttrMap().get("location"));
-        assertTrue(anyObjectService.read(1L).getDynGroups().contains(group.getKey()));
-        assertTrue(anyObjectService.read(2L).getDynGroups().contains(group.getKey()));
+        assertTrue(anyObjectService.read(
+                "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynGroups().contains(group.getKey()));
+        assertTrue(anyObjectService.read(
+                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynGroups().contains(group.getKey()));
         assertTrue(anyObjectService.read(newAny.getKey()).getDynGroups().contains(group.getKey()));
 
         // 2. update group and change aDynMembership condition
@@ -643,8 +646,10 @@ public class GroupITCase extends AbstractITCase {
                 build());
         newAny = updateAnyObject(anyPatch).getAny();
         assertNull(newAny.getPlainAttrMap().get("location"));
-        assertFalse(anyObjectService.read(1L).getDynGroups().contains(group.getKey()));
-        assertFalse(anyObjectService.read(2L).getDynGroups().contains(group.getKey()));
+        assertFalse(anyObjectService.read(
+                "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynGroups().contains(group.getKey()));
+        assertFalse(anyObjectService.read(
+                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynGroups().contains(group.getKey()));
         assertTrue(anyObjectService.read(newAny.getKey()).getDynGroups().contains(group.getKey()));
     }
 

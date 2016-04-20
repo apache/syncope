@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.RelationshipPatch;
 import org.apache.syncope.common.lib.patch.AbstractReplacePatchItem;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
-import org.apache.syncope.common.lib.patch.LongReplacePatchItem;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -175,10 +174,10 @@ public final class AnyOperations {
         diff(updated, original, result, incremental);
 
         // 1. relationships
-        Map<Pair<String, Long>, RelationshipTO> updatedRels = updated.getRelationshipMap();
-        Map<Pair<String, Long>, RelationshipTO> originalRels = original.getRelationshipMap();
+        Map<Pair<String, String>, RelationshipTO> updatedRels = updated.getRelationshipMap();
+        Map<Pair<String, String>, RelationshipTO> originalRels = original.getRelationshipMap();
 
-        for (Map.Entry<Pair<String, Long>, RelationshipTO> entry : updatedRels.entrySet()) {
+        for (Map.Entry<Pair<String, String>, RelationshipTO> entry : updatedRels.entrySet()) {
             if (!originalRels.containsKey(entry.getKey())) {
                 result.getRelationships().add(new RelationshipPatch.Builder().
                         operation(PatchOperation.ADD_REPLACE).
@@ -187,7 +186,7 @@ public final class AnyOperations {
         }
 
         if (!incremental) {
-            for (Pair<String, Long> key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
+            for (Pair<String, String> key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
                 result.getRelationships().add(new RelationshipPatch.Builder().
                         operation(PatchOperation.DELETE).
                         relationshipTO(originalRels.get(key)).build());
@@ -195,10 +194,10 @@ public final class AnyOperations {
         }
 
         // 2. memberships
-        Map<Long, MembershipTO> updatedMembs = updated.getMembershipMap();
-        Map<Long, MembershipTO> originalMembs = original.getMembershipMap();
+        Map<String, MembershipTO> updatedMembs = updated.getMembershipMap();
+        Map<String, MembershipTO> originalMembs = original.getMembershipMap();
 
-        for (Map.Entry<Long, MembershipTO> entry : updatedMembs.entrySet()) {
+        for (Map.Entry<String, MembershipTO> entry : updatedMembs.entrySet()) {
             if (!originalMembs.containsKey(entry.getKey())) {
                 result.getMemberships().add(new MembershipPatch.Builder().
                         operation(PatchOperation.ADD_REPLACE).membershipTO(entry.getValue()).build());
@@ -206,7 +205,7 @@ public final class AnyOperations {
         }
 
         if (!incremental) {
-            for (Long key : CollectionUtils.subtract(originalMembs.keySet(), updatedMembs.keySet())) {
+            for (String key : CollectionUtils.subtract(originalMembs.keySet(), updatedMembs.keySet())) {
                 result.getMemberships().add(new MembershipPatch.Builder().
                         operation(PatchOperation.DELETE).membershipTO(originalMembs.get(key)).build());
             }
@@ -246,8 +245,8 @@ public final class AnyOperations {
         } else if (!updated.getSecurityQuestion().equals(original.getSecurityQuestion())
                 || StringUtils.isNotBlank(updated.getSecurityAnswer())) {
 
-            result.setSecurityQuestion(
-                    new LongReplacePatchItem.Builder().value(updated.getSecurityQuestion()).build());
+            result.setSecurityQuestion(new StringReplacePatchItem.Builder().
+                    value(updated.getSecurityQuestion()).build());
             result.setSecurityAnswer(
                     new StringReplacePatchItem.Builder().value(updated.getSecurityAnswer()).build());
         }
@@ -269,10 +268,10 @@ public final class AnyOperations {
         }
 
         // 5. relationships
-        Map<Pair<String, Long>, RelationshipTO> updatedRels = updated.getRelationshipMap();
-        Map<Pair<String, Long>, RelationshipTO> originalRels = original.getRelationshipMap();
+        Map<Pair<String, String>, RelationshipTO> updatedRels = updated.getRelationshipMap();
+        Map<Pair<String, String>, RelationshipTO> originalRels = original.getRelationshipMap();
 
-        for (Map.Entry<Pair<String, Long>, RelationshipTO> entry : updatedRels.entrySet()) {
+        for (Map.Entry<Pair<String, String>, RelationshipTO> entry : updatedRels.entrySet()) {
             if (!originalRels.containsKey(entry.getKey())) {
                 result.getRelationships().add(new RelationshipPatch.Builder().
                         operation(PatchOperation.ADD_REPLACE).
@@ -281,7 +280,7 @@ public final class AnyOperations {
         }
 
         if (!incremental) {
-            for (Pair<String, Long> key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
+            for (Pair<String, String> key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
                 result.getRelationships().add(new RelationshipPatch.Builder().
                         operation(PatchOperation.DELETE).
                         relationshipTO(originalRels.get(key)).build());
@@ -289,10 +288,10 @@ public final class AnyOperations {
         }
 
         // 6. memberships
-        Map<Long, MembershipTO> updatedMembs = updated.getMembershipMap();
-        Map<Long, MembershipTO> originalMembs = original.getMembershipMap();
+        Map<String, MembershipTO> updatedMembs = updated.getMembershipMap();
+        Map<String, MembershipTO> originalMembs = original.getMembershipMap();
 
-        for (Map.Entry<Long, MembershipTO> entry : updatedMembs.entrySet()) {
+        for (Map.Entry<String, MembershipTO> entry : updatedMembs.entrySet()) {
             if (!originalMembs.containsKey(entry.getKey())) {
                 result.getMemberships().add(new MembershipPatch.Builder().
                         operation(PatchOperation.ADD_REPLACE).membershipTO(entry.getValue()).build());
@@ -300,7 +299,7 @@ public final class AnyOperations {
         }
 
         if (!incremental) {
-            for (Long key : CollectionUtils.subtract(originalMembs.keySet(), updatedMembs.keySet())) {
+            for (String key : CollectionUtils.subtract(originalMembs.keySet(), updatedMembs.keySet())) {
                 result.getMemberships().add(new MembershipPatch.Builder().
                         operation(PatchOperation.DELETE).membershipTO(originalMembs.get(key)).build());
             }
@@ -326,10 +325,10 @@ public final class AnyOperations {
         result.setName(replacePatchItem(updated.getName(), original.getName(), new StringReplacePatchItem()));
 
         // 2. ownership
-        result.setUserOwner(replacePatchItem(
-                updated.getUserOwner(), original.getUserOwner(), new LongReplacePatchItem()));
-        result.setGroupOwner(replacePatchItem(
-                updated.getGroupOwner(), original.getGroupOwner(), new LongReplacePatchItem()));
+        result.setUserOwner(
+                replacePatchItem(updated.getUserOwner(), original.getUserOwner(), new StringReplacePatchItem()));
+        result.setGroupOwner(replacePatchItem(updated.getGroupOwner(), original.getGroupOwner(),
+                new StringReplacePatchItem()));
 
         // 3. dynamic membership
         result.setUDynMembershipCond(updated.getUDynMembershipCond());
@@ -382,7 +381,7 @@ public final class AnyOperations {
 
     private static <T extends AnyTO, K extends AnyPatch> void patch(final T to, final K patch, final T result) {
         // check same key
-        if (to.getKey() == null || to.getKey() != patch.getKey()) {
+        if (to.getKey() == null || !to.getKey().equals(patch.getKey())) {
             throw new IllegalArgumentException(
                     to.getClass().getSimpleName() + " and " + patch.getClass().getSimpleName()
                     + " keys must be the same");

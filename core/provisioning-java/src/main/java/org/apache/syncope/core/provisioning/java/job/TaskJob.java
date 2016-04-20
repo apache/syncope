@@ -50,14 +50,14 @@ public class TaskJob extends AbstractInterruptableJob {
     /**
      * Key, set by the caller, for identifying the task to be executed.
      */
-    private Long taskKey;
+    private String taskKey;
 
     /**
      * Task key setter.
      *
      * @param taskKey to be set
      */
-    public void setTaskKey(final Long taskKey) {
+    public void setTaskKey(final String taskKey) {
         this.taskKey = taskKey;
     }
 

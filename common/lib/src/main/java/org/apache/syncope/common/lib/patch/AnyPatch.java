@@ -34,7 +34,7 @@ public abstract class AnyPatch extends AbstractBaseBean {
 
     private static final long serialVersionUID = -7445489774552440544L;
 
-    private long key;
+    private String key;
 
     private StringReplacePatchItem realm;
 
@@ -46,12 +46,12 @@ public abstract class AnyPatch extends AbstractBaseBean {
 
     private final Set<StringPatchItem> resources = new HashSet<>();
 
-    public long getKey() {
+    public String getKey() {
         return key;
     }
 
     @PathParam("key")
-    public void setKey(final long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

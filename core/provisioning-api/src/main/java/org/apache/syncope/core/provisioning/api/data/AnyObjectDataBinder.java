@@ -25,7 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
 public interface AnyObjectDataBinder {
 
-    AnyObjectTO getAnyObjectTO(Long key);
+    AnyObjectTO getAnyObjectTO(String key);
 
     AnyObjectTO getAnyObjectTO(AnyObject anyObject, boolean details);
 

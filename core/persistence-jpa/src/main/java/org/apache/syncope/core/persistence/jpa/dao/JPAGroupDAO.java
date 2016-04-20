@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -115,7 +116,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     }
 
     @Override
-    public Group find(final String name) {
+    public Group findByName(final String name) {
         TypedQuery<Group> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.name = :name", Group.class);
         query.setParameter("name", name);
@@ -130,9 +131,25 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return result;
     }
 
+    @Override
+    public Group authFindByName(final String name) {
+        if (name == null) {
+            throw new NotFoundException("Null name");
+        }
+
+        Group group = findByName(name);
+        if (group == null) {
+            throw new NotFoundException("Group " + name);
+        }
+
+        securityChecks(group);
+
+        return group;
+    }
+
     @Transactional(readOnly = true)
     @Override
-    public List<Group> findOwnedByUser(final Long userKey) {
+    public List<Group> findOwnedByUser(final String userKey) {
         User owner = userDAO.find(userKey);
         if (owner == null) {
             return Collections.<Group>emptyList();
@@ -140,8 +157,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPAGroup.class.getSimpleName()).
                 append(" e WHERE e.userOwner=:owner ");
-        for (Long groupKey : userDAO.findAllGroupKeys(owner)) {
-            queryString.append("OR e.groupOwner.id=").append(groupKey).append(' ');
+        for (String groupKey : userDAO.findAllGroupKeys(owner)) {
+            queryString.append("OR e.groupOwner.key='").append(groupKey).append("' ");
         }
 
         TypedQuery<Group> query = entityManager().createQuery(queryString.toString(), Group.class);
@@ -152,8 +169,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Group> findOwnedByGroup(final Long groupId) {
-        Group owner = find(groupId);
+    public List<Group> findOwnedByGroup(final String groupKey) {
+        Group owner = find(groupKey);
         if (owner == null) {
             return Collections.<Group>emptyList();
         }
@@ -241,7 +258,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     }
 
     private void populateTransitiveResources(
-            final Group group, final Any<?> any, final Map<Long, PropagationByResource> result) {
+            final Group group, final Any<?> any, final Map<String, PropagationByResource> result) {
 
         PropagationByResource propByRes = new PropagationByResource();
         for (ExternalResource resource : group.getResources()) {
@@ -257,10 +274,10 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public Map<Long, PropagationByResource> findAnyObjectsWithTransitiveResources(final Long groupKey) {
+    public Map<String, PropagationByResource> findAnyObjectsWithTransitiveResources(final String groupKey) {
         Group group = authFind(groupKey);
 
-        Map<Long, PropagationByResource> result = new HashMap<>();
+        Map<String, PropagationByResource> result = new HashMap<>();
 
         for (AMembership membership : findAMemberships(group)) {
             populateTransitiveResources(group, membership.getLeftEnd(), result);
@@ -271,10 +288,10 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public Map<Long, PropagationByResource> findUsersWithTransitiveResources(final Long groupKey) {
+    public Map<String, PropagationByResource> findUsersWithTransitiveResources(final String groupKey) {
         Group group = authFind(groupKey);
 
-        Map<Long, PropagationByResource> result = new HashMap<>();
+        Map<String, PropagationByResource> result = new HashMap<>();
 
         for (UMembership membership : findUMemberships(group)) {
             populateTransitiveResources(group, membership.getLeftEnd(), result);

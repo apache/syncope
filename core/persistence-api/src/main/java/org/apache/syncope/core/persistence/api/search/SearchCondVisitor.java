@@ -93,25 +93,25 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                     switch (specialAttrName) {
                         case TYPE:
                             AnyTypeCond typeCond = new AnyTypeCond();
-                            typeCond.setAnyTypeName(value);
+                            typeCond.setAnyTypeKey(value);
                             leaf = SearchCond.getLeafCond(typeCond);
                             break;
 
                         case RESOURCES:
                             ResourceCond resourceCond = new ResourceCond();
-                            resourceCond.setResourceName(value);
+                            resourceCond.setResourceKey(value);
                             leaf = SearchCond.getLeafCond(resourceCond);
                             break;
 
                         case GROUPS:
                             MembershipCond groupCond = new MembershipCond();
-                            groupCond.setGroupKey(Long.valueOf(value));
+                            groupCond.setGroupKey(value);
                             leaf = SearchCond.getLeafCond(groupCond);
                             break;
 
                         case RELATIONSHIPS:
                             RelationshipCond relationshipCond = new RelationshipCond();
-                            relationshipCond.setAnyObjectKey(Long.valueOf(value));
+                            relationshipCond.setAnyObjectKey(value);
                             leaf = SearchCond.getLeafCond(relationshipCond);
                             break;
 

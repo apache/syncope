@@ -40,7 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implements AnyTypeClassDAO {
+public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass> implements AnyTypeClassDAO {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;

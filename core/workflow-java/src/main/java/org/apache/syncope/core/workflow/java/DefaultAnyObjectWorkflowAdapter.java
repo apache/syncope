@@ -39,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAdapter {
 
     @Override
-    public WorkflowResult<Long> create(final AnyObjectTO anyObjectTO) {
+    public WorkflowResult<String> create(final AnyObjectTO anyObjectTO) {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         dataBinder.create(anyObject, anyObjectTO);
         anyObject = anyObjectDAO.save(anyObject);
@@ -51,7 +51,7 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
-    protected WorkflowResult<Long> doUpdate(final AnyObject anyObject, final AnyObjectPatch anyObjectPatch) {
+    protected WorkflowResult<String> doUpdate(final AnyObject anyObject, final AnyObjectPatch anyObjectPatch) {
         PropagationByResource propByRes = dataBinder.update(anyObject, anyObjectPatch);
 
         AnyObject updated = anyObjectDAO.save(anyObject);
@@ -65,7 +65,7 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
-    public WorkflowResult<Long> execute(final AnyObjectTO anyObject, final String taskId) {
+    public WorkflowResult<String> execute(final AnyObjectTO anyObject, final String taskId) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 

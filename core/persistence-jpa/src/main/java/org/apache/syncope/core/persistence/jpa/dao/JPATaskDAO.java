@@ -42,7 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
 @Repository
-public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
+public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
     @Override
     public Class<? extends Task> getEntityReference(final TaskType type) {
@@ -78,7 +78,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends Task> T find(final Long key) {
+    public <T extends Task> T find(final String key) {
         return (T) entityManager().find(AbstractTask.class, key);
     }
 
@@ -87,9 +87,9 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
                 append(getEntityReference(type).getSimpleName()).
                 append(" t WHERE ");
         if (type == TaskType.SCHEDULED) {
-            builder.append("t.id NOT IN (SELECT t.id FROM ").append(JPAPushTask.class.getSimpleName()).append(" t) ").
+            builder.append("t.key NOT IN (SELECT t.key FROM ").append(JPAPushTask.class.getSimpleName()).append(" t) ").
                     append("AND ").
-                    append("t.id NOT IN (SELECT t.id FROM ").append(JPAPullTask.class.getSimpleName()).append(" t)");
+                    append("t.key NOT IN (SELECT t.key FROM ").append(JPAPullTask.class.getSimpleName()).append(" t)");
         } else {
             builder.append("1=1");
         }
@@ -107,7 +107,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
         } else {
             queryString.append("t.executions IS EMPTY ");
         }
-        queryString.append("ORDER BY t.id DESC");
+        queryString.append("ORDER BY t.key DESC");
 
         Query query = entityManager().createQuery(queryString.toString());
         return query.getResultList();
@@ -124,7 +124,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
             final ExternalResource resource,
             final Notification notification,
             final AnyTypeKind anyTypeKind,
-            final Long anyKey) {
+            final String anyKey) {
 
         if (resource != null
                 && type != TaskType.PROPAGATION && type != TaskType.PUSH && type != TaskType.PULL) {
@@ -134,6 +134,10 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
 
         if ((anyTypeKind != null || anyKey != null) && type != TaskType.PROPAGATION && type != TaskType.NOTIFICATION) {
             throw new IllegalArgumentException(type + " is not related to users, groups or any objects");
+        }
+
+        if (notification != null && type != TaskType.NOTIFICATION) {
+            throw new IllegalArgumentException(type + " is not related to notifications");
         }
 
         StringBuilder queryString = buildFindAllQuery(type);
@@ -164,7 +168,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
         }
 
         if (statement.length() == 0) {
-            statement.append("ORDER BY t.id DESC");
+            statement.append("ORDER BY t.key DESC");
         } else {
             statement.insert(0, "ORDER BY ");
         }
@@ -178,7 +182,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
             final ExternalResource resource,
             final Notification notification,
             final AnyTypeKind anyTypeKind,
-            final Long anyKey,
+            final String anyKey,
             final int page,
             final int itemsPerPage,
             final List<OrderByClause> orderByClauses) {
@@ -215,7 +219,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
             final ExternalResource resource,
             final Notification notification,
             final AnyTypeKind anyTypeKind,
-            final Long anyKey) {
+            final String anyKey) {
 
         StringBuilder queryString = buildFindAllQuery(type, resource, notification, anyTypeKind, anyKey);
 
@@ -242,7 +246,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     }
 
     @Override
-    public void delete(final Long id) {
+    public void delete(final String id) {
         Task task = find(id);
         if (task == null) {
             return;

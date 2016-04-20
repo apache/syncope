@@ -37,11 +37,11 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "notification")
 @XmlType
-public class NotificationTO extends AbstractBaseBean implements EntityTO<Long> {
+public class NotificationTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = -6145117115632592612L;
 
-    private Long key;
+    private String key;
 
     private final List<String> events = new ArrayList<>();
 
@@ -91,13 +91,13 @@ public class NotificationTO extends AbstractBaseBean implements EntityTO<Long> {
     }
 
     @Override
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @PathParam("key")
     @Override
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

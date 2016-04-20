@@ -1,5 +1,3 @@
-package org.apache.syncope.core.persistence.api.entity;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -18,9 +16,11 @@ package org.apache.syncope.core.persistence.api.entity;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.syncope.core.persistence.api.entity;
+
 public interface EntityFactory {
 
-    <KEY, T extends Entity<KEY>> T newEntity(Class<T> reference);
+    <E extends Entity> E newEntity(Class<E> reference);
 
     ConnPoolConf newConnPoolConf();
 }

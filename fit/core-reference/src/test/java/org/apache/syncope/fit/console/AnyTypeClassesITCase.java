@@ -47,12 +47,11 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
 
         wicketTester.assertComponent(
                 result.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink", IndicatingAjaxLink.class);
-
-        wicketTester.clickLink(
-                result.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink");
+        
+        wicketTester.clickLink(result.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink");
 
         wicketTester.assertComponent(
-                "body:content:tabbedPanel:panel:modal", BaseModal.class);
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", BaseModal.class);
     }
 
     @Test
@@ -63,14 +62,16 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
         wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
         wicketTester.assertComponent(
-                "body:content:tabbedPanel:panel:modal", Modal.class);
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
+        final FormTester formTester
+                = wicketTester.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:anyTypeClassDetailsPanel:form:key:textField", anyTypeClassTest);
         formTester.setValue(
                 "content:anyTypeClassDetailsPanel:form:container:derSchemas:paletteField:recorder", "mderiveddata");
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
 
         wicketTester.clearFeedbackMessages();
@@ -102,11 +103,13 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
                 DATATABLE_PATH
                 + ":tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:6:cell:panelEdit:editLink");
 
-        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
+        final FormTester formTester
+                = wicketTester.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue(
                 "content:anyTypeClassDetailsPanel:form:container:plainSchemas:paletteField:recorder", plainSchema);
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
         wicketTester.assertInfoMessages("Operation executed successfully");
     }
 

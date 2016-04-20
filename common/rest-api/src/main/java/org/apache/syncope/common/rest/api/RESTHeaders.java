@@ -25,10 +25,6 @@ public final class RESTHeaders {
 
     public static final String DOMAIN = "X-Syncope-Domain";
 
-    public static final String USER_KEY = "X-Syncope-User-Key";
-
-    public static final String USERNAME = "X-Syncope-Username";
-
     public static final String OWNED_ENTITLEMENTS = "X-Syncope-Entitlements";
 
     public static final String RESOURCE_KEY = "X-Syncope-Key";

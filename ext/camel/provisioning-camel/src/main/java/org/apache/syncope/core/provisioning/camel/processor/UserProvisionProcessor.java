@@ -55,7 +55,7 @@ public class UserProvisionProcessor implements Processor {
 
     @Override
     public void process(final Exchange exchange) {
-        Long key = exchange.getIn().getBody(Long.class);
+        String key = exchange.getIn().getBody(String.class);
         Boolean changePwd = exchange.getProperty("changePwd", Boolean.class);
         String password = exchange.getProperty("password", String.class);
         @SuppressWarnings("unchecked")

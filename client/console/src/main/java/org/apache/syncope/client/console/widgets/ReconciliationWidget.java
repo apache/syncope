@@ -101,7 +101,7 @@ public class ReconciliationWidget extends BaseWidget {
 
     private static final int ROWS = 10;
 
-    private final Long reconciliationReportKey;
+    private final String reconciliationReportKey;
 
     private final BaseModal<Any> detailsModal = new BaseModal<>("detailsModal");
 
@@ -292,7 +292,7 @@ public class ReconciliationWidget extends BaseWidget {
             }
         }
 
-        return Pair.of(beans, report);
+        return Pair.of(beans, report == null ? new ReconciliationReport(new Date()) : report);
     }
 
     @Override

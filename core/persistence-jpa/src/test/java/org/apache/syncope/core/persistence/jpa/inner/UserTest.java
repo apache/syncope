@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -121,22 +122,18 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void findById() {
-        User user = userDAO.find(1L);
+    public void findByKey() {
+        User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
         assertNotNull("did not find expected user", user);
-        user = userDAO.find(3L);
-        assertNotNull("did not find expected user", user);
-        user = userDAO.find(6L);
-        assertNull("found user but did not expect it", user);
     }
 
     @Test
     public void findByUsername() {
-        User user = userDAO.find("rossini");
+        User user = userDAO.findByUsername("rossini");
         assertNotNull("did not find expected user", user);
-        user = userDAO.find("vivaldi");
+        user = userDAO.findByUsername("vivaldi");
         assertNotNull("did not find expected user", user);
-        user = userDAO.find("user6");
+        user = userDAO.findByUsername("user6");
         assertNull("found user but did not expect it", user);
     }
 
@@ -144,7 +141,7 @@ public class UserTest extends AbstractTest {
     public void save() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.find("/even/two"));
+        user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
         user.setCreationDate(new Date());
 
@@ -177,11 +174,11 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void delete() {
-        User user = userDAO.find(3L);
+        User user = userDAO.find("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
 
         userDAO.delete(user.getKey());
 
-        User actual = userDAO.find(3L);
+        User actual = userDAO.find("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
         assertNull("delete did not work", actual);
     }
 
@@ -189,7 +186,7 @@ public class UserTest extends AbstractTest {
     public void issue237() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.find("/even/two"));
+        user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
         user.setCreationDate(new Date());
 
@@ -204,7 +201,7 @@ public class UserTest extends AbstractTest {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setPassword(null, CipherAlgorithm.AES);
-        user.setRealm(realmDAO.find("/even/two"));
+        user.setRealm(realmDAO.findByFullPath("/even/two"));
 
         User actual = userDAO.save(user);
         assertNull(user.getPassword());
@@ -213,7 +210,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE226() {
-        User user = userDAO.find(5L);
+        User user = userDAO.find("823074dc-d280-436d-a7dd-07399fae48ec");
         String password = "";
         try {
             password = passwordGenerator.generate(user);
@@ -230,7 +227,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void testPasswordGenerator() {
-        User user = userDAO.find(5L);
+        User user = userDAO.find("823074dc-d280-436d-a7dd-07399fae48ec");
 
         String password = "";
         try {

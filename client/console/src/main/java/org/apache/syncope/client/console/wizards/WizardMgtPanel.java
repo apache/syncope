@@ -19,6 +19,9 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ModalPanel;
@@ -30,11 +33,13 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSource;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -56,6 +61,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     private final boolean wizardInModal;
 
+    private boolean containerAutoRefresh = true;
+
     protected PageReference pageRef;
 
     protected final AjaxLink<?> addAjaxLink;
@@ -68,7 +75,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     protected boolean showResultPage = false;
 
-    protected final BaseModal<T> modal = new BaseModal<T>("modal") {
+    private final List<Component> outerObjects = new ArrayList<>();
+
+    protected final BaseModal<T> modal = new BaseModal<T>("outer") {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -79,12 +88,6 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         }
 
     };
-
-    protected final BaseModal<T> altDefaultModal = new BaseModal<>("alternativeDefaultModal");
-
-    protected final BaseModal<T> displayAttributeModal = new BaseModal<>("displayAttributeModal");
-
-    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("utilityModal");
 
     protected WizardMgtPanel(final String id) {
         this(id, false);
@@ -97,14 +100,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         this.actualId = wizardInModal ? BaseModal.CONTENT_ID : WIZARD_ID;
         this.wizardInModal = wizardInModal;
 
-        super.add(modal);
-        super.add(altDefaultModal);
-        super.add(displayAttributeModal);
-        super.add(utilityModal);
+        outerObjects.add(modal);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
-        super.add(container);
+        add(container);
 
         initialFragment = new Fragment("content", "default", this);
         container.addOrReplace(initialFragment);
@@ -122,6 +122,17 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         addAjaxLink.setEnabled(false);
         addAjaxLink.setVisible(false);
         initialFragment.addOrReplace(addAjaxLink);
+
+        add(new ListView<Component>("outerObjectsRepeater", outerObjects) {
+
+            private static final long serialVersionUID = -9180479401817023838L;
+
+            @Override
+            protected void populateItem(final ListItem<Component> item) {
+                item.add(item.getModelObject());
+            }
+
+        });
     }
 
     @Override
@@ -195,9 +206,16 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                 }
             }
 
-            target.add(container);
+            if (containerAutoRefresh) {
+                target.add(container);
+            }
         }
         super.onEvent(event);
+    }
+
+    protected final WizardMgtPanel<T> disableContainerAutoRefresh() {
+        containerAutoRefresh = false;
+        return this;
     }
 
     /*
@@ -211,13 +229,27 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         };
     }
 
-    @Override
-    public Component add(final Behavior... behaviors) {
-        return super.add(behaviors);
+    /**
+     * Add object inside the main container.
+     *
+     * @param childs components to be added.
+     * @return the current panel instance.
+     */
+    public MarkupContainer addInnerObject(final Component... childs) {
+        return initialFragment.add(childs);
     }
 
-    public final MarkupContainer addInnerObject(final Component childs) {
-        return initialFragment.add(childs);
+    /**
+     * Add object outside the main container.
+     * Use this method just to be not influenced by specific inner object css'.
+     * Be sure to provide <tt>outer</tt> as id.
+     *
+     * @param childs components to be added.
+     * @return the current panel instance.
+     */
+    public final WizardMgtPanel<T> addOuterObject(final Component... childs) {
+        outerObjects.addAll(Arrays.asList(childs));
+        return this;
     }
 
     public <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> setPageRef(final PageReference pageRef) {
@@ -250,6 +282,32 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     public WizardMgtPanel<T> setFooterVisibility(final boolean footerVisibility) {
         this.footerVisibility = footerVisibility;
         return this;
+    }
+
+    /**
+     * Set window close callback for the given modal.
+     *
+     * @param modal target modal.
+     */
+    protected final void setWindowClosedReloadCallback(final BaseModal<?> modal) {
+        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                modal.show(false);
+                customActionOnCloseCallback(target);
+            }
+        });
+    }
+
+    /**
+     * Custom action to perform on close callback.
+     *
+     * @param target Ajax request target.
+     */
+    protected void customActionOnCloseCallback(final AjaxRequestTarget target) {
     }
 
     /**

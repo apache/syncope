@@ -66,7 +66,7 @@ public class VirSchemaITCase extends AbstractITCase {
 
         schema = createSchema(SchemaType.VIRTUAL, schema);
         assertNotNull(schema);
-        assertEquals(csv.getProvisions().get(0).getKey(), schema.getProvision(), 0);
+        assertEquals(csv.getProvisions().get(0).getKey(), schema.getProvision());
 
         csv = resourceService.read(RESOURCE_NAME_CSV);
         assertNotNull(csv);

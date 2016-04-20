@@ -44,12 +44,12 @@ public class UserSetStatusInPullProcessor implements Processor {
         WorkflowResult<Map.Entry<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
 
         Boolean enabled = exchange.getProperty("enabled", Boolean.class);
-        Long key = exchange.getProperty("key", Long.class);
+        String key = exchange.getProperty("key", String.class);
 
         if (enabled != null) {
             User user = userDAO.find(key);
 
-            WorkflowResult<Long> enableUpdate = null;
+            WorkflowResult<String> enableUpdate = null;
             if (user.isSuspended() == null) {
                 enableUpdate = uwfAdapter.activate(key, null);
             } else if (enabled && user.isSuspended()) {

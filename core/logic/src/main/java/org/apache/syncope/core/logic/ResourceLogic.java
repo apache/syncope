@@ -114,12 +114,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     public ResourceTO create(final ResourceTO resourceTO) {
         if (StringUtils.isBlank(resourceTO.getKey())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
-            sce.getElements().add("Resource name");
+            sce.getElements().add("Resource key");
             throw sce;
         }
 
         if (resourceDAO.find(resourceTO.getKey()) != null) {
-            throw new DuplicateException("Resource '" + resourceTO.getKey() + "'");
+            throw new DuplicateException(resourceTO.getKey());
         }
 
         ExternalResource resource = null;
@@ -215,7 +215,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_GET_CONNOBJECT + "')")
     @Transactional(readOnly = true)
-    public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final Long anyKey) {
+    public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final String anyKey) {
         Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
 
         // 1. find any

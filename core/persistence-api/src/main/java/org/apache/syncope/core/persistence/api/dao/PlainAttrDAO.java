@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 
-public interface PlainAttrDAO extends DAO<PlainAttr<?>, Long> {
+public interface PlainAttrDAO extends DAO<PlainAttr<?>> {
 
-    <T extends PlainAttr<?>> T find(Long key, Class<T> reference);
+    <T extends PlainAttr<?>> T find(String key, Class<T> reference);
 
-    <T extends PlainAttr<?>> void delete(Long key, Class<T> reference);
+    <T extends PlainAttr<?>> void delete(String key, Class<T> reference);
 
     <T extends PlainAttr<?>> void delete(T attr);
 }

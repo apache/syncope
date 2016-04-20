@@ -229,7 +229,9 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
     /**
      * Generic modal event.
      */
-    public static class ModalEvent {
+    public static class ModalEvent implements Serializable {
+
+        private static final long serialVersionUID = 2668922412196063559L;
 
         /**
          * Request target.

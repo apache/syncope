@@ -135,7 +135,8 @@ public class MultitenancyITCase extends AbstractITCase {
     @Test
     public void createResourceAndPull() {
         // read connector
-        ConnInstanceTO conn = adminClient.getService(ConnectorService.class).read(100L, Locale.ENGLISH.getLanguage());
+        ConnInstanceTO conn = adminClient.getService(ConnectorService.class).
+                read("b7ea96c3-c633-488b-98a0-b52ac35850f7", Locale.ENGLISH.getLanguage());
         assertNotNull(conn);
         assertEquals("LDAP", conn.getDisplayName());
 
@@ -144,80 +145,84 @@ public class MultitenancyITCase extends AbstractITCase {
         resource.setKey("new-ldap-resource");
         resource.setConnector(conn.getKey());
 
-        ProvisionTO provisionTO = new ProvisionTO();
-        provisionTO.setAnyType(AnyTypeKind.USER.name());
-        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
-        resource.getProvisions().add(provisionTO);
+        try {
+            ProvisionTO provisionTO = new ProvisionTO();
+            provisionTO.setAnyType(AnyTypeKind.USER.name());
+            provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+            resource.getProvisions().add(provisionTO);
 
-        MappingTO mapping = new MappingTO();
-        mapping.setConnObjectLink("'uid=' + username + ',ou=people,o=isp'");
-        provisionTO.setMapping(mapping);
+            MappingTO mapping = new MappingTO();
+            mapping.setConnObjectLink("'uid=' + username + ',ou=people,o=isp'");
+            provisionTO.setMapping(mapping);
 
-        MappingItemTO item = new MappingItemTO();
-        item.setIntAttrName("username");
-        item.setIntMappingType(IntMappingType.Username);
-        item.setExtAttrName("cn");
-        item.setPurpose(MappingPurpose.BOTH);
-        mapping.setConnObjectKeyItem(item);
+            MappingItemTO item = new MappingItemTO();
+            item.setIntAttrName("username");
+            item.setIntMappingType(IntMappingType.Username);
+            item.setExtAttrName("cn");
+            item.setPurpose(MappingPurpose.BOTH);
+            mapping.setConnObjectKeyItem(item);
 
-        item = new MappingItemTO();
-        item.setPassword(true);
-        item.setIntMappingType(IntMappingType.Password);
-        item.setExtAttrName("userPassword");
-        item.setPurpose(MappingPurpose.BOTH);
-        item.setMandatoryCondition("true");
-        mapping.add(item);
+            item = new MappingItemTO();
+            item.setPassword(true);
+            item.setIntMappingType(IntMappingType.Password);
+            item.setExtAttrName("userPassword");
+            item.setPurpose(MappingPurpose.BOTH);
+            item.setMandatoryCondition("true");
+            mapping.add(item);
 
-        item = new MappingItemTO();
-        item.setIntMappingType(IntMappingType.UserKey);
-        item.setPurpose(MappingPurpose.BOTH);
-        item.setExtAttrName("sn");
-        item.setMandatoryCondition("true");
-        mapping.add(item);
+            item = new MappingItemTO();
+            item.setIntMappingType(IntMappingType.UserKey);
+            item.setPurpose(MappingPurpose.BOTH);
+            item.setExtAttrName("sn");
+            item.setMandatoryCondition("true");
+            mapping.add(item);
 
-        item = new MappingItemTO();
-        item.setIntAttrName("email");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
-        item.setPurpose(MappingPurpose.BOTH);
-        item.setExtAttrName("mail");
-        mapping.add(item);
+            item = new MappingItemTO();
+            item.setIntAttrName("email");
+            item.setIntMappingType(IntMappingType.UserPlainSchema);
+            item.setPurpose(MappingPurpose.BOTH);
+            item.setExtAttrName("mail");
+            mapping.add(item);
 
-        // create resource
-        Response response = adminClient.getService(ResourceService.class).create(resource);
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        resource = adminClient.getService(ResourceService.class).read(resource.getKey());
-        assertNotNull(resource);
+            // create resource
+            Response response = adminClient.getService(ResourceService.class).create(resource);
+            assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+            resource = adminClient.getService(ResourceService.class).read(resource.getKey());
+            assertNotNull(resource);
 
-        // create pull task
-        PullTaskTO task = new PullTaskTO();
-        task.setName("LDAP Pull Task");
-        task.setActive(true);
-        task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
-        task.setResource(resource.getKey());
-        task.setPullMode(PullMode.FULL_RECONCILIATION);
-        task.setPerformCreate(true);
+            // create pull task
+            PullTaskTO task = new PullTaskTO();
+            task.setName("LDAP Pull Task");
+            task.setActive(true);
+            task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+            task.setResource(resource.getKey());
+            task.setPullMode(PullMode.FULL_RECONCILIATION);
+            task.setPerformCreate(true);
 
-        response = adminClient.getService(TaskService.class).create(task);
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        task = adminClient.getService(TaskService.class).read(
-                Long.valueOf(StringUtils.substringAfterLast(response.getLocation().toASCIIString(), "/")), true);
-        assertNotNull(resource);
+            response = adminClient.getService(TaskService.class).create(task);
+            assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+            task = adminClient.getService(TaskService.class).read(
+                    StringUtils.substringAfterLast(response.getLocation().toASCIIString(), "/"), true);
+            assertNotNull(resource);
 
-        // pull
-        ExecTO execution = AbstractTaskITCase.execProvisioningTask(
-                adminClient.getService(TaskService.class), task.getKey(), 50, false);
+            // pull
+            ExecTO execution = AbstractTaskITCase.execProvisioningTask(
+                    adminClient.getService(TaskService.class), task.getKey(), 50, false);
 
-        // verify execution status
-        String status = execution.getStatus();
-        assertNotNull(status);
-        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(status));
+            // verify execution status
+            String status = execution.getStatus();
+            assertNotNull(status);
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(status));
 
-        // verify that pulled user is found
-        PagedResult<UserTO> matchingUsers = adminClient.getService(UserService.class).search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
-                build());
-        assertNotNull(matchingUsers);
-        assertEquals(1, matchingUsers.getResult().size());
+            // verify that pulled user is found
+            PagedResult<UserTO> matchingUsers = adminClient.getService(UserService.class).search(
+                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
+                    build());
+            assertNotNull(matchingUsers);
+            assertEquals(1, matchingUsers.getResult().size());
+        } finally {
+            adminClient.getService(ResourceService.class).delete(resource.getKey());
+        }
     }
 }

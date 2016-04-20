@@ -63,7 +63,7 @@ public class RealmChoicePanel extends Panel {
 
     private final Model<RealmTO> model;
 
-    private final Map<Long, Pair<RealmTO, List<RealmTO>>> tree;
+    private final Map<String, Pair<RealmTO, List<RealmTO>>> tree;
 
     public RealmChoicePanel(final String id, final PageReference pageRef) {
         super(id);
@@ -81,8 +81,8 @@ public class RealmChoicePanel extends Panel {
 
             private void getChildren(
                     final List<Pair<String, RealmTO>> full,
-                    final long key,
-                    final Map<Long, Pair<RealmTO, List<RealmTO>>> tree,
+                    final String key,
+                    final Map<String, Pair<RealmTO, List<RealmTO>>> tree,
                     final String indent) {
 
                 if (tree.containsKey(key)) {
@@ -96,11 +96,11 @@ public class RealmChoicePanel extends Panel {
 
             @Override
             protected List<Pair<String, RealmTO>> load() {
-                Map<Long, Pair<RealmTO, List<RealmTO>>> map = reloadRealmParentMap();
-                model.setObject(map.get(1L).getKey());
+                Map<String, Pair<RealmTO, List<RealmTO>>> map = reloadRealmParentMap();
+                model.setObject(map.get(null).getKey());
 
                 final List<Pair<String, RealmTO>> full = new ArrayList<>();
-                getChildren(full, 0L, map, StringUtils.EMPTY);
+                getChildren(full, null, map, StringUtils.EMPTY);
                 return full;
             }
         };
@@ -163,17 +163,17 @@ public class RealmChoicePanel extends Panel {
         return this;
     }
 
-    private Map<Long, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap() {
+    private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap() {
         final List<RealmTO> realms = realmRestClient.list();
         Collections.sort(realms, new RealmNameComparator());
         return reloadRealmParentMap(realms);
     }
 
-    private Map<Long, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap(final List<RealmTO> realms) {
+    private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap(final List<RealmTO> realms) {
         tree.clear();
-        tree.put(0L, Pair.<RealmTO, List<RealmTO>>of(realms.get(0), new ArrayList<RealmTO>()));
+        tree.put(null, Pair.<RealmTO, List<RealmTO>>of(realms.get(0), new ArrayList<RealmTO>()));
 
-        final Map<Long, List<RealmTO>> cache = new HashMap<>();
+        final Map<String, List<RealmTO>> cache = new HashMap<>();
 
         for (RealmTO realm : realms) {
             final List<RealmTO> children = new ArrayList<>();
@@ -223,7 +223,7 @@ public class RealmChoicePanel extends Panel {
         return model.getObject();
     }
 
-    public RealmTO moveToParentRealm(final long key) {
+    public RealmTO moveToParentRealm(final String key) {
         for (Pair<RealmTO, List<RealmTO>> subtree : tree.values()) {
             for (RealmTO child : subtree.getRight()) {
                 if (child.getKey() == key) {

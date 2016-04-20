@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
-public interface Notification extends Entity<Long> {
+public interface Notification extends Entity {
 
     List<String> getEvents();
 

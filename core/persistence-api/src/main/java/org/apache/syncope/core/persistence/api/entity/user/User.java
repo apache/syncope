@@ -107,9 +107,9 @@ public interface User extends Any<UPlainAttr> {
 
     boolean add(URelationship relationship);
 
-    URelationship getRelationship(RelationshipType relationshipType, Long anyObjectKey);
+    URelationship getRelationship(RelationshipType relationshipType, String anyObjectKey);
 
-    Collection<? extends URelationship> getRelationships(Long anyObjectKey);
+    Collection<? extends URelationship> getRelationships(String anyObjectKey);
 
     Collection<? extends URelationship> getRelationships(RelationshipType relationshipType);
 
@@ -117,7 +117,7 @@ public interface User extends Any<UPlainAttr> {
 
     boolean add(UMembership membership);
 
-    UMembership getMembership(Long groupKey);
+    UMembership getMembership(String groupKey);
 
     List<? extends UMembership> getMemberships();
 }

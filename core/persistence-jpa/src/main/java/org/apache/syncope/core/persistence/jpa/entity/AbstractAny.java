@@ -37,9 +37,7 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.AnyCheck;
 
 @AnyCheck
 @MappedSuperclass
-public abstract class AbstractAny<P extends PlainAttr<?>>
-        extends AbstractAnnotatedEntity<Long>
-        implements Any<P> {
+public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractAnnotatedEntity implements Any<P> {
 
     private static final long serialVersionUID = -2666540708092702810L;
 
@@ -105,7 +103,7 @@ public abstract class AbstractAny<P extends PlainAttr<?>>
     @Override
     public List<String> getResourceNames() {
         return CollectionUtils.collect(
-                getResources(), EntityUtils.<String, ExternalResource>keyTransformer(), new ArrayList<String>());
+                getResources(), EntityUtils.<ExternalResource>keyTransformer(), new ArrayList<String>());
     }
 
     @Override

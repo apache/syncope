@@ -54,7 +54,7 @@ public class MappingTest extends AbstractTest {
         assertNotNull(provision.getMapping());
         assertNotNull(provision.getMapping().getConnObjectLink());
 
-        User user = userDAO.find("rossini");
+        User user = userDAO.findByUsername("rossini");
         assertNotNull(user);
 
         Name name = MappingManagerImpl.evaluateNAME(user, provision, user.getUsername());

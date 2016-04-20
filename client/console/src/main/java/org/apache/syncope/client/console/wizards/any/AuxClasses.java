@@ -57,14 +57,14 @@ public class AuxClasses extends WizardStep {
             fragment = new Fragment("groups", "groupsFragment", this);
 
             final List<MembershipTO> memberships;
-            final List<Long> dyngroups;
+            final List<String> dyngroups;
 
             if (entityTO instanceof GroupableTO) {
                 memberships = GroupableTO.class.cast(entityTO).getMemberships();
                 dyngroups = GroupableTO.class.cast(entityTO).getDynGroups();
             } else {
                 memberships = Collections.<MembershipTO>emptyList();
-                dyngroups = Collections.<Long>emptyList();
+                dyngroups = Collections.<String>emptyList();
             }
 
             final AjaxPalettePanel.Builder<MembershipTO> builder = new AjaxPalettePanel.Builder<MembershipTO>().
@@ -116,9 +116,9 @@ public class AuxClasses extends WizardStep {
                         public MembershipTO transform(final GroupTO input) {
                             final MembershipTO membershipTO = new MembershipTO();
                             membershipTO.setGroupName(input.getName());
-                            membershipTO.setRightKey(input.getKey() == null ? 0L : input.getKey());
+                            membershipTO.setRightKey(input.getKey() == null ? null : input.getKey());
                             membershipTO.setRightType(input.getType());
-                            membershipTO.setLeftKey(entityTO.getKey() == null ? 0L : entityTO.getKey());
+                            membershipTO.setLeftKey(entityTO.getKey() == null ? null : entityTO.getKey());
                             membershipTO.setLeftType(entityTO.getType());
                             return membershipTO;
                         }
@@ -126,13 +126,12 @@ public class AuxClasses extends WizardStep {
                 }
             }).hideLabel().setOutputMarkupId(true));
 
-            final ArrayList<String> dynamics = CollectionUtils.collect(dyngroups,
-                    new Transformer<Long, String>() {
+            List<String> dynamics = CollectionUtils.collect(dyngroups, new Transformer<String, String>() {
 
                 @Override
-                public String transform(final Long input) {
+                public String transform(final String input) {
                     final GroupTO groupTO = groupRestClient.read(input);
-                    return String.format("[%d] %s", groupTO.getKey(), groupTO.getName());
+                    return String.format("[%s] %s", groupTO.getKey(), groupTO.getName());
                 }
             }, new ArrayList<String>());
 

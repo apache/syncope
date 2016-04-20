@@ -20,11 +20,13 @@ package org.apache.syncope.fit.console;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.pages.SecurityQuestions;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -38,14 +40,15 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:securityQuestionPanel:container:content:add");
 
         wicketTester.assertComponent(
-                "body:content:securityQuestionPanel:modal", Modal.class);
+                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:securityQuestionPanel"
-                + ":modal:form");
+        FormTester formTester =
+                wicketTester.newFormTester("body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
                 name);
 
-        wicketTester.clickLink("body:content:securityQuestionPanel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink(
+                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
         wicketTester.cleanupFeedbackMessages();
@@ -62,10 +65,10 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
 
     @Test
     public void read() {
-        wicketTester.assertLabel(
+        Label label = (Label) wicketTester.getComponentFromLastRenderedPage(
                 "body:content:securityQuestionPanel:container:content:searchContainer:resultTable:"
-                + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:2:cell",
-                "What&#039;s your mother&#039;s maiden name?");
+                + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:2:cell");
+        assertTrue(label.getDefaultModelObjectAsString().startsWith("What&#039;s your "));
 
         wicketTester.assertComponent(
                 "body:content:securityQuestionPanel:container:content:"
@@ -76,25 +79,27 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
 
     @Test
     public void create() {
-        createRealm("What's your favorite team?");
+        createRealm("What's your preferred team?");
     }
 
     @Test
     public void update() {
-        createRealm("What's your favorite color?");
+        createRealm("What's your preferred color?");
         Component result = findComponentByProp("content", "body:content:securityQuestionPanel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
-                "What's your favorite color?");
+                "What's your preferred color?");
 
         assertNotNull(result);
 
         wicketTester.clickLink(result.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink");
 
-        FormTester formTester = wicketTester.newFormTester("body:content:securityQuestionPanel:modal:form");
+        FormTester formTester =
+                wicketTester.newFormTester("body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
-                "What's your favorite car?");
+                "What's your preferred car?");
 
-        wicketTester.clickLink("body:content:securityQuestionPanel:modal:dialog:footer:inputs:0:submit");
+        wicketTester.clickLink(
+                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
         wicketTester.cleanupFeedbackMessages();
@@ -102,13 +107,12 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
 
     @Test
     public void delete() {
-        String name = "What's your favorite color?";
+        String name = "What's your preferred color?";
         createRealm(name);
 
         Component result = findComponentByProp("content", "body:content:securityQuestionPanel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 name);
-
         assertNotNull(result);
 
         wicketTester.getRequest().addParameter("confirm", "true");

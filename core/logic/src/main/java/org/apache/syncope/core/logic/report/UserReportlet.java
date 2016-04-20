@@ -187,8 +187,8 @@ public class UserReportlet extends AbstractReportlet {
                 String value = null;
                 switch (feature) {
                     case key:
-                        type = ReportXMLConst.XSD_LONG;
-                        value = String.valueOf(user.getKey());
+                        type = ReportXMLConst.XSD_STRING;
+                        value = user.getKey();
                         break;
 
                     case username:
@@ -197,8 +197,8 @@ public class UserReportlet extends AbstractReportlet {
                         break;
 
                     case workflowId:
-                        type = ReportXMLConst.XSD_LONG;
-                        value = String.valueOf(user.getWorkflowId());
+                        type = ReportXMLConst.XSD_STRING;
+                        value = user.getWorkflowId();
                         break;
 
                     case status:
@@ -260,7 +260,7 @@ public class UserReportlet extends AbstractReportlet {
                     atts.clear();
 
                     atts.addAttribute("", "", "anyObjectKey",
-                            ReportXMLConst.XSD_LONG, String.valueOf(rel.getRightKey()));
+                            ReportXMLConst.XSD_STRING, rel.getRightKey());
                     handler.startElement("", "", "relationship", atts);
 
                     if (conf.getFeatures().contains(Feature.resources)) {
@@ -282,7 +282,7 @@ public class UserReportlet extends AbstractReportlet {
                     atts.clear();
 
                     atts.addAttribute("", "", "groupKey",
-                            ReportXMLConst.XSD_LONG, String.valueOf(memb.getRightKey()));
+                            ReportXMLConst.XSD_STRING, memb.getRightKey());
                     atts.addAttribute("", "", "groupName", ReportXMLConst.XSD_STRING, memb.getGroupName());
                     handler.startElement("", "", "membership", atts);
 

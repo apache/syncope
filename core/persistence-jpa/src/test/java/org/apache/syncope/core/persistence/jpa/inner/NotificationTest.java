@@ -48,7 +48,7 @@ public class NotificationTest extends AbstractTest {
 
     @Test
     public void find() {
-        Notification notification = notificationDAO.find(10L);
+        Notification notification = notificationDAO.find("9e2b911c-25de-4c77-bcea-b86ed9451050");
         assertNotNull(notification);
         assertNotNull(notification.getEvents());
         assertFalse(notification.getEvents().isEmpty());
@@ -91,8 +91,8 @@ public class NotificationTest extends AbstractTest {
 
     @Test
     public void delete() {
-        notificationDAO.delete(10L);
-        assertNull(notificationDAO.find(10L));
+        notificationDAO.delete("9e2b911c-25de-4c77-bcea-b86ed9451050");
+        assertNull(notificationDAO.find("9e2b911c-25de-4c77-bcea-b86ed9451050"));
     }
 
     @Test

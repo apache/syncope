@@ -38,11 +38,11 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType
 @XmlSeeAlso({ UserTO.class, GroupTO.class, AnyObjectTO.class })
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public abstract class AnyTO extends ConnObjectTO implements EntityTO<Long> {
+public abstract class AnyTO extends ConnObjectTO implements EntityTO {
 
     private static final long serialVersionUID = -754311920679872084L;
 
-    private Long key;
+    private String key;
 
     private String type;
 
@@ -59,12 +59,12 @@ public abstract class AnyTO extends ConnObjectTO implements EntityTO<Long> {
     private final Set<String> resources = new HashSet<>();
 
     @Override
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @Override
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

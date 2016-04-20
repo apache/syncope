@@ -34,6 +34,7 @@ import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -81,7 +82,9 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
 
             final Field field = ReflectionUtils.findField(AnyObjectTO.class, name);
 
-            if (field != null && field.getType().equals(Date.class)) {
+            if ("key".equalsIgnoreCase(name)) {
+                columns.add(new KeyPropertyColumn<AnyObjectTO>(new ResourceModel(name, name), name, name));
+            } else if (field != null && field.getType().equals(Date.class)) {
                 columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
             } else {
                 columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
@@ -161,7 +164,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                         final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
-                        clone.setKey(0L);
+                        clone.setKey(null);
                         send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.NewItemActionEvent<>(new AnyHandler<>(clone), target));
                     }

@@ -28,19 +28,19 @@ public interface VirAttrCache {
      *
      * @param type any object
      * @param key any object key
-     * @param schemaName virtual attribute schema name
+     * @param schemaKey virtual attribute schema
      */
-    void expire(String type, Long key, String schemaName);
+    void expire(String type, String key, String schemaKey);
 
     /**
      * Retrieve cached value. Return null in case of virtual attribute not cached.
      *
      * @param type any object
      * @param key any object key
-     * @param schemaName virtual attribute schema name.
+     * @param schemaKey virtual attribute schema.
      * @return cached values or null if virtual attribute is not cached.
      */
-    VirAttrCacheValue get(String type, Long key, String schemaName);
+    VirAttrCacheValue get(String type, String key, String schemaKey);
 
     /**
      * Cache entry is valid if and only if value exist and it is not expired.
@@ -58,6 +58,6 @@ public interface VirAttrCache {
      * @param schemaName virtual attribute name
      * @param value virtual attribute values
      */
-    void put(String type, Long key, String schemaName, VirAttrCacheValue value);
+    void put(String type, String key, String schemaName, VirAttrCacheValue value);
 
 }

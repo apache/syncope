@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
+import java.util.UUID;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
@@ -43,10 +44,10 @@ public class ReportTest extends AbstractTest {
 
     @Test
     public void find() {
-        Report report = reportDAO.find(1L);
+        Report report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         assertNotNull(report);
 
-        report = reportDAO.find(10L);
+        report = reportDAO.find(UUID.randomUUID().toString());
         assertNull(report);
     }
 
@@ -78,12 +79,12 @@ public class ReportTest extends AbstractTest {
 
     @Test
     public void delete() {
-        Report report = reportDAO.find(1L);
+        Report report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         assertNotNull(report);
 
-        reportDAO.delete(1L);
+        reportDAO.delete("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
 
-        report = reportDAO.find(1L);
+        report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         assertNull(report);
     }
 }

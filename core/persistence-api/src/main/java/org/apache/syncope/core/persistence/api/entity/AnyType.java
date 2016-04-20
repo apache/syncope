@@ -21,9 +21,7 @@ package org.apache.syncope.core.persistence.api.entity;
 import java.util.List;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
-public interface AnyType extends Entity<String> {
-
-    void setKey(String key);
+public interface AnyType extends ProvidedKeyEntity {
 
     AnyTypeKind getKind();
 

@@ -311,6 +311,11 @@ under the License.
       <organization>Intesys</organization>
       <organizationUrl>http://www.intesys.it/</organizationUrl>
     </contributor>
+    <contributor>
+      <name>Dmitry Berezkin</name>
+      <email>berezkin.dmitriy@gmail.com</email>
+      <url>http://securny.com</url>
+    </contributor>
   </contributors>
 
   <prerequisites>
@@ -348,7 +353,7 @@ under the License.
 
     <groovy.version>2.4.6</groovy.version>
 
-    <activiti.version>5.19.0.2</activiti.version>
+    <activiti.version>5.20.0</activiti.version>
 
     <slf4j.version>1.7.21</slf4j.version>
     <log4j.version>2.5</log4j.version>
@@ -383,11 +388,11 @@ under the License.
     <bootstrap.version>3.3.6</bootstrap.version>
     <bootstrap-select.version>1.7.3</bootstrap-select.version>
     <bootbox.version>4.4.0</bootbox.version>
-    <font-awesome.version>4.5.0</font-awesome.version>
+    <font-awesome.version>4.6.1</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.2.0</highlightjs.version>
     <codemirror.version>5.13.2</codemirror.version>
-    <jsplumb.version>2.0.5</jsplumb.version>
+    <jsplumb.version>2.0.7</jsplumb.version>
     
     <wicket.version>7.2.0</wicket.version>
     <wicket-jqueryui.version>7.2.1</wicket-jqueryui.version>
@@ -396,7 +401,7 @@ under the License.
 
     <angular.version>1.5.3</angular.version>
     <angular-ui-router.version>0.2.18</angular-ui-router.version>
-    <angular-ui-bootstrap.version>1.2.5</angular-ui-bootstrap.version>
+    <angular-ui-bootstrap.version>1.3.1</angular-ui-bootstrap.version>
     <angular-ui-select.version>0.14.8</angular-ui-select.version>
     <angular-treasure-overlay-spinner.version>1.1.0</angular-treasure-overlay-spinner.version>
     <ng-password-strength.version>0.2.1</ng-password-strength.version>
@@ -407,7 +412,7 @@ under the License.
     <momentjs.version>2.12.0</momentjs.version>
     <moment-jdateformatparser.version>1.0.0</moment-jdateformatparser.version>
     
-    <izpack.version>5.0.6</izpack.version>
+    <izpack.version>5.0.8</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
     <maven-invoker.version>2.1.1</maven-invoker.version>
 
@@ -593,7 +598,12 @@ under the License.
         <artifactId>openjpa-persistence-jdbc</artifactId>
         <version>${openjpa.version}</version>
       </dependency>
-    
+      <dependency>
+        <groupId>com.fasterxml.uuid</groupId>
+        <artifactId>java-uuid-generator</artifactId>
+        <version>3.1.4</version>
+      </dependency>
+
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-dbcp2</artifactId>
@@ -1849,7 +1859,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.5</version>
+            <version>3.5.1</version>
             <dependencies>
               <dependency>
                 <groupId>org.apache.velocity</groupId>

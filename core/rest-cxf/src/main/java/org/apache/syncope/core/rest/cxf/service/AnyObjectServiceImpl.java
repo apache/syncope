@@ -44,7 +44,7 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
     }
 
     @Override
-    protected AnyObjectPatch newPatch(final Long key) {
+    protected AnyObjectPatch newPatch(final String key) {
         AnyObjectPatch patch = new AnyObjectPatch();
         patch.setKey(key);
         return patch;

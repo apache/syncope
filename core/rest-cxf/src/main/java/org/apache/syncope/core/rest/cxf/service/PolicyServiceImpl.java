@@ -45,7 +45,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         logic.delete(key);
     }
 
@@ -55,7 +55,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public <T extends AbstractPolicyTO> T read(final Long key) {
+    public <T extends AbstractPolicyTO> T read(final String key) {
         return logic.read(key);
     }
 

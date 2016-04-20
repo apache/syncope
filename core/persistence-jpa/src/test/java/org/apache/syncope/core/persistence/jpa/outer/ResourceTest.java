@@ -84,12 +84,12 @@ public class ResourceTest extends AbstractTest {
     public void createWithPasswordPolicy() {
         final String resourceName = "resourceWithPasswordPolicy";
 
-        PasswordPolicy policy = (PasswordPolicy) policyDAO.find(4L);
+        PasswordPolicy policy = policyDAO.find("986d1236-3ac5-4a19-810c-5ab21d79cba1");
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey(resourceName);
         resource.setPasswordPolicy(policy);
 
-        ConnInstance connector = connInstanceDAO.find(100L);
+        ConnInstance connector = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
         assertNotNull("connector not found", connector);
         resource.setConnector(connector);
 
@@ -103,7 +103,7 @@ public class ResourceTest extends AbstractTest {
         resourceDAO.delete(resourceName);
         assertNull(resourceDAO.find(resourceName));
 
-        assertNotNull(policyDAO.find(4L));
+        assertNotNull(policyDAO.find("986d1236-3ac5-4a19-810c-5ab21d79cba1"));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ResourceTest extends AbstractTest {
         resource.setKey("ws-target-resource-save");
 
         // specify the connector
-        ConnInstance connector = connInstanceDAO.find(100L);
+        ConnInstance connector = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
         assertNotNull("connector not found", connector);
 
         resource.setConnector(connector);
@@ -166,7 +166,7 @@ public class ResourceTest extends AbstractTest {
         connInstanceDAO.detach(connector);
 
         // assign the new resource to an user
-        User user = userDAO.find(1L);
+        User user = userDAO.findByUsername("rossini");
         assertNotNull("user not found", user);
 
         user.add(actual);
@@ -179,7 +179,7 @@ public class ResourceTest extends AbstractTest {
         resourceDAO.refresh(resource);
 
         // check connector
-        connector = connInstanceDAO.find(100L);
+        connector = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
         assertNotNull(connector);
         assertNotNull(connector.getResources());
 
@@ -192,7 +192,7 @@ public class ResourceTest extends AbstractTest {
         assertEquals(5, items.size());
 
         // check user
-        user = userDAO.find(1L);
+        user = userDAO.findByUsername("rossini");
         assertNotNull(user);
         assertNotNull(user.getResources());
         assertTrue(user.getResources().contains(actual));
@@ -216,9 +216,9 @@ public class ResourceTest extends AbstractTest {
         List<User> users = userDAO.findByResource(resource);
         assertNotNull(users);
 
-        Set<Long> userIds = new HashSet<>();
+        Set<String> userKeys = new HashSet<>();
         for (User user : users) {
-            userIds.add(user.getKey());
+            userKeys.add(user.getKey());
         }
         // -------------------------------------
 
@@ -238,8 +238,8 @@ public class ResourceTest extends AbstractTest {
         assertNull("delete did not work", actual);
 
         // resource must be not referenced any more from users
-        for (Long id : userIds) {
-            User actualUser = userDAO.find(id);
+        for (String key : userKeys) {
+            User actualUser = userDAO.find(key);
             assertNotNull(actualUser);
             for (ExternalResource res : userDAO.findAllResources(actualUser)) {
                 assertFalse(res.getKey().equalsIgnoreCase(resource.getKey()));
@@ -269,7 +269,7 @@ public class ResourceTest extends AbstractTest {
         List<? extends MappingItem> items = ldap.getProvision(anyTypeDAO.findGroup()).getMapping().getItems();
         assertNotNull(items);
         assertFalse(items.isEmpty());
-        List<Long> itemKeys = new ArrayList<>(items.size());
+        List<String> itemKeys = new ArrayList<>(items.size());
         for (MappingItem item : items) {
             itemKeys.add(item.getKey());
         }
@@ -286,7 +286,7 @@ public class ResourceTest extends AbstractTest {
         resourceDAO.save(ldap);
         resourceDAO.flush();
 
-        for (Long itemKey : itemKeys) {
+        for (String itemKey : itemKeys) {
             assertNull(entityManager().find(JPAMappingItem.class, itemKey));
         }
     }

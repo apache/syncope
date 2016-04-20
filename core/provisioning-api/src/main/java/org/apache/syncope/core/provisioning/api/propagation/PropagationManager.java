@@ -42,7 +42,7 @@ public interface PropagationManager {
      */
     List<PropagationTask> getCreateTasks(
             AnyTypeKind kind,
-            Long key,
+            String key,
             PropagationByResource propByRes,
             Collection<AttrTO> vAttrs,
             Collection<String> noPropResourceNames);
@@ -59,7 +59,7 @@ public interface PropagationManager {
      * @return list of propagation tasks
      */
     List<PropagationTask> getUserCreateTasks(
-            Long key,
+            String key,
             String password,
             Boolean enable,
             PropagationByResource propByRes,
@@ -80,7 +80,7 @@ public interface PropagationManager {
      */
     List<PropagationTask> getUpdateTasks(
             AnyTypeKind kind,
-            Long key,
+            String key,
             boolean changePwd,
             Boolean enable,
             PropagationByResource propByRes,
@@ -120,7 +120,7 @@ public interface PropagationManager {
      */
     List<PropagationTask> getDeleteTasks(
             AnyTypeKind kind,
-            Long key,
+            String key,
             PropagationByResource propByRes,
             Collection<String> noPropResourceNames);
 

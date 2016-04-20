@@ -36,6 +36,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.PasswordTextField;
@@ -183,5 +185,14 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
                 tag.append("class", "overridable", " ");
             }
         };
+    }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+        if (getModelObject().isEmpty()) {
+            response.render(OnDomReadyHeaderItem.forScript(
+                    String.format("$('#emptyPlaceholder').append(\"%s\")", getString("property.empty.list"))));
+        }
     }
 }

@@ -50,7 +50,7 @@ public interface PolicyService extends JAXRSService {
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    <T extends AbstractPolicyTO> T read(@NotNull @PathParam("key") Long key);
+    <T extends AbstractPolicyTO> T read(@NotNull @PathParam("key") String key);
 
     /**
      * Returns a list of policies of the matching type.
@@ -90,6 +90,6 @@ public interface PolicyService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") Long key);
+    void delete(@NotNull @PathParam("key") String key);
 
 }

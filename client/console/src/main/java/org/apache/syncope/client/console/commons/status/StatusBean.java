@@ -31,7 +31,7 @@ public class StatusBean implements Serializable {
 
     private static final long serialVersionUID = -5207260204921071129L;
 
-    private final Long anyKey;
+    private final String anyKey;
 
     private final String anyName;
 
@@ -71,7 +71,7 @@ public class StatusBean implements Serializable {
         this.status = status;
     }
 
-    public Long getAnyKey() {
+    public String getAnyKey() {
         return anyKey;
     }
 

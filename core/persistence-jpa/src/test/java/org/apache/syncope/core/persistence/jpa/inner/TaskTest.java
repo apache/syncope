@@ -107,7 +107,7 @@ public class TaskTest extends AbstractTest {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
-        User user = userDAO.find(2L);
+        User user = userDAO.find("74cd8ece-715a-44a4-a736-e17b46c4e7e6");
         assertNotNull(user);
 
         PropagationTask task = entityFactory.newEntity(PropagationTask.class);
@@ -131,14 +131,14 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void delete() {
-        PropagationTask task = taskDAO.find(1L);
+        PropagationTask task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNotNull(task);
 
         ExternalResource resource = task.getResource();
         assertNotNull(resource);
 
         taskDAO.delete(task);
-        task = taskDAO.find(1L);
+        task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNull(task);
 
         resource = resourceDAO.find(resource.getKey());

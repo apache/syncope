@@ -186,7 +186,7 @@ public class StatusPanel extends Panel {
     }
 
     private Pair<ConnObjectTO, ConnObjectTO> getConnObjectTO(
-            final Long anyKey, final String resourceName, final List<Pair<ConnObjectTO, ConnObjectWrapper>> objects) {
+            final String anyKey, final String resourceName, final List<Pair<ConnObjectTO, ConnObjectWrapper>> objects) {
 
         for (Pair<ConnObjectTO, ConnObjectWrapper> object : objects) {
             if (anyKey.equals(object.getRight().getAny().getKey())

@@ -33,7 +33,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
@@ -80,9 +79,6 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
 
     public static final String TABLE = "SyncopeUser";
 
-    @Id
-    private Long id;
-
     @Column(nullable = true)
     private String password;
 
@@ -91,9 +87,9 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "user_id"),
+            @JoinColumn(name = "user_key"),
             inverseJoinColumns =
-            @JoinColumn(name = "role_name"))
+            @JoinColumn(name = "role_key"))
     private List<JPARole> roles = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
@@ -118,7 +114,7 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     @ElementCollection
     @Column(name = "passwordHistoryValue")
     @CollectionTable(name = "SyncopeUser_passwordHistory", joinColumns =
-            @JoinColumn(name = "user_id", referencedColumnName = "id"))
+            @JoinColumn(name = "user_key", referencedColumnName = "key"))
     private List<String> passwordHistory = new ArrayList<>();
 
     /**
@@ -163,17 +159,17 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
      */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "user_id"),
+            @JoinColumn(name = "user_key"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_name"))
+            @JoinColumn(name = "resource_key"))
     @Valid
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "user_id"),
+            @JoinColumn(name = "user_key"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_name"))
+            @JoinColumn(name = "anyTypeClass_key"))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "leftEnd")
@@ -189,11 +185,6 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
 
     @Column(nullable = true)
     private String securityAnswer;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public AnyType getType() {
@@ -480,7 +471,7 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     }
 
     @Override
-    public URelationship getRelationship(final RelationshipType relationshipType, final Long anyObjectKey) {
+    public URelationship getRelationship(final RelationshipType relationshipType, final String anyObjectKey) {
         return IterableUtils.find(getRelationships(), new Predicate<URelationship>() {
 
             @Override
@@ -504,7 +495,7 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     }
 
     @Override
-    public Collection<? extends URelationship> getRelationships(final Long anyObjectKey) {
+    public Collection<? extends URelationship> getRelationships(final String anyObjectKey) {
         return CollectionUtils.select(getRelationships(), new Predicate<URelationship>() {
 
             @Override
@@ -526,7 +517,7 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     }
 
     @Override
-    public UMembership getMembership(final Long groupKey) {
+    public UMembership getMembership(final String groupKey) {
         return IterableUtils.find(getMemberships(), new Predicate<UMembership>() {
 
             @Override

@@ -86,7 +86,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected abstract AnyTO doUpdate(AnyTO before, AnyPatch anyPatch, SyncDelta delta, ProvisioningReport result);
 
-    protected void doDeprovision(final AnyTypeKind kind, final Long key, final boolean unlink) {
+    protected void doDeprovision(final AnyTypeKind kind, final String key, final boolean unlink) {
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
         taskExecutor.execute(propagationManager.getDeleteTasks(
@@ -103,7 +103,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected void doDelete(final AnyTypeKind kind, final Long key) {
+    protected void doDelete(final AnyTypeKind kind, final String key) {
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
         try {
@@ -139,7 +139,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             result.setAnyType(provision == null
                     ? getAnyUtils().getAnyTypeKind().name() : provision.getAnyType().getKey());
             result.setStatus(ProvisioningReport.Status.IGNORE);
-            result.setKey(0L);
+            result.setKey(null);
             result.setName(delta.getObject().getName().getNameValue());
             profile.getResults().add(result);
 
@@ -171,7 +171,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         result.setName(getName(anyTO));
 
         if (profile.isDryRun()) {
-            result.setKey(0L);
+            result.setKey(null);
         } else {
             SyncDelta actionedDelta = delta;
             for (PullActions action : profile.getActions()) {
@@ -202,7 +202,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         result.setName(getName(anyTO));
 
         if (profile.isDryRun()) {
-            result.setKey(0L);
+            result.setKey(null);
         } else {
             SyncDelta actionedDelta = delta;
             for (PullActions action : profile.getActions()) {
@@ -261,8 +261,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         audit(operation, resultStatus, null, output, delta);
     }
 
-    protected List<ProvisioningReport> update(final SyncDelta delta, final List<Long> anys,
-            final Provision provision) throws JobExecutionException {
+    protected List<ProvisioningReport> update(
+            final SyncDelta delta, final List<String> anys, final Provision provision) throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
@@ -274,7 +274,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         List<ProvisioningReport> results = new ArrayList<>();
 
         SyncDelta workingDelta = delta;
-        for (Long key : anys) {
+        for (String key : anys) {
             LOG.debug("About to update {}", key);
 
             ProvisioningReport result = new ProvisioningReport();
@@ -286,7 +286,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             AnyTO before = getAnyTO(key);
             if (before == null) {
                 result.setStatus(ProvisioningReport.Status.FAILURE);
-                result.setMessage(String.format("Any '%s(%d)' not found", provision.getAnyType().getKey(), key));
+                result.setMessage(String.format("Any '%s(%s)' not found", provision.getAnyType().getKey(), key));
             } else {
                 result.setName(getName(before));
             }
@@ -356,7 +356,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected List<ProvisioningReport> deprovision(
             final SyncDelta delta,
-            final List<Long> anys,
+            final List<String> anys,
             final Provision provision,
             final boolean unlink)
             throws JobExecutionException {
@@ -370,7 +370,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         final List<ProvisioningReport> updResults = new ArrayList<>();
 
-        for (Long key : anys) {
+        for (String key : anys) {
             LOG.debug("About to unassign resource {}", key);
 
             Object output;
@@ -386,7 +386,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
             if (before == null) {
                 result.setStatus(ProvisioningReport.Status.FAILURE);
-                result.setMessage(String.format("Any '%s(%d)' not found", provision.getAnyType().getKey(), key));
+                result.setMessage(String.format("Any '%s(%s)' not found", provision.getAnyType().getKey(), key));
             }
 
             if (!profile.isDryRun()) {
@@ -454,7 +454,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected List<ProvisioningReport> link(
             final SyncDelta delta,
-            final List<Long> anys,
+            final List<String> anys,
             final Provision provision,
             final boolean unlink)
             throws JobExecutionException {
@@ -468,7 +468,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         final List<ProvisioningReport> updResults = new ArrayList<>();
 
-        for (Long key : anys) {
+        for (String key : anys) {
             LOG.debug("About to unassign resource {}", key);
 
             Object output;
@@ -484,7 +484,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
             if (before == null) {
                 result.setStatus(ProvisioningReport.Status.FAILURE);
-                result.setMessage(String.format("Any '%s(%d)' not found", provision.getAnyType().getKey(), key));
+                result.setMessage(String.format("Any '%s(%s)' not found", provision.getAnyType().getKey(), key));
             }
 
             if (!profile.isDryRun()) {
@@ -550,7 +550,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected List<ProvisioningReport> delete(
             final SyncDelta delta,
-            final List<Long> anys,
+            final List<String> anys,
             final Provision provision)
             throws JobExecutionException {
 
@@ -564,7 +564,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         List<ProvisioningReport> delResults = new ArrayList<>();
 
         SyncDelta workingDelta = delta;
-        for (Long key : anys) {
+        for (String key : anys) {
             Object output;
             Result resultStatus = Result.FAILURE;
 
@@ -666,7 +666,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 : delta.getPreviousUid().getUidValue();
 
         try {
-            List<Long> anyKeys = pullUtils.findExisting(uid, delta.getObject(), provision, anyUtils);
+            List<String> anyKeys = pullUtils.findExisting(uid, delta.getObject(), provision, anyUtils);
             LOG.debug("Match(es) found for {} as {}: {}",
                     delta.getUid().getUidValue(), delta.getObject().getObjectClass(), anyKeys);
 
@@ -710,7 +710,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     // update VirAttrCache
                     for (VirSchema virSchema : virSchemaDAO.findByProvision(provision)) {
                         Attribute attr = delta.getObject().getAttributeByName(virSchema.getExtAttrName());
-                        for (Long anyKey : anyKeys) {
+                        for (String anyKey : anyKeys) {
                             if (attr == null) {
                                 virAttrCache.expire(
                                         provision.getAnyType().getKey(),

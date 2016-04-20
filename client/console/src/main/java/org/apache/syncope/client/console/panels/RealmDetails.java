@@ -53,13 +53,13 @@ public class RealmDetails extends Panel {
 
     private final PolicyRestClient policyRestClient = new PolicyRestClient();
 
-    private final IModel<Map<Long, String>> accountPolicies = new LoadableDetachableModel<Map<Long, String>>() {
+    private final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<Map<String, String>>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
-        protected Map<Long, String> load() {
-            Map<Long, String> res = new HashMap<>();
+        protected Map<String, String> load() {
+            Map<String, String> res = new HashMap<>();
             for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }
@@ -67,13 +67,13 @@ public class RealmDetails extends Panel {
         }
     };
 
-    private final IModel<Map<Long, String>> passwordPolicies = new LoadableDetachableModel<Map<Long, String>>() {
+    private final IModel<Map<String, String>> passwordPolicies = new LoadableDetachableModel<Map<String, String>>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
-        protected Map<Long, String> load() {
-            Map<Long, String> res = new HashMap<>();
+        protected Map<String, String> load() {
+            Map<String, String> res = new HashMap<>();
             for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }
@@ -120,20 +120,20 @@ public class RealmDetails extends Panel {
         fullPath.setEnabled(false);
         container.add(fullPath);
 
-        AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<>(
+        AjaxDropDownChoicePanel<String> accountPolicy = new AjaxDropDownChoicePanel<>(
                 "accountPolicy",
                 new ResourceModel("accountPolicy", "accountPolicy").getObject(),
-                new PropertyModel<Long>(realmTO, "accountPolicy"),
+                new PropertyModel<String>(realmTO, "accountPolicy"),
                 false);
         accountPolicy.setChoiceRenderer(new PolicyRenderer(accountPolicies));
         accountPolicy.setChoices(new ArrayList<>(accountPolicies.getObject().keySet()));
         ((DropDownChoice<?>) accountPolicy.getField()).setNullValid(true);
         container.add(accountPolicy);
 
-        AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<>(
+        AjaxDropDownChoicePanel<String> passwordPolicy = new AjaxDropDownChoicePanel<>(
                 "passwordPolicy",
                 new ResourceModel("passwordPolicy", "passwordPolicy").getObject(),
-                new PropertyModel<Long>(realmTO, "passwordPolicy"),
+                new PropertyModel<String>(realmTO, "passwordPolicy"),
                 false);
         passwordPolicy.setChoiceRenderer(new PolicyRenderer(passwordPolicies));
         passwordPolicy.setChoices(new ArrayList<>(passwordPolicies.getObject().keySet()));

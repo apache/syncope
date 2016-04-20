@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements VirSchemaDAO {
+public class JPAVirSchemaDAO extends AbstractDAO<VirSchema> implements VirSchemaDAO {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -51,7 +51,7 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
                 append(JPAVirSchema.class.getSimpleName()).
                 append(" e WHERE ");
         for (AnyTypeClass anyTypeClass : anyTypeClasses) {
-            queryString.append("e.anyTypeClass.name='").append(anyTypeClass.getKey()).append("' OR ");
+            queryString.append("e.anyTypeClass.key='").append(anyTypeClass.getKey()).append("' OR ");
         }
 
         TypedQuery<VirSchema> query = entityManager().createQuery(

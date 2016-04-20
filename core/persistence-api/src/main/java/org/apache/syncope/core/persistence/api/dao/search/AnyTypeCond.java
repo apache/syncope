@@ -22,19 +22,19 @@ public class AnyTypeCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = 4298076973281246633L;
 
-    private String anyTypeName;
+    private String anyTypeKey;
 
-    public String getAnyTypeName() {
-        return anyTypeName;
+    public String getAnyTypeKey() {
+        return anyTypeKey;
     }
 
-    public void setAnyTypeName(final String anyTypeName) {
-        this.anyTypeName = anyTypeName;
+    public void setAnyTypeKey(final String anyTypeKey) {
+        this.anyTypeKey = anyTypeKey;
     }
 
     @Override
     public boolean isValid() {
-        return anyTypeName != null;
+        return anyTypeKey != null;
     }
 
 }

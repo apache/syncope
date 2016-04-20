@@ -29,9 +29,7 @@ public interface UserDataBinder {
 
     UserTO getAuthenticatedUserTO();
 
-    UserTO getUserTO(String username);
-
-    UserTO getUserTO(Long key);
+    UserTO getUserTO(String key);
 
     UserTO getUserTO(User user, boolean details);
 

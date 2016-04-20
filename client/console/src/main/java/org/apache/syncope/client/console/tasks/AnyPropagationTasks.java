@@ -35,7 +35,7 @@ public class AnyPropagationTasks extends AbstractPropagationTasks {
     public <T extends AnyTO> AnyPropagationTasks(
             final BaseModal<?> baseModal,
             final AnyTypeKind anyTypeKind,
-            final Long anyTypeKey,
+            final String anyTypeKey,
             final PageReference pageReference) {
 
         super(BaseModal.CONTENT_ID);

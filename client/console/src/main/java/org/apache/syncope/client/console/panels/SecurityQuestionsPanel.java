@@ -19,14 +19,11 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -35,6 +32,7 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel.SecurityQuestionsProvider;
 import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -52,6 +50,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 
 public class SecurityQuestionsPanel extends DirectoryPanel<
         SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionsProvider, SecurityQuestionRestClient> {
@@ -113,37 +112,13 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
 
     @Override
     protected List<IColumn<SecurityQuestionTO, String>> getColumns() {
-        final List<IColumn<SecurityQuestionTO, String>> columns = new ArrayList<>();
+        List<IColumn<SecurityQuestionTO, String>> columns = new ArrayList<>();
 
-        for (Field field : SecurityQuestionTO.class.getDeclaredFields()) {
-            if (field != null && !Modifier.isStatic(field.getModifiers())) {
-                final String fieldName = field.getName();
-                if (field.getType().isArray()
-                        || Collection.class.isAssignableFrom(field.getType())
-                        || Map.class.isAssignableFrom(field.getType())) {
+        columns.add(new KeyPropertyColumn<SecurityQuestionTO>(
+                new StringResourceModel("key", this, null), "key", "key"));
 
-                    columns.add(new PropertyColumn<SecurityQuestionTO, String>(
-                            new ResourceModel(field.getName()), field.getName()));
-                } else {
-                    columns.add(new PropertyColumn<SecurityQuestionTO, String>(
-                            new ResourceModel(field.getName()), field.getName(), field.getName()) {
-
-                        private static final long serialVersionUID = -6902459669035442212L;
-
-                        @Override
-                        public String getCssClass() {
-                            String css = super.getCssClass();
-                            if ("key".equals(fieldName)) {
-                                css = StringUtils.isBlank(css)
-                                        ? "col-xs-1"
-                                        : css + " col-xs-1";
-                            }
-                            return css;
-                        }
-                    });
-                }
-            }
-        }
+        columns.add(new PropertyColumn<SecurityQuestionTO, String>(
+                new StringResourceModel("content", this, null), "content", "content"));
 
         columns.add(new ActionColumn<SecurityQuestionTO, String>(new ResourceModel("actions")) {
 
