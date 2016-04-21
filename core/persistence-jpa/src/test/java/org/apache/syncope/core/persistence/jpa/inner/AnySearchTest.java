@@ -302,7 +302,7 @@ public class AnySearchTest extends AbstractTest {
         usernameLeafCond.setExpression("%ini");
 
         AnyCond idRightCond = new AnyCond(AnyCond.Type.LT);
-        idRightCond.setSchema("key");
+        idRightCond.setSchema("id");
         idRightCond.setExpression("2");
 
         SearchCond searchCondition = SearchCond.getAndCond(
@@ -322,13 +322,13 @@ public class AnySearchTest extends AbstractTest {
         groupNameLeafCond.setSchema("name");
         groupNameLeafCond.setExpression("root");
 
-        AnyCond keyRightCond = new AnyCond(AnyCond.Type.EQ);
-        keyRightCond.setSchema("key");
-        keyRightCond.setExpression("37d15e4c-cdc1-460b-a591-8505c8133806");
+        AnyCond idRightCond = new AnyCond(AnyCond.Type.EQ);
+        idRightCond.setSchema("id");
+        idRightCond.setExpression("37d15e4c-cdc1-460b-a591-8505c8133806");
 
         SearchCond searchCondition = SearchCond.getAndCond(
                 SearchCond.getLeafCond(groupNameLeafCond),
-                SearchCond.getLeafCond(keyRightCond));
+                SearchCond.getLeafCond(idRightCond));
 
         assertTrue(searchCondition.isValid());
 
@@ -361,11 +361,11 @@ public class AnySearchTest extends AbstractTest {
 
     @Test
     public void searchByKey() {
-        AnyCond keyLeafCond = new AnyCond(AnyCond.Type.EQ);
-        keyLeafCond.setSchema("key");
-        keyLeafCond.setExpression("74cd8ece-715a-44a4-a736-e17b46c4e7e6");
+        AnyCond idLeafCond = new AnyCond(AnyCond.Type.EQ);
+        idLeafCond.setSchema("id");
+        idLeafCond.setExpression("74cd8ece-715a-44a4-a736-e17b46c4e7e6");
 
-        SearchCond searchCondition = SearchCond.getLeafCond(keyLeafCond);
+        SearchCond searchCondition = SearchCond.getLeafCond(idLeafCond);
         assertTrue(searchCondition.isValid());
 
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
@@ -547,7 +547,7 @@ public class AnySearchTest extends AbstractTest {
     @Test
     public void issue242() {
         AnyCond cond = new AnyCond(AttributeCond.Type.LIKE);
-        cond.setSchema("key");
+        cond.setSchema("id");
         cond.setExpression("test%");
 
         SearchCond searchCondition = SearchCond.getLeafCond(cond);

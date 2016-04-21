@@ -55,14 +55,14 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Column(name = "entitlement")
     @CollectionTable(name = "SyncopeRole_entitlements",
             joinColumns =
-            @JoinColumn(name = "role_key", referencedColumnName = "key"))
+            @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private Set<String> entitlements = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "role_key"),
+            @JoinColumn(name = "role_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "realm_key"))
+            @JoinColumn(name = "realm_id"))
     @Valid
     private List<JPARealm> realms = new ArrayList<>();
 

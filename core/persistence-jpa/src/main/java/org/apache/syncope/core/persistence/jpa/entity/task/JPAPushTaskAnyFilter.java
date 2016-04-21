@@ -31,7 +31,7 @@ import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity
 
 @Entity
 @Table(name = JPAPushTaskAnyFilter.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "pushTask_key", "anyType_key" }))
+        @UniqueConstraint(columnNames = { "pushTask_id", "anyType_id" }))
 public class JPAPushTaskAnyFilter extends AbstractGeneratedKeyEntity implements PushTaskAnyFilter {
 
     private static final long serialVersionUID = 3517381731849788407L;

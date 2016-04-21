@@ -32,11 +32,11 @@ public abstract class AbstractGeneratedKeyEntity extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "uuid")
     @Column(length = 36)
-    private String key;
+    private String id;
 
     @Override
     public String getKey() {
-        return key;
+        return id;
     }
 
 }

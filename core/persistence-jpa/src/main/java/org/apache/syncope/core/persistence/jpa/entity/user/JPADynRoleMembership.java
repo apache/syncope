@@ -43,9 +43,9 @@ public class JPADynRoleMembership extends AbstractUDynMembership implements DynR
 
     @ManyToMany
     @JoinTable(name = TABLE + "_User", joinColumns =
-            @JoinColumn(name = "dynRoleMembership_key"),
+            @JoinColumn(name = "dynRoleMembership_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "user_key"))
+            @JoinColumn(name = "user_id"))
     private List<JPAUser> users = new ArrayList<>();
 
     @Override

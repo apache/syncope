@@ -374,7 +374,7 @@ under the License.
         <dependency>
           <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
-          <version>9.4-1201-jdbc41</version>
+          <version>9.4.1208.jre7</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -410,7 +410,7 @@ under the License.
         <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.36</version>
+          <version>5.1.38</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -532,6 +532,7 @@ under the License.
             <filtering>true</filtering>
             <excludes>
               <exclude>provisioning.properties</exclude>
+              <exclude>views.xml</exclude>
             </excludes>
           </resource>
           <resource>
@@ -539,6 +540,16 @@ under the License.
             <filtering>true</filtering>
           </resource>
         </resources>
+        <!-- Views need to be customized, so the SQL Server-specific views.xml need to be copied to target/test-classes,
+        e.g. the conf directory, in order to override classpath:views.xml -->
+        <testResources>
+          <testResource>
+            <directory>src/main/resources/sqlserver</directory>
+            <includes>
+              <include>views.xml</include>
+            </includes>            
+          </testResource>
+        </testResources>
       </build>
     </profile>
     

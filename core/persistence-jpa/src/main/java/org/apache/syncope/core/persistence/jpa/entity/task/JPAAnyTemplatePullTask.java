@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 
 @Entity
 @Table(name = JPAAnyTemplatePullTask.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "pullTask_key", "anyType_key" }))
+        @UniqueConstraint(columnNames = { "pullTask_id", "anyType_id" }))
 public class JPAAnyTemplatePullTask extends AbstractAnyTemplate implements AnyTemplatePullTask {
 
     private static final long serialVersionUID = 3517381731849788407L;

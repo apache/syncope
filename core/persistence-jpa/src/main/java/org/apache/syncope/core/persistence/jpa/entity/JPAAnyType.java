@@ -51,9 +51,9 @@ public class JPAAnyType extends AbstractProvidedKeyEntity implements AnyType {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "anyType_key", referencedColumnName = "key"),
+            @JoinColumn(name = "anyType_id", referencedColumnName = "id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_key", referencedColumnName = "key"))
+            @JoinColumn(name = "anyTypeClass_id", referencedColumnName = "id"))
     private List<JPAAnyTypeClass> classes = new ArrayList<>();
 
     @Override

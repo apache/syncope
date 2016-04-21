@@ -67,7 +67,7 @@ public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
     private Integer active;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "template_key")
+    @JoinColumn(name = "template_id")
     private JPAReportTemplate template;
 
     @Override

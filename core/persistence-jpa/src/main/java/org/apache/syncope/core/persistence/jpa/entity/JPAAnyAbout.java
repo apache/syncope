@@ -29,7 +29,7 @@ import org.apache.syncope.core.persistence.api.entity.Notification;
 
 @Entity
 @Table(name = JPAAnyAbout.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "notification_key", "anyType_key" }))
+        @UniqueConstraint(columnNames = { "notification_id", "anyType_id" }))
 public class JPAAnyAbout extends AbstractGeneratedKeyEntity implements AnyAbout {
 
     private static final long serialVersionUID = 3517381731849788407L;

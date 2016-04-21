@@ -79,10 +79,10 @@ public class DomainTest extends AbstractTest {
         Domain actual = domainDAO.save(domain);
         assertNotNull(actual);
 
-        String key = actual.getKey();
-        assertNotNull(domainDAO.find(key));
+        String id = actual.getKey();
+        assertNotNull(domainDAO.find(id));
 
-        domainDAO.delete(key);
-        assertNull(domainDAO.find(key));
+        domainDAO.delete(id);
+        assertNull(domainDAO.find(id));
     }
 }

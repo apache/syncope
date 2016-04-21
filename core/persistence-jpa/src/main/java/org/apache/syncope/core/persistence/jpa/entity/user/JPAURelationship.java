@@ -35,7 +35,7 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 
 @Entity
 @Table(name = JPAURelationship.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "type_key", "user_key", "anyObject_key" }))
+        @UniqueConstraint(columnNames = { "type_id", "user_id", "anyObject_id" }))
 public class JPAURelationship extends AbstractGeneratedKeyEntity implements URelationship {
 
     private static final long serialVersionUID = 2778494939240083204L;
@@ -46,11 +46,11 @@ public class JPAURelationship extends AbstractGeneratedKeyEntity implements URel
     private JPARelationshipType type;
 
     @ManyToOne
-    @Column(name = "user_key")
+    @Column(name = "user_id")
     private JPAUser leftEnd;
 
     @ManyToOne
-    @Column(name = "anyObject_key")
+    @Column(name = "anyObject_id")
     private JPAAnyObject rightEnd;
 
     @Override

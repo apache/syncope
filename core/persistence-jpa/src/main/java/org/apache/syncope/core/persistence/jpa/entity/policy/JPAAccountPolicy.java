@@ -64,9 +64,9 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
      */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "accountPolicy_key"),
+            @JoinColumn(name = "accountPolicy_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_key"))
+            @JoinColumn(name = "resource_id"))
     private Set<JPAExternalResource> resources = new HashSet<>();
 
     @Override

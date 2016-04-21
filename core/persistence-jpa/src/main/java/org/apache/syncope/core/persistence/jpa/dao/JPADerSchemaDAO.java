@@ -49,7 +49,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema> implements DerSchema
                 append(JPADerSchema.class.getSimpleName()).
                 append(" e WHERE ");
         for (AnyTypeClass anyTypeClass : anyTypeClasses) {
-            queryString.append("e.anyTypeClass.key='").append(anyTypeClass.getKey()).append("' OR ");
+            queryString.append("e.anyTypeClass.id='").append(anyTypeClass.getKey()).append("' OR ");
         }
 
         TypedQuery<DerSchema> query = entityManager().createQuery(

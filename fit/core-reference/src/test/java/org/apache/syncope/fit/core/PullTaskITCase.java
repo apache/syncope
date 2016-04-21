@@ -88,7 +88,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class PullTaskITCase extends AbstractTaskITCase {
 
     @BeforeClass
-    public static void testPullctionsSetup() {
+    public static void testPullActionsSetup() {
         PullTaskTO pullTask = taskService.read(PULL_TASK_KEY, true);
         pullTask.getActionsClassNames().add(TestPullActions.class.getName());
         taskService.update(pullTask);

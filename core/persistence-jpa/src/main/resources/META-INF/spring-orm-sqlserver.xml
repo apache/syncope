@@ -44,7 +44,7 @@ under the License.
         <column-name>stringValue</column-name>
         <column-name>doubleValue</column-name>
         <column-name>longValue</column-name>
-        <column-name>schema_key</column-name>
+        <column-name>schema_id</column-name>
       </unique-constraint>
     </table>
   </entity>    
@@ -56,7 +56,7 @@ under the License.
         <column-name>stringValue</column-name>
         <column-name>doubleValue</column-name>
         <column-name>longValue</column-name>
-        <column-name>schema_key</column-name>
+        <column-name>schema_id</column-name>
       </unique-constraint>
     </table>
   </entity>
@@ -68,7 +68,7 @@ under the License.
         <column-name>stringValue</column-name>
         <column-name>doubleValue</column-name>
         <column-name>longValue</column-name>
-        <column-name>schema_key</column-name>
+        <column-name>schema_id</column-name>
       </unique-constraint>
     </table>
   </entity>
@@ -80,7 +80,7 @@ under the License.
         <column-name>stringValue</column-name>
         <column-name>doubleValue</column-name>
         <column-name>longValue</column-name>
-        <column-name>schema_key</column-name>
+        <column-name>schema_id</column-name>
       </unique-constraint>
     </table>
   </entity>

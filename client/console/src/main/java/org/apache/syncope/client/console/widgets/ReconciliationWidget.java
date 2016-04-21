@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
@@ -59,6 +58,7 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.wicket.Application;
@@ -84,7 +84,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.ws.WebSocketSettings;
-import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.WebSocketPushBroadcaster;
 import org.apache.wicket.protocol.ws.api.event.WebSocketPushPayload;
 import org.apache.wicket.protocol.ws.api.message.ConnectedMessage;
@@ -110,8 +109,6 @@ public class ReconciliationWidget extends BaseWidget {
     private final ReportRestClient restClient = new ReportRestClient();
 
     private final WebMarkupContainer overlay;
-
-    private boolean checkReconciliationJob = false;
 
     public ReconciliationWidget(final String id, final PageReference pageRef) {
         super(id);
@@ -140,21 +137,6 @@ public class ReconciliationWidget extends BaseWidget {
         reportResult.setOutputMarkupId(true);
         add(reportResult);
 
-        if (reconciliationReport != null) {
-            add(new WebSocketBehavior() {
-
-                private static final long serialVersionUID = 3507933905864454312L;
-
-                @Override
-                protected void onConnect(final ConnectedMessage message) {
-                    super.onConnect(message);
-
-                    SyncopeConsoleSession.get().scheduleAtFixedRate(
-                            new ReconciliationJobInfoUpdater(message), 0, 10, TimeUnit.SECONDS);
-                }
-            });
-        }
-
         add(new IndicatorAjaxLink<Void>("refresh") {
 
             private static final long serialVersionUID = -7978723352517770644L;
@@ -167,9 +149,7 @@ public class ReconciliationWidget extends BaseWidget {
                     overlay.setVisible(true);
                     target.add(ReconciliationWidget.this);
 
-                    synchronized (this) {
-                        checkReconciliationJob = true;
-                    }
+                    SyncopeConsoleSession.get().setCheckReconciliationJob(true);
 
                     info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
@@ -205,7 +185,7 @@ public class ReconciliationWidget extends BaseWidget {
                 return new ProgressesPanel(panelId, report.getRun(), progressBeans);
             }
         });
-        tabs.add(new AbstractTab(new ResourceModel("users")) {
+        tabs.add(new AbstractTab(Model.of(AnyTypeKind.USER.name())) {
 
             private static final long serialVersionUID = -6815067322125799251L;
 
@@ -214,7 +194,7 @@ public class ReconciliationWidget extends BaseWidget {
                 return new AnysReconciliationPanel(panelId, report.getUsers(), pageRef);
             }
         });
-        tabs.add(new AbstractTab(new ResourceModel("groups")) {
+        tabs.add(new AbstractTab(Model.of(AnyTypeKind.GROUP.name())) {
 
             private static final long serialVersionUID = -6815067322125799251L;
 
@@ -306,9 +286,7 @@ public class ReconciliationWidget extends BaseWidget {
 
                 wsEvent.getHandler().add(ReconciliationWidget.this);
 
-                synchronized (this) {
-                    checkReconciliationJob = false;
-                }
+                SyncopeConsoleSession.get().setCheckReconciliationJob(false);
             }
         }
     }
@@ -485,7 +463,7 @@ public class ReconciliationWidget extends BaseWidget {
         }
     }
 
-    protected final class ReconciliationJobInfoUpdater implements Runnable {
+    public static final class ReconciliationJobInfoUpdater implements Runnable {
 
         private final String applicationName;
 
@@ -501,37 +479,36 @@ public class ReconciliationWidget extends BaseWidget {
 
         @Override
         public void run() {
-            synchronized (ReconciliationWidget.this) {
-                if (ReconciliationWidget.this.checkReconciliationJob) {
-                    try {
-                        Application application = Application.get(applicationName);
-                        ThreadContext.setApplication(application);
-                        ThreadContext.setSession(session);
+            if (session.isCheckReconciliationJob()) {
+                try {
+                    final Application application = Application.get(applicationName);
+                    ThreadContext.setApplication(application);
+                    ThreadContext.setSession(session);
 
-                        JobTO reportJobTO = IterableUtils.find(session.getService(ReportService.class).listJobs(),
-                                new Predicate<JobTO>() {
+                    JobTO reportJobTO = IterableUtils.find(session.getService(ReportService.class).listJobs(),
+                            new Predicate<JobTO>() {
 
-                            @Override
-                            public boolean evaluate(final JobTO jobTO) {
-                                return SyncopeConsoleApplication.get().
-                                        getReconciliationReportKey().equals(jobTO.getRefKey());
-                            }
-                        });
-                        if (reportJobTO != null && !reportJobTO.isRunning()) {
-                            LOG.debug("Report {} is not running", reconciliationReportKey);
-
-                            WebSocketSettings webSocketSettings = WebSocketSettings.Holder.get(application);
-                            WebSocketPushBroadcaster broadcaster =
-                                    new WebSocketPushBroadcaster(webSocketSettings.getConnectionRegistry());
-                            broadcaster.broadcast(
-                                    new ConnectedMessage(application, session.getId(), key),
-                                    new ReconciliationJobNotRunningMessage());
+                        @Override
+                        public boolean evaluate(final JobTO jobTO) {
+                            return SyncopeConsoleApplication.class.cast(application).
+                                    getReconciliationReportKey().equals(jobTO.getRefKey());
                         }
-                    } catch (Throwable t) {
-                        LOG.error("Unexpected error while checking for updated reconciliation job info", t);
-                    } finally {
-                        ThreadContext.detach();
+                    });
+                    if (reportJobTO != null && !reportJobTO.isRunning()) {
+                        LOG.debug("Report {} is not running",
+                                SyncopeConsoleApplication.class.cast(application).getReconciliationReportKey());
+
+                        WebSocketSettings webSocketSettings = WebSocketSettings.Holder.get(application);
+                        WebSocketPushBroadcaster broadcaster =
+                                new WebSocketPushBroadcaster(webSocketSettings.getConnectionRegistry());
+                        broadcaster.broadcast(
+                                new ConnectedMessage(application, session.getId(), key),
+                                new ReconciliationJobNotRunningMessage());
                     }
+                } catch (Throwable t) {
+                    LOG.error("Unexpected error while checking for updated reconciliation job info", t);
+                } finally {
+                    ThreadContext.detach();
                 }
             }
         }

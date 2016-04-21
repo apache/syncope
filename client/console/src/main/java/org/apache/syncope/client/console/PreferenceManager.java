@@ -40,26 +40,24 @@ import org.slf4j.LoggerFactory;
 
 public class PreferenceManager implements Serializable {
 
+    private static final long serialVersionUID = 3581434664555284193L;
+
     private static final Logger LOG = LoggerFactory.getLogger(PreferenceManager.class);
 
-    private static final String PREFMAN_KEY = "prefMan";
+    private static final String COOKIE_NAME = "syncope2ConsolePrefs";
 
     private static final int ONE_YEAR_TIME = 60 * 60 * 24 * 365;
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private static final TypeReference<Map<String, String>> MAP_TYPE_REF = new TypeReference<Map<String, String>>() {
     };
 
     private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[] { 10, 25, 50 });
 
-    private static final long serialVersionUID = 1L;
-
-    private final ObjectMapper mapper;
-
     private final transient CookieUtils cookieUtils;
 
     public PreferenceManager() {
-        this.mapper = new ObjectMapper();
-
         CookieDefaults cookieDefaults = new CookieDefaults();
         cookieDefaults.setMaxAge(ONE_YEAR_TIME);
         this.cookieUtils = new CookieUtils(cookieDefaults);
@@ -73,7 +71,7 @@ public class PreferenceManager implements Serializable {
         Map<String, String> prefs;
         try {
             if (StringUtils.isNotBlank(value)) {
-                prefs = mapper.readValue(value, MAP_TYPE_REF);
+                prefs = MAPPER.readValue(value, MAP_TYPE_REF);
             } else {
                 throw new Exception("Invalid cookie value '" + value + "'");
             }
@@ -87,7 +85,7 @@ public class PreferenceManager implements Serializable {
 
     private String setPrefs(final Map<String, String> prefs) throws IOException {
         StringWriter writer = new StringWriter();
-        mapper.writeValue(writer, prefs);
+        MAPPER.writeValue(writer, prefs);
 
         return writer.toString();
     }
@@ -95,7 +93,7 @@ public class PreferenceManager implements Serializable {
     public String get(final Request request, final String key) {
         String result = null;
 
-        String prefString = cookieUtils.load(PREFMAN_KEY);
+        String prefString = cookieUtils.load(COOKIE_NAME);
         if (prefString != null) {
             final Map<String, String> prefs = getPrefs(new String(Base64.decodeBase64(prefString.getBytes())));
             result = prefs.get(key);
@@ -131,7 +129,7 @@ public class PreferenceManager implements Serializable {
     public void set(final Request request, final Response response, final Map<String, List<String>> prefs) {
         Map<String, String> current = new HashMap<>();
 
-        String prefString = cookieUtils.load(PREFMAN_KEY);
+        String prefString = cookieUtils.load(COOKIE_NAME);
         if (prefString != null) {
             current.putAll(getPrefs(new String(Base64.decodeBase64(prefString.getBytes()))));
         }
@@ -142,14 +140,14 @@ public class PreferenceManager implements Serializable {
         }
 
         try {
-            cookieUtils.save(PREFMAN_KEY, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
+            cookieUtils.save(COOKIE_NAME, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
         } catch (IOException e) {
             LOG.error("Could not save {} info: {}", getClass().getSimpleName(), current, e);
         }
     }
 
     public void set(final Request request, final Response response, final String key, final String value) {
-        String prefString = cookieUtils.load(PREFMAN_KEY);
+        String prefString = cookieUtils.load(COOKIE_NAME);
 
         final Map<String, String> current = new HashMap<>();
         if (prefString != null) {
@@ -160,7 +158,7 @@ public class PreferenceManager implements Serializable {
         current.put(key, value);
 
         try {
-            cookieUtils.save(PREFMAN_KEY, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
+            cookieUtils.save(COOKIE_NAME, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
         } catch (IOException e) {
             LOG.error("Could not save {} info: {}", getClass().getSimpleName(), current, e);
         }

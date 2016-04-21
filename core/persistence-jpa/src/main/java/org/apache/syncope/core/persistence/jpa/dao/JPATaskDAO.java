@@ -87,9 +87,11 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
                 append(getEntityReference(type).getSimpleName()).
                 append(" t WHERE ");
         if (type == TaskType.SCHEDULED) {
-            builder.append("t.key NOT IN (SELECT t.key FROM ").append(JPAPushTask.class.getSimpleName()).append(" t) ").
+            builder.append("t.id NOT IN (SELECT t.id FROM ").
+                    append(JPAPushTask.class.getSimpleName()).append(" t) ").
                     append("AND ").
-                    append("t.key NOT IN (SELECT t.key FROM ").append(JPAPullTask.class.getSimpleName()).append(" t)");
+                    append("t.id NOT IN (SELECT t.id FROM ").
+                    append(JPAPullTask.class.getSimpleName()).append(" t)");
         } else {
             builder.append("1=1");
         }
@@ -107,7 +109,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         } else {
             queryString.append("t.executions IS EMPTY ");
         }
-        queryString.append("ORDER BY t.key DESC");
+        queryString.append("ORDER BY t.id DESC");
 
         Query query = entityManager().createQuery(queryString.toString());
         return query.getResultList();
@@ -168,7 +170,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         }
 
         if (statement.length() == 0) {
-            statement.append("ORDER BY t.key DESC");
+            statement.append("ORDER BY t.id DESC");
         } else {
             statement.insert(0, "ORDER BY ");
         }

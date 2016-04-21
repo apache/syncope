@@ -46,7 +46,7 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 
 @Entity
 @Table(name = JPAProvision.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "resource_key", "anyType_key" }))
+        @UniqueConstraint(columnNames = { "resource_id", "anyType_id" }))
 public class JPAProvision extends AbstractGeneratedKeyEntity implements Provision {
 
     private static final long serialVersionUID = -1807889487945989443L;
@@ -64,9 +64,9 @@ public class JPAProvision extends AbstractGeneratedKeyEntity implements Provisio
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "provision_key"),
+            @JoinColumn(name = "provision_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_key"))
+            @JoinColumn(name = "anyTypeClass_id"))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Lob

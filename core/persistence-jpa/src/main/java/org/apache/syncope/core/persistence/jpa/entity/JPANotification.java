@@ -59,7 +59,7 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
     @Column(name = "event")
     @CollectionTable(name = "Notification_events",
             joinColumns =
-            @JoinColumn(name = "notification_key", referencedColumnName = "key"))
+            @JoinColumn(name = "notification_id", referencedColumnName = "id"))
     private List<String> events;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "notification")
@@ -70,7 +70,7 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "Notification_staticRecipients",
             joinColumns =
-            @JoinColumn(name = "notification_key", referencedColumnName = "key"))
+            @JoinColumn(name = "notification_id", referencedColumnName = "id"))
     @Column(name = "staticRecipients")
     private List<String> staticRecipients;
 
@@ -96,7 +96,7 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
     private String subject;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "template_key")
+    @JoinColumn(name = "template_id")
     private JPAMailTemplate template;
 
     @NotNull

@@ -44,7 +44,7 @@ public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractGenera
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
-    @Column(name = "schema_key")
+    @Column(name = "schema_id")
     protected JPAPlainSchema schema;
 
     @Override

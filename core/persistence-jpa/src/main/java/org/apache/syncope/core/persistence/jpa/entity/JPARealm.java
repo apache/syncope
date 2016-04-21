@@ -51,7 +51,7 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.RealmCheck;
 
 @Entity
 @Table(name = JPARealm.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "key", "parent_key" }))
+        @UniqueConstraint(columnNames = { "id", "parent_id" }))
 @Cacheable
 @RealmCheck
 public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
@@ -76,7 +76,7 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     @Column(name = "actionClassName")
     @CollectionTable(name = "Realm_actionsClassNames",
             joinColumns =
-            @JoinColumn(name = "realm_key", referencedColumnName = "key"))
+            @JoinColumn(name = "realm_key", referencedColumnName = "id"))
     private Set<String> actionsClassNames = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "realm")

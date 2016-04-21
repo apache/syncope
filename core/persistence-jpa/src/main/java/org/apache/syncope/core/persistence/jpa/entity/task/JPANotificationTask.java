@@ -60,7 +60,7 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
     @Column(name = "address")
     @CollectionTable(name = "NotificationTask_recipients",
             joinColumns =
-            @JoinColumn(name = "notificationTask_key", referencedColumnName = "key"))
+            @JoinColumn(name = "notificationTask_id", referencedColumnName = "id"))
     private Set<String> recipients = new HashSet<>();
 
     @NotNull
