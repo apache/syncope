@@ -41,6 +41,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -236,6 +237,10 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         this.resourceTO = resurceTO;
     }
 
+    public void setEventSink(final IEventSink eventSink) {
+        this.eventSink = eventSink;
+    }
+    
     @Override
     protected WizardModel buildModelSteps(final ProvisionTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new ObjectType(modelObject));

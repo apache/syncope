@@ -77,19 +77,17 @@ public class TopologyITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("key", "body:resources", "ws-target-resource-1");
         assertNotNull(component);
         wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
-        wicketTester.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:edit");
+        wicketTester.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:provision");
 
-        FormTester formTester = wicketTester.newFormTester("body:toggle:outerObjectsRepeater:0:outer:form");
-        formTester.submit("content:form:buttons:next");
-
-        wicketTester.clickLink("body:toggle:outerObjectsRepeater:0:outer:form:content:form:view:provision:container:"
+        
+        wicketTester.clickLink("body:toggle:outerObjectsRepeater:1:outer:form:content:provision:container:"
                 + "content:group:beans:0:actions:panelMapping:mappingLink");
 
-        formTester = wicketTester.newFormTester("body:toggle:outerObjectsRepeater:0:outer:form:content:form:view:"
+        FormTester formTester = wicketTester.newFormTester("body:toggle:outerObjectsRepeater:1:outer:form:content:"
                 + "provision:container:content:wizard:form");
         formTester.submit("buttons:next");
 
-        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:0:outer:form:content:form:view:provision:"
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:1:outer:form:content:provision:"
                 + "container:content:wizard:form:view:mapping:mappingContainer:mappings:1", WebMarkupContainer.class);
     }
 

@@ -37,6 +37,7 @@ import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -296,6 +297,30 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         };
         MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
         fragment.add(edit);
+
+        AjaxLink<String> provision = new IndicatingAjaxLink<String>("provision") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
+
+                IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
+                taskModal.setFormModel(model);
+
+                target.add(taskModal.setContent(new ResourceProvisionPanel(taskModal, modelObject, pageRef)));
+
+                taskModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
+
+                MetaDataRoleAuthorizationStrategy.
+                        authorize(taskModal.getForm(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+
+                taskModal.show(true);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+        fragment.add(provision);
 
         AjaxLink<String> explore = new IndicatingAjaxLink<String>("explore") {
 

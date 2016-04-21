@@ -18,28 +18,36 @@
  */
 package org.apache.syncope.client.console.wizards.resources;
 
+import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.wizard.WizardStep;
 
-public class ResourceProvisionPanel extends WizardStep {
+public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    public ResourceProvisionPanel(final ResourceTO resourceTO, final PageReference pageRef) {
-        super();
+    public ResourceProvisionPanel(
+            final BaseModal<Serializable> modal,
+            final ResourceTO resourceTO,
+            final PageReference pageRef) {
+        super(modal, pageRef);
         setOutputMarkupId(true);
+
+        final ProvisionWizardBuilder wizard = new ProvisionWizardBuilder(resourceTO, pageRef);
 
         final ListViewPanel.Builder<ProvisionTO> builder = new ListViewPanel.Builder<ProvisionTO>(
                 ProvisionTO.class, pageRef) {
@@ -112,7 +120,11 @@ public class ResourceProvisionPanel extends WizardStep {
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_DELETE);
 
-        builder.addNewItemPanelBuilder(new ProvisionWizardBuilder(resourceTO, pageRef));
-        add(builder.build("provision"));
+        builder.addNewItemPanelBuilder(wizard);
+
+        final WizardMgtPanel<ProvisionTO> list = builder.build("provision");
+        wizard.setEventSink(list);
+
+        add(list);
     }
 }

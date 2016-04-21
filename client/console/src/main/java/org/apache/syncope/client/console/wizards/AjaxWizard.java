@@ -26,6 +26,7 @@ import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.IWizardModel;
 import org.apache.wicket.extensions.wizard.IWizardStep;
 import org.apache.wicket.extensions.wizard.Wizard;
@@ -54,6 +55,8 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
 
     private final Mode mode;
 
+    private IEventSink eventSink = null;
+
     /**
      * Construct.
      *
@@ -74,6 +77,11 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         setOutputMarkupId(true);
         setDefaultModel(new CompoundPropertyModel<>(this));
         init(model);
+    }
+
+    protected AjaxWizard<T> setEventSink(final IEventSink eventSink) {
+        this.eventSink = eventSink;
+        return this;
     }
 
     @Override
@@ -106,7 +114,11 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         try {
             onCancelInternal();
-            send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemCancelEvent<>(item, target));
+            if (eventSink == null) {
+                send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemCancelEvent<>(item, target));
+            } else {
+                send(eventSink, Broadcast.EXACT, new NewItemCancelEvent<>(item, target));
+            }
         } catch (Exception e) {
             LOG.warn("Wizard error on cancel", e);
             error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
@@ -122,7 +134,11 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         try {
             final Serializable res = onApplyInternal(target);
-            send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(res));
+            if (eventSink == null) {
+                send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(res));
+            } else {
+                send(eventSink, Broadcast.EXACT, new NewItemFinishEvent<>(item, target).setResult(res));
+            }
         } catch (Exception e) {
             LOG.error("Wizard error on finish", e);
             error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());

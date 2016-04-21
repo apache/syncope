@@ -65,7 +65,6 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
     protected WizardModel buildModelSteps(final Serializable modelObject, final WizardModel wizardModel) {
         final ResourceTO resourceTO = ResourceTO.class.cast(modelObject);
         wizardModel.add(new ResourceDetailsPanel(resourceTO, createFlag));
-        wizardModel.add(new ResourceProvisionPanel(resourceTO, pageRef));
         wizardModel.add(new ResourceConnConfPanel(resourceTO, createFlag) {
 
             private static final long serialVersionUID = -1128269449868933504L;

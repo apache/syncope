@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
@@ -30,7 +29,6 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.PropertyModel;
 
 public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInstanceTO> {
 
@@ -48,34 +46,24 @@ public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInsta
 
             @Override
             protected List<ConnConfProperty> load() {
-                List<ConnConfProperty> properties = getConnProperties(connInstanceTO);
-                connInstanceTO.getConf().clear();
-                connInstanceTO.getConf().addAll(properties);
+                List<ConnConfProperty> properties = getConnProperties(ConnectorConfPanel.this.modelObject);
+                ConnectorConfPanel.this.modelObject.getConf().clear();
 
-                return new PropertyModel<List<ConnConfProperty>>(modelObject, "conf") {
-
-                    private static final long serialVersionUID = -7809699384012595307L;
+                // re-order properties
+                Collections.sort(properties, new Comparator<ConnConfProperty>() {
 
                     @Override
-                    public List<ConnConfProperty> getObject() {
-                        final List<ConnConfProperty> res = new ArrayList<>((Set<ConnConfProperty>) super.getObject());
-
-                        // re-order properties
-                        Collections.sort(res, new Comparator<ConnConfProperty>() {
-
-                            @Override
-                            public int compare(final ConnConfProperty left, final ConnConfProperty right) {
-                                if (left == null) {
-                                    return -1;
-                                } else {
-                                    return left.compareTo(right);
-                                }
-                            }
-                        });
-
-                        return res;
+                    public int compare(final ConnConfProperty left, final ConnConfProperty right) {
+                        if (left == null) {
+                            return -1;
+                        } else {
+                            return left.compareTo(right);
+                        }
                     }
-                }.getObject();
+                });
+
+                ConnectorConfPanel.this.modelObject.getConf().addAll(properties);
+                return properties;
             }
         };
 
@@ -99,8 +87,7 @@ public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInsta
                 final ConnConfProperty property = new ConnConfProperty();
                 property.setSchema(key);
 
-                if (instance.getKey() != null
-                        && instance.getConfMap().containsKey(key.getName())
+                if (instance.getConfMap().containsKey(key.getName())
                         && instance.getConfMap().get(key.getName()).getValues() != null) {
 
                     property.getValues().addAll(instance.getConfMap().get(key.getName()).getValues());
