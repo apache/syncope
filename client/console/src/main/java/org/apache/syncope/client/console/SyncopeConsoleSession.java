@@ -54,6 +54,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
 public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
@@ -61,9 +62,17 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleSession.class);
 
+    private static final ThreadPoolExecutorFactoryBean THREAD_POOL_FACTORY;
+
     public static final String AUTHENTICATED = "AUTHENTICATED";
 
     public static final String MENU_COLLAPSE = "MENU_COLLAPSE";
+
+    static {
+        THREAD_POOL_FACTORY = new ThreadPoolExecutorFactoryBean();
+        THREAD_POOL_FACTORY.setThreadNamePrefix(SyncopeConsoleSession.class.getSimpleName());
+        THREAD_POOL_FACTORY.setDaemon(true);
+    }
 
     private final PlatformInfo platformInfo;
 
@@ -71,9 +80,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private String domain;
 
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
-
     private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<Class<?>, Object>());
+
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5, THREAD_POOL_FACTORY);
 
     private SyncopeClient client;
 
@@ -88,6 +97,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     private Roles roles;
 
     private NotificationPanel notificationPanel;
+
+    private boolean checkReconciliationJob = false;
 
     public static SyncopeConsoleSession get() {
         return (SyncopeConsoleSession) Session.get();
@@ -248,4 +259,13 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         }
         return notificationPanel;
     }
+
+    public boolean isCheckReconciliationJob() {
+        return checkReconciliationJob;
+    }
+
+    public void setCheckReconciliationJob(final boolean checkReconciliationJob) {
+        this.checkReconciliationJob = checkReconciliationJob;
+    }
+
 }
