@@ -51,9 +51,9 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
 
     @ManyToMany
     @JoinTable(joinColumns =
-            @JoinColumn(name = "aDynGroupMembership_key"),
+            @JoinColumn(name = "aDynGroupMembership_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyObject_key"))
+            @JoinColumn(name = "anyObject_id"))
     private List<JPAAnyObject> anyObjects = new ArrayList<>();
 
     @Override

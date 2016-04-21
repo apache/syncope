@@ -119,7 +119,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO
     @Override
     public int count(final String taskKey) {
         Query countQuery = entityManager().createNativeQuery(
-                "SELECT COUNT(e.key) FROM " + JPATaskExec.TABLE + " e WHERE e.task_key=?1");
+                "SELECT COUNT(e.id) FROM " + JPATaskExec.TABLE + " e WHERE e.task_id=?1");
         countQuery.setParameter(1, taskKey);
 
         return ((Number) countQuery.getSingleResult()).intValue();
@@ -136,7 +136,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO
         }
 
         if (statement.length() == 0) {
-            statement.append("ORDER BY e.key DESC");
+            statement.append("ORDER BY e.id DESC");
         } else {
             statement.insert(0, "ORDER BY ");
         }

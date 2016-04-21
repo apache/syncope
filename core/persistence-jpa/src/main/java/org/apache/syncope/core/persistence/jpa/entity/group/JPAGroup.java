@@ -80,17 +80,17 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "group_key"),
+            @JoinColumn(name = "group_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_key"))
+            @JoinColumn(name = "resource_id"))
     @Valid
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "group_key"),
+            @JoinColumn(name = "group_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_key"))
+            @JoinColumn(name = "anyTypeClass_id"))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "group")

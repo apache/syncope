@@ -33,7 +33,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPARelationshipType;
 
 @Entity
 @Table(name = JPAARelationship.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "type_key", "left_anyObject_key", "right_anyObject_key" }))
+        @UniqueConstraint(columnNames = { "type_id", "left_anyObject_id", "right_anyObject_id" }))
 public class JPAARelationship extends AbstractGeneratedKeyEntity implements ARelationship {
 
     private static final long serialVersionUID = 6608821135023815357L;
@@ -44,11 +44,11 @@ public class JPAARelationship extends AbstractGeneratedKeyEntity implements ARel
     private JPARelationshipType type;
 
     @ManyToOne
-    @Column(name = "left_anyObject_key")
+    @Column(name = "left_anyObject_id")
     private JPAAnyObject leftEnd;
 
     @ManyToOne
-    @Column(name = "right_anyObject_key")
+    @Column(name = "right_anyObject_id")
     private JPAAnyObject rightEnd;
 
     @Override

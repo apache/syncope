@@ -39,11 +39,11 @@ public class JPAUMembership extends AbstractGeneratedKeyEntity implements UMembe
     public static final String TABLE = "UMembership";
 
     @ManyToOne
-    @Column(name = "user_key")
+    @Column(name = "user_id")
     private JPAUser leftEnd;
 
     @ManyToOne
-    @Column(name = "group_key")
+    @Column(name = "group_id")
     private JPAGroup rightEnd;
 
     @Override

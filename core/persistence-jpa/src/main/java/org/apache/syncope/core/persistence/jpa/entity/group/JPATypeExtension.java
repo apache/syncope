@@ -38,7 +38,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 
 @Entity
 @Table(name = JPATypeExtension.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "group_key", "anyType_key" }))
+        @UniqueConstraint(columnNames = { "group_id", "anyType_id" }))
 public class JPATypeExtension extends AbstractGeneratedKeyEntity implements TypeExtension {
 
     private static final long serialVersionUID = -8367626793791263551L;
@@ -53,9 +53,9 @@ public class JPATypeExtension extends AbstractGeneratedKeyEntity implements Type
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "typeExtension_key"),
+            @JoinColumn(name = "typeExtension_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_key"))
+            @JoinColumn(name = "anyTypeClass_id"))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Override

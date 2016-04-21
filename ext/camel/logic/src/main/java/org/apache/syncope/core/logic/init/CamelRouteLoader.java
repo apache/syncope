@@ -178,7 +178,7 @@ public class CamelRouteLoader implements SyncopeLoader {
                     String routeId = ((Element) routeElement).getAttribute("id");
 
                     jdbcTemplate.update(
-                            String.format("INSERT INTO %s(KEY, ANYTYPEKIND, CONTENT) VALUES (?, ?, ?)",
+                            String.format("INSERT INTO %s(ID, ANYTYPEKIND, CONTENT) VALUES (?, ?, ?)",
                                     CamelRoute.class.getSimpleName()),
                             new Object[] { routeId, anyTypeKind.name(), routeContent });
                     LOG.info("[{}] Route successfully loaded: {}", domain, routeId);

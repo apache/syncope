@@ -67,16 +67,16 @@ public class JPAAnyObject extends AbstractAny<APlainAttr> implements AnyObject {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "anyObject_key"),
+            @JoinColumn(name = "anyObject_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_key"))
+            @JoinColumn(name = "resource_id"))
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "anyObject_key"),
+            @JoinColumn(name = "anyObject_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_key"))
+            @JoinColumn(name = "anyTypeClass_id"))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "leftEnd")

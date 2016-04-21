@@ -87,9 +87,9 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "user_key"),
+            @JoinColumn(name = "user_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "role_key"))
+            @JoinColumn(name = "role_id"))
     private List<JPARole> roles = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
@@ -114,7 +114,7 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     @ElementCollection
     @Column(name = "passwordHistoryValue")
     @CollectionTable(name = "SyncopeUser_passwordHistory", joinColumns =
-            @JoinColumn(name = "user_key", referencedColumnName = "key"))
+            @JoinColumn(name = "user_id", referencedColumnName = "id"))
     private List<String> passwordHistory = new ArrayList<>();
 
     /**
@@ -159,17 +159,17 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
      */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "user_key"),
+            @JoinColumn(name = "user_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_key"))
+            @JoinColumn(name = "resource_id"))
     @Valid
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "user_key"),
+            @JoinColumn(name = "user_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_key"))
+            @JoinColumn(name = "anyTypeClass_id"))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "leftEnd")

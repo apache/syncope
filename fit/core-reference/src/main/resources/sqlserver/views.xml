@@ -59,10 +59,10 @@ under the License.
     SELECT u.id AS any_id,
     PlainSchema.id AS schema_id,
     NULL AS booleanvalue,
-    NULL AS datevalue,
-    NULL AS doublevalue,
-    NULL AS longvalue,
-    NULL AS stringvalue
+    CAST (NULL AS DATETIME2) datevalue,
+    CAST (NULL AS FLOAT) doublevalue,
+    CAST (NULL AS BIGINT) longvalue,
+    CAST (NULL AS VARCHAR(255)) AS stringvalue
     FROM SyncopeUser u CROSS JOIN PlainSchema
     LEFT OUTER JOIN UPlainAttr ua ON (PlainSchema.id = ua.schema_id AND ua.owner_id = u.id)
     WHERE ua.id IS NULL
@@ -152,10 +152,10 @@ under the License.
     SELECT u.id AS any_id,
     PlainSchema.id AS schema_id,
     NULL AS booleanvalue,
-    NULL AS datevalue,
-    NULL AS doublevalue,
-    NULL AS longvalue,
-    NULL AS stringvalue
+    CAST (NULL AS DATETIME2) datevalue,
+    CAST (NULL AS FLOAT) doublevalue,
+    CAST (NULL AS BIGINT) longvalue,
+    CAST (NULL AS VARCHAR(255)) AS stringvalue
     FROM AnyObject u CROSS JOIN PlainSchema
     LEFT OUTER JOIN APlainAttr ua ON (PlainSchema.id = ua.schema_id AND ua.owner_id = u.id)
     WHERE ua.id IS NULL
@@ -232,10 +232,10 @@ under the License.
     SELECT u.id AS any_id,
     PlainSchema.id AS schema_id,
     NULL AS booleanvalue,
-    NULL AS datevalue,
-    NULL AS doublevalue,
-    NULL AS longvalue,
-    NULL AS stringvalue
+    CAST (NULL AS DATETIME2) datevalue,
+    CAST (NULL AS FLOAT) doublevalue,
+    CAST (NULL AS BIGINT) longvalue,
+    CAST (NULL AS VARCHAR(255)) AS stringvalue
     FROM SyncopeGroup u CROSS JOIN PlainSchema
     LEFT OUTER JOIN GPlainAttr ua ON (PlainSchema.id = ua.schema_id AND ua.owner_id = u.id)
     WHERE ua.id IS NULL

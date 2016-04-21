@@ -149,7 +149,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @Column(name = "capabilityOverride")
     @CollectionTable(name = "ExternalResource_capOverride",
             joinColumns =
-            @JoinColumn(name = "resource_key", referencedColumnName = "key"))
+            @JoinColumn(name = "resource_id", referencedColumnName = "id"))
     private Set<ConnectorCapability> capabilitiesOverride = new HashSet<>();
 
     /**
@@ -159,7 +159,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @Column(name = "actionClassName")
     @CollectionTable(name = "ExternalResource_PropActions",
             joinColumns =
-            @JoinColumn(name = "resource_key", referencedColumnName = "key"))
+            @JoinColumn(name = "resource_id", referencedColumnName = "id"))
     private List<String> propagationActionsClassNames = new ArrayList<>();
 
     public JPAExternalResource() {

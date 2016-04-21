@@ -28,16 +28,16 @@ public abstract class AbstractProvidedKeyEntity extends AbstractEntity implement
     private static final long serialVersionUID = 821537874069666593L;
 
     @Id
-    private String key;
+    private String id;
 
     @Override
     public String getKey() {
-        return key;
+        return id;
     }
 
     @Override
     public void setKey(final String key) {
-        this.key = key;
+        this.id = key;
     }
 
 }

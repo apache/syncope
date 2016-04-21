@@ -43,9 +43,9 @@ public class JPAUDynGroupMembership extends AbstractUDynMembership implements UD
 
     @ManyToMany
     @JoinTable(name = TABLE + "_User", joinColumns =
-            @JoinColumn(name = "uDynGroupMembership_key"),
+            @JoinColumn(name = "uDynGroupMembership_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "user_key"))
+            @JoinColumn(name = "user_id"))
     private List<JPAUser> users = new ArrayList<>();
 
     @Override

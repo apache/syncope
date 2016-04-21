@@ -64,7 +64,7 @@ public class JPAPullTask extends AbstractProvisioningTask implements PullTask {
     @Column(name = "actionClassName")
     @CollectionTable(name = "PullTask_actionsClassNames",
             joinColumns =
-            @JoinColumn(name = "pullTask_key", referencedColumnName = "key"))
+            @JoinColumn(name = "pullTask_id", referencedColumnName = "id"))
     private Set<String> actionsClassNames = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pullTask")

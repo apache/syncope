@@ -74,7 +74,7 @@ import org.springframework.util.ReflectionUtils;
 @Repository
 public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO {
 
-    private static final String EMPTY_QUERY = "SELECT any_key FROM user_search_attr WHERE 1=2";
+    private static final String EMPTY_QUERY = "SELECT any_id FROM user_search_attr WHERE 1=2";
 
     @Autowired
     private RealmDAO realmDAO;
@@ -111,8 +111,8 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
         }
 
         StringBuilder adminRealmFilter = new StringBuilder().
-                append("SELECT any_key FROM ").append(svs.field().name).
-                append(" WHERE realm_key IN (SELECT key AS realm_key FROM Realm");
+                append("SELECT any_id FROM ").append(svs.field().name).
+                append(" WHERE realm_id IN (SELECT id AS realm_id FROM Realm");
 
         boolean firstRealm = true;
         for (String realmKey : realmKeys) {
@@ -122,7 +122,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
             } else {
                 adminRealmFilter.append(" OR");
             }
-            adminRealmFilter.append(" key=?").append(setParameter(parameters, realmKey));
+            adminRealmFilter.append(" id=?").append(setParameter(parameters, realmKey));
         }
 
         adminRealmFilter.append(')');
@@ -139,13 +139,13 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
         StringBuilder queryString = getQuery(searchCondition, parameters, svs);
 
         // 2. take into account administrative realms
-        queryString.insert(0, "SELECT u.any_key FROM (");
-        queryString.append(") u WHERE any_key IN (");
+        queryString.insert(0, "SELECT u.any_id FROM (");
+        queryString.append(") u WHERE any_id IN (");
         queryString.append(getAdminRealmsFilter(adminRealms, svs, parameters)).append(')');
 
         // 3. prepare the COUNT query
-        queryString.insert(0, "SELECT COUNT(any_key) FROM (");
-        queryString.append(") count_any_key");
+        queryString.insert(0, "SELECT COUNT(any_id) FROM (");
+        queryString.append(") count_any_id");
 
         Query countQuery = entityManager().createNativeQuery(queryString.toString());
         fillWithParameters(countQuery, parameters);
@@ -213,8 +213,8 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
             matches = false;
         } else {
             // 2. take into account the passed user
-            queryString.insert(0, "SELECT u.any_key FROM (");
-            queryString.append(") u WHERE any_key=?").append(setParameter(parameters, any.getKey()));
+            queryString.insert(0, "SELECT u.any_id FROM (");
+            queryString.append(") u WHERE any_id=?").append(setParameter(parameters, any.getKey()));
 
             // 3. prepare the search query
             Query query = entityManager().createNativeQuery(queryString.toString());
@@ -254,7 +254,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     }
 
     private StringBuilder buildSelect(final OrderBySupport orderBySupport) {
-        final StringBuilder select = new StringBuilder("SELECT u.any_key");
+        final StringBuilder select = new StringBuilder("SELECT u.any_id");
 
         for (OrderBySupport.Item obs : orderBySupport.items) {
             select.append(',').append(obs.select);
@@ -279,7 +279,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
         }
         where.append(" WHERE ");
         for (SearchSupport.SearchView searchView : orderBySupport.views) {
-            where.append("u.any_key=").append(searchView.alias).append(".any_key AND ");
+            where.append("u.any_id=").append(searchView.alias).append(".any_id AND ");
         }
 
         for (OrderBySupport.Item obs : orderBySupport.items) {
@@ -287,7 +287,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
                 where.append(obs.where).append(" AND ");
             }
         }
-        where.append("u.any_key IN (");
+        where.append("u.any_id IN (");
 
         return where;
     }
@@ -316,7 +316,8 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
         for (OrderByClause clause : orderByClauses) {
             OrderBySupport.Item obs = new OrderBySupport.Item();
 
-            String fieldName = clause.getField();
+            // Manage difference among external key attribute and internal JPA @Id
+            String fieldName = "key".equals(clause.getField()) ? "id" : clause.getField();
 
             Field anyField = ReflectionUtils.findField(attrUtils.anyClass(), fieldName);
             if (anyField == null) {
@@ -330,7 +331,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
                                 append(" AS ").append(fieldName).toString();
                         obs.where = new StringBuilder().
                                 append(svs.uniqueAttr().alias).
-                                append(".schema_key='").append(fieldName).append("'").toString();
+                                append(".schema_id='").append(fieldName).append("'").toString();
                         obs.orderBy = fieldName + " " + clause.getDirection().name();
                     } else {
                         orderBySupport.views.add(svs.attr());
@@ -340,7 +341,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
                                 append(" AS ").append(fieldName).toString();
                         obs.where = new StringBuilder().
                                 append(svs.attr().alias).
-                                append(".schema_key='").append(fieldName).append("'").toString();
+                                append(".schema_id='").append(fieldName).append("'").toString();
                         obs.orderBy = fieldName + " " + clause.getDirection().name();
                     }
                 }
@@ -413,7 +414,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
                             ? (T) groupDAO.find(actualKey)
                             : (T) anyObjectDAO.find(actualKey);
             if (any == null) {
-                LOG.error("Could not find {} with key {}, even though returned by the native query",
+                LOG.error("Could not find {} with id {}, even though returned by the native query",
                         typeKind, actualKey);
             } else if (!result.contains(any)) {
                 result.add(any);
@@ -467,14 +468,14 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
             case AND:
                 query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, svs)).
-                        append(" AND any_key IN ( ").
+                        append(" AND any_id IN ( ").
                         append(getQuery(nodeCond.getRightNodeCond(), parameters, svs)).
                         append(")");
                 break;
 
             case OR:
                 query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, svs)).
-                        append(" OR any_key IN ( ").
+                        append(" OR any_id IN ( ").
                         append(getQuery(nodeCond.getRightNodeCond(), parameters, svs)).
                         append(")");
                 break;
@@ -488,8 +489,8 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     private String getQuery(final AnyTypeCond cond, final boolean not, final List<Object> parameters,
             final SearchSupport svs) {
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_key FROM ").
-                append(svs.field().name).append(" WHERE type_key");
+        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
+                append(svs.field().name).append(" WHERE type_id");
 
         if (not) {
             query.append("<>");
@@ -505,19 +506,19 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     private String getQuery(final RelationshipTypeCond cond, final boolean not, final List<Object> parameters,
             final SearchSupport svs) {
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_key FROM ").
+        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
 
         if (not) {
-            query.append("any_key NOT IN (");
+            query.append("any_id NOT IN (");
         } else {
-            query.append("any_key IN (");
+            query.append("any_id IN (");
         }
 
-        query.append("SELECT any_key ").append("FROM ").
+        query.append("SELECT any_id ").append("FROM ").
                 append(svs.relationship().name).
                 append(" WHERE type=?").append(setParameter(parameters, cond.getRelationshipTypeKey())).
-                append(" UNION SELECT right_any_key AS any_key FROM ").
+                append(" UNION SELECT right_any_id AS any_id FROM ").
                 append(svs.relationship().name).
                 append(" WHERE type=?").append(setParameter(parameters, cond.getRelationshipTypeKey())).
                 append(')');
@@ -528,18 +529,18 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     private String getQuery(final RelationshipCond cond, final boolean not, final List<Object> parameters,
             final SearchSupport svs) {
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_key FROM ").
+        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
 
         if (not) {
-            query.append("any_key NOT IN (");
+            query.append("any_id NOT IN (");
         } else {
-            query.append("any_key IN (");
+            query.append("any_id IN (");
         }
 
-        query.append("SELECT DISTINCT any_key ").append("FROM ").
+        query.append("SELECT DISTINCT any_id ").append("FROM ").
                 append(svs.relationship().name).append(" WHERE ").
-                append("right_any_key=?").append(setParameter(parameters, cond.getAnyObjectKey())).
+                append("right_any_id=?").append(setParameter(parameters, cond.getAnyObjectKey())).
                 append(')');
 
         return query.toString();
@@ -548,29 +549,29 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     private String getQuery(final MembershipCond cond, final boolean not, final List<Object> parameters,
             final SearchSupport svs) {
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_key FROM ").
+        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
 
         if (not) {
-            query.append("any_key NOT IN (");
+            query.append("any_id NOT IN (");
         } else {
-            query.append("any_key IN (");
+            query.append("any_id IN (");
         }
 
-        query.append("SELECT DISTINCT any_key ").append("FROM ").
+        query.append("SELECT DISTINCT any_id ").append("FROM ").
                 append(svs.membership().name).append(" WHERE ").
-                append("group_key=?").append(setParameter(parameters, cond.getGroupKey())).
+                append("group_id=?").append(setParameter(parameters, cond.getGroupKey())).
                 append(')');
 
         if (not) {
-            query.append("AND any_key NOT IN (");
+            query.append("AND any_id NOT IN (");
         } else {
-            query.append("OR any_key IN (");
+            query.append("OR any_id IN (");
         }
 
-        query.append("SELECT DISTINCT any_key ").append("FROM ").
+        query.append("SELECT DISTINCT any_id ").append("FROM ").
                 append(svs.dyngroupmembership().name).append(" WHERE ").
-                append("group_key=?").append(setParameter(parameters, cond.getGroupKey())).
+                append("group_id=?").append(setParameter(parameters, cond.getGroupKey())).
                 append(')');
 
         return query.toString();
@@ -579,29 +580,29 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     private String getQuery(final RoleCond cond, final boolean not, final List<Object> parameters,
             final SearchSupport svs) {
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_key FROM ").
+        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
 
         if (not) {
-            query.append("any_key NOT IN (");
+            query.append("any_id NOT IN (");
         } else {
-            query.append("any_key IN (");
+            query.append("any_id IN (");
         }
 
-        query.append("SELECT DISTINCT any_key ").append("FROM ").
+        query.append("SELECT DISTINCT any_id ").append("FROM ").
                 append(svs.role().name).append(" WHERE ").
-                append("role_key=?").append(setParameter(parameters, cond.getRoleKey())).
+                append("role_id=?").append(setParameter(parameters, cond.getRoleKey())).
                 append(')');
 
         if (not) {
-            query.append("AND any_key NOT IN (");
+            query.append("AND any_id NOT IN (");
         } else {
-            query.append("OR any_key IN (");
+            query.append("OR any_id IN (");
         }
 
-        query.append("SELECT DISTINCT any_key ").append("FROM ").
+        query.append("SELECT DISTINCT any_id ").append("FROM ").
                 append(svs.dynrolemembership().name).append(" WHERE ").
-                append("role_key=?").append(setParameter(parameters, cond.getRoleKey())).
+                append("role_id=?").append(setParameter(parameters, cond.getRoleKey())).
                 append(')');
 
         return query.toString();
@@ -610,24 +611,24 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     private String getQuery(final ResourceCond cond, final boolean not, final List<Object> parameters,
             final SearchSupport svs) {
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_key FROM ").
+        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
 
         if (not) {
-            query.append("any_key NOT IN (");
+            query.append("any_id NOT IN (");
         } else {
-            query.append("any_key IN (");
+            query.append("any_id IN (");
         }
 
-        query.append("SELECT DISTINCT any_key FROM ").
+        query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.resource().name).
-                append(" WHERE resource_key=?").
+                append(" WHERE resource_id=?").
                 append(setParameter(parameters, cond.getResourceKey()));
 
         if (svs.anyTypeKind() == AnyTypeKind.USER) {
-            query.append(" UNION SELECT DISTINCT any_key FROM ").
+            query.append(" UNION SELECT DISTINCT any_id FROM ").
                     append(svs.groupResource().name).
-                    append(" WHERE resource_key=?").
+                    append(" WHERE resource_id=?").
                     append(setParameter(parameters, cond.getResourceKey()));
         }
 
@@ -642,16 +643,16 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
             return EMPTY_QUERY;
         }
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_key FROM ").
+        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE (");
         if (cond.isFromGroup()) {
             for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
-                query.append("realm_key=?").append(setParameter(parameters, current.getKey())).append(" OR ");
+                query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
             }
-            query.append("realm_key=?").append(setParameter(parameters, realmDAO.getRoot().getKey()));
+            query.append("realm_id=?").append(setParameter(parameters, realmDAO.getRoot().getKey()));
         } else {
             for (Realm current : realmDAO.findDescendants(realm)) {
-                query.append("realm_key=?").append(setParameter(parameters, current.getKey())).append(" OR ");
+                query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
             }
             query.setLength(query.length() - 4);
         }
@@ -775,18 +776,18 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
             return EMPTY_QUERY;
         }
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_key FROM ");
+        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ");
         switch (cond.getType()) {
             case ISNOTNULL:
                 query.append(svs.field().name).
-                        append(" WHERE any_key NOT IN (SELECT any_key FROM ").
+                        append(" WHERE any_id NOT IN (SELECT any_id FROM ").
                         append(svs.nullAttr().name).
-                        append(" WHERE schema_key='").append(schema.getKey()).append("')");
+                        append(" WHERE schema_id='").append(schema.getKey()).append("')");
                 break;
 
             case ISNULL:
                 query.append(svs.nullAttr().name).
-                        append(" WHERE schema_key='").append(schema.getKey()).append("'");
+                        append(" WHERE schema_id='").append(schema.getKey()).append("'");
                 break;
 
             default:
@@ -795,7 +796,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
                 } else {
                     query.append(svs.attr().name);
                 }
-                query.append(" WHERE schema_key='").append(schema.getKey());
+                query.append(" WHERE schema_id='").append(schema.getKey());
                 fillAttributeQuery(query, attrValue, schema, cond, not, parameters, svs);
         }
 
@@ -807,6 +808,11 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
             final SearchSupport svs) {
 
         AnyUtils attrUtils = anyUtilsFactory.getInstance(svs.anyTypeKind());
+
+        // Keeps track of difference between entity's getKey() and JPA @Id fields
+        if ("key".equals(cond.getSchema())) {
+            cond.setSchema("id");
+        }
 
         Field anyField = ReflectionUtils.findField(attrUtils.anyClass(), cond.getSchema());
         if (anyField == null) {
@@ -849,11 +855,11 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
             if (relMethod != null) {
                 if (Long.class.isAssignableFrom(relMethod.getReturnType())) {
-                    cond.setSchema(cond.getSchema() + "_key");
+                    cond.setSchema(cond.getSchema() + "_id");
                     schema.setType(AttrSchemaType.Long);
                 }
                 if (String.class.isAssignableFrom(relMethod.getReturnType())) {
-                    cond.setSchema(cond.getSchema() + "_key");
+                    cond.setSchema(cond.getSchema() + "_id");
                     schema.setType(AttrSchemaType.String);
                 }
             }
@@ -872,7 +878,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
             }
         }
 
-        final StringBuilder query = new StringBuilder("SELECT DISTINCT any_key FROM ").
+        final StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
 
         fillAttributeQuery(query, attrValue, schema, cond, not, parameters, svs);

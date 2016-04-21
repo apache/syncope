@@ -171,10 +171,10 @@ public class RealmTest extends AbstractTest {
         Realm actual = realmDAO.save(realm);
         assertNotNull(actual);
 
-        String key = actual.getKey();
-        assertNotNull(realmDAO.find(key));
+        String id = actual.getKey();
+        assertNotNull(realmDAO.find(id));
 
-        realmDAO.delete(key);
-        assertNull(realmDAO.find(key));
+        realmDAO.delete(id);
+        assertNull(realmDAO.find(id));
     }
 }

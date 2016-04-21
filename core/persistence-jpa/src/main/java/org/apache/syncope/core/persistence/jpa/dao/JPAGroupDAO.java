@@ -158,7 +158,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPAGroup.class.getSimpleName()).
                 append(" e WHERE e.userOwner=:owner ");
         for (String groupKey : userDAO.findAllGroupKeys(owner)) {
-            queryString.append("OR e.groupOwner.key='").append(groupKey).append("' ");
+            queryString.append("OR e.groupOwner.id='").append(groupKey).append("' ");
         }
 
         TypedQuery<Group> query = entityManager().createQuery(queryString.toString(), Group.class);

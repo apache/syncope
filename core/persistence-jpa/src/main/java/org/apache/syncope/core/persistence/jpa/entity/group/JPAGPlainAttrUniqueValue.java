@@ -42,7 +42,7 @@ public class JPAGPlainAttrUniqueValue extends AbstractPlainAttrValue implements 
     private JPAGPlainAttr attribute;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "schema_key")
+    @JoinColumn(name = "schema_id")
     private JPAPlainSchema schema;
 
     @Override

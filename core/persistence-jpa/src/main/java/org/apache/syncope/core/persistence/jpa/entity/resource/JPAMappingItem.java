@@ -73,7 +73,7 @@ public class JPAMappingItem extends AbstractGeneratedKeyEntity implements Mappin
     private String mandatoryCondition;
 
     /**
-     * Specify if the mapped target resource's field is the key.
+     * Specify if the mapped target resource's field is the id.
      */
     @NotNull
     @Basic
@@ -101,7 +101,7 @@ public class JPAMappingItem extends AbstractGeneratedKeyEntity implements Mappin
     @Column(name = "transformerClassName")
     @CollectionTable(name = "MappingItem_Transformer",
             joinColumns =
-            @JoinColumn(name = "mappingItem_key", referencedColumnName = "key"))
+            @JoinColumn(name = "mappingItem_id", referencedColumnName = "id"))
     private List<String> mappingItemTransformerClassNames = new ArrayList<>();
 
     public JPAMappingItem() {
@@ -152,7 +152,7 @@ public class JPAMappingItem extends AbstractGeneratedKeyEntity implements Mappin
             case UserKey:
             case GroupKey:
             case AnyObjectKey:
-                name = "key";
+                name = "id";
                 break;
 
             case Username:

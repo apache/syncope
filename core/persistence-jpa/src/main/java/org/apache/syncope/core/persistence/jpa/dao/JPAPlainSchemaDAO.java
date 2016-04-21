@@ -55,7 +55,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
                 append(JPAPlainSchema.class.getSimpleName()).
                 append(" e WHERE ");
         for (AnyTypeClass anyTypeClass : anyTypeClasses) {
-            queryString.append("e.anyTypeClass.key='").append(anyTypeClass.getKey()).append("' OR ");
+            queryString.append("e.anyTypeClass.id='").append(anyTypeClass.getKey()).append("' OR ");
         }
 
         TypedQuery<PlainSchema> query = entityManager().createQuery(

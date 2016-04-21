@@ -95,7 +95,7 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     @Column(name = "capability")
     @CollectionTable(name = "ConnInstance_capabilities",
             joinColumns =
-            @JoinColumn(name = "connInstance_key", referencedColumnName = "key"))
+            @JoinColumn(name = "connInstance_id", referencedColumnName = "id"))
     private Set<ConnectorCapability> capabilities = new HashSet<>();
 
     /**

@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.AbstractAnyTempla
 
 @Entity
 @Table(name = JPAAnyTemplateRealm.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "realm_key", "anyType_key" }))
+        @UniqueConstraint(columnNames = { "realm_id", "anyType_id" }))
 public class JPAAnyTemplateRealm extends AbstractAnyTemplate implements AnyTemplateRealm {
 
     public static final String TABLE = "AnyTemplateRealm";

@@ -93,7 +93,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     @Override
     public A authFind(final String key) {
         if (key == null) {
-            throw new NotFoundException("Null key");
+            throw new NotFoundException("Null id");
         }
 
         A any = find(key);
@@ -133,7 +133,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     private Query findByAttrValueQuery(final String entityName) {
         return entityManager().createQuery("SELECT e FROM " + entityName + " e"
-                + " WHERE e.attribute.schema.key = :schemaKey AND (e.stringValue IS NOT NULL"
+                + " WHERE e.attribute.schema.id = :schemaKey AND (e.stringValue IS NOT NULL"
                 + " AND e.stringValue = :stringValue)"
                 + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
                 + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
@@ -294,8 +294,8 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                 // verify schema existence and get schema type
                 PlainSchema schema = plainSchemaDAO.find(identifiers.get(i));
                 if (schema == null) {
-                    LOG.error("Invalid schema key '{}'", identifiers.get(i));
-                    throw new IllegalArgumentException("Invalid schema key " + identifiers.get(i));
+                    LOG.error("Invalid schema id '{}'", identifiers.get(i));
+                    throw new IllegalArgumentException("Invalid schema id " + identifiers.get(i));
                 }
 
                 // clear builder
@@ -304,13 +304,13 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                 bld.append("(");
 
                 // set schema name
-                bld.append("s.key = '").append(identifiers.get(i)).append("'");
+                bld.append("s.id = '").append(identifiers.get(i)).append("'");
 
                 bld.append(" AND ");
 
-                bld.append("s.key = a.schema_key").append(" AND ");
+                bld.append("s.id = a.schema_id").append(" AND ");
 
-                bld.append("a.key = v.attribute_key");
+                bld.append("a.id = v.attribute_id");
 
                 bld.append(" AND ");
 
@@ -360,10 +360,10 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         for (String clause : getWhereClause(schema.getExpression(), value)) {
             if (querystring.length() > 0) {
                 subquery = true;
-                querystring.append(" AND a.owner_key IN ( ");
+                querystring.append(" AND a.owner_id IN ( ");
             }
 
-            querystring.append("SELECT a.owner_key ").
+            querystring.append("SELECT a.owner_id ").
                     append("FROM ").append(getAnyUtils().plainAttrClass().getSimpleName().substring(3)).append(" a, ").
                     append(getAnyUtils().plainAttrValueClass().getSimpleName().substring(3)).append(" v, ").
                     append(PlainSchema.class.getSimpleName()).append(" s ").
@@ -405,7 +405,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     private SearchCond getAllMatchingCond() {
         AnyCond idCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
-        idCond.setSchema("key");
+        idCond.setSchema("id");
         return SearchCond.getLeafCond(idCond);
     }
 
