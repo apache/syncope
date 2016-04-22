@@ -203,7 +203,17 @@
 
 ==
 
-For ASM (http://asm.ow2.org/):
+For Plexus Classworlds (https://codehaus-plexus.github.io/plexus-classworlds/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Jackson (http://wiki.fasterxml.com/JacksonHome):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Laf-plugin (https://java.net/projects/laf-plugin):
 This is licensed under the BSD license:
 
 Redistribution and use in source and binary forms, with or without 
@@ -233,34 +243,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==
 
-For NanoXML lite (http://nanoxml.sourceforge.net/orig/):
-This is licensed under the zlib/libpng license:
-
-This software is provided 'as-is', without any express or implied
-warranty. In no event will the authors be held liable for any damages
-arising from the use of this software.
-
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it
-freely, subject to the following restrictions:
-
-1. The origin of this software must not be misrepresented; you must not
-   claim that you wrote the original software. If you use this software
-   in a product, an acknowledgement in the product documentation would be
-   appreciated but is not required.
-2. Altered source versions must be plainly marked as such, and must not be
-   misrepresented as being the original software.
-3. This notice may not be removed or altered from any source distribution.
+For Laf-widget (https://java.net/projects/laf-widget):
+This is licensed under the BSD license, see above.
 
 ==
 
-For Plexus Classworlds (https://codehaus-plexus.github.io/plexus-classworlds/):
-This is licensed under the AL 2.0, see above.
+For Substance (https://java.net/projects/substance):
+This is licensed under the BSD license, see above.
 
 ==
 
-For Jackson (http://wiki.fasterxml.com/JacksonHome):
-This is licensed under the AL 2.0, see above.
+For Trident (https://kenai.com/projects/trident/):
+This is licensed under the BSD license, see above.
 
 ==
 
@@ -270,16 +264,6 @@ This is licensed under the BSD license, see above.
 ==
 
 For Jline v2 (http://jline.github.io/jline2/):
-This is licensed under the BSD license, see above.
-
-==
-
-For Laf-plugin (https://java.net/projects/laf-plugin):
-This is licensed under the BSD license, see above.
-
-==
-
-For Laf-widget (https://java.net/projects/laf-widget):
 This is licensed under the BSD license, see above.
 
 ==
@@ -294,17 +278,7 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Eclipse SWT (https://www.eclipse.org/swt/):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Hamcrest (http://hamcrest.org/):
-This is licensed under the BSD license, see above.
-
-==
-
-For Substance (https://java.net/projects/substance):
 This is licensed under the BSD license, see above.
 
 ==
@@ -315,11 +289,6 @@ This is licensed under the BSD license, see above.
 ==
 
 For PicoContainer (http://picocontainer.com/):
-This is licensed under the BSD license, see above.
-
-==
-
-For Trident (https://kenai.com/projects/trident/):
 This is licensed under the BSD license, see above.
 
 ==

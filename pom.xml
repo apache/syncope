@@ -1243,6 +1243,16 @@ under the License.
         <groupId>org.codehaus.izpack</groupId>
         <artifactId>izpack-panel</artifactId>
         <version>${izpack.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.icepdf.os</groupId>
+            <artifactId>icepdf-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.icepdf.os</groupId>
+            <artifactId>icepdf-viewer</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       
       <dependency>
