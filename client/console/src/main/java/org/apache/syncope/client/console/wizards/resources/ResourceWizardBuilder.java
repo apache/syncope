@@ -19,24 +19,17 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.to.MappingItemTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.model.StringResourceModel;
 
 /**
  * Resource wizard builder.
@@ -95,39 +88,12 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
     @Override
     protected ResourceTO onApplyInternal(final Serializable modelObject) {
         final ResourceTO resourceTO = ResourceTO.class.cast(modelObject);
-        boolean connObjectKeyError = false;
-
-        final Collection<ProvisionTO> provisions = new ArrayList<>(resourceTO.getProvisions());
-
-        for (ProvisionTO provision : provisions) {
-            if (provision != null) {
-                if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
-                    resourceTO.getProvisions().remove(provision);
-                } else {
-                    long uConnObjectKeyCount = IterableUtils.countMatches(
-                            provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
-
-                        @Override
-                        public boolean evaluate(final MappingItemTO item) {
-                            return item.isConnObjectKey();
-                        }
-                    });
-
-                    connObjectKeyError = uConnObjectKeyCount != 1;
-                }
-            }
-        }
-
-        final ResourceTO res;
-        if (connObjectKeyError) {
-            throw new RuntimeException(new StringResourceModel("connObjectKeyValidation").getString());
-        } else if (createFlag) {
-            res = resourceRestClient.create(resourceTO);
+        if (createFlag) {
+            return resourceRestClient.create(resourceTO);
         } else {
             resourceRestClient.update(resourceTO);
-            res = resourceTO;
+            return resourceTO;
         }
-        return res;
     }
 
     @Override

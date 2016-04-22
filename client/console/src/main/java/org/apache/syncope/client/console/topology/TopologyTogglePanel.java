@@ -67,6 +67,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     protected final BaseModal<Serializable> taskModal;
 
+    protected final BaseModal<Serializable> provisionModal;
+
     public TopologyTogglePanel(final String id, final PageReference pageRef) {
         super(id);
         this.pageRef = pageRef;
@@ -78,6 +80,11 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         taskModal = new BaseModal<>("outer");
         taskModal.size(Modal.Size.Large);
         addOuterObject(taskModal);
+
+        provisionModal = new BaseModal<>("outer");
+        provisionModal.size(Modal.Size.Large);
+        provisionModal.addSumbitButton();
+        addOuterObject(provisionModal);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true);
@@ -307,16 +314,16 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
 
                 IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
-                taskModal.setFormModel(model);
+                provisionModal.setFormModel(model);
 
-                target.add(taskModal.setContent(new ResourceProvisionPanel(taskModal, modelObject, pageRef)));
+                target.add(provisionModal.setContent(new ResourceProvisionPanel(provisionModal, modelObject, pageRef)));
 
-                taskModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
+                provisionModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(taskModal.getForm(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+                        authorize(provisionModal.getForm(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
 
-                taskModal.show(true);
+                provisionModal.show(true);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);

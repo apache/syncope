@@ -19,32 +19,46 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.StringResourceModel;
 
 public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
     private static final long serialVersionUID = -7982691107029848579L;
+
+    private final ResourceTO resourceTO;
 
     public ResourceProvisionPanel(
             final BaseModal<Serializable> modal,
             final ResourceTO resourceTO,
             final PageReference pageRef) {
         super(modal, pageRef);
+        this.resourceTO = resourceTO;
+
         setOutputMarkupId(true);
 
         final ProvisionWizardBuilder wizard = new ProvisionWizardBuilder(resourceTO, pageRef);
@@ -126,5 +140,47 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         wizard.setEventSink(list);
 
         add(list);
+    }
+
+    @Override
+    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+        try {
+            boolean connObjectKeyError = false;
+
+            final Collection<ProvisionTO> provisions = new ArrayList<>(resourceTO.getProvisions());
+
+            for (ProvisionTO provision : provisions) {
+                if (provision != null) {
+                    if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
+                        resourceTO.getProvisions().remove(provision);
+                    } else {
+                        long uConnObjectKeyCount = IterableUtils.countMatches(
+                                provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
+
+                            @Override
+                            public boolean evaluate(final MappingItemTO item) {
+                                return item.isConnObjectKey();
+                            }
+                        });
+
+                        connObjectKeyError = uConnObjectKeyCount != 1;
+                    }
+                }
+            }
+
+            final ResourceTO res;
+            if (connObjectKeyError) {
+                throw new RuntimeException(new StringResourceModel("connObjectKeyValidation").getString());
+            } else {
+                new ResourceRestClient().update(resourceTO);
+                res = resourceTO;
+            }
+            info(getString(Constants.OPERATION_SUCCEEDED));
+            modal.close(target);
+        } catch (Exception e) {
+            LOG.error("While creating or updating {}", resourceTO, e);
+            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+        }
+        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 }

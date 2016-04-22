@@ -79,15 +79,14 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
         wicketTester.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:provision");
 
-        
-        wicketTester.clickLink("body:toggle:outerObjectsRepeater:1:outer:form:content:provision:container:"
+        wicketTester.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:provision:container:"
                 + "content:group:beans:0:actions:panelMapping:mappingLink");
 
-        FormTester formTester = wicketTester.newFormTester("body:toggle:outerObjectsRepeater:1:outer:form:content:"
-                + "provision:container:content:wizard:form");
+        FormTester formTester = wicketTester.newFormTester(
+                "body:toggle:outerObjectsRepeater:2:outer:form:content:provision:container:content:wizard:form");
         formTester.submit("buttons:next");
 
-        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:1:outer:form:content:provision:"
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:provision:"
                 + "container:content:wizard:form:view:mapping:mappingContainer:mappings:1", WebMarkupContainer.class);
     }
 
