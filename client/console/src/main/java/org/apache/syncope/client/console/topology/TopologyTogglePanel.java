@@ -37,6 +37,7 @@ import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -66,6 +67,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     protected final BaseModal<Serializable> taskModal;
 
+    protected final BaseModal<Serializable> provisionModal;
+
     public TopologyTogglePanel(final String id, final PageReference pageRef) {
         super(id);
         this.pageRef = pageRef;
@@ -77,6 +80,11 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         taskModal = new BaseModal<>("outer");
         taskModal.size(Modal.Size.Large);
         addOuterObject(taskModal);
+
+        provisionModal = new BaseModal<>("outer");
+        provisionModal.size(Modal.Size.Large);
+        provisionModal.addSumbitButton();
+        addOuterObject(provisionModal);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true);
@@ -296,6 +304,30 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         };
         MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
         fragment.add(edit);
+
+        AjaxLink<String> provision = new IndicatingAjaxLink<String>("provision") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
+
+                IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
+                provisionModal.setFormModel(model);
+
+                target.add(provisionModal.setContent(new ResourceProvisionPanel(provisionModal, modelObject, pageRef)));
+
+                provisionModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
+
+                MetaDataRoleAuthorizationStrategy.
+                        authorize(provisionModal.getForm(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+
+                provisionModal.show(true);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+        fragment.add(provision);
 
         AjaxLink<String> explore = new IndicatingAjaxLink<String>("explore") {
 

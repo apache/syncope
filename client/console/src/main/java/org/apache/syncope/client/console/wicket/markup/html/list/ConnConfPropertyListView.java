@@ -104,9 +104,9 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
                 field = new AjaxSpinnerFieldPanel.Builder<>().build("panel", label, numberClass, new Model<Number>());
                 required = property.getSchema().isRequired();
             } else if (ClassUtils.isAssignable(Boolean.class, propertySchemaClass)) {
-                field = new AjaxCheckBoxPanel("panel", label, new Model<Boolean>(), false);
+                field = new AjaxCheckBoxPanel("panel", label, new Model<Boolean>());
             } else {
-                field = new AjaxTextFieldPanel("panel", label, new Model<String>(), false);
+                field = new AjaxTextFieldPanel("panel", label, new Model<String>());
                 required = property.getSchema().isRequired();
             }
 

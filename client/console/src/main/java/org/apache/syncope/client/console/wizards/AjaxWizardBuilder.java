@@ -22,6 +22,7 @@ import java.io.Serializable;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 
 public abstract class AjaxWizardBuilder<T extends Serializable> extends AbstractModalPanelBuilder<T> {
@@ -29,6 +30,8 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
     private static final long serialVersionUID = 5241745929825564456L;
 
     protected AjaxWizard.Mode mode = AjaxWizard.Mode.CREATE;
+
+    protected IEventSink eventSink = null;
 
     /**
      * Construct.
@@ -106,7 +109,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
 
                 return res;
             }
-        };
+        }.setEventSink(eventSink);
     }
 
     protected abstract WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel);
