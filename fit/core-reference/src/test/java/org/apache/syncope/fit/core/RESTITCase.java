@@ -32,11 +32,13 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -67,7 +69,9 @@ public class RESTITCase extends AbstractITCase {
         Response response = noContentService.create(group);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(StringUtils.EMPTY, org.apache.commons.io.IOUtils.toString((InputStream) response.getEntity()));
+        assertEquals(
+                StringUtils.EMPTY,
+                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
 
         group = getObject(response.getLocation(), GroupService.class, GroupTO.class);
         assertNotNull(group);
@@ -79,12 +83,16 @@ public class RESTITCase extends AbstractITCase {
         response = noContentService.update(groupPatch);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(StringUtils.EMPTY, org.apache.commons.io.IOUtils.toString((InputStream) response.getEntity()));
+        assertEquals(
+                StringUtils.EMPTY,
+                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
 
         response = noContentService.delete(group.getKey());
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(StringUtils.EMPTY, org.apache.commons.io.IOUtils.toString((InputStream) response.getEntity()));
+        assertEquals(
+                StringUtils.EMPTY,
+                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
     }
 
     @Test

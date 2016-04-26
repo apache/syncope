@@ -42,6 +42,7 @@ import org.apache.syncope.client.cli.commands.policy.PolicyCommand;
 import org.apache.syncope.client.cli.commands.report.ReportCommand;
 import org.apache.syncope.client.cli.commands.role.RoleCommand;
 import org.apache.syncope.client.cli.commands.user.UserCommand;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -104,7 +105,7 @@ public class CLIITCase extends AbstractITCase {
             PROCESS_BUILDER.command(getCommand());
             Process process = PROCESS_BUILDER.start();
 
-            String result = IOUtils.toString(process.getInputStream());
+            String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(result.startsWith("\nUsage: Main [options]"));
             assertTrue(result.contains(
                     new EntitlementCommand().getClass().getAnnotation(Command.class).name()
@@ -128,7 +129,8 @@ public class CLIITCase extends AbstractITCase {
                     EntitlementCommand.EntitlementOptions.LIST.getOptionName()));
             Process process = PROCESS_BUILDER.start();
 
-            long entitlements = IterableUtils.countMatches(IOUtils.readLines(process.getInputStream()),
+            long entitlements = IterableUtils.countMatches(
+                    IOUtils.readLines(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET),
                     new Predicate<String>() {
 
                 @Override
@@ -152,7 +154,8 @@ public class CLIITCase extends AbstractITCase {
                     ConnectorCommand.ConnectorOptions.LIST_BUNDLES.getOptionName()));
             Process process = PROCESS_BUILDER.start();
 
-            long bundles = IterableUtils.countMatches(IOUtils.readLines(process.getInputStream()),
+            long bundles = IterableUtils.countMatches(
+                    IOUtils.readLines(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET),
                     new Predicate<String>() {
 
                 @Override
@@ -181,7 +184,7 @@ public class CLIITCase extends AbstractITCase {
                     UserCommand.UserOptions.READ_BY_ID.getOptionName(),
                     String.valueOf(userKey1)));
             Process process = PROCESS_BUILDER.start();
-            String result = IOUtils.toString(process.getInputStream());
+            String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(result.contains("username: " + userService.read(userKey1).getUsername()));
             process.destroy();
 
@@ -191,7 +194,8 @@ public class CLIITCase extends AbstractITCase {
                     String.valueOf(userKey1), String.valueOf(userKey2),
                     String.valueOf(userKey3), String.valueOf(userKey4), String.valueOf(userKey5)));
             Process process2 = PROCESS_BUILDER.start();
-            long users = IterableUtils.countMatches(IOUtils.readLines(process2.getInputStream()),
+            long users = IterableUtils.countMatches(
+                    IOUtils.readLines(process2.getInputStream(), SyncopeConstants.DEFAULT_CHARSET),
                     new Predicate<String>() {
 
                 @Override
@@ -209,7 +213,7 @@ public class CLIITCase extends AbstractITCase {
                     String.valueOf(userKey1), String.valueOf(userKey2),
                     String.valueOf(userKey3), String.valueOf(userKey4), String.valueOf(userKey5)));
             Process process3 = PROCESS_BUILDER.start();
-            String result3 = IOUtils.toString(process3.getInputStream());
+            String result3 = IOUtils.toString(process3.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(
                     result3.contains("username: " + userService.read(userKey1).getUsername())
                     && result3.contains("username: " + userService.read(userKey2).getUsername())
@@ -231,7 +235,7 @@ public class CLIITCase extends AbstractITCase {
                     RoleCommand.RoleOptions.READ.getOptionName(),
                     roleId));
             final Process process = PROCESS_BUILDER.start();
-            final String result = IOUtils.toString(process.getInputStream());
+            final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(result.contains(roleService.read(roleId).getEntitlements().iterator().next()));
 
             process.destroy();
@@ -248,7 +252,7 @@ public class CLIITCase extends AbstractITCase {
                     ReportCommand.ReportOptions.READ.getOptionName(),
                     "72"));
             final Process process = PROCESS_BUILDER.start();
-            final String result = IOUtils.toString(process.getInputStream());
+            final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(result.contains("- Report 72 doesn't exist"));
 
             process.destroy();
@@ -265,7 +269,7 @@ public class CLIITCase extends AbstractITCase {
                     PolicyCommand.PolicyOptions.READ.getOptionName(),
                     "wrong"));
             final Process process = PROCESS_BUILDER.start();
-            final String result = IOUtils.toString(process.getInputStream());
+            final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(result.contains("- Policy wrong doesn't exist"));
 
             process.destroy();

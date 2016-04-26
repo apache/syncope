@@ -111,7 +111,7 @@ public class FileSystemUtils {
     public String readFile(final File file) {
         String content = "";
         try {
-            content = FileUtils.readFileToString(file);
+            content = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
         } catch (IOException ex) {
             final String errorMessage = "Error reading file " + file.getAbsolutePath() + ": " + ex.getMessage();
             handler.emitError(errorMessage, errorMessage);

@@ -40,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -232,7 +233,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
             switch (format) {
                 case HTML:
                     XSLTTransformer xsl2html = new XSLTTransformer(new StreamSource(
-                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getHTMLTemplate())));
+                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getHTMLTemplate(),
+                                    SyncopeConstants.DEFAULT_CHARSET)));
                     xsl2html.setParameters(parameters);
                     pipeline.addComponent(xsl2html);
                     pipeline.addComponent(XMLSerializer.createXHTMLSerializer());
@@ -240,7 +242,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
                 case PDF:
                     XSLTTransformer xsl2pdf = new XSLTTransformer(new StreamSource(
-                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getFOTemplate())));
+                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getFOTemplate(),
+                                    SyncopeConstants.DEFAULT_CHARSET)));
                     xsl2pdf.setParameters(parameters);
                     pipeline.addComponent(xsl2pdf);
                     pipeline.addComponent(new FopSerializer(MimeConstants.MIME_PDF));
@@ -248,7 +251,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
                 case RTF:
                     XSLTTransformer xsl2rtf = new XSLTTransformer(new StreamSource(
-                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getFOTemplate())));
+                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getFOTemplate(),
+                                    SyncopeConstants.DEFAULT_CHARSET)));
                     xsl2rtf.setParameters(parameters);
                     pipeline.addComponent(xsl2rtf);
                     pipeline.addComponent(new FopSerializer(MimeConstants.MIME_RTF));
@@ -256,7 +260,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
                 case CSV:
                     XSLTTransformer xsl2csv = new XSLTTransformer(new StreamSource(
-                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getCSVTemplate())));
+                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getCSVTemplate(),
+                                    SyncopeConstants.DEFAULT_CHARSET)));
                     xsl2csv.setParameters(parameters);
                     pipeline.addComponent(xsl2csv);
                     pipeline.addComponent(new TextSerializer());
