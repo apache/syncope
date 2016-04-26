@@ -836,7 +836,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>1.8.11</version>
+        <version>1.8.12</version>
       </dependency>
 
       <dependency>
