@@ -131,7 +131,9 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         String realm = StringUtils.prependIfMissing(searchQuery.getRealm(), SyncopeConstants.ROOT_REALM);
 
         // if an assignable query is provided in the FIQL string, start anyway from root realm
-        boolean isAssignableCond = -1 != searchQuery.getFiql().indexOf(SpecialAttr.ASSIGNABLE.toString());
+        boolean isAssignableCond = searchQuery.getFiql() == null
+                ? false
+                : -1 != searchQuery.getFiql().indexOf(SpecialAttr.ASSIGNABLE.toString());
 
         SearchCond cond = getSearchCond(searchQuery.getFiql(), realm);
         return buildPagedResult(
