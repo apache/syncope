@@ -33,7 +33,7 @@ public abstract class AbstractBaseResource extends AbstractResource {
 
     private static final long serialVersionUID = -7875801358718612782L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractBaseResource.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractBaseResource.class);
 
     protected static final ObjectMapper MAPPER = new ObjectMapper();
 
