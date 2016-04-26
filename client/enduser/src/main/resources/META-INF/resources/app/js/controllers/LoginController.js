@@ -45,7 +45,7 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
           errorMessage = errorMessage.split("}}")[0];
         }
         $scope.credentials.errorMessage = "Login failed: " + errorMessage;
-        $scope.showError($scope.credentials.errorMessage, $scope.notification);        
+        $scope.showError($scope.credentials.errorMessage, $scope.notification);
       });
     };
 
@@ -57,8 +57,13 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
       });
     };
 
-    $scope.isLogged = function () {
-      return angular.isDefined($rootScope.currentUser) && $rootScope.currentUser;
+    $scope.islogged = function () {
+      AuthService.islogged().then(function (response) {
+        console.log("user login status detected", response);
+        return response.data === true;
+      }, function (response) {
+        console.log("error retrieving user login status", response);
+      });
     };
 
     $scope.selfCreate = function () {
@@ -66,7 +71,7 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
     };
 
     $scope.passwordReset = function () {
-       $location.path("/passwordreset");
+      $location.path("/passwordreset");
     };
 
     $scope.errorAPI = function () {

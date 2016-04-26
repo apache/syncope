@@ -52,7 +52,7 @@ under the License.
             <div id="login-form" class="form">              
             </div>
 
-            <form id="login-form" class="form form-signin" novalidate ng-show="!isLogged()" >
+            <form id="login-form" class="form form-signin" novalidate>
 
               <fieldset class="form-group input-group">
 
@@ -77,14 +77,14 @@ under the License.
           </div>
 
         </div>
-        <div class="text-center" ng-show="!isLogged() && $root.isSelfRegAllowed()">
+        <div class="text-center" ng-show="$root.isSelfRegAllowed()">
           <a href="javascript:void(0);" class="btn btn-link" ng-click="selfCreate()">Self Registration</a>
 
           <!--      <div id="initialLoaderDiv">
                   <img src="img/busy.gif" class="ajax-loader"/>
                 </div>-->
         </div>
-        <div class="text-center" ng-show="!isLogged() && $root.isPwdResetAllowed()">
+        <div class="text-center" ng-show="$root.isPwdResetAllowed()">
           <a href="javascript:void(0);" class="btn btn-link" ng-click="passwordReset()">Password Reset</a>
         </div>
         <!-- /#login-container -->
