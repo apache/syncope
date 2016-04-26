@@ -40,8 +40,9 @@ public class Details<T extends AnyTO> extends WizardStep {
     public Details(
             final AnyHandler<T> handler,
             final IModel<List<StatusBean>> statusModel,
-            final PageReference pageRef,
-            final boolean includeStatusPanel) {
+            final boolean includeStatusPanel,
+            final PageReference pageRef) {
+
         this.pageRef = pageRef;
 
         T anyTO = handler.getInnerObject();

@@ -66,13 +66,12 @@ public class MailTemplateDirectoryPanel
         super(id, pageReference, true);
         disableCheckBoxes();
 
-        addOuterObject(utilityModal);
-        setWindowClosedReloadCallback(utilityModal);
-
         modal.size(Modal.Size.Small);
         modal.addSumbitButton();
         setFooterVisibility(true);
 
+        addOuterObject(utilityModal);
+        setWindowClosedReloadCallback(utilityModal);
         utilityModal.size(Modal.Size.Large);
         utilityModal.addSumbitButton();
 
@@ -114,8 +113,8 @@ public class MailTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        MailTemplateContentModal.MailTemplateContentTO content =
-                                new MailTemplateContentModal.MailTemplateContentTO(
+                        MailTemplateContentModal.MailTemplateContent content =
+                                new MailTemplateContentModal.MailTemplateContent(
                                         model.getObject().getKey(), MailTemplateFormat.HTML);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.HTML));
@@ -133,8 +132,8 @@ public class MailTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        MailTemplateContentModal.MailTemplateContentTO content =
-                                new MailTemplateContentModal.MailTemplateContentTO(
+                        MailTemplateContentModal.MailTemplateContent content =
+                                new MailTemplateContentModal.MailTemplateContent(
                                         model.getObject().getKey(), MailTemplateFormat.TEXT);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.TEXT));

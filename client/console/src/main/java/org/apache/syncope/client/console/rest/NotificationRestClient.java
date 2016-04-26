@@ -22,18 +22,16 @@ import java.io.InputStream;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
-import org.slf4j.LoggerFactory;
 
 public class NotificationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 6328933265096511690L;
-
-    protected static final org.slf4j.Logger LOG = LoggerFactory.getLogger(NotificationRestClient.class);
 
     public List<NotificationTO> getAllNotifications() {
         return getService(NotificationService.class).list();
@@ -74,14 +72,16 @@ public class NotificationRestClient extends BaseRestClient {
     public String readTemplateFormat(final String key, final MailTemplateFormat format) {
         try {
             return IOUtils.toString(InputStream.class.cast(
-                    getService(MailTemplateService.class).getFormat(key, format).getEntity()));
+                    getService(MailTemplateService.class).getFormat(key, format).getEntity()),
+                    SyncopeConstants.DEFAULT_CHARSET);
         } catch (Exception e) {
-            LOG.info("Error retrieving mail tenplate content");
+            LOG.error("Error retrieving mail template {} as {}", key, format, e);
             return StringUtils.EMPTY;
         }
     }
 
-    public void updateTemplateFormat(final String key, final String str, final MailTemplateFormat format) {
-        getService(MailTemplateService.class).setFormat(key, format, IOUtils.toInputStream(str));
+    public void updateTemplateFormat(final String key, final String content, final MailTemplateFormat format) {
+        getService(MailTemplateService.class).setFormat(
+                key, format, IOUtils.toInputStream(content, SyncopeConstants.DEFAULT_CHARSET));
     }
 }

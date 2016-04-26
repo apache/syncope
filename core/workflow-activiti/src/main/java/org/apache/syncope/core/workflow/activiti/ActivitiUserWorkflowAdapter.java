@@ -616,7 +616,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         if (user == null) {
             throw new NotFoundException("User with workflow id " + processInstanceId);
         }
-        formTO.setUserKey(user.getKey());
+        formTO.setUsername(user.getUsername());
 
         formTO.setTaskId(taskId);
         formTO.setKey(formKey);
@@ -645,7 +645,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         if (user == null) {
             throw new NotFoundException("User with workflow id " + processInstanceId);
         }
-        formTO.setUserKey(user.getKey());
+        formTO.setUsername(user.getUsername());
 
         formTO.setTaskId(taskId);
         formTO.setKey(formKey);

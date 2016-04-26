@@ -50,9 +50,11 @@ public class UserDetails extends Details<UserTO> {
             final IModel<List<StatusBean>> statusModel,
             final boolean resetPassword,
             final boolean templateMode,
-            final PageReference pageRef,
-            final boolean includeStatusPanel) {
-        super(handler, statusModel, pageRef, includeStatusPanel);
+            final boolean includeStatusPanel,
+            final boolean showPasswordManagement,
+            final PageReference pageRef) {
+
+        super(handler, statusModel, includeStatusPanel, pageRef);
 
         final UserTO userTO = handler.getInnerObject();
         // ------------------------
@@ -86,7 +88,7 @@ public class UserDetails extends Details<UserTO> {
         }
         ), model) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -2898628183677758699L;
 
             @Override
             protected Component newTitle(final String markupId, final ITab tab, final Accordion.State state) {
@@ -119,6 +121,7 @@ public class UserDetails extends Details<UserTO> {
         };
 
         accordion.setOutputMarkupId(true);
+        accordion.setVisible(showPasswordManagement);
         add(accordion);
         // ------------------------        
     }

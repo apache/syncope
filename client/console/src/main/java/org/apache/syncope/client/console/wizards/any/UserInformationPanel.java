@@ -35,7 +35,7 @@ public class UserInformationPanel extends AnnotatedBeanPanel {
         // ------------------------
         // Change password date
         // ------------------------
-        add(new Label("changePwdDate", new Model<String>(userTO.getChangePwdDate() == null
+        add(new Label("changePwdDate", new Model<>(userTO.getChangePwdDate() == null
                 ? StringUtils.EMPTY
                 : SyncopeConsoleSession.get().getDateFormat().format(userTO.getChangePwdDate()))));
         // ------------------------
@@ -43,7 +43,7 @@ public class UserInformationPanel extends AnnotatedBeanPanel {
         // ------------------------
         // Last login date
         // ------------------------
-        add(new Label("lastLoginDate", new Model<String>(userTO.getLastLoginDate() == null
+        add(new Label("lastLoginDate", new Model<>(userTO.getLastLoginDate() == null
                 ? StringUtils.EMPTY
                 : SyncopeConsoleSession.get().getDateFormat().format(userTO.getLastLoginDate()))));
         // ------------------------
@@ -51,13 +51,13 @@ public class UserInformationPanel extends AnnotatedBeanPanel {
         // ------------------------
         // Failed logins
         // ------------------------
-        add(new Label("failedLogins", new Model<Integer>(userTO.getFailedLogins())));
+        add(new Label("failedLogins", new Model<>(userTO.getFailedLogins())));
         // ------------------------
 
         // ------------------------
         // Token
         // ------------------------
-        add(new Label("token", new Model<String>(userTO.getToken() == null
+        add(new Label("token", new Model<>(userTO.getToken() == null
                 ? StringUtils.EMPTY
                 : userTO.getToken())));
         // ------------------------
@@ -65,7 +65,7 @@ public class UserInformationPanel extends AnnotatedBeanPanel {
         // ------------------------
         // Token expire time
         // ------------------------
-        add(new Label("tokenExpireTime", new Model<String>(userTO.getTokenExpireTime() == null
+        add(new Label("tokenExpireTime", new Model<>(userTO.getTokenExpireTime() == null
                 ? StringUtils.EMPTY
                 : SyncopeConsoleSession.get().getDateFormat().format(userTO.getTokenExpireTime()))));
         // ------------------------

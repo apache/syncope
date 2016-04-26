@@ -67,7 +67,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     protected final AjaxLink<?> addAjaxLink;
 
-    protected AbstractModalPanelBuilder<T> newItemPanelBuilder;
+    protected ModalPanelBuilder<T> newItemPanelBuilder;
 
     protected NotificationPanel notificationPanel;
 
@@ -252,18 +252,19 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         return this;
     }
 
-    public <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> setPageRef(final PageReference pageRef) {
+    public <B extends ModalPanelBuilder<T>> WizardMgtPanel<T> setPageRef(final PageReference pageRef) {
         this.pageRef = pageRef;
         return this;
     }
 
-    public <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> setShowResultPage(final boolean showResultPage) {
+    public <B extends ModalPanelBuilder<T>> WizardMgtPanel<T> setShowResultPage(final boolean showResultPage) {
         this.showResultPage = showResultPage;
         return this;
     }
 
-    protected <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> addNewItemPanelBuilder(
+    protected <B extends ModalPanelBuilder<T>> WizardMgtPanel<T> addNewItemPanelBuilder(
             final B panelBuilder, final boolean newItemDefaultButtonEnabled) {
+
         this.newItemPanelBuilder = panelBuilder;
 
         if (this.newItemPanelBuilder != null) {
@@ -321,7 +322,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
         protected final PageReference pageRef;
 
-        private AbstractModalPanelBuilder<T> newItemPanelBuilder;
+        private ModalPanelBuilder<T> newItemPanelBuilder;
 
         private boolean newItemDefaultButtonEnabled = true;
 
@@ -353,7 +354,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
             this.showResultPage = showResultPage;
         }
 
-        public Builder<T> addNewItemPanelBuilder(final AbstractModalPanelBuilder<T> panelBuilder) {
+        public Builder<T> addNewItemPanelBuilder(final ModalPanelBuilder<T> panelBuilder) {
             this.newItemPanelBuilder = panelBuilder;
             return this;
         }
@@ -366,7 +367,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
          * @return the current builder.
          */
         public Builder<T> addNewItemPanelBuilder(
-                final AbstractModalPanelBuilder<T> panelBuilder, final boolean newItemDefaultButtonEnabled) {
+                final ModalPanelBuilder<T> panelBuilder, final boolean newItemDefaultButtonEnabled) {
+
             this.newItemDefaultButtonEnabled = newItemDefaultButtonEnabled;
             return addNewItemPanelBuilder(panelBuilder);
         }

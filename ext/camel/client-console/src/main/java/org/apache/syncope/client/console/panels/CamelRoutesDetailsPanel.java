@@ -48,6 +48,8 @@ public class CamelRoutesDetailsPanel extends Panel {
         response.render(OnLoadHeaderItem.forScript(
                 "CodeMirror.fromTextArea(document.getElementById('route'), {"
                 + "  lineNumbers: true, "
+                + "  autoCloseTags: true, "
+                + "  mode: 'text/html', "
                 + "  autoRefresh: true"
                 + "}).on('change', updateTextArea);"));
     }

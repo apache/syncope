@@ -25,7 +25,6 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -39,12 +38,13 @@ public class MailTemplateContentModal extends AbstractModalPanel<Serializable> {
 
     private static final long serialVersionUID = 2053048734388383021L;
 
-    private final MailTemplateContentTO content;
+    private final MailTemplateContent content;
 
     public MailTemplateContentModal(
             final BaseModal<Serializable> modal,
-            final MailTemplateContentTO content,
+            final MailTemplateContent content,
             final PageReference pageRef) {
+
         super(modal, pageRef);
         this.content = content;
 
@@ -59,12 +59,15 @@ public class MailTemplateContentModal extends AbstractModalPanel<Serializable> {
         response.render(OnLoadHeaderItem.forScript(
                 "CodeMirror.fromTextArea(document.getElementById('template'), {"
                 + "  lineNumbers: true, "
+                + "  lineWrapping: true, "
+                + "  autoCloseTags: true, "
+                + "  mode: 'text/html', "
                 + "  autoRefresh: true"
                 + "}).on('change', updateTextArea);"));
     }
 
     @Override
-    public MailTemplateContentTO getItem() {
+    public MailTemplateContent getItem() {
         return this.content;
     }
 
@@ -83,7 +86,7 @@ public class MailTemplateContentModal extends AbstractModalPanel<Serializable> {
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 
-    public static class MailTemplateContentTO extends AbstractBaseBean {
+    public static class MailTemplateContent implements Serializable {
 
         private static final long serialVersionUID = -1756961687134322845L;
 
@@ -93,7 +96,7 @@ public class MailTemplateContentModal extends AbstractModalPanel<Serializable> {
 
         private final MailTemplateFormat format;
 
-        public MailTemplateContentTO(final String key, final MailTemplateFormat format) {
+        public MailTemplateContent(final String key, final MailTemplateFormat format) {
             this.key = key;
             this.format = format;
         }

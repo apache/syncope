@@ -31,6 +31,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -70,6 +71,9 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Valid
     private JPADynRoleMembership dynMembership;
 
+    @Lob
+    private String consoleLayoutInfo;
+
     @Override
     public Set<String> getEntitlements() {
         return entitlements;
@@ -96,4 +100,15 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
         checkType(dynMembership, JPADynRoleMembership.class);
         this.dynMembership = (JPADynRoleMembership) dynMembership;
     }
+
+    @Override
+    public String getConsoleLayoutInfo() {
+        return consoleLayoutInfo;
+    }
+
+    @Override
+    public void setConsoleLayoutInfo(final String consoleLayoutInfo) {
+        this.consoleLayoutInfo = consoleLayoutInfo;
+    }
+
 }

@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.commons;
 public enum Mode {
 
     ADMIN,
-    SELF,
     TEMPLATE;
 
 }

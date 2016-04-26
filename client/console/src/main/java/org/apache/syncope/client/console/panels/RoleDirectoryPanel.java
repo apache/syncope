@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import org.apache.syncope.client.console.layout.ConsoleLayoutInfoModal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +31,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.RoleDataProvider;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -51,12 +54,19 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleHandler, Role
 
     private static final long serialVersionUID = -1100228004207271270L;
 
+    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
+
     protected RoleDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
         setShowResultPage(true);
 
         modal.size(Modal.Size.Large);
         initResultTable();
+
+        addOuterObject(utilityModal);
+        setWindowClosedReloadCallback(utilityModal);
+        utilityModal.size(Modal.Size.Large);
+        utilityModal.addSumbitButton();
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.ROLE_CREATE);
     }
@@ -113,6 +123,21 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleHandler, Role
                                 new AjaxWizard.NewItemActionEvent<>(new RoleHandler(clone), target));
                     }
                 }, ActionLink.ActionType.CLONE, StandardEntitlement.ROLE_CREATE).add(new ActionLink<RoleTO>() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
+                        ConsoleLayoutInfoModal.ConsoleLayoutInfo info =
+                                new ConsoleLayoutInfoModal.ConsoleLayoutInfo(model.getObject().getKey());
+                        info.setContent(restClient.readConsoleLayoutInfo(model.getObject().getKey()));
+
+                        utilityModal.header(new ResourceModel("console.layout.info", "JSON Content"));
+                        utilityModal.setContent(new ConsoleLayoutInfoModal(utilityModal, info, pageRef));
+                        utilityModal.show(true);
+                        target.add(utilityModal);
+                    }
+                }, ActionLink.ActionType.LAYOUT_EDIT, StandardEntitlement.ROLE_UPDATE).add(new ActionLink<RoleTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 

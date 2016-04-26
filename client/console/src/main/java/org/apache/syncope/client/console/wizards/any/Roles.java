@@ -38,7 +38,7 @@ public class Roles extends WizardStep {
     public <T extends AnyTO> Roles(final UserTO entityTO) {
         this.setOutputMarkupId(true);
 
-        final ArrayList<String> allRoles = CollectionUtils.collect(new RoleRestClient().getAll(),
+        final ArrayList<String> allRoles = CollectionUtils.collect(new RoleRestClient().list(),
                 EntityTOUtils.<RoleTO>keyTransformer(), new ArrayList<String>());
 
         add(new AjaxPalettePanel.Builder<String>().build("roles",

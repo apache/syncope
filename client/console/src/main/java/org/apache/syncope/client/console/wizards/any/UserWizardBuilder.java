@@ -24,6 +24,8 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
+import org.apache.syncope.client.console.layout.UserForm;
+import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -34,7 +36,7 @@ import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
+public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserForm {
 
     private static final long serialVersionUID = 6716803168859873877L;
 
@@ -42,27 +44,21 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
 
     private final IModel<List<StatusBean>> statusModel;
 
-    /**
-     * Construct.
-     *
-     * @param userTO any
-     * @param anyTypeClasses any type classes
-     * @param pageRef Caller page reference.
-     */
     public UserWizardBuilder(
             final UserTO userTO,
             final List<String> anyTypeClasses,
+            final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
-        super(userTO, anyTypeClasses, pageRef);
+
+        super(userTO, anyTypeClasses, formLayoutInfo, pageRef);
         statusModel = new ListModel<>(new ArrayList<StatusBean>());
     }
 
     @Override
     protected Serializable onApplyInternal(final AnyHandler<UserTO> modelObject) {
-        final ProvisioningResult<UserTO> actual;
+        UserTO inner = modelObject.getInnerObject();
 
-        final UserTO inner = modelObject.getInnerObject();
-
+        ProvisioningResult<UserTO> actual;
         if (inner.getKey() == null) {
             actual = userRestClient.create(inner, StringUtils.isNotBlank(inner.getPassword()));
         } else {
@@ -71,12 +67,12 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
                 patch.setPassword(StatusUtils.buildPasswordPatch(inner.getPassword(), statusModel.getObject()));
             }
 
-            // update user just if it is changed
-            if (!patch.isEmpty()) {
-                actual = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
-            } else {
+            // update just if it is changed
+            if (patch.isEmpty()) {
                 actual = new ProvisioningResult<>();
                 actual.setAny(inner);
+            } else {
+                actual = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }
         }
 
@@ -88,8 +84,10 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
             final AnyHandler<UserTO> modelObject, final WizardModel wizardModel) {
 
         wizardModel.add(new UserDetails(
-                modelObject, statusModel, false, false, pageRef,
-                modelObject.getInnerObject().getKey() != null));
+                modelObject, statusModel, false, false,
+                modelObject.getInnerObject().getKey() != null,
+                UserFormLayoutInfo.class.cast(formLayoutInfo).isPasswordManagement(),
+                pageRef));
         return this;
     }
 

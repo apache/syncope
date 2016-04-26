@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.console.layout.GroupForm;
+import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -32,21 +34,19 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
+public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements GroupForm {
 
     private static final long serialVersionUID = 5945391813567245081L;
 
     private final GroupRestClient groupRestClient = new GroupRestClient();
 
-    /**
-     * Construct.
-     *
-     * @param groupTO any
-     * @param anyTypeClasses any type classes
-     * @param pageRef Caller page reference.
-     */
-    public GroupWizardBuilder(final GroupTO groupTO, final List<String> anyTypeClasses, final PageReference pageRef) {
-        super(new GroupHandler(groupTO), anyTypeClasses, pageRef);
+    public GroupWizardBuilder(
+            final GroupTO groupTO,
+            final List<String> anyTypeClasses,
+            final GroupFormLayoutInfo formLayoutInfo,
+            final PageReference pageRef) {
+
+        super(new GroupHandler(groupTO), anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     /**
@@ -65,22 +65,21 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
 
     @Override
     protected Serializable onApplyInternal(final AnyHandler<GroupTO> modelObject) {
-        final ProvisioningResult<GroupTO> actual;
-
-        GroupTO toBeProcessed = modelObject instanceof GroupHandler
+        GroupTO inner = modelObject instanceof GroupHandler
                 ? GroupHandler.class.cast(modelObject).fillDynamicConditions()
                 : modelObject.getInnerObject();
 
-        if (toBeProcessed.getKey() == null) {
-            actual = groupRestClient.create(toBeProcessed);
+        ProvisioningResult<GroupTO> actual;
+        if (inner.getKey() == null) {
+            actual = groupRestClient.create(inner);
         } else {
-            final GroupPatch patch = AnyOperations.diff(toBeProcessed, getOriginalItem().getInnerObject(), false);
-            // update user just if it is changed
-            if (!patch.isEmpty()) {
-                actual = groupRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
-            } else {
+            GroupPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
+            // update just if it is changed
+            if (patch.isEmpty()) {
                 actual = new ProvisioningResult<>();
-                actual.setAny(toBeProcessed);
+                actual.setAny(inner);
+            } else {
+                actual = groupRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }
         }
 
@@ -93,8 +92,8 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> {
         wizardModel.add(new GroupDetails(
                 GroupHandler.class.cast(modelObject),
                 new ListModel<>(Collections.<StatusBean>emptyList()),
-                false, pageRef,
-                modelObject.getInnerObject().getKey() != null));
+                false,
+                modelObject.getInnerObject().getKey() != null, pageRef));
         return this;
     }
 }

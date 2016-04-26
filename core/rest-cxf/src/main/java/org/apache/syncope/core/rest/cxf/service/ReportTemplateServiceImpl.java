@@ -28,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -84,7 +85,7 @@ public class ReportTemplateServiceImpl extends AbstractServiceImpl implements Re
     @Override
     public void setFormat(final String key, final ReportTemplateFormat format, final InputStream templateIn) {
         try {
-            logic.setFormat(key, format, IOUtils.toString(templateIn));
+            logic.setFormat(key, format, IOUtils.toString(templateIn, SyncopeConstants.DEFAULT_CHARSET));
         } catch (final IOException e) {
             LOG.error("While setting format {} for report template {}", format, key, e);
             throw new InternalServerErrorException("Could not read entity", e);

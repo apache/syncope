@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
@@ -47,7 +46,7 @@ public class AuxClasses extends WizardStep {
 
     private final GroupRestClient groupRestClient = new GroupRestClient();
 
-    public <T extends AnyTO> AuxClasses(final T entityTO, final String... anyTypeClass) {
+    public <T extends AnyTO> AuxClasses(final T entityTO, final List<String> anyTypeClasses) {
         this.setOutputMarkupId(true);
 
         final Fragment fragment;
@@ -98,7 +97,7 @@ public class AuxClasses extends WizardStep {
                     "groups", new ListModel<>(memberships),
                     new AjaxPalettePanel.Builder.Query<MembershipTO>() {
 
-                private static final long serialVersionUID = 1L;
+                private static final long serialVersionUID = -7223078772249308813L;
 
                 @Override
                 public List<MembershipTO> execute(final String filter) {
@@ -142,11 +141,9 @@ public class AuxClasses extends WizardStep {
         }
         add(fragment);
 
-        final List<String> current = Arrays.asList(anyTypeClass);
-
         final List<String> choices = new ArrayList<>();
         for (AnyTypeClassTO aux : new AnyTypeClassRestClient().list()) {
-            if (!current.contains(aux.getKey())) {
+            if (!anyTypeClasses.contains(aux.getKey())) {
                 choices.add(aux.getKey());
             }
         }

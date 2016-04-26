@@ -34,15 +34,15 @@ public class GroupDetails extends Details<GroupTO> {
             final GroupHandler groupHandler,
             final IModel<List<StatusBean>> statusModel,
             final boolean templateMode,
-            final PageReference pageRef,
-            final boolean includeStatusPanel) {
-        super(groupHandler, statusModel, pageRef, includeStatusPanel);
+            final boolean includeStatusPanel,
+            final PageReference pageRef) {
+
+        super(groupHandler, statusModel, includeStatusPanel, pageRef);
 
         final GroupTO groupTO = GroupHandler.class.cast(groupHandler).getInnerObject();
 
         final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name",
                 new PropertyModel<String>(groupTO, "name"), false);
-
         if (!templateMode) {
             name.addRequiredLabel();
         }

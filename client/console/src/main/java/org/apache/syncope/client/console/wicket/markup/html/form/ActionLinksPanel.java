@@ -63,6 +63,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelEdit", "emptyFragment", this));
         super.add(new Fragment("panelHtmlEdit", "emptyFragment", this));
         super.add(new Fragment("panelTextEdit", "emptyFragment", this));
+        super.add(new Fragment("panelLayoutEdit", "emptyFragment", this));
         super.add(new Fragment("panelReset", "emptyFragment", this));
         super.add(new Fragment("panelEnable", "emptyFragment", this));
         super.add(new Fragment("panelNotFound", "emptyFragment", this));
@@ -334,6 +335,25 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment.addOrReplace(new IndicatingAjaxLink<Void>("textEditLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case LAYOUT_EDIT:
+                fragment = new Fragment("panelLayoutEdit", "fragmentLayoutEdit", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("layoutEditLink") {
+
+                    private static final long serialVersionUID = -1876519166660008562L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {

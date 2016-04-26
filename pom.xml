@@ -359,7 +359,7 @@ under the License.
     <log4j.version>2.5</log4j.version>
     <disruptor.version>3.3.4</disruptor.version>
 
-    <commons-io.version>2.4</commons-io.version>
+    <commons-io.version>2.5</commons-io.version>
     <commons-email.version>1.4</commons-email.version>
     <commons-codec.version>1.10</commons-codec.version>
     <commons-jexl.version>3.0</commons-jexl.version>
@@ -1049,7 +1049,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>2.0.0</version>
+        <version>2.0.1</version>
       </dependency>
       
       <dependency>
@@ -1243,6 +1243,16 @@ under the License.
         <groupId>org.codehaus.izpack</groupId>
         <artifactId>izpack-panel</artifactId>
         <version>${izpack.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.icepdf.os</groupId>
+            <artifactId>icepdf-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.icepdf.os</groupId>
+            <artifactId>icepdf-viewer</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       
       <dependency>

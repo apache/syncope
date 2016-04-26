@@ -89,6 +89,9 @@ public class XMLWorkflowEditorModalPanel extends AbstractModalPanel<String> {
         response.render(OnLoadHeaderItem.forScript(
                 "CodeMirror.fromTextArea(document.getElementById('workflowDefArea'), {"
                 + "  lineNumbers: true, "
+                + "  lineWrapping: true, "
+                + "  autoCloseTags: true, "
+                + "  mode: 'text/html', "
                 + "  autoRefresh: true"
                 + "}).on('change', updateTextArea);"));
     }

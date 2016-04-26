@@ -38,13 +38,11 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -7044543391316529128L;
 
-    private String userKey;
+    private String username;
 
     private String taskId;
 
     private String key;
-
-    private String description;
 
     private Date createTime;
 
@@ -54,12 +52,12 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     private final List<WorkflowFormPropertyTO> properties = new ArrayList<>();
 
-    public String getUserKey() {
-        return userKey;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserKey(final String userKey) {
-        this.userKey = userKey;
+    public void setUsername(final String username) {
+        this.username = username;
     }
 
     public String getTaskId() {
@@ -84,14 +82,6 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     public void setCreateTime(final Date createTime) {
         this.createTime = createTime;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(final String description) {
-        this.description = description;
     }
 
     public Date getDueDate() {

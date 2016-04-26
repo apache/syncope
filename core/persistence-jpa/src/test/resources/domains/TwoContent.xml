@@ -100,20 +100,6 @@ under the License.
   <AnyType_AnyTypeClass anyType_id="USER" anyTypeClass_id="BaseUser"/>
 
   <AnyType id="GROUP" kind="GROUP"/>
-  
-  <!-- For usage with admin console -->
-  <PlainSchema id="admin.user.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="self.user.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="admin.group.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="self.group.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="admin.membership.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="self.membership.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
         
   <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"

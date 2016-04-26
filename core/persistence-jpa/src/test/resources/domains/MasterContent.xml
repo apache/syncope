@@ -113,20 +113,6 @@ under the License.
   <CPlainAttrValue id="e5fa94db-b524-4309-908d-8198d0b3f779"
                    attribute_id="bcfd7efc-0605-4b5e-b4bb-85c1d5f6493a" booleanValue="0"/>
   
-  <!-- For usage with admin console -->
-  <PlainSchema id="admin.user.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="self.user.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="admin.group.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="self.group.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="admin.membership.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="self.membership.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  
   <!-- sample policies -->
   <PullPolicy id="66691e96-285f-4464-bc19-e68384ea4c85" description="a pull policy"
               specification='{"conflictResolutionAction":"IGNORE"}'/>
@@ -1139,7 +1125,7 @@ we are happy to inform you that the password request was execute successfully fo
 Best regards."
                 htmlTemplate="&lt;html&gt;
 &lt;body&gt;
-&lt;p&gt;Hi,&lt;/br&gt;
+&lt;p&gt;Hi,&lt;br/&gt;
 we are happy to inform you that the password request was execute successfully for your account.&lt;/p&gt;
 
 &lt;p&gt;Best regards.&lt;/p&gt;
