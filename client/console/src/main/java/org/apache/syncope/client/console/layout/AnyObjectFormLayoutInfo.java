@@ -16,11 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.client.console.layout;
 
-public enum Mode {
+import org.apache.syncope.client.console.wizards.any.AnyObjectWizardBuilder;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 
-    ADMIN,
-    TEMPLATE;
+public class AnyObjectFormLayoutInfo extends AbstractAnyFormLayout<AnyObjectTO, AnyObjectForm> {
+
+    private static final long serialVersionUID = -5573691733739618500L;
+
+    private boolean relationships = true;
+
+    @Override
+    protected Class<? extends AnyObjectForm> getDefaultFormClass() {
+        return AnyObjectWizardBuilder.class;
+    }
+
+    public boolean isRelationships() {
+        return relationships;
+    }
+
+    public void setRelationships(final boolean relationships) {
+        this.relationships = relationships;
+    }
 
 }

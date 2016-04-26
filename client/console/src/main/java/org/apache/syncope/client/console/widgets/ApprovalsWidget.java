@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.Approvals;
@@ -142,9 +141,7 @@ public class ApprovalsWidget extends Panel {
                     @Override
                     protected void onComponentTag(final ComponentTag tag) {
                         super.onComponentTag(tag);
-                        if (StringUtils.isNotBlank(modelObject.getDescription())) {
-                            tag.put("title", modelObject.getDescription().trim());
-                        }
+                        tag.put("title", modelObject.getUsername());
                     }
                 };
 

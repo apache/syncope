@@ -21,48 +21,43 @@ package org.apache.syncope.client.console.wizards.any;
 import java.io.Serializable;
 
 import java.util.List;
-
+import org.apache.syncope.client.console.layout.AnyObjectForm;
+import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
 
-public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implements Serializable {
+public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implements AnyObjectForm {
 
     private static final long serialVersionUID = -2480279868319546243L;
 
-    /**
-     * Construct.
-     *
-     * @param anyObjectTO any object TO.
-     * @param anyTypeClasses any type classes
-     * @param pageRef Caller page reference.
-     */
     public AnyObjectWizardBuilder(
             final AnyObjectTO anyObjectTO,
             final List<String> anyTypeClasses,
+            final AnyObjectFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
-        super(anyObjectTO, anyTypeClasses, pageRef);
+
+        super(anyObjectTO, anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     @Override
     protected Serializable onApplyInternal(final AnyHandler<AnyObjectTO> modelObject) {
         final AnyObjectTO inner = modelObject.getInnerObject();
 
-        final ProvisioningResult<AnyObjectTO> actual;
-
+        ProvisioningResult<AnyObjectTO> actual;
         if (inner.getKey() == null) {
             actual = anyObjectRestClient.create(AnyObjectTO.class.cast(inner));
         } else {
-            final AnyObjectPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
+            AnyObjectPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
-            // update user just if it is changed
-            if (!patch.isEmpty()) {
-                actual = anyObjectRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
-            } else {
+            // update just if it is changed
+            if (patch.isEmpty()) {
                 actual = new ProvisioningResult<>();
                 actual.setAny(inner);
+            } else {
+                actual = anyObjectRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }
         }
 

@@ -20,10 +20,9 @@ package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.wicket.PageReference;
 
-public abstract class AbstractModalPanelBuilder<T extends Serializable> implements Serializable {
+public abstract class AbstractModalPanelBuilder<T extends Serializable> implements ModalPanelBuilder<T> {
 
     private static final long serialVersionUID = 5241745929825564456L;
 
@@ -44,16 +43,6 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
         this.pageRef = pageRef;
     }
 
-    /**
-     * Build the wizard.
-     *
-     * @param id component id.
-     * @param index step index.
-     * @param mode mode.
-     * @return wizard.
-     */
-    public abstract ModalPanel<T> build(final String id, final int index, final AjaxWizard.Mode mode);
-
     protected void onCancelInternal(final T modelObject) {
     }
 
@@ -66,6 +55,7 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
         return item;
     }
 
+    @Override
     public T getDefaultItem() {
         return defaultItem;
     }
@@ -80,17 +70,13 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
         return SerializationUtils.clone(item);
     }
 
-    /**
-     * Replaces the default value provided with the constructor and nullify working item object.
-     *
-     * @param item new value.
-     * @return the current wizard factory instance.
-     */
+    @Override
     public AbstractModalPanelBuilder<T> setItem(final T item) {
         this.item = item;
         return this;
     }
 
+    @Override
     public PageReference getPageReference() {
         return pageRef;
     }

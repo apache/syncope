@@ -75,13 +75,13 @@ public class NotificationRestClient extends BaseRestClient {
                     getService(MailTemplateService.class).getFormat(key, format).getEntity()),
                     SyncopeConstants.DEFAULT_CHARSET);
         } catch (Exception e) {
-            LOG.info("Error retrieving mail tenplate content");
+            LOG.error("Error retrieving mail template {} as {}", key, format, e);
             return StringUtils.EMPTY;
         }
     }
 
-    public void updateTemplateFormat(final String key, final String str, final MailTemplateFormat format) {
+    public void updateTemplateFormat(final String key, final String content, final MailTemplateFormat format) {
         getService(MailTemplateService.class).setFormat(
-                key, format, IOUtils.toInputStream(str, SyncopeConstants.DEFAULT_CHARSET));
+                key, format, IOUtils.toInputStream(content, SyncopeConstants.DEFAULT_CHARSET));
     }
 }

@@ -23,7 +23,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections4.ComparatorUtils;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
+import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
+import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
+import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -52,7 +58,6 @@ public abstract class Realm extends Panel {
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
-    @SuppressWarnings({ "unchecked", "unchecked" })
     public Realm(final String id, final RealmTO realmTO, final PageReference pageRef) {
         super(id);
         this.realmTO = realmTO;
@@ -112,6 +117,9 @@ public abstract class Realm extends Panel {
             }
         });
 
+        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
+                FormLayoutInfoUtils.fetch(anyTypeTOs);
+
         Collections.sort(anyTypeTOs, new AnyTypeComparator());
         for (final AnyTypeTO anyTypeTO : anyTypeTOs) {
             tabs.add(new AbstractTab(new Model<>(anyTypeTO.getKey())) {
@@ -120,7 +128,7 @@ public abstract class Realm extends Panel {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new AnyPanel(panelId, anyTypeTO, realmTO, pageRef);
+                    return new AnyPanel(panelId, anyTypeTO, realmTO, formLayoutInfo, pageRef);
                 }
             });
         }

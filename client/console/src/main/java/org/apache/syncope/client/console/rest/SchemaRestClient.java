@@ -19,9 +19,7 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.ListIterator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.EntityTOUtils;
@@ -39,21 +37,6 @@ import org.apache.syncope.common.rest.api.service.SchemaService;
 public class SchemaRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2479730152700312373L;
-
-    public void filter(
-            final List<? extends AbstractSchemaTO> schemaTOs, final Collection<String> allowed, final boolean exclude) {
-
-        for (ListIterator<? extends AbstractSchemaTO> itor = schemaTOs.listIterator(); itor.hasNext();) {
-            AbstractSchemaTO schema = itor.next();
-            if (exclude) {
-                if (!allowed.contains(schema.getKey())) {
-                    itor.remove();
-                }
-            } else if (allowed.contains(schema.getKey())) {
-                itor.remove();
-            }
-        }
-    }
 
     public <T extends AbstractSchemaTO> List<T> getSchemas(final SchemaType schemaType, final String... kind) {
         List<T> schemas = new ArrayList<>();

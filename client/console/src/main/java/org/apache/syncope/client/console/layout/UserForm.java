@@ -16,18 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.pages;
+package org.apache.syncope.client.console.layout;
 
-import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.syncope.common.lib.to.UserTO;
 
-public class Layouts extends BasePage {
+public interface UserForm extends AnyForm<UserTO> {
 
-    private static final long serialVersionUID = -1100228004207271271L;
-
-    public Layouts(final PageParameters parameters) {
-        super(parameters);
-
-        body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
-    }
 }

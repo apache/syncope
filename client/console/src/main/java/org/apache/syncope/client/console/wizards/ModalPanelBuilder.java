@@ -16,11 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.client.console.wizards;
 
-public enum Mode {
+import java.io.Serializable;
+import org.apache.syncope.client.console.panels.ModalPanel;
+import org.apache.wicket.PageReference;
 
-    ADMIN,
-    TEMPLATE;
+public interface ModalPanelBuilder<T extends Serializable> extends Serializable {
+
+    /**
+     * Build the wizard.
+     *
+     * @param id component id.
+     * @param index step index.
+     * @param mode mode.
+     * @return wizard.
+     */
+    ModalPanel<T> build(String id, int index, AjaxWizard.Mode mode);
+
+    T getDefaultItem();
+
+    PageReference getPageReference();
+
+    /**
+     * Replaces the default value provided with the constructor and nullify working item object.
+     *
+     * @param item new value.
+     * @return the current wizard factory instance.
+     */
+    ModalPanelBuilder<T> setItem(T item);
 
 }

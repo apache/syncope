@@ -112,20 +112,6 @@ under the License.
               owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="return.password.value"/>
   <CPlainAttrValue id="e5fa94db-b524-4309-908d-8198d0b3f779"
                    attribute_id="bcfd7efc-0605-4b5e-b4bb-85c1d5f6493a" booleanValue="0"/>
-  
-  <!-- For usage with admin console -->
-  <PlainSchema id="admin.user.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="self.user.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="admin.group.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="self.group.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="admin.membership.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema id="self.membership.layout" type="String"
-               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
 
   <AnyType id="USER" kind="USER"/>
   <AnyTypeClass id="BaseUser"/>

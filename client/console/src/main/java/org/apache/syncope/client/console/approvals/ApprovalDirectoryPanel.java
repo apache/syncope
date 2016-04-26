@@ -79,7 +79,7 @@ public class ApprovalDirectoryPanel
         columns.add(new PropertyColumn<WorkflowFormTO, String>(
                 new ResourceModel("key"), "key", "key"));
         columns.add(new PropertyColumn<WorkflowFormTO, String>(
-                new ResourceModel("description"), "description", "description"));
+                new ResourceModel("username"), "username", "username"));
         columns.add(new DatePropertyColumn<WorkflowFormTO>(
                 new ResourceModel("createTime"), "createTime", "createTime"));
         columns.add(new DatePropertyColumn<WorkflowFormTO>(

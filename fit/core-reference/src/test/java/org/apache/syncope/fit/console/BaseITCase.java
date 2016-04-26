@@ -19,7 +19,6 @@
 package org.apache.syncope.fit.console;
 
 import org.apache.syncope.client.console.pages.Dashboard;
-import org.apache.syncope.client.console.pages.Layouts;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.console.pages.Logs;
 import org.apache.syncope.client.console.pages.Notifications;
@@ -87,9 +86,6 @@ public class BaseITCase extends AbstractConsoleITCase {
 
         wicketTester.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
         wicketTester.assertRenderedPage(Policies.class);
-
-        wicketTester.clickLink("body:configurationLI:configurationUL:layoutsLI:layouts");
-        wicketTester.assertRenderedPage(Layouts.class);
 
         wicketTester.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
         wicketTester.assertRenderedPage(Notifications.class);

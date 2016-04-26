@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.notifications;
+package org.apache.syncope.client.console.layout;
 
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
-import org.apache.syncope.client.console.rest.NotificationRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -34,71 +34,69 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.PropertyModel;
 
-public class MailTemplateContentModal extends AbstractModalPanel<Serializable> {
+public class ConsoleLayoutInfoModal extends AbstractModalPanel<Serializable> {
 
-    private static final long serialVersionUID = 2053048734388383021L;
+    private static final long serialVersionUID = -5110368813584745668L;
 
-    private final MailTemplateContent content;
+    private final ConsoleLayoutInfo consoleLayoutInfo;
 
-    public MailTemplateContentModal(
+    public ConsoleLayoutInfoModal(
             final BaseModal<Serializable> modal,
-            final MailTemplateContent content,
+            final ConsoleLayoutInfo consoleLayoutInfo,
             final PageReference pageRef) {
 
         super(modal, pageRef);
-        this.content = content;
+        this.consoleLayoutInfo = consoleLayoutInfo;
 
-        TextArea<String> templateDefArea = new TextArea<>("template", new PropertyModel<String>(content, "content"));
-        templateDefArea.setMarkupId("template").setOutputMarkupPlaceholderTag(true);
-        add(templateDefArea);
+        TextArea<String> consoleLayoutInfoDefArea =
+                new TextArea<>("consoleLayoutInfo", new PropertyModel<String>(consoleLayoutInfo, "content"));
+        consoleLayoutInfoDefArea.setMarkupId("consoleLayoutInfo").setOutputMarkupPlaceholderTag(true);
+        add(consoleLayoutInfoDefArea);
     }
 
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
         response.render(OnLoadHeaderItem.forScript(
-                "CodeMirror.fromTextArea(document.getElementById('template'), {"
+                "CodeMirror.fromTextArea(document.getElementById('consoleLayoutInfo'), {"
                 + "  lineNumbers: true, "
                 + "  lineWrapping: true, "
-                + "  autoCloseTags: true, "
-                + "  mode: 'text/html', "
+                + "  matchBrackets: true,"
+                + "  autoCloseBrackets: true,"
                 + "  autoRefresh: true"
                 + "}).on('change', updateTextArea);"));
     }
 
     @Override
-    public MailTemplateContent getItem() {
-        return this.content;
+    public ConsoleLayoutInfo getItem() {
+        return consoleLayoutInfo;
     }
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
-            new NotificationRestClient().updateTemplateFormat(
-                    content.getKey(), content.getContent(), content.getFormat());
+            new RoleRestClient().setConsoleLayoutInfo(
+                    consoleLayoutInfo.getKey(), consoleLayoutInfo.getContent());
             info(getString(Constants.OPERATION_SUCCEEDED));
             modal.show(false);
             modal.close(target);
         } catch (Exception e) {
-            LOG.error("While updating template for {}", content.getKey(), e);
+            LOG.error("While updating onsole layout info for role {}", consoleLayoutInfo.getKey(), e);
             error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
         }
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 
-    public static class MailTemplateContent implements Serializable {
+    public static class ConsoleLayoutInfo implements Serializable {
 
-        private static final long serialVersionUID = -1756961687134322845L;
+        private static final long serialVersionUID = 961267717148831831L;
 
         private final String key;
 
         private String content;
 
-        private final MailTemplateFormat format;
-
-        public MailTemplateContent(final String key, final MailTemplateFormat format) {
+        public ConsoleLayoutInfo(final String key) {
             this.key = key;
-            this.format = format;
         }
 
         public String getKey() {
@@ -110,11 +108,7 @@ public class MailTemplateContentModal extends AbstractModalPanel<Serializable> {
         }
 
         public void setContent(final String content) {
-            this.content = content;
-        }
-
-        public MailTemplateFormat getFormat() {
-            return format;
+            this.content = FormLayoutInfoUtils.defaultConsoleLayoutInfoIfEmpty(content, new AnyTypeRestClient().list());
         }
     }
 }

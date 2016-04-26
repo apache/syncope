@@ -21,14 +21,15 @@ under the License.
     <link rel="stylesheet" type="text/css" href="webjars/codemirror/${codemirror.version}/lib/codemirror.css"/>
 
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/lib/codemirror.js"></script>
-    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/mode/xml/xml.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/mode/javascript/javascript.js"></script>
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/display/autorefresh.js"></script>
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/search/search.js"></script>
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/search/searchcursor.js"></script>
-    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/edit/closetag.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/edit/matchbrackets.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/edit/closebrackets.js"></script>
     <script type="text/javascript">
       function updateTextArea(editor) {
-        document.getElementById("workflowDefArea").value = editor.getValue();
+        document.getElementById("consoleLayoutInfoDefForm").children["consoleLayoutInfo"].value = editor.getValue();
       }
     </script>
     <style>
@@ -44,8 +45,8 @@ under the License.
   </wicket:head>
   <wicket:panel>
     <div style="padding: 1%;">
-      <div class="w_content_3">
-        <textarea wicket:id="workflowDefArea" id="workflowDefArea" name="workflowDefArea" style="width: 100%; height: 350px;">
+      <div class="w_content_3" id="consoleLayoutInfoDefForm">
+        <textarea wicket:id="consoleLayoutInfo" id="consoleLayoutInfo" name="consoleLayoutInfo" style="width: 100%; height: 350px;">
         </textarea>
       </div>
     </div>

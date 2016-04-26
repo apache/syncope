@@ -74,8 +74,8 @@ public class UserWorkflowITCase extends AbstractITCase {
         // 2. request if there is any pending task for user just created
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
         assertNotNull(form);
-        assertNotNull(form.getUserKey());
-        assertEquals(userTO.getKey(), form.getUserKey());
+        assertNotNull(form.getUsername());
+        assertEquals(userTO.getUsername(), form.getUsername());
         assertNotNull(form.getTaskId());
         assertNull(form.getOwner());
 

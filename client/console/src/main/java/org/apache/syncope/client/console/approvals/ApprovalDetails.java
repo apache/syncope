@@ -18,14 +18,12 @@
  */
 package org.apache.syncope.client.console.approvals;
 
-import java.util.List;
+import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
 import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
@@ -37,12 +35,10 @@ public class ApprovalDetails extends MultilevelPanel.SecondLevel {
     public ApprovalDetails(final PageReference pageRef, final WorkflowFormTO formTO) {
         super(MultilevelPanel.SECOND_LEVEL_ID);
 
-        final UserTO userTO = new UserRestClient().read(formTO.getUserKey());
-        final List<String> anyTypeClasses = new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses();
-
-        final AjaxWizard<AnyHandler<UserTO>> wizard = new UserWizardBuilder(userTO, anyTypeClasses, pageRef).
-                build(AjaxWizard.Mode.READONLY);
-
-        add(wizard);
+        add(new UserWizardBuilder(new UserRestClient().read(formTO.getUsername()),
+                new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
+                new UserFormLayoutInfo(),
+                pageRef).
+                build(AjaxWizard.Mode.READONLY));
     }
 }

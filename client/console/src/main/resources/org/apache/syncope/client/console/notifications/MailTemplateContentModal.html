@@ -17,39 +17,37 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
-  <body>
-    <wicket:head>
-      <link rel="stylesheet" type="text/css" href="webjars/codemirror/${codemirror.version}/lib/codemirror.css"/>
+  <wicket:head>
+    <link rel="stylesheet" type="text/css" href="webjars/codemirror/${codemirror.version}/lib/codemirror.css"/>
 
-      <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/lib/codemirror.js"></script>
-      <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/mode/xml/xml.js"></script>
-      <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/display/autorefresh.js"></script>
-      <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/search/search.js"></script>
-      <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/search/searchcursor.js"></script>
-      <script type="text/javascript">
-        function updateTextArea(editor) {
-          document.getElementById("templateDefForm").children["template"].value = editor.getValue();
-        }
-      </script>
-      <style>
-        .w_content_3 {
-          padding: 0;
-          color: #333333;
-          font-family: Verdana,Tahoma,sans-serif;
-          font-size: 100%;
-          border: 1px solid #BBBBBB;
-          padding: 1%;
-        }
-      </style>
-    </wicket:head>
-    <wicket:panel>
-      <div style="padding: 1%;">
-        <div class="w_content_3" id="templateDefForm">
-          <textarea wicket:id="template" id="template" name="template" style="width: 100%; height: 350px;">
-          </textarea>
-        </div>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/lib/codemirror.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/mode/xml/xml.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/display/autorefresh.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/search/search.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/search/searchcursor.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/edit/closetag.js"></script>
+    <script type="text/javascript">
+      function updateTextArea(editor) {
+        document.getElementById("templateDefForm").children["template"].value = editor.getValue();
+      }
+    </script>
+    <style>
+      .w_content_3 {
+        padding: 0;
+        color: #333333;
+        font-family: Verdana,Tahoma,sans-serif;
+        font-size: 100%;
+        border: 1px solid #BBBBBB;
+        padding: 1%;
+      }
+    </style>
+  </wicket:head>
+  <wicket:panel>
+    <div style="padding: 1%;">
+      <div class="w_content_3" id="templateDefForm">
+        <textarea wicket:id="template" id="template" name="template" style="width: 100%; height: 350px;">
+        </textarea>
       </div>
-    </wicket:panel>
-  </body>
+    </div>
+  </wicket:panel>
 </html>

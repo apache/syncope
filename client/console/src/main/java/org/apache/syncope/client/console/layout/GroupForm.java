@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.client.console.layout;
 
-public enum Mode {
+import org.apache.syncope.common.lib.to.GroupTO;
 
-    ADMIN,
-    TEMPLATE;
+public interface GroupForm extends AnyForm<GroupTO> {
 
 }

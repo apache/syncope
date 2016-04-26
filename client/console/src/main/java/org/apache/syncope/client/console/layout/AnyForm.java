@@ -16,11 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.client.console.layout;
 
-public enum Mode {
+import org.apache.syncope.client.console.wizards.ModalPanelBuilder;
+import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.common.lib.to.AnyTO;
 
-    ADMIN,
-    TEMPLATE;
+public interface AnyForm<A extends AnyTO> extends ModalPanelBuilder<AnyHandler<A>> {
 
 }
