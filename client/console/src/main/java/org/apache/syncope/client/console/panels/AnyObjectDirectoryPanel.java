@@ -19,10 +19,8 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +32,6 @@ import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -52,7 +49,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -80,15 +76,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
         for (String name : prefMan.getList(
                 getRequest(), String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type))) {
 
-            final Field field = ReflectionUtils.findField(AnyObjectTO.class, name);
-
-            if ("key".equalsIgnoreCase(name)) {
-                columns.add(new KeyPropertyColumn<AnyObjectTO>(new ResourceModel(name, name), name, name));
-            } else if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
-            } else {
-                columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
-            }
+            addPropertyColumn(name, ReflectionUtils.findField(AnyObjectTO.class, name), columns);
         }
 
         for (String name : prefMan.getList(
@@ -110,7 +98,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
             for (String name : AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION) {
-                columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
+                addPropertyColumn(name, ReflectionUtils.findField(AnyObjectTO.class, name), columns);
             }
 
             prefMan.setList(getRequest(), getResponse(),
