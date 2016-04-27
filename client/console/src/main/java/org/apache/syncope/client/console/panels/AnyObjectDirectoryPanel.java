@@ -37,7 +37,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -122,7 +122,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                        final IModel<AnyHandler<AnyObjectTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(
+                        final IModel<AnyWrapper<AnyObjectTO>> formModel = new CompoundPropertyModel<>(new AnyWrapper<>(
                                 model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
@@ -130,7 +130,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                                 altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
                         altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
+                                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
 
                         altDefaultModal.show(true);
                     }
@@ -142,7 +142,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                     public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                         send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<>(
-                                        new AnyHandler<>(new AnyObjectRestClient().read(model.getObject().getKey())),
+                                        new AnyWrapper<>(new AnyObjectRestClient().read(model.getObject().getKey())),
                                         target));
                     }
                 }, ActionType.EDIT, AnyEntitlement.READ.getFor(type)).add(new ActionLink<AnyObjectTO>() {
@@ -154,7 +154,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                         final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(null);
                         send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<>(new AnyHandler<>(clone), target));
+                                new AjaxWizard.NewItemActionEvent<>(new AnyWrapper<>(clone), target));
                     }
                 }, ActionType.CLONE, AnyEntitlement.CREATE.getFor(type)).add(new ActionLink<AnyObjectTO>() {
 
@@ -250,7 +250,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<AnyObjectTO>> newInstance(final String id) {
+        protected WizardMgtPanel<AnyWrapper<AnyObjectTO>> newInstance(final String id) {
             return new AnyObjectDirectoryPanel(id, this);
         }
     }

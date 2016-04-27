@@ -37,8 +37,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
-import org.apache.syncope.client.console.wizards.any.GroupHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
+import org.apache.syncope.client.console.wizards.any.GroupWrapper;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -115,15 +115,15 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                        final IModel<AnyHandler<GroupTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(
-                                model.getObject()));
+                        IModel<AnyWrapper<GroupTO>> formModel = new CompoundPropertyModel<>(
+                                new AnyWrapper<>(model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
                         target.add(altDefaultModal.setContent(new StatusModal<>(
                                 altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
                         altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
+                                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
 
                         altDefaultModal.show(true);
                     }
@@ -134,9 +134,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                         send(GroupDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(
-                                        new GroupHandler(new GroupRestClient().read(model.getObject().
-                                                getKey())), target));
+                                new AjaxWizard.EditItemActionEvent<>(new GroupWrapper(
+                                        new GroupRestClient().read(model.getObject().getKey())), target));
                     }
                 }, ActionType.EDIT, StandardEntitlement.GROUP_READ).add(new ActionLink<GroupTO>() {
 
@@ -147,7 +146,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                         final GroupTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(null);
                         send(GroupDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<>(new GroupHandler(clone), target));
+                                new AjaxWizard.NewItemActionEvent<>(new GroupWrapper(clone), target));
                     }
                 }, ActionType.CLONE, StandardEntitlement.GROUP_CREATE).add(new ActionLink<GroupTO>() {
 
@@ -229,8 +228,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
         return columns;
     }
 
-    public static class Builder extends AnyDirectoryPanel.Builder<GroupTO>
-            implements AnyDirectoryPanelBuilder {
+    public static class Builder extends AnyDirectoryPanel.Builder<GroupTO> {
 
         private static final long serialVersionUID = 3844281520756293159L;
 
@@ -240,7 +238,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<GroupTO>> newInstance(final String id) {
+        protected WizardMgtPanel<AnyWrapper<GroupTO>> newInstance(final String id) {
             return new GroupDirectoryPanel(id, this);
         }
     }

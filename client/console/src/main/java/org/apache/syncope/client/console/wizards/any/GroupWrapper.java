@@ -28,7 +28,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.GroupTO;
 
-public class GroupHandler extends AnyHandler<GroupTO> {
+public class GroupWrapper extends AnyWrapper<GroupTO> {
 
     private static final long serialVersionUID = 8058288034211558376L;
 
@@ -36,7 +36,7 @@ public class GroupHandler extends AnyHandler<GroupTO> {
 
     private Map<String, List<SearchClause>> aDynClauses;
 
-    public GroupHandler(final GroupTO groupTO) {
+    public GroupWrapper(final GroupTO groupTO) {
         super(groupTO);
         getUDynClauses();
         getADynClauses();

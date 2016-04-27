@@ -21,13 +21,13 @@ package org.apache.syncope.client.console.wizards.any;
 import java.io.Serializable;
 import org.apache.syncope.common.lib.to.AnyTO;
 
-public class AnyHandler<T extends AnyTO> implements Serializable {
+public class AnyWrapper<T extends AnyTO> implements Serializable {
 
     private static final long serialVersionUID = 8058288034211558375L;
 
     protected final T anyTO;
 
-    public AnyHandler(final T anyTO) {
+    public AnyWrapper(final T anyTO) {
         this.anyTO = anyTO;
     }
 

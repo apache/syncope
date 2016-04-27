@@ -65,7 +65,7 @@ public class Ownership extends WizardStep {
 
     private final Pattern owner = Pattern.compile("\\[\\(\\d+\\)\\] .*");
 
-    private final GroupHandler handler;
+    private final GroupWrapper wrapper;
 
     private final WebMarkupContainer ownerContainer;
 
@@ -91,9 +91,9 @@ public class Ownership extends WizardStep {
 
     private final Model<Boolean> isGroupOwnership;
 
-    public Ownership(final GroupHandler groupHandler, final PageReference pageRef) {
+    public Ownership(final GroupWrapper groupHandler, final PageReference pageRef) {
         super();
-        this.handler = groupHandler;
+        this.wrapper = groupHandler;
 
         isGroupOwnership = Model.of(groupHandler.getInnerObject().getGroupOwner() != null);
 
@@ -299,15 +299,15 @@ public class Ownership extends WizardStep {
         } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
             final AnyTO sel = ((AnySelectionDirectoryPanel.ItemSelection) event.getPayload()).getSelection();
             if (sel == null) {
-                handler.getInnerObject().setUserOwner(null);
-                handler.getInnerObject().setGroupOwner(null);
+                wrapper.getInnerObject().setUserOwner(null);
+                wrapper.getInnerObject().setGroupOwner(null);
             } else if (sel instanceof UserTO) {
-                handler.getInnerObject().setUserOwner(sel.getKey());
-                handler.getInnerObject().setGroupOwner(null);
+                wrapper.getInnerObject().setUserOwner(sel.getKey());
+                wrapper.getInnerObject().setGroupOwner(null);
                 ((UserSelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
             } else if (sel instanceof GroupTO) {
-                handler.getInnerObject().setGroupOwner(sel.getKey());
-                handler.getInnerObject().setUserOwner(null);
+                wrapper.getInnerObject().setGroupOwner(sel.getKey());
+                wrapper.getInnerObject().setUserOwner(null);
                 ((GroupSelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
             }
         } else {

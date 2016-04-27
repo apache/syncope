@@ -38,7 +38,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
+import org.apache.syncope.client.console.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -146,16 +147,15 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-
-                        final IModel<AnyHandler<UserTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(model.
-                                getObject()));
+                        IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
+                                new AnyWrapper<>(model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
                         target.add(altDefaultModal.setContent(new StatusModal<>(
                                 altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
                         altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
+                                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
 
                         altDefaultModal.show(true);
                     }
@@ -165,16 +165,15 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel = new CompoundPropertyModel<>(
-                                new AnyHandler<>(model.
-                                        getObject()));
+                        IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
+                                new AnyWrapper<>(model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
                         target.add(altDefaultModal.setContent(new StatusModal<>(
                                 altDefaultModal, pageRef, formModel.getObject().getInnerObject(), true)));
 
                         altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
+                                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
 
                         altDefaultModal.show(true);
                     }
@@ -186,7 +185,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                         send(UserDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<>(
-                                        new AnyHandler<>(new UserRestClient().read(model.getObject().getKey())),
+                                        new UserWrapper(new UserRestClient().read(model.getObject().getKey())),
                                         target));
                     }
                 }, ActionType.EDIT, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
@@ -199,7 +198,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                         clone.setKey(null);
                         clone.setUsername(model.getObject().getUsername() + "_clone");
                         send(UserDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<>(new AnyHandler<>(clone), target));
+                                new AjaxWizard.NewItemActionEvent<>(new UserWrapper(clone), target));
                     }
                 }, ActionType.CLONE, StandardEntitlement.USER_CREATE).add(new ActionLink<UserTO>() {
 
@@ -283,7 +282,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
 
     public static class Builder extends AnyDirectoryPanel.Builder<UserTO> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -6603152478702381900L;
 
         public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
             super(anyTypeClassTOs, new UserRestClient(), type, pageRef);
@@ -291,7 +290,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<UserTO>> newInstance(final String id) {
+        protected WizardMgtPanel<AnyWrapper<UserTO>> newInstance(final String id) {
             return new UserDirectoryPanel(id, this);
         }
     }

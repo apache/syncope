@@ -39,7 +39,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.StatusPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -55,7 +55,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 
 public abstract class AnyDirectoryPanel<A extends AnyTO>
-        extends DirectoryPanel<A, AnyHandler<A>, AnyDataProvider<A>, AbstractAnyRestClient<A>> {
+        extends DirectoryPanel<A, AnyWrapper<A>, AnyDataProvider<A>, AbstractAnyRestClient<A>> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -156,7 +156,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO>
     }
 
     public abstract static class Builder<T extends AnyTO>
-            extends DirectoryPanel.Builder<T, AnyHandler<T>, AbstractAnyRestClient<T>>
+            extends DirectoryPanel.Builder<T, AnyWrapper<T>, AbstractAnyRestClient<T>>
             implements AnyDirectoryPanelBuilder {
 
         private static final long serialVersionUID = -6828423611982275640L;
@@ -197,7 +197,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO>
 
     @Override
     @SuppressWarnings("unchecked")
-    protected Panel customResultBody(final String panelId, final AnyHandler<A> item, final Serializable result) {
+    protected Panel customResultBody(final String panelId, final AnyWrapper<A> item, final Serializable result) {
         if (!(result instanceof ProvisioningResult)) {
             throw new IllegalStateException("Unsupported result type");
         }

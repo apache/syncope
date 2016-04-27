@@ -50,7 +50,7 @@ public class DynamicMemberships extends WizardStep {
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
-    public DynamicMemberships(final GroupHandler groupHandler) {
+    public DynamicMemberships(final GroupWrapper groupHandler) {
         super();
 
         final LoadableDetachableModel<List<AnyTypeTO>> types = new LoadableDetachableModel<List<AnyTypeTO>>() {

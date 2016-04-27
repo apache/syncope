@@ -16,12 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.layout;
+package org.apache.syncope.client.console.wizards.any;
 
-import org.apache.syncope.client.console.wizards.ModalPanelBuilder;
-import org.apache.syncope.client.console.wizards.any.AnyWrapper;
-import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.UserTO;
 
-public interface AnyForm<A extends AnyTO> extends ModalPanelBuilder<AnyWrapper<A>> {
+public class UserWrapper extends AnyWrapper<UserTO> {
+
+    private static final long serialVersionUID = 263119743040080245L;
+
+    private boolean storePasswordInSyncope = true;
+
+    public UserWrapper(final UserTO userTO) {
+        super(userTO);
+    }
+
+    public boolean isStorePasswordInSyncope() {
+        return storePasswordInSyncope;
+    }
+
+    public void setStorePasswordInSyncope(final boolean storePasswordInSyncope) {
+        this.storePasswordInSyncope = storePasswordInSyncope;
+    }
 
 }

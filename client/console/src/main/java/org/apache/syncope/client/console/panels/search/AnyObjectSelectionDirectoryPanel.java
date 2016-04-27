@@ -23,7 +23,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AnyObjectDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.wicket.PageReference;
@@ -72,7 +72,7 @@ public final class AnyObjectSelectionDirectoryPanel extends AnySelectionDirector
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<AnyObjectTO>> newInstance(final String id) {
+        protected WizardMgtPanel<AnyWrapper<AnyObjectTO>> newInstance(final String id) {
             return new AnyObjectSelectionDirectoryPanel(id, this);
         }
     }

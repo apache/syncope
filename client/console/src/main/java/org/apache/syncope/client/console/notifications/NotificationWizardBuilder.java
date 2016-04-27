@@ -164,7 +164,6 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
             final AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<>(
                     "template", getString("template"),
                     new PropertyModel<String>(notificationTO, "template"));
-
             template.setChoices(CollectionUtils.collect(
                     restClient.getAllAvailableTemplates(), new Transformer<MailTemplateTO, String>() {
 
@@ -186,7 +185,6 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
 
             final AjaxCheckBoxPanel isActive = new AjaxCheckBoxPanel("isActive",
                     getString("isActive"), new PropertyModel<Boolean>(notificationTO, "active"));
-
             if (createFlag) {
                 isActive.getField().setDefaultModelObject(Boolean.TRUE);
             }

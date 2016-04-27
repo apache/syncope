@@ -21,14 +21,14 @@ package org.apache.syncope.client.console.status;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 
-public class StatusModal<T extends AnyTO> extends Panel implements ModalPanel<AnyHandler<T>> {
+public class StatusModal<T extends AnyTO> extends Panel implements ModalPanel<AnyWrapper<T>> {
 
     private static final long serialVersionUID = 1066124171682570080L;
 
@@ -51,7 +51,7 @@ public class StatusModal<T extends AnyTO> extends Panel implements ModalPanel<An
     }
 
     @Override
-    public AnyHandler<T> getItem() {
+    public AnyWrapper<T> getItem() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

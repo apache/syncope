@@ -46,17 +46,16 @@ public class UserDetails extends Details<UserTO> {
     private static final String PASSWORD_CONTENT_PATH = "body:content";
 
     public UserDetails(
-            final AnyHandler<UserTO> handler,
+            final UserWrapper wrapper,
             final IModel<List<StatusBean>> statusModel,
-            final boolean resetPassword,
             final boolean templateMode,
             final boolean includeStatusPanel,
             final boolean showPasswordManagement,
             final PageReference pageRef) {
 
-        super(handler, statusModel, includeStatusPanel, pageRef);
+        super(wrapper, statusModel, includeStatusPanel, pageRef);
 
-        final UserTO userTO = handler.getInnerObject();
+        final UserTO userTO = wrapper.getInnerObject();
         // ------------------------
         // Username
         // ------------------------
@@ -81,7 +80,7 @@ public class UserDetails extends Details<UserTO> {
 
             @Override
             public Panel getPanel(final String panelId) {
-                final PasswordPanel panel = new PasswordPanel(panelId, userTO, resetPassword, templateMode);
+                PasswordPanel panel = new PasswordPanel(panelId, wrapper, templateMode);
                 panel.setEnabled(model.getObject() >= 0);
                 return panel;
             }
@@ -94,7 +93,7 @@ public class UserDetails extends Details<UserTO> {
             protected Component newTitle(final String markupId, final ITab tab, final Accordion.State state) {
                 return new AjaxLink<Integer>(markupId) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 7021195294339489084L;
 
                     @Override
                     protected void onComponentTag(final ComponentTag tag) {
@@ -108,12 +107,14 @@ public class UserDetails extends Details<UserTO> {
 
                         boolean enable = model.getObject() >= 0;
 
-                        final Component passwordPanel = getParent().get(PASSWORD_CONTENT_PATH);
-                        passwordPanel.setEnabled(enable);
-                        statusPanel.setCheckAvailability(enable
-                                ? ListViewPanel.CheckAvailability.AVAILABLE
-                                : ListViewPanel.CheckAvailability.DISABLED);
+                        if (statusPanel.isVisibleInHierarchy()) {
+                            statusPanel.setCheckAvailability(enable
+                                    ? ListViewPanel.CheckAvailability.AVAILABLE
+                                    : ListViewPanel.CheckAvailability.DISABLED);
+                        }
 
+                        Component passwordPanel = getParent().get(PASSWORD_CONTENT_PATH);
+                        passwordPanel.setEnabled(enable);
                         target.add(passwordPanel);
                     }
                 }.setBody(new ResourceModel("password.change", "Change password ..."));
