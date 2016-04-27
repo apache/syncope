@@ -21,6 +21,7 @@ package org.apache.syncope.fit.console;
 import static org.junit.Assert.assertNotNull;
 
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.markup.html.form.NonI18nPalette;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -88,6 +89,17 @@ public class TopologyITCase extends AbstractConsoleITCase {
 
         wicketTester.assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:provision:"
                 + "container:content:wizard:form:view:mapping:mappingContainer:mappings:1", WebMarkupContainer.class);
+        
+        wicketTester.executeAjaxEvent("body:toggle:outerObjectsRepeater:2:outer:form:content:provision:"
+                + "container:content:wizard:form:view:mapping:mappingContainer:mappings:1:transformers:icon", 
+                Constants.ON_CLICK);
+        
+        wicketTester.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:provision:container:content:"
+                + "wizard:form:view:mapping:mappingContainer:mappings:0:transformers:alertsLink");
+        
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:provision:container:"
+                + "content:wizard:form:view:mapping:transformersTogglePanel:container:content:togglePanelContainer:"
+                + "form:classes:paletteField", NonI18nPalette.class);
     }
 
     @Test

@@ -119,6 +119,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
         final String selector = String.format("$(\"div#%s\")", getId());
         if (toggle) {
             if (status == Status.INACTIVE) {
+                target.add(TogglePanel.this.container);
                 target.appendJavaScript(
                         selector + ".toggle(\"slow\");"
                         + selector + ".attr(\"class\", \"topology-menu active-topology-menu\");");

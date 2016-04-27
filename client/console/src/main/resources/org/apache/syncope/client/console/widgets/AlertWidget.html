@@ -19,26 +19,22 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-      <i class="fa fa-flag-o"></i>
-      <span class="label label-danger" wicket:id="approvals"></span>
+      <i wicket:id="icon"></i>
+      <span class="label label-danger" wicket:id="alerts"></span>
     </a>
     <ul class="dropdown-menu">
       <li class="header">
         <wicket:message key="summary"><span wicket:id="number"/></wicket:message>
       </li>
       <li>
-        <ul wicket:id="lastApprovalsList" class="menu">
-          <li class="todoitem" wicket:id="lastApprovals">
-            <a href="#" wicket:id="approval">
-              <h3><small class="pull-right" wicket:id="owner"/> <p wicket:id="key"/></h3>
-              <small wicket:id="dueDateContainer" class="pull-right"><i class="fa fa-hourglass-end"></i> <p wicket:id="dueDate"/></small>
-              <small><i class="fa fa-clock-o"></i> <p wicket:id="createTime"/></small>
-            </a>
+        <ul wicket:id="latestAlertsList" class="menu">
+          <li class="todoitem" wicket:id="latestAlerts">
+            <span wicket:id="alert">[ALERT]</span>
           </li>
         </ul>
       </li>
       <li class="footer">
-        <a href="#" wicket:id="approvalsLink"><wicket:message key="approvals.view.all">View all approvals</wicket:message></a>
+        <a href="#" wicket:id="alertsLink"><wicket:message key="alerts.view.all">View all alerts</wicket:message></a>
       </li>
     </ul>
   </wicket:panel>

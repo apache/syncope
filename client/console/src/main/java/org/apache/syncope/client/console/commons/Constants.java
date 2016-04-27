@@ -23,6 +23,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 public final class Constants {
@@ -155,9 +156,19 @@ public final class Constants {
      */
     public static final String GUARDED_BYTE_ARRAY = "org.identityconnectors.common.security.GuardedByteArray";
 
-    public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {
-        return new Label("jexlInfo", Model.of()).add(new PopoverBehavior(
+    public static Component getPopover(
+            final String id,
+            final IModel<String> msg,
+            final Component caller,
+            final TooltipConfig.Placement placement) {
+        return new Label(id, Model.of()).add(new PopoverBehavior(
                 Model.<String>of(),
+                msg,
+                new PopoverConfig().withHtml(true).withPlacement(placement)));
+    }
+
+    public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {
+        return getPopover("jexlInfo",
                 Model.of(caller.getString("jexl_info")
                         + "<ul>"
                         + "<li>" + caller.getString("jexl_ex1") + "</li>"
@@ -165,7 +176,8 @@ public final class Constants {
                         + "</ul>"
                         + "<a href='https://commons.apache.org/proper/commons-jexl/reference/index.html' "
                         + "target='_blank'>" + caller.getString("jexl_syntax_url") + "</a>"),
-                new PopoverConfig().withHtml(true).withPlacement(placement)));
+                caller,
+                placement);
     }
 
     private Constants() {

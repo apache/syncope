@@ -34,6 +34,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.console.tasks.TransformersTogglePanel;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -41,6 +42,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPan
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MappingPurposePanel;
+import org.apache.syncope.client.console.widgets.MappingItemTransformerWidget;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
@@ -126,6 +128,8 @@ public class ResourceMappingPanel extends Panel {
      */
     private final WebMarkupContainer mappingContainer;
 
+    private final TransformersTogglePanel transformers;
+
     private MappingTO getMapping() {
         if (provisionTO.getMapping() == null) {
             provisionTO.setMapping(new MappingTO());
@@ -151,6 +155,9 @@ public class ResourceMappingPanel extends Panel {
         this.mappingContainer = new WebMarkupContainer("mappingContainer");
         this.mappingContainer.setOutputMarkupId(true);
         add(this.mappingContainer);
+
+        transformers = new TransformersTogglePanel(this.mappingContainer);
+        add(this.transformers);
 
         if (resourceTO.getConnector() != null) {
             schemaNames = getSchemaNames(resourceTO.getConnector(), resourceTO.getConfOverride());
@@ -289,6 +296,13 @@ public class ResourceMappingPanel extends Panel {
                 extAttrNames.setRequired(required).hideLabel();
                 extAttrNames.setEnabled(required);
                 item.add(extAttrNames);
+                // -------------------------------
+
+                //--------------------------------
+                // Mapping item transformer
+                // -------------------------------
+                item.add(new MappingItemTransformerWidget(
+                        "transformers", mapItem, transformers).setRenderBodyOnly(true));
                 // -------------------------------
 
                 //--------------------------------

@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.Approvals;
@@ -39,143 +40,26 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.protocol.ws.WebSocketSettings;
 import org.apache.wicket.protocol.ws.api.WebSocketPushBroadcaster;
 import org.apache.wicket.protocol.ws.api.event.WebSocketPushPayload;
 import org.apache.wicket.protocol.ws.api.message.ConnectedMessage;
 import org.apache.wicket.protocol.ws.api.message.IWebSocketPushMessage;
 import org.apache.wicket.protocol.ws.api.registry.IKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class ApprovalsWidget extends Panel {
+public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
 
     private static final long serialVersionUID = 7667120094526529934L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(ApprovalsWidget.class);
-
-    private static List<WorkflowFormTO> getLastApprovals() {
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_LIST)) {
-            return SyncopeConsoleSession.get().getService(UserWorkflowService.class).getForms();
-        } else {
-            return Collections.<WorkflowFormTO>emptyList();
-        }
-    }
-
-    private final Label linkApprovalsNumber;
-
-    private final Label headerApprovalsNumber;
-
-    private final WebMarkupContainer lastApprovalsList;
-
-    private final ListView<WorkflowFormTO> lastFive;
-
-    private final List<WorkflowFormTO> lastApprovals;
 
     public ApprovalsWidget(final String id, final PageReference pageRef) {
         super(id);
         setOutputMarkupId(true);
-
-        LoadableDetachableModel<List<WorkflowFormTO>> model = new LoadableDetachableModel<List<WorkflowFormTO>>() {
-
-            private static final long serialVersionUID = 7474274077691068779L;
-
-            @Override
-            protected List<WorkflowFormTO> load() {
-                return ApprovalsWidget.this.lastApprovals.subList(0, ApprovalsWidget.this.lastApprovals.size() < 6
-                        ? ApprovalsWidget.this.lastApprovals.size() : 5);
-            }
-        };
-
-        lastApprovals = getLastApprovals();
-        Collections.sort(lastApprovals, new WorkflowFormComparator());
-
-        linkApprovalsNumber = new Label("approvals", lastApprovals.size()) {
-
-            private static final long serialVersionUID = 4755868673082976208L;
-
-            @Override
-            protected void onComponentTag(final ComponentTag tag) {
-                super.onComponentTag(tag);
-                if (Integer.valueOf(getDefaultModelObject().toString()) > 0) {
-                    tag.put("class", "label label-danger");
-                } else {
-                    tag.put("class", "label label-info");
-                }
-            }
-
-        };
-        add(linkApprovalsNumber.setOutputMarkupId(true));
-
-        headerApprovalsNumber = new Label("number", lastApprovals.size());
-        headerApprovalsNumber.setOutputMarkupId(true);
-        add(headerApprovalsNumber);
-
-        lastApprovalsList = new WebMarkupContainer("lastApprovalsList");
-        lastApprovalsList.setOutputMarkupId(true);
-        add(lastApprovalsList);
-
-        lastFive = new ListView<WorkflowFormTO>("lastApprovals", model) {
-
-            private static final long serialVersionUID = 4949588177564901031L;
-
-            @Override
-            protected void populateItem(final ListItem<WorkflowFormTO> item) {
-                final WorkflowFormTO modelObject = item.getModelObject();
-
-                final AjaxLink<String> approval = new AjaxLink<String>("approval") {
-
-                    private static final long serialVersionUID = 7021195294339489084L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        // do nothing
-                    }
-
-                    @Override
-                    protected void onComponentTag(final ComponentTag tag) {
-                        super.onComponentTag(tag);
-                        tag.put("title", modelObject.getUsername());
-                    }
-                };
-
-                item.add(approval);
-
-                approval.add(new Label("key", new ResourceModel(modelObject.getKey(), modelObject.getKey())).
-                        setRenderBodyOnly(true));
-
-                approval.add(new Label("owner", modelObject.getOwner()));
-
-                approval.add(new Label("createTime",
-                        SyncopeConsoleSession.get().getDateFormat().format(modelObject.getCreateTime())).
-                        setRenderBodyOnly(true));
-
-                WebMarkupContainer dueDateContainer = new WebMarkupContainer("dueDateContainer");
-                dueDateContainer.setOutputMarkupId(true);
-                approval.add(dueDateContainer);
-
-                if (modelObject.getDueDate() == null) {
-                    dueDateContainer.add(new Label("dueDate"));
-                    dueDateContainer.setVisible(false);
-                } else {
-                    dueDateContainer.add(new Label("dueDate",
-                            SyncopeConsoleSession.get().getDateFormat().format(modelObject.getDueDate())).
-                            setRenderBodyOnly(true));
-                }
-
-            }
-        };
-        lastApprovalsList.add(lastFive.setReuseItems(false).setOutputMarkupId(true));
-
-        BookmarkablePageLink<Object> approvals = BookmarkablePageLinkBuilder.build("approvalsLink", Approvals.class);
-        add(approvals);
-        MetaDataRoleAuthorizationStrategy.authorize(approvals, WebPage.ENABLE, StandardEntitlement.WORKFLOW_FORM_LIST);
     }
 
     @Override
@@ -183,25 +67,103 @@ public class ApprovalsWidget extends Panel {
         if (event.getPayload() instanceof WebSocketPushPayload) {
             WebSocketPushPayload wsEvent = (WebSocketPushPayload) event.getPayload();
             if (wsEvent.getMessage() instanceof ApprovalsWidgetMessage) {
-                List<WorkflowFormTO> updatedApprovals =
-                        ((ApprovalsWidgetMessage) wsEvent.getMessage()).getUpdatedApprovals();
-                if (!lastApprovals.equals(updatedApprovals)) {
-                    lastApprovals.clear();
-                    lastApprovals.addAll(updatedApprovals);
+                List<WorkflowFormTO> updatedApprovals = ((ApprovalsWidgetMessage) wsEvent.getMessage()).
+                        getUpdatedApprovals();
+                if (!latestAlerts.equals(updatedApprovals)) {
+                    latestAlerts.getObject().clear();
+                    latestAlerts.getObject().addAll(updatedApprovals);
 
-                    ApprovalsWidget.this.linkApprovalsNumber.
-                            setDefaultModelObject(ApprovalsWidget.this.lastApprovals.size());
-                    wsEvent.getHandler().add(ApprovalsWidget.this.linkApprovalsNumber);
+                    ApprovalsWidget.this.linkAlertsNumber.
+                            setDefaultModelObject(ApprovalsWidget.this.latestAlerts.getObject().size());
+                    wsEvent.getHandler().add(ApprovalsWidget.this.linkAlertsNumber);
 
-                    ApprovalsWidget.this.headerApprovalsNumber.
-                            setDefaultModelObject(ApprovalsWidget.this.lastApprovals.size());
-                    wsEvent.getHandler().add(ApprovalsWidget.this.headerApprovalsNumber);
+                    ApprovalsWidget.this.headerAlertsNumber.
+                            setDefaultModelObject(ApprovalsWidget.this.latestAlerts.getObject().size());
+                    wsEvent.getHandler().add(ApprovalsWidget.this.headerAlertsNumber);
 
-                    ApprovalsWidget.this.lastFive.removeAll();
-                    wsEvent.getHandler().add(ApprovalsWidget.this.lastApprovalsList);
+                    ApprovalsWidget.this.latestFive.removeAll();
+                    wsEvent.getHandler().add(ApprovalsWidget.this.latestAlertsList);
                 }
             }
         }
+    }
+
+    @Override
+    protected IModel<List<WorkflowFormTO>> getLatestAlerts() {
+
+        return new ListModel<WorkflowFormTO>() {
+
+            private static final long serialVersionUID = -2583290457773357445L;
+
+            @Override
+            public List<WorkflowFormTO> getObject() {
+                return ApprovalInfoUpdater.getLatestAlerts();
+            }
+        };
+    }
+
+    @Override
+    protected Panel getAlertLink(final String panelid, final WorkflowFormTO event) {
+        return new ApprovalsWidget.InnerPanel(panelid, event);
+    }
+
+    @Override
+    protected AbstractLink getEventsLink(final String linkid) {
+        BookmarkablePageLink<Object> approvals = BookmarkablePageLinkBuilder.build(linkid, Approvals.class);
+        MetaDataRoleAuthorizationStrategy.authorize(approvals, WebPage.ENABLE, StandardEntitlement.WORKFLOW_FORM_LIST);
+        return approvals;
+    }
+
+    public static final class InnerPanel extends Panel {
+
+        private static final long serialVersionUID = 3829642687027801451L;
+
+        public InnerPanel(final String id, final WorkflowFormTO alert) {
+            super(id);
+
+            final AjaxLink<String> approval = new AjaxLink<String>("approval") {
+
+                private static final long serialVersionUID = 7021195294339489084L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                    // do nothing
+                }
+
+                @Override
+                protected void onComponentTag(final ComponentTag tag) {
+                    super.onComponentTag(tag);
+                    if (StringUtils.isNotBlank(alert.getUsername())) {
+                        tag.put("title", alert.getUsername().trim());
+                    }
+                }
+            };
+
+            add(approval);
+
+            approval.add(new Label("key", new ResourceModel(alert.getKey(), alert.getKey())).
+                    setRenderBodyOnly(true));
+
+            approval.add(new Label("owner", alert.getOwner()));
+
+            approval.add(new Label("createTime",
+                    SyncopeConsoleSession.get().getDateFormat().format(alert.getCreateTime())).
+                    setRenderBodyOnly(true));
+
+            WebMarkupContainer dueDateContainer = new WebMarkupContainer("dueDateContainer");
+            dueDateContainer.setOutputMarkupId(true);
+            approval.add(dueDateContainer);
+
+            if (alert.getDueDate() == null) {
+                dueDateContainer.add(new Label("dueDate"));
+                dueDateContainer.setVisible(false);
+            } else {
+                dueDateContainer.add(new Label("dueDate",
+                        SyncopeConsoleSession.get().getDateFormat().format(alert.getDueDate())).
+                        setRenderBodyOnly(true));
+            }
+        }
+
     }
 
     public static final class ApprovalInfoUpdater implements Runnable {
@@ -224,12 +186,10 @@ public class ApprovalsWidget extends Panel {
                 ThreadContext.setApplication(application);
                 ThreadContext.setSession(session);
 
-                List<WorkflowFormTO> updatedApprovals = getLastApprovals();
-                Collections.sort(updatedApprovals, new WorkflowFormComparator());
+                List<WorkflowFormTO> updatedApprovals = getLatestAlerts();
 
                 WebSocketSettings settings = WebSocketSettings.Holder.get(application);
-                WebSocketPushBroadcaster broadcaster =
-                        new WebSocketPushBroadcaster(settings.getConnectionRegistry());
+                WebSocketPushBroadcaster broadcaster = new WebSocketPushBroadcaster(settings.getConnectionRegistry());
                 broadcaster.broadcast(
                         new ConnectedMessage(application, session.getId(), key),
                         new ApprovalsWidgetMessage(updatedApprovals));
@@ -238,6 +198,17 @@ public class ApprovalsWidget extends Panel {
             } finally {
                 ThreadContext.detach();
             }
+        }
+
+        protected static List<WorkflowFormTO> getLatestAlerts() {
+            final List<WorkflowFormTO> updatedApprovals;
+            if (SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_LIST)) {
+                updatedApprovals = SyncopeConsoleSession.get().getService(UserWorkflowService.class).getForms();
+            } else {
+                updatedApprovals = Collections.<WorkflowFormTO>emptyList();
+            }
+            Collections.sort(updatedApprovals, new WorkflowFormComparator());
+            return updatedApprovals;
         }
     }
 

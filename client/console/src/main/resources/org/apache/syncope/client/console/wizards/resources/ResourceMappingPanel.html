@@ -17,70 +17,80 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
-    <div class="table-responsive no-padding">
-      <table id="mappings"
-             class="table table-hover"
-             style="font-size: 1em;margin-top:2px;"
-             wicket:id="mappingContainer">
-        <tbody>
-          <tr>
-            <th><wicket:message key="entity"/></th>
-            <th><wicket:message key="intMappingTypes"/></th>
-            <th><wicket:message key="intAttrNames"/></th>
-            <th><wicket:message key="extAttrNames"/></th>
-            <th>
-              <wicket:message key="mandatoryCondition"/>
-              <span id="popover" wicket:id="jexlInfo" class="glyphicon glyphicon-info-sign"></span>
-            </th>
-            <th><wicket:message key="connObjectKey"/></th>
-            <th><label wicket:id="passwordLabel"/></th>
-            <th><wicket:message key="purpose"/></th>
-            <th><i class="fa fa-trash"></i></th>
-          </tr>
-          <tr wicket:id="mappings">
-            <td>
-              <span wicket:id="entities">[entities]</span>
-            </td>
-            <td>
-              <span wicket:id="intMappingTypes">[intMappingTypes]</span>
-            </td>
-            <td>
-              <span wicket:id="intAttrNames">[intAttrNames]</span>
-            </td>
-            <td>
-              <span wicket:id="extAttrName">[extAttrName]</span>
-            </td>
-            <td>
-              <span wicket:id="mandatoryCondition">[mandatoryCondition]</span>
-            </td>
-            <td>
-              <span wicket:id="connObjectKey">[connObjectKey]</span>
-            </td>
-            <td>
-              <span wicket:id="password">[password]</span>
-            </td>
-            <td>
-              <div wicket:id="purpose" style="margin: 10px 0px 10px 0px">
-                <span wicket:id="purposeActions">[purpose]</span>
-              </div>
-            </td>
-            <td>
-              <div style="margin: 10px 0px 10px 0px">
-                <span  wicket:id="toRemove"/>
-              </div>
-            </td>
-          </tr>
-        </tbody>
+  <head><title></title></head>
+  <body>
+    <wicket:panel>
+      <div class="table-responsive no-padding">
+        <table id="mappings"
+               class="table table-hover"
+               style="font-size: 1em;margin-top:2px;"
+               wicket:id="mappingContainer">
+          <tbody>
+            <tr>
+              <th><wicket:message key="entity"/></th>
+              <th><wicket:message key="intMappingTypes"/></th>
+              <th><wicket:message key="intAttrNames"/></th>
+              <th><wicket:message key="extAttrNames"/></th>
+              <th><i class="fa fa-magic"></i></th>
+              <th>
+                <wicket:message key="mandatoryCondition"/>
+                <span id="popover" wicket:id="jexlInfo" class="glyphicon glyphicon-info-sign"></span>
+              </th>
+              <th><wicket:message key="connObjectKey"/></th>
+              <th><label wicket:id="passwordLabel"/></th>
+              <th><wicket:message key="purpose"/></th>
+              <th><i class="fa fa-trash"></i></th>
+            </tr>
+            <tr wicket:id="mappings">
+              <td>
+                <span wicket:id="entities">[entities]</span>
+              </td>
+              <td>
+                <span wicket:id="intMappingTypes">[intMappingTypes]</span>
+              </td>
+              <td>
+                <span wicket:id="intAttrNames">[intAttrNames]</span>
+              </td>
+              <td>
+                <span wicket:id="extAttrName">[extAttrName]</span>
+              </td>
+              <td>
+                <div class="alert-widget dropdown tasks-menu">
+                  <span wicket:id="transformers">[Mapping Item Transformes]</span>
+                </div>
+              </td>
+              <td>
+                <span wicket:id="mandatoryCondition">[mandatoryCondition]</span>
+              </td>
+              <td>
+                <span wicket:id="connObjectKey">[connObjectKey]</span>
+              </td>
+              <td>
+                <span wicket:id="password">[password]</span>
+              </td>
+              <td>
+                <div wicket:id="purpose" style="margin: 10px 0px 10px 0px">
+                  <span wicket:id="purposeActions">[purpose]</span>
+                </div>
+              </td>
+              <td>
+                <div>
+                  <span  wicket:id="toRemove"/>
+                </div>
+              </td>
+            </tr>
+          </tbody>
 
-        <tfoot>
-          <tr>
-            <td colspan="9" style="padding: 5px; text-align: right">
-              <input type="submit" class="btn btn-primary" wicket:id="addMappingBtn" />
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  </wicket:panel>
+          <tfoot>
+            <tr>
+              <td colspan="10" style="padding: 5px; text-align: right">
+                <input type="submit" class="btn btn-primary" wicket:id="addMappingBtn" />
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <span wicket:id="transformersTogglePanel">[TRANSFORMERS]</span>
+    </wicket:panel>
+  </body>
 </html>

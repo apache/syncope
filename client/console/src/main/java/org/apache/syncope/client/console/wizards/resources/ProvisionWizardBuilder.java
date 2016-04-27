@@ -149,7 +149,6 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         AuxClasses(final ProvisionTO item) {
             setTitleModel(new ResourceModel("auxClasses.title"));
             setSummaryModel(new StringResourceModel("auxClasses.summary", this, new Model<>(item)));
-
             add(new ProvisionAuxClassesPanel("auxClasses", item));
         }
     }
@@ -164,7 +163,6 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         Mapping(final ProvisionTO item) {
             setTitleModel(new ResourceModel("mapping.title"));
             setSummaryModel(new StringResourceModel("mapping.summary", this, new Model<>(item)));
-
             add(new ResourceMappingPanel("mapping", resourceTO, item));
         }
     }
