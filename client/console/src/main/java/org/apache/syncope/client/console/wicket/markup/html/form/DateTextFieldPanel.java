@@ -71,7 +71,7 @@ public class DateTextFieldPanel extends DateFieldPanel {
             @Override
             public void afterRender(final Component component) {
                 Response response = component.getResponse();
-                response.write("\n<span class=\"yui-skin-sam\">&nbsp;<span style=\"");
+                response.write("\n<span class=\"yui-skin-sam\"><span style=\"");
 
                 if (renderOnLoad()) {
                     response.write("display:block;");
