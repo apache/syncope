@@ -66,7 +66,8 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipType
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<RelationshipTypeTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
+            public WizardModalPanel<RelationshipTypeTO> build(
+                    final String id, final int index, final AjaxWizard.Mode mode) {
                 final RelationshipTypeTO modelObject = newModelObject();
                 return new RelationshipTypeModalPanel(modal, modelObject, pageRef) {
 

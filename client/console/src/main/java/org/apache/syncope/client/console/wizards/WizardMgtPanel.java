@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
@@ -46,6 +45,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.syncope.client.console.panels.WizardModalPanel;
 
 public abstract class WizardMgtPanel<T extends Serializable> extends Panel implements IEventSource {
 
@@ -146,7 +146,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
             if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && newItemPanelBuilder != null) {
                 newItemPanelBuilder.setItem(item);
 
-                final ModalPanel<T> modalPanel = newItemPanelBuilder.build(
+                final WizardModalPanel<T> modalPanel = newItemPanelBuilder.build(
                         actualId,
                         ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(),
                         item != null ? AjaxWizard.Mode.EDIT : AjaxWizard.Mode.CREATE);

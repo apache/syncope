@@ -61,6 +61,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 build()).getTotalCount();
     }
 
+    @Override
     public int countExecutions(final String taskKey) {
         return getService(TaskService.class).
                 listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(1).build()).getTotalCount();
@@ -139,6 +140,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 getResult();
     }
 
+    @Override
     public List<ExecTO> listExecutions(final String taskKey, final int page, final int size) {
         return getService(TaskService.class).
                 listExecutions(new ExecQuery.Builder().key(taskKey).page(page).size(size).build()).getResult();

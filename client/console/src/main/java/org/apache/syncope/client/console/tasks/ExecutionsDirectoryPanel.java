@@ -32,8 +32,8 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel.SecondLevel;
-import org.apache.syncope.client.console.rest.TaskRestClient;
-import org.apache.syncope.client.console.tasks.TaskExecutions.TaskExecProvider;
+import org.apache.syncope.client.console.rest.ExecutionRestClient;
+import org.apache.syncope.client.console.tasks.ExecutionsDirectoryPanel.ExecProvider;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
@@ -41,7 +41,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -53,8 +52,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public abstract class TaskExecutions
-        extends DirectoryPanel<ExecTO, ExecTO, TaskExecProvider, TaskRestClient> {
+public abstract class ExecutionsDirectoryPanel
+        extends DirectoryPanel<ExecTO, ExecTO, ExecProvider, ExecutionRestClient> {
 
     private static final long serialVersionUID = 2039393934721149162L;
 
@@ -62,21 +61,28 @@ public abstract class TaskExecutions
 
     private final MultilevelPanel multiLevelPanelRef;
 
-    protected TaskRestClient taskRestClient = new TaskRestClient();
+    private final String key;
 
-    private final AbstractTaskTO taskTO;
+    public ExecutionsDirectoryPanel(
+            final MultilevelPanel multiLevelPanelRef,
+            final String key,
+            final ExecutionRestClient executionRestClient,
+            final PageReference pageRef) {
+        this(null, multiLevelPanelRef, key, executionRestClient, pageRef);
+    }
 
-    public TaskExecutions(
+    public ExecutionsDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
-            final AbstractTaskTO taskTO,
+            final String key,
+            final ExecutionRestClient executionRestClient,
             final PageReference pageRef) {
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, false);
         this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
-        restClient = taskRestClient;
+        restClient = executionRestClient;
         setOutputMarkupId(true);
-        this.taskTO = taskTO;
+        this.key = key;
         initResultTable();
     }
 
@@ -116,8 +122,8 @@ public abstract class TaskExecutions
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                                next(new StringResourceModel("execution.view", TaskExecutions.this, model).getObject(),
-                                        new ExecMessage(model.getObject().getMessage()), target);
+                                next(new StringResourceModel("execution.view", ExecutionsDirectoryPanel.this, model).
+                                        getObject(), new ExecMessage(model.getObject().getMessage()), target);
                             }
                         }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ).
                         add(new ActionLink<ExecTO>() {
@@ -128,12 +134,11 @@ public abstract class TaskExecutions
                             public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                                 try {
                                     restClient.deleteExecution(taskExecutionTO.getKey());
-                                    taskTO.getExecutions().remove(taskExecutionTO);
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                 } catch (SyncopeClientException scce) {
                                     error(scce.getMessage());
                                 }
-                                target.add(TaskExecutions.this);
+                                target.add(ExecutionsDirectoryPanel.this);
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE);
@@ -163,8 +168,8 @@ public abstract class TaskExecutions
     }
 
     @Override
-    protected TaskExecProvider dataProvider() {
-        return new TaskExecProvider(taskTO.getKey(), rows);
+    protected ExecProvider dataProvider() {
+        return new ExecProvider(key, rows);
     }
 
     @Override
@@ -179,7 +184,7 @@ public abstract class TaskExecutions
         return bulkActions;
     }
 
-    protected class TaskExecProvider extends DirectoryDataProvider<ExecTO> {
+    protected class ExecProvider extends DirectoryDataProvider<ExecTO> {
 
         private static final long serialVersionUID = 8943636537120648961L;
 
@@ -187,7 +192,7 @@ public abstract class TaskExecutions
 
         private final String taskKey;
 
-        public TaskExecProvider(final String taskKey, final int paginatorRows) {
+        public ExecProvider(final String taskKey, final int paginatorRows) {
             super(paginatorRows);
             this.taskKey = taskKey;
             comparator = new SortableDataProviderComparator<>(this);
@@ -200,14 +205,14 @@ public abstract class TaskExecutions
         @Override
         public Iterator<ExecTO> iterator(final long first, final long count) {
             final int page = ((int) first / paginatorRows);
-            List<ExecTO> list = taskRestClient.listExecutions(taskKey, (page < 0 ? 0 : page) + 1, paginatorRows);
+            List<ExecTO> list = restClient.listExecutions(taskKey, (page < 0 ? 0 : page) + 1, paginatorRows);
             Collections.sort(list, comparator);
             return list.iterator();
         }
 
         @Override
         public long size() {
-            return taskRestClient.countExecutions(taskKey);
+            return restClient.countExecutions(taskKey);
         }
 
         @Override

@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.approvals;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -30,8 +29,10 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.syncope.client.console.panels.SubmitableModalPanel;
+import org.apache.syncope.client.console.panels.WizardModalPanel;
 
-public class ApprovalModal extends Panel implements ModalPanel<WorkflowFormTO> {
+public class ApprovalModal extends Panel implements SubmitableModalPanel, WizardModalPanel<WorkflowFormTO> {
 
     private static final long serialVersionUID = -8847854414429745216L;
 

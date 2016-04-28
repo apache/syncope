@@ -62,7 +62,7 @@ import org.apache.wicket.model.StringResourceModel;
  * @param <T> Sched task type.
  */
 public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
-        extends TaskDirectoryPanel<T> implements ModalPanel<T> {
+        extends TaskDirectoryPanel<T> implements ModalPanel {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
@@ -70,7 +70,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     protected T schedTaskTO;
 
-    private final StartAtTogglePanel startAt;
+    private final TaskStartAtTogglePanel startAt;
 
     protected SchedTaskDirectoryPanel(
             final BaseModal<?> baseModal,
@@ -92,7 +92,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         initResultTable();
 
-        startAt = new StartAtTogglePanel(container);
+        startAt = new TaskStartAtTogglePanel(container);
         addInnerObject(startAt);
     }
 
@@ -202,7 +202,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
-                                startAt.setTaskTO(target, model.getObject());
+                                startAt.setExecutionDetail(
+                                        model.getObject().getKey(), model.getObject().getName(), target);
                                 startAt.toggle(target, true);
                             }
                         }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE).

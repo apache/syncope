@@ -29,7 +29,8 @@ import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 
-public class NotificationRestClient extends BaseRestClient {
+public class NotificationRestClient extends BaseRestClient
+        implements TemplateRestClient<MailTemplateTO, MailTemplateFormat> {
 
     private static final long serialVersionUID = 6328933265096511690L;
 
@@ -53,22 +54,27 @@ public class NotificationRestClient extends BaseRestClient {
         getService(NotificationService.class).delete(key);
     }
 
+    @Override
     public List<MailTemplateTO> getAllAvailableTemplates() {
         return getService(MailTemplateService.class).list();
     }
 
+    @Override
     public void createTemplate(final MailTemplateTO mailTemplateTO) {
         getService(MailTemplateService.class).create(mailTemplateTO);
     }
 
+    @Override
     public void deleteTemplate(final String key) {
         getService(MailTemplateService.class).delete(key);
     }
 
+    @Override
     public MailTemplateTO readTemplate(final String key) {
         return getService(MailTemplateService.class).read(key);
     }
 
+    @Override
     public String readTemplateFormat(final String key, final MailTemplateFormat format) {
         try {
             return IOUtils.toString(InputStream.class.cast(
@@ -80,6 +86,7 @@ public class NotificationRestClient extends BaseRestClient {
         }
     }
 
+    @Override
     public void updateTemplateFormat(final String key, final String content, final MailTemplateFormat format) {
         getService(MailTemplateService.class).setFormat(
                 key, format, IOUtils.toInputStream(content, SyncopeConstants.DEFAULT_CHARSET));

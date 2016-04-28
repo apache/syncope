@@ -62,6 +62,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelCreate", "emptyFragment", this));
         super.add(new Fragment("panelEdit", "emptyFragment", this));
         super.add(new Fragment("panelTypeExtensions", "emptyFragment", this));
+        super.add(new Fragment("panelFoEdit", "emptyFragment", this));
         super.add(new Fragment("panelHtmlEdit", "emptyFragment", this));
         super.add(new Fragment("panelTextEdit", "emptyFragment", this));
         super.add(new Fragment("panelLayoutEdit", "emptyFragment", this));
@@ -317,6 +318,25 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment.addOrReplace(new IndicatingAjaxLink<Void>("typeExtensionsLink") {
 
                     private static final long serialVersionUID = -1876519166660008562L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case FO_EDIT:
+                fragment = new Fragment("panelFoEdit", "fragmentFoEdit", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("foEditLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -886,6 +906,10 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
             case EDIT:
                 super.addOrReplace(new Fragment("panelEdit", "emptyFragment", this));
+                break;
+
+            case FO_EDIT:
+                super.addOrReplace(new Fragment("panelFoEdit", "emptyFragment", this));
                 break;
 
             case HTML_EDIT:

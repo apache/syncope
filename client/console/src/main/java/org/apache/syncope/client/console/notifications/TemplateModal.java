@@ -22,49 +22,53 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
-import org.apache.syncope.client.console.rest.NotificationRestClient;
+import org.apache.syncope.client.console.rest.TemplateRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.MailTemplateTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.PropertyModel;
 
-public class MailTemplateModal extends AbstractModalPanel<MailTemplateTO> {
+public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> {
 
     private static final long serialVersionUID = 2053048734388383021L;
 
-    private final MailTemplateTO mailTemplateTO;
+    private final T templateTO;
 
-    public MailTemplateModal(
-            final BaseModal<MailTemplateTO> modal,
-            final MailTemplateTO mailTemplateTO,
+    private TemplateRestClient<T, F> restClient;
+
+    public TemplateModal(
+            final BaseModal<T> modal,
+            final TemplateRestClient<T, F> restClient,
+            final T templateTO,
             final PageReference pageRef) {
         super(modal, pageRef);
-        this.mailTemplateTO = mailTemplateTO;
+        this.restClient = restClient;
+        this.templateTO = templateTO;
 
         final AjaxTextFieldPanel key
-                = new AjaxTextFieldPanel("key", "key", new PropertyModel<String>(mailTemplateTO, "key"), false);
+                = new AjaxTextFieldPanel("key", "key", new PropertyModel<String>(templateTO, "key"), false);
         key.setOutputMarkupPlaceholderTag(true);
         add(key.setRenderBodyOnly(true));
     }
 
     @Override
-    public MailTemplateTO getItem() {
-        return this.mailTemplateTO;
+    public T getItem() {
+        return this.templateTO;
     }
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
-            new NotificationRestClient().createTemplate(mailTemplateTO);
+            restClient.createTemplate(templateTO);
             info(getString(Constants.OPERATION_SUCCEEDED));
             modal.show(false);
             modal.close(target);
         } catch (SyncopeClientException e) {
-            LOG.error("While creating template for {}", mailTemplateTO.getKey(), e);
+            LOG.error("While creating template for {}", templateTO.getKey(), e);
             error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
         }
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

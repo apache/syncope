@@ -31,7 +31,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
-import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.rest.RestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BulkActionResultColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -64,7 +64,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
             final Collection<T> items,
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
-            final BaseRestClient bulkActionExecutor,
+            final RestClient bulkActionExecutor,
             final String keyFieldName) {
 
         this(MultilevelPanel.SECOND_LEVEL_ID, modal, items, columns, actions, bulkActionExecutor, keyFieldName);
@@ -76,7 +76,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
             final Collection<T> items,
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
-            final BaseRestClient bulkActionExecutor,
+            final RestClient bulkActionExecutor,
             final String keyFieldName) {
 
         super(id);
@@ -143,8 +143,8 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                                 throw new IllegalArgumentException("Invalid bulk action executor");
                             }
 
-                            final AbstractAnyRestClient<?> anyRestClient =
-                                    AbstractAnyRestClient.class.cast(bulkActionExecutor);
+                            final AbstractAnyRestClient<?> anyRestClient = AbstractAnyRestClient.class.cast(
+                                    bulkActionExecutor);
 
                             if (items.isEmpty() || !(items.iterator().next() instanceof StatusBean)) {
                                 throw new IllegalArgumentException("Invalid items");

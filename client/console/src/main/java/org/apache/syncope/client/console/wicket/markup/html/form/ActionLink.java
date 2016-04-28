@@ -47,6 +47,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         CREATE("create"),
         EDIT("read"),
         TYPE_EXTENSIONS("read"),
+        FO_EDIT("read"),
         HTML_EDIT("read"),
         TEXT_EDIT("read"),
         LAYOUT_EDIT("read"),

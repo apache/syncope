@@ -18,7 +18,23 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.reports.ReportDirectoryPanel;
+import org.apache.syncope.client.console.reports.ReportExecutionDetails;
+import org.apache.syncope.client.console.reports.ReportTemplateDirectoryPanel;
+import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Reports extends BasePage {
@@ -29,5 +45,49 @@ public class Reports extends BasePage {
         super(parameters);
 
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
+
+        WebMarkupContainer content = new WebMarkupContainer("content");
+        content.setOutputMarkupId(true);
+        content.setMarkupId("reports");
+        content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList()));
+        body.add(content);
+    }
+
+    private List<ITab> buildTabList() {
+        final List<ITab> tabs = new ArrayList<>();
+
+        tabs.add(new AbstractTab(new ResourceModel("reports")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                final MultilevelPanel mlp = new MultilevelPanel(panelId);
+                mlp.setFirstLevel(new ReportDirectoryPanel(mlp, getPageReference()) {
+
+                    private static final long serialVersionUID = -2195387360323687302L;
+
+                    @Override
+                    protected void viewTask(final ReportTO reportTO, final AjaxRequestTarget target) {
+                        mlp.next(
+                                new StringResourceModel("report.view", this, new Model<>(reportTO)).getObject(),
+                                new ReportExecutionDetails(reportTO, getPageReference()),
+                                target);
+                    }
+                });
+                return mlp;
+            }
+        });
+
+        tabs.add(new AbstractTab(new ResourceModel("report.templates")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new ReportTemplateDirectoryPanel(panelId, getPageReference());
+            }
+        });
+        return tabs;
     }
 }

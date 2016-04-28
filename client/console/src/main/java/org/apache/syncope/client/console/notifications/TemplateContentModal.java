@@ -23,9 +23,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
-import org.apache.syncope.client.console.rest.NotificationRestClient;
+import org.apache.syncope.client.console.rest.TemplateRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.types.MailTemplateFormat;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -34,18 +34,22 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.PropertyModel;
 
-public class MailTemplateContentModal extends AbstractModalPanel<Serializable> {
+public class TemplateContentModal<T extends EntityTO, F> extends AbstractModalPanel<Serializable> {
 
     private static final long serialVersionUID = 2053048734388383021L;
 
-    private final MailTemplateContent content;
+    private final TemplateContent<F> content;
 
-    public MailTemplateContentModal(
+    private final TemplateRestClient<T, F> restClient;
+
+    public TemplateContentModal(
             final BaseModal<Serializable> modal,
-            final MailTemplateContent content,
+            final TemplateRestClient<T, F> restClient,
+            final TemplateContent<F> content,
             final PageReference pageRef) {
 
         super(modal, pageRef);
+        this.restClient = restClient;
         this.content = content;
 
         TextArea<String> templateDefArea = new TextArea<>("template", new PropertyModel<String>(content, "content"));
@@ -67,14 +71,14 @@ public class MailTemplateContentModal extends AbstractModalPanel<Serializable> {
     }
 
     @Override
-    public MailTemplateContent getItem() {
+    public TemplateContent<F> getItem() {
         return this.content;
     }
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
-            new NotificationRestClient().updateTemplateFormat(
+            restClient.updateTemplateFormat(
                     content.getKey(), content.getContent(), content.getFormat());
             info(getString(Constants.OPERATION_SUCCEEDED));
             modal.show(false);
@@ -86,7 +90,7 @@ public class MailTemplateContentModal extends AbstractModalPanel<Serializable> {
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 
-    public static class MailTemplateContent implements Serializable {
+    public static class TemplateContent<F> implements Serializable {
 
         private static final long serialVersionUID = -1756961687134322845L;
 
@@ -94,9 +98,9 @@ public class MailTemplateContentModal extends AbstractModalPanel<Serializable> {
 
         private String content;
 
-        private final MailTemplateFormat format;
+        private final F format;
 
-        public MailTemplateContent(final String key, final MailTemplateFormat format) {
+        public TemplateContent(final String key, final F format) {
             this.key = key;
             this.format = format;
         }
@@ -113,7 +117,7 @@ public class MailTemplateContentModal extends AbstractModalPanel<Serializable> {
             this.content = content;
         }
 
-        public MailTemplateFormat getFormat() {
+        public F getFormat() {
             return format;
         }
     }

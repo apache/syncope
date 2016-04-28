@@ -115,8 +115,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             }
         };
 
-        private final IModel<List<String>> reconciliationFilterBuilderClasses =
-                new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> reconciliationFilterBuilderClasses
+                = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -147,8 +147,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
         };
 
         public Profile(final SchedTaskTO taskTO) {
-            AjaxTextFieldPanel name =
-                    new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(taskTO, "name"), false);
+            AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(taskTO, "name"),
+                    false);
             name.addRequiredLabel();
             name.setEnabled(true);
             add(name);
@@ -158,8 +158,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             description.setEnabled(true);
             add(description);
 
-            AjaxCheckBoxPanel active =
-                    new AjaxCheckBoxPanel("active", "active", new PropertyModel<Boolean>(taskTO, "active"), false);
+            AjaxCheckBoxPanel active = new AjaxCheckBoxPanel("active", "active", new PropertyModel<Boolean>(taskTO,
+                    "active"), false);
             add(active);
 
             AjaxDropDownChoicePanel<String> jobDelegateClassName = new AjaxDropDownChoicePanel<>(

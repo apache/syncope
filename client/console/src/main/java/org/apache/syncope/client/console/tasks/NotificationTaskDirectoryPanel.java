@@ -50,7 +50,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public abstract class NotificationTaskDirectoryPanel
-        extends TaskDirectoryPanel<NotificationTaskTO> implements ModalPanel<NotificationTaskTO> {
+        extends TaskDirectoryPanel<NotificationTaskTO> implements ModalPanel {
 
     private static final long serialVersionUID = 4984337552918213290L;
 

@@ -54,7 +54,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 public class TypeExtensionDirectoryPanel
         extends DirectoryPanel<TypeExtensionTO, TypeExtensionTO, TypeExtensionDataProvider, BaseRestClient>
-        implements ModalPanel<Serializable> {
+        implements SubmitableModalPanel {
 
     private static final long serialVersionUID = -4117015319209624858L;
 
@@ -170,11 +170,6 @@ public class TypeExtensionDirectoryPanel
     @Override
     protected Collection<ActionLink.ActionType> getBulkActions() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public TypeExtensionTO getItem() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     protected class TypeExtensionDataProvider extends DirectoryDataProvider<TypeExtensionTO> {

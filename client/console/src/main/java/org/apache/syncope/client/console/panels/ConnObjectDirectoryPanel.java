@@ -41,14 +41,13 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
 public abstract class ConnObjectDirectoryPanel
         extends DirectoryPanel<ConnObjectTO, ConnObjectTO, ConnObjectDataProvider, ResourceRestClient>
-        implements ModalPanel<ConnObjectTO> {
+        implements ModalPanel {
 
     private static final long serialVersionUID = 4986172040062752781L;
 
@@ -81,21 +80,6 @@ public abstract class ConnObjectDirectoryPanel
     @Override
     protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<ConnObjectTO, String> resultTableBuilder) {
         resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
-    }
-
-    @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public ConnObjectTO getItem() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

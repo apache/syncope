@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
@@ -32,12 +31,11 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
-public class ConnObjects extends Panel implements ModalPanel<Serializable> {
+public class ConnObjects extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = -1143512993584984838L;
 
@@ -94,21 +92,6 @@ public class ConnObjects extends Panel implements ModalPanel<Serializable> {
                 target.add(connObjects);
             }
         });
-    }
-
-    @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Serializable getItem() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private class NextableConnObjectDirectoryPanel extends ConnObjectDirectoryPanel {

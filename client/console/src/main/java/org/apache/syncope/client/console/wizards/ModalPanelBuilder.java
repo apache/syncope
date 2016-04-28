@@ -19,8 +19,8 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
-import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.wicket.PageReference;
+import org.apache.syncope.client.console.panels.WizardModalPanel;
 
 public interface ModalPanelBuilder<T extends Serializable> extends Serializable {
 
@@ -32,7 +32,7 @@ public interface ModalPanelBuilder<T extends Serializable> extends Serializable 
      * @param mode mode.
      * @return wizard.
      */
-    ModalPanel<T> build(String id, int index, AjaxWizard.Mode mode);
+    WizardModalPanel<T> build(String id, int index, AjaxWizard.Mode mode);
 
     T getDefaultItem();
 

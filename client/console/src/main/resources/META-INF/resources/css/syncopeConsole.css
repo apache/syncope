@@ -825,3 +825,19 @@ div#transformersContainer #body a {
 /**
 END - Transformers toggle panel
 */
+
+/**
+START - CRONTAB
+*/
+div#schedule input, div#schedule fieldset {
+  width: 50px;
+  float: left
+}
+
+div#templates {
+  padding-top: 30px;
+  clear: both;
+}
+/**
+END -CRONTAB
+*/

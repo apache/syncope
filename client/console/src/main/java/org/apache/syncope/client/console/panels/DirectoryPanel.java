@@ -26,7 +26,7 @@ import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.rest.RestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class DirectoryPanel<
-        T extends Serializable, W extends Serializable, DP extends DirectoryDataProvider<T>, E extends BaseRestClient>
+        T extends Serializable, W extends Serializable, DP extends DirectoryDataProvider<T>, E extends RestClient>
         extends WizardMgtPanel<W> {
 
     private static final long serialVersionUID = -9170191461250434024L;
@@ -309,7 +309,7 @@ public abstract class DirectoryPanel<
 
     protected abstract Collection<ActionLink.ActionType> getBulkActions();
 
-    public abstract static class Builder<T extends Serializable, W extends Serializable, E extends BaseRestClient>
+    public abstract static class Builder<T extends Serializable, W extends Serializable, E extends RestClient>
             extends WizardMgtPanel.Builder<W> {
 
         private static final long serialVersionUID = 5088962796986706805L;

@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.Iterator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -37,8 +36,11 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.syncope.client.console.panels.SubmitableModalPanel;
+import org.apache.syncope.client.console.panels.WizardModalPanel;
 
-public abstract class AjaxWizard<T extends Serializable> extends Wizard implements ModalPanel<T> {
+public abstract class AjaxWizard<T extends Serializable> extends Wizard
+        implements SubmitableModalPanel, WizardModalPanel<T> {
 
     private static final long serialVersionUID = -1272120742876833520L;
 

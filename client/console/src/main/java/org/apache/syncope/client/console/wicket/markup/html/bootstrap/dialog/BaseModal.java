@@ -44,6 +44,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.syncope.client.console.panels.SubmitableModalPanel;
 
 public class BaseModal<T extends Serializable> extends Modal<T> {
 
@@ -123,21 +124,21 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         return form.getModelObject();
     }
 
-    public ModalPanel<T> getContent() {
+    public ModalPanel getContent() {
         if (content instanceof ModalPanel) {
-            return (ModalPanel<T>) content;
+            return (ModalPanel) content;
         }
         throw new IllegalStateException();
     }
 
-    public BaseModal<T> setContent(final ModalPanel<T> component) {
+    public BaseModal<T> setContent(final ModalPanel component) {
         if (component instanceof Panel) {
             return setInternalContent(Panel.class.cast(component));
         }
         throw new IllegalArgumentException("Panel instance is required");
     }
 
-    public BaseModal<T> setContent(final ModalPanel<T> component, final AjaxRequestTarget target) {
+    public BaseModal<T> setContent(final ModalPanel component, final AjaxRequestTarget target) {
         setContent(component);
         target.add(content);
         return this;
@@ -178,18 +179,22 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
     }
 
     public AjaxSubmitLink addSubmitButton() {
+        if (!(BaseModal.this.getContent() instanceof SubmitableModalPanel)) {
+            throw new IllegalStateException();
+        }
+
         AjaxSubmitLink submit = new AjaxSubmitLink(SUBMIT, form) {
 
             private static final long serialVersionUID = -5783994974426198290L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                BaseModal.this.getContent().onSubmit(target, form);
+                SubmitableModalPanel.class.cast(BaseModal.this.getContent()).onSubmit(target, form);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                BaseModal.this.getContent().onError(target, form);
+                SubmitableModalPanel.class.cast(BaseModal.this.getContent()).onError(target, form);
             }
         };
 

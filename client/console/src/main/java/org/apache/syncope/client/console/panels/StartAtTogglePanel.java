@@ -16,32 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.tasks;
+package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.TogglePanel;
-import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.Model;
 
-public class StartAtTogglePanel extends TogglePanel<Serializable> {
+public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    private SchedTaskTO taskTO;
+    private String key = null;
 
     public StartAtTogglePanel(final WebMarkupContainer container) {
         super("startAt");
@@ -79,13 +77,13 @@ public class StartAtTogglePanel extends TogglePanel<Serializable> {
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
-                    new TaskRestClient().startExecution(taskTO.getKey(), startAtDateModel.getObject());
+                    getRestClient().startExecution(key, startAtDateModel.getObject());
                     info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
-                    LOG.error("While running propagation task {}", taskTO.getKey(), e);
+                    LOG.error("While running propagation task {}", key, e);
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
@@ -98,9 +96,10 @@ public class StartAtTogglePanel extends TogglePanel<Serializable> {
         });
     }
 
-    public void setTaskTO(final AjaxRequestTarget target, final SchedTaskTO taskTO) {
-        this.taskTO = taskTO;
-        setHeader(target, taskTO.getName());
+    public void setExecutionDetail(final String key, final String header, final AjaxRequestTarget target) {
+        this.key = key;
+        setHeader(target, header);
     }
 
+    protected abstract ExecutionRestClient getRestClient();
 }
