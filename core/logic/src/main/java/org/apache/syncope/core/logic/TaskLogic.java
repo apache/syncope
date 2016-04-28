@@ -65,7 +65,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
+public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
 
     @Autowired
     private TaskDAO taskDAO;
@@ -191,6 +191,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    @Override
     public ExecTO execute(final String key, final Date startAt, final boolean dryRun) {
         Task task = taskDAO.find(key);
         if (task == null) {
@@ -276,11 +277,13 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
+    @Override
     public int countExecutions(final String key) {
         return taskExecDAO.count(key);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
+    @Override
     public List<ExecTO> listExecutions(
             final String key, final int page, final int size, final List<OrderByClause> orderByClauses) {
 
@@ -300,6 +303,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
+    @Override
     public List<ExecTO> listRecentExecutions(final int max) {
         return CollectionUtils.collect(taskExecDAO.findRecent(max), new Transformer<TaskExec, ExecTO>() {
 
@@ -311,6 +315,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
+    @Override
     public ExecTO deleteExecution(final String execKey) {
         TaskExec taskExec = taskExecDAO.find(execKey);
         if (taskExec == null) {
@@ -323,6 +328,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
+    @Override
     public BulkActionResult deleteExecutions(
             final String key,
             final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
@@ -357,20 +363,21 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
                 : Triple.of(JobType.TASK, key, binder.buildRefDesc(task));
     }
 
-    @Override
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
+    @Override
     public List<JobTO> listJobs() {
-        return super.listJobs();
+        return super.doListJobs();
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    @Override
     public void actionJob(final String key, final JobAction action) {
         Task task = taskDAO.find(key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
         }
 
-        actionJob(JobNamer.getJobKey(task), action);
+        doActionJob(JobNamer.getJobKey(task), action);
     }
 
     @Override

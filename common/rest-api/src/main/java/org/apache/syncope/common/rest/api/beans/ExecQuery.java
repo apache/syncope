@@ -21,15 +21,15 @@ package org.apache.syncope.common.rest.api.beans;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 
-public class TaskExecQuery extends AbstractQuery {
+public class ExecQuery extends AbstractQuery {
 
     private static final long serialVersionUID = -8792519310029596796L;
 
-    public static class Builder extends AbstractQuery.Builder<TaskExecQuery, Builder> {
+    public static class Builder extends AbstractQuery.Builder<ExecQuery, Builder> {
 
         @Override
-        protected TaskExecQuery newInstance() {
-            return new TaskExecQuery();
+        protected ExecQuery newInstance() {
+            return new ExecQuery();
         }
 
         public Builder key(final String key) {

@@ -44,7 +44,7 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
 
     protected abstract Triple<JobType, String, String> getReference(final JobKey jobKey);
 
-    protected List<JobTO> listJobs() {
+    protected List<JobTO> doListJobs() {
         List<JobTO> jobTOs = new ArrayList<>();
 
         try {
@@ -80,7 +80,7 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
         return jobTOs;
     }
 
-    protected void actionJob(final JobKey jobKey, final JobAction action) {
+    protected void doActionJob(final JobKey jobKey, final JobAction action) {
         try {
             if (scheduler.getScheduler().checkExists(jobKey)) {
                 switch (action) {

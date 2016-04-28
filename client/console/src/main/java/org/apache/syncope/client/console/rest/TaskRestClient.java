@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
-import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
+import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -63,7 +63,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     public int countExecutions(final String taskKey) {
         return getService(TaskService.class).
-                listExecutions(new TaskExecQuery.Builder().key(taskKey).page(1).size(1).build()).getTotalCount();
+                listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(1).build()).getTotalCount();
     }
 
     public List<PropagationTaskTO> listPropagationTasks(
@@ -141,7 +141,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     public List<ExecTO> listExecutions(final String taskKey, final int page, final int size) {
         return getService(TaskService.class).
-                listExecutions(new TaskExecQuery.Builder().key(taskKey).page(page).size(size).build()).getResult();
+                listExecutions(new ExecQuery.Builder().key(taskKey).page(page).size(size).build()).getResult();
     }
 
     private TaskType getTaskType(final Class<?> reference) {
