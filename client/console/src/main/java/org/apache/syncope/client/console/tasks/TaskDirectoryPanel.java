@@ -48,7 +48,7 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
 
     private final BaseModal<?> baseModal;
 
-    protected final MultilevelPanel multiLevelPanelRef;
+    private final MultilevelPanel multiLevelPanelRef;
 
     protected TaskDirectoryPanel(
             final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanelRef, final PageReference pageRef) {
@@ -79,7 +79,7 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    protected abstract void viewTask(final T taskTO, final AjaxRequestTarget target);
+    protected abstract void viewTask(T taskTO, AjaxRequestTarget target);
 
     protected abstract class TasksProvider<T extends AbstractTaskTO> extends DirectoryDataProvider<T> {
 

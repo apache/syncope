@@ -62,11 +62,13 @@ public class ApprovalModal extends Panel implements ModalPanel<WorkflowFormTO> {
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
             new UserWorkflowRestClient().submitForm(formTO);
+
             this.modal.show(false);
             this.modal.close(target);
-            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+
+            info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (SyncopeClientException e) {
-            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
+            error(getString(Constants.ERROR) + ": " + e.getMessage());
         }
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }

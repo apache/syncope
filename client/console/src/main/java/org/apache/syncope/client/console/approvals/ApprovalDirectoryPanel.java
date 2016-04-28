@@ -60,7 +60,7 @@ public class ApprovalDirectoryPanel
         disableCheckBoxes();
 
         setFooterVisibility(true);
-        modal.addSumbitButton();
+        modal.addSubmitButton();
         modal.size(Modal.Size.Large);
 
         restClient = new UserWorkflowRestClient();

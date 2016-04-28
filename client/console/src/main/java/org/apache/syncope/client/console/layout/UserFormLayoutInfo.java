@@ -29,6 +29,8 @@ public class UserFormLayoutInfo extends AbstractAnyFormLayout<UserTO, UserForm> 
 
     private boolean roles = true;
 
+    private boolean groups = true;
+
     private boolean relationships = true;
 
     @Override
@@ -50,6 +52,14 @@ public class UserFormLayoutInfo extends AbstractAnyFormLayout<UserTO, UserForm> 
 
     public void setRoles(final boolean roles) {
         this.roles = roles;
+    }
+
+    public boolean isGroups() {
+        return groups;
+    }
+
+    public void setGroups(final boolean groups) {
+        this.groups = groups;
     }
 
     public boolean isRelationships() {

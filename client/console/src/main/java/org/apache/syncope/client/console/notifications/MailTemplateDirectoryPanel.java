@@ -67,13 +67,13 @@ public class MailTemplateDirectoryPanel
         disableCheckBoxes();
 
         modal.size(Modal.Size.Small);
-        modal.addSumbitButton();
+        modal.addSubmitButton();
         setFooterVisibility(true);
 
         addOuterObject(utilityModal);
         setWindowClosedReloadCallback(utilityModal);
         utilityModal.size(Modal.Size.Large);
-        utilityModal.addSumbitButton();
+        utilityModal.addSubmitButton();
 
         addNewItemPanelBuilder(new AbstractModalPanelBuilder<MailTemplateTO>(new MailTemplateTO(), pageRef) {
 

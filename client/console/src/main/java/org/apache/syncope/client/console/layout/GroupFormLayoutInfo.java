@@ -29,7 +29,7 @@ public class GroupFormLayoutInfo extends AbstractAnyFormLayout<GroupTO, GroupFor
 
     private boolean dynamicMemberships = true;
 
-    private boolean typeExtension = true;
+    private boolean typeExtensions = true;
 
     @Override
     protected Class<? extends GroupForm> getDefaultFormClass() {
@@ -52,12 +52,12 @@ public class GroupFormLayoutInfo extends AbstractAnyFormLayout<GroupTO, GroupFor
         this.dynamicMemberships = dynamicMemberships;
     }
 
-    public boolean isTypeExtension() {
-        return typeExtension;
+    public boolean isTypeExtensions() {
+        return typeExtensions;
     }
 
-    public void setTypeExtension(final boolean typeExtension) {
-        this.typeExtension = typeExtension;
+    public void setTypeExtensions(final boolean typeExtensions) {
+        this.typeExtensions = typeExtensions;
     }
 
 }

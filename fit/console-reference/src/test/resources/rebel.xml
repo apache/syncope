@@ -40,7 +40,7 @@ under the License.
       </dir>
     </link>
     <link target="/">
-      <dir name="${basedir}/../../ext/camel/client-console/target/classes/META-INF/resources">
+      <dir name="${basedir}/../../ext/camel/client-console/target/classes">
       </dir>
     </link>
   </web>

@@ -106,6 +106,14 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
             wizardModel.add(new AuxClasses(modelObject.getInnerObject(), anyTypeClasses));
         }
 
+        if (formLayoutInfo instanceof UserFormLayoutInfo
+                && UserFormLayoutInfo.class.cast(formLayoutInfo).isGroups()
+                || formLayoutInfo instanceof AnyObjectFormLayoutInfo
+                && AnyObjectFormLayoutInfo.class.cast(formLayoutInfo).isGroups()) {
+
+            wizardModel.add(new Groups(modelObject.getInnerObject()));
+        }
+
         // attributes panel steps
         if (formLayoutInfo.isPlainAttrs()) {
             wizardModel.add(new PlainAttrs(

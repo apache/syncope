@@ -83,7 +83,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
         provisionModal = new BaseModal<>("outer");
         provisionModal.size(Modal.Size.Large);
-        provisionModal.addSumbitButton();
+        provisionModal.addSubmitButton();
         addOuterObject(provisionModal);
 
         container = new WebMarkupContainer("container");

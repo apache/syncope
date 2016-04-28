@@ -29,10 +29,10 @@ import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.DefaultModalCloseButton;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.PrimaryModalButton;
 import org.apache.wicket.Component;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -66,7 +66,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     private Panel content;
 
-    private PrimaryModalButton submitButton;
+    private AjaxSubmitLink submitButton;
 
     private final Form<T> form;
 
@@ -177,11 +177,10 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         }
     }
 
-    public PrimaryModalButton addSumbitButton() {
+    public AjaxSubmitLink addSubmitButton() {
+        AjaxSubmitLink submit = new AjaxSubmitLink(SUBMIT, form) {
 
-        final PrimaryModalButton submit = new PrimaryModalButton(SUBMIT, SUBMIT, form) {
-
-            private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -5783994974426198290L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {

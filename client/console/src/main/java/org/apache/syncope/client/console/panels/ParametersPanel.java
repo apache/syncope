@@ -151,7 +151,7 @@ public class ParametersPanel extends DirectoryPanel<
                             @Override
                             public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
                                 target.add(modalDetails);
-                                modalDetails.addSumbitButton();
+                                modalDetails.addSubmitButton();
                                 modalDetails.header(new StringResourceModel("any.edit"));
                                 modalDetails.setContent(
                                         new ParametersEditModalPanel(modalDetails, model.getObject(), pageRef));

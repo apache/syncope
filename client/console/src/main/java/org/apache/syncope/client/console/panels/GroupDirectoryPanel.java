@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +33,7 @@ import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -60,8 +62,15 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
+    private final BaseModal<Serializable> typeExtensionsModal = new BaseModal<>("outer");
+
     protected GroupDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
+
+        typeExtensionsModal.size(Modal.Size.Large);
+        addOuterObject(typeExtensionsModal);
+        setWindowClosedReloadCallback(typeExtensionsModal);
+        typeExtensionsModal.addSubmitButton();
     }
 
     @Override
@@ -137,13 +146,24 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                                 new AjaxWizard.EditItemActionEvent<>(new GroupWrapper(
                                         new GroupRestClient().read(model.getObject().getKey())), target));
                     }
-                }, ActionType.EDIT, StandardEntitlement.GROUP_READ).add(new ActionLink<GroupTO>() {
+                }, ActionType.EDIT, StandardEntitlement.GROUP_UPDATE).add(new ActionLink<GroupTO>() {
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+                    private static final long serialVersionUID = 6242834621660352855L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                        final GroupTO clone = SerializationUtils.clone(model.getObject());
+                        target.add(typeExtensionsModal.setContent(new TypeExtensionDirectoryPanel(
+                                typeExtensionsModal, model.getObject(), pageRef)));
+                        typeExtensionsModal.header(new StringResourceModel("typeExtensions", model));
+                        typeExtensionsModal.show(true);
+                    }
+                }, ActionType.TYPE_EXTENSIONS, StandardEntitlement.GROUP_UPDATE).add(new ActionLink<GroupTO>() {
+
+                    private static final long serialVersionUID = 6242834621660352855L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                        GroupTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(null);
                         send(GroupDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.NewItemActionEvent<>(new GroupWrapper(clone), target));
@@ -156,7 +176,6 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                         target.add(utilityModal.setContent(new AnyPropagationTasks(
                                 utilityModal, AnyTypeKind.GROUP, model.getObject().getKey(), pageRef)));
-
                         utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
                         utilityModal.show(true);
                     }
@@ -170,7 +189,6 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                                 new NotificationTasks(AnyTypeKind.GROUP, model.getObject().getKey(), pageRef)));
                         utilityModal.header(new StringResourceModel("any.notification.tasks", model));
                         utilityModal.show(true);
-                        target.add(utilityModal);
                     }
                 }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<GroupTO>() {
 
@@ -206,7 +224,6 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         target.add(displayAttributeModal.setContent(new GroupDisplayAttributesModalPanel<>(
                                 displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
-                        displayAttributeModal.addSumbitButton();
                         displayAttributeModal.header(new ResourceModel("any.attr.display"));
                         displayAttributeModal.show(true);
                     }

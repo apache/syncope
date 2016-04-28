@@ -271,7 +271,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         public abstract static class Query<T extends Serializable> implements Serializable {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 3582312993557742858L;
 
             public abstract List<T> execute(final String filter);
         }

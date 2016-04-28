@@ -72,7 +72,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
         this.anyTypeKind = anyTypeKind;
         setFooterVisibility(true);
-        modal.addSumbitButton();
+        modal.addSubmitButton();
         modal.size(Modal.Size.Large);
         initResultTable();
 

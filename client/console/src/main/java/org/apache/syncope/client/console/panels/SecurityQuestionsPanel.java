@@ -81,7 +81,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
         }, true);
 
         setFooterVisibility(true);
-        modal.addSumbitButton();
+        modal.addSubmitButton();
         modal.size(Modal.Size.Large);
         initResultTable();
 

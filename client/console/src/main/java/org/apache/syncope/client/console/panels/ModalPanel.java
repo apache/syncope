@@ -25,9 +25,9 @@ import org.apache.wicket.request.component.IRequestableComponent;
 
 public interface ModalPanel<T extends Serializable> extends IRequestableComponent, Serializable {
 
-    void onSubmit(final AjaxRequestTarget target, final Form<?> form);
+    void onSubmit(AjaxRequestTarget target, Form<?> form);
 
-    void onError(final AjaxRequestTarget target, final Form<?> form);
+    void onError(AjaxRequestTarget target, Form<?> form);
 
     T getItem();
 }

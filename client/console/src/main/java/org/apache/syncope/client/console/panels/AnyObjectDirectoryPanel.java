@@ -214,7 +214,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         target.add(displayAttributeModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
                                 displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
-                        displayAttributeModal.addSumbitButton();
+                        displayAttributeModal.addSubmitButton();
                         displayAttributeModal.header(new ResourceModel("any.attr.display"));
                         displayAttributeModal.show(true);
                     }

@@ -121,7 +121,7 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
     protected abstract IModel<List<T>> getLatestAlerts();
 
     protected Panel getAlertLink(final String panelid, final T alert) {
-        return new AlertLink<T>(panelid, alert);
+        return new AlertLink<>(panelid, alert);
     }
 
     protected abstract AbstractLink getEventsLink(final String linkid);

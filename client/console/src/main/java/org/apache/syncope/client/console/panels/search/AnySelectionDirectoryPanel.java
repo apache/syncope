@@ -145,7 +145,7 @@ public abstract class AnySelectionDirectoryPanel<T extends AnyTO> extends AnyDir
                         target.add(altDefaultModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
                                 altDefaultModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
 
-                        altDefaultModal.addSumbitButton();
+                        altDefaultModal.addSubmitButton();
                         altDefaultModal.header(new ResourceModel("any.attr.display"));
                         altDefaultModal.show(true);
                     }

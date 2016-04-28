@@ -155,6 +155,7 @@ public abstract class DirectoryPanel<
 
         altDefaultModal.size(Modal.Size.Medium);
         displayAttributeModal.size(Modal.Size.Medium);
+        displayAttributeModal.addSubmitButton();
     }
 
     protected abstract DP dataProvider();
@@ -235,7 +236,7 @@ public abstract class DirectoryPanel<
     }
 
     /**
-     * Caled before build. Override it to customize result table.
+     * Called before build. Override it to customize result table.
      *
      * @param resultTableBuilder result table builder.
      */

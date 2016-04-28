@@ -76,7 +76,7 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     @Column(name = "actionClassName")
     @CollectionTable(name = "Realm_actionsClassNames",
             joinColumns =
-            @JoinColumn(name = "realm_key", referencedColumnName = "id"))
+            @JoinColumn(name = "realm_id", referencedColumnName = "id"))
     private Set<String> actionsClassNames = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "realm")

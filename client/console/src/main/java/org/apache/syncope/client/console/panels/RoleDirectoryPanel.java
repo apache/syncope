@@ -66,7 +66,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleHandler, Role
         addOuterObject(utilityModal);
         setWindowClosedReloadCallback(utilityModal);
         utilityModal.size(Modal.Size.Large);
-        utilityModal.addSumbitButton();
+        utilityModal.addSubmitButton();
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.ROLE_CREATE);
     }

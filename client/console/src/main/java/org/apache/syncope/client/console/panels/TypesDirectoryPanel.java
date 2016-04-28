@@ -32,7 +32,7 @@ public abstract class TypesDirectoryPanel<T extends AbstractBaseBean, DP extends
     public TypesDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);
         setFooterVisibility(true);
-        modal.addSumbitButton();
+        modal.addSubmitButton();
         modal.size(Modal.Size.Large);
     }
 }

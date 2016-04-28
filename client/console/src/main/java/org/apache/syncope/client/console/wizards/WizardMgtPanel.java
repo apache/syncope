@@ -111,7 +111,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
         addAjaxLink = new AjaxLink<T>("add") {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {

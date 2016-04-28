@@ -259,7 +259,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                                 displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
 
                         displayAttributeModal.header(new ResourceModel("any.attr.display"));
-                        displayAttributeModal.addSumbitButton();
+                        displayAttributeModal.addSubmitButton();
                         displayAttributeModal.show(true);
                     }
                 }, ActionType.CHANGE_VIEW, StandardEntitlement.USER_READ).add(

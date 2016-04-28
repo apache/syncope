@@ -80,7 +80,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
 
         return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 7770507663760640735L;
 
             @Override
             protected void onCancelInternal() {
