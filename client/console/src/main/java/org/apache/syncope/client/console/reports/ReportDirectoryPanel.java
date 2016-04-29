@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.reports;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
