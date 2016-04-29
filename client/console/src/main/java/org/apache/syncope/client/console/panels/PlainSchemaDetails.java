@@ -101,7 +101,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             @Override
             public PropertyList<PlainSchemaTO> getObject() {
-                return new PropertyList<PlainSchemaTO>(PlainSchemaTO.class.cast(schemaTO)) {
+                return new PropertyList<PlainSchemaTO>() {
 
                     @Override
                     public String getValues() {
@@ -140,7 +140,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             @Override
             public PropertyList<PlainSchemaTO> getObject() {
-                return new PropertyList<PlainSchemaTO>(PlainSchemaTO.class.cast(schemaTO)) {
+                return new PropertyList<PlainSchemaTO>() {
 
                     @Override
                     public String getValues() {

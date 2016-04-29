@@ -58,7 +58,7 @@ public class ParametersCreateWizardSchemaStep extends WizardStep {
 
             @Override
             public PropertyList<PlainSchemaTO> getObject() {
-                return new PropertyList<PlainSchemaTO>(modelObject.getPlainSchemaTO()) {
+                return new PropertyList<PlainSchemaTO>() {
 
                     @Override
                     public String getValues() {
