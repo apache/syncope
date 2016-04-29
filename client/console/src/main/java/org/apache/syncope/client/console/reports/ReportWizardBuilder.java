@@ -78,7 +78,7 @@ public class ReportWizardBuilder extends AjaxWizardBuilder<ReportTO> {
                     "template", getString("template"),
                     new PropertyModel<String>(reportTO, "template"));
             template.setChoices(CollectionUtils.collect(
-                    restClient.getAllAvailableTemplates(), new Transformer<ReportTemplateTO, String>() {
+                    restClient.listTemplates(), new Transformer<ReportTemplateTO, String>() {
 
                 @Override
                 public String transform(final ReportTemplateTO input) {

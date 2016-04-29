@@ -17,44 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:head>
-    <style>
-
-      .events{
-        display: table-row;
-        width: 990px;
-      }
-
-      .selectedEvents{
-        display: inline-block;
-        height: 100px;
-        margin: 10px 10px 0 10px;
-        overflow-y: auto;
-      }
-
-      .eventSelection{
-        display: inline-table;
-        float: right;
-        width: 380px;
-        min-width: 380px;
-      }
-
-      .eventSelection div#eventElement{
-        display: table-row;
-        width:100%;
-      }
-      .eventSelection div#eventElement div#eventLabel{
-        display: table-cell;
-      }
-
-      .eventSelection div#eventElement div#value{
-        display: table-cell;
-        padding: 0 0 0 10px;
-      }
-    </style>
-  </wicket:head>
   <wicket:panel>
-
     <div class="events">
       <div class="selectedEvents">
         <span wicket:id="selectedEventsPanel">[selected events panel]</span>
@@ -76,8 +39,8 @@ under the License.
               <eventLabel wicket:id="customLabel"/>
             </div>
             <div id="value">
-              <span wicket:id="custom">[custom]</span>
-              <span wicket:id="customActions">[actions]</span>
+              <div id="customActions" wicket:id="customActions">[actions]</div>
+              <div id="custom" wicket:id="custom">[custom]</div>
             </div>
           </div>
         </div>
@@ -86,6 +49,5 @@ under the License.
         </div>
       </div>
     </div>
-
   </wicket:panel>
 </html>

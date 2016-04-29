@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.notifications;
+package org.apache.syncope.client.console.events;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,9 +29,10 @@ import java.util.Set;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.notifications.SelectedEventsPanel.EventSelectionChanged;
-import org.apache.syncope.client.console.notifications.SelectedEventsPanel.InspectSelectedEvent;
+import org.apache.syncope.client.console.events.SelectedEventsPanel.EventSelectionChanged;
+import org.apache.syncope.client.console.events.SelectedEventsPanel.InspectSelectedEvent;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -40,8 +41,6 @@ import org.apache.syncope.common.lib.to.EventCategoryTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -55,15 +54,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public abstract class LoggerCategoryPanel extends Panel {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(LoggerCategoryPanel.class);
+public abstract class EventCategoryPanel extends Panel {
 
     private static final long serialVersionUID = 6429053774964787734L;
 
@@ -85,16 +77,15 @@ public abstract class LoggerCategoryPanel extends Panel {
 
     private final AjaxTextFieldPanel custom;
 
-    private final ActionLinksPanel actionPanel;
+    private final ActionLinksPanel<EventCategoryTO> actionLinksPanel;
 
     private final IModel<List<String>> model;
 
-    public LoggerCategoryPanel(
+    public EventCategoryPanel(
             final String id,
             final List<EventCategoryTO> eventCategoryTOs,
-            final IModel<List<String>> model,
-            final PageReference pageReference,
-            final String pageId) {
+            final IModel<List<String>> model) {
+
         super(id);
 
         this.model = model;
@@ -114,7 +105,7 @@ public abstract class LoggerCategoryPanel extends Panel {
         authorizeList();
         authorizeChanges();
 
-        type = new AjaxDropDownChoicePanel<EventCategoryType>(
+        type = new AjaxDropDownChoicePanel<>(
                 "type",
                 "type",
                 new PropertyModel<EventCategoryType>(eventCategoryTO, "type"),
@@ -155,17 +146,16 @@ public abstract class LoggerCategoryPanel extends Panel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                send(LoggerCategoryPanel.this, Broadcast.EXACT, new ChangeCategoryEvent(target, type));
+                send(EventCategoryPanel.this, Broadcast.EXACT, new ChangeCategoryEvent(target, type));
             }
         });
 
-        category = new AjaxDropDownChoicePanel<String>(
+        category = new AjaxDropDownChoicePanel<>(
                 "category",
                 "category",
                 new PropertyModel<String>(eventCategoryTO, "category"),
                 false);
         category.setChoices(filter(eventCategoryTOs, type.getModelObject()));
-//        category.setStyleSheet("ui-widget-content ui-corner-all");
         categoryContainer.add(category);
 
         category.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -174,17 +164,16 @@ public abstract class LoggerCategoryPanel extends Panel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                send(LoggerCategoryPanel.this, Broadcast.EXACT, new ChangeCategoryEvent(target, category));
+                send(EventCategoryPanel.this, Broadcast.EXACT, new ChangeCategoryEvent(target, category));
             }
         });
 
-        subcategory = new AjaxDropDownChoicePanel<String>(
+        subcategory = new AjaxDropDownChoicePanel<>(
                 "subcategory",
                 "subcategory",
                 new PropertyModel<String>(eventCategoryTO, "subcategory"),
                 false);
         subcategory.setChoices(filter(eventCategoryTOs, type.getModelObject(), category.getModelObject()));
-//        subcategory.setStyleSheet("ui-widget-content ui-corner-all");
         categoryContainer.add(subcategory);
 
         subcategory.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -193,33 +182,30 @@ public abstract class LoggerCategoryPanel extends Panel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                send(LoggerCategoryPanel.this, Broadcast.EXACT, new ChangeCategoryEvent(target, subcategory));
+                send(EventCategoryPanel.this, Broadcast.EXACT, new ChangeCategoryEvent(target, subcategory));
             }
         });
 
         categoryContainer.add(new Label("customLabel", new ResourceModel("custom", "custom")).setVisible(false));
 
         custom = new AjaxTextFieldPanel("custom", "custom", new Model<String>(null));
-//        custom.setStyleSheet("ui-widget-content ui-corner-all short_fixedsize");
         custom.setVisible(false);
         custom.setEnabled(false);
 
         categoryContainer.add(custom.hideLabel());
 
-        actionPanel = ActionLinksPanel.<EventCategoryTO>builder().
+        actionLinksPanel = ActionLinksPanel.<EventCategoryTO>builder().
                 add(new ActionLink<EventCategoryTO>() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final EventCategoryTO modelObject) {
-
                         if (StringUtils.isNotBlank(custom.getModelObject())) {
-                            final Map.Entry<EventCategoryTO, AuditElements.Result> parsed = AuditLoggerName.
-                                    parseEventCategory(
-                                            custom.getModelObject());
+                            Map.Entry<EventCategoryTO, AuditElements.Result> parsed =
+                                    AuditLoggerName.parseEventCategory(custom.getModelObject());
 
-                            final String eventString = AuditLoggerName.buildEvent(
+                            String eventString = AuditLoggerName.buildEvent(
                                     parsed.getKey().getType(),
                                     null,
                                     null,
@@ -228,14 +214,14 @@ public abstract class LoggerCategoryPanel extends Panel {
                                     parsed.getValue());
 
                             custom.setModelObject(StringUtils.EMPTY);
-                            send(LoggerCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
+                            send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
                                     target,
                                     Collections.<String>singleton(eventString),
                                     Collections.<String>emptySet()));
                             target.add(categoryContainer);
                         }
                     }
-                }, ActionLink.ActionType.CREATE, StandardEntitlement.NOTIFICATION_UPDATE, true).
+                }, ActionLink.ActionType.CREATE).
                 add(new ActionLink<EventCategoryTO>() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
@@ -243,11 +229,10 @@ public abstract class LoggerCategoryPanel extends Panel {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final EventCategoryTO modelObject) {
                         if (StringUtils.isNotBlank(custom.getModelObject())) {
-                            final Map.Entry<EventCategoryTO, AuditElements.Result> parsed = AuditLoggerName.
-                                    parseEventCategory(
-                                            custom.getModelObject());
+                            Pair<EventCategoryTO, AuditElements.Result> parsed =
+                                    AuditLoggerName.parseEventCategory(custom.getModelObject());
 
-                            final String eventString = AuditLoggerName.buildEvent(
+                            String eventString = AuditLoggerName.buildEvent(
                                     parsed.getKey().getType(),
                                     null,
                                     null,
@@ -256,14 +241,14 @@ public abstract class LoggerCategoryPanel extends Panel {
                                     parsed.getValue());
 
                             custom.setModelObject(StringUtils.EMPTY);
-                            send(LoggerCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
+                            send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
                                     target,
                                     Collections.<String>singleton(eventString),
                                     Collections.<String>emptySet()));
                             target.add(categoryContainer);
                         }
                     }
-                }, ActionLink.ActionType.CREATE, pageId, true).
+                }, ActionLink.ActionType.CREATE).
                 add(new ActionLink<EventCategoryTO>() {
 
                     private static final long serialVersionUID = -3722207913631435521L;
@@ -271,11 +256,10 @@ public abstract class LoggerCategoryPanel extends Panel {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final EventCategoryTO modelObject) {
                         if (StringUtils.isNotBlank(custom.getModelObject())) {
-                            final Map.Entry<EventCategoryTO, AuditElements.Result> parsed = AuditLoggerName.
-                                    parseEventCategory(
-                                            custom.getModelObject());
+                            Pair<EventCategoryTO, AuditElements.Result> parsed =
+                                    AuditLoggerName.parseEventCategory(custom.getModelObject());
 
-                            final String eventString = AuditLoggerName.buildEvent(
+                            String eventString = AuditLoggerName.buildEvent(
                                     parsed.getKey().getType(),
                                     null,
                                     null,
@@ -284,20 +268,19 @@ public abstract class LoggerCategoryPanel extends Panel {
                                     parsed.getValue());
 
                             custom.setModelObject(StringUtils.EMPTY);
-                            send(LoggerCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
+                            send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
                                     target,
                                     Collections.<String>emptySet(),
                                     Collections.<String>singleton(eventString)));
                             target.add(categoryContainer);
                         }
                     }
-                }, ActionLink.ActionType.DELETE, pageId, true).build("customActions");
+                }, ActionLink.ActionType.DELETE).build("customActions");
 
-        //, new Model(), pageReference);
-        categoryContainer.add(actionPanel);
+        categoryContainer.add(actionLinksPanel);
 
-        actionPanel.setVisible(false);
-        actionPanel.setEnabled(false);
+        actionLinksPanel.setVisible(false);
+        actionLinksPanel.setEnabled(false);
 
         eventsContainer.add(new EventSelectionPanel("eventsPanel", eventCategoryTO, model) {
 
@@ -305,14 +288,13 @@ public abstract class LoggerCategoryPanel extends Panel {
 
             @Override
             protected void onEventAction(final IEvent<?> event) {
-                LoggerCategoryPanel.this.onEventAction(event);
+                EventCategoryPanel.this.onEventAction(event);
             }
         });
     }
 
-    private List<String> filter(
-            final List<EventCategoryTO> eventCategoryTOs, final EventCategoryType type) {
-        final Set<String> res = new HashSet<String>();
+    private List<String> filter(final List<EventCategoryTO> eventCategoryTOs, final EventCategoryType type) {
+        Set<String> res = new HashSet<>();
 
         for (EventCategoryTO eventCategory : eventCategoryTOs) {
             if (type == eventCategory.getType() && StringUtils.isNotEmpty(eventCategory.getCategory())) {
@@ -320,14 +302,15 @@ public abstract class LoggerCategoryPanel extends Panel {
             }
         }
 
-        final List<String> filtered = new ArrayList<String>(res);
+        List<String> filtered = new ArrayList<>(res);
         Collections.sort(filtered);
         return filtered;
     }
 
     private List<String> filter(
             final List<EventCategoryTO> eventCategoryTOs, final EventCategoryType type, final String category) {
-        final Set<String> res = new HashSet<String>();
+
+        Set<String> res = new HashSet<>();
 
         for (EventCategoryTO eventCategory : eventCategoryTOs) {
             if (type == eventCategory.getType() && StringUtils.equals(category, eventCategory.getCategory())
@@ -336,13 +319,12 @@ public abstract class LoggerCategoryPanel extends Panel {
             }
         }
 
-        final List<String> filtered = new ArrayList<String>(res);
+        List<String> filtered = new ArrayList<>(res);
         Collections.sort(filtered);
         return filtered;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof ChangeCategoryEvent) {
             // update objects ....
@@ -351,39 +333,46 @@ public abstract class LoggerCategoryPanel extends Panel {
             final ChangeCategoryEvent change = (ChangeCategoryEvent) event.getPayload();
 
             final Panel changedPanel = change.getChangedPanel();
-            if ("type".equals(changedPanel.getId())) {
-                eventCategoryTO.setType(type.getModelObject());
-                eventCategoryTO.setCategory(null);
-                eventCategoryTO.setSubcategory(null);
+            if (null != changedPanel.getId()) {
+                switch (changedPanel.getId()) {
+                    case "type":
+                        eventCategoryTO.setType(type.getModelObject());
+                        eventCategoryTO.setCategory(null);
+                        eventCategoryTO.setSubcategory(null);
+                        if (type.getModelObject() == EventCategoryType.CUSTOM) {
+                            category.setChoices(Collections.<String>emptyList());
+                            subcategory.setChoices(Collections.<String>emptyList());
+                            category.setEnabled(false);
+                            subcategory.setEnabled(false);
+                            custom.setVisible(true);
+                            custom.setEnabled(true);
+                            actionLinksPanel.setVisible(true);
+                            actionLinksPanel.setEnabled(true);
+                        } else {
+                            category.setChoices(filter(eventCategoryTOs, type.getModelObject()));
+                            subcategory.setChoices(Collections.<String>emptyList());
+                            category.setEnabled(true);
+                            subcategory.setEnabled(true);
+                            custom.setVisible(false);
+                            custom.setEnabled(false);
+                            actionLinksPanel.setVisible(false);
+                            actionLinksPanel.setEnabled(false);
+                        }
+                        change.getTarget().add(categoryContainer);
+                        break;
 
-                if (type.getModelObject() == EventCategoryType.CUSTOM) {
-                    category.setChoices(Collections.<String>emptyList());
-                    subcategory.setChoices(Collections.<String>emptyList());
-                    category.setEnabled(false);
-                    subcategory.setEnabled(false);
-                    custom.setVisible(true);
-                    custom.setEnabled(true);
-                    actionPanel.setVisible(true);
-                    actionPanel.setEnabled(true);
+                    case "category":
+                        subcategory.setChoices(
+                                filter(eventCategoryTOs, type.getModelObject(), category.getModelObject()));
+                        eventCategoryTO.setCategory(category.getModelObject());
+                        eventCategoryTO.setSubcategory(null);
+                        change.getTarget().add(categoryContainer);
+                        break;
 
-                } else {
-                    category.setChoices(filter(eventCategoryTOs, type.getModelObject()));
-                    subcategory.setChoices(Collections.<String>emptyList());
-                    category.setEnabled(true);
-                    subcategory.setEnabled(true);
-                    custom.setVisible(false);
-                    custom.setEnabled(false);
-                    actionPanel.setVisible(false);
-                    actionPanel.setEnabled(false);
+                    default:
+                        eventCategoryTO.setSubcategory(subcategory.getModelObject());
+                        break;
                 }
-                change.getTarget().add(categoryContainer);
-            } else if ("category".equals(changedPanel.getId())) {
-                subcategory.setChoices(filter(eventCategoryTOs, type.getModelObject(), category.getModelObject()));
-                eventCategoryTO.setCategory(category.getModelObject());
-                eventCategoryTO.setSubcategory(null);
-                change.getTarget().add(categoryContainer);
-            } else {
-                eventCategoryTO.setSubcategory(subcategory.getModelObject());
             }
 
             updateEventsContainer(change.getTarget());
@@ -417,15 +406,15 @@ public abstract class LoggerCategoryPanel extends Panel {
                 subcategory.setEnabled(false);
                 custom.setVisible(true);
                 custom.setEnabled(true);
-                actionPanel.setVisible(true);
-                actionPanel.setEnabled(true);
+                actionLinksPanel.setVisible(true);
+                actionLinksPanel.setEnabled(true);
             } else {
                 category.setEnabled(true);
                 subcategory.setEnabled(true);
                 custom.setVisible(false);
                 custom.setEnabled(false);
-                actionPanel.setVisible(false);
-                actionPanel.setEnabled(false);
+                actionLinksPanel.setVisible(false);
+                actionLinksPanel.setEnabled(false);
             }
 
             inspectSelectedEvent.getTarget().add(categoryContainer);
@@ -476,13 +465,13 @@ public abstract class LoggerCategoryPanel extends Panel {
     }
 
     private void authorizeList() {
-        for (String role : getListRoles()) {
+        for (String role : getListAuthRoles()) {
             MetaDataRoleAuthorizationStrategy.authorize(selectedEventsPanel, RENDER, role);
         }
     }
 
     private void authorizeChanges() {
-        for (String role : getChangeRoles()) {
+        for (String role : getChangeAuthRoles()) {
             MetaDataRoleAuthorizationStrategy.authorize(categoryContainer, RENDER, role);
             MetaDataRoleAuthorizationStrategy.authorize(eventsContainer, RENDER, role);
         }
@@ -497,13 +486,13 @@ public abstract class LoggerCategoryPanel extends Panel {
 
             @Override
             public void onEventAction(final IEvent<?> event) {
-                LoggerCategoryPanel.this.onEventAction(event);
+                EventCategoryPanel.this.onEventAction(event);
             }
         });
         target.add(eventsContainer);
     }
 
-    protected abstract String[] getListRoles();
+    protected abstract List<String> getListAuthRoles();
 
-    protected abstract String[] getChangeRoles();
+    protected abstract List<String> getChangeAuthRoles();
 }

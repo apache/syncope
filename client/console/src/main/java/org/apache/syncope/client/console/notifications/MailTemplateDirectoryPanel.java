@@ -203,14 +203,14 @@ public class MailTemplateDirectoryPanel
 
         @Override
         public Iterator<MailTemplateTO> iterator(final long first, final long count) {
-            final List<MailTemplateTO> list = restClient.getAllAvailableTemplates();
+            final List<MailTemplateTO> list = restClient.listTemplates();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.getAllAvailableTemplates().size();
+            return restClient.listTemplates().size();
         }
 
         @Override

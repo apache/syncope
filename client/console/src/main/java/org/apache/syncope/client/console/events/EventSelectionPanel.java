@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.notifications;
+package org.apache.syncope.client.console.events;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.common.lib.to.EventCategoryTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.basic.Label;
@@ -40,46 +40,36 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class EventSelectionPanel extends Panel {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(EventSelectionPanel.class);
-
     private static final long serialVersionUID = 752233163798301002L;
 
-    private final Set<String> selected = new HashSet<String>();
+    private final Set<String> selected = new HashSet<>();
 
     public EventSelectionPanel(
             final String id, final EventCategoryTO eventCategoryTO, final IModel<List<String>> model) {
         super(id);
         setOutputMarkupId(true);
 
-        final List<String> events = getEvents(eventCategoryTO);
+        List<String> events = getEvents(eventCategoryTO);
 
         // needed to avoid model reset: model have to be managed into SelectedEventsPanel
         selected.addAll(model.getObject());
 
-        final CheckGroup<String> successGroup = new CheckGroup<String>(
-                "successGroup",
-                selected);
-
-        successGroup.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+        final CheckGroup<String> successGroup = new CheckGroup<>("successGroup", selected);
+        successGroup.add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -151291731388673682L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
 
-                final Set<String> toBeRemoved = new HashSet<String>();
-                final Set<String> toBeAdded = new HashSet<String>();
+                final Set<String> toBeRemoved = new HashSet<>();
+                final Set<String> toBeAdded = new HashSet<>();
 
                 for (String event : getEvents(eventCategoryTO)) {
-                    final String eventString = AuditLoggerName.buildEvent(
+                    String eventString = AuditLoggerName.buildEvent(
                             eventCategoryTO.getType(),
                             eventCategoryTO.getCategory(),
                             eventCategoryTO.getSubcategory(),
@@ -97,17 +87,16 @@ public abstract class EventSelectionPanel extends Panel {
                         new SelectedEventsPanel.EventSelectionChanged(target, toBeAdded, toBeRemoved));
             }
         });
-
         successGroup.setVisible(!events.isEmpty());
         add(successGroup);
 
         add(new Label("successLabel", new ResourceModel("Success", "Success"))).setVisible(!events.isEmpty());
 
-        final CheckGroupSelector successSelector = new CheckGroupSelector("successSelector", successGroup);
+        CheckGroupSelector successSelector = new CheckGroupSelector("successSelector", successGroup);
         successSelector.setVisible(!events.isEmpty());
         add(successSelector);
 
-        final ListView<String> categoryView = new ListView<String>("categoryView", events) {
+        ListView<String> categoryView = new ListView<String>("categoryView", events) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
@@ -120,38 +109,33 @@ public abstract class EventSelectionPanel extends Panel {
         };
         add(categoryView);
 
-        final ListView<String> successView = new ListView<String>("successView", events) {
+        ListView<String> successView = new ListView<String>("successView", events) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
             protected void populateItem(final ListItem<String> item) {
-                final String event = item.getModelObject();
-
-                final Check<String> successCheck = new Check<String>("successCheck",
-                        new Model<String>(AuditLoggerName.buildEvent(
+                item.add(new Check<>("successCheck",
+                        new Model<>(AuditLoggerName.buildEvent(
                                 eventCategoryTO.getType(),
                                 eventCategoryTO.getCategory(),
                                 eventCategoryTO.getSubcategory(),
-                                event,
+                                item.getModelObject(),
                                 AuditElements.Result.SUCCESS)),
-                        successGroup);
-                item.add(successCheck);
+                        successGroup));
             }
         };
         successGroup.add(successView);
 
-        final CheckGroup<String> failureGroup = new CheckGroup<String>("failureGroup", selected);
-
-        failureGroup.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+        final CheckGroup<String> failureGroup = new CheckGroup<>("failureGroup", selected);
+        failureGroup.add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -151291731388673682L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-
-                final Set<String> toBeRemoved = new HashSet<String>();
-                final Set<String> toBeAdded = new HashSet<String>();
+                final Set<String> toBeRemoved = new HashSet<>();
+                final Set<String> toBeAdded = new HashSet<>();
 
                 for (String event : getEvents(eventCategoryTO)) {
                     final String eventString = AuditLoggerName.buildEvent(
@@ -172,33 +156,29 @@ public abstract class EventSelectionPanel extends Panel {
                         new SelectedEventsPanel.EventSelectionChanged(target, toBeAdded, toBeRemoved));
             }
         });
-
         failureGroup.setVisible(!events.isEmpty());
         add(failureGroup);
 
         add(new Label("failureLabel", new ResourceModel("Failure", "Failure"))).setVisible(!events.isEmpty());
 
-        final CheckGroupSelector failureSelector = new CheckGroupSelector("failureSelector", failureGroup);
+        CheckGroupSelector failureSelector = new CheckGroupSelector("failureSelector", failureGroup);
         failureSelector.setVisible(!events.isEmpty());
         add(failureSelector);
 
-        final ListView<String> failureView = new ListView<String>("failureView", events) {
+        ListView<String> failureView = new ListView<String>("failureView", events) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
             protected void populateItem(final ListItem<String> item) {
-                final String event = item.getModelObject();
-
-                final Check<String> failureCheck = new Check<String>("failureCheck",
-                        new Model<String>(AuditLoggerName.buildEvent(
+                item.add(new Check<>("failureCheck",
+                        new Model<>(AuditLoggerName.buildEvent(
                                 eventCategoryTO.getType(),
                                 eventCategoryTO.getCategory(),
                                 eventCategoryTO.getSubcategory(),
-                                event,
+                                item.getModelObject(),
                                 AuditElements.Result.FAILURE)),
-                        failureGroup);
-                item.add(failureCheck);
+                        failureGroup));
             }
         };
         failureGroup.add(failureView);

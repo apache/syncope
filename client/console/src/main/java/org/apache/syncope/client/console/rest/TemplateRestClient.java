@@ -22,7 +22,7 @@ import java.util.List;
 
 public interface TemplateRestClient<T, F> extends RestClient {
 
-    List<T> getAllAvailableTemplates();
+    List<T> listTemplates();
 
     void createTemplate(final T templateTO);
 

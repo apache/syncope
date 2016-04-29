@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.notifications;
+package org.apache.syncope.client.console.events;
 
 import java.util.List;
 import java.util.Set;

@@ -27,7 +27,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.RoleTO;
 
-public class RoleHandler implements Serializable {
+public class RoleWrapper implements Serializable {
 
     private static final long serialVersionUID = 8058288034211558376L;
 
@@ -35,7 +35,7 @@ public class RoleHandler implements Serializable {
 
     private List<SearchClause> dynClauses;
 
-    public RoleHandler(final RoleTO roleTO) {
+    public RoleWrapper(final RoleTO roleTO) {
         this.roleTO = roleTO;
         getDynClauses();
     }

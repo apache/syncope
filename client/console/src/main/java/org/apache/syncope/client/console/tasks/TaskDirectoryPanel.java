@@ -76,7 +76,6 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
         public TasksProvider(final int paginatorRows, final TaskType id) {
             super(paginatorRows);
 
-            //Default sorting
             setSort("key", SortOrder.DESCENDING);
             comparator = new SortableDataProviderComparator<>(this);
             this.id = id;

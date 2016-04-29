@@ -225,14 +225,14 @@ public class ReportTemplateDirectoryPanel
 
         @Override
         public Iterator<ReportTemplateTO> iterator(final long first, final long count) {
-            final List<ReportTemplateTO> list = restClient.getAllAvailableTemplates();
+            final List<ReportTemplateTO> list = restClient.listTemplates();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.getAllAvailableTemplates().size();
+            return restClient.listTemplates().size();
         }
 
         @Override

@@ -264,9 +264,8 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
 
         private SchemaProvider(final int paginatorRows, final SchemaType schemaType) {
             super(paginatorRows);
-            this.schemaType = schemaType;
 
-            // Default sorting
+            this.schemaType = schemaType;
             setSort("key", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }

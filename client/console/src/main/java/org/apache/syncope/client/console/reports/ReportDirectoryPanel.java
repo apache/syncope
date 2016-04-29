@@ -228,27 +228,23 @@ public abstract class ReportDirectoryPanel
 
         private final SortableDataProviderComparator<ReportTO> comparator;
 
-        private final List<ReportTO> reports;
-
         public ReportDataProvider(final int paginatorRows) {
             super(paginatorRows);
-            this.reports = restClient.list();
 
-            //Default sorting
             setSort("key", SortOrder.DESCENDING);
             comparator = new SortableDataProviderComparator<>(this);
-
-            Collections.sort(this.reports, comparator);
         }
 
         @Override
         public Iterator<ReportTO> iterator(final long first, final long count) {
-            return this.reports.subList((int) first, (int) (first + count)).iterator();
+            List<ReportTO> list = restClient.list();
+            Collections.sort(list, comparator);
+            return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return reports.size();
+            return restClient.list().size();
         }
 
         @Override

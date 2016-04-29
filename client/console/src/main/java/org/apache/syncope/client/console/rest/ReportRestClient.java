@@ -97,7 +97,7 @@ public class ReportRestClient extends BaseRestClient
     }
 
     @Override
-    public List<ReportTemplateTO> getAllAvailableTemplates() {
+    public List<ReportTemplateTO> listTemplates() {
         return getService(ReportTemplateService.class).list();
     }
 

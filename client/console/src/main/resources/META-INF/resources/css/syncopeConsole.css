@@ -839,5 +839,50 @@ div#templates {
   clear: both;
 }
 /**
-END -CRONTAB
+END - CRONTAB
+*/
+
+/**
+START - EVENTS
+*/
+.events {
+  display: table-row;
+  width: 990px;
+}
+
+.selectedEvents {
+  display: inline-block;
+  height: 100px;
+  margin: 10px 10px 0 10px;
+  overflow-y: auto;
+}
+
+.eventSelection {
+  display: inline-table;
+  float: right;
+  width: 380px;
+  min-width: 530px;
+}
+
+.eventSelection div#value {
+  height: auto;
+  overflow: hidden;
+}
+
+.eventSelection div#value div#custom {
+  width: auto;
+  overflow: hidden;
+}
+
+.eventSelection div#value div#customActions {
+  width: 85px;
+  float: right;
+}
+
+div#selectionContainer select {
+  width: 585px;
+  min-width: 585px;
+}
+/**
+END - EVENTS
 */

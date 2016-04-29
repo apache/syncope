@@ -31,7 +31,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.NotificationTO;
 
-public class NotificationHandler implements Serializable {
+public class NotificationWrapper implements Serializable {
 
     private static final long serialVersionUID = 8058288034211558376L;
 
@@ -41,7 +41,7 @@ public class NotificationHandler implements Serializable {
 
     private List<SearchClause> recipientClauses;
 
-    public NotificationHandler(final NotificationTO notificationTO) {
+    public NotificationWrapper(final NotificationTO notificationTO) {
         this.notificationTO = notificationTO;
     }
 

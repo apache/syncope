@@ -50,7 +50,7 @@ public class DynamicMemberships extends WizardStep {
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
-    public DynamicMemberships(final GroupWrapper groupHandler) {
+    public DynamicMemberships(final GroupWrapper groupWrapper) {
         super();
 
         final LoadableDetachableModel<List<AnyTypeTO>> types = new LoadableDetachableModel<List<AnyTypeTO>>() {
@@ -79,10 +79,10 @@ public class DynamicMemberships extends WizardStep {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new UserSearchPanel.Builder(new PropertyModel<List<SearchClause>>(groupHandler, "uDynClauses")).
+                return new UserSearchPanel.Builder(new PropertyModel<List<SearchClause>>(groupWrapper, "uDynClauses")).
                         required(false).build(panelId);
             }
-        }), Model.of(StringUtils.isBlank(groupHandler.getUDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
+        }), Model.of(StringUtils.isBlank(groupWrapper.getUDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
         // ------------------------ 
 
         // ------------------------
@@ -104,10 +104,10 @@ public class DynamicMemberships extends WizardStep {
                     @Override
                     public Panel getPanel(final String panelId) {
                         return new AnyObjectSearchPanel.Builder(
-                                key, new MapOfListModel<SearchClause>(groupHandler, "aDynClauses", key)).
+                                key, new MapOfListModel<SearchClause>(groupWrapper, "aDynClauses", key)).
                                 required(false).build(panelId);
                     }
-                }), Model.of(StringUtils.isBlank(groupHandler.getADynMembershipConds().get(key)) ? -1 : 0))
+                }), Model.of(StringUtils.isBlank(groupWrapper.getADynMembershipConds().get(key)) ? -1 : 0))
                         .setOutputMarkupId(true));
             }
         });

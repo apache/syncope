@@ -34,7 +34,7 @@ public class NotificationRestClient extends BaseRestClient
 
     private static final long serialVersionUID = 6328933265096511690L;
 
-    public List<NotificationTO> getAllNotifications() {
+    public List<NotificationTO> list() {
         return getService(NotificationService.class).list();
     }
 
@@ -55,7 +55,7 @@ public class NotificationRestClient extends BaseRestClient
     }
 
     @Override
-    public List<MailTemplateTO> getAllAvailableTemplates() {
+    public List<MailTemplateTO> listTemplates() {
         return getService(MailTemplateService.class).list();
     }
 
