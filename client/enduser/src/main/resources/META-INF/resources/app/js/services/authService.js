@@ -28,7 +28,7 @@ angular.module('login')
             authService.login = function (credentials) {
               return $http
                       .post('/syncope-enduser/api/login', credentials)
-                      .then(function (response) {                        
+                      .then(function (response) {
                         return response.data;
                       }, function (response) {
                         console.log("Something went wrong during login, exit with status: ", response);
@@ -46,12 +46,12 @@ angular.module('login')
                       });
             };
 
-              
-              authService.islogged = function () {
+
+            authService.islogged = function () {
               return $http
                       .get('/syncope-enduser/api/self/islogged')
                       .then(function (response) {
-                          console.log("user logged: (authServ)" + response.data);
+                        console.log("user logged: (authServ)" + response.data);
                         return response.data;
                       }, function (response) {
                         console.log("error retrieving user login status");

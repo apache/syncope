@@ -20,75 +20,75 @@
 'use strict';
 
 angular.module("login").controller("LoginController", ['$scope', '$rootScope', '$http', '$location', '$cookies',
-    'AuthService', function ($scope, $rootScope, $http, $location, $cookies, AuthService) {
+  'AuthService', function ($scope, $rootScope, $http, $location, $cookies, AuthService) {
 
-        $scope.credentials = {
-            username: '',
-            password: '',
-            errorMessage: ''
-        };
+    $scope.credentials = {
+      username: '',
+      password: '',
+      errorMessage: ''
+    };
 
-        $scope.login = function (credentials) {
+    $scope.login = function (credentials) {
 
-            AuthService.login($scope.credentials).then(function (user) {
-                console.log("Login success for: ", user);
-                // reset error message
-                $scope.credentials.errorMessage = '';
-                // got to update page
-                $location.path("/self/update");
-            }, function (response) {
-                console.log("Login failed for: ", response);
-                var errorMessage;
-                // parse error response 
-                if (response !== undefined) {
-                    errorMessage = response.split("ErrorMessage{{")[1];
-                    errorMessage = errorMessage.split("}}")[0];
-                }
-                $scope.credentials.errorMessage = "Login failed: " + errorMessage;
-                $scope.showError($scope.credentials.errorMessage, $scope.notification);
-            });
-        };
+      AuthService.login($scope.credentials).then(function (user) {
+        console.log("Login success for: ", user);
+        // reset error message
+        $scope.credentials.errorMessage = '';
+        // got to update page
+        $location.path("/self/update");
+      }, function (response) {
+        console.log("Login failed for: ", response);
+        var errorMessage;
+        // parse error response 
+        if (response !== undefined) {
+          errorMessage = response.split("ErrorMessage{{")[1];
+          errorMessage = errorMessage.split("}}")[0];
+        }
+        $scope.credentials.errorMessage = "Login failed: " + errorMessage;
+        $scope.showError($scope.credentials.errorMessage, $scope.notification);
+      });
+    };
 
-        $scope.logout = function () {
-            AuthService.logout().then(function (response) {
-                console.log("Logout successfully");
-            }, function (response) {
-                console.log("Logout failed: ", response);
-            });
-        };
+    $scope.logout = function () {
+      AuthService.logout().then(function (response) {
+        console.log("Logout successfully");
+      }, function (response) {
+        console.log("Logout failed: ", response);
+      });
+    };
 
-        $scope.islogged = function () {
-            AuthService.islogged().then(function (response) {
-                console.log("user login status detected", response);                
-                return response.data === true;
-            }, function (response) {
-                console.log("error retrieving user login status", response);
-            });
-        };
+    $scope.islogged = function () {
+      AuthService.islogged().then(function (response) {
+        console.log("user login status detected", response);
+        return response.data === true;
+      }, function (response) {
+        console.log("error retrieving user login status", response);
+      });
+    };
 
-        $scope.selfCreate = function () {
-            $location.path("/self/create");
-        };
+    $scope.selfCreate = function () {
+      $location.path("/self/create");
+    };
 
-        $scope.passwordReset = function () {
-            $location.path("/passwordreset");
-        };
+    $scope.passwordReset = function () {
+      $location.path("/passwordreset");
+    };
 
-        $scope.errorAPI = function () {
-            $http.get("/syncope-enduser/api/error").success(function (data) {
-                console.log("errorAPI response: ", data);
-            });
-        };
+    $scope.errorAPI = function () {
+      $http.get("/syncope-enduser/api/error").success(function (data) {
+        console.log("errorAPI response: ", data);
+      });
+    };
 
-        $scope.sampleAPI = function () {
-            $http.get("/syncope-enduser/api/user-self").success(function (data) {
-                console.log("sampleAPI response: ", data);
-            });
-        };
+    $scope.sampleAPI = function () {
+      $http.get("/syncope-enduser/api/user-self").success(function (data) {
+        console.log("sampleAPI response: ", data);
+      });
+    };
 
-        $scope.schemaAPI = function () {
-            $http.get("/syncope-enduser/api/schema").success(function (data) {
-                console.log("schemaAPI response: ", data);
-            });
-        };
-    }]);
+    $scope.schemaAPI = function () {
+      $http.get("/syncope-enduser/api/schema").success(function (data) {
+        console.log("schemaAPI response: ", data);
+      });
+    };
+  }]);
