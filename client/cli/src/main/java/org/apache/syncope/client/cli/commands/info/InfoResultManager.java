@@ -123,9 +123,9 @@ public class InfoResultManager extends CommonsResultManager {
         }
     }
 
-    public void printReportlets(final Collection<String> reportlets) {
-        for (final String reportlet : reportlets) {
-            genericMessage("Reportlet: " + reportlet);
+    public void printReportletConfs(final Collection<String> reportletConfs) {
+        for (final String reportletConf : reportletConfs) {
+            genericMessage("Reportlet conf: " + reportletConf);
         }
     }
 

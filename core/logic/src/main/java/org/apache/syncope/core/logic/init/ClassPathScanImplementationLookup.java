@@ -111,10 +111,11 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 boolean isAbsractClazz = Modifier.isAbstract(clazz.getModifiers());
 
                 if (Reportlet.class.isAssignableFrom(clazz) && !isAbsractClazz) {
-                    classNames.get(Type.REPORTLET).add(clazz.getName());
-
                     ReportletConfClass annotation = clazz.getAnnotation(ReportletConfClass.class);
-                    if (annotation != null) {
+                    if (annotation == null) {
+                        LOG.warn("Found Reportlet {} without declared configuration", clazz.getName());
+                    } else {
+                        classNames.get(Type.REPORTLET_CONF).add(annotation.value().getName());
                         reportletClasses.put(annotation.value(), (Class<? extends Reportlet>) clazz);
                     }
                 }

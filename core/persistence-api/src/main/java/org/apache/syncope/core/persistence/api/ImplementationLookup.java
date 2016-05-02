@@ -30,7 +30,7 @@ public interface ImplementationLookup extends SyncopeLoader {
 
     enum Type {
 
-        REPORTLET,
+        REPORTLET_CONF,
         ACCOUNT_RULE,
         PASSWORD_RULE,
         MAPPING_ITEM_TRANSFORMER,
