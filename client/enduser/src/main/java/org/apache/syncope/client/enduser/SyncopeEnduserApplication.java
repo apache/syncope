@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.enduser;
 
-import org.apache.syncope.client.enduser.resources.UserAuthentication;
+import org.apache.syncope.client.enduser.resources.UserSelfIsLogged;
 import java.io.File;
 import java.io.Serializable;
 import org.apache.syncope.client.enduser.pages.HomePage;
@@ -155,14 +155,14 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 return new LogoutResource();
             }
         });
-        
-        mountResource("/api/self/islogged", new ResourceReference("userAuthentication") {
+
+        mountResource("/api/self/islogged", new ResourceReference("userSelfIsLogged") {
 
             private static final long serialVersionUID = -128426276529456602L;
 
             @Override
             public IResource getResource() {
-                return new UserAuthentication();
+                return new UserSelfIsLogged();
             }
         });
 
@@ -208,7 +208,6 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 return new UserSelfPasswordReset();
             }
         });
-
 
         mountResource("/api/self/confirmPasswordReset", new ResourceReference("userSelfConfirmPasswordReset") {
 
