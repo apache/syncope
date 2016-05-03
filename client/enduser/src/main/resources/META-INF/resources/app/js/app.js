@@ -231,13 +231,13 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
           if (response.config.url.indexOf("acceptError=true") == -1) {
             var status = response.status;
             if (status == 401) {
-              console.log("ERROR " + status);
+              console.error("ERROR ", status);
             }
             if (status == 403) {
-              console.log("UNAUTHORIZED " + status);
+              console.error("UNAUTHORIZED ", status);
             }
             if (status == 400 || status == 404 || status == 412 || status == 500) {
-              console.log("GENERIC ERROR " + status);
+              console.error("GENERIC ERROR ", status);
             }
           }
           return $q.reject(response);
@@ -273,22 +273,20 @@ app.run(['$rootScope', '$location', '$cookies', '$state', 'AuthService',
             $state.go('self');
           }
         }, function (response) {
-          console.log("not logged");
+          console.error("not logged");
           $state.go('self');
         }
         );
 
       } else if (toState.name === 'home' || toState.name === 'self') {
         AuthService.islogged().then(function (response) {
-          console.log("User logged (change): ", response)
-          console.log("User logged (change): ", AuthService.islogged())
           if (response === "true") {
             $state.go('update.credentials');
           } else {
             $state.go('self');
           }
         }, function (response) {
-          console.log("not logged");
+          console.error("not logged");
           $state.go('self');
         }
         );
@@ -329,7 +327,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
                 $rootScope.captchaEnabled = response.captchaEnabled;
               },
               function (response) {
-                console.log("Something went wrong while accessing info resource", response);
+                console.error("Something went wrong while accessing info resource", response);
               });
 
       $rootScope.isSelfRegAllowed = function () {

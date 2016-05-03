@@ -71,7 +71,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             errorMessage = response.split("ErrorMessage{{")[1];
             errorMessage = errorMessage.split("}}")[0];
           }
-          console.log("Error retrieving user schemas: ", errorMessage);
+          console.error("Error retrieving user schemas: ", errorMessage);
         });
       };
 
@@ -166,7 +166,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             errorMessage = response.split("ErrorMessage{{")[1];
             errorMessage = errorMessage.split("}}")[0];
           }
-          console.log("Error retrieving avaliable security questions: ", errorMessage);
+          console.error("Error retrieving avaliable security questions: ", errorMessage);
         });
       };
 
@@ -260,7 +260,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             initProperties();
           }
         }, function (e) {
-          console.log("Error during user read ", e);
+          console.error("Error during user read ", e);
         });
       };
 
@@ -335,18 +335,18 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     };
 
     $scope.saveUser = function (user) {
-      console.log("Save user: ", user);
+      console.debug("Save user: ", user);
 
       var wrappedUser = UserUtil.getWrappedUser(user);
 
       if ($scope.createMode) {
 
         UserSelfService.create(wrappedUser, $scope.captchaInput.value).then(function (response) {
-          console.log("Created user: ", response);
+          console.info("Created user: ", response);
           $scope.showSuccess("User " + $scope.user.username + " successfully created", $scope.notification);
           $location.path('/self');
         }, function (response) {
-          console.log("Error during user creation: ", response);
+          console.error("Error during user creation: ", response);
           var errorMessage;
           // parse error response 
           if (response !== undefined) {
@@ -359,16 +359,16 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       } else {
 
         UserSelfService.update(wrappedUser, $scope.captchaInput.value).then(function (response) {
-          console.log("Updated user: ", response);
+          console.debug("Updated user: ", response);
           AuthService.logout().then(function (response) {
-            console.log("LOGOUT SUCCESS: ", response);
+            console.info("LOGOUT SUCCESS: ", response);
             $location.path('/self');
             $scope.showSuccess("User " + $scope.user.username + " successfully updated", $scope.notification);
           }, function () {
-            console.log("LOGOUT FAILED");
+            console.error("LOGOUT FAILED");
           });
         }, function (response) {
-          console.log("Error during user update: ", response);
+          console.info("Error during user update: ", response);
           var errorMessage;
           // parse error response 
           if (response !== undefined) {
@@ -479,13 +479,13 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
     $scope.logout = function (message) {
       AuthService.logout().then(function (response) {
-        console.log("Logout successfully");
+        console.info("Logout successfully");
         $location.path('/self');
         if (message) {
           $scope.showSuccess(message, $scope.notification);
         }
       }, function (response) {
-        console.log("Logout failed: ", response);
+        console.error("Logout failed: ", response);
       });
     };
   }]);

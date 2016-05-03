@@ -29,10 +29,9 @@ angular.module('self')
 
               return  $http.get("/syncope-enduser/api/resources")
                       .then(function (response) {
-                        console.log("resourceAPI response: ", response);
                         return response.data;
                       }, function (response) {
-                        console.log("Something went wrong during resources retrieval, exit with status: ", response);
+                        console.debug("Something went wrong during resources retrieval, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };

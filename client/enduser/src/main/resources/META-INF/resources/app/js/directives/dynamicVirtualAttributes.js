@@ -30,12 +30,14 @@ angular.module('self')
             controller: function ($scope) {
 
               $scope.addVirtualAttributeField = function (virSchemaKey) {
-                console.log("Add VIRTUAL value: ", virSchemaKey + "_" + ($scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.length));
+                console.debug("Add VIRTUAL value:", virSchemaKey);
+                console.debug(" ", ($scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.length));
                 $scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.push(virSchemaKey + "_" + ($scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.length));
               };
 
               $scope.removeVirtualAttributeField = function (virSchemaKey, index) {
-                console.log("Remove VIRTUAL value: " + virSchemaKey + " Attribute index: " + index);
+                console.debug("Remove VIRTUAL value: ", virSchemaKey);
+                console.debug("Remove VIRTUAL value: ", index);
                 $scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.splice(index, 1);
                 // clean user model
                 $scope.user.virAttrs[virSchemaKey].values.splice(index, 1);
