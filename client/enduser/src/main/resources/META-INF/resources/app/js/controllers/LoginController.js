@@ -88,7 +88,7 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
 
     $scope.schemaAPI = function () {
       $http.get("/syncope-enduser/api/schema").success(function (data) {
-        console.debuXg("schemaAPI response: ", data);
+        console.debug("schemaAPI response: ", data);
       });
     };
   }]);
