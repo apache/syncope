@@ -690,7 +690,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         @Override
         public Object getDisplayValue(final String object) {
-            return groupNames.getObject().get(Long.parseLong(object));
+            return groupNames.getObject().get(object);
         }
     }
 

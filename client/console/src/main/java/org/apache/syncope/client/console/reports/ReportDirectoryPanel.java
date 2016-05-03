@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.reports;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,6 +37,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -52,6 +54,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -63,6 +66,8 @@ public abstract class ReportDirectoryPanel
 
     private static final long serialVersionUID = 4984337552918213290L;
 
+    private final BaseModal<ReportTO> reportletModal = new BaseModal<ReportTO>("outer");
+
     private final ReportStartAtTogglePanel startAt;
 
     protected ReportDirectoryPanel(final MultilevelPanel multiLevelPanelRef, final PageReference pageRef) {
@@ -72,6 +77,7 @@ public abstract class ReportDirectoryPanel
         this.addNewItemPanelBuilder(new ReportWizardBuilder(new ReportTO(), pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.REPORT_CREATE);
 
+        modal.size(Modal.Size.Large);
         initResultTable();
 
         startAt = new ReportStartAtTogglePanel(container);
@@ -113,15 +119,31 @@ public abstract class ReportDirectoryPanel
             @Override
             public ActionLinksPanel<ReportTO> getActions(final String componentId, final IModel<ReportTO> model) {
 
-                final ReportTO reportTO = model.getObject();
-
                 final ActionLinksPanel<ReportTO> panel = ActionLinksPanel.<ReportTO>builder().
                         add(new ActionLink<ReportTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportTO modelObject) {
+                            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
+                                target.add(modal.setContent(new ReportletDirectoryPanel(
+                                        modal, model.getObject().getKey(), pageRef)));
+
+                                modal.header(new StringResourceModel(
+                                        "reportlet.conf", ReportDirectoryPanel.this, Model.of(model.getObject())));
+
+                                MetaDataRoleAuthorizationStrategy.authorize(
+                                        modal.getForm(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+
+                                modal.show(true);
+                            }
+                        }, ActionLink.ActionType.COMPOSE, StandardEntitlement.REPORT_UPDATE).
+                        add(new ActionLink<ReportTO>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                                 final ReportTO clone = SerializationUtils.clone(model.getObject());
                                 clone.setKey(null);
                                 send(ReportDirectoryPanel.this, Broadcast.EXACT,
@@ -133,7 +155,7 @@ public abstract class ReportDirectoryPanel
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportTO modelObject) {
+                            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                                 send(ReportDirectoryPanel.this, Broadcast.EXACT,
                                         new AjaxWizard.EditItemActionEvent<>(
                                                 restClient.read(model.getObject().getKey()), target));
@@ -144,8 +166,8 @@ public abstract class ReportDirectoryPanel
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportTO modelObject) {
-                                viewTask(reportTO, target);
+                            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
+                                viewTask(model.getObject(), target);
                             }
                         }, ActionLink.ActionType.VIEW, StandardEntitlement.REPORT_READ).
                         add(new ActionLink<ReportTO>() {
@@ -164,7 +186,8 @@ public abstract class ReportDirectoryPanel
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportTO modelObject) {
+                            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
+                                final ReportTO reportTO = model.getObject();
                                 try {
                                     restClient.delete(reportTO.getKey());
                                     info(getString(Constants.OPERATION_SUCCEEDED));
@@ -217,7 +240,7 @@ public abstract class ReportDirectoryPanel
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS;
+        return Constants.PREF_REPORT_TASKS_PAGINATOR_ROWS;
     }
 
     protected abstract void viewTask(final ReportTO reportTO, final AjaxRequestTarget target);

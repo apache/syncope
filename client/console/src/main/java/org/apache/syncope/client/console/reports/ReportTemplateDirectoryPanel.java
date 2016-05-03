@@ -68,10 +68,6 @@ public class ReportTemplateDirectoryPanel
         super(id, pageReference, true);
         disableCheckBoxes();
 
-        modal.size(Modal.Size.Small);
-        modal.addSubmitButton();
-        setFooterVisibility(true);
-
         addOuterObject(utilityModal);
         setWindowClosedReloadCallback(utilityModal);
         utilityModal.size(Modal.Size.Large);

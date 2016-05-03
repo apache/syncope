@@ -110,6 +110,10 @@ public final class Constants {
 
     public static final String PREF_PROPAGATION_TASKS_PAGINATOR_ROWS = "proagationtasks.paginator.rows";
 
+    public static final String PREF_REPORT_TASKS_PAGINATOR_ROWS = "report.paginator.rows";
+
+    public static final String PREF_REPORTLET_TASKS_PAGINATOR_ROWS = "reportlet.paginator.rows";
+
     public static final String PREF_TASK_EXECS_PAGINATOR_ROWS = "task.execs.paginator.rows";
 
     public static final String PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS = "notificationtasks.paginator.rows";

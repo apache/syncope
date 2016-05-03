@@ -261,7 +261,7 @@ div.wizard-view div.wizard-view{
 
 .wizard-view > div {
   display: block;
-  height: 98%;
+  height: 95%;
   position: relative;
 }
 
@@ -640,7 +640,15 @@ START - Search - AjaxDateTimePicker
   width: 120px !important;
 }
 
+.clause .type button{
+  width: 120px !important;
+}
+
 .clause .property{
+  width: 190px;
+}
+
+.clause .property button{
   width: 190px;
 }
 

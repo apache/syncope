@@ -24,10 +24,14 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AjaxWizardBuilder<T extends Serializable> extends AbstractModalPanelBuilder<T> {
 
     private static final long serialVersionUID = 5241745929825564456L;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(AjaxWizardBuilder.class);
 
     protected AjaxWizard.Mode mode = AjaxWizard.Mode.CREATE;
 

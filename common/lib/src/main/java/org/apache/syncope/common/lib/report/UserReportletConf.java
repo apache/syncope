@@ -26,10 +26,20 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.types.IntMappingType;
 
 @XmlRootElement(name = "userReportletConf")
 @XmlType
 public class UserReportletConf extends AbstractAnyReportletConf {
+
+    @Schema(schema = IntMappingType.UserPlainSchema)
+    private final List<String> plainAttrs = new ArrayList<>();
+
+    @Schema(schema = IntMappingType.UserDerivedSchema)
+    private final List<String> derAttrs = new ArrayList<>();
+
+    @Schema(schema = IntMappingType.UserVirtualSchema)
+    private final List<String> virAttrs = new ArrayList<>();
 
     @XmlEnum
     @XmlType(name = "userReportletConfFeature")
@@ -52,6 +62,30 @@ public class UserReportletConf extends AbstractAnyReportletConf {
 
     private static final long serialVersionUID = 6602717600064602764L;
 
+    @SearchCondition(type = "USER")
+    protected String matchingCond;
+
+    @XmlElementWrapper(name = "plainAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("plainAttrs")
+    public List<String> getPlainAttrs() {
+        return plainAttrs;
+    }
+
+    @XmlElementWrapper(name = "derAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("derAttrs")
+    public List<String> getDerAttrs() {
+        return derAttrs;
+    }
+
+    @XmlElementWrapper(name = "virAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("virAttrs")
+    public List<String> getVirAttrs() {
+        return virAttrs;
+    }
+
     private final List<Feature> features = new ArrayList<>();
 
     public UserReportletConf() {
@@ -60,6 +94,14 @@ public class UserReportletConf extends AbstractAnyReportletConf {
 
     public UserReportletConf(final String name) {
         super(name);
+    }
+
+    public String getMatchingCond() {
+        return matchingCond;
+    }
+
+    public void setMatchingCond(final String matchingCond) {
+        this.matchingCond = matchingCond;
     }
 
     @XmlElementWrapper(name = "features")

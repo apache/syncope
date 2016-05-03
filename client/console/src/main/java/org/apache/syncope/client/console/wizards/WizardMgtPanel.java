@@ -67,6 +67,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     protected final AjaxLink<?> addAjaxLink;
 
+    protected final AjaxLink<?> exitAjaxLink;
+
     protected ModalPanelBuilder<T> newItemPanelBuilder;
 
     protected NotificationPanel notificationPanel;
@@ -123,6 +125,20 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         addAjaxLink.setVisible(false);
         initialFragment.addOrReplace(addAjaxLink);
 
+        exitAjaxLink = new AjaxLink<T>("exit") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                send(WizardMgtPanel.this, Broadcast.EXACT, new ExitEvent(target));
+            }
+        };
+
+        exitAjaxLink.setEnabled(false);
+        exitAjaxLink.setVisible(false);
+        initialFragment.addOrReplace(exitAjaxLink);
+
         add(new ListView<Component>("outerObjectsRepeater", outerObjects) {
 
             private static final long serialVersionUID = -9180479401817023838L;
@@ -138,7 +154,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     @Override
     @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
+        if (event.getPayload() instanceof ExitEvent && modal != null) {
+            final AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
+            // default behaviour: change it catching the event if needed
+            modal.close(target);
+        } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
             final AjaxWizard.NewItemEvent<T> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
             final AjaxRequestTarget target = newItemEvent.getTarget();
             final T item = newItemEvent.getItem();
@@ -169,7 +189,6 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                 }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
                 if (wizardInModal) {
-                    modal.show(false);
                     modal.close(target);
                 } else {
                     container.addOrReplace(initialFragment);
@@ -187,23 +206,21 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
                         @Override
                         protected void closeAction(final AjaxRequestTarget target) {
-                            modal.show(false);
                             modal.close(target);
                         }
 
                         @Override
-                        protected Panel customResultBody(
-                                final String id, final T item, final Serializable result) {
+                        protected Panel customResultBody(final String id, final T item, final Serializable result) {
                             return WizardMgtPanel.this.customResultBody(id, item, result);
                         }
                     });
                     target.add(modal.getForm());
                 } else if (wizardInModal) {
-                    modal.show(false);
                     modal.close(target);
                 } else {
                     container.addOrReplace(initialFragment);
                 }
+                customActionOnCloseCallback(target);
             }
 
             if (containerAutoRefresh) {
@@ -227,6 +244,17 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
             private static final long serialVersionUID = 5538299138211283825L;
 
         };
+    }
+
+    /**
+     * Show exit butto sending ExitEvent paylad.
+     *
+     * @return the current instance.
+     */
+    protected final WizardMgtPanel<T> enableExitButton() {
+        exitAjaxLink.setEnabled(true);
+        exitAjaxLink.setVisible(true);
+        return this;
     }
 
     /**
@@ -298,7 +326,6 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
             @Override
             public void onClose(final AjaxRequestTarget target) {
                 modal.show(false);
-                customActionOnCloseCallback(target);
             }
         });
     }
@@ -382,6 +409,19 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         public Builder<T> addNotificationPanel(final NotificationPanel notificationPanel) {
             this.notificationPanel = notificationPanel;
             return this;
+        }
+    }
+
+    public static class ExitEvent {
+
+        private final AjaxRequestTarget target;
+
+        public ExitEvent(final AjaxRequestTarget target) {
+            this.target = target;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
         }
     }
 }

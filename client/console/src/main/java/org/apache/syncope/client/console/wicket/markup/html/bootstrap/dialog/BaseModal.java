@@ -144,8 +144,13 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         return this;
     }
 
-    public BaseModal<T> changeCloseButtonLabel(final String label, final AjaxRequestTarget target) {
+    public BaseModal<T> changeCloseButtonLabel(final String label) {
         defaultModalCloseButton.getModel().setObject(label);
+        return this;
+    }
+
+    public BaseModal<T> changeCloseButtonLabel(final String label, final AjaxRequestTarget target) {
+        changeCloseButtonLabel(label);
         target.add(defaultModalCloseButton);
         return this;
     }

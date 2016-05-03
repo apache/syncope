@@ -18,18 +18,15 @@
  */
 package org.apache.syncope.common.lib.report;
 
-import javax.xml.bind.annotation.XmlType;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.apache.syncope.common.lib.types.IntMappingType;
 
-@XmlType
-public abstract class AbstractAnyReportletConf extends AbstractReportletConf {
+@Target({ ElementType.FIELD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Schema {
 
-    private static final long serialVersionUID = -5388597116592877789L;
-
-    public AbstractAnyReportletConf() {
-        super();
-    }
-
-    public AbstractAnyReportletConf(final String name) {
-        super(name);
-    }
+    IntMappingType schema() default IntMappingType.UserPlainSchema;
 }
