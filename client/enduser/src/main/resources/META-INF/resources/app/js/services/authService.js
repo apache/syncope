@@ -31,7 +31,7 @@ angular.module('login')
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
-                        console.log("Something went wrong during login, exit with status: ", response);
+                        console.error("Something went wrong during login, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };
@@ -42,7 +42,7 @@ angular.module('login')
                       .then(function (response) {
                         return response;
                       }, function (response) {
-                        console.log("Something went wrong during logout, exit with status: ", response);
+                        console.error("Something went wrong during logout, exit with status: ", response);
                       });
             };
 
@@ -51,10 +51,10 @@ angular.module('login')
               return $http
                       .get('/syncope-enduser/api/self/islogged')
                       .then(function (response) {
-                        console.log("user logged: (authServ)" + response.data);
+                        console.debug("user logged:", response.data);
                         return response.data;
                       }, function (response) {
-                        console.log("error retrieving user login status");
+                        console.error("error retrieving user login status");
                       });
             };
 
