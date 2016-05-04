@@ -437,6 +437,7 @@ under the License.
 
     <tomcat.version>8.0.33</tomcat.version>
 
+    <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
     <!-- static keys, only used for build: generated overlays will override during archetype:generate -->
     <anonymousKey>anonymousKey</anonymousKey>
