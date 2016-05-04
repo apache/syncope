@@ -22,19 +22,16 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.model.Credentials;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LoginResource extends AbstractBaseResource {
 
     private static final long serialVersionUID = -7720997467070461915L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(LoginResource.class);
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
@@ -60,7 +57,8 @@ public class LoginResource extends AbstractBaseResource {
                 LOG.error("Could not read credentials from request: username is blank!");
                 response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
                         "ErrorMessage{{ Could not read credentials from request: username is blank! }}");
-            } else if (SyncopeEnduserSession.get().authenticate(username, password)) {
+            } else if (!SyncopeEnduserApplication.get().getAdminUser().equalsIgnoreCase(username)
+                    && SyncopeEnduserSession.get().authenticate(username, password)) {
                 // user has been authenticated successfully
                 response.setWriteCallback(new WriteCallback() {
 

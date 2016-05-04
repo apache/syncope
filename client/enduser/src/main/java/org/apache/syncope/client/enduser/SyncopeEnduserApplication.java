@@ -76,6 +76,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     private String license;
 
+    private String adminUser;
+
     private String anonymousUser;
 
     private String anonymousKey;
@@ -111,6 +113,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         Args.notNull(site, "<site> not set");
         license = props.getProperty("license");
         Args.notNull(license, "<license> not set");
+        adminUser = props.getProperty("adminUser");
+        Args.notNull(adminUser, "<adminUser> not set");
         anonymousUser = props.getProperty("anonymousUser");
         Args.notNull(anonymousUser, "<anonymousUser> not set");
         anonymousKey = props.getProperty("anonymousKey");
@@ -342,6 +346,10 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     public String getLicense() {
         return license;
+    }
+
+    public String getAdminUser() {
+        return adminUser;
     }
 
     public String getAnonymousUser() {

@@ -31,7 +31,7 @@ angular.module('login')
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
-                        console.error("Something went wrong during login, exit with status: ", response);
+                        console.error("Something went wrong during login, exit with status: ", response.statusText);
                         return $q.reject(response.data || response.statusText);
                       });
             };
