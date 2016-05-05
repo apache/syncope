@@ -137,15 +137,6 @@ public class ReportsITCase extends AbstractConsoleITCase {
 
         assertNotNull(result);
 
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:6:cell:panelExport:exportLink");
-        wicketTester.assertComponent("body:content:tabbedPanel:panel:secondLevelContainer:second:executions:"
-                + "firstLevelContainer:first:outerObjectsRepeater:3:outer:container:content:togglePanelContainer:close",
-                AjaxLink.class);
-
-        wicketTester.clickLink(
-                "body:content:tabbedPanel:panel:secondLevelContainer:second:executions:firstLevelContainer:first:"
-                + "outerObjectsRepeater:3:outer:container:content:togglePanelContainer:close");
-
         wicketTester.clickLink(result.getPageRelativePath() + ":cells:6:cell:panelView:viewLink");
         wicketTester.clickLink(
                 "body:content:tabbedPanel:panel:secondLevelContainer:second:executions:secondLevelContainer:back");

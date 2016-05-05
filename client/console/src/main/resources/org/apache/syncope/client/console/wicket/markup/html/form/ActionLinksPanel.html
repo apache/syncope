@@ -50,6 +50,11 @@ under the License.
     <span wicket:id="panelCompose">[plus]</span>
     <span wicket:id="panelLayoutEdit">[plus]</span>
     <span wicket:id="panelExport">[plus]</span>
+    <span wicket:id="panelExportCSV">[plus]</span>
+    <span wicket:id="panelExportHTML">[plus]</span>
+    <span wicket:id="panelExportPDF">[plus]</span>
+    <span wicket:id="panelExportRTF">[plus]</span>
+    <span wicket:id="panelExportXML">[plus]</span>
     <span wicket:id="panelPropagationTasks">[plus]</span>
     <span wicket:id="panelNotificationTasks">[plus]</span>
     <span wicket:id="panelDelete">[plus]</span>
@@ -182,6 +187,26 @@ under the License.
 
     <wicket:fragment wicket:id="fragmentExport">
       <a href="#" wicket:id="exportLink" class="btn"><i class="fa fa-floppy-o" alt="export icon" title="Export"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportCSV">
+      <a href="#" wicket:id="exportCSVLink" class="btn"><i class="fa fa-file-text-o" alt="export icon" title="Export CSV"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportHTML">
+      <a href="#" wicket:id="exportHTMLLink" class="btn"><i class="fa fa-file-code-o" alt="export icon" title="Export HTML"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportPDF">
+      <a href="#" wicket:id="exportPDFLink" class="btn"><i class="fa fa-file-pdf-o" alt="export icon" title="Export PDF"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportRTF">
+      <a href="#" wicket:id="exportRTFLink" class="btn"><i class="fa fa-file-word-o" alt="export icon" title="Export RTF"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportXML">
+      <a href="#" wicket:id="exportXMLLink" class="btn"><i class="fa fa-file-excel-o" alt="export icon" title="Export XML"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentSuspend">
