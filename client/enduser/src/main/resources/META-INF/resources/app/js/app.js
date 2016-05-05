@@ -217,7 +217,10 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
           //if the url is an html, we're changing page
           if (config.url.indexOf('.html', config.url.length - 5) == -1) {
             $rootScope.$broadcast("xhrStarted");
+            var separator = config.url.indexOf('?') === -1 ? '?' : '&';
+            config.url = config.url + separator + 'noCache=' + new Date().getTime();
           }
+
           $rootScope.spinner.on();
           return config || $q.when(config);
         },
@@ -429,5 +432,8 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
         "resources": {url: "/resources", templateUrl: "views/user-resources.html"},
         "finish": {url: "/finish", templateUrl: "views/user-form-finish.html"}
       };
+      $scope.clearCache = function () {
+        $templateCache.removeAll();
+      }
     }
   }]);
