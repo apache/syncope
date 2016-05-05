@@ -88,6 +88,9 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
     protected ReportletDirectoryPanel(
             final BaseModal<ReportTO> baseModal, final String report, final PageReference pageRef) {
         super(BaseModal.CONTENT_ID, pageRef, false);
+
+        disableCheckBoxes();
+
         this.baseModal = baseModal;
         this.report = report;
         this.restClient = new ReportRestClient();

@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel.SecondLevel;
+import org.apache.syncope.client.console.reports.ExportTogglePanel;
 import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.console.tasks.ExecutionsDirectoryPanel.ExecProvider;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -57,6 +58,8 @@ public abstract class ExecutionsDirectoryPanel
 
     private static final long serialVersionUID = 2039393934721149162L;
 
+    private final ExportTogglePanel export;
+
     private final BaseModal<?> baseModal;
 
     private final MultilevelPanel multiLevelPanelRef;
@@ -78,6 +81,10 @@ public abstract class ExecutionsDirectoryPanel
             final ExecutionRestClient executionRestClient,
             final PageReference pageRef) {
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, false);
+
+        this.export = new ExportTogglePanel("outer");
+        addOuterObject(this.export);
+
         this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         restClient = executionRestClient;
@@ -126,6 +133,16 @@ public abstract class ExecutionsDirectoryPanel
                                         getObject(), new ExecMessage(model.getObject().getMessage()), target);
                             }
                         }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ).
+                        add(new ActionLink<ExecTO>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
+                                export.setExecution(model.getObject().getKey());
+                                export.toggle(target, true);
+                            }
+                        }, ActionLink.ActionType.EXPORT, StandardEntitlement.REPORT_READ).
                         add(new ActionLink<ExecTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;

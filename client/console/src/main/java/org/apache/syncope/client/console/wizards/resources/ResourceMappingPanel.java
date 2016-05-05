@@ -651,6 +651,8 @@ public class ResourceMappingPanel extends Panel {
             res.addAll(IntMappingType.getAttributeTypes(kind));
         }
 
+        Collections.sort(res);
+
         return res;
     }
 }

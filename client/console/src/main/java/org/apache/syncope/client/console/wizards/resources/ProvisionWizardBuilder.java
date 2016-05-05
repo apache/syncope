@@ -238,7 +238,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
     public void setEventSink(final IEventSink eventSink) {
         this.eventSink = eventSink;
     }
-    
+
     @Override
     protected WizardModel buildModelSteps(final ProvisionTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new ObjectType(modelObject));
@@ -250,6 +250,9 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
 
     @Override
     protected Serializable onApplyInternal(final ProvisionTO modelObject) {
+        if (modelObject.getKey() == null) {
+            this.resourceTO.getProvisions().add(modelObject);
+        }
         return modelObject;
     }
 }

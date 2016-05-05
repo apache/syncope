@@ -37,7 +37,6 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -65,8 +64,6 @@ public abstract class ReportDirectoryPanel
         extends DirectoryPanel<ReportTO, ReportTO, DirectoryDataProvider<ReportTO>, ReportRestClient> {
 
     private static final long serialVersionUID = 4984337552918213290L;
-
-    private final BaseModal<ReportTO> reportletModal = new BaseModal<ReportTO>("outer");
 
     private final ReportStartAtTogglePanel startAt;
 
