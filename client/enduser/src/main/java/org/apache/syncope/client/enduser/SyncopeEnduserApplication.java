@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.enduser.resources.CaptchaResource;
 import org.apache.syncope.client.enduser.resources.InfoResource;
 import org.apache.syncope.client.enduser.resources.LoginResource;
@@ -134,9 +135,13 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         Args.notNull(port, "<port> not set");
         String rootPath = props.getProperty("rootPath");
         Args.notNull(rootPath, "<rootPath> not set");
+        String useGZIPCompression = props.getProperty("useGZIPCompression");
+        Args.notNull(rootPath, "<useGZIPCompression> not set");
 
-        clientFactory = new SyncopeClientFactoryBean().setAddress(scheme + "://" + host + ":" + port + "/" + rootPath);
-        clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.JSON);
+        clientFactory = new SyncopeClientFactoryBean().
+                setAddress(scheme + "://" + host + ":" + port + "/" + rootPath).
+                setContentType(SyncopeClientFactoryBean.ContentType.JSON).
+                setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
 
         // resource to provide login functionality managed by wicket
         mountResource("/api/login", new ResourceReference("login") {

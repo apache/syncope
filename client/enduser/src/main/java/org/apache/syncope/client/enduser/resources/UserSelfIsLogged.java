@@ -26,11 +26,10 @@ import org.apache.wicket.request.resource.IResource;
 
 public class UserSelfIsLogged extends AbstractBaseResource {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -8716361267586908871L;
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
-
         ResourceResponse response = new ResourceResponse();
 
         LOG.debug("Checking if user is authenticated");
