@@ -192,6 +192,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     connectorRestClient.delete(String.class.cast(node.getKey()));
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     info(getString(Constants.OPERATION_SUCCEEDED));
+                    toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
                     error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
@@ -270,6 +271,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     resourceRestClient.delete(node.getKey().toString());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     info(getString(Constants.OPERATION_SUCCEEDED));
+                    toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
                     error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
