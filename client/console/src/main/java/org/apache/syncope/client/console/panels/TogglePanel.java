@@ -109,6 +109,11 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
         target.add(this.header);
     }
 
+    protected void close(final AjaxRequestTarget target) {
+        status = Status.INACTIVE;
+        toggle(target, false);
+    }
+
     /**
      * Force toggle via java. To be used when the onclick has been intercepted before.
      *

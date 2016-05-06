@@ -280,7 +280,7 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectory
                             SchemaRestClient schemaRestClient = new SchemaRestClient();
 
                             List<AbstractSchemaTO> choices;
-                            switch (schemaAnnot.schema()) {
+                            switch (schemaAnnot.type()) {
                                 case UserPlainSchema:
                                     choices = schemaRestClient.getSchemas(SchemaType.PLAIN, AnyTypeKind.USER);
                                     break;

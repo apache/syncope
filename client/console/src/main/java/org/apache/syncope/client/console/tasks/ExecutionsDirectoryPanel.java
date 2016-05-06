@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.AbstractReadOnlyModel;
@@ -202,6 +203,7 @@ public abstract class ExecutionsDirectoryPanel
             super(paginatorRows);
             this.taskKey = taskKey;
             comparator = new SortableDataProviderComparator<>(this);
+            setSort("end", SortOrder.DESCENDING);
         }
 
         public SortableDataProviderComparator<ExecTO> getComparator() {

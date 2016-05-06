@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import static org.apache.syncope.client.console.rest.BaseRestClient.getService;
-
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;

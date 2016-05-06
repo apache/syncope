@@ -28,5 +28,5 @@ import org.apache.syncope.common.lib.types.IntMappingType;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Schema {
 
-    IntMappingType schema() default IntMappingType.UserPlainSchema;
+    IntMappingType type() default IntMappingType.UserPlainSchema;
 }

@@ -32,13 +32,15 @@ import org.apache.syncope.common.lib.types.IntMappingType;
 @XmlType
 public class UserReportletConf extends AbstractAnyReportletConf {
 
-    @Schema(schema = IntMappingType.UserPlainSchema)
+    private static final long serialVersionUID = 6602717600064602764L;
+
+    @Schema(type = IntMappingType.UserPlainSchema)
     private final List<String> plainAttrs = new ArrayList<>();
 
-    @Schema(schema = IntMappingType.UserDerivedSchema)
+    @Schema(type = IntMappingType.UserDerivedSchema)
     private final List<String> derAttrs = new ArrayList<>();
 
-    @Schema(schema = IntMappingType.UserVirtualSchema)
+    @Schema(type = IntMappingType.UserVirtualSchema)
     private final List<String> virAttrs = new ArrayList<>();
 
     @XmlEnum
@@ -59,8 +61,6 @@ public class UserReportletConf extends AbstractAnyReportletConf {
         resources
 
     }
-
-    private static final long serialVersionUID = 6602717600064602764L;
 
     @SearchCondition(type = "USER")
     protected String matchingCond;

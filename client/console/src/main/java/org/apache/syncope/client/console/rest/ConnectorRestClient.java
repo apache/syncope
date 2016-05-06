@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -31,10 +32,8 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
-import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -132,38 +131,22 @@ public class ConnectorRestClient extends BaseRestClient {
         return newProperties;
     }
 
-    /**
-     * Test connector connection.
-     *
-     * @param connectorTO connector
-     * @return Connection status
-     */
-    public boolean check(final ConnInstanceTO connectorTO) {
+    public Pair<Boolean, String> check(final ConnInstanceTO connectorTO) {
         ConnInstanceTO toBeChecked = new ConnInstanceTO();
         BeanUtils.copyProperties(connectorTO, toBeChecked, new String[] { "configuration", "configurationMap" });
         toBeChecked.getConf().addAll(filterProperties(connectorTO.getConf()));
 
         boolean check = false;
+        String errorMessage = null;
         try {
             getService(ConnectorService.class).check(toBeChecked);
             check = true;
         } catch (Exception e) {
             LOG.error("While checking {}", toBeChecked, e);
+            errorMessage = e.getMessage();
         }
 
-        return check;
-    }
-
-    public boolean check(final ResourceTO resourceTO) {
-        boolean check = false;
-        try {
-            getService(ResourceService.class).check(resourceTO);
-            check = true;
-        } catch (Exception e) {
-            LOG.error("Connector not found {}", resourceTO.getConnector(), e);
-        }
-
-        return check;
+        return Pair.of(check, errorMessage);
     }
 
     public List<ConnIdObjectClassTO> buildObjectClassInfo(

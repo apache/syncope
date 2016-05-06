@@ -419,14 +419,41 @@ div.searchResult{
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
   float: left;
   font-size: 14px;
-  list-style: outside none none;
   min-width: 160px;
-  text-align: left;
   max-height: 250px;
+}
+
+div.wicket-aa ul {
+  list-style: none;
+  padding-left: 15px;
 }
 
 /**
 START - Notifications
+*/
+
+/**
+START - startAt
+*/
+div#startAt {
+  background-color: rgba(98, 98, 98, 0.98) !important;
+  color: #CCC;
+  right: 5px !important;
+  top: 100px !important;
+  min-width: 450px;
+  min-height: 130px !important;
+  z-index: 6000 !important;
+}
+
+div#startAtContainer {
+  padding: 15px;
+}
+
+div#startAtContainer input {
+  background-color: rgba(200, 200, 200, 0.60) !important;
+}
+/**
+END - startAt
 */
 
 /*Temporany fix diagonal stacking*/
@@ -484,9 +511,6 @@ START - Notifications
   width:85%
 }
 
-/**
-END - Notifications
-*/
 
 /**
 START - Actions

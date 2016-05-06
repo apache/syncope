@@ -28,8 +28,6 @@ public class ConfigurationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 7692363064029538722L;
 
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
-
     public List<AttrTO> list() {
         return getService(ConfigurationService.class).list();
     }

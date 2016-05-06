@@ -85,8 +85,7 @@ public class TaskJob extends AbstractInterruptableJob {
 
                     return null;
                 }
-            }
-            );
+            });
         } catch (RuntimeException e) {
             LOG.error("While executing task {}", taskKey, e);
             throw new JobExecutionException("While executing task " + taskKey, e);

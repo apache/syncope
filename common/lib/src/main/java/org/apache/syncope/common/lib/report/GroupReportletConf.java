@@ -47,13 +47,13 @@ public class GroupReportletConf extends AbstractAnyReportletConf {
 
     }
 
-    @Schema(schema = IntMappingType.GroupPlainSchema)
+    @Schema(type = IntMappingType.GroupPlainSchema)
     private final List<String> plainAttrs = new ArrayList<>();
 
-    @Schema(schema = IntMappingType.GroupDerivedSchema)
+    @Schema(type = IntMappingType.GroupDerivedSchema)
     private final List<String> derAttrs = new ArrayList<>();
 
-    @Schema(schema = IntMappingType.GroupVirtualSchema)
+    @Schema(type = IntMappingType.GroupVirtualSchema)
     private final List<String> virAttrs = new ArrayList<>();
 
     @SearchCondition(type = "GROUP")

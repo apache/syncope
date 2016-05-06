@@ -39,7 +39,7 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
 
     private String helpMessage;
 
-    private String type;
+    private String type = String.class.getName();
 
     private boolean required;
 

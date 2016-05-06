@@ -144,7 +144,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                 try {
                     final ConnInstanceTO connector = connectorRestClient.read(key);
                     res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                            connectorRestClient.check(connector)
+                            connectorRestClient.check(connector).getLeft()
                             ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
                 } catch (Exception e) {
                     LOG.warn("Error checking connection for {}", key, e);
@@ -185,7 +185,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                 try {
                     final ResourceTO resource = resourceRestClient.read(key);
                     res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                            connectorRestClient.check(resource)
+                            resourceRestClient.check(resource).getLeft()
                             ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
                 } catch (Exception e) {
                     LOG.warn("Error checking connection for {}", key, e);

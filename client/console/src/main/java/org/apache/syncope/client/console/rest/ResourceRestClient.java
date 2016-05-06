@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.ResourceDeassociationPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -39,6 +40,20 @@ public class ResourceRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6898907679835668987L;
 
+    public Pair<Boolean, String> check(final ResourceTO resourceTO) {
+        boolean check = false;
+        String errorMessage = null;
+        try {
+            getService(ResourceService.class).check(resourceTO);
+            check = true;
+        } catch (Exception e) {
+            LOG.error("Connector not found {}", resourceTO.getConnector(), e);
+            errorMessage = e.getMessage();
+        }
+
+        return Pair.of(check, errorMessage);
+    }
+
     public ConnObjectTO readConnObject(final String resource, final String anyTypeKey, final String anyKey) {
         return getService(ResourceService.class).readConnObject(resource, anyTypeKey, anyKey);
     }
@@ -52,19 +67,23 @@ public class ResourceRestClient extends BaseRestClient {
 
         List<ConnObjectTO> result = new ArrayList<>();
         PagedConnObjectTOResult list;
-        do {
-            list = getService(ResourceService.class).listConnObjects(resource, anyTypeKey, builder.build());
-            result.addAll(list.getResult());
+        try {
+            do {
+                list = getService(ResourceService.class).listConnObjects(resource, anyTypeKey, builder.build());
+                result.addAll(list.getResult());
 
-            // TMP - see SYNCOPE-829
-            if (result.size() >= 100) {
-                break;
-            }
+                // TMP - see SYNCOPE-829
+                if (result.size() >= 100) {
+                    break;
+                }
 
-            if (list.getPagedResultsCookie() != null) {
-                builder.pagedResultsCookie(list.getPagedResultsCookie());
-            }
-        } while (list.getPagedResultsCookie() != null);
+                if (list.getPagedResultsCookie() != null) {
+                    builder.pagedResultsCookie(list.getPagedResultsCookie());
+                }
+            } while (list.getPagedResultsCookie() != null);
+        } catch (Exception e) {
+            LOG.error("While listing objects on {} for any type {}", resource, anyTypeKey, e);
+        }
 
         return result;
     }

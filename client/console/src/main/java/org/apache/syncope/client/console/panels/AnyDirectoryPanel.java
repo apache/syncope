@@ -141,11 +141,9 @@ public abstract class AnyDirectoryPanel<A extends AnyTO>
 
     @Override
     protected Collection<ActionLink.ActionType> getBulkActions() {
-        final List<ActionLink.ActionType> bulkActions = new ArrayList<>();
+        List<ActionLink.ActionType> bulkActions = new ArrayList<>();
 
         bulkActions.add(ActionLink.ActionType.DELETE);
-        bulkActions.add(ActionLink.ActionType.SUSPEND);
-        bulkActions.add(ActionLink.ActionType.REACTIVATE);
 
         return bulkActions;
     }
