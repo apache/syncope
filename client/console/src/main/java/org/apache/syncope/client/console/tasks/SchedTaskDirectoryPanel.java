@@ -87,7 +87,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             LOG.error("Falure instantiating task", e);
         }
 
-        this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(schedTaskTO, pageRef), true);
+        this.addNewItemPanelBuilder(
+                new SchedTaskWizardBuilder<>(schedTaskTO, pageRef).setEventSink(SchedTaskDirectoryPanel.this), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.TASK_CREATE);
 
