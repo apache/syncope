@@ -25,16 +25,21 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtPage;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.panels.NotificationPanel;
+import org.apache.syncope.client.console.rest.ConfigurationRestClient;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.widgets.ApprovalsWidget;
 import org.apache.syncope.client.console.widgets.JobWidget;
 import org.apache.syncope.client.console.widgets.ReconciliationWidget;
+import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -53,11 +58,14 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.message.ConnectedMessage;
+import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.ContentDisposition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,6 +132,38 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         body.add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
 
         body.add(new ApprovalsWidget("approvalsWidget", getPageReference()).setRenderBodyOnly(true));
+
+        // right sidebar
+        SystemInfo systemInfo = SyncopeConsoleSession.get().getService(SyncopeService.class).system();
+        body.add(new Label("hostname", systemInfo.getHostname()));
+        body.add(new Label("processors", systemInfo.getAvailableProcessors()));
+        body.add(new Label("os", systemInfo.getOs()));
+        body.add(new Label("jvm", systemInfo.getJvm()));
+
+        Link<Void> dbExportLink = new Link<Void>("dbExportLink") {
+
+            private static final long serialVersionUID = -4331619903296515985L;
+
+            @Override
+            public void onClick() {
+                try {
+                    HttpResourceStream stream = new HttpResourceStream(new ConfigurationRestClient().dbExport());
+
+                    ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
+                    rsrh.setFileName(stream.getFilename() == null
+                            ? SyncopeConsoleSession.get().getDomain() + "Content.xml"
+                            : stream.getFilename());
+                    rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
+
+                    getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
+                } catch (Exception e) {
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                }
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(
+                dbExportLink, WebPage.ENABLE, StandardEntitlement.CONFIGURATION_EXPORT);
+        body.add(dbExportLink);
 
         // menu
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("dashboard"));
