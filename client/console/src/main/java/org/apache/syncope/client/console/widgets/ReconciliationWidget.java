@@ -60,6 +60,7 @@ import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.wicket.Application;
 import org.apache.wicket.AttributeModifier;
@@ -67,6 +68,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ThreadContext;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
@@ -124,11 +126,13 @@ public class ReconciliationWidget extends BaseWidget {
         this.reconciliationReportKey = SyncopeConsoleApplication.get().getReconciliationReportKey();
 
         ReportTO reconciliationReport = null;
-        try {
-            reconciliationReport = restClient.read(reconciliationReportKey);
-        } catch (Exception e) {
-            LOG.error("Could not fetch the expected reconciliation report with key {}, aborting",
-                    reconciliationReportKey, e);
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_READ)) {
+            try {
+                reconciliationReport = restClient.read(reconciliationReportKey);
+            } catch (Exception e) {
+                LOG.error("Could not fetch the expected reconciliation report with key {}, aborting",
+                        reconciliationReportKey, e);
+            }
         }
 
         Fragment reportResult = reconciliationReport == null || reconciliationReport.getExecutions().isEmpty()
@@ -137,7 +141,7 @@ public class ReconciliationWidget extends BaseWidget {
         reportResult.setOutputMarkupId(true);
         add(reportResult);
 
-        add(new IndicatorAjaxLink<Void>("refresh") {
+        IndicatorAjaxLink<Void> refresh = new IndicatorAjaxLink<Void>("refresh") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -158,7 +162,9 @@ public class ReconciliationWidget extends BaseWidget {
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
-        });
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(refresh, Component.RENDER, StandardEntitlement.REPORT_EXECUTE);
+        add(refresh);
     }
 
     private Fragment buildExecFragment() {
@@ -224,13 +230,16 @@ public class ReconciliationWidget extends BaseWidget {
         List<ProgressBean> beans = Collections.emptyList();
         ReconciliationReport report = null;
 
-        ExecTO exec = IterableUtils.find(restClient.listRecentExecutions(ROWS), new Predicate<ExecTO>() {
+        ExecTO exec = null;
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_LIST)) {
+            exec = IterableUtils.find(restClient.listRecentExecutions(ROWS), new Predicate<ExecTO>() {
 
-            @Override
-            public boolean evaluate(final ExecTO exec) {
-                return reconciliationReportKey.equals(exec.getRefKey());
-            }
-        });
+                @Override
+                public boolean evaluate(final ExecTO exec) {
+                    return reconciliationReportKey.equals(exec.getRefKey());
+                }
+            });
+        }
         if (exec == null) {
             LOG.error("Could not find the last execution of reconciliation report");
         } else {
