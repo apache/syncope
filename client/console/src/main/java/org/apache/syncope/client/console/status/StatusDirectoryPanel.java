@@ -55,7 +55,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class StatusDirectoryPanel
-        extends DirectoryPanel<StatusBean, StatusBean, AttributableStatusProvider, AbstractAnyRestClient<?>>
+        extends DirectoryPanel<StatusBean, StatusBean, AttributableStatusProvider, AbstractAnyRestClient<?, ?>>
         implements ModalPanel {
 
     private static final long serialVersionUID = -9148734710505211261L;

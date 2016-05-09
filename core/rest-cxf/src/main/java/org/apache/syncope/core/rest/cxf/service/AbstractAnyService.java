@@ -325,7 +325,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public BulkActionResult bulk(final BulkAction bulkAction) {
+    public Response bulk(final BulkAction bulkAction) {
         AbstractAnyLogic<TO, P> logic = getAnyLogic();
 
         BulkActionResult result = new BulkActionResult();
@@ -410,7 +410,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
             default:
         }
 
-        return result;
+        return modificationResponse(result);
     }
 
 }

@@ -55,7 +55,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 
 public abstract class AnyDirectoryPanel<A extends AnyTO>
-        extends DirectoryPanel<A, AnyWrapper<A>, AnyDataProvider<A>, AbstractAnyRestClient<A>> {
+        extends DirectoryPanel<A, AnyWrapper<A>, AnyDataProvider<A>, AbstractAnyRestClient<A, ?>> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -153,8 +153,8 @@ public abstract class AnyDirectoryPanel<A extends AnyTO>
         List<AnyTypeClassTO> getAnyTypeClassTOs();
     }
 
-    public abstract static class Builder<T extends AnyTO>
-            extends DirectoryPanel.Builder<T, AnyWrapper<T>, AbstractAnyRestClient<T>>
+    public abstract static class Builder<A extends AnyTO>
+            extends DirectoryPanel.Builder<A, AnyWrapper<A>, AbstractAnyRestClient<A, ?>>
             implements AnyDirectoryPanelBuilder {
 
         private static final long serialVersionUID = -6828423611982275640L;
@@ -173,7 +173,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO>
 
         public Builder(
                 final List<AnyTypeClassTO> anyTypeClassTOs,
-                final AbstractAnyRestClient<T> restClient,
+                final AbstractAnyRestClient<A, ?> restClient,
                 final String type,
                 final PageReference pageRef) {
 
@@ -182,7 +182,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO>
             this.type = type;
         }
 
-        public Builder<T> setRealm(final String realm) {
+        public Builder<A> setRealm(final String realm) {
             this.realm = realm;
             return this;
         }

@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
@@ -207,11 +206,11 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * Executes the provided bulk action.
      *
      * @param bulkAction list of any object ids against which the bulk action will be performed.
-     * @return Bulk action result
+     * @return Response object featuring BulkActionResult as Entity
      */
     @POST
     @Path("bulk")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    BulkActionResult bulk(@NotNull BulkAction bulkAction);
+    Response bulk(@NotNull BulkAction bulkAction);
 }

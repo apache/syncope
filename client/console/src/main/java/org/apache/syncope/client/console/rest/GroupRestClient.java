@@ -19,13 +19,8 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
@@ -35,12 +30,12 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 /**
  * Console client for invoking Rest Group's services.
  */
-public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
+public class GroupRestClient extends AbstractAnyRestClient<GroupTO, GroupPatch> {
 
     private static final long serialVersionUID = -8549081557283519638L;
 
     @Override
-    protected Class<? extends AnyService<?, ?>> getAnyServiceClass() {
+    protected Class<? extends AnyService<GroupTO, GroupPatch>> getAnyServiceClass() {
         return GroupService.class;
     }
 
@@ -79,35 +74,4 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
                 getResult();
     }
 
-    public ProvisioningResult<GroupTO> create(final GroupTO groupTO) {
-        Response response = getService(GroupService.class).create(groupTO);
-        return response.readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
-        });
-    }
-
-    @Override
-    public GroupTO read(final String key) {
-        return getService(GroupService.class).read(key);
-    }
-
-    public ProvisioningResult<GroupTO> update(final String etag, final GroupPatch patch) {
-        ProvisioningResult<GroupTO> result;
-        synchronized (this) {
-            GroupService service = getService(etag, GroupService.class);
-            result = service.update(patch).readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
-            });
-            resetClient(GroupService.class);
-        }
-        return result;
-    }
-
-    @Override
-    public ProvisioningResult<GroupTO> delete(final String etag, final String key) {
-        return delete(GroupService.class, GroupTO.class, etag, key);
-    }
-
-    @Override
-    public BulkActionResult bulkAction(final BulkAction action) {
-        return getService(GroupService.class).bulk(action);
-    }
 }

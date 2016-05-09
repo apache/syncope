@@ -143,7 +143,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                                 throw new IllegalArgumentException("Invalid bulk action executor");
                             }
 
-                            final AbstractAnyRestClient<?> anyRestClient = AbstractAnyRestClient.class.cast(
+                            final AbstractAnyRestClient<?, ?> anyRestClient = AbstractAnyRestClient.class.cast(
                                     bulkActionExecutor);
 
                             if (items.isEmpty() || !(items.iterator().next() instanceof StatusBean)) {
