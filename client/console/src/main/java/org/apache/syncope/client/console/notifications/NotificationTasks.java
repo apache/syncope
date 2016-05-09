@@ -18,23 +18,20 @@
  */
 package org.apache.syncope.client.console.notifications;
 
-import java.io.Serializable;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.tasks.NotificationTaskDirectoryPanel;
 import org.apache.syncope.client.console.tasks.TaskExecutionDetails;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
-public class NotificationTasks extends Panel implements ModalPanel<Serializable> {
+public class NotificationTasks extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = 1066124171682570083L;
 
@@ -75,20 +72,4 @@ public class NotificationTasks extends Panel implements ModalPanel<Serializable>
             }
         });
     }
-
-    @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public NotificationTO getItem() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
 }

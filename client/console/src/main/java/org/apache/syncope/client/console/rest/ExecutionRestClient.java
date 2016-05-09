@@ -22,11 +22,15 @@ import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.lib.to.ExecTO;
 
-public interface ExecutionRestClient {
+public interface ExecutionRestClient extends RestClient {
 
     void startExecution(String executionCollectorKey, Date start);
 
     void deleteExecution(String executionKey);
 
     List<ExecTO> listRecentExecutions(final int max);
+
+    List<ExecTO> listExecutions(final String taskKey, final int page, final int size);
+
+    int countExecutions(final String taskKey);
 }

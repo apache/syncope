@@ -23,7 +23,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.UserDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
@@ -72,7 +72,7 @@ public final class UserSelectionDirectoryPanel extends AnySelectionDirectoryPane
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<UserTO>> newInstance(final String id) {
+        protected WizardMgtPanel<AnyWrapper<UserTO>> newInstance(final String id) {
             return new UserSelectionDirectoryPanel(id, this);
         }
     }

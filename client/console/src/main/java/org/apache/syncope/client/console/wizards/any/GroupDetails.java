@@ -31,15 +31,15 @@ public class GroupDetails extends Details<GroupTO> {
     private static final long serialVersionUID = 855618618337931784L;
 
     public GroupDetails(
-            final GroupHandler groupHandler,
+            final GroupWrapper wrapper,
             final IModel<List<StatusBean>> statusModel,
             final boolean templateMode,
             final boolean includeStatusPanel,
             final PageReference pageRef) {
 
-        super(groupHandler, statusModel, includeStatusPanel, pageRef);
+        super(wrapper, statusModel, includeStatusPanel, pageRef);
 
-        final GroupTO groupTO = GroupHandler.class.cast(groupHandler).getInnerObject();
+        final GroupTO groupTO = GroupWrapper.class.cast(wrapper).getInnerObject();
 
         final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name",
                 new PropertyModel<String>(groupTO, "name"), false);

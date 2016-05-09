@@ -24,11 +24,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
+import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 
 /**
@@ -37,6 +40,45 @@ import org.apache.syncope.common.rest.api.service.SchemaService;
 public class SchemaRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2479730152700312373L;
+
+    public <T extends AbstractSchemaTO> List<T> getSchemas(final SchemaType schemaType, final AnyTypeKind kind) {
+        final AnyTypeService client = getService(AnyTypeService.class);
+
+        final List<String> classes = new ArrayList<>();
+
+        switch (kind) {
+            case USER:
+            case GROUP:
+                final AnyTypeTO type = client.read(kind.name());
+                if (type != null) {
+                    classes.addAll(type.getClasses());
+                }
+                break;
+            default:
+                for (AnyTypeTO anyTypeTO : getService(AnyTypeService.class).list()) {
+                    if (anyTypeTO.getKind() != AnyTypeKind.USER && anyTypeTO.getKind() != AnyTypeKind.GROUP) {
+                        classes.addAll(anyTypeTO.getClasses());
+                    }
+                }
+        }
+        return getSchemas(schemaType, classes.toArray(new String[] {}));
+    }
+
+    public <T extends AbstractSchemaTO> List<T> getSchemas(final SchemaType schemaType, final String typeName) {
+        AnyTypeTO type = null;
+
+        try {
+            type = getService(AnyTypeService.class).read(typeName);
+        } catch (SyncopeClientException e) {
+            LOG.error("While reading all any types", e);
+        }
+
+        if (type == null) {
+            return getSchemas(schemaType);
+        } else {
+            return getSchemas(schemaType, type.getClasses().toArray(new String[] {}));
+        }
+    }
 
     public <T extends AbstractSchemaTO> List<T> getSchemas(final SchemaType schemaType, final String... kind) {
         List<T> schemas = new ArrayList<>();

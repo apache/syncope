@@ -20,8 +20,10 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -31,9 +33,13 @@ import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.StatusPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -42,11 +48,14 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 
-public abstract class AnyDirectoryPanel<T extends AnyTO>
-        extends DirectoryPanel<T, AnyHandler<T>, AnyDataProvider<T>, AbstractAnyRestClient<T>> {
+public abstract class AnyDirectoryPanel<A extends AnyTO>
+        extends DirectoryPanel<A, AnyWrapper<A>, AnyDataProvider<A>, AbstractAnyRestClient<A, ?>> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -73,7 +82,7 @@ public abstract class AnyDirectoryPanel<T extends AnyTO>
 
     protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
 
-    protected AnyDirectoryPanel(final String id, final Builder<T> builder) {
+    protected AnyDirectoryPanel(final String id, final Builder<A> builder) {
         super(id, builder);
         this.realm = builder.realm;
         this.type = builder.type;
@@ -98,9 +107,29 @@ public abstract class AnyDirectoryPanel<T extends AnyTO>
         initResultTable();
     }
 
+    protected void addPropertyColumn(
+            final String name,
+            final Field field,
+            final List<IColumn<A, String>> columns) {
+
+        if ("key".equalsIgnoreCase(name)) {
+            columns.add(new KeyPropertyColumn<A>(new ResourceModel(name, name), name, name));
+        } else if ("token".equalsIgnoreCase(name)) {
+            columns.add(new TokenColumn<A>(new ResourceModel(name, name), name));
+        } else if (field != null
+                && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {
+
+            columns.add(new BooleanPropertyColumn<A>(new ResourceModel(name, name), name, name));
+        } else if (field != null && field.getType().equals(Date.class)) {
+            columns.add(new DatePropertyColumn<A>(new ResourceModel(name, name), name, name));
+        } else {
+            columns.add(new PropertyColumn<A, String>(new ResourceModel(name, name), name, name));
+        }
+    }
+
     @Override
-    protected AnyDataProvider<T> dataProvider() {
-        final AnyDataProvider<T> dp = new AnyDataProvider<>(restClient, rows, filtered, realm, type);
+    protected AnyDataProvider<A> dataProvider() {
+        final AnyDataProvider<A> dp = new AnyDataProvider<>(restClient, rows, filtered, realm, type);
         return dp.setFIQL(this.fiql);
     }
 
@@ -112,11 +141,9 @@ public abstract class AnyDirectoryPanel<T extends AnyTO>
 
     @Override
     protected Collection<ActionLink.ActionType> getBulkActions() {
-        final List<ActionLink.ActionType> bulkActions = new ArrayList<>();
+        List<ActionLink.ActionType> bulkActions = new ArrayList<>();
 
         bulkActions.add(ActionLink.ActionType.DELETE);
-        bulkActions.add(ActionLink.ActionType.SUSPEND);
-        bulkActions.add(ActionLink.ActionType.REACTIVATE);
 
         return bulkActions;
     }
@@ -126,8 +153,8 @@ public abstract class AnyDirectoryPanel<T extends AnyTO>
         List<AnyTypeClassTO> getAnyTypeClassTOs();
     }
 
-    public abstract static class Builder<T extends AnyTO>
-            extends DirectoryPanel.Builder<T, AnyHandler<T>, AbstractAnyRestClient<T>>
+    public abstract static class Builder<A extends AnyTO>
+            extends DirectoryPanel.Builder<A, AnyWrapper<A>, AbstractAnyRestClient<A, ?>>
             implements AnyDirectoryPanelBuilder {
 
         private static final long serialVersionUID = -6828423611982275640L;
@@ -146,7 +173,7 @@ public abstract class AnyDirectoryPanel<T extends AnyTO>
 
         public Builder(
                 final List<AnyTypeClassTO> anyTypeClassTOs,
-                final AbstractAnyRestClient<T> restClient,
+                final AbstractAnyRestClient<A, ?> restClient,
                 final String type,
                 final PageReference pageRef) {
 
@@ -155,7 +182,7 @@ public abstract class AnyDirectoryPanel<T extends AnyTO>
             this.type = type;
         }
 
-        public Builder<T> setRealm(final String realm) {
+        public Builder<A> setRealm(final String realm) {
             this.realm = realm;
             return this;
         }
@@ -168,17 +195,17 @@ public abstract class AnyDirectoryPanel<T extends AnyTO>
 
     @Override
     @SuppressWarnings("unchecked")
-    protected Panel customResultBody(final String panelId, final AnyHandler<T> item, final Serializable result) {
+    protected Panel customResultBody(final String panelId, final AnyWrapper<A> item, final Serializable result) {
         if (!(result instanceof ProvisioningResult)) {
             throw new IllegalStateException("Unsupported result type");
         }
 
         return new StatusPanel(
                 panelId,
-                ((ProvisioningResult<T>) result).getAny(),
+                ((ProvisioningResult<A>) result).getAny(),
                 new ListModel<>(new ArrayList<StatusBean>()),
                 CollectionUtils.collect(
-                        ((ProvisioningResult<T>) result).getPropagationStatuses(),
+                        ((ProvisioningResult<A>) result).getPropagationStatuses(),
                         new SerializableTransformer<PropagationStatus, Pair<ConnObjectTO, ConnObjectWrapper>>() {
 
                     private static final long serialVersionUID = -4931455531906427515L;
@@ -187,7 +214,7 @@ public abstract class AnyDirectoryPanel<T extends AnyTO>
                     public Pair<ConnObjectTO, ConnObjectWrapper> transform(final PropagationStatus input) {
                         ConnObjectTO before = input.getBeforeObj();
                         ConnObjectWrapper afterObjWrapper = new ConnObjectWrapper(
-                                ((ProvisioningResult<T>) result).getAny(),
+                                ((ProvisioningResult<A>) result).getAny(),
                                 input.getResource(),
                                 input.getAfterObj());
                         return Pair.of(before, afterObjWrapper);

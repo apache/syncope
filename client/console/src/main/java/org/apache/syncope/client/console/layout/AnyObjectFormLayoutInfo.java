@@ -25,11 +25,21 @@ public class AnyObjectFormLayoutInfo extends AbstractAnyFormLayout<AnyObjectTO, 
 
     private static final long serialVersionUID = -5573691733739618500L;
 
+    private boolean groups = true;
+
     private boolean relationships = true;
 
     @Override
     protected Class<? extends AnyObjectForm> getDefaultFormClass() {
         return AnyObjectWizardBuilder.class;
+    }
+
+    public boolean isGroups() {
+        return groups;
+    }
+
+    public void setGroups(final boolean groups) {
+        this.groups = groups;
     }
 
     public boolean isRelationships() {

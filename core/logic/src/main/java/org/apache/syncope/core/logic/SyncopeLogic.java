@@ -176,7 +176,7 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                 PLATFORM_INFO.setVirAttrCache(virAttrCache.getClass().getName());
                 PLATFORM_INFO.setPasswordGenerator(passwordGenerator.getClass().getName());
 
-                PLATFORM_INFO.getReportlets().addAll(implLookup.getClassNames(Type.REPORTLET));
+                PLATFORM_INFO.getReportletConfs().addAll(implLookup.getClassNames(Type.REPORTLET_CONF));
                 PLATFORM_INFO.getAccountRules().addAll(implLookup.getClassNames(Type.ACCOUNT_RULE));
                 PLATFORM_INFO.getPasswordRules().addAll(implLookup.getClassNames(Type.PASSWORD_RULE));
                 PLATFORM_INFO.getMappingItemTransformers().addAll(

@@ -32,10 +32,10 @@ angular.module('self')
             realmService.getAvailableRealms = function () {
               return  $http.get("/syncope-enduser/api/realms")
                       .then(function (response) {
-                        console.log("realms response: ", response);
+                        console.debug("realms response: ", response);
                         return response.data;
                       }, function (response) {
-                        console.log("Something went wrong during realms retrieval, exit with status: ", response);
+                        console.error("Something went wrong during realms retrieval, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };

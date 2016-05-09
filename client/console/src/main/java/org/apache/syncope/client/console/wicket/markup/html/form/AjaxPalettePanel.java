@@ -58,7 +58,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
     public AjaxPalettePanel(
             final String id, final IModel<List<T>> model, final Builder.Query<T> choices, final Builder<T> builder) {
-        super(id, id, model);
+        super(id, builder.name == null ? id : builder.name, model);
 
         choicesModel = new PaletteLoadableDetachableModel(builder) {
 
@@ -74,7 +74,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
     public AjaxPalettePanel(
             final String id, final IModel<List<T>> model, final ListModel<T> choices, final Builder<T> builder) {
-        super(id, id, model);
+        super(id, builder.name == null ? id : builder.name, model);
 
         choicesModel = new PaletteLoadableDetachableModel(builder) {
 
@@ -218,11 +218,18 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         private String filter = conf.getDefaultFilter();
 
+        private String name;
+
         public Builder() {
             this.allowMoveAll = false;
             this.allowOrder = false;
             this.filtered = false;
             this.renderer = new SelectChoiceRenderer<>();
+        }
+
+        public Builder<T> setName(final String name) {
+            this.name = name;
+            return this;
         }
 
         public Builder<T> setAllowOrder(final boolean allowOrder) {
@@ -271,7 +278,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         public abstract static class Query<T extends Serializable> implements Serializable {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 3582312993557742858L;
 
             public abstract List<T> execute(final String filter);
         }

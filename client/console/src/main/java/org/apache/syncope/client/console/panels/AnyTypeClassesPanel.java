@@ -64,7 +64,8 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<AnyTypeClassTO, Any
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<AnyTypeClassTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
+            public WizardModalPanel<AnyTypeClassTO> build(
+                    final String id, final int index, final AjaxWizard.Mode mode) {
                 final AnyTypeClassTO modelObject = newModelObject();
                 return new AnyTypeClassModalPanel(modal, modelObject, pageRef) {
 
@@ -88,6 +89,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<AnyTypeClassTO, Any
                     }
                 };
             }
+
         }, true);
 
         initResultTable();

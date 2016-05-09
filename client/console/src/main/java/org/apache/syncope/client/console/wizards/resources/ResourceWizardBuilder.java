@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
@@ -56,7 +57,7 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
 
     @Override
     protected WizardModel buildModelSteps(final Serializable modelObject, final WizardModel wizardModel) {
-        final ResourceTO resourceTO = ResourceTO.class.cast(modelObject);
+        ResourceTO resourceTO = ResourceTO.class.cast(modelObject);
         wizardModel.add(new ResourceDetailsPanel(resourceTO, createFlag));
         wizardModel.add(new ResourceConnConfPanel(resourceTO, createFlag) {
 
@@ -64,10 +65,11 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
 
             @Override
             protected void check(final AjaxRequestTarget target) {
-                if (connectorRestClient.check(modelObject)) {
+                Pair<Boolean, String> result = resourceRestClient.check(modelObject);
+                if (result.getLeft()) {
                     info(getString(Constants.OPERATION_SUCCEEDED));
                 } else {
-                    error(getString("error_connection"));
+                    error(getString("error_connection") + ": " + result.getRight());
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }

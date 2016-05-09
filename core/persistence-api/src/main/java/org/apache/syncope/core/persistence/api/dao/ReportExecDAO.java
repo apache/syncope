@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Date;
 import java.util.List;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 
@@ -32,6 +33,10 @@ public interface ReportExecDAO extends DAO<ReportExec> {
     ReportExec findLatestStarted(Report report);
 
     ReportExec findLatestEnded(Report report);
+
+    int count(String reportKey);
+
+    List<ReportExec> findAll(Report report, int page, int itemsPerPage, List<OrderByClause> orderByClauses);
 
     List<ReportExec> findAll(Report report, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
 

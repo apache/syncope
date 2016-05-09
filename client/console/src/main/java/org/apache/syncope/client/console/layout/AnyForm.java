@@ -19,9 +19,9 @@
 package org.apache.syncope.client.console.layout;
 
 import org.apache.syncope.client.console.wizards.ModalPanelBuilder;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 
-public interface AnyForm<A extends AnyTO> extends ModalPanelBuilder<AnyHandler<A>> {
+public interface AnyForm<A extends AnyTO> extends ModalPanelBuilder<AnyWrapper<A>> {
 
 }

@@ -36,12 +36,12 @@ angular.module('language')
 //              $scope.mainSettings = response;
 //            });
 
-            console.log("Init language controller");
+            console.debug("Init language controller");
           };
 
           $scope.changeLanguage = function (language) {
 
-            console.log("Language changed to: ", language);
+            console.info("Language changed to: ", language);
             
             $scope.languages.selectedLanguage = language;
             
@@ -55,7 +55,7 @@ angular.module('language')
 //            LanguageService.language.query({}, function (response) {
 //              $scope.languages = response;
 //            });
-            console.log("Retriebìving available languages");
+            console.debug("Retrieving available languages");
           };
 
 

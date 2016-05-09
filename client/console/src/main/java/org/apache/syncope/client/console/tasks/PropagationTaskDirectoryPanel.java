@@ -53,7 +53,7 @@ import org.apache.wicket.model.StringResourceModel;
  * Tasks page.
  */
 public abstract class PropagationTaskDirectoryPanel
-        extends TaskDirectoryPanel<PropagationTaskTO> implements ModalPanel<PropagationTaskTO> {
+        extends TaskDirectoryPanel<PropagationTaskTO> implements ModalPanel {
 
     private static final long serialVersionUID = 4984337552918213290L;
 

@@ -73,9 +73,9 @@ public class ConnectorITCase extends AbstractITCase {
 
     private static String connectorServerLocation;
 
-    private static String connidSoapVersion;
+    private static String connIdSoapVersion;
 
-    private static String connidDbTableVersion;
+    private static String connIdDbVersion;
 
     private static String testJDBCURL;
 
@@ -93,8 +93,8 @@ public class ConnectorITCase extends AbstractITCase {
                 }
             }
 
-            connidSoapVersion = props.getProperty("connid.soap.version");
-            connidDbTableVersion = props.getProperty("connid.database.version");
+            connIdSoapVersion = props.getProperty("connid.soap.version");
+            connIdDbVersion = props.getProperty("connid.database.version");
 
             testJDBCURL = props.getProperty("testdb.url");
         } catch (Exception e) {
@@ -103,8 +103,8 @@ public class ConnectorITCase extends AbstractITCase {
             IOUtils.closeQuietly(propStream);
         }
         assertNotNull(connectorServerLocation);
-        assertNotNull(connidSoapVersion);
-        assertNotNull(connidDbTableVersion);
+        assertNotNull(connIdSoapVersion);
+        assertNotNull(connIdDbVersion);
         assertNotNull(testJDBCURL);
     }
 
@@ -123,7 +123,7 @@ public class ConnectorITCase extends AbstractITCase {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
         connectorTO.setLocation(connectorService.read(
                 "88a7a819-dab5-46b4-9b90-0b9769eabdb8", Locale.ENGLISH.getLanguage()).getLocation());
-        connectorTO.setVersion(connidSoapVersion);
+        connectorTO.setVersion(connIdSoapVersion);
         connectorTO.setConnectorName("net.tirasa.connid.bundles.soap.WebServiceConnector");
         connectorTO.setBundleName("net.tirasa.connid.bundles.soap");
         connectorTO.setDisplayName("Display name");
@@ -226,7 +226,7 @@ public class ConnectorITCase extends AbstractITCase {
         connectorTO.setKey("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b");
 
         // set connector version
-        connectorTO.setVersion(connidSoapVersion);
+        connectorTO.setVersion(connIdSoapVersion);
 
         // set connector name
         connectorTO.setConnectorName("net.tirasa.connid.bundles.soap.WebServiceConnector");
@@ -454,7 +454,7 @@ public class ConnectorITCase extends AbstractITCase {
     public void validate() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
         connectorTO.setLocation(connectorServerLocation);
-        connectorTO.setVersion(connidDbTableVersion);
+        connectorTO.setVersion(connIdDbVersion);
         connectorTO.setConnectorName("net.tirasa.connid.bundles.db.table.DatabaseTableConnector");
         connectorTO.setBundleName("net.tirasa.connid.bundles.db.table");
         connectorTO.setDisplayName("H2Test");
@@ -592,7 +592,7 @@ public class ConnectorITCase extends AbstractITCase {
                 "88a7a819-dab5-46b4-9b90-0b9769eabdb8", Locale.ENGLISH.getLanguage()).getLocation());
 
         // set connector version
-        connectorTO.setVersion(connidSoapVersion);
+        connectorTO.setVersion(connIdSoapVersion);
 
         // set connector name
         connectorTO.setConnectorName("net.tirasa.connid.bundles.soap.WebServiceConnector");

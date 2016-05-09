@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
@@ -63,7 +64,7 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
 
     @Override
     protected WizardModel buildModelSteps(final Serializable modelObject, final WizardModel wizardModel) {
-        final ConnInstanceTO connInstanceTO = ConnInstanceTO.class.cast(modelObject);
+        ConnInstanceTO connInstanceTO = ConnInstanceTO.class.cast(modelObject);
         wizardModel.add(new ConnectorDetailsPanel(connInstanceTO, bundles));
         wizardModel.add(new ConnectorConfPanel(connInstanceTO, bundles) {
 
@@ -71,10 +72,11 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
 
             @Override
             protected void check(final AjaxRequestTarget target) {
-                if (connectorRestClient.check(modelObject)) {
+                Pair<Boolean, String> result = connectorRestClient.check(modelObject);
+                if (result.getLeft()) {
                     info(getString(Constants.OPERATION_SUCCEEDED));
                 } else {
-                    error(getString("error_connection"));
+                    error(getString("error_connection") + ": " + result.getRight());
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }

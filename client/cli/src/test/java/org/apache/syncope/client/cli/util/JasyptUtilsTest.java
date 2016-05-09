@@ -27,7 +27,7 @@ public class JasyptUtilsTest {
     @Test
     public void encryption() {
         String password = "password";
-        JasyptUtils jasyptUtils = JasyptUtils.getJasyptUtils();
+        JasyptUtils jasyptUtils = JasyptUtils.get();
         String encPassword = jasyptUtils.encrypt(password);
         String decPassword = jasyptUtils.decrypt(encPassword);
         assertEquals(password, decPassword);

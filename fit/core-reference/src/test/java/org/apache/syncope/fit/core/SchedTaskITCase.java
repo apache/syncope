@@ -42,7 +42,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
-import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
+import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.core.reference.TestSampleJobDelegate;
@@ -124,7 +124,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         } while (task.getExecutions().isEmpty() && i < maxit);
 
         PagedResult<ExecTO> execs =
-                taskService.listExecutions(new TaskExecQuery.Builder().key(task.getKey()).build());
+                taskService.listExecutions(new ExecQuery.Builder().key(task.getKey()).build());
         assertEquals(1, execs.getTotalCount());
         assertTrue(execs.getResult().get(0).getStart().after(initial));
         // round 1 sec for safety

@@ -29,10 +29,10 @@ import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.DefaultModalCloseButton;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.PrimaryModalButton;
 import org.apache.wicket.Component;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -44,6 +44,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.syncope.client.console.panels.SubmitableModalPanel;
 
 public class BaseModal<T extends Serializable> extends Modal<T> {
 
@@ -66,7 +67,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     private Panel content;
 
-    private PrimaryModalButton submitButton;
+    private AjaxSubmitLink submitButton;
 
     private final Form<T> form;
 
@@ -123,28 +124,33 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         return form.getModelObject();
     }
 
-    public ModalPanel<T> getContent() {
+    public ModalPanel getContent() {
         if (content instanceof ModalPanel) {
-            return (ModalPanel<T>) content;
+            return (ModalPanel) content;
         }
         throw new IllegalStateException();
     }
 
-    public BaseModal<T> setContent(final ModalPanel<T> component) {
+    public BaseModal<T> setContent(final ModalPanel component) {
         if (component instanceof Panel) {
             return setInternalContent(Panel.class.cast(component));
         }
         throw new IllegalArgumentException("Panel instance is required");
     }
 
-    public BaseModal<T> setContent(final ModalPanel<T> component, final AjaxRequestTarget target) {
+    public BaseModal<T> setContent(final ModalPanel component, final AjaxRequestTarget target) {
         setContent(component);
         target.add(content);
         return this;
     }
 
-    public BaseModal<T> changeCloseButtonLabel(final String label, final AjaxRequestTarget target) {
+    public BaseModal<T> changeCloseButtonLabel(final String label) {
         defaultModalCloseButton.getModel().setObject(label);
+        return this;
+    }
+
+    public BaseModal<T> changeCloseButtonLabel(final String label, final AjaxRequestTarget target) {
+        changeCloseButtonLabel(label);
         target.add(defaultModalCloseButton);
         return this;
     }
@@ -177,20 +183,23 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         }
     }
 
-    public PrimaryModalButton addSumbitButton() {
+    public AjaxSubmitLink addSubmitButton() {
+        if (!(BaseModal.this.getContent() instanceof SubmitableModalPanel)) {
+            throw new IllegalStateException();
+        }
 
-        final PrimaryModalButton submit = new PrimaryModalButton(SUBMIT, SUBMIT, form) {
+        AjaxSubmitLink submit = new AjaxSubmitLink(SUBMIT, form) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -5783994974426198290L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                BaseModal.this.getContent().onSubmit(target, form);
+                SubmitableModalPanel.class.cast(BaseModal.this.getContent()).onSubmit(target, form);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                BaseModal.this.getContent().onError(target, form);
+                SubmitableModalPanel.class.cast(BaseModal.this.getContent()).onError(target, form);
             }
         };
 

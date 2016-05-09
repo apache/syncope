@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.pages;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.RoleDirectoryPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.client.console.wizards.role.RoleHandler;
+import org.apache.syncope.client.console.wizards.role.RoleWrapper;
 import org.apache.syncope.client.console.wizards.role.RoleWizardBuilder;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -40,7 +40,7 @@ public class Roles extends BasePage {
         content.setOutputMarkupId(true);
         body.add(content);
 
-        WizardMgtPanel<RoleHandler> rolesPanel = new RoleDirectoryPanel.Builder(getPageReference()) {
+        WizardMgtPanel<RoleWrapper> rolesPanel = new RoleDirectoryPanel.Builder(getPageReference()) {
 
             private static final long serialVersionUID = -5960765294082359003L;
 

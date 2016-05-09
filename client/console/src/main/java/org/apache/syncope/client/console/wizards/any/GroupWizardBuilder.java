@@ -46,7 +46,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             final GroupFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
 
-        super(new GroupHandler(groupTO), anyTypeClasses, formLayoutInfo, pageRef);
+        super(new GroupWrapper(groupTO), anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     /**
@@ -57,16 +57,16 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
      * @return the current builder.
      */
     @Override
-    public AjaxWizardBuilder<AnyHandler<GroupTO>> setItem(final AnyHandler<GroupTO> item) {
-        return (AjaxWizardBuilder<AnyHandler<GroupTO>>) (item == null
+    public AjaxWizardBuilder<AnyWrapper<GroupTO>> setItem(final AnyWrapper<GroupTO> item) {
+        return (AjaxWizardBuilder<AnyWrapper<GroupTO>>) (item == null
                 ? super.setItem(item)
-                : super.setItem(new GroupHandler(item.getInnerObject())));
+                : super.setItem(new GroupWrapper(item.getInnerObject())));
     }
 
     @Override
-    protected Serializable onApplyInternal(final AnyHandler<GroupTO> modelObject) {
-        GroupTO inner = modelObject instanceof GroupHandler
-                ? GroupHandler.class.cast(modelObject).fillDynamicConditions()
+    protected Serializable onApplyInternal(final AnyWrapper<GroupTO> modelObject) {
+        GroupTO inner = modelObject instanceof GroupWrapper
+                ? GroupWrapper.class.cast(modelObject).fillDynamicConditions()
                 : modelObject.getInnerObject();
 
         ProvisioningResult<GroupTO> actual;
@@ -88,9 +88,9 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
 
     @Override
     protected GroupWizardBuilder addOptionalDetailsPanel(
-            final AnyHandler<GroupTO> modelObject, final WizardModel wizardModel) {
+            final AnyWrapper<GroupTO> modelObject, final WizardModel wizardModel) {
         wizardModel.add(new GroupDetails(
-                GroupHandler.class.cast(modelObject),
+                GroupWrapper.class.cast(modelObject),
                 new ListModel<>(Collections.<StatusBean>emptyList()),
                 false,
                 modelObject.getInnerObject().getKey() != null, pageRef));

@@ -50,19 +50,21 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
             final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
 
-        super(userTO, anyTypeClasses, formLayoutInfo, pageRef);
+        super(new UserWrapper(userTO), anyTypeClasses, formLayoutInfo, pageRef);
         statusModel = new ListModel<>(new ArrayList<StatusBean>());
     }
 
     @Override
-    protected Serializable onApplyInternal(final AnyHandler<UserTO> modelObject) {
+    protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
         UserTO inner = modelObject.getInnerObject();
 
         ProvisioningResult<UserTO> actual;
         if (inner.getKey() == null) {
-            actual = userRestClient.create(inner, StringUtils.isNotBlank(inner.getPassword()));
+            actual = userRestClient.create(inner, modelObject instanceof UserWrapper
+                    ? UserWrapper.class.cast(modelObject).isStorePasswordInSyncope()
+                    : StringUtils.isNotBlank(inner.getPassword()));
         } else {
-            final UserPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
+            UserPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
             if (!statusModel.getObject().isEmpty()) {
                 patch.setPassword(StatusUtils.buildPasswordPatch(inner.getPassword(), statusModel.getObject()));
             }
@@ -81,10 +83,10 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
 
     @Override
     protected UserWizardBuilder addOptionalDetailsPanel(
-            final AnyHandler<UserTO> modelObject, final WizardModel wizardModel) {
+            final AnyWrapper<UserTO> modelObject, final WizardModel wizardModel) {
 
         wizardModel.add(new UserDetails(
-                modelObject, statusModel, false, false,
+                UserWrapper.class.cast(modelObject), statusModel, false,
                 modelObject.getInnerObject().getKey() != null,
                 UserFormLayoutInfo.class.cast(formLayoutInfo).isPasswordManagement(),
                 pageRef));
@@ -98,8 +100,8 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
      * @return the current wizard.
      */
     @Override
-    public UserWizardBuilder setItem(final AnyHandler<UserTO> item) {
-        super.setItem(item);
+    public UserWizardBuilder setItem(final AnyWrapper<UserTO> item) {
+        super.setItem(item == null ? null : new UserWrapper(item.getInnerObject()));
         statusModel.getObject().clear();
         return this;
     }

@@ -71,8 +71,7 @@ public abstract class Realm extends Panel {
     }
 
     private List<ITab> buildTabList(final PageReference pageRef) {
-
-        final List<ITab> tabs = new ArrayList<>();
+        List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new Model<>("DETAILS")) {
 
@@ -80,7 +79,7 @@ public abstract class Realm extends Panel {
 
             @Override
             public Panel getPanel(final String panelId) {
-                final ActionLinksPanel<RealmTO> actionLinksPanel = ActionLinksPanel.<RealmTO>builder().
+                ActionLinksPanel<RealmTO> actionLinksPanel = ActionLinksPanel.<RealmTO>builder().
                         add(new ActionLink<RealmTO>(realmTO) {
 
                             private static final long serialVersionUID = 2802988981431379827L;
@@ -132,6 +131,7 @@ public abstract class Realm extends Panel {
                 }
             });
         }
+
         return tabs;
     }
 

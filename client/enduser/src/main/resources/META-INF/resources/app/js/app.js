@@ -61,9 +61,10 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
               templateUrl: 'views/home.html',
               controller: 'HomeController',
               resolve: {
-                'authenticated': function (AuthenticationHelper) {
-                  return AuthenticationHelper.authenticated();
-                }
+                'authenticated': ['AuthService',
+                  function (AuthService) {
+                    return AuthService.islogged()
+                  }]
               }
             })
             .state('create', {
@@ -105,9 +106,10 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
               url: '/self/update',
               templateUrl: 'views/editUser.html',
               resolve: {
-                'authenticated': function (AuthenticationHelper) {
-                  return AuthenticationHelper.authenticated();
-                }
+                'authenticated': ['AuthService',
+                  function (AuthService) {
+                    return AuthService.islogged();
+                  }]
               }
             })
             // nested states 
@@ -117,63 +119,70 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
               url: '/credentials',
               templateUrl: 'views/user-credentials.html',
               resolve: {
-                'authenticated': function (AuthenticationHelper) {
-                  return AuthenticationHelper.authenticated();
-                }
+                'authenticated': ['AuthService',
+                  function (AuthService) {
+                    return AuthService.islogged();
+                  }]
               }
             })
             .state('update.plainSchemas', {
               url: '/plainSchemas',
               templateUrl: 'views/user-plain-schemas.html',
               resolve: {
-                'authenticated': function (AuthenticationHelper) {
-                  return AuthenticationHelper.authenticated();
-                }
+                'authenticated': ['AuthService',
+                  function (AuthService) {
+                    return AuthService.islogged();
+                  }]
               }
             })
             .state('update.derivedSchemas', {
               url: '/derivedSchemas',
               templateUrl: 'views/user-derived-schemas.html',
               resolve: {
-                'authenticated': function (AuthenticationHelper) {
-                  return AuthenticationHelper.authenticated();
-                }
+                'authenticated': ['AuthService',
+                  function (AuthService) {
+                    return AuthService.islogged();
+                  }]
               }
             })
             .state('update.virtualSchemas', {
               url: '/virtualSchemas',
               templateUrl: 'views/user-virtual-schemas.html',
               resolve: {
-                'authenticated': function (AuthenticationHelper) {
-                  return AuthenticationHelper.authenticated();
-                }
+                'authenticated': ['AuthService',
+                  function (AuthService) {
+                    return AuthService.islogged();
+                  }]
               }
             })
             .state('update.groups', {
               url: '/groups',
               templateUrl: 'views/user-groups.html',
               resolve: {
-                'authenticated': function (AuthenticationHelper) {
-                  return AuthenticationHelper.authenticated();
-                }
+                'authenticated': ['AuthService',
+                  function (AuthService) {
+                    return AuthService.islogged();
+                  }]
               }
             })
             .state('update.resources', {
               url: '/resources',
               templateUrl: 'views/user-resources.html',
               resolve: {
-                'authenticated': function (AuthenticationHelper) {
-                  return AuthenticationHelper.authenticated();
-                }
+                'authenticated': ['AuthService',
+                  function (AuthService) {
+                    return AuthService.islogged();
+                  }]
               }
             })
             .state('update.finish', {
               url: '/finish',
               templateUrl: 'views/user-form-finish.html',
               resolve: {
-                'authenticated': function (AuthenticationHelper) {
-                  return AuthenticationHelper.authenticated();
-                }
+                'authenticated': ['AuthService',
+                  function (AuthService) {
+                    return AuthService.islogged();
+                  }]
               }
             })
             .state('passwordreset', {
@@ -197,7 +206,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
     $httpProvider.defaults.withCredentials = true;
     $httpProvider.defaults.xsrfCookieName = 'XSRF-TOKEN';
     $httpProvider.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
-    
+
     //SYNCOPE-780
     $httpProvider.defaults.headers.common["If-Modified-Since"] = "0";
 
@@ -208,7 +217,10 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
           //if the url is an html, we're changing page
           if (config.url.indexOf('.html', config.url.length - 5) == -1) {
             $rootScope.$broadcast("xhrStarted");
+            var separator = config.url.indexOf('?') === -1 ? '?' : '&';
+            config.url = config.url + separator + 'noCache=' + new Date().getTime();
           }
+
           $rootScope.spinner.on();
           return config || $q.when(config);
         },
@@ -222,13 +234,13 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
           if (response.config.url.indexOf("acceptError=true") == -1) {
             var status = response.status;
             if (status == 401) {
-              console.log("ERROR " + status);
+              console.error("ERROR ", status);
             }
             if (status == 403) {
-              console.log("UNAUTHORIZED " + status);
+              console.error("UNAUTHORIZED ", status);
             }
             if (status == 400 || status == 404 || status == 412 || status == 500) {
-              console.log("GENERIC ERROR " + status);
+              console.error("GENERIC ERROR ", status);
             }
           }
           return $q.reject(response);
@@ -238,12 +250,10 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
 
   }]);
 
-app.run(['$rootScope', '$location', '$cookies', '$state',
-  function ($rootScope, $location, $cookies, $state) {
+app.run(['$rootScope', '$location', '$cookies', '$state', 'AuthService',
+  function ($rootScope, $location, $cookies, $state, AuthService) {
     // main program
     // keep user logged in after page refresh
-    // check if user is logged or not
-    $rootScope.currentUser = $cookies.get('currentUser') || null;
     //If the route change failed due to authentication error, redirect them out
     $rootScope.$on('$routeChangeError', function (event, current, previous, rejection) {
       if (rejection === 'Not Authenticated') {
@@ -254,10 +264,36 @@ app.run(['$rootScope', '$location', '$cookies', '$state',
     $rootScope.$on('$stateChangeSuccess', function (event, toState) {
       if (toState.name === 'create') {
         $state.go('create.credentials');
+
       } else if (toState.name === 'update') {
         $state.go('update.credentials');
-      }
-      else {
+
+      } else if (toState.name.indexOf("update") > -1) {
+        AuthService.islogged().then(function (response) {
+          if (response === "true") {
+            $state.go(toState);
+          } else {
+            $state.go('self');
+          }
+        }, function (response) {
+          console.error("not logged");
+          $state.go('self');
+        }
+        );
+
+      } else if (toState.name === 'home' || toState.name === 'self') {
+        AuthService.islogged().then(function (response) {
+          if (response === "true") {
+            $state.go('update.credentials');
+          } else {
+            $state.go('self');
+          }
+        }, function (response) {
+          console.error("not logged");
+          $state.go('self');
+        }
+        );
+      } else {
         $state.go(toState);
       }
     });
@@ -294,7 +330,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
                 $rootScope.captchaEnabled = response.captchaEnabled;
               },
               function (response) {
-                console.log("Something went wrong while accessing info resource", response);
+                console.error("Something went wrong while accessing info resource", response);
               });
 
       $rootScope.isSelfRegAllowed = function () {
@@ -361,8 +397,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
                 }
               });
             }, timer);
-          }
-          else {
+          } else {
             pendingNotifications.each(function (idx, element) {
               var popup = $(element).data("kendoPopup");
               if (popup) {
@@ -387,7 +422,6 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $scope.$on('hideErrorMessage', function (event, popupMessage) {
         $scope.hideError(popupMessage, $scope.notification);
       });
-
       //wizard active element
       $scope.wizard = {
         "credentials": {url: "/credentials", templateUrl: "views/user-credentials.html"},
@@ -398,23 +432,8 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
         "resources": {url: "/resources", templateUrl: "views/user-resources.html"},
         "finish": {url: "/finish", templateUrl: "views/user-form-finish.html"}
       };
-
-
-    }
-  }]);
-app.factory('AuthenticationHelper', ['$q', '$rootScope',
-  function ($q, $rootScope) {
-    return {
-      authenticated: function () {
-
-        var currentUser = $rootScope.currentUser;
-        console.log("AuthenticationHelper, currentUser: ", currentUser);
-        if (angular.isDefined(currentUser) && currentUser) {
-          return true;
-        } else {
-          console.log("NOT AUTHENTICATED, REDIRECT TO LOGIN PAGE");
-          return $q.reject('Not Authenticated');
-        }
+      $scope.clearCache = function () {
+        $templateCache.removeAll();
       }
-    };
+    }
   }]);

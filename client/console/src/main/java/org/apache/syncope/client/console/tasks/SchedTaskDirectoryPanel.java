@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -62,7 +63,7 @@ import org.apache.wicket.model.StringResourceModel;
  * @param <T> Sched task type.
  */
 public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
-        extends TaskDirectoryPanel<T> implements ModalPanel<T> {
+        extends TaskDirectoryPanel<T> implements ModalPanel {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
@@ -70,7 +71,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     protected T schedTaskTO;
 
-    private final StartAtTogglePanel startAt;
+    private final TaskStartAtTogglePanel startAt;
 
     protected SchedTaskDirectoryPanel(
             final BaseModal<?> baseModal,
@@ -86,13 +87,14 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             LOG.error("Falure instantiating task", e);
         }
 
-        this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(schedTaskTO, pageRef), true);
+        this.addNewItemPanelBuilder(
+                new SchedTaskWizardBuilder<>(schedTaskTO, pageRef).setEventSink(SchedTaskDirectoryPanel.this), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.TASK_CREATE);
 
         initResultTable();
 
-        startAt = new StartAtTogglePanel(container);
+        startAt = new TaskStartAtTogglePanel(container);
         addInnerObject(startAt);
     }
 
@@ -140,7 +142,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         columns.add(new PropertyColumn<T, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new PropertyColumn<T, String>(
+        columns.add(new BooleanPropertyColumn<T>(
                 new StringResourceModel("active", this, null), "active", "active"));
 
         return columns;
@@ -155,11 +157,6 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         columns.add(new ActionColumn<T, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public String getCssClass() {
-                return "action";
-            }
 
             @Override
             public ActionLinksPanel<T> getActions(
@@ -207,7 +204,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
-                                startAt.setTaskTO(target, model.getObject());
+                                startAt.setExecutionDetail(
+                                        model.getObject().getKey(), model.getObject().getName(), target);
                                 startAt.toggle(target, true);
                             }
                         }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE).

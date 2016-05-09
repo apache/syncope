@@ -32,25 +32,25 @@ public final class LoggerWrapper {
     }
 
     public static List<AuditLoggerName> wrap(final Collection<LoggerTO> logger) {
-        List<AuditLoggerName> respons = new ArrayList<>();
+        List<AuditLoggerName> result = new ArrayList<>();
         for (LoggerTO loggerTO : logger) {
             try {
-                respons.add(AuditLoggerName.fromLoggerName(loggerTO.getKey()));
+                result.add(AuditLoggerName.fromLoggerName(loggerTO.getKey()));
             } catch (Exception ignore) {
                 // ignore
             }
         }
-        return respons;
+        return result;
     }
 
     public static List<LoggerTO> unwrap(final Collection<AuditLoggerName> auditNames) {
-        List<LoggerTO> respons = new ArrayList<>();
+        List<LoggerTO> result = new ArrayList<>();
         for (AuditLoggerName name : auditNames) {
             LoggerTO loggerTO = new LoggerTO();
             loggerTO.setKey(name.toLoggerName());
             loggerTO.setLevel(LoggerLevel.DEBUG);
-            respons.add(loggerTO);
+            result.add(loggerTO);
         }
-        return respons;
+        return result;
     }
 }

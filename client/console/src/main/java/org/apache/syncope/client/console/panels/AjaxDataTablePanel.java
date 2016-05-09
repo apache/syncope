@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoic
 import org.apache.syncope.client.console.bulk.BulkActionModal;
 import org.apache.syncope.client.console.bulk.BulkContent;
 import org.apache.syncope.client.console.panels.DirectoryPanel.EventDataWrapper;
+import org.apache.syncope.client.console.rest.RestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -65,7 +66,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
         private final Collection<ActionLink.ActionType> bulkActions = new ArrayList<>();
 
-        private BaseRestClient bulkActionExecutor;
+        private RestClient bulkActionExecutor;
 
         private String itemKeyField;
 
@@ -108,7 +109,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
         public Builder<T, S> setBulkActions(
                 final Collection<ActionLink.ActionType> bulkActions,
-                final BaseRestClient bulkActionExecutor,
+                final RestClient bulkActionExecutor,
                 final String itemKeyField) {
             this.bulkActions.clear();
             if (bulkActions != null) {

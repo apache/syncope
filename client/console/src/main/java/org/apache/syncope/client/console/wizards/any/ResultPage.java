@@ -19,19 +19,14 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
-import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.syncope.client.console.panels.WizardModalPanel;
 
-/**
- *
- * @param <T> item input type
- */
-public abstract class ResultPage<T extends Serializable> extends Panel implements ModalPanel<T> {
+public abstract class ResultPage<T extends Serializable> extends Panel implements WizardModalPanel<T> {
 
     private static final long serialVersionUID = -1619945285130369086L;
 
@@ -58,16 +53,6 @@ public abstract class ResultPage<T extends Serializable> extends Panel implement
     protected abstract void closeAction(final AjaxRequestTarget target);
 
     protected abstract Panel customResultBody(final String panleId, final T item, final Serializable result);
-
-    @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Unsupported operation.");
-    }
-
-    @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Unsupported operation.");
-    }
 
     @Override
     public T getItem() {

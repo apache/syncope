@@ -218,7 +218,7 @@ public class Relationships extends WizardStep {
 
         private AnyObjectSearchPanel anyObjectSearchPanel;
 
-        private WizardMgtPanel<AnyHandler<AnyObjectTO>> anyObjectDirectoryPanel;
+        private WizardMgtPanel<AnyWrapper<AnyObjectTO>> anyObjectDirectoryPanel;
 
         public Specification() {
             super("specification");

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -93,7 +94,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends AbstractProvision
         columns.add(new PropertyColumn<T, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new PropertyColumn<T, String>(
+        columns.add(new BooleanPropertyColumn<T>(
                 new StringResourceModel("active", this, null), "active", "active"));
 
         return columns;

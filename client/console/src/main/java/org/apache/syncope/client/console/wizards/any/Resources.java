@@ -40,7 +40,7 @@ public class Resources extends WizardStep {
         add(new AjaxPalettePanel.Builder<String>().build("resources",
                 new PropertyModel<List<String>>(entityTO, "resources") {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 3799387950428254072L;
 
             @Override
             public List<String> getObject() {

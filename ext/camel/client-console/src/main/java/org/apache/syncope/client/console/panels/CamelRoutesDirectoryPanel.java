@@ -72,7 +72,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
         this.anyTypeKind = anyTypeKind;
         setFooterVisibility(true);
-        modal.addSumbitButton();
+        modal.addSubmitButton();
         modal.size(Modal.Size.Large);
         initResultTable();
 
@@ -81,7 +81,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<CamelRouteTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
+            public WizardModalPanel<CamelRouteTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 final CamelRouteTO modelObject = newModelObject();
                 return new CamelRoutesModalPanel(modal, modelObject, pageRef) {
 

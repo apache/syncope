@@ -55,7 +55,7 @@ public class DateTimePickerField extends DateTimeField {
             @Override
             public void afterRender(final Component component) {
                 Response response = component.getResponse();
-                response.write("\n<span class=\"yui-skin-sam\">&nbsp;<span style=\"");
+                response.write("\n<span class=\"yui-skin-sam\"><span style=\"");
 
                 if (renderOnLoad()) {
                     response.write("display:block;");
@@ -66,7 +66,7 @@ public class DateTimePickerField extends DateTimeField {
 
                 response.write("z-index: 99999;\" id=\"");
                 response.write(getEscapedComponentMarkupId());
-                response.write("Dp\"></span><i class=\"glyphicon glyphicon-calendar icon-top-position\"");
+                response.write("Dp\"></span><i class=\"glyphicon glyphicon-calendar\" style=\"margin-left: 5px;\"");
                 response.write(" id=\"");
                 response.write(getIconId());
                 response.write("\" ");

@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
-import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
+import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -142,8 +142,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertFalse(task.getExecutions().isEmpty());
 
         // check list executions
-        PagedResult<ExecTO> execs = taskService.listExecutions(
-                new TaskExecQuery.Builder().key("1e697572-b896-484c-ae7f-0c8f63fcbc6c").
+        PagedResult<ExecTO> execs = taskService.listExecutions(new ExecQuery.Builder().key("1e697572-b896-484c-ae7f-0c8f63fcbc6c").
                 page(1).size(2).build());
         assertTrue(execs.getTotalCount() >= execs.getResult().size());
     }

@@ -47,7 +47,7 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     @Column(name = "actionClassName")
     @CollectionTable(name = "PushTask_actionsClassNames",
             joinColumns =
-            @JoinColumn(name = "pushTask_key", referencedColumnName = "id"))
+            @JoinColumn(name = "pushTask_id", referencedColumnName = "id"))
     private Set<String> actionsClassNames = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pushTask")

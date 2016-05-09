@@ -32,7 +32,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractModalPanel<T extends Serializable> extends Panel implements ModalPanel<T> {
+public class AbstractModalPanel<T extends Serializable> extends Panel
+        implements SubmitableModalPanel, WizardModalPanel<T> {
 
     private static final long serialVersionUID = 8611724965544132636L;
 

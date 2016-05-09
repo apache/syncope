@@ -37,7 +37,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.client.console.wizards.role.RoleHandler;
+import org.apache.syncope.client.console.wizards.role.RoleWrapper;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -50,7 +50,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleHandler, RoleDataProvider, RoleRestClient> {
+public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, RoleDataProvider, RoleRestClient> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -66,7 +66,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleHandler, Role
         addOuterObject(utilityModal);
         setWindowClosedReloadCallback(utilityModal);
         utilityModal.size(Modal.Size.Large);
-        utilityModal.addSumbitButton();
+        utilityModal.addSubmitButton();
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.ROLE_CREATE);
     }
@@ -108,7 +108,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleHandler, Role
                     public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                         send(RoleDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<>(
-                                        new RoleHandler(new RoleRestClient().read(model.getObject().getKey())),
+                                        new RoleWrapper(new RoleRestClient().read(model.getObject().getKey())),
                                         target));
                     }
                 }, ActionLink.ActionType.EDIT, StandardEntitlement.ROLE_READ).add(new ActionLink<RoleTO>() {
@@ -120,7 +120,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleHandler, Role
                         final RoleTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(null);
                         send(RoleDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<>(new RoleHandler(clone), target));
+                                new AjaxWizard.NewItemActionEvent<>(new RoleWrapper(clone), target));
                     }
                 }, ActionLink.ActionType.CLONE, StandardEntitlement.ROLE_CREATE).add(new ActionLink<RoleTO>() {
 
@@ -187,7 +187,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleHandler, Role
     }
 
     public abstract static class Builder
-            extends DirectoryPanel.Builder<RoleTO, RoleHandler, RoleRestClient> {
+            extends DirectoryPanel.Builder<RoleTO, RoleWrapper, RoleRestClient> {
 
         private static final long serialVersionUID = 5088962796986706805L;
 
@@ -196,7 +196,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleHandler, Role
         }
 
         @Override
-        protected WizardMgtPanel<RoleHandler> newInstance(final String id) {
+        protected WizardMgtPanel<RoleWrapper> newInstance(final String id) {
             return new RoleDirectoryPanel(id, this);
         }
     }

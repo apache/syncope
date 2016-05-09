@@ -32,7 +32,6 @@ import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.notifications.MailTemplateDirectoryPanel.MailTemplateProvider;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
-import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -54,6 +53,7 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.syncope.client.console.panels.WizardModalPanel;
 
 public class MailTemplateDirectoryPanel
         extends DirectoryPanel<MailTemplateTO, MailTemplateTO, MailTemplateProvider, NotificationRestClient> {
@@ -67,24 +67,26 @@ public class MailTemplateDirectoryPanel
         disableCheckBoxes();
 
         modal.size(Modal.Size.Small);
-        modal.addSumbitButton();
+        modal.addSubmitButton();
         setFooterVisibility(true);
 
         addOuterObject(utilityModal);
         setWindowClosedReloadCallback(utilityModal);
         utilityModal.size(Modal.Size.Large);
-        utilityModal.addSumbitButton();
+        utilityModal.addSubmitButton();
 
+        restClient = new NotificationRestClient();
         addNewItemPanelBuilder(new AbstractModalPanelBuilder<MailTemplateTO>(new MailTemplateTO(), pageRef) {
 
             private static final long serialVersionUID = 1995192603527154740L;
 
             @Override
-            public ModalPanel<MailTemplateTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
-                return new MailTemplateModal(modal, new MailTemplateTO(), pageReference);
+            public WizardModalPanel<MailTemplateTO> build(
+                    final String id, final int index, final AjaxWizard.Mode mode) {
+                return new TemplateModal<MailTemplateTO, MailTemplateFormat>(
+                        modal, restClient, new MailTemplateTO(), pageReference);
             }
         }, true);
-        restClient = new NotificationRestClient();
 
         initResultTable();
 
@@ -113,14 +115,15 @@ public class MailTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        MailTemplateContentModal.MailTemplateContent content =
-                                new MailTemplateContentModal.MailTemplateContent(
+                        TemplateContentModal.TemplateContent<MailTemplateFormat> content
+                                = new TemplateContentModal.TemplateContent<MailTemplateFormat>(
                                         model.getObject().getKey(), MailTemplateFormat.HTML);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.HTML));
 
                         utilityModal.header(new ResourceModel("mail.template.html", "HTML Content"));
-                        utilityModal.setContent(new MailTemplateContentModal(utilityModal, content, pageRef));
+                        utilityModal.setContent(new TemplateContentModal<MailTemplateTO, MailTemplateFormat>(
+                                utilityModal, restClient, content, pageRef));
                         utilityModal.show(true);
                         target.add(utilityModal);
                     }
@@ -132,15 +135,16 @@ public class MailTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        MailTemplateContentModal.MailTemplateContent content =
-                                new MailTemplateContentModal.MailTemplateContent(
+                        TemplateContentModal.TemplateContent<MailTemplateFormat> content
+                                = new TemplateContentModal.TemplateContent<MailTemplateFormat>(
                                         model.getObject().getKey(), MailTemplateFormat.TEXT);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.TEXT));
 
                         utilityModal.setFormModel(content);
                         utilityModal.header(new ResourceModel("mail.template.text", "TEXT Content"));
-                        utilityModal.setContent(new MailTemplateContentModal(utilityModal, content, pageRef));
+                        utilityModal.setContent(new TemplateContentModal<MailTemplateTO, MailTemplateFormat>(
+                                utilityModal, restClient, content, pageRef));
                         utilityModal.show(true);
                         target.add(utilityModal);
                     }
@@ -199,14 +203,14 @@ public class MailTemplateDirectoryPanel
 
         @Override
         public Iterator<MailTemplateTO> iterator(final long first, final long count) {
-            final List<MailTemplateTO> list = restClient.getAllAvailableTemplates();
+            final List<MailTemplateTO> list = restClient.listTemplates();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.getAllAvailableTemplates().size();
+            return restClient.listTemplates().size();
         }
 
         @Override

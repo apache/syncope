@@ -30,7 +30,7 @@ angular.module('self')
                       .then(function (response) {
                         return response;
                       }, function (response) {
-                        console.log("Something went wrong during generation of chaptcha, exit with status: ",
+                        console.error("Something went wrong during generation of chaptcha, exit with status: ",
                                 response.statusText);
                       });
             };

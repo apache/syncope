@@ -18,32 +18,14 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import java.io.Serializable;
 import org.apache.syncope.client.console.panels.ModalPanel;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 
-public abstract class AbstractTasks extends Panel implements ModalPanel<Serializable> {
+public abstract class AbstractTasks extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = -4013796607157549641L;
 
     public AbstractTasks(final String id) {
         super(id);
-    }
-
-    @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Serializable getItem() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -50,7 +50,7 @@ public class InstallSetupForDebug {
         System.out.println("- File system permission checked");
         System.out.println("");
 
-        final JasyptUtils jasyptUtils = JasyptUtils.getJasyptUtils();
+        final JasyptUtils jasyptUtils = JasyptUtils.get();
         try {
 
             final String contentCliPropertiesFile = InstallConfigFileTemplate.cliPropertiesFile(

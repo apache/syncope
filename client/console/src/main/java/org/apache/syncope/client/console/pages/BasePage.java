@@ -25,16 +25,21 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtPage;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.panels.NotificationPanel;
+import org.apache.syncope.client.console.rest.ConfigurationRestClient;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.widgets.ApprovalsWidget;
 import org.apache.syncope.client.console.widgets.JobWidget;
 import org.apache.syncope.client.console.widgets.ReconciliationWidget;
+import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -53,11 +58,14 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.message.ConnectedMessage;
+import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.ContentDisposition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,15 +75,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     protected static final Logger LOG = LoggerFactory.getLogger(BasePage.class);
 
-    protected static final String CANCEL = "cancel";
+    protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
-    protected static final String SUBMIT = "submit";
-
-    protected static final String APPLY = "apply";
-
-    protected static final String FORM = "form";
-
-    protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
+    protected static SystemInfo SYSTEM_INFO;
 
     protected final WebMarkupContainer body;
 
@@ -125,6 +127,42 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
         body.add(new ApprovalsWidget("approvalsWidget", getPageReference()).setRenderBodyOnly(true));
 
+        // right sidebar
+        synchronized (this) {
+            if (SYSTEM_INFO == null) {
+                SYSTEM_INFO = SyncopeConsoleSession.get().getService(SyncopeService.class).system();
+            }
+        }
+        body.add(new Label("hostname", SYSTEM_INFO.getHostname()));
+        body.add(new Label("processors", SYSTEM_INFO.getAvailableProcessors()));
+        body.add(new Label("os", SYSTEM_INFO.getOs()));
+        body.add(new Label("jvm", SYSTEM_INFO.getJvm()));
+
+        Link<Void> dbExportLink = new Link<Void>("dbExportLink") {
+
+            private static final long serialVersionUID = -4331619903296515985L;
+
+            @Override
+            public void onClick() {
+                try {
+                    HttpResourceStream stream = new HttpResourceStream(new ConfigurationRestClient().dbExport());
+
+                    ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
+                    rsrh.setFileName(stream.getFilename() == null
+                            ? SyncopeConsoleSession.get().getDomain() + "Content.xml"
+                            : stream.getFilename());
+                    rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
+
+                    getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
+                } catch (Exception e) {
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                }
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(
+                dbExportLink, WebPage.ENABLE, StandardEntitlement.CONFIGURATION_EXPORT);
+        body.add(dbExportLink);
+
         // menu
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("dashboard"));
         body.add(liContainer);
@@ -158,6 +196,12 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("workflow", Workflow.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
+        liContainer.add(link);
+
+        liContainer = new WebMarkupContainer(getLIContainerId("audit"));
+        confULContainer.add(liContainer);
+        link = BookmarkablePageLinkBuilder.build("audit", Audit.class);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, StandardEntitlement.AUDIT_LIST);
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("logs"));
@@ -334,7 +378,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
-        response.render(new PriorityHeaderItem(meta));
+        response.render(new PriorityHeaderItem(META_IE_EDGE));
     }
 
     private String getLIContainerId(final String linkId) {

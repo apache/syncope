@@ -28,10 +28,9 @@ angular.module('self')
             any.getAuxClasses = function () {
               return  $http.get("/syncope-enduser/api/auxiliaryClasses")
                       .then(function (response) {
-                        console.log("auxiliaryClasses API response: ", response);
                         return response.data;
                       }, function (response) {
-                        console.log("Something went wrong during auxiliaryClasses retrieval, exit with status: ", response);
+                        console.debug("Something went wrong during auxiliaryClasses retrieval, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };
@@ -39,10 +38,9 @@ angular.module('self')
             any.getAnyType = function (kind) {
               return  $http.get("/syncope-enduser/api/anyTypes/" + encodeURI(kind))
                       .then(function (response) {
-                        console.log("anyType user API response: ", response);
                         return response.data;
                       }, function (response) {
-                        console.log("Something went wrong during anyType user API retrieval, exit with status: ", response);
+                        console.error("Something went wrong during anyType user API retrieval, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };

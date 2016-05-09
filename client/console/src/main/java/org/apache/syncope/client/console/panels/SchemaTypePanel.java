@@ -94,7 +94,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
                 private static final long serialVersionUID = -6388405037134399367L;
 
                 @Override
-                public ModalPanel<AbstractSchemaTO> build(
+                public WizardModalPanel<AbstractSchemaTO> build(
                         final String id, final int index, final AjaxWizard.Mode mode) {
                     final AbstractSchemaTO modelObject = newModelObject();
                     return new SchemaModalPanel(modal, modelObject, pageRef) {
@@ -264,9 +264,8 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
 
         private SchemaProvider(final int paginatorRows, final SchemaType schemaType) {
             super(paginatorRows);
-            this.schemaType = schemaType;
 
-            // Default sorting
+            this.schemaType = schemaType;
             setSort("key", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }

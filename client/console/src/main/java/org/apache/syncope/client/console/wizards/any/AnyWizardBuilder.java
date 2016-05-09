@@ -36,7 +36,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.util.ListModel;
 
-public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilder<AnyHandler<A>> {
+public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilder<AnyWrapper<A>> {
 
     private static final long serialVersionUID = -2480279868319546243L;
 
@@ -60,7 +60,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
             final AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo,
             final PageReference pageRef) {
 
-        super(new AnyHandler<>(anyTO), pageRef);
+        super(new AnyWrapper<>(anyTO), pageRef);
         this.anyTypeClasses = anyTypeClasses;
         this.formLayoutInfo = formLayoutInfo;
     }
@@ -68,24 +68,24 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
     /**
      * Construct.
      *
-     * @param handler any handler
+     * @param wrapper any wrapper
      * @param anyTypeClasses any type classes
      * @param formLayoutInfo form layout info
      * @param pageRef caller page reference.
      */
     public AnyWizardBuilder(
-            final AnyHandler<A> handler,
+            final AnyWrapper<A> wrapper,
             final List<String> anyTypeClasses,
             final AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo,
             final PageReference pageRef) {
 
-        super(handler, pageRef);
+        super(wrapper, pageRef);
         this.anyTypeClasses = anyTypeClasses;
         this.formLayoutInfo = formLayoutInfo;
     }
 
     @Override
-    protected WizardModel buildModelSteps(final AnyHandler<A> modelObject, final WizardModel wizardModel) {
+    protected WizardModel buildModelSteps(final AnyWrapper<A> modelObject, final WizardModel wizardModel) {
         // optional details panel step
         addOptionalDetailsPanel(modelObject, wizardModel);
 
@@ -95,15 +95,23 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
 
             GroupFormLayoutInfo groupFormLayoutInfo = GroupFormLayoutInfo.class.cast(formLayoutInfo);
             if (groupFormLayoutInfo.isOwnership()) {
-                wizardModel.add(new Ownership(GroupHandler.class.cast(modelObject), pageRef));
+                wizardModel.add(new Ownership(GroupWrapper.class.cast(modelObject), pageRef));
             }
             if (groupFormLayoutInfo.isDynamicMemberships()) {
-                wizardModel.add(new DynamicMemberships(GroupHandler.class.cast(modelObject)));
+                wizardModel.add(new DynamicMemberships(GroupWrapper.class.cast(modelObject)));
             }
         }
 
         if (formLayoutInfo.isAuxClasses()) {
             wizardModel.add(new AuxClasses(modelObject.getInnerObject(), anyTypeClasses));
+        }
+
+        if (formLayoutInfo instanceof UserFormLayoutInfo
+                && UserFormLayoutInfo.class.cast(formLayoutInfo).isGroups()
+                || formLayoutInfo instanceof AnyObjectFormLayoutInfo
+                && AnyObjectFormLayoutInfo.class.cast(formLayoutInfo).isGroups()) {
+
+            wizardModel.add(new Groups(modelObject.getInnerObject()));
         }
 
         // attributes panel steps
@@ -151,7 +159,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
     }
 
     protected AnyWizardBuilder<A> addOptionalDetailsPanel(
-            final AnyHandler<A> modelObject, final WizardModel wizardModel) {
+            final AnyWrapper<A> modelObject, final WizardModel wizardModel) {
 
         if (modelObject.getInnerObject().getKey() != null) {
             wizardModel.add(new Details<>(

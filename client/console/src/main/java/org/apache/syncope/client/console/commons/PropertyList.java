@@ -28,12 +28,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 
 public abstract class PropertyList<T> implements List<String> {
 
-    private final T objectTO;
-
-    public PropertyList(final T objectTO) {
-        this.objectTO = objectTO;
-    }
-
     @Override
     public boolean add(final String item) {
         final List<String> list = getEnumValuesAsList(getValues());

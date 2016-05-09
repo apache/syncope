@@ -122,7 +122,7 @@ public class DBPasswordPullActions extends DefaultPullActions {
                 : (String) cipherAlgorithm.getValues().get(0);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public <A extends AnyTO> void after(
             final ProvisioningProfile<?, ?> profile,
@@ -131,9 +131,9 @@ public class DBPasswordPullActions extends DefaultPullActions {
             final ProvisioningReport result) throws JobExecutionException {
 
         if (any instanceof UserTO && encodedPassword != null && cipher != null) {
-            User syncopeUser = userDAO.find(any.getKey());
-            if (syncopeUser != null) {
-                syncopeUser.setEncodedPassword(encodedPassword.toUpperCase(), cipher);
+            User user = userDAO.find(any.getKey());
+            if (user != null) {
+                user.setEncodedPassword(encodedPassword.toUpperCase(), cipher);
             }
             encodedPassword = null;
             cipher = null;

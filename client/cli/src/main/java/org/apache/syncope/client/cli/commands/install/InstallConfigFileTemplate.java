@@ -25,8 +25,7 @@ public final class InstallConfigFileTemplate {
 
     private static final ResourceBundle CONF = ResourceBundle.getBundle("configuration");
 
-    public static final String CONFIGURATION_FILE_NAME
-            = CONF.getString("cli.installation.filename");
+    public static final String CONFIGURATION_FILE_NAME = CONF.getString("cli.installation.filename");
 
     private static final String SYNCOPE_REST_SERVICES = "syncope.rest.services=%s://%s:%s%s";
 
@@ -41,11 +40,13 @@ public final class InstallConfigFileTemplate {
             final String restContext,
             final String user,
             final String password) {
+
         final String syncopeRestServices = String.format(SYNCOPE_REST_SERVICES, schema, hostname, port, restContext);
         final String syncopeAdminUser = String.format(SYNCOPE_ADMIN_USER, user);
         final String syncopeAdminPassword = String.format(SYNCOPE_ADMIN_PASSWORD, password);
+        final String useGZIPCompression = String.format("syncope.useGZIPCompression=true");
 
-        return syncopeRestServices + "\n" + syncopeAdminUser + "\n" + syncopeAdminPassword;
+        return syncopeRestServices + "\n" + syncopeAdminUser + "\n" + syncopeAdminPassword + "\n" + useGZIPCompression;
     }
 
     public static String dirPath() {

@@ -19,14 +19,9 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
@@ -36,12 +31,12 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 /**
  * Console client for invoking Rest any type class services.
  */
-public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
+public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO, AnyObjectPatch> {
 
     private static final long serialVersionUID = -8874495991295283249L;
 
     @Override
-    protected Class<? extends AnyService<?, ?>> getAnyServiceClass() {
+    protected Class<? extends AnyService<AnyObjectTO, AnyObjectPatch>> getAnyServiceClass() {
         return AnyObjectService.class;
     }
 
@@ -78,37 +73,5 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
         return getService(AnyObjectService.class).search(
                 new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
                 orderBy(toOrderBy(sort)).details(false).build()).getResult();
-    }
-
-    @Override
-    public AnyObjectTO read(final String key) {
-        return getService(AnyObjectService.class).read(key);
-    }
-
-    public ProvisioningResult<AnyObjectTO> create(final AnyObjectTO anyObjectTO) {
-        Response response = getService(AnyObjectService.class).create(anyObjectTO);
-        return response.readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
-        });
-    }
-
-    public ProvisioningResult<AnyObjectTO> update(final String etag, final AnyObjectPatch anyObjectPatch) {
-        ProvisioningResult<AnyObjectTO> result;
-        synchronized (this) {
-            AnyObjectService service = getService(etag, AnyObjectService.class);
-            result = service.update(anyObjectPatch).readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
-            });
-            resetClient(AnyObjectService.class);
-        }
-        return result;
-    }
-
-    @Override
-    public ProvisioningResult<AnyObjectTO> delete(final String etag, final String key) {
-        return delete(AnyObjectService.class, AnyObjectTO.class, etag, key);
-    }
-
-    @Override
-    public BulkActionResult bulkAction(final BulkAction action) {
-        return getService(AnyObjectService.class).bulk(action);
     }
 }

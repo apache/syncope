@@ -65,7 +65,7 @@ public class Ownership extends WizardStep {
 
     private final Pattern owner = Pattern.compile("\\[\\(\\d+\\)\\] .*");
 
-    private final GroupHandler handler;
+    private final GroupWrapper wrapper;
 
     private final WebMarkupContainer ownerContainer;
 
@@ -91,11 +91,11 @@ public class Ownership extends WizardStep {
 
     private final Model<Boolean> isGroupOwnership;
 
-    public Ownership(final GroupHandler groupHandler, final PageReference pageRef) {
+    public Ownership(final GroupWrapper groupWrapper, final PageReference pageRef) {
         super();
-        this.handler = groupHandler;
+        this.wrapper = groupWrapper;
 
-        isGroupOwnership = Model.of(groupHandler.getInnerObject().getGroupOwner() != null);
+        isGroupOwnership = Model.of(groupWrapper.getInnerObject().getGroupOwner() != null);
 
         final BootstrapToggleConfig config = new BootstrapToggleConfig().
                 withOnStyle(BootstrapToggleConfig.Style.info).
@@ -187,16 +187,16 @@ public class Ownership extends WizardStep {
         }
 
         final AjaxTextFieldPanel userOwner = new AjaxTextFieldPanel(
-                "userOwner", "userOwner", new PropertyModel<String>(groupHandler.getInnerObject(), "userOwner") {
+                "userOwner", "userOwner", new PropertyModel<String>(groupWrapper.getInnerObject(), "userOwner") {
 
             private static final long serialVersionUID = -3743432456095828573L;
 
             @Override
             public String getObject() {
-                if (groupHandler.getInnerObject().getUserOwner() == null) {
+                if (groupWrapper.getInnerObject().getUserOwner() == null) {
                     return StringUtils.EMPTY;
                 } else {
-                    UserTO userTO = userRestClient.read(groupHandler.getInnerObject().getUserOwner());
+                    UserTO userTO = userRestClient.read(groupWrapper.getInnerObject().getUserOwner());
                     if (userTO == null) {
                         return StringUtils.EMPTY;
                     } else {
@@ -208,11 +208,11 @@ public class Ownership extends WizardStep {
             @Override
             public void setObject(final String object) {
                 if (StringUtils.isBlank(object)) {
-                    groupHandler.getInnerObject().setUserOwner(null);
+                    groupWrapper.getInnerObject().setUserOwner(null);
                 } else {
                     final Matcher matcher = owner.matcher(object);
                     if (matcher.matches()) {
-                        groupHandler.getInnerObject().setUserOwner(matcher.group(1));
+                        groupWrapper.getInnerObject().setUserOwner(matcher.group(1));
                     }
                 }
             }
@@ -235,16 +235,16 @@ public class Ownership extends WizardStep {
         userSearchFragment.add(userOwnerReset);
 
         final AjaxTextFieldPanel groupOwner = new AjaxTextFieldPanel(
-                "groupOwner", "groupOwner", new PropertyModel<String>(groupHandler.getInnerObject(), "groupOwner") {
+                "groupOwner", "groupOwner", new PropertyModel<String>(groupWrapper.getInnerObject(), "groupOwner") {
 
             private static final long serialVersionUID = -3743432456095828573L;
 
             @Override
             public String getObject() {
-                if (groupHandler.getInnerObject().getGroupOwner() == null) {
+                if (groupWrapper.getInnerObject().getGroupOwner() == null) {
                     return StringUtils.EMPTY;
                 } else {
-                    GroupTO groupTO = groupRestClient.read(groupHandler.getInnerObject().getGroupOwner());
+                    GroupTO groupTO = groupRestClient.read(groupWrapper.getInnerObject().getGroupOwner());
                     if (groupTO == null) {
                         return StringUtils.EMPTY;
                     } else {
@@ -256,11 +256,11 @@ public class Ownership extends WizardStep {
             @Override
             public void setObject(final String object) {
                 if (StringUtils.isBlank(object)) {
-                    groupHandler.getInnerObject().setGroupOwner(null);
+                    groupWrapper.getInnerObject().setGroupOwner(null);
                 } else {
                     final Matcher matcher = owner.matcher(object);
                     if (matcher.matches()) {
-                        groupHandler.getInnerObject().setGroupOwner(matcher.group(1));
+                        groupWrapper.getInnerObject().setGroupOwner(matcher.group(1));
                     }
                 }
             }
@@ -299,15 +299,15 @@ public class Ownership extends WizardStep {
         } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
             final AnyTO sel = ((AnySelectionDirectoryPanel.ItemSelection) event.getPayload()).getSelection();
             if (sel == null) {
-                handler.getInnerObject().setUserOwner(null);
-                handler.getInnerObject().setGroupOwner(null);
+                wrapper.getInnerObject().setUserOwner(null);
+                wrapper.getInnerObject().setGroupOwner(null);
             } else if (sel instanceof UserTO) {
-                handler.getInnerObject().setUserOwner(sel.getKey());
-                handler.getInnerObject().setGroupOwner(null);
+                wrapper.getInnerObject().setUserOwner(sel.getKey());
+                wrapper.getInnerObject().setGroupOwner(null);
                 ((UserSelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
             } else if (sel instanceof GroupTO) {
-                handler.getInnerObject().setGroupOwner(sel.getKey());
-                handler.getInnerObject().setUserOwner(null);
+                wrapper.getInnerObject().setGroupOwner(sel.getKey());
+                wrapper.getInnerObject().setUserOwner(null);
                 ((GroupSelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
             }
         } else {

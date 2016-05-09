@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,15 +33,14 @@ import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
-import org.apache.syncope.client.console.wizards.any.GroupHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
+import org.apache.syncope.client.console.wizards.any.GroupWrapper;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -53,7 +51,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -65,8 +62,15 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
+    private final BaseModal<Serializable> typeExtensionsModal = new BaseModal<>("outer");
+
     protected GroupDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
+
+        typeExtensionsModal.size(Modal.Size.Large);
+        addOuterObject(typeExtensionsModal);
+        setWindowClosedReloadCallback(typeExtensionsModal);
+        typeExtensionsModal.addSubmitButton();
     }
 
     @Override
@@ -79,15 +83,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
         final List<IColumn<GroupTO, String>> columns = new ArrayList<>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_DETAILS_VIEW)) {
-            final Field field = ReflectionUtils.findField(GroupTO.class, name);
-
-            if ("key".equalsIgnoreCase(name)) {
-                columns.add(new KeyPropertyColumn<GroupTO>(new ResourceModel(name, name), name, name));
-            } else if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new DatePropertyColumn<GroupTO>(new ResourceModel(name, name), name, name));
-            } else {
-                columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
-            }
+            addPropertyColumn(name, ReflectionUtils.findField(GroupTO.class, name), columns);
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_PLAIN_ATTRS_VIEW)) {
@@ -105,7 +101,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
             for (String name : GroupDisplayAttributesModalPanel.DEFAULT_SELECTION) {
-                columns.add(new PropertyColumn<GroupTO, String>(new ResourceModel(name, name), name, name));
+                addPropertyColumn(name, ReflectionUtils.findField(GroupTO.class, name), columns);
             }
 
             prefMan.setList(getRequest(), getResponse(), Constants.PREF_GROUP_DETAILS_VIEW,
@@ -128,15 +124,15 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                        final IModel<AnyHandler<GroupTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(
-                                model.getObject()));
+                        IModel<AnyWrapper<GroupTO>> formModel = new CompoundPropertyModel<>(
+                                new AnyWrapper<>(model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
                         target.add(altDefaultModal.setContent(new StatusModal<>(
                                 altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
                         altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
+                                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
 
                         altDefaultModal.show(true);
                     }
@@ -147,20 +143,30 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                         send(GroupDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(
-                                        new GroupHandler(new GroupRestClient().read(model.getObject().
-                                                getKey())), target));
+                                new AjaxWizard.EditItemActionEvent<>(new GroupWrapper(
+                                        new GroupRestClient().read(model.getObject().getKey())), target));
                     }
-                }, ActionType.EDIT, StandardEntitlement.GROUP_READ).add(new ActionLink<GroupTO>() {
+                }, ActionType.EDIT, StandardEntitlement.GROUP_UPDATE).add(new ActionLink<GroupTO>() {
 
-                    private static final long serialVersionUID = -7978723352517770644L;
+                    private static final long serialVersionUID = 6242834621660352855L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                        final GroupTO clone = SerializationUtils.clone(model.getObject());
+                        target.add(typeExtensionsModal.setContent(new TypeExtensionDirectoryPanel(
+                                typeExtensionsModal, model.getObject(), pageRef)));
+                        typeExtensionsModal.header(new StringResourceModel("typeExtensions", model));
+                        typeExtensionsModal.show(true);
+                    }
+                }, ActionType.TYPE_EXTENSIONS, StandardEntitlement.GROUP_UPDATE).add(new ActionLink<GroupTO>() {
+
+                    private static final long serialVersionUID = 6242834621660352855L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                        GroupTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(null);
                         send(GroupDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<>(new GroupHandler(clone), target));
+                                new AjaxWizard.NewItemActionEvent<>(new GroupWrapper(clone), target));
                     }
                 }, ActionType.CLONE, StandardEntitlement.GROUP_CREATE).add(new ActionLink<GroupTO>() {
 
@@ -170,7 +176,6 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                         target.add(utilityModal.setContent(new AnyPropagationTasks(
                                 utilityModal, AnyTypeKind.GROUP, model.getObject().getKey(), pageRef)));
-
                         utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
                         utilityModal.show(true);
                     }
@@ -184,7 +189,6 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                                 new NotificationTasks(AnyTypeKind.GROUP, model.getObject().getKey(), pageRef)));
                         utilityModal.header(new StringResourceModel("any.notification.tasks", model));
                         utilityModal.show(true);
-                        target.add(utilityModal);
                     }
                 }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<GroupTO>() {
 
@@ -220,7 +224,6 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         target.add(displayAttributeModal.setContent(new GroupDisplayAttributesModalPanel<>(
                                 displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
-                        displayAttributeModal.addSumbitButton();
                         displayAttributeModal.header(new ResourceModel("any.attr.display"));
                         displayAttributeModal.show(true);
                     }
@@ -242,8 +245,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
         return columns;
     }
 
-    public static class Builder extends AnyDirectoryPanel.Builder<GroupTO>
-            implements AnyDirectoryPanelBuilder {
+    public static class Builder extends AnyDirectoryPanel.Builder<GroupTO> {
 
         private static final long serialVersionUID = 3844281520756293159L;
 
@@ -253,7 +255,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<GroupTO>> newInstance(final String id) {
+        protected WizardMgtPanel<AnyWrapper<GroupTO>> newInstance(final String id) {
             return new GroupDirectoryPanel(id, this);
         }
     }

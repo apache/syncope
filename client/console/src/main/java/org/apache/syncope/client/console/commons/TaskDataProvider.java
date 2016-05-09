@@ -37,9 +37,8 @@ public abstract class TaskDataProvider<T extends AbstractTaskTO> extends Directo
 
     public TaskDataProvider(final int paginatorRows, final TaskType taskType, final TaskRestClient taskRestClient) {
         super(paginatorRows);
-        this.taskRestClient = taskRestClient;
 
-        //Default sorting
+        this.taskRestClient = taskRestClient;
         setSort("key", SortOrder.DESCENDING);
         comparator = new SortableDataProviderComparator<>(this);
         this.taskType = taskType;

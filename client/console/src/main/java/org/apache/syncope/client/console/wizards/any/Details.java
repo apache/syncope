@@ -38,14 +38,14 @@ public class Details<T extends AnyTO> extends WizardStep {
     protected final StatusPanel statusPanel;
 
     public Details(
-            final AnyHandler<T> handler,
+            final AnyWrapper<T> wrapper,
             final IModel<List<StatusBean>> statusModel,
             final boolean includeStatusPanel,
             final PageReference pageRef) {
 
         this.pageRef = pageRef;
 
-        T anyTO = handler.getInnerObject();
+        T anyTO = wrapper.getInnerObject();
 
         statusPanel = new StatusPanel("status", anyTO, statusModel, pageRef);
 

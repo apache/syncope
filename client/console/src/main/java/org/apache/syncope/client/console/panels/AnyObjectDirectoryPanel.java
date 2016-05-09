@@ -19,10 +19,8 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,13 +32,12 @@ import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -52,7 +49,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -80,15 +76,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
         for (String name : prefMan.getList(
                 getRequest(), String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type))) {
 
-            final Field field = ReflectionUtils.findField(AnyObjectTO.class, name);
-
-            if ("key".equalsIgnoreCase(name)) {
-                columns.add(new KeyPropertyColumn<AnyObjectTO>(new ResourceModel(name, name), name, name));
-            } else if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
-            } else {
-                columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
-            }
+            addPropertyColumn(name, ReflectionUtils.findField(AnyObjectTO.class, name), columns);
         }
 
         for (String name : prefMan.getList(
@@ -110,7 +98,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
             for (String name : AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION) {
-                columns.add(new PropertyColumn<AnyObjectTO, String>(new ResourceModel(name, name), name, name));
+                addPropertyColumn(name, ReflectionUtils.findField(AnyObjectTO.class, name), columns);
             }
 
             prefMan.setList(getRequest(), getResponse(),
@@ -134,7 +122,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                        final IModel<AnyHandler<AnyObjectTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(
+                        final IModel<AnyWrapper<AnyObjectTO>> formModel = new CompoundPropertyModel<>(new AnyWrapper<>(
                                 model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
@@ -142,7 +130,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                                 altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
                         altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
+                                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
 
                         altDefaultModal.show(true);
                     }
@@ -154,7 +142,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                     public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                         send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<>(
-                                        new AnyHandler<>(new AnyObjectRestClient().read(model.getObject().getKey())),
+                                        new AnyWrapper<>(new AnyObjectRestClient().read(model.getObject().getKey())),
                                         target));
                     }
                 }, ActionType.EDIT, AnyEntitlement.READ.getFor(type)).add(new ActionLink<AnyObjectTO>() {
@@ -166,7 +154,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                         final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
                         clone.setKey(null);
                         send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<>(new AnyHandler<>(clone), target));
+                                new AjaxWizard.NewItemActionEvent<>(new AnyWrapper<>(clone), target));
                     }
                 }, ActionType.CLONE, AnyEntitlement.CREATE.getFor(type)).add(new ActionLink<AnyObjectTO>() {
 
@@ -226,7 +214,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         target.add(displayAttributeModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
                                 displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
-                        displayAttributeModal.addSumbitButton();
+                        displayAttributeModal.addSubmitButton();
                         displayAttributeModal.header(new ResourceModel("any.attr.display"));
                         displayAttributeModal.show(true);
                     }
@@ -262,7 +250,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<AnyObjectTO>> newInstance(final String id) {
+        protected WizardMgtPanel<AnyWrapper<AnyObjectTO>> newInstance(final String id) {
             return new AnyObjectDirectoryPanel(id, this);
         }
     }

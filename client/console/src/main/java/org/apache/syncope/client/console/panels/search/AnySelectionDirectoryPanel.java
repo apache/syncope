@@ -145,7 +145,7 @@ public abstract class AnySelectionDirectoryPanel<T extends AnyTO> extends AnyDir
                         target.add(altDefaultModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
                                 altDefaultModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
 
-                        altDefaultModal.addSumbitButton();
+                        altDefaultModal.addSubmitButton();
                         altDefaultModal.header(new ResourceModel("any.attr.display"));
                         altDefaultModal.show(true);
                     }
@@ -180,13 +180,13 @@ public abstract class AnySelectionDirectoryPanel<T extends AnyTO> extends AnyDir
 
     protected abstract String getPrefDerivedAttributesView();
 
-    public abstract static class Builder<T extends AnyTO> extends AnyDirectoryPanel.Builder<T> {
+    public abstract static class Builder<A extends AnyTO> extends AnyDirectoryPanel.Builder<A> {
 
         private static final long serialVersionUID = 5460024856989891156L;
 
         public Builder(
                 final List<AnyTypeClassTO> anyTypeClassTOs,
-                final AbstractAnyRestClient<T> restClient,
+                final AbstractAnyRestClient<A, ?> restClient,
                 final String type,
                 final PageReference pageRef) {
 

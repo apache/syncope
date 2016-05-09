@@ -61,8 +61,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelClone", "emptyFragment", this));
         super.add(new Fragment("panelCreate", "emptyFragment", this));
         super.add(new Fragment("panelEdit", "emptyFragment", this));
+        super.add(new Fragment("panelTypeExtensions", "emptyFragment", this));
+        super.add(new Fragment("panelFoEdit", "emptyFragment", this));
         super.add(new Fragment("panelHtmlEdit", "emptyFragment", this));
         super.add(new Fragment("panelTextEdit", "emptyFragment", this));
+        super.add(new Fragment("panelCompose", "emptyFragment", this));
         super.add(new Fragment("panelLayoutEdit", "emptyFragment", this));
         super.add(new Fragment("panelReset", "emptyFragment", this));
         super.add(new Fragment("panelEnable", "emptyFragment", this));
@@ -75,6 +78,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelSelect", "emptyFragment", this));
         super.add(new Fragment("panelClose", "emptyFragment", this));
         super.add(new Fragment("panelExport", "emptyFragment", this));
+        super.add(new Fragment("panelExportCSV", "emptyFragment", this));
+        super.add(new Fragment("panelExportHTML", "emptyFragment", this));
+        super.add(new Fragment("panelExportPDF", "emptyFragment", this));
+        super.add(new Fragment("panelExportRTF", "emptyFragment", this));
+        super.add(new Fragment("panelExportXML", "emptyFragment", this));
         super.add(new Fragment("panelSuspend", "emptyFragment", this));
         super.add(new Fragment("panelReactivate", "emptyFragment", this));
         super.add(new Fragment("panelReload", "emptyFragment", this));
@@ -310,6 +318,44 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 }.setVisible(link.isEnabled(model.getObject())));
                 break;
 
+            case TYPE_EXTENSIONS:
+                fragment = new Fragment("panelTypeExtensions", "fragmentTypeExtensions", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("typeExtensionsLink") {
+
+                    private static final long serialVersionUID = -1876519166660008562L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case FO_EDIT:
+                fragment = new Fragment("panelFoEdit", "fragmentFoEdit", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("foEditLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
             case HTML_EDIT:
                 fragment = new Fragment("panelHtmlEdit", "fragmentHtmlEdit", this);
 
@@ -335,6 +381,25 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment.addOrReplace(new IndicatingAjaxLink<Void>("textEditLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case COMPOSE:
+                fragment = new Fragment("panelCompose", "fragmentCompose", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("composeLink") {
+
+                    private static final long serialVersionUID = -1876519166660008562L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -528,6 +593,101 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment = new Fragment("panelExport", "fragmentExport", this);
 
                 fragment.addOrReplace(new IndicatingAjaxLink<Void>("exportLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case EXPORT_CSV:
+                fragment = new Fragment("panelExportCSV", "fragmentExportCSV", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("exportCSVLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case EXPORT_HTML:
+                fragment = new Fragment("panelExportHTML", "fragmentExportHTML", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("exportHTMLLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case EXPORT_PDF:
+                fragment = new Fragment("panelExportPDF", "fragmentExportPDF", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("exportPDFLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case EXPORT_RTF:
+                fragment = new Fragment("panelExportRTF", "fragmentExportRTF", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("exportRTFLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case EXPORT_XML:
+                fragment = new Fragment("panelExportXML", "fragmentExportXML", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("exportXMLLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -864,8 +1024,16 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 super.addOrReplace(new Fragment("panelCreate", "emptyFragment", this));
                 break;
 
+            case COMPOSE:
+                super.addOrReplace(new Fragment("panelCompose", "emptyFragment", this));
+                break;
+
             case EDIT:
                 super.addOrReplace(new Fragment("panelEdit", "emptyFragment", this));
+                break;
+
+            case FO_EDIT:
+                super.addOrReplace(new Fragment("panelFoEdit", "emptyFragment", this));
                 break;
 
             case HTML_EDIT:
@@ -906,6 +1074,25 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
             case EXPORT:
                 super.addOrReplace(new Fragment("panelExport", "emptyFragment", this));
+                break;
+
+            case EXPORT_CSV:
+                super.addOrReplace(new Fragment("panelExportCSV", "emptyFragment", this));
+                break;
+
+            case EXPORT_HTML:
+                super.addOrReplace(new Fragment("panelExportHTML", "emptyFragment", this));
+                break;
+
+            case EXPORT_PDF:
+                super.addOrReplace(new Fragment("panelExportPDF", "emptyFragment", this));
+                break;
+
+            case EXPORT_RTF:
+                super.addOrReplace(new Fragment("panelExportRTF", "emptyFragment", this));
+                break;
+            case EXPORT_XML:
+                super.addOrReplace(new Fragment("panelExportXML", "emptyFragment", this));
                 break;
 
             case SUSPEND:

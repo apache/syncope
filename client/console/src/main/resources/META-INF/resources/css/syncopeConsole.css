@@ -261,7 +261,7 @@ div.wizard-view div.wizard-view{
 
 .wizard-view > div {
   display: block;
-  height: 98%;
+  height: 95%;
   position: relative;
 }
 
@@ -419,14 +419,41 @@ div.searchResult{
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
   float: left;
   font-size: 14px;
-  list-style: outside none none;
   min-width: 160px;
-  text-align: left;
   max-height: 250px;
+}
+
+div.wicket-aa ul {
+  list-style: none;
+  padding-left: 15px;
 }
 
 /**
 START - Notifications
+*/
+
+/**
+START - startAt
+*/
+div#startAt {
+  background-color: rgba(98, 98, 98, 0.98) !important;
+  color: #CCC;
+  right: 5px !important;
+  top: 100px !important;
+  min-width: 450px;
+  min-height: 130px !important;
+  z-index: 6000 !important;
+}
+
+div#startAtContainer {
+  padding: 15px;
+}
+
+div#startAtContainer input {
+  background-color: rgba(200, 200, 200, 0.60) !important;
+}
+/**
+END - startAt
 */
 
 /*Temporany fix diagonal stacking*/
@@ -484,9 +511,6 @@ START - Notifications
   width:85%
 }
 
-/**
-END - Notifications
-*/
 
 /**
 START - Actions
@@ -640,7 +664,15 @@ START - Search - AjaxDateTimePicker
   width: 120px !important;
 }
 
+.clause .type button{
+  width: 120px !important;
+}
+
 .clause .property{
+  width: 190px;
+}
+
+.clause .property button{
   width: 190px;
 }
 
@@ -730,3 +762,159 @@ div#userFilter  #check {
 .keyColumn {
   width: 20px;
 }
+
+/**
+START - Alert widget onside menu
+*/
+div.alert-widget > a > .label {
+  font-size: 9px;
+  line-height: 0.9;
+  padding: 2px 3px;
+  position: absolute;
+  margin-left: 10px;
+  text-align: center;
+  top: 0px;
+}
+
+div.alert-widget > a {
+  display: block;
+  position: relative;
+}
+
+div.alert-widget > a > i {
+  position: absolute;
+  top: 9px;
+}
+
+div.alert-widget{
+  text-align: center;
+  vertical-align: middle;
+  padding-right: 20px;
+}
+
+div.alert-widget .dropdown-menu > li.header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #f4f4f4;
+  border-radius: 4px 4px 0 0;
+  color: #444444;
+  font-size: 14px;
+  padding: 7px 10px;
+}
+
+div.alert-widget .dropdown-menu > li.footer > a {
+  background-color: #fff;
+  border-radius: 0 0 4px 4px;
+  color: #444 !important;
+  font-size: 12px;
+  padding: 7px 10px;
+  text-align: center;
+}
+
+div.alert-widget .dropdown-menu > li .menu {
+  list-style: outside none none;
+  padding: 10px;
+}
+/**
+END - Alert widget onside menu
+*/
+
+/**
+START - Transformers toggle panel
+*/
+div#transformersTogglePanel {
+  background-color: rgba(140, 140, 140, 0.99) !important;
+  width: 1000px !important;
+}
+
+div#transformersContainer {
+  padding: 15px;
+}
+
+div#transformersContainer input {
+  background-color: rgba(200, 200, 200, 0.60) !important;
+}
+
+div#transformersContainer #footer {
+  clear: both;
+  display: block;
+  text-align: right;
+}
+
+div#transformersContainer #body {
+  clear: both;
+  display: block;
+}
+
+div#transformersContainer #body select {
+  border: 1px solid #ccc !important;
+  background: rgba(240, 240, 240, 0.95) !important
+}
+
+div#transformersContainer #body a {
+  color: #ccc !important;
+  cursor: pointer !important;
+}
+/**
+END - Transformers toggle panel
+*/
+
+/**
+START - CRONTAB
+*/
+div#schedule input, div#schedule fieldset {
+  width: 50px;
+  float: left
+}
+
+div#templates {
+  padding-top: 30px;
+  clear: both;
+}
+/**
+END - CRONTAB
+*/
+
+/**
+START - EVENTS
+*/
+.events {
+  display: table-row;
+  width: 990px;
+}
+
+.selectedEvents {
+  display: inline-block;
+  height: 100px;
+  margin: 10px 10px 0 10px;
+  overflow-y: auto;
+}
+
+.eventSelection {
+  display: inline-table;
+  float: right;
+  width: 380px;
+  min-width: 530px;
+}
+
+.eventSelection div#value {
+  height: auto;
+  overflow: hidden;
+}
+
+.eventSelection div#value div#custom {
+  width: auto;
+  overflow: hidden;
+}
+
+.eventSelection div#value div#customActions {
+  width: 85px;
+  float: right;
+}
+
+div#selectionContainer select {
+  width: 585px;
+  min-width: 585px;
+}
+/**
+END - EVENTS
+*/

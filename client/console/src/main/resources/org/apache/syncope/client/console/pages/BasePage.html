@@ -37,6 +37,8 @@ under the License.
     <script type="text/javascript">
       // global variable for IndicatingOnConfirmAjaxLink
       var proceed = false;
+      // configure AdminLTE
+      $.AdminLTE.options['enableBSToppltip'] = false;
     </script>
   </head>
   <body class="skin-green-light hold-transition sidebar-mini" wicket:id="body">
@@ -83,6 +85,10 @@ under the License.
                   </li>
                 </ul>
               </li>
+
+              <li>
+                <a data-toggle="control-sidebar" href="#"><i class="fa fa-gears"></i></a>
+              </li>
             </ul>
           </div>
         </nav>
@@ -102,14 +108,15 @@ under the License.
             <li wicket:id="configurationLI" class="treeview">
               <a href="#"><i class="fa fa-edit"></i><span><wicket:message key="configuration"/></span> <i class="fa fa-angle-left pull-right"></i></a>
               <ul wicket:id="configurationUL" class="treeview-menu">
-                <li wicket:id="rolesLI"><a href="#" wicket:id="roles"><i class="fa fa-users"></i><wicket:message key="roles"/></a></li>
-                <li wicket:id="policiesLI"><a href="#" wicket:id="policies"><i class="fa fa-list"></i><wicket:message key="policies"/></a></li>
-                <li wicket:id="securityquestionsLI"><a href="#" wicket:id="securityquestions"><i class="fa fa-question"></i><wicket:message key="securityQuestions"/></a></li>
-                <li wicket:id="workflowLI"><a href="#" wicket:id="workflow"><i class="fa fa-share-alt"></i><wicket:message key="workflow"/></a></li>
+                <li wicket:id="auditLI"><a href="#" wicket:id="audit"><i class="fa fa-check-square-o"></i><wicket:message key="audit"/></a></li>
                 <li wicket:id="logsLI"><a href="#" wicket:id="logs"><i class="fa fa-file-text-o"></i><wicket:message key="logs"/></a></li>
-                <li wicket:id="typesLI"><a href="#" wicket:id="types"><i class="fa fa-wrench"></i><wicket:message key="types"/></a></li>
                 <li wicket:id="notificationsLI"><a href="#" wicket:id="notifications"><i class="fa fa-envelope-o"></i><wicket:message key="notifications"/></a></li>
                 <li wicket:id="parametersLI"><a href="#" wicket:id="parameters"><i class="fa fa-cog"></i><wicket:message key="parameters"/></a></li>
+                <li wicket:id="policiesLI"><a href="#" wicket:id="policies"><i class="fa fa-list"></i><wicket:message key="policies"/></a></li>
+                <li wicket:id="rolesLI"><a href="#" wicket:id="roles"><i class="fa fa-users"></i><wicket:message key="roles"/></a></li>
+                <li wicket:id="securityquestionsLI"><a href="#" wicket:id="securityquestions"><i class="fa fa-question"></i><wicket:message key="securityQuestions"/></a></li>
+                <li wicket:id="typesLI"><a href="#" wicket:id="types"><i class="fa fa-wrench"></i><wicket:message key="types"/></a></li>
+                <li wicket:id="workflowLI"><a href="#" wicket:id="workflow"><i class="fa fa-share-alt"></i><wicket:message key="workflow"/></a></li>
               </ul>
             </li>
             <li wicket:id="extensionsLI" class="treeview">
@@ -137,6 +144,73 @@ under the License.
         All rights reserved.
       </footer>
 
+      <aside class="control-sidebar control-sidebar-dark">
+        <div class="tab-content tab-pane">
+          <h3 class="control-sidebar-heading"><wicket:message key="systemInfo"/></h3>
+          <ul class="control-sidebar-menu">
+            <li>
+              <a href="#">
+                <i class="menu-icon fa fa-desktop bg-aqua"></i>
+
+                <div class="menu-info">
+                  <h4 class="control-sidebar-subheading"><wicket:message key="hostname"/></h4>
+
+                  <p><span wicket:id="hostname"/></p>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="menu-icon fa fa-calculator bg-green"></i>
+
+                <div class="menu-info">
+                  <h4 class="control-sidebar-subheading"><wicket:message key="processors"/></h4>
+
+                  <p><span wicket:id="processors"/></p>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="menu-icon fa fa-car bg-yellow"></i>
+
+                <div class="menu-info">
+                  <h4 class="control-sidebar-subheading"><wicket:message key="os"/></h4>
+
+                  <p><span wicket:id="os"/></p>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class="menu-icon fa fa-bar-chart bg-light-blue"></i>
+
+                <div class="menu-info">
+                  <h4 class="control-sidebar-subheading"><wicket:message key="jvm"/></h4>
+
+                  <p><span wicket:id="jvm"/></p>
+                </div>
+              </a>
+            </li>
+          </ul>
+          <!-- /.control-sidebar-menu -->
+
+          <h3 class="control-sidebar-heading">Export Configuration</h3>
+          <ul class="control-sidebar-menu">
+            <li>
+              <a wicket:id="dbExportLink">
+                <i class="menu-icon fa fa-download bg-red"></i>
+
+                <div class="menu-info">
+                  <h4 class="control-sidebar-subheading">Download</h4>
+                </div>
+              </a>
+            </li>
+          </ul>
+          <!-- /.control-sidebar-menu -->
+        </div>
+      </aside>
+      <div class="control-sidebar-bg" style="position: fixed; height: auto;"></div>
     </div>
 
     <div id="veil">

@@ -86,7 +86,6 @@ public class AuditLoggerName extends AbstractBaseBean {
                 append(buildEvent(type, category, subcategory, event, result)).toString();
     }
 
-    @SuppressWarnings("unchecked")
     public static AuditLoggerName fromLoggerName(final String loggerName)
             throws ParseException {
 

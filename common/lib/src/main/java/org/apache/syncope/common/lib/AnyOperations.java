@@ -334,6 +334,9 @@ public final class AnyOperations {
         result.setUDynMembershipCond(updated.getUDynMembershipCond());
         result.getADynMembershipConds().putAll(updated.getADynMembershipConds());
 
+        // 4. type extensions
+        result.getTypeExtensions().addAll(updated.getTypeExtensions());
+
         return result;
     }
 

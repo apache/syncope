@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.notifications;
 
+import org.apache.syncope.client.console.events.EventCategoryPanel;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,7 +70,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 
-public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHandler> {
+public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWrapper> {
 
     private static final long serialVersionUID = -1975312550059578553L;
 
@@ -86,11 +87,11 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
      * @param pageRef Caller page reference.
      */
     public NotificationWizardBuilder(final NotificationTO notificationTO, final PageReference pageRef) {
-        super(new NotificationHandler(notificationTO), pageRef);
+        super(new NotificationWrapper(notificationTO), pageRef);
     }
 
     @Override
-    protected Serializable onApplyInternal(final NotificationHandler modelObject) {
+    protected Serializable onApplyInternal(final NotificationWrapper modelObject) {
         modelObject.fillRecipientConditions();
         modelObject.fillAboutConditions();
 
@@ -105,7 +106,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
     }
 
     @Override
-    protected WizardModel buildModelSteps(final NotificationHandler modelObject, final WizardModel wizardModel) {
+    protected WizardModel buildModelSteps(final NotificationWrapper modelObject, final WizardModel wizardModel) {
         wizardModel.add(new NotificationWizardBuilder.Details(modelObject));
         wizardModel.add(new NotificationWizardBuilder.Events(modelObject));
         wizardModel.add(new NotificationWizardBuilder.Abouts(modelObject));
@@ -117,7 +118,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
 
         private static final long serialVersionUID = -7709805590497687958L;
 
-        public Details(final NotificationHandler modelObject) {
+        public Details(final NotificationWrapper modelObject) {
             final NotificationTO notificationTO = modelObject.getInnerObject();
             final boolean createFlag = notificationTO.getKey() == null;
 
@@ -164,9 +165,8 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
             final AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<>(
                     "template", getString("template"),
                     new PropertyModel<String>(notificationTO, "template"));
-
             template.setChoices(CollectionUtils.collect(
-                    restClient.getAllAvailableTemplates(), new Transformer<MailTemplateTO, String>() {
+                    restClient.listTemplates(), new Transformer<MailTemplateTO, String>() {
 
                 @Override
                 public String transform(final MailTemplateTO input) {
@@ -186,7 +186,6 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
 
             final AjaxCheckBoxPanel isActive = new AjaxCheckBoxPanel("isActive",
                     getString("isActive"), new PropertyModel<Boolean>(notificationTO, "active"));
-
             if (createFlag) {
                 isActive.getField().setDefaultModelObject(Boolean.TRUE);
             }
@@ -199,25 +198,22 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
 
         private static final long serialVersionUID = -7709805590497687958L;
 
-        public Events(final NotificationHandler modelObject) {
-            final NotificationTO notificationTO = modelObject.getInnerObject();
-            add(new LoggerCategoryPanel(
+        public Events(final NotificationWrapper modelObject) {
+            add(new EventCategoryPanel(
                     "eventSelection",
                     loggerRestClient.listEvents(),
-                    new PropertyModel<List<String>>(notificationTO, "events"),
-                    pageRef,
-                    "Notification") {
+                    new PropertyModel<List<String>>(modelObject.getInnerObject(), "events")) {
 
                 private static final long serialVersionUID = 6429053774964787735L;
 
                 @Override
-                protected String[] getListRoles() {
-                    return new String[] {};
+                protected List<String> getListAuthRoles() {
+                    return Collections.emptyList();
                 }
 
                 @Override
-                protected String[] getChangeRoles() {
-                    return new String[] {};
+                protected List<String> getChangeAuthRoles() {
+                    return Collections.emptyList();
                 }
             });
         }
@@ -315,7 +311,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
 
         private static final long serialVersionUID = -7709805590497687958L;
 
-        public Abouts(final NotificationHandler modelObject) {
+        public Abouts(final NotificationWrapper modelObject) {
             final WebMarkupContainer aboutContainer = new WebMarkupContainer("about");
             aboutContainer.setOutputMarkupId(true);
             add(aboutContainer);
@@ -363,7 +359,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationHan
 
         private static final long serialVersionUID = -7709805590497687958L;
 
-        public Recipients(final NotificationHandler modelObject) {
+        public Recipients(final NotificationWrapper modelObject) {
             final NotificationTO notificationTO = modelObject.getInnerObject();
             final boolean createFlag = notificationTO.getKey() == null;
 

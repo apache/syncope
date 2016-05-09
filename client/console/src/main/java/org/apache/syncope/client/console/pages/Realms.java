@@ -122,7 +122,7 @@ public class Realms extends BasePage {
                         true);
                 target.add(modal.setContent(panel));
 
-                modal.addSumbitButton();
+                modal.addSubmitButton();
                 modal.show(true);
             }
 
@@ -141,7 +141,7 @@ public class Realms extends BasePage {
                         false);
                 target.add(modal.setContent(panel));
 
-                modal.addSumbitButton();
+                modal.addSubmitButton();
                 modal.show(true);
             }
 

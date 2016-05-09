@@ -26,13 +26,11 @@ angular.module('self')
             var groupService = {};
 
             groupService.getGroups = function (realm) {
-              console.log(realm)
               return  $http.get("/syncope-enduser/api/groups?realm="+encodeURI(realm))
                       .then(function (response) {
-                        console.log("groupAPI response: ", response);
                         return response.data;
                       }, function (response) {
-                        console.log("Something went wrong during groups retrieval, exit with status: ", response);
+                        console.error("Something went wrong during groups retrieval, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };

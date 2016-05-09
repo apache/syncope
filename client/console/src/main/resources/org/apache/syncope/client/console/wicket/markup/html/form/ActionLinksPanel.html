@@ -43,10 +43,18 @@ under the License.
     <span wicket:id="panelCreate">[plus]</span>
     <span wicket:id="panelReset">[plus]</span>
     <span wicket:id="panelEdit">[plus]</span>
+    <span wicket:id="panelTypeExtensions">[plus]</span>
+    <span wicket:id="panelFoEdit">[plus]</span>
     <span wicket:id="panelHtmlEdit">[plus]</span>
     <span wicket:id="panelTextEdit">[plus]</span>
+    <span wicket:id="panelCompose">[plus]</span>
     <span wicket:id="panelLayoutEdit">[plus]</span>
     <span wicket:id="panelExport">[plus]</span>
+    <span wicket:id="panelExportCSV">[plus]</span>
+    <span wicket:id="panelExportHTML">[plus]</span>
+    <span wicket:id="panelExportPDF">[plus]</span>
+    <span wicket:id="panelExportRTF">[plus]</span>
+    <span wicket:id="panelExportXML">[plus]</span>
     <span wicket:id="panelPropagationTasks">[plus]</span>
     <span wicket:id="panelNotificationTasks">[plus]</span>
     <span wicket:id="panelDelete">[plus]</span>
@@ -121,12 +129,24 @@ under the License.
       <a href="#" wicket:id="editLink" class="btn"><i id="actionLink" class="glyphicon glyphicon-pencil" alt="edit icon" title="Edit"></i></a>
     </wicket:fragment>
 
+    <wicket:fragment wicket:id="fragmentTypeExtensions">
+      <a href="#" wicket:id="typeExtensionsLink" class="btn"><i id="actionLink" class="fa fa-expand" alt="typeExtensions icon" title="Type extensions"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentFoEdit">
+      <a href="#" wicket:id="foEditLink" class="btn"><i id="actionLink" class="fa fa-file-pdf-o" alt="fo edit icon" title="FO Edit"></i></a>
+    </wicket:fragment>
+
     <wicket:fragment wicket:id="fragmentHtmlEdit">
       <a href="#" wicket:id="htmlEditLink" class="btn"><i id="actionLink" class="fa fa-file-code-o" alt="html edit icon" title="HTML Edit"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentTextEdit">
       <a href="#" wicket:id="textEditLink" class="btn"><i id="actionLink" class="fa fa-file-text-o" alt="text edit icon" title="TEXT Edit"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentCompose">
+      <a href="#" wicket:id="composeLink" class="btn"><i id="actionLink" class="fa fa-puzzle-piece" alt="compose icon" title="Compose"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentLayoutEdit">
@@ -140,7 +160,7 @@ under the License.
     <wicket:fragment wicket:id="fragmentPropagationTasks">
       <a href="#" wicket:id="propagationTasksLink" class="btn"><i class="fa fa-arrow-right" alt="PropagationTasks icon" title="PropagationTasks"></i></a>
     </wicket:fragment>
-    
+
     <wicket:fragment wicket:id="fragmentNotificationTasks">
       <a href="#" wicket:id="notificationTasksLink" class="btn"><i class="fa fa-envelope-o" alt="NotificationTasks icon" title="NotificationTasks"></i></a>
     </wicket:fragment>
@@ -166,7 +186,27 @@ under the License.
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentExport">
-      <a href="#" wicket:id="exportLink" class="btn"><img id="actionLink" src="img/actions/export.png" alt="export icon" title="Export"/></a>
+      <a href="#" wicket:id="exportLink" class="btn"><i class="fa fa-floppy-o" alt="export icon" title="Export"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportCSV">
+      <a href="#" wicket:id="exportCSVLink" class="btn"><i class="fa fa-file-text-o" alt="export icon" title="Export CSV"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportHTML">
+      <a href="#" wicket:id="exportHTMLLink" class="btn"><i class="fa fa-file-code-o" alt="export icon" title="Export HTML"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportPDF">
+      <a href="#" wicket:id="exportPDFLink" class="btn"><i class="fa fa-file-pdf-o" alt="export icon" title="Export PDF"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportRTF">
+      <a href="#" wicket:id="exportRTFLink" class="btn"><i class="fa fa-file-word-o" alt="export icon" title="Export RTF"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportXML">
+      <a href="#" wicket:id="exportXMLLink" class="btn"><i class="fa fa-file-excel-o" alt="export icon" title="Export XML"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentSuspend">

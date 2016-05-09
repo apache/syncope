@@ -26,8 +26,6 @@ import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.StatusPatchType;
@@ -40,13 +38,19 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 /**
  * Console client for invoking rest users services.
  */
-public class UserRestClient extends AbstractAnyRestClient<UserTO> {
+public class UserRestClient extends AbstractAnyRestClient<UserTO, UserPatch> {
 
     private static final long serialVersionUID = -1575748964398293968L;
 
     @Override
-    protected Class<? extends AnyService<?, ?>> getAnyServiceClass() {
+    protected Class<? extends AnyService<UserTO, UserPatch>> getAnyServiceClass() {
         return UserService.class;
+    }
+
+    public ProvisioningResult<UserTO> create(final UserTO userTO, final boolean storePassword) {
+        Response response = getService(UserService.class).create(userTO, storePassword);
+        return response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        });
     }
 
     @Override
@@ -63,33 +67,6 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         return getService(UserService.class).
                 list(new AnyListQuery.Builder().realm(realm).page(page).size(size).
                         orderBy(toOrderBy(sort)).details(false).build()).getResult();
-    }
-
-    public ProvisioningResult<UserTO> create(final UserTO userTO, final boolean storePassword) {
-        Response response = getService(UserService.class).create(userTO, storePassword);
-        return response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
-        });
-    }
-
-    public ProvisioningResult<UserTO> update(final String etag, final UserPatch userPatch) {
-        ProvisioningResult<UserTO> result;
-        synchronized (this) {
-            UserService service = getService(etag, UserService.class);
-            result = service.update(userPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
-            });
-            resetClient(UserService.class);
-        }
-        return result;
-    }
-
-    @Override
-    public ProvisioningResult<UserTO> delete(final String etag, final String key) {
-        return delete(UserService.class, UserTO.class, etag, key);
-    }
-
-    @Override
-    public UserTO read(final String key) {
-        return getService(UserService.class).read(key);
     }
 
     @Override
@@ -136,10 +113,5 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
             service.status(statusPatch);
             resetClient(UserService.class);
         }
-    }
-
-    @Override
-    public BulkActionResult bulkAction(final BulkAction action) {
-        return getService(UserService.class).bulk(action);
     }
 }

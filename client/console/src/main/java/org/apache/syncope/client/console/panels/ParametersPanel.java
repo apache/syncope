@@ -100,7 +100,7 @@ public class ParametersPanel extends DirectoryPanel<
             private static final long serialVersionUID = 1995192603527154740L;
 
             @Override
-            public ModalPanel<AttrTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
+            public WizardModalPanel<AttrTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 return new ParametersCreateModalPanel(modal, newModelObject(), pageRef);
             }
         }, true);
@@ -151,7 +151,7 @@ public class ParametersPanel extends DirectoryPanel<
                             @Override
                             public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
                                 target.add(modalDetails);
-                                modalDetails.addSumbitButton();
+                                modalDetails.addSubmitButton();
                                 modalDetails.header(new StringResourceModel("any.edit"));
                                 modalDetails.setContent(
                                         new ParametersEditModalPanel(modalDetails, model.getObject(), pageRef));

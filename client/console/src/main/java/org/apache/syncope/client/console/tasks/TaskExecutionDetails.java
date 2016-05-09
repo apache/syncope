@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.tasks;
 
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.wicket.PageReference;
@@ -39,7 +40,7 @@ public class TaskExecutionDetails<T extends AbstractTaskTO> extends MultilevelPa
         final MultilevelPanel mlp = new MultilevelPanel("executions");
         add(mlp);
 
-        mlp.setFirstLevel(new TaskExecutions(baseModal, mlp, taskTO, pageRef) {
+        mlp.setFirstLevel(new ExecutionsDirectoryPanel(baseModal, mlp, taskTO.getKey(), new TaskRestClient(), pageRef) {
 
             private static final long serialVersionUID = 5691719817252887541L;
 

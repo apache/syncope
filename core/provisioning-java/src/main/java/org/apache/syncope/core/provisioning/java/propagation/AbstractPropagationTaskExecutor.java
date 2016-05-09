@@ -576,8 +576,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         try {
             obj = connector.getObject(new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),
-                    MappingManagerImpl.buildOperationOptions(IteratorUtils.chainedIterator(MappingManagerImpl.
-                            getPropagationMappingItems(provision).iterator(),
+                    MappingManagerImpl.buildOperationOptions(IteratorUtils.chainedIterator(
+                            MappingManagerImpl.getPropagationMappingItems(provision).iterator(),
                             linkingMappingItems.iterator())));
 
             for (MappingItem item : linkingMappingItems) {

@@ -19,11 +19,9 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -35,16 +33,13 @@ import org.apache.syncope.client.console.status.StatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
+import org.apache.syncope.client.console.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -55,7 +50,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -93,21 +87,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
         final List<IColumn<UserTO, String>> columns = new ArrayList<>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
-            final Field field = ReflectionUtils.findField(UserTO.class, name);
-
-            if ("key".equalsIgnoreCase(name)) {
-                columns.add(new KeyPropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
-            } else if ("token".equalsIgnoreCase(name)) {
-                columns.add(new TokenColumn<UserTO>(new ResourceModel(name, name), name));
-            } else if (field != null
-                    && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {
-
-                columns.add(new BooleanPropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
-            } else if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new DatePropertyColumn<UserTO>(new ResourceModel(name, name), name, name));
-            } else {
-                columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
-            }
+            addPropertyColumn(name, ReflectionUtils.findField(UserTO.class, name), columns);
         }
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_PLAIN_ATTRS_VIEW)) {
@@ -125,7 +105,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
             for (String name : UserDisplayAttributesModalPanel.DEFAULT_SELECTION) {
-                columns.add(new PropertyColumn<UserTO, String>(new ResourceModel(name, name), name, name));
+                addPropertyColumn(name, ReflectionUtils.findField(UserTO.class, name), columns);
             }
 
             prefMan.setList(getRequest(), getResponse(), Constants.PREF_USERS_DETAILS_VIEW,
@@ -167,16 +147,15 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-
-                        final IModel<AnyHandler<UserTO>> formModel = new CompoundPropertyModel<>(new AnyHandler<>(model.
-                                getObject()));
+                        IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
+                                new AnyWrapper<>(model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
                         target.add(altDefaultModal.setContent(new StatusModal<>(
                                 altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
                         altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
+                                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
 
                         altDefaultModal.show(true);
                     }
@@ -186,16 +165,15 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        final IModel<AnyHandler<UserTO>> formModel = new CompoundPropertyModel<>(
-                                new AnyHandler<>(model.
-                                        getObject()));
+                        IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
+                                new AnyWrapper<>(model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
                         target.add(altDefaultModal.setContent(new StatusModal<>(
                                 altDefaultModal, pageRef, formModel.getObject().getInnerObject(), true)));
 
                         altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyHandler<>(model.getObject())))));
+                                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
 
                         altDefaultModal.show(true);
                     }
@@ -207,7 +185,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                         send(UserDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<>(
-                                        new AnyHandler<>(new UserRestClient().read(model.getObject().getKey())),
+                                        new UserWrapper(new UserRestClient().read(model.getObject().getKey())),
                                         target));
                     }
                 }, ActionType.EDIT, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
@@ -220,7 +198,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                         clone.setKey(null);
                         clone.setUsername(model.getObject().getUsername() + "_clone");
                         send(UserDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<>(new AnyHandler<>(clone), target));
+                                new AjaxWizard.NewItemActionEvent<>(new UserWrapper(clone), target));
                     }
                 }, ActionType.CLONE, StandardEntitlement.USER_CREATE).add(new ActionLink<UserTO>() {
 
@@ -281,7 +259,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                                 displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
 
                         displayAttributeModal.header(new ResourceModel("any.attr.display"));
-                        displayAttributeModal.addSumbitButton();
+                        displayAttributeModal.addSubmitButton();
                         displayAttributeModal.show(true);
                     }
                 }, ActionType.CHANGE_VIEW, StandardEntitlement.USER_READ).add(
@@ -304,7 +282,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
 
     public static class Builder extends AnyDirectoryPanel.Builder<UserTO> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -6603152478702381900L;
 
         public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
             super(anyTypeClassTOs, new UserRestClient(), type, pageRef);
@@ -312,7 +290,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<UserTO>> newInstance(final String id) {
+        protected WizardMgtPanel<AnyWrapper<UserTO>> newInstance(final String id) {
             return new UserDirectoryPanel(id, this);
         }
     }

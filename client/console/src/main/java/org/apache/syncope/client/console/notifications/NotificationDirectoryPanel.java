@@ -34,6 +34,7 @@ import org.apache.syncope.client.console.notifications.NotificationDirectoryPane
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -56,23 +57,24 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class NotificationDirectoryPanel
-        extends DirectoryPanel<NotificationTO, NotificationHandler, NotificationProvider, NotificationRestClient> {
+        extends DirectoryPanel<NotificationTO, NotificationWrapper, NotificationProvider, NotificationRestClient> {
 
     private static final long serialVersionUID = -3789392431954221446L;
 
     protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
 
-    public NotificationDirectoryPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, true);
+    public NotificationDirectoryPanel(final String id, final PageReference pageRef) {
+        super(id, pageRef, true);
         disableCheckBoxes();
 
         addOuterObject(utilityModal);
         setWindowClosedReloadCallback(utilityModal);
+        utilityModal.size(Modal.Size.Large);
 
         modal.size(Modal.Size.Large);
         altDefaultModal.size(Modal.Size.Large);
 
-        addNewItemPanelBuilder(new NotificationWizardBuilder(new NotificationTO(), pageReference), true);
+        addNewItemPanelBuilder(new NotificationWizardBuilder(new NotificationTO(), pageRef), true);
 
         restClient = new NotificationRestClient();
 
@@ -83,7 +85,6 @@ public class NotificationDirectoryPanel
 
     @Override
     protected List<IColumn<NotificationTO, String>> getColumns() {
-
         List<IColumn<NotificationTO, String>> columns = new ArrayList<>();
         columns.add(new KeyPropertyColumn<NotificationTO>(
                 new StringResourceModel("key", this, null), "key", "key"));
@@ -95,7 +96,7 @@ public class NotificationDirectoryPanel
                 new StringResourceModel("template", this, null), "template", "template"));
         columns.add(new PropertyColumn<NotificationTO, String>(
                 new StringResourceModel("traceLevel", this, null), "traceLevel", "traceLevel"));
-        columns.add(new PropertyColumn<NotificationTO, String>(
+        columns.add(new BooleanPropertyColumn<NotificationTO>(
                 new StringResourceModel("active", this, null), "active", "active"));
 
         columns.add(new ActionColumn<NotificationTO, String>(new ResourceModel("actions", "")) {
@@ -130,7 +131,7 @@ public class NotificationDirectoryPanel
                     public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
                         send(NotificationDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<>(
-                                        new NotificationHandler(restClient.read(model.getObject().getKey())), target));
+                                        new NotificationWrapper(restClient.read(model.getObject().getKey())), target));
                     }
                 }, ActionLink.ActionType.EDIT, StandardEntitlement.NOTIFICATION_UPDATE);
 
@@ -173,7 +174,7 @@ public class NotificationDirectoryPanel
         return Collections.<ActionLink.ActionType>emptyList();
     }
 
-    public class NotificationProvider extends DirectoryDataProvider<NotificationTO> {
+    protected class NotificationProvider extends DirectoryDataProvider<NotificationTO> {
 
         private static final long serialVersionUID = -276043813563988590L;
 
@@ -181,20 +182,21 @@ public class NotificationDirectoryPanel
 
         public NotificationProvider(final int paginatorRows) {
             super(paginatorRows);
+
             setSort("key", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<NotificationTO> iterator(final long first, final long count) {
-            final List<NotificationTO> list = restClient.getAllNotifications();
+            List<NotificationTO> list = restClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.getAllNotifications().size();
+            return restClient.list().size();
         }
 
         @Override

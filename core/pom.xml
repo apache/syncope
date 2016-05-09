@@ -87,6 +87,7 @@ under the License.
     <module>workflow-activiti</module>
     <module>logic</module>
     <module>rest-cxf</module>
+    <module>migration</module>
   </modules>
 
 </project>

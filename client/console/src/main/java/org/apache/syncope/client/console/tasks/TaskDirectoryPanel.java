@@ -32,7 +32,6 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
@@ -42,13 +41,13 @@ import org.apache.wicket.model.IModel;
  * @param <T> task type.
  */
 public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
-        extends DirectoryPanel<T, T, TaskDataProvider<T>, TaskRestClient> implements ModalPanel<T> {
+        extends DirectoryPanel<T, T, TaskDataProvider<T>, TaskRestClient> implements ModalPanel {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
     private final BaseModal<?> baseModal;
 
-    protected final MultilevelPanel multiLevelPanelRef;
+    private final MultilevelPanel multiLevelPanelRef;
 
     protected TaskDirectoryPanel(
             final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanelRef, final PageReference pageRef) {
@@ -64,21 +63,6 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
         resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
     }
 
-    @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public T getItem() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
     protected abstract void viewTask(final T taskTO, final AjaxRequestTarget target);
 
     protected abstract class TasksProvider<T extends AbstractTaskTO> extends DirectoryDataProvider<T> {
@@ -92,7 +76,6 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
         public TasksProvider(final int paginatorRows, final TaskType id) {
             super(paginatorRows);
 
-            //Default sorting
             setSort("key", SortOrder.DESCENDING);
             comparator = new SortableDataProviderComparator<>(this);
             this.id = id;

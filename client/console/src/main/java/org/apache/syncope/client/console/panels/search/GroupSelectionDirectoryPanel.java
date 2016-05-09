@@ -23,7 +23,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.GroupDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.PageReference;
@@ -72,7 +72,7 @@ public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPan
         }
 
         @Override
-        protected WizardMgtPanel<AnyHandler<GroupTO>> newInstance(final String id) {
+        protected WizardMgtPanel<AnyWrapper<GroupTO>> newInstance(final String id) {
             return new GroupSelectionDirectoryPanel(id, this);
         }
     }

@@ -24,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.Predicate;
@@ -123,7 +124,8 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         groupSelector = new CheckGroupSelector("groupselector", checkGroup);
         addInnerObject(groupSelector.setOutputMarkupId(true)
                 .setOutputMarkupPlaceholderTag(true)
-                .setVisible(this.check.getObject() == CheckAvailability.AVAILABLE));
+                .setVisible(this.check.getObject() == CheckAvailability.AVAILABLE)
+                .setEnabled(this.check.getObject() == CheckAvailability.AVAILABLE));
 
         final List<String> toBeIncluded;
         if (includes == null || includes.isEmpty()) {
@@ -220,7 +222,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         private static final long serialVersionUID = -3643771352897992172L;
 
-        private IModel<? extends Collection<T>> model = new Model<>();
+        private IModel<? extends Collection<T>> model = Model.of(Collections.<T>emptyList());
 
         private final List<String> includes = new ArrayList<>();
 

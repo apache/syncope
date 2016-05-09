@@ -23,6 +23,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 public final class Constants {
@@ -109,6 +110,10 @@ public final class Constants {
 
     public static final String PREF_PROPAGATION_TASKS_PAGINATOR_ROWS = "proagationtasks.paginator.rows";
 
+    public static final String PREF_REPORT_TASKS_PAGINATOR_ROWS = "report.paginator.rows";
+
+    public static final String PREF_REPORTLET_TASKS_PAGINATOR_ROWS = "reportlet.paginator.rows";
+
     public static final String PREF_TASK_EXECS_PAGINATOR_ROWS = "task.execs.paginator.rows";
 
     public static final String PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS = "notificationtasks.paginator.rows";
@@ -118,6 +123,8 @@ public final class Constants {
     public static final String PREF_PULL_TASKS_PAGINATOR_ROWS = "pulltasks.paginator.rows";
 
     public static final String PREF_PUSH_TASKS_PAGINATOR_ROWS = "pushtasks.paginator.rows";
+
+    public static final String PREF_TYPE_EXTENSIONS_PAGINATOR_ROWS = "typeextensions.paginator.rows";
 
     public static final String PREF_TODO_PAGINATOR_ROWS = "todo.paginator.rows";
 
@@ -155,9 +162,19 @@ public final class Constants {
      */
     public static final String GUARDED_BYTE_ARRAY = "org.identityconnectors.common.security.GuardedByteArray";
 
-    public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {
-        return new Label("jexlInfo", Model.of()).add(new PopoverBehavior(
+    public static Component getPopover(
+            final String id,
+            final IModel<String> msg,
+            final Component caller,
+            final TooltipConfig.Placement placement) {
+        return new Label(id, Model.of()).add(new PopoverBehavior(
                 Model.<String>of(),
+                msg,
+                new PopoverConfig().withHtml(true).withPlacement(placement)));
+    }
+
+    public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {
+        return getPopover("jexlInfo",
                 Model.of(caller.getString("jexl_info")
                         + "<ul>"
                         + "<li>" + caller.getString("jexl_ex1") + "</li>"
@@ -165,7 +182,8 @@ public final class Constants {
                         + "</ul>"
                         + "<a href='https://commons.apache.org/proper/commons-jexl/reference/index.html' "
                         + "target='_blank'>" + caller.getString("jexl_syntax_url") + "</a>"),
-                new PopoverConfig().withHtml(true).withPlacement(placement)));
+                caller,
+                placement);
     }
 
     private Constants() {

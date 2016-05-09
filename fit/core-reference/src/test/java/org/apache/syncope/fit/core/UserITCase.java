@@ -1579,19 +1579,19 @@ public class UserITCase extends AbstractITCase {
         assertEquals(11, bulkAction.getTargets().size());
 
         bulkAction.setType(BulkAction.Type.SUSPEND);
-        BulkActionResult res = userService.bulk(bulkAction);
+        BulkActionResult res = userService.bulk(bulkAction).readEntity(BulkActionResult.class);
         assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
         assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
         assertEquals("suspended", userService.read(res.getResultByStatus(Status.SUCCESS).get(3)).getStatus());
 
         bulkAction.setType(BulkAction.Type.REACTIVATE);
-        res = userService.bulk(bulkAction);
+        res = userService.bulk(bulkAction).readEntity(BulkActionResult.class);
         assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
         assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
         assertEquals("active", userService.read(res.getResultByStatus(Status.SUCCESS).get(3)).getStatus());
 
         bulkAction.setType(BulkAction.Type.DELETE);
-        res = userService.bulk(bulkAction);
+        res = userService.bulk(bulkAction).readEntity(BulkActionResult.class);
         assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
         assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
     }

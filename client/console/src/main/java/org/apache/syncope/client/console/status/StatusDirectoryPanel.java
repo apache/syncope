@@ -44,21 +44,19 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class StatusDirectoryPanel
-        extends DirectoryPanel<StatusBean, StatusBean, AttributableStatusProvider, AbstractAnyRestClient<?>>
-        implements ModalPanel<StatusBean> {
+        extends DirectoryPanel<StatusBean, StatusBean, AttributableStatusProvider, AbstractAnyRestClient<?, ?>>
+        implements ModalPanel {
 
     private static final long serialVersionUID = -9148734710505211261L;
 
@@ -107,21 +105,6 @@ public class StatusDirectoryPanel
     @Override
     protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<StatusBean, String> resultTableBuilder) {
         resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
-    }
-
-    @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public StatusBean getItem() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

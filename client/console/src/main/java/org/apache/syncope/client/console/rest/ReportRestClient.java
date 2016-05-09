@@ -18,16 +18,28 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.BulkAction;
+import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
+import org.apache.syncope.common.lib.types.ReportTemplateFormat;
+import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
+import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 
-public class ReportRestClient extends BaseRestClient implements ExecutionRestClient {
+public class ReportRestClient extends BaseRestClient
+        implements ExecutionRestClient, TemplateRestClient<ReportTemplateTO, ReportTemplateFormat> {
 
     private static final long serialVersionUID = 1644689667998953604L;
 
@@ -73,5 +85,77 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
 
     public Response exportExecutionResult(final String executionKey, final ReportExecExportFormat fmt) {
         return getService(ReportService.class).exportExecutionResult(executionKey, fmt);
+    }
+
+    @Override
+    public List<ExecTO> listExecutions(final String taskKey, final int page, final int size) {
+        return getService(ReportService.class).
+                listExecutions(new ExecQuery.Builder().key(taskKey).page(page).size(size).build()).getResult();
+    }
+
+    @Override
+    public int countExecutions(final String taskKey) {
+        return getService(ReportService.class).
+                listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(1).build()).getTotalCount();
+    }
+
+    @Override
+    public List<ReportTemplateTO> listTemplates() {
+        return getService(ReportTemplateService.class).list();
+    }
+
+    @Override
+    public void createTemplate(final ReportTemplateTO reportTemplateTO) {
+        getService(ReportTemplateService.class).create(reportTemplateTO);
+    }
+
+    @Override
+    public void deleteTemplate(final String key) {
+        getService(ReportTemplateService.class).delete(key);
+    }
+
+    @Override
+    public ReportTemplateTO readTemplate(final String key) {
+        return getService(ReportTemplateService.class).read(key);
+    }
+
+    @Override
+    public String readTemplateFormat(final String key, final ReportTemplateFormat format) {
+        try {
+            return IOUtils.toString(InputStream.class.cast(
+                    getService(ReportTemplateService.class).getFormat(key, format).getEntity()),
+                    SyncopeConstants.DEFAULT_CHARSET);
+        } catch (Exception e) {
+            LOG.error("Error retrieving mail template {} as {}", key, format, e);
+            return StringUtils.EMPTY;
+        }
+    }
+
+    @Override
+    public void updateTemplateFormat(final String key, final String content, final ReportTemplateFormat format) {
+        getService(ReportTemplateService.class).setFormat(
+                key, format, IOUtils.toInputStream(content, SyncopeConstants.DEFAULT_CHARSET));
+    }
+
+    public BulkActionResult bulkAction(final BulkAction action) {
+        BulkActionResult result = new BulkActionResult();
+
+        switch (action.getType()) {
+            case DELETE:
+                for (String target : action.getTargets()) {
+                    delete(target);
+                    result.getResults().put(target, BulkActionResult.Status.SUCCESS);
+                }
+                break;
+            case EXECUTE:
+                for (String target : action.getTargets()) {
+                    startExecution(target, new Date());
+                    result.getResults().put(target, BulkActionResult.Status.SUCCESS);
+                }
+                break;
+            default:
+                throw new NotSupportedException(action.getType().name());
+        }
+        return result;
     }
 }

@@ -43,7 +43,7 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
     }
 
     @Override
-    protected Serializable onApplyInternal(final AnyHandler<AnyObjectTO> modelObject) {
+    protected Serializable onApplyInternal(final AnyWrapper<AnyObjectTO> modelObject) {
         final AnyObjectTO inner = modelObject.getInnerObject();
 
         ProvisioningResult<AnyObjectTO> actual;

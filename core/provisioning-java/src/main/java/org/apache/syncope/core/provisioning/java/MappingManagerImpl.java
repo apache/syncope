@@ -621,7 +621,7 @@ public class MappingManagerImpl implements MappingManager {
                 for (Any<?> any : anys) {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
                     PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                    attrValue.setStringValue(any.getKey().toString());
+                    attrValue.setStringValue(any.getKey());
                     values.add(attrValue);
                 }
                 break;
