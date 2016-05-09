@@ -49,7 +49,7 @@ import org.identityconnectors.common.security.GuardedString;
 // !!!! Each Map must contain a '__UID__' and '__NAME__' attribute.
 // This is required to build a ConnectorObject.
 
-def addAttributes(it) {
+def addAttributes(it, withValues) {
   value = it.stringValue;
   if (value == null) {
     value = it.longValue;
@@ -77,9 +77,19 @@ log.ok("Entering " + action + " script");
 def sql = new Sql(connection);
 def result = []
 
+def queryAppend = "";
+def pageSize = options[OperationOptions.OP_PAGE_SIZE];
+if (pageSize) {
+  queryAppend += " LIMIT " + pageSize;
+}
+def pagedResultsCookie = options[OperationOptions.OP_PAGED_RESULTS_COOKIE];
+if (pagedResultsCookie) {
+  queryAppend += " OFFSET " + pagedResultsCookie;
+}
+
 switch ( objectClass ) {
 case "__ACCOUNT__":
-  sql.eachRow("SELECT * FROM USER_SEARCH", {
+  sql.eachRow("SELECT * FROM USER_SEARCH" + queryAppend, {
       item = [
         __UID__: it.username, 
         __NAME__: it.username, 
@@ -92,10 +102,10 @@ case "__ACCOUNT__":
       withValues = ['__UID__', '__NAME__', '__PASSWORD__', 'cipherAlgorithm', '__ENABLE__', 'username'];
       
       sql.eachRow("SELECT * FROM USER_SEARCH_ATTR WHERE subject_id = " + it.id, {
-          addAttributes(it);
+          addAttributes(it, withValues);
         });
       sql.eachRow("SELECT * FROM USER_SEARCH_UNIQUE_ATTR WHERE subject_id = " + it.id, {
-          addAttributes(it);
+          addAttributes(it, withValues);
         });
       
       for (attr in options[OperationOptions.OP_ATTRIBUTES_TO_GET]) {
@@ -112,10 +122,15 @@ case "__ACCOUNT__":
       
       result.add(item)
     });
+  
+  if (result.size() == pageSize) {
+    pagedResultsCookie = pagedResultsCookie + result.size();
+    result.add([(OperationOptions.OP_PAGED_RESULTS_COOKIE): pagedResultsCookie]);
+  }
   break
 
 case "__GROUP__":
-  sql.eachRow("SELECT * FROM ROLE_SEARCH", {
+  sql.eachRow("SELECT * FROM ROLE_SEARCH" + queryAppend, {
       name = it.id + ' ' + it.name;
       item = [
         __UID__: name, 
@@ -127,10 +142,10 @@ case "__GROUP__":
       withValues = ['__UID__', '__NAME__', '__ENABLE__', 'name'];
       
       sql.eachRow("SELECT * FROM ROLE_SEARCH_ATTR WHERE subject_id = " + it.id, {
-          addAttributes(it);
+          addAttributes(it, withValues);
         });
       sql.eachRow("SELECT * FROM ROLE_SEARCH_UNIQUE_ATTR WHERE subject_id = " + it.id, {
-          addAttributes(it);
+          addAttributes(it, withValues);
         });
       
       for (attr in options[OperationOptions.OP_ATTRIBUTES_TO_GET]) {

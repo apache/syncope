@@ -424,8 +424,7 @@ public class ConnectorFacadeProxy implements Connector {
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
             if (options.getPageSize() == null && options.getPagedResultsCookie() == null) {
-                OperationOptionsBuilder builder = new OperationOptionsBuilder(options);
-                builder.setPageSize(DEFAULT_PAGE_SIZE);
+                OperationOptionsBuilder builder = new OperationOptionsBuilder(options).setPageSize(DEFAULT_PAGE_SIZE);
 
                 final String[] cookies = new String[] { null };
                 do {

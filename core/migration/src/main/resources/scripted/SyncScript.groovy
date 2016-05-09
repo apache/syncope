@@ -47,7 +47,7 @@ import org.identityconnectors.common.security.GuardedString
 // "attributes":Map<String,List> of attributes name/values
 // ]
 
-def addAttributes(it) {
+def addAttributes(it, withValues) {
   value = it.stringValue;
   if (value == null) {
     value = it.longValue;
@@ -116,10 +116,10 @@ if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
         withValues = ['__UID__', '__NAME__', '__PASSWORD__', 'cipherAlgorithm', '__ENABLE__', 'username'];
       
         sql.eachRow("SELECT * FROM USER_SEARCH_ATTR WHERE subject_id = " + it.id, {
-            addAttributes(it);
+            addAttributes(it, withValues);
           });
         sql.eachRow("SELECT * FROM USER_SEARCH_UNIQUE_ATTR WHERE subject_id = " + it.id, {
-            addAttributes(it);
+            addAttributes(it, withValues);
           });
       
         for (attr in options[OperationOptions.OP_ATTRIBUTES_TO_GET]) {
@@ -158,10 +158,10 @@ if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
         withValues = ['__UID__', '__NAME__', '__ENABLE__', 'name'];
       
         sql.eachRow("SELECT * FROM ROLE_SEARCH_ATTR WHERE subject_id = " + it.id, {
-            addAttributes(it);
+            addAttributes(it, withValues);
           });
         sql.eachRow("SELECT * FROM ROLE_SEARCH_UNIQUE_ATTR WHERE subject_id = " + it.id, {
-            addAttributes(it);
+            addAttributes(it, withValues);
           });
       
         for (attr in options[OperationOptions.OP_ATTRIBUTES_TO_GET]) {
