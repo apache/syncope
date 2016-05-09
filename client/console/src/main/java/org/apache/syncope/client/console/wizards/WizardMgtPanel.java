@@ -151,6 +151,10 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         });
     }
 
+    public String getActualId() {
+        return actualId;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
@@ -163,13 +167,20 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
             final AjaxRequestTarget target = newItemEvent.getTarget();
             final T item = newItemEvent.getItem();
 
-            if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && newItemPanelBuilder != null) {
-                newItemPanelBuilder.setItem(item);
+            final boolean modalPanelAvailable = newItemEvent.getModalPanel() != null || newItemPanelBuilder != null;
 
-                final WizardModalPanel<T> modalPanel = newItemPanelBuilder.build(
-                        actualId,
-                        ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(),
-                        item != null ? AjaxWizard.Mode.EDIT : AjaxWizard.Mode.CREATE);
+            if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && modalPanelAvailable) {
+                final WizardModalPanel<?> modalPanel;
+                if (newItemEvent.getModalPanel() == null) {
+                    newItemPanelBuilder.setItem(item);
+
+                    modalPanel = newItemPanelBuilder.build(
+                            actualId,
+                            ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(),
+                            item != null ? AjaxWizard.Mode.EDIT : AjaxWizard.Mode.CREATE);
+                } else {
+                    modalPanel = newItemEvent.getModalPanel();
+                }
 
                 if (wizardInModal) {
                     final IModel<T> model = new CompoundPropertyModel<>(item);

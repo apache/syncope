@@ -60,6 +60,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelResetTime", "emptyFragment", this));
         super.add(new Fragment("panelClone", "emptyFragment", this));
         super.add(new Fragment("panelCreate", "emptyFragment", this));
+        super.add(new Fragment("panelTemplate", "emptyFragment", this));
         super.add(new Fragment("panelEdit", "emptyFragment", this));
         super.add(new Fragment("panelTypeExtensions", "emptyFragment", this));
         super.add(new Fragment("panelFoEdit", "emptyFragment", this));
@@ -286,6 +287,25 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment.addOrReplace(new IndicatingAjaxLink<Void>("resetLink") {
 
                     private static final long serialVersionUID = -6957616042924610290L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case TEMPLATE:
+                fragment = new Fragment("panelTemplate", "fragmentTemplate", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("templateLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -1026,6 +1046,10 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
             case COMPOSE:
                 super.addOrReplace(new Fragment("panelCompose", "emptyFragment", this));
+                break;
+
+            case TEMPLATE:
+                super.addOrReplace(new Fragment("panelTemplate", "emptyFragment", this));
                 break;
 
             case EDIT:

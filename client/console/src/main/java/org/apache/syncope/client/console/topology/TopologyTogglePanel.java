@@ -65,7 +65,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     private final WebMarkupContainer container;
 
-    protected final BaseModal<Serializable> taskModal;
+    protected final BaseModal<Serializable> propTaskModal;
+
+    protected final BaseModal<Serializable> schedTaskModal;
 
     protected final BaseModal<Serializable> provisionModal;
 
@@ -77,9 +79,22 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         setFooterVisibility(false);
         setWindowClosedReloadCallback(modal);
 
-        taskModal = new BaseModal<>("outer");
-        taskModal.size(Modal.Size.Large);
-        addOuterObject(taskModal);
+        propTaskModal = new BaseModal<>("outer");
+        propTaskModal.size(Modal.Size.Large);
+        addOuterObject(propTaskModal);
+
+        schedTaskModal = new BaseModal<Serializable>("outer") {
+
+            private static final long serialVersionUID = 389935548143327858L;
+
+            @Override
+            protected void onConfigure() {
+                super.onConfigure();
+                setFooterVisible(false);
+            }
+        };
+        schedTaskModal.size(Modal.Size.Large);
+        addOuterObject(schedTaskModal);
 
         provisionModal = new BaseModal<>("outer");
         provisionModal.size(Modal.Size.Large);
@@ -134,9 +149,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new SchedTasks(taskModal, pageRef)));
-                taskModal.header(new ResourceModel("task.custom.list"));
-                taskModal.show(true);
+                target.add(propTaskModal.setContent(new SchedTasks(propTaskModal, pageRef)));
+                propTaskModal.header(new ResourceModel("task.custom.list"));
+                propTaskModal.show(true);
             }
         };
         fragment.add(tasks);
@@ -337,9 +352,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new ConnObjects(taskModal, node.getKey().toString(), pageRef)));
-                taskModal.header(new StringResourceModel("resource.explore.list", Model.of(node)));
-                taskModal.show(true);
+                target.add(propTaskModal.setContent(new ConnObjects(propTaskModal, node.getKey().toString(), pageRef)));
+                propTaskModal.header(new StringResourceModel("resource.explore.list", Model.of(node)));
+                propTaskModal.show(true);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(explore, ENABLE, StandardEntitlement.RESOURCE_LIST_CONNOBJECT);
@@ -352,9 +367,10 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             @SuppressWarnings("unchecked")
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new PropagationTasks(taskModal, node.getKey().toString(), pageRef)));
-                taskModal.header(new ResourceModel("task.propagation.list"));
-                taskModal.show(true);
+                target.add(propTaskModal.setContent(
+                        new PropagationTasks(propTaskModal, node.getKey().toString(), pageRef)));
+                propTaskModal.header(new ResourceModel("task.propagation.list"));
+                propTaskModal.show(true);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(propagation, ENABLE, StandardEntitlement.TASK_LIST);
@@ -366,9 +382,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new PullTasks(taskModal, pageRef, node.getKey().toString())));
-                taskModal.header(new ResourceModel("task.pull.list"));
-                taskModal.show(true);
+                target.add(schedTaskModal.setContent(new PullTasks(schedTaskModal, pageRef, node.getKey().toString())));
+                schedTaskModal.header(new ResourceModel("task.pull.list"));
+                schedTaskModal.show(true);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(pull, ENABLE, StandardEntitlement.TASK_LIST);
@@ -380,9 +396,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new PushTasks(taskModal, pageRef, node.getKey().toString())));
-                taskModal.header(new ResourceModel("task.push.list"));
-                taskModal.show(true);
+                target.add(schedTaskModal.setContent(new PushTasks(schedTaskModal, pageRef, node.getKey().toString())));
+                schedTaskModal.header(new ResourceModel("task.push.list"));
+                schedTaskModal.show(true);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(push, ENABLE, StandardEntitlement.TASK_LIST);

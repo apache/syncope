@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -35,6 +34,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.DateTextFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -55,12 +55,12 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    private final Mode mode;
+    private final AjaxWizard.Mode mode;
 
     public <T extends AnyTO> PlainAttrs(
             final T anyTO,
             final Form<?> form,
-            final Mode mode,
+            final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
             final List<String> whichPlainAttrs) {
 
@@ -86,7 +86,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 AttrTO attrTO = item.getModelObject();
 
                 FieldPanel panel = getFieldPanel(schemas.get(attrTO.getSchema()));
-                if (mode == Mode.TEMPLATE || !schemas.get(attrTO.getSchema()).isMultivalue()) {
+                if (mode == AjaxWizard.Mode.TEMPLATE || !schemas.get(attrTO.getSchema()).isMultivalue()) {
                     item.add(panel);
                     panel.setNewModel(attrTO.getValues());
                 } else {
@@ -107,7 +107,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected boolean reoderSchemas() {
-        return super.reoderSchemas() && mode != Mode.TEMPLATE;
+        return super.reoderSchemas() && mode != AjaxWizard.Mode.TEMPLATE;
     }
 
     @Override
@@ -142,13 +142,13 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private FieldPanel getFieldPanel(final PlainSchemaTO schemaTO) {
-        boolean required = mode == Mode.TEMPLATE
+        boolean required = mode == AjaxWizard.Mode.TEMPLATE
                 ? false
                 : schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
 
-        boolean readOnly = mode == Mode.TEMPLATE ? false : schemaTO.isReadonly();
+        boolean readOnly = mode == AjaxWizard.Mode.TEMPLATE ? false : schemaTO.isReadonly();
 
-        AttrSchemaType type = mode == Mode.TEMPLATE ? AttrSchemaType.String : schemaTO.getType();
+        AttrSchemaType type = mode == AjaxWizard.Mode.TEMPLATE ? AttrSchemaType.String : schemaTO.getType();
 
         FieldPanel panel;
         switch (type) {

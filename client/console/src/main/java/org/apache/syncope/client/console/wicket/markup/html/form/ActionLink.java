@@ -45,6 +45,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         RESET_TIME("update"),
         CLONE("create"),
         CREATE("create"),
+        TEMPLATE("read"),
         EDIT("read"),
         TYPE_EXTENSIONS("read"),
         FO_EDIT("read"),

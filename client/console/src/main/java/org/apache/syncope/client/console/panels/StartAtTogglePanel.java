@@ -39,15 +39,17 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    private String key = null;
+    protected String key = null;
+
+    protected final Form<?> form;
+
+    protected final Model<Date> startAtDateModel = new Model<>();
 
     public StartAtTogglePanel(final WebMarkupContainer container) {
         super("startAt");
 
-        final Form<?> form = new Form<>("startAtForm");
+        form = new Form<>("startAtForm");
         addInnerObject(form);
-
-        final Model<Date> startAtDateModel = new Model<>();
 
         final DateTimeFieldPanel startAtDate = new DateTimeFieldPanel(
                 "startAtDate", "startAtDate", startAtDateModel, SyncopeConstants.DATE_PATTERNS[3]);
@@ -83,7 +85,7 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
-                    LOG.error("While running propagation task {}", key, e);
+                    LOG.error("While running task {}", key, e);
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
@@ -92,7 +94,6 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
-
         });
     }
 

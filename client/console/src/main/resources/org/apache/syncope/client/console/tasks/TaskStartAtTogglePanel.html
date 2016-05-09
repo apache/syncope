@@ -17,17 +17,9 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
-    <span class="clause">
-      <span style="white-space: nowrap;">
-        <span class="pull-left" style="padding-right: 5px">
-          <input class="form-control input-auto-width" type="text" wicket:id="date" size="12"/>
-        </span>
-        <input class="form-control input-auto-width" type="text" wicket:id="hours" size="2" maxlength="2"/>
-        <span wicket:id="hoursSeparator" class="pull-left">:</span>
-        <input class="form-control input-auto-width" type="text" wicket:id="minutes" size="2" maxlength="2"/>
-        <select class="form-control input-auto-width" wicket:id="amOrPmChoice"></select>
-      </span>
-    </span>
-  </wicket:panel>
+  <wicket:extend>
+    <div class="input-group-addon">
+      <a wicket:id="dryRun"><i class="fa fa-gears" alt="dryrun icon" title="DryRun"></i></a>
+    </div>
+  </wicket:extend>
 </html>

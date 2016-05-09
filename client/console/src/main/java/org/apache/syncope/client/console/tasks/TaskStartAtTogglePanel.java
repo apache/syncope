@@ -18,10 +18,16 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.StartAtTogglePanel;
-import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.Form;
 
 public class TaskStartAtTogglePanel extends StartAtTogglePanel {
 
@@ -29,10 +35,35 @@ public class TaskStartAtTogglePanel extends StartAtTogglePanel {
 
     public TaskStartAtTogglePanel(final WebMarkupContainer container) {
         super(container);
+
+        form.add(new AjaxSubmitLink("dryRun", form) {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                try {
+                    getRestClient().startExecution(key, startAtDateModel.getObject(), true);
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    toggle(target, false);
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    LOG.error("While running task {}", key, e);
+                }
+                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+            }
+
+        });
     }
 
     @Override
-    protected ExecutionRestClient getRestClient() {
+    protected TaskRestClient getRestClient() {
         return new TaskRestClient();
     }
 

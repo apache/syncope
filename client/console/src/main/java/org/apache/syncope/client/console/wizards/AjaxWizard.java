@@ -53,6 +53,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
     public enum Mode {
         CREATE,
         EDIT,
+        TEMPLATE,
         READONLY;
 
     }
@@ -194,11 +195,13 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
         return this;
     }
 
-    public abstract static class NewItemEvent<T> {
+    public abstract static class NewItemEvent<T extends Serializable> {
 
         private final T item;
 
         private final AjaxRequestTarget target;
+
+        private WizardModalPanel<?> modalPanel;
 
         public NewItemEvent(final T item, final AjaxRequestTarget target) {
             this.item = item;
@@ -213,10 +216,19 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             return target;
         }
 
+        public WizardModalPanel<?> getModalPanel() {
+            return modalPanel;
+        }
+
+        public NewItemEvent<T> forceModalPanel(final WizardModalPanel<?> modalPanel) {
+            this.modalPanel = modalPanel;
+            return this;
+        }
+
         public abstract String getEventDescription();
     }
 
-    public static class NewItemActionEvent<T> extends NewItemEvent<T> {
+    public static class NewItemActionEvent<T extends Serializable> extends NewItemEvent<T> {
 
         private static final String EVENT_DESCRIPTION = "new";
 
@@ -241,7 +253,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
         }
     }
 
-    public static class EditItemActionEvent<T> extends NewItemActionEvent<T> {
+    public static class EditItemActionEvent<T extends Serializable> extends NewItemActionEvent<T> {
 
         private static final String EVENT_DESCRIPTION = "edit";
 
@@ -259,7 +271,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
         }
     }
 
-    public static class NewItemCancelEvent<T> extends NewItemEvent<T> {
+    public static class NewItemCancelEvent<T extends Serializable> extends NewItemEvent<T> {
 
         private static final String EVENT_DESCRIPTION = "cancel";
 
@@ -273,7 +285,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
         }
     }
 
-    public static class NewItemFinishEvent<T> extends NewItemEvent<T> {
+    public static class NewItemFinishEvent<T extends Serializable> extends NewItemEvent<T> {
 
         private static final String EVENT_DESCRIPTION = "finish";
 

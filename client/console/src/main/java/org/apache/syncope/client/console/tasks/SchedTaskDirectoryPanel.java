@@ -73,6 +73,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     private final TaskStartAtTogglePanel startAt;
 
+    protected final TemplatesTogglePanel templates;
+
     protected SchedTaskDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
@@ -92,10 +94,16 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.TASK_CREATE);
 
+        enableExitButton();
+        setFooterVisibility(false);
+
         initResultTable();
 
         startAt = new TaskStartAtTogglePanel(container);
         addInnerObject(startAt);
+
+        templates = new TemplatesTogglePanel(this, pageRef);
+        addInnerObject(templates);
     }
 
     protected List<IColumn<T, String>> getFieldColumns() {
@@ -164,7 +172,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
                 final T taskTO = model.getObject();
 
-                final ActionLinksPanel<T> panel = ActionLinksPanel.<T>builder().
+                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.<T>builder().
                         add(new ActionLink<T>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -216,24 +224,6 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                             @Override
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 try {
-                                    restClient.startExecution(taskTO.getKey(), null, true);
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (SyncopeClientException e) {
-                                    error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                    LOG.error("While running propagation task {}", taskTO.getKey(), e);
-                                }
-                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DRYRUN, StandardEntitlement.TASK_EXECUTE).
-                        add(new ActionLink<T>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final T ignore) {
-                                try {
                                     restClient.delete(taskTO.getKey(), reference);
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
@@ -244,9 +234,11 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE).build(componentId);
+                        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE);
 
-                return panel;
+                addFurtherAcions(panel, model);
+
+                return panel.build(componentId, model.getObject());
             }
 
             @Override
@@ -268,6 +260,9 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         });
 
         return columns;
+    }
+
+    protected void addFurtherAcions(final ActionLinksPanel.Builder<T> panel, final IModel<T> model) {
     }
 
     @Override
