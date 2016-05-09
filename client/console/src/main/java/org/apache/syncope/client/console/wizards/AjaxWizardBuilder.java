@@ -19,6 +19,10 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -37,6 +41,8 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
 
     protected IEventSink eventSink = null;
 
+    private final List<Component> outerObjects = new ArrayList<>();
+
     /**
      * Construct.
      *
@@ -45,6 +51,11 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
      */
     public AjaxWizardBuilder(final T defaultItem, final PageReference pageRef) {
         super(defaultItem, pageRef);
+    }
+
+    public final AjaxWizardBuilder<T> addOuterObject(final Component... childs) {
+        outerObjects.addAll(Arrays.asList(childs));
+        return this;
     }
 
     /**
@@ -113,7 +124,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
 
                 return res;
             }
-        }.setEventSink(eventSink);
+        }.setEventSink(eventSink).addOuterObject(outerObjects);
     }
 
     protected abstract WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel);

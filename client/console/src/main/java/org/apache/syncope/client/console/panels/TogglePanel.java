@@ -54,14 +54,21 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
 
     private final Label header;
 
+    private final String activeId;
+
     public TogglePanel(final String id) {
+        this(id, id);
+    }
+
+    public TogglePanel(final String id, final String markupId) {
         super(id, true);
+        this.activeId = markupId;
         setRenderBodyOnly(true);
         setOutputMarkupId(true);
         disableContainerAutoRefresh();
 
         container = new WebMarkupContainer("togglePanelContainer");
-        super.addInnerObject(container.setMarkupId(id));
+        super.addInnerObject(container.setMarkupId(markupId == null ? id : markupId));
 
         header = new Label("label", StringUtils.EMPTY);
         header.setOutputMarkupId(true);
@@ -121,7 +128,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
      * @param toggle toggle action.
      */
     public void toggle(final AjaxRequestTarget target, final boolean toggle) {
-        final String selector = String.format("$(\"div#%s\")", getId());
+        final String selector = String.format("$(\"div#%s\")", activeId);
         if (toggle) {
             if (status == Status.INACTIVE) {
                 target.add(TogglePanel.this.container);

@@ -19,7 +19,9 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.wicket.Component;
@@ -38,11 +40,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.syncope.client.console.panels.SubmitableModalPanel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 
 public abstract class AjaxWizard<T extends Serializable> extends Wizard
         implements SubmitableModalPanel, WizardModalPanel<T> {
 
     private static final long serialVersionUID = -1272120742876833520L;
+
+    private final List<Component> outerObjects = new ArrayList<>();
 
     public enum Mode {
         CREATE,
@@ -76,9 +82,33 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             model.setCancelVisible(false);
         }
 
+        add(new ListView<Component>("outerObjectsRepeater", outerObjects) {
+
+            private static final long serialVersionUID = -9180479401817023838L;
+
+            @Override
+            protected void populateItem(final ListItem<Component> item) {
+                item.add(item.getModelObject());
+            }
+
+        });
+
         setOutputMarkupId(true);
         setDefaultModel(new CompoundPropertyModel<>(this));
         init(model);
+    }
+
+    /**
+     * Add object outside the main container.
+     * Use this method just to be not influenced by specific inner object css'.
+     * Be sure to provide <tt>outer</tt> as id.
+     *
+     * @param childs components to be added.
+     * @return the current panel instance.
+     */
+    public final AjaxWizard<T> addOuterObject(final List<Component> childs) {
+        outerObjects.addAll(childs);
+        return this;
     }
 
     protected AjaxWizard<T> setEventSink(final IEventSink eventSink) {

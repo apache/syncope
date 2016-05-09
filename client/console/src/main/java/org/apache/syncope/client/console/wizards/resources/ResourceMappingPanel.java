@@ -123,8 +123,6 @@ public class ResourceMappingPanel extends Panel {
      */
     private final WebMarkupContainer mappingContainer;
 
-    private final TransformersTogglePanel transformers;
-
     private MappingTO getMapping() {
         if (provisionTO.getMapping() == null) {
             provisionTO.setMapping(new MappingTO());
@@ -140,7 +138,11 @@ public class ResourceMappingPanel extends Panel {
      * @param resourceTO external resource to be updated.
      * @param provisionTO external resource provisioning configuration instance.
      */
-    public ResourceMappingPanel(final String id, final ResourceTO resourceTO, final ProvisionTO provisionTO) {
+    public ResourceMappingPanel(
+            final String id,
+            final ResourceTO resourceTO,
+            final ProvisionTO provisionTO,
+            final TransformersTogglePanel transformers) {
         super(id);
         setOutputMarkupId(true);
 
@@ -156,9 +158,6 @@ public class ResourceMappingPanel extends Panel {
         this.mappingContainer.setEnabled(provisionTO != null);
         this.mappingContainer.setVisible(provisionTO != null);
         add(this.mappingContainer);
-
-        transformers = new TransformersTogglePanel(this.mappingContainer);
-        add(this.transformers);
 
         mappingContainer.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom));
 

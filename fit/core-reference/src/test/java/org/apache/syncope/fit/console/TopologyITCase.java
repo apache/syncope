@@ -101,7 +101,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 + "wizard:form:view:mapping:mappingContainer:mappings:0:transformers:alertsLink");
 
         wicketTester.assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:provision:container:"
-                + "content:wizard:form:view:mapping:transformersTogglePanel:container:content:togglePanelContainer:"
+                + "content:wizard:outerObjectsRepeater:0:outer:container:content:togglePanelContainer:"
                 + "form:classes:paletteField", NonI18nPalette.class);
     }
 

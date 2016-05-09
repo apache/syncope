@@ -46,7 +46,7 @@ public class TransformersTogglePanel extends TogglePanel<Serializable> {
     private MappingItemTO mapItem;
 
     public TransformersTogglePanel(final WebMarkupContainer container) {
-        super("transformersTogglePanel");
+        super("outer", "transformersTogglePanel");
         this.container = container;
 
         final LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<List<String>>() {
