@@ -47,6 +47,14 @@ under the License.
     <url-pattern>/rest/*</url-pattern>
   </servlet-mapping>
   <servlet>
+    <servlet-name>docRedirect</servlet-name>
+    <jsp-file>/docRedirect.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>docRedirect</servlet-name>
+    <url-pattern>/rest/doc</url-pattern>
+  </servlet-mapping>
+  <servlet>
     <servlet-name>WADLServlet</servlet-name>
     <servlet-class>org.apache.syncope.core.rest.WADLServlet</servlet-class>
     <load-on-startup>2</load-on-startup> 
