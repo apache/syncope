@@ -334,7 +334,7 @@ under the License.
 
     <cxf.version>3.1.6</cxf.version>
 
-    <camel.version>2.17.0</camel.version>	
+    <camel.version>2.17.1</camel.version>	
 
     <jackson.version>2.7.4</jackson.version>
 
@@ -388,7 +388,7 @@ under the License.
     <bootstrap.version>3.3.6</bootstrap.version>
     <bootstrap-select.version>1.7.3</bootstrap-select.version>
     <bootbox.version>4.4.0</bootbox.version>
-    <font-awesome.version>4.6.1</font-awesome.version>
+    <font-awesome.version>4.6.2</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.2.0</highlightjs.version>
     <codemirror.version>5.13.2</codemirror.version>
