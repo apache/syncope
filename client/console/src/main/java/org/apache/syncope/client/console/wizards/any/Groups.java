@@ -19,8 +19,12 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
@@ -68,12 +72,14 @@ public class Groups extends WizardStep {
                     @Override
                     public MembershipTO getObject(
                             final String id, final IModel<? extends List<? extends MembershipTO>> choices) {
-                        for (MembershipTO membershipTO : choices.getObject()) {
-                            if (id.equalsIgnoreCase(membershipTO.getGroupName())) {
-                                return membershipTO;
+
+                        return IterableUtils.find(choices.getObject(), new Predicate<MembershipTO>() {
+
+                            @Override
+                            public boolean evaluate(final MembershipTO object) {
+                                return id.equalsIgnoreCase(object.getGroupName());
                             }
-                        }
-                        return null;
+                        });
                     }
                 });
 
@@ -97,31 +103,37 @@ public class Groups extends WizardStep {
 
                     @Override
                     public MembershipTO transform(final GroupTO input) {
-                        final MembershipTO membershipTO = new MembershipTO();
-                        membershipTO.setGroupName(input.getName());
-                        membershipTO.setRightKey(input.getKey() == null ? null : input.getKey());
-                        membershipTO.setRightType(input.getType());
-                        membershipTO.setLeftKey(anyTO.getKey() == null ? null : anyTO.getKey());
-                        membershipTO.setLeftType(anyTO.getType());
-                        return membershipTO;
+                        return new MembershipTO.Builder().
+                                group(input.getKey(), input.getName()).
+                                left(anyTO.getKey(), anyTO.getType()).
+                                build();
                     }
                 }, new ArrayList<MembershipTO>());
             }
         }).hideLabel().setOutputMarkupId(true));
 
-        List<String> dynamics = CollectionUtils.collect(GroupableTO.class.cast(anyTO).getDynGroups(),
-                new Transformer<String, String>() {
-
-            @Override
-            public String transform(final String input) {
-                final GroupTO groupTO = groupRestClient.read(input);
-                return String.format("[%s] %s", groupTO.getKey(), groupTO.getName());
-            }
-        }, new ArrayList<String>());
-
+        List<GroupTO> allGroups = groupRestClient.list(anyTO.getRealm(), -1, -1, new SortParam<>("name", true), null);
+        final Map<String, GroupTO> allGroupsByKey = new LinkedHashMap<>(allGroups.size());
+        for (GroupTO group : allGroups) {
+            allGroupsByKey.put(group.getKey(), group);
+        }
         add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build(
                 "dyngroups",
-                new ListModel<>(dynamics),
-                new ListModel<>(dynamics)).hideLabel().setEnabled(false).setOutputMarkupId(true));
+                new ListModel<>(CollectionUtils.collect(GroupableTO.class.cast(anyTO).getDynGroups(),
+                        new Transformer<String, String>() {
+
+                    @Override
+                    public String transform(final String input) {
+                        return allGroupsByKey.get(input).getName();
+                    }
+                }, new ArrayList<String>())),
+                new ListModel<>(CollectionUtils.collect(allGroups, new Transformer<GroupTO, String>() {
+
+                    @Override
+                    public String transform(final GroupTO input) {
+                        return input.getName();
+                    }
+                }, new ArrayList<String>()))).
+                hideLabel().setEnabled(false).setOutputMarkupId(true));
     }
 }

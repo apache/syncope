@@ -19,8 +19,11 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.ResourceDeassociationPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -93,7 +96,15 @@ public class ResourceRestClient extends BaseRestClient {
     }
 
     public List<ResourceTO> list() {
-        return getService(ResourceService.class).list();
+        List<ResourceTO> resources = getService(ResourceService.class).list();
+        Collections.sort(resources, new Comparator<ResourceTO>() {
+
+            @Override
+            public int compare(final ResourceTO o1, final ResourceTO o2) {
+                return ComparatorUtils.<String>naturalComparator().compare(o1.getKey(), o2.getKey());
+            }
+        });
+        return resources;
     }
 
     public ResourceTO create(final ResourceTO resourceTO) {

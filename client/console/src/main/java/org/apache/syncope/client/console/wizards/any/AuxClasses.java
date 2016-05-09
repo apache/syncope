@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
@@ -44,6 +45,7 @@ public class AuxClasses extends WizardStep {
                 choices.add(aux.getKey());
             }
         }
+        Collections.sort(choices);
         add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("auxClasses",
                 new PropertyModel<List<String>>(anyTO, "auxClasses"),
                 new ListModel<>(choices)).hideLabel().setOutputMarkupId(true));

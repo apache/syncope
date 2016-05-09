@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.rest.RoleRestClient;
@@ -38,8 +39,9 @@ public class Roles extends WizardStep {
     public <T extends AnyTO> Roles(final UserTO entityTO) {
         this.setOutputMarkupId(true);
 
-        final ArrayList<String> allRoles = CollectionUtils.collect(new RoleRestClient().list(),
+        List<String> allRoles = CollectionUtils.collect(new RoleRestClient().list(),
                 EntityTOUtils.<RoleTO>keyTransformer(), new ArrayList<String>());
+        Collections.sort(allRoles);
 
         add(new AjaxPalettePanel.Builder<String>().build("roles",
                 new PropertyModel<List<String>>(entityTO, "roles"),

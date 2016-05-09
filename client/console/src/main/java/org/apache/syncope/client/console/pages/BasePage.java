@@ -75,15 +75,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     protected static final Logger LOG = LoggerFactory.getLogger(BasePage.class);
 
-    protected static final String CANCEL = "cancel";
+    protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
-    protected static final String SUBMIT = "submit";
-
-    protected static final String APPLY = "apply";
-
-    protected static final String FORM = "form";
-
-    protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
+    protected static SystemInfo SYSTEM_INFO;
 
     protected final WebMarkupContainer body;
 
@@ -134,11 +128,15 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         body.add(new ApprovalsWidget("approvalsWidget", getPageReference()).setRenderBodyOnly(true));
 
         // right sidebar
-        SystemInfo systemInfo = SyncopeConsoleSession.get().getService(SyncopeService.class).system();
-        body.add(new Label("hostname", systemInfo.getHostname()));
-        body.add(new Label("processors", systemInfo.getAvailableProcessors()));
-        body.add(new Label("os", systemInfo.getOs()));
-        body.add(new Label("jvm", systemInfo.getJvm()));
+        synchronized (this) {
+            if (SYSTEM_INFO == null) {
+                SYSTEM_INFO = SyncopeConsoleSession.get().getService(SyncopeService.class).system();
+            }
+        }
+        body.add(new Label("hostname", SYSTEM_INFO.getHostname()));
+        body.add(new Label("processors", SYSTEM_INFO.getAvailableProcessors()));
+        body.add(new Label("os", SYSTEM_INFO.getOs()));
+        body.add(new Label("jvm", SYSTEM_INFO.getJvm()));
 
         Link<Void> dbExportLink = new Link<Void>("dbExportLink") {
 
@@ -380,7 +378,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
-        response.render(new PriorityHeaderItem(meta));
+        response.render(new PriorityHeaderItem(META_IE_EDGE));
     }
 
     private String getLIContainerId(final String linkId) {
