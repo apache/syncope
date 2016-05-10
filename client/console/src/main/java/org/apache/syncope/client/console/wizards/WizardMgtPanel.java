@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.NotificationPanel;
@@ -46,6 +47,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
+import org.apache.wicket.markup.html.basic.Label;
 
 public abstract class WizardMgtPanel<T extends Serializable> extends Panel implements IEventSource {
 
@@ -195,6 +197,10 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                     modal.show(true);
                 } else {
                     final Fragment fragment = new Fragment("content", "wizard", WizardMgtPanel.this);
+
+                    fragment.add(new Label("title", newItemEvent.getResourceModel() == null
+                            ? Model.of(StringUtils.EMPTY) : newItemEvent.getResourceModel()));
+
                     fragment.add(Component.class.cast(modalPanel));
                     container.addOrReplace(fragment);
                 }

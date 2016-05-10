@@ -20,10 +20,10 @@ package org.apache.syncope.client.console.tasks;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
@@ -33,15 +33,14 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.any.AnyObjectWizardBuilder;
-import org.apache.syncope.client.console.wizards.any.AnyWizardBuilder;
-import org.apache.syncope.client.console.wizards.any.GroupWizardBuilder;
-import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
+import org.apache.syncope.client.console.wizards.any.AnyObjectTemplateWizardBuilder;
+import org.apache.syncope.client.console.wizards.any.GroupTemplateWizardBuilder;
+import org.apache.syncope.client.console.wizards.any.TemplateWizardBuilder;
+import org.apache.syncope.client.console.wizards.any.UserTemplateWizardBuilder;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -50,10 +49,13 @@ import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 
 public class TemplatesTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
+
+    private PullTaskTO task;
 
     protected final Form<?> form;
 
@@ -94,37 +96,39 @@ public class TemplatesTogglePanel extends TogglePanel<Serializable> {
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
                     final AjaxWizard.NewItemActionEvent<UserTO> payload
-                            = new AjaxWizard.NewItemActionEvent<>(null, target);
+                            = new AjaxWizard.NewItemActionEvent<UserTO>(null, target);
 
-                    final AnyWizardBuilder<?> builder;
+                    payload.setResourceModel(new StringResourceModel("inner.template.edit", container,
+                            Model.of(Pair.of(typeModel.getObject(), task.getName()))).setDefaultValue("Edit template"));
+
+                    final List<String> classes = new AnyTypeRestClient().read(typeModel.getObject()).getClasses();
+
+                    final TemplateWizardBuilder<?> builder;
 
                     switch (typeModel.getObject()) {
                         case "USER":
-                            builder = new UserWizardBuilder(
-                                    new UserTO(),
-                                    Collections.<String>emptyList(),
+                            builder = new UserTemplateWizardBuilder(
+                                    task,
+                                    classes,
                                     new UserFormLayoutInfo(),
                                     pageRef);
                             break;
                         case "GROUP":
-                            builder = new GroupWizardBuilder(
-                                    new GroupTO(),
-                                    Collections.<String>emptyList(),
+                            builder = new GroupTemplateWizardBuilder(
+                                    task,
+                                    classes,
                                     new GroupFormLayoutInfo(),
                                     pageRef);
                             break;
                         default:
-                            AnyObjectTO anyObjectTO = new AnyObjectTO();
-                            anyObjectTO.setType(typeModel.getObject());
-                            builder = new AnyObjectWizardBuilder(
-                                    anyObjectTO,
-                                    Collections.<String>emptyList(),
+                            builder = new AnyObjectTemplateWizardBuilder(
+                                    task,
+                                    typeModel.getObject(),
+                                    classes,
                                     new AnyObjectFormLayoutInfo(),
                                     pageRef);
                     }
-                    payload.forceModalPanel(builder.build(
-                            container.getActualId(), payload.getIndex(), AjaxWizard.Mode.TEMPLATE));
-
+                    payload.forceModalPanel(builder.setEventSink(container).build(container.getActualId()));
                     send(container, Broadcast.EXACT, payload);
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
@@ -139,5 +143,9 @@ public class TemplatesTogglePanel extends TogglePanel<Serializable> {
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
         });
+    }
+
+    public void setTask(final PullTaskTO task) {
+        this.task = task;
     }
 }

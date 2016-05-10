@@ -170,7 +170,15 @@ public final class Constants {
         return new Label(id, Model.of()).add(new PopoverBehavior(
                 Model.<String>of(),
                 msg,
-                new PopoverConfig().withHtml(true).withPlacement(placement)));
+                new PopoverConfig().withHtml(true).withPlacement(placement)) {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected String createRelAttribute() {
+                return id;
+            }
+        });
     }
 
     public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {

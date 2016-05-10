@@ -42,6 +42,7 @@ import org.apache.syncope.client.console.panels.SubmitableModalPanel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
 
 public abstract class AjaxWizard<T extends Serializable> extends Wizard
         implements SubmitableModalPanel, WizardModalPanel<T> {
@@ -199,6 +200,8 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
         private final T item;
 
+        private IModel<String> resourceModel;
+
         private final AjaxRequestTarget target;
 
         private WizardModalPanel<?> modalPanel;
@@ -222,6 +225,15 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
         public NewItemEvent<T> forceModalPanel(final WizardModalPanel<?> modalPanel) {
             this.modalPanel = modalPanel;
+            return this;
+        }
+
+        public IModel<String> getResourceModel() {
+            return resourceModel;
+        }
+
+        public NewItemEvent<T> setResourceModel(final IModel<String> resourceModel) {
+            this.resourceModel = resourceModel;
             return this;
         }
 

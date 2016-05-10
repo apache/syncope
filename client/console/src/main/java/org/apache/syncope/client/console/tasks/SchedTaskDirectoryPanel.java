@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
@@ -191,7 +192,11 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
                                         new AjaxWizard.EditItemActionEvent<>(
                                                 restClient.readSchedTask(reference, model.getObject().getKey()),
-                                                target));
+                                                target).setResourceModel(
+                                                new StringResourceModel("inner.task.edit",
+                                                        SchedTaskDirectoryPanel.this,
+                                                        Model.of(Pair.of(
+                                                                ActionLink.ActionType.EDIT, model.getObject())))));
                             }
                         }, ActionLink.ActionType.EDIT, StandardEntitlement.TASK_UPDATE).
                         add(new ActionLink<T>() {
@@ -203,7 +208,11 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                                 final T clone = SerializationUtils.clone(model.getObject());
                                 clone.setKey(null);
                                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(clone, target));
+                                        new AjaxWizard.EditItemActionEvent<>(clone, target).setResourceModel(
+                                                new StringResourceModel("inner.task.clone",
+                                                        SchedTaskDirectoryPanel.this,
+                                                        Model.of(Pair.of(
+                                                                ActionLink.ActionType.CLONE, model.getObject())))));
                             }
                         }, ActionLink.ActionType.CLONE, StandardEntitlement.TASK_CREATE).
                         add(new ActionLink<T>() {

@@ -142,13 +142,23 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private FieldPanel getFieldPanel(final PlainSchemaTO schemaTO) {
-        boolean required = mode == AjaxWizard.Mode.TEMPLATE
-                ? false
-                : schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
+        final boolean required;
+        final boolean readOnly;
+        final AttrSchemaType type;
+        final boolean jexlHelp;
 
-        boolean readOnly = mode == AjaxWizard.Mode.TEMPLATE ? false : schemaTO.isReadonly();
+        if (mode == AjaxWizard.Mode.TEMPLATE) {
+            required = false;
+            readOnly = false;
+            type = AttrSchemaType.String;
+            jexlHelp = true;
+        } else {
+            required = schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
+            readOnly = schemaTO.isReadonly();
+            type = schemaTO.getType();
+            jexlHelp = false;
 
-        AttrSchemaType type = mode == AjaxWizard.Mode.TEMPLATE ? AttrSchemaType.String : schemaTO.getType();
+        }
 
         FieldPanel panel;
         switch (type) {
@@ -239,6 +249,10 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             default:
                 panel = new AjaxTextFieldPanel("panel", schemaTO.getKey(), new Model<String>(), false);
+
+                if (jexlHelp) {
+                    AjaxTextFieldPanel.class.cast(panel).enableJextHelp();
+                }
 
                 if (required) {
                     panel.addRequiredLabel();

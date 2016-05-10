@@ -111,6 +111,7 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
             public final boolean isEnabled() {
                 switch (mode) {
                     case EDIT:
+                    case TEMPLATE:
                         return true;
                     case READONLY:
                         return false;

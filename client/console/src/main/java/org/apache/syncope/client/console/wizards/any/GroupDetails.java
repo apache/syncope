@@ -43,7 +43,9 @@ public class GroupDetails extends Details<GroupTO> {
 
         final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name",
                 new PropertyModel<String>(groupTO, "name"), false);
-        if (!templateMode) {
+        if (templateMode) {
+            name.enableJextHelp();
+        } else {
             name.addRequiredLabel();
         }
         this.add(name);

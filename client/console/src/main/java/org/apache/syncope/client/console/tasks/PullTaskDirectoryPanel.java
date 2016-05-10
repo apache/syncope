@@ -60,6 +60,7 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
 
             @Override
             public void onClick(final AjaxRequestTarget target, final PullTaskTO ignore) {
+                templates.setTask(model.getObject());
                 templates.toggle(target, true);
             }
         }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.TASK_UPDATE);

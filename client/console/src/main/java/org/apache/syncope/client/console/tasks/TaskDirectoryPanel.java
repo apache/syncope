@@ -46,7 +46,7 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    private final BaseModal<?> baseModal;
+    protected final BaseModal<?> baseModal;
 
     private final MultilevelPanel multiLevelPanelRef;
 

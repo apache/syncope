@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.layout.GroupForm;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.GroupPatch;
@@ -46,7 +47,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             final GroupFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
 
-        super(new GroupWrapper(groupTO), anyTypeClasses, formLayoutInfo, pageRef);
+        super(groupTO == null ? null : new GroupWrapper(groupTO), anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     /**
@@ -92,7 +93,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
         wizardModel.add(new GroupDetails(
                 GroupWrapper.class.cast(modelObject),
                 new ListModel<>(Collections.<StatusBean>emptyList()),
-                false,
+                mode == AjaxWizard.Mode.TEMPLATE,
                 modelObject.getInnerObject().getKey() != null, pageRef));
         return this;
     }

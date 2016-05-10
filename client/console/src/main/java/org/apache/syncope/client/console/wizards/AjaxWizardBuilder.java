@@ -112,6 +112,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
                         payload = getCreateCustomPayloadEvent(res, target);
                         break;
                     case EDIT:
+                    case TEMPLATE:
                         payload = getEditCustomPayloadEvent(res, target);
                         break;
                     default:
