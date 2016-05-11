@@ -57,7 +57,18 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
         this.filtered = filtered;
 
         // default sorting
-        setSort("key", SortOrder.ASCENDING);
+        switch (type) {
+            case "USER":
+                setSort("username", SortOrder.ASCENDING);
+                break;
+
+            case "GROUP":
+                setSort("name", SortOrder.ASCENDING);
+                break;
+
+            default:
+                setSort("key", SortOrder.ASCENDING);
+        }
 
         this.comparator = new SortableAnyProviderComparator<>(this);
 
