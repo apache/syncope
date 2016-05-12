@@ -187,7 +187,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "root");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
         assertNotNull(component);
 
         wicketTester.clickLink(component.getPageRelativePath()
