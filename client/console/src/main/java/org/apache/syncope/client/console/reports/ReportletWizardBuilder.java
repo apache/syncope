@@ -74,7 +74,6 @@ import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.ClassUtils;
 import org.apache.syncope.common.lib.report.SearchCondition;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
-import org.apache.wicket.event.IEventSink;
 
 public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectoryPanel.ReportletWrapper> {
 
@@ -90,11 +89,6 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectory
             final PageReference pageRef) {
         super(reportlet, pageRef);
         this.report = report;
-    }
-
-    public ReportletWizardBuilder setEventSink(final IEventSink eventSink) {
-        this.eventSink = eventSink;
-        return this;
     }
 
     @Override

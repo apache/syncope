@@ -26,7 +26,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +37,6 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
     protected static final Logger LOG = LoggerFactory.getLogger(AjaxWizardBuilder.class);
 
     protected AjaxWizard.Mode mode = AjaxWizard.Mode.CREATE;
-
-    protected IEventSink eventSink = null;
 
     private final List<Component> outerObjects = new ArrayList<>();
 

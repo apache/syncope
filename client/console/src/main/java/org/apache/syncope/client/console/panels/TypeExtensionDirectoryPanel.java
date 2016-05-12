@@ -78,7 +78,6 @@ public class TypeExtensionDirectoryPanel
                 new StringResourceModel("anyType", this).getObject(),
                 new StringResourceModel("auxClasses", this).getObject(),
                 pageRef);
-        builder.setEventSink(this);
         this.addNewItemPanelBuilder(builder, true);
 
         setShowResultPage(false);

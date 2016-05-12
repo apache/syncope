@@ -145,8 +145,6 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         builder.addNewItemPanelBuilder(wizard);
 
         final WizardMgtPanel<ProvisionTO> list = builder.build("provision");
-        wizard.setEventSink(list);
-
         add(list);
     }
 

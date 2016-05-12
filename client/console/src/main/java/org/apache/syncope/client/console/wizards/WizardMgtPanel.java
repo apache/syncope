@@ -315,6 +315,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         if (this.newItemPanelBuilder != null) {
             addAjaxLink.setEnabled(newItemDefaultButtonEnabled);
             addAjaxLink.setVisible(newItemDefaultButtonEnabled);
+            this.newItemPanelBuilder.setEventSink(WizardMgtPanel.this);
         }
 
         return this;

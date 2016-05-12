@@ -112,8 +112,6 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                     Arrays.asList(UserDisplayAttributesModalPanel.DEFAULT_SELECTION));
         }
 
-        setWindowClosedReloadCallback(displayAttributeModal);
-
         columns.add(new ActionColumn<UserTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863131L;

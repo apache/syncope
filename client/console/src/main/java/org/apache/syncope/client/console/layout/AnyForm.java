@@ -23,5 +23,4 @@ import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 
 public interface AnyForm<A extends AnyTO> extends ModalPanelBuilder<AnyWrapper<A>> {
-
 }

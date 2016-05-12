@@ -32,7 +32,6 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.basic.Label;
@@ -61,10 +60,6 @@ public class TypeExtensionWizardBuilder extends AjaxWizardBuilder<TypeExtensionT
         this.groupTO = groupTO;
         this.anyTypeLabel = anyTypeLabel;
         this.auxClassesLabel = auxClassesLabel;
-    }
-
-    public void setEventSink(final IEventSink eventSink) {
-        this.eventSink = eventSink;
     }
 
     @Override

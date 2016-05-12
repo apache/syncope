@@ -34,14 +34,20 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.any.AnyObjectTemplateWizardBuilder;
+import org.apache.syncope.client.console.wizards.any.AnyWizardBuilder;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.GroupTemplateWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.TemplateWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.UserTemplateWizardBuilder;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -51,11 +57,11 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
-public class TemplatesTogglePanel extends TogglePanel<Serializable> {
+public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    private PullTaskTO task;
+    private TemplatableTO targetObject;
 
     protected final Form<?> form;
 
@@ -73,8 +79,8 @@ public class TemplatesTogglePanel extends TogglePanel<Serializable> {
         }
     };
 
-    public TemplatesTogglePanel(final SchedTaskDirectoryPanel<?> container, final PageReference pageRef) {
-        super("schedTaskTemplates");
+    public TemplatesTogglePanel(final String targetId, final MarkupContainer container, final PageReference pageRef) {
+        super("toggleTemplates");
         this.pageRef = pageRef;
 
         form = new Form<>("templatesForm");
@@ -95,11 +101,12 @@ public class TemplatesTogglePanel extends TogglePanel<Serializable> {
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
-                    final AjaxWizard.NewItemActionEvent<UserTO> payload
-                            = new AjaxWizard.NewItemActionEvent<UserTO>(null, target);
+                    final AjaxWizard.NewItemActionEvent<AnyTO> payload
+                            = new AjaxWizard.NewItemActionEvent<AnyTO>(null, target);
 
                     payload.setResourceModel(new StringResourceModel("inner.template.edit", container,
-                            Model.of(Pair.of(typeModel.getObject(), task.getName()))).setDefaultValue("Edit template"));
+                            Model.of(Pair.of(typeModel.getObject(), targetObject))).setDefaultValue(
+                            "Edit template"));
 
                     final List<String> classes = new AnyTypeRestClient().read(typeModel.getObject()).getClasses();
 
@@ -108,27 +115,55 @@ public class TemplatesTogglePanel extends TogglePanel<Serializable> {
                     switch (typeModel.getObject()) {
                         case "USER":
                             builder = new UserTemplateWizardBuilder(
-                                    task,
+                                    targetObject,
                                     classes,
                                     new UserFormLayoutInfo(),
-                                    pageRef);
+                                    pageRef) {
+
+                                private static final long serialVersionUID = -7978723352517770634L;
+
+                                @Override
+                                protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
+                                    return TemplatesTogglePanel.this.onApplyInternal(
+                                            targetObject, typeModel.getObject(), modelObject.getInnerObject());
+                                }
+                            };
                             break;
                         case "GROUP":
                             builder = new GroupTemplateWizardBuilder(
-                                    task,
+                                    targetObject,
                                     classes,
                                     new GroupFormLayoutInfo(),
-                                    pageRef);
+                                    pageRef) {
+
+                                private static final long serialVersionUID = -7978723352517770634L;
+
+                                @Override
+                                protected Serializable onApplyInternal(final AnyWrapper<GroupTO> modelObject) {
+                                    return TemplatesTogglePanel.this.onApplyInternal(
+                                            targetObject, typeModel.getObject(), modelObject.getInnerObject());
+                                }
+                            };
                             break;
                         default:
                             builder = new AnyObjectTemplateWizardBuilder(
-                                    task,
+                                    targetObject,
                                     typeModel.getObject(),
                                     classes,
                                     new AnyObjectFormLayoutInfo(),
-                                    pageRef);
+                                    pageRef) {
+
+                                private static final long serialVersionUID = -7978723352517770634L;
+
+                                @Override
+                                protected Serializable onApplyInternal(final AnyWrapper<AnyObjectTO> modelObject) {
+                                    return TemplatesTogglePanel.this.onApplyInternal(
+                                            targetObject, typeModel.getObject(), modelObject.getInnerObject());
+                                }
+                            };
                     }
-                    payload.forceModalPanel(builder.setEventSink(container).build(container.getActualId()));
+                    AnyWizardBuilder.class.cast(builder).setEventSink(container);
+                    payload.forceModalPanel(builder.build(targetId));
                     send(container, Broadcast.EXACT, payload);
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
@@ -145,7 +180,10 @@ public class TemplatesTogglePanel extends TogglePanel<Serializable> {
         });
     }
 
-    public void setTask(final PullTaskTO task) {
-        this.task = task;
+    protected abstract Serializable onApplyInternal(
+            final TemplatableTO targetObject, final String type, final AnyTO anyTO);
+
+    public void setTargetObject(final TemplatableTO targetObject) {
+        this.targetObject = targetObject;
     }
 }

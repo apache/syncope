@@ -18,40 +18,31 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
-import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.event.IEventSink;
 
 public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
         implements TemplateWizardBuilder<AnyObjectTO> {
 
     private static final long serialVersionUID = 6716803168859873877L;
 
-    private final PullTaskTO task;
-
-    private final String anyType;
-
     public AnyObjectTemplateWizardBuilder(
-            final PullTaskTO task,
+            final TemplatableTO templatable,
             final String anyType,
             final List<String> anyTypeClasses,
             final AnyObjectFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
         super(null, anyTypeClasses, formLayoutInfo, pageRef);
-        this.task = task;
-        this.anyType = anyType;
 
-        if (task.getTemplates().containsKey(this.anyType)) {
-            setItem(new AnyWrapper<>(AnyObjectTO.class.cast(task.getTemplates().get(this.anyType))));
+        if (templatable.getTemplates().containsKey(anyType)) {
+            setItem(new AnyWrapper<>(AnyObjectTO.class.cast(templatable.getTemplates().get(anyType))));
         } else {
             AnyObjectTO anyObjectTO = new AnyObjectTO();
-            anyObjectTO.setType(this.anyType);
+            anyObjectTO.setType(anyType);
             setItem(new AnyWrapper<>(new AnyObjectTO()));
         }
     }
@@ -59,18 +50,5 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
     @Override
     public AjaxWizard<AnyWrapper<AnyObjectTO>> build(final String id) {
         return super.build(id, AjaxWizard.Mode.TEMPLATE);
-    }
-
-    @Override
-    protected Serializable onApplyInternal(final AnyWrapper<AnyObjectTO> modelObject) {
-        task.getTemplates().put(anyType, modelObject.getInnerObject());
-        new TaskRestClient().update(task);
-        return task;
-    }
-
-    @Override
-    public TemplateWizardBuilder<AnyObjectTO> setEventSink(final IEventSink eventSink) {
-        this.eventSink = eventSink;
-        return this;
     }
 }

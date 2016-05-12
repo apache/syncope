@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +32,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -43,7 +45,9 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -90,8 +94,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             LOG.error("Falure instantiating task", e);
         }
 
-        this.addNewItemPanelBuilder(
-                new SchedTaskWizardBuilder<>(schedTaskTO, pageRef).setEventSink(SchedTaskDirectoryPanel.this), true);
+        this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(schedTaskTO, pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.TASK_CREATE);
 
@@ -103,7 +106,19 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         startAt = new TaskStartAtTogglePanel(container);
         addInnerObject(startAt);
 
-        templates = new TemplatesTogglePanel(this, pageRef);
+        templates = new TemplatesTogglePanel(getActualId(), this, pageRef) {
+
+            private static final long serialVersionUID = -8765794727538618705L;
+
+            @Override
+            protected Serializable onApplyInternal(
+                    final TemplatableTO targetObject, final String type, final AnyTO anyTO) {
+                targetObject.getTemplates().put(type, anyTO);
+                new TaskRestClient().update(SchedTaskTO.class.cast(targetObject));
+                return targetObject;
+            }
+        };
+
         addInnerObject(templates);
     }
 

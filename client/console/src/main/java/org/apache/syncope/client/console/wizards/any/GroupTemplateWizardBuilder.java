@@ -18,36 +18,27 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
-import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.event.IEventSink;
 
 public class GroupTemplateWizardBuilder extends GroupWizardBuilder implements TemplateWizardBuilder<GroupTO> {
 
     private static final long serialVersionUID = 6716803168859873877L;
 
-    private final PullTaskTO task;
-
-    private final String anyType;
-
     public GroupTemplateWizardBuilder(
-            final PullTaskTO task,
+            final TemplatableTO templatable,
             final List<String> anyTypeClasses,
             final GroupFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
         super(null, anyTypeClasses, formLayoutInfo, pageRef);
-        this.task = task;
-        this.anyType = AnyTypeKind.GROUP.name();
 
-        if (task.getTemplates().containsKey(this.anyType)) {
-            setItem(new GroupWrapper(GroupTO.class.cast(task.getTemplates().get(this.anyType))));
+        if (templatable.getTemplates().containsKey(AnyTypeKind.GROUP.name())) {
+            setItem(new GroupWrapper(GroupTO.class.cast(templatable.getTemplates().get(AnyTypeKind.GROUP.name()))));
         } else {
             setItem(new GroupWrapper(new GroupTO()));
         }
@@ -56,18 +47,5 @@ public class GroupTemplateWizardBuilder extends GroupWizardBuilder implements Te
     @Override
     public AjaxWizard<AnyWrapper<GroupTO>> build(final String id) {
         return super.build(id, AjaxWizard.Mode.TEMPLATE);
-    }
-
-    @Override
-    protected Serializable onApplyInternal(final AnyWrapper<GroupTO> modelObject) {
-        task.getTemplates().put(anyType, modelObject.getInnerObject());
-        new TaskRestClient().update(task);
-        return task;
-    }
-
-    @Override
-    public TemplateWizardBuilder<GroupTO> setEventSink(final IEventSink eventSink) {
-        this.eventSink = eventSink;
-        return this;
     }
 }

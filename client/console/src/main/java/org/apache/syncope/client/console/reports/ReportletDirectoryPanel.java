@@ -95,8 +95,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         enableExitButton();
 
-        this.addNewItemPanelBuilder(new ReportletWizardBuilder(
-                report, new ReportletWrapper(), pageRef).setEventSink(ReportletDirectoryPanel.this), true);
+        this.addNewItemPanelBuilder(new ReportletWizardBuilder(report, new ReportletWrapper(), pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.REPORT_UPDATE);
         restClient = new ReportRestClient();

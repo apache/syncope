@@ -1176,7 +1176,7 @@ $$ }&#10;
 because one of the following events occurred:
 &lt;ul&gt;&#10;
 $$ for (event: events) {&#10;
-  &lt;li&gt;${event}&lt;/i&gt;&#10;
+  &lt;li&gt;${event}&lt;/li&gt;&#10;
 $$ }&#10;
 &lt;/ul&gt;&#10;
 &lt;/p&gt;

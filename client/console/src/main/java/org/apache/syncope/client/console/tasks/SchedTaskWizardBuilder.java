@@ -45,7 +45,6 @@ import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -285,11 +284,5 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             add(new CrontabPanel(
                     "schedule", new PropertyModel<String>(taskTO, "cronExpression"), taskTO.getCronExpression()));
         }
-
-    }
-
-    public SchedTaskWizardBuilder<T> setEventSink(final IEventSink eventSink) {
-        this.eventSink = eventSink;
-        return this;
     }
 }

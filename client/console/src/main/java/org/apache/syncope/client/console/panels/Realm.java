@@ -86,6 +86,15 @@ public abstract class Realm extends Panel {
 
                             @Override
                             public void onClick(final AjaxRequestTarget target, final RealmTO modelObject) {
+                                onClickTemplate(target);
+                            }
+                        }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.REALM_CREATE).
+                        add(new ActionLink<RealmTO>(realmTO) {
+
+                            private static final long serialVersionUID = 2802988981431379827L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final RealmTO modelObject) {
                                 onClickCreate(target);
                             }
                         }, ActionLink.ActionType.CREATE, StandardEntitlement.REALM_CREATE).
@@ -116,8 +125,8 @@ public abstract class Realm extends Panel {
             }
         });
 
-        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
-                FormLayoutInfoUtils.fetch(anyTypeTOs);
+        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo
+                = FormLayoutInfoUtils.fetch(anyTypeTOs);
 
         Collections.sort(anyTypeTOs, new AnyTypeComparator());
         for (final AnyTypeTO anyTypeTO : anyTypeTOs) {
@@ -134,6 +143,8 @@ public abstract class Realm extends Panel {
 
         return tabs;
     }
+
+    protected abstract void onClickTemplate(final AjaxRequestTarget target);
 
     protected abstract void onClickCreate(final AjaxRequestTarget target);
 

@@ -21,9 +21,11 @@ package org.apache.syncope.fit.console;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import java.util.UUID;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.NonI18nPalette;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -299,6 +301,71 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 + "first:container:content:wizard:form:view:schedule:seconds:textField", TextField.class);
 
         formTester.submit("buttons:finish");
+        wicketTester.cleanupFeedbackMessages();
+    }
+
+    @Test
+    public void addGroupTemplate() {
+        wicketTester.clickLink("body:topologyLI:topology");
+
+        Component component = findComponentByProp("key", "body:resources", "resource-testdb");
+        assertNotNull(component);
+        wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        wicketTester.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:pull");
+
+        wicketTester.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
+                + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
+                + "body:rows:1:cells:10:cell:panelTemplate:templateLink");
+
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
+                + "first:container:content:toggleTemplates", TogglePanel.class);
+
+        FormTester formTester = wicketTester.newFormTester(
+                "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:container:"
+                + "content:toggleTemplates:container:content:togglePanelContainer:templatesForm");
+
+        formTester.setValue("type:dropDownChoiceField", "1");
+        formTester.submit("changeit");
+
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:2:outer", Modal.class);
+
+        formTester = wicketTester.newFormTester("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+                + "firstLevelContainer:first:container:content:wizard:form");
+        formTester.setValue("view:name:textField", "'k' + name");
+        formTester.submit("buttons:finish");
+
+        wicketTester.assertInfoMessages("Operation executed successfully");
+        wicketTester.cleanupFeedbackMessages();
+
+        wicketTester.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
+                + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
+                + "body:rows:1:cells:10:cell:panelTemplate:templateLink");
+
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
+                + "first:container:content:toggleTemplates", TogglePanel.class);
+
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
+                + "first:container:content:toggleTemplates", TogglePanel.class);
+
+        formTester = wicketTester.newFormTester(
+                "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:container:"
+                + "content:toggleTemplates:container:content:togglePanelContainer:templatesForm");
+
+        formTester.setValue("type:dropDownChoiceField", "1");
+        formTester.submit("changeit");
+
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:2:outer", Modal.class);
+
+        wicketTester.assertModelValue("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+                + "firstLevelContainer:first:container:content:wizard:form:view:name:textField",
+                "'k' + name");
+        
+        formTester = wicketTester.newFormTester("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+                + "firstLevelContainer:first:container:content:wizard:form");
+        formTester.setValue("view:name:textField", "");
+        formTester.submit("buttons:finish");
+
+        wicketTester.assertInfoMessages("Operation executed successfully");
         wicketTester.cleanupFeedbackMessages();
     }
 }

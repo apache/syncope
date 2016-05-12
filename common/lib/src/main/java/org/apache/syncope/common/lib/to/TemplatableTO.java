@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wizards.any;
+package org.apache.syncope.common.lib.to;
 
-import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.to.AnyTO;
+import java.io.Serializable;
+import java.util.Map;
 
-public interface TemplateWizardBuilder<T extends AnyTO> {
+public interface TemplatableTO extends Serializable {
 
-    AjaxWizard<AnyWrapper<T>> build(String id);
+    Map<String, AnyTO> getTemplates();
 }

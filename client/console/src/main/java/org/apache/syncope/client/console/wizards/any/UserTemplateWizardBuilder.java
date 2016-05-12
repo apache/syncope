@@ -18,36 +18,27 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
-import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.event.IEventSink;
 
 public class UserTemplateWizardBuilder extends UserWizardBuilder implements TemplateWizardBuilder<UserTO> {
 
     private static final long serialVersionUID = 6716803168859873877L;
 
-    private final PullTaskTO task;
-
-    private final String anyType;
-
     public UserTemplateWizardBuilder(
-            final PullTaskTO task,
+            final TemplatableTO templatable,
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
         super(null, anyTypeClasses, formLayoutInfo, pageRef);
-        this.task = task;
-        this.anyType = AnyTypeKind.USER.name();
 
-        if (task.getTemplates().containsKey(this.anyType)) {
-            setItem(new UserWrapper(UserTO.class.cast(task.getTemplates().get(this.anyType))));
+        if (templatable.getTemplates().containsKey(AnyTypeKind.USER.name())) {
+            setItem(new UserWrapper(UserTO.class.cast(templatable.getTemplates().get(AnyTypeKind.USER.name()))));
         } else {
             setItem(new UserWrapper(new UserTO()));
         }
@@ -56,18 +47,5 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
     @Override
     public AjaxWizard<AnyWrapper<UserTO>> build(final String id) {
         return super.build(id, AjaxWizard.Mode.TEMPLATE);
-    }
-
-    @Override
-    protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
-        task.getTemplates().put(anyType, modelObject.getInnerObject());
-        new TaskRestClient().update(task);
-        return task;
-    }
-
-    @Override
-    public TemplateWizardBuilder<UserTO> setEventSink(final IEventSink eventSink) {
-        this.eventSink = eventSink;
-        return this;
     }
 }
