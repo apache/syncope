@@ -62,11 +62,12 @@ public class VirSchemaITCase extends AbstractITCase {
         VirSchemaTO schema = new VirSchemaTO();
         schema.setKey("virtualTest" + getUUIDString());
         schema.setExtAttrName("name");
-        schema.setProvision(csv.getProvisions().get(0).getKey());
+        schema.setResource(RESOURCE_NAME_CSV);
+        schema.setAnyType(csv.getProvisions().get(0).getAnyType());
 
         schema = createSchema(SchemaType.VIRTUAL, schema);
         assertNotNull(schema);
-        assertEquals(csv.getProvisions().get(0).getKey(), schema.getProvision());
+        assertEquals(csv.getProvisions().get(0).getAnyType(), schema.getAnyType());
 
         csv = resourceService.read(RESOURCE_NAME_CSV);
         assertNotNull(csv);
@@ -138,7 +139,8 @@ public class VirSchemaITCase extends AbstractITCase {
         VirSchemaTO schema = new VirSchemaTO();
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
         schema.setExtAttrName("name");
-        schema.setProvision(ws1.getProvisions().get(0).getKey());
+        schema.setResource(RESOURCE_NAME_WS1);
+        schema.setAnyType(ws1.getProvisions().get(0).getAnyType());
 
         try {
             createSchema(SchemaType.VIRTUAL, schema);

@@ -31,8 +31,6 @@ public interface ExternalResourceDAO extends DAO<ExternalResource> {
 
     ExternalResource find(String key);
 
-    Provision findProvision(String key);
-
     List<Provision> findProvisionsByAuxClass(AnyTypeClass anyTypeClass);
 
     List<ExternalResource> findByPolicy(Policy policy);

@@ -109,7 +109,8 @@ public class VirAttrITCase extends AbstractITCase {
         VirSchemaTO virSchema = new VirSchemaTO();
         virSchema.setKey("syncope260" + getUUIDString());
         virSchema.setExtAttrName("companyName");
-        virSchema.setProvision(provision.getKey());
+        virSchema.setResource(RESOURCE_NAME_WS2);
+        virSchema.setAnyType(provision.getAnyType());
         virSchema = createSchema(SchemaType.VIRTUAL, virSchema);
         assertNotNull(virSchema);
 
@@ -286,7 +287,8 @@ public class VirAttrITCase extends AbstractITCase {
             VirSchemaTO virSchema = new VirSchemaTO();
             virSchema.setKey("syncope397" + getUUIDString());
             virSchema.setExtAttrName("email");
-            virSchema.setProvision(provision.getKey());
+            virSchema.setResource(RESOURCE_NAME_CSV);
+            virSchema.setAnyType(provision.getAnyType());
             virSchema = createSchema(SchemaType.VIRTUAL, virSchema);
             assertNotNull(virSchema);
 
@@ -467,7 +469,8 @@ public class VirAttrITCase extends AbstractITCase {
                 rvirtualdata = new VirSchemaTO();
                 rvirtualdata.setKey("rvirtualdata");
                 rvirtualdata.setExtAttrName("businessCategory");
-                rvirtualdata.setProvision("20a75199-3f2e-4b9a-9510-c68dd7fc7b3d");
+                rvirtualdata.setResource(RESOURCE_NAME_LDAP);
+                rvirtualdata.setAnyType(AnyTypeKind.GROUP.name());
 
                 rvirtualdata = createSchema(SchemaType.VIRTUAL, rvirtualdata);
             }
@@ -651,7 +654,8 @@ public class VirAttrITCase extends AbstractITCase {
             VirSchemaTO virSchema = new VirSchemaTO();
             virSchema.setKey("syncope691" + getUUIDString());
             virSchema.setExtAttrName("mail");
-            virSchema.setProvision(provision.getKey());
+            virSchema.setResource(ldap.getKey());
+            virSchema.setAnyType(provision.getAnyType());
             virSchema = createSchema(SchemaType.VIRTUAL, virSchema);
             assertNotNull(virSchema);
 

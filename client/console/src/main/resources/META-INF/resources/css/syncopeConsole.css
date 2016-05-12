@@ -229,8 +229,8 @@ a.help span a {
 }
 
 .wizard-view {
-  max-height: 500px;
-  height: 500px;
+  max-height: 450px;
+  height: 450px;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0px 5px 0px 5px;

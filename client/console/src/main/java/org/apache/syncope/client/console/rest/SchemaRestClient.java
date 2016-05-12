@@ -122,61 +122,16 @@ public class SchemaRestClient extends BaseRestClient {
         return getSchemaNames(SchemaType.VIRTUAL);
     }
 
-    public void createPlainSchema(final PlainSchemaTO schemaTO) {
-        getService(SchemaService.class).create(SchemaType.PLAIN, schemaTO);
-    }
-
-    public PlainSchemaTO readPlainSchema(final String name) {
-        PlainSchemaTO schema = null;
-
-        try {
-            schema = getService(SchemaService.class).read(SchemaType.PLAIN, name);
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading a user schema", e);
-        }
-        return schema;
-    }
-
-    public void updatePlainSchema(final PlainSchemaTO schemaTO) {
-        getService(SchemaService.class).update(SchemaType.PLAIN, schemaTO);
-    }
-
     public PlainSchemaTO deletePlainSchema(final String name) {
         PlainSchemaTO response = getService(SchemaService.class).read(SchemaType.PLAIN, name);
         getService(SchemaService.class).delete(SchemaType.PLAIN, name);
         return response;
     }
 
-    public void createDerSchema(final DerSchemaTO schemaTO) {
-        getService(SchemaService.class).create(SchemaType.DERIVED, schemaTO);
-    }
-
-    public DerSchemaTO readDerSchema(final String name) {
-        DerSchemaTO derivedSchemaTO = null;
-        try {
-            derivedSchemaTO = getService(SchemaService.class).read(SchemaType.DERIVED, name);
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading a derived user schema", e);
-        }
-        return derivedSchemaTO;
-    }
-
-    public void updateVirSchema(final VirSchemaTO schemaTO) {
-        getService(SchemaService.class).update(SchemaType.VIRTUAL, schemaTO);
-    }
-
     public DerSchemaTO deleteDerSchema(final String name) {
         DerSchemaTO schemaTO = getService(SchemaService.class).read(SchemaType.DERIVED, name);
         getService(SchemaService.class).delete(SchemaType.DERIVED, name);
         return schemaTO;
-    }
-
-    public void createVirSchema(final VirSchemaTO schemaTO) {
-        getService(SchemaService.class).create(SchemaType.VIRTUAL, schemaTO);
-    }
-
-    public void updateDerSchema(final DerSchemaTO schemaTO) {
-        getService(SchemaService.class).update(SchemaType.DERIVED, schemaTO);
     }
 
     public VirSchemaTO deleteVirSchema(final String name) {

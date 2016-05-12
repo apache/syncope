@@ -70,10 +70,12 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
         private static final long serialVersionUID = 3109256773218160485L;
 
         {
-            put(SchemaType.PLAIN, Arrays.asList(new String[] { "key", "type",
-                "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
-            put(SchemaType.DERIVED, Arrays.asList(new String[] { "key", "expression" }));
-            put(SchemaType.VIRTUAL, Arrays.asList(new String[] { "key", "provision", "extAttrName", "readonly" }));
+            put(SchemaType.PLAIN, Arrays.asList(new String[] {
+                "key", "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
+            put(SchemaType.DERIVED, Arrays.asList(new String[] {
+                "key", "expression" }));
+            put(SchemaType.VIRTUAL, Arrays.asList(new String[] {
+                "key", "resource", "anyType", "extAttrName", "readonly" }));
         }
     };
 
@@ -96,6 +98,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
                 @Override
                 public WizardModalPanel<AbstractSchemaTO> build(
                         final String id, final int index, final AjaxWizard.Mode mode) {
+
                     final AbstractSchemaTO modelObject = newModelObject();
                     return new SchemaModalPanel(modal, modelObject, pageRef) {
 
