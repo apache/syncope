@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-/* global moment, date */
 
 'use strict';
 
@@ -51,9 +50,6 @@ angular.module('self')
                   case "Binary":
 
                     $scope.userFile = $scope.userFile || '';
-                    //for multivalue fields 
-//                    $scope.fileInputId = "fileInputId_" + index;
-
                     $element.bind("change", function (changeEvent) {
                       $scope.$apply(function () {
                         var reader = new FileReader();
@@ -88,23 +84,25 @@ angular.module('self')
                     break;
 
                   case "Date":
-                    var DateInMs = $scope.user.plainAttrs[schema.key].values[index];
-                    console.log("received date in milliseconds", DateInMs);
-                    var temporaryDate = new Date(DateInMs * 1);
-                    console.log("date-time", temporaryDate);
-                    $scope.selectedDate = temporaryDate;
-                    $scope.selectedTime = temporaryDate;
+                    var dateInMs = $scope.user.plainAttrs[schema.key].values[index];
+                    console.debug("received date in milliseconds", dateInMs);
+                    if (dateInMs) {
+                      var temporaryDate = new Date(dateInMs * 1);
+                      console.debug("date-time", temporaryDate);
+                      $scope.selectedDate = temporaryDate;
+                      $scope.selectedTime = temporaryDate;
+                    }
 
                     $scope.bindDateToModel = function (selectedDate, selectedTime) {
                       if (selectedDate && selectedTime) {
                         var extractedDate = selectedDate.toString().substring(0, 15);
-                        console.log("selectedDate: ", extractedDate);
+                        console.debug("selectedDate: ", extractedDate);
                         var extractedTime = selectedTime.toString().substring(16);
-                        console.log("selectedTime: ", extractedTime);
+                        console.debug("selectedTime: ", extractedTime);
                         var resultDate = extractedDate + ' ' + extractedTime;
                         var tmpdate = new Date(resultDate);
                         var milliseconds = tmpdate.getTime();
-                        console.log("resultDate in milliseconds", milliseconds);
+                        console.debug("resultDate in milliseconds", milliseconds);
                         $scope.user.plainAttrs[schema.key].values[index] = milliseconds;
                       }
                     };
