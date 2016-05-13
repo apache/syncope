@@ -409,8 +409,6 @@ under the License.
     <kendo-ui-core.version>2014.2.716</kendo-ui-core.version>
     <select2.version>3.4.8</select2.version>
     <fileSaver.version>0.0.2</fileSaver.version>
-    <momentjs.version>2.12.0</momentjs.version>
-    <moment-jdateformatparser.version>1.0.0</moment-jdateformatparser.version>
     
     <izpack.version>5.0.8</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
@@ -985,10 +983,6 @@ under the License.
           </exclusion>
           <exclusion>
             <groupId>org.webjars</groupId>
-            <artifactId>momentjs</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.webjars</groupId>
             <artifactId>Eonasdan-bootstrap-datetimepicker</artifactId>
           </exclusion>
         </exclusions>
@@ -1218,17 +1212,6 @@ under the License.
         <artifactId>FileSaver.js</artifactId>
         <version>${fileSaver.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.webjars.npm</groupId>
-        <artifactId>moment</artifactId>
-        <version>${momentjs.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.npm</groupId>
-        <artifactId>moment-jdateformatparser</artifactId>
-        <version>${moment-jdateformatparser.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>com.beust</groupId>
         <artifactId>jcommander</artifactId>
