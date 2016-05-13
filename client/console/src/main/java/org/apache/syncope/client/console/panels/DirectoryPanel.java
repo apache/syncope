@@ -219,6 +219,13 @@ public abstract class DirectoryPanel<
         target.add(container);
     }
 
+    public void updateResultTable(final AjaxRequestTarget target) {
+        updateResultTable(false);
+        if (DirectoryPanel.this.container.isVisibleInHierarchy()) {
+            target.add(DirectoryPanel.this.container);
+        }
+    }
+
     private void updateResultTable(final boolean create) {
         updateResultTable(create, rows);
     }

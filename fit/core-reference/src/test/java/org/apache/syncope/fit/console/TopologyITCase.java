@@ -27,9 +27,11 @@ import java.util.UUID;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.NonI18nPalette;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Before;
@@ -243,13 +245,83 @@ public class TopologyITCase extends AbstractConsoleITCase {
         assertNotNull(component);
         wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
         wicketTester.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:pull");
-        wicketTester.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
-                + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
-                + "body:rows:1:cells:10:cell:panelExecute:executeLink");
+
+        component = findComponentByProp("name", "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
+                + "checkgroup:dataTable", "TestDB Task");
+
+        wicketTester.clickLink(component.getPageRelativePath() + ":cells:10:cell:panelExecute:executeLink");
 
         wicketTester.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:startAt:container:content:togglePanelContainer:startAtForm:startAt");
         wicketTester.assertInfoMessages("Operation executed successfully");
+
+        try {
+            // requires a short delay
+            Thread.sleep(5000);
+        } catch (Exception ignore) {
+        }
+
+        component = findComponentByProp("name", "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
+                + "checkgroup:dataTable", "TestDB Task");
+
+        wicketTester.clickLink(component.getPageRelativePath() + ":cells:10:cell:panelView:viewLink");
+
+        wicketTester.assertLabel(
+                "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:title",
+                "Executions of task &#039;TestDB Task&#039;");
+
+        wicketTester.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:"
+                + "second:executions:firstLevelContainer:first:container:content:searchContainer:resultTable:"
+                + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:6:cell:panelView:viewLink");
+
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+                + "secondLevelContainer:second:executions:secondLevelContainer:title", Label.class);
+    }
+
+    @Test
+    public void readPropagationTaskExecutions() {
+        wicketTester.clickLink("body:topologyLI:topology");
+
+        Component component = findComponentByProp("key", "body:resources", "resource-testdb");
+        assertNotNull(component);
+        wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        wicketTester.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:propagation");
+
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:"
+                + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
+                WebMarkupContainer.class);
+
+        component = findComponentByProp("operation", "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
+                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
+                + "checkgroup:dataTable", ResourceOperation.CREATE);
+
+        wicketTester.clickLink(component.getPageRelativePath() + ":cells:10:cell:panelExecute:executeLink");
+
+        wicketTester.clickLink("body:topologyLI:topology");
+
+        component = findComponentByProp("key", "body:resources", "resource-testdb");
+        assertNotNull(component);
+        wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        wicketTester.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:propagation");
+
+        component = findComponentByProp("operation", "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
+                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
+                + "checkgroup:dataTable", ResourceOperation.CREATE);
+
+        wicketTester.clickLink(component.getPageRelativePath() + ":cells:10:cell:panelView:viewLink");
+
+        wicketTester.assertLabel(
+                "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:secondLevelContainer:title",
+                "CREATE task about USER");
+
+        wicketTester.clickLink("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:secondLevelContainer:"
+                + "second:executions:firstLevelContainer:first:container:content:searchContainer:resultTable:"
+                + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:6:cell:panelView:viewLink");
+
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
+                + "secondLevelContainer:second:executions:secondLevelContainer:title", Label.class);
     }
 
     @Test
@@ -359,7 +431,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.assertModelValue("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:wizard:form:view:name:textField",
                 "'k' + name");
-        
+
         formTester = wicketTester.newFormTester("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:wizard:form");
         formTester.setValue("view:name:textField", "");

@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Notifications;
 import org.apache.wicket.Component;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -132,8 +134,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         Component result = findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "createToUpdate");
 
-        wicketTester.clickLink(
-                result.getPageRelativePath() + ":cells:7:cell:panelEdit:editLink");
+        wicketTester.clickLink(result.getPageRelativePath() + ":cells:7:cell:panelEdit:editLink");
 
         FormTester formTester = wicketTester.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
@@ -141,6 +142,55 @@ public class NotificationsITCase extends AbstractConsoleITCase {
 
         wicketTester.assertInfoMessages("Operation executed successfully");
         wicketTester.cleanupFeedbackMessages();
+    }
+
+    @Test
+    public void execute() {
+        wicketTester.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        
+        Component result = findComponentByProp("subject",
+                "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable:tablePanel:groupForm:"
+                        + "checkgroup:dataTable", "Password Reset request");
+
+        wicketTester.clickLink(
+                result.getPageRelativePath() + ":cells:7:cell:panelNotificationTasks:notificationTasksLink");
+
+        wicketTester.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
+                + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
+                + "groupForm:checkgroup:dataTable", WebMarkupContainer.class);
+
+        result = findComponentByProp("subject", "body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
+                + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
+                + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81");
+
+        wicketTester.clickLink(result.getPageRelativePath() + ":cells:8:cell:panelExecute:executeLink");
+
+        wicketTester.assertInfoMessages("Operation executed successfully");
+        wicketTester.cleanupFeedbackMessages();
+
+        wicketTester.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+
+        result = findComponentByProp("subject", "body:content:tabbedPanel:panel:container:content:"
+                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "Password Reset request");
+
+        wicketTester.clickLink(
+                result.getPageRelativePath() + ":cells:7:cell:panelNotificationTasks:notificationTasksLink");
+
+        result = findComponentByProp("subject", "body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
+                + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
+                + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81");
+
+        wicketTester.clickLink(result.getPageRelativePath() + ":cells:8:cell:panelView:viewLink");
+
+        wicketTester.assertLabel("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:tasks:"
+                + "secondLevelContainer:title", "Notifications with subject &#039;Notification for SYNCOPE-81&#039;");
+
+        wicketTester.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:tasks:"
+                + "secondLevelContainer:back");
+
+        assertNotNull(findComponentByProp("subject", "body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
+                + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
+                + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81"));
     }
 
     @Test

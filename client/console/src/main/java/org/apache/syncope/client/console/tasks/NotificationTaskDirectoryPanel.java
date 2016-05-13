@@ -142,6 +142,7 @@ public abstract class NotificationTaskDirectoryPanel
                             public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
                                 try {
                                     restClient.delete(taskTO.getKey(), NotificationTaskTO.class);
+                                    updateResultTable(target);
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
