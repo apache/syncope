@@ -92,6 +92,7 @@ public class Relationships extends WizardStep {
 
     public Relationships(final AnyTO anyTO, final PageReference pageRef) {
         super();
+        setTitleModel(new ResourceModel("any.relationships"));
         this.anyTO = anyTO;
         this.pageRef = pageRef;
 

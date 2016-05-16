@@ -36,6 +36,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 
 public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
@@ -48,6 +49,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
             final List<String> whichVirAttrs) {
 
         super(anyTO, anyTypeClasses, whichVirAttrs);
+        setTitleModel(new ResourceModel("attributes.virtual"));
 
         add(new ListView<AttrTO>("schemas", attrTOs) {
 

@@ -50,6 +50,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 
 public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
@@ -66,6 +67,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         super(anyTO, anyTypeClasses, whichPlainAttrs);
         this.mode = mode;
+
+        setTitleModel(new ResourceModel("attributes.plain"));
 
         add(new ListView<AttrTO>("schemas", attrTOs) {
 

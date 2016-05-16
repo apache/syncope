@@ -167,8 +167,8 @@ div.wicket-modal div.w_content_3 {
 }
 
 .inner-scrollable-tab-content {
-  height: 440px;
-  margin-top: 40px;
+  height: 430px;
+  margin-top: 20px;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -219,7 +219,7 @@ a.help span a {
 }
 
 .modal-body {
-  max-height: 600px;
+  max-height: 670px;
   overflow-y: auto;
 }
 
@@ -228,9 +228,15 @@ a.help span a {
   z-index: 7000 !important;
 }
 
+.wizard-step-title {
+    font-size: 18px !important;
+    font-weight: normal !important;
+    margin-bottom: 10px !important;
+}
+
 .wizard-view {
-  max-height: 450px;
-  height: 450px;
+  max-height: 480px;
+  height: 480px;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0px 5px 0px 5px;
@@ -266,13 +272,14 @@ div.wizard-view div.wizard-view{
 }
 
 .wizard-form {
-  height:580px;  
+  height:560px;  
+  position: relative;
 }
 
 .wizard-buttons {
   padding: 10px 0px 5px 0px;
-  position: relative;
-  bottom: 0px;
+  position: absolute;
+  bottom: 30px;
   width: 100%;
 }
 
@@ -341,7 +348,7 @@ div.information{
   clear: both; 
   float:none;
   position: absolute;
-  bottom: 0px;
+  bottom: -20px;
   left: 0px;
   padding: 2px;
 }

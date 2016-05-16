@@ -48,6 +48,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
             final List<String> whichDerAttrs) {
 
         super(anyTO, anyTypeClasses, whichDerAttrs);
+        setTitleModel(new ResourceModel("attributes.derived"));
 
         add(new ListView<AttrTO>("schemas", attrTOs) {
 
