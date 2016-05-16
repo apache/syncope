@@ -251,7 +251,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 panel = new AjaxTextFieldPanel("panel", schemaTO.getKey(), new Model<String>(), false);
 
                 if (jexlHelp) {
-                    AjaxTextFieldPanel.class.cast(panel).enableJextHelp();
+                    AjaxTextFieldPanel.class.cast(panel).enableJexlHelp();
                 }
 
                 if (required) {

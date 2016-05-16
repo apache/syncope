@@ -171,7 +171,10 @@ public class PullUtils {
 
         String transfUid = uid;
         for (MappingItemTransformer transformer : MappingManagerImpl.getMappingItemTransformers(connObjectKeyItem)) {
-            List<Object> output = transformer.beforePull(Collections.<Object>singletonList(transfUid));
+            List<Object> output = transformer.beforePull(
+                    connObjectKeyItem,
+                    null,
+                    Collections.<Object>singletonList(transfUid));
             if (output != null && !output.isEmpty()) {
                 transfUid = output.get(0).toString();
             }

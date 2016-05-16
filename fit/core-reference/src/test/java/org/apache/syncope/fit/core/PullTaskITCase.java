@@ -396,21 +396,21 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ProvisionTO provision = resource.getProvision("PRINTER");
         assertNotNull(provision);
 
+        provision.setSyncToken(null);
+
+        MappingItemTO mappingItem = IterableUtils.find(
+                provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
+
+            @Override
+            public boolean evaluate(final MappingItemTO object) {
+                return "location".equals(object.getIntAttrName());
+            }
+        });
+        assertNotNull(mappingItem);
+        mappingItem.getMappingItemTransformerClassNames().clear();
+        mappingItem.getMappingItemTransformerClassNames().add(PrefixMappingItemTransformer.class.getName());
+
         try {
-            provision.setSyncToken(null);
-
-            MappingItemTO mappingItem = IterableUtils.find(
-                    provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
-
-                @Override
-                public boolean evaluate(final MappingItemTO object) {
-                    return "location".equals(object.getIntAttrName());
-                }
-            });
-            assertNotNull(mappingItem);
-            mappingItem.getMappingItemTransformerClassNames().clear();
-            mappingItem.getMappingItemTransformerClassNames().add(PrefixMappingItemTransformer.class.getName());
-
             resourceService.update(resource);
 
             // 1. create printer on external resource

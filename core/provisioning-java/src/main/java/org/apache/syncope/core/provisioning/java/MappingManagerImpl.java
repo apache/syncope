@@ -58,6 +58,7 @@ import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -74,6 +75,7 @@ import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
+import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformer;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -112,6 +114,9 @@ public class MappingManagerImpl implements MappingManager {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private AnyObjectDAO anyObjectDAO;
 
     @Autowired
     private DerAttrHandler derAttrHandler;
@@ -254,12 +259,31 @@ public class MappingManagerImpl implements MappingManager {
     public static List<MappingItemTransformer> getMappingItemTransformers(final MappingItem mappingItem) {
         List<MappingItemTransformer> result = new ArrayList<>();
 
+        // First consider the JEXL transformation expressions
+        JEXLMappingItemTransformer jexlTransformer = null;
+        if (StringUtils.isNotBlank(mappingItem.getPropagationJEXLTransformer())
+                || StringUtils.isNotBlank(mappingItem.getPullJEXLTransformer())) {
+
+            try {
+                jexlTransformer = (JEXLMappingItemTransformer) ApplicationContextProvider.getBeanFactory().
+                        createBean(JEXLMappingItemTransformer.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+
+                jexlTransformer.setPropagationJEXL(mappingItem.getPropagationJEXLTransformer());
+                jexlTransformer.setPullJEXL(mappingItem.getPullJEXLTransformer());
+            } catch (Exception e) {
+                LOG.error("Could not instantiate {}, ignoring...", JEXLMappingItemTransformer.class.getName(), e);
+            }
+        }
+        if (jexlTransformer != null) {
+            result.add(jexlTransformer);
+        }
+
+        // Then other custom tranaformers
         for (String className : mappingItem.getMappingItemTransformerClassNames()) {
             try {
                 Class<?> transformerClass = ClassUtils.getClass(className);
 
-                result.add((MappingItemTransformer) ApplicationContextProvider.
-                        getBeanFactory().
+                result.add((MappingItemTransformer) ApplicationContextProvider.getBeanFactory().
                         createBean(transformerClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false));
             } catch (Exception e) {
                 LOG.error("Could not instantiate {}, ignoring...", className, e);
@@ -395,9 +419,9 @@ public class MappingManagerImpl implements MappingManager {
 
             case GROUP:
                 if (any instanceof User) {
-                    for (Group group : userDAO.findAllGroups((User) any)) {
-                        anys.add(group);
-                    }
+                    anys.addAll(userDAO.findAllGroups((User) any));
+                } else if (any instanceof AnyObject) {
+                    anys.addAll(anyObjectDAO.findAllGroups((AnyObject) any));
                 } else if (any instanceof Group) {
                     anys.add(any);
                 }
@@ -525,8 +549,8 @@ public class MappingManagerImpl implements MappingManager {
      */
     @Transactional(readOnly = true)
     @Override
-    public List<PlainAttrValue> getIntValues(final Provision provision,
-            final MappingItem mappingItem, final List<Any<?>> anys) {
+    public List<PlainAttrValue> getIntValues(
+            final Provision provision, final MappingItem mappingItem, final List<Any<?>> anys) {
 
         LOG.debug("Get attributes for '{}' and mapping type '{}'", anys, mappingItem.getIntMappingType());
 
@@ -682,7 +706,7 @@ public class MappingManagerImpl implements MappingManager {
         List<PlainAttrValue> transformed = values;
         if (transform) {
             for (MappingItemTransformer transformer : getMappingItemTransformers(mappingItem)) {
-                transformed = transformer.beforePropagation(transformed);
+                transformed = transformer.beforePropagation(mappingItem, anys, transformed);
             }
             LOG.debug("Transformed values for propagation: {}", values);
         } else {
@@ -713,7 +737,6 @@ public class MappingManagerImpl implements MappingManager {
      * Set attribute values, according to the given {@link MappingItem}, to any object from attribute received from
      * connector.
      *
-     * @param <T> any object
      * @param mappingItem mapping item
      * @param attr attribute received from connector
      * @param anyTO any object
@@ -721,14 +744,14 @@ public class MappingManagerImpl implements MappingManager {
      */
     @Transactional(readOnly = true)
     @Override
-    public <T extends AnyTO> void setIntValues(
-            final MappingItem mappingItem, final Attribute attr, final T anyTO, final AnyUtils anyUtils) {
+    public void setIntValues(
+            final MappingItem mappingItem, final Attribute attr, final AnyTO anyTO, final AnyUtils anyUtils) {
 
         List<Object> values = null;
         if (attr != null) {
             values = attr.getValue();
             for (MappingItemTransformer transformer : getMappingItemTransformers(mappingItem)) {
-                values = transformer.beforePull(values);
+                values = transformer.beforePull(mappingItem, anyTO, values);
             }
         }
         values = ListUtils.emptyIfNull(values);

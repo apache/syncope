@@ -73,7 +73,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                         = new AjaxTextFieldPanel("panel", attrTO.getSchema(), new Model<String>(), false);
 
                 if (mode == AjaxWizard.Mode.TEMPLATE) {
-                    item.add(panel.enableJextHelp().setEnabled(!attrTO.isReadonly()));
+                    item.add(panel.enableJexlHelp().setEnabled(!attrTO.isReadonly()));
                 } else {
                     item.add(new MultiFieldPanel.Builder<>(
                             new PropertyModel<List<String>>(attrTO, "values")).build(

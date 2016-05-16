@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.tasks;
+package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,7 +27,6 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.MappingItemTO;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -37,17 +36,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class TransformersTogglePanel extends TogglePanel<Serializable> {
+public class MappingItemTransformersTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    private Component container;
-
     private MappingItemTO mapItem;
 
-    public TransformersTogglePanel(final WebMarkupContainer container) {
-        super("outer", "transformersTogglePanel");
-        this.container = container;
+    public MappingItemTransformersTogglePanel(final WebMarkupContainer container) {
+        super("outer", "mappingItemTransformersTogglePanel");
 
         final LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<List<String>>() {
 
@@ -62,7 +58,7 @@ public class TransformersTogglePanel extends TogglePanel<Serializable> {
             }
         };
 
-        final Form<?> form = new Form<>("form");
+        Form<?> form = new Form<>("form");
         addInnerObject(form);
 
         form.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).setRenderer(new IChoiceRenderer<String>() {
@@ -108,13 +104,15 @@ public class TransformersTogglePanel extends TogglePanel<Serializable> {
                 mapItem.getMappingItemTransformerClassNames().clear();
                 mapItem.getMappingItemTransformerClassNames().addAll(model.getObject());
 
-                target.add(TransformersTogglePanel.this.container);
+                target.add(container);
             }
 
         });
     }
 
-    public TransformersTogglePanel setMappingItem(final AjaxRequestTarget target, final MappingItemTO mapItem) {
+    public MappingItemTransformersTogglePanel setMappingItem(
+            final AjaxRequestTarget target, final MappingItemTO mapItem) {
+
         this.mapItem = mapItem;
         setHeader(target, StringUtils.EMPTY);
         return this;

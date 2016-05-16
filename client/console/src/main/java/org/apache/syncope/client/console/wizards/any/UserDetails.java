@@ -62,7 +62,7 @@ public class UserDetails extends Details<UserTO> {
                 "username", "username", new PropertyModel<String>(userTO, "username"), false);
 
         if (templateMode) {
-            username.enableJextHelp();
+            username.enableJexlHelp();
         } else {
             username.addRequiredLabel();
         }

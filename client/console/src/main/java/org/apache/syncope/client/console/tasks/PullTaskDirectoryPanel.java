@@ -53,7 +53,7 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
     }
 
     @Override
-    protected void addFurtherAcions(final ActionLinksPanel.Builder<PullTaskTO> panel, final IModel<PullTaskTO> model) {
+    protected void addFurtherActions(final ActionLinksPanel.Builder<PullTaskTO> panel, final IModel<PullTaskTO> model) {
         panel.add(new ActionLink<PullTaskTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;

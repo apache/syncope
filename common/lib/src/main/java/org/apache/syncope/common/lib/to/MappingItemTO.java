@@ -73,6 +73,16 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO {
      */
     private MappingPurpose purpose;
 
+    /**
+     * (Optional) JEXL expression to apply to values before propagation.
+     */
+    private String propagationJEXLTransformer;
+
+    /**
+     * (Optional) JEXL expression to apply to values before pull.
+     */
+    private String pullJEXLTransformer;
+
     private final List<String> mappingItemTransformerClassNames = new ArrayList<>();
 
     public boolean isConnObjectKey() {
@@ -139,6 +149,22 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO {
 
     public void setPurpose(final MappingPurpose purpose) {
         this.purpose = purpose;
+    }
+
+    public String getPropagationJEXLTransformer() {
+        return propagationJEXLTransformer;
+    }
+
+    public void setPropagationJEXLTransformer(final String propagationJEXLTransformer) {
+        this.propagationJEXLTransformer = propagationJEXLTransformer;
+    }
+
+    public String getPullJEXLTransformer() {
+        return pullJEXLTransformer;
+    }
+
+    public void setPullJEXLTransformer(final String pullJEXLTransformer) {
+        this.pullJEXLTransformer = pullJEXLTransformer;
     }
 
     @XmlElementWrapper(name = "mappingItemTransformerClassNames")

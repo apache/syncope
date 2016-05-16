@@ -34,7 +34,6 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
-import org.apache.syncope.client.console.tasks.TransformersTogglePanel;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -42,6 +41,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPan
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MappingPurposePanel;
+import org.apache.syncope.client.console.widgets.JEXLTransformerWidget;
 import org.apache.syncope.client.console.widgets.MappingItemTransformerWidget;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -109,11 +109,6 @@ public class ResourceMappingPanel extends Panel {
     private final ListView<MappingItemTO> mappings;
 
     /**
-     * External resource to be updated.
-     */
-    private final ResourceTO resourceTO;
-
-    /**
      * External resource provisioning configuration instance to be updated.
      */
     private final ProvisionTO provisionTO;
@@ -135,18 +130,21 @@ public class ResourceMappingPanel extends Panel {
      * Attribute Mapping Panel.
      *
      * @param id panel id
-     * @param resourceTO external resource to be updated.
-     * @param provisionTO external resource provisioning configuration instance.
+     * @param resourceTO external resource to be updated
+     * @param provisionTO external resource provisioning configuration instance
+     * @param mapItemTransformers mapping item transformers toggle panel
+     * @param jexlTransformers JEXL transformers toggle panel
      */
     public ResourceMappingPanel(
             final String id,
             final ResourceTO resourceTO,
             final ProvisionTO provisionTO,
-            final TransformersTogglePanel transformers) {
+            final MappingItemTransformersTogglePanel mapItemTransformers,
+            final JEXLTransformersTogglePanel jexlTransformers) {
+
         super(id);
         setOutputMarkupId(true);
 
-        this.resourceTO = resourceTO;
         this.provisionTO = provisionTO == null ? new ProvisionTO() : provisionTO;
         if (provisionTO == null) {
             getMapping().getItems().clear();
@@ -292,10 +290,17 @@ public class ResourceMappingPanel extends Panel {
                 // -------------------------------
 
                 //--------------------------------
-                // Mapping item transformer
+                // JEXL transformers
+                // -------------------------------
+                item.add(new JEXLTransformerWidget(
+                        "jexlTransformers", mapItem, jexlTransformers).setRenderBodyOnly(true));
+                // -------------------------------
+
+                //--------------------------------
+                // Mapping item transformers
                 // -------------------------------
                 item.add(new MappingItemTransformerWidget(
-                        "transformers", mapItem, transformers).setRenderBodyOnly(true));
+                        "mappingItemTransformers", mapItem, mapItemTransformers).setRenderBodyOnly(true));
                 // -------------------------------
 
                 //--------------------------------

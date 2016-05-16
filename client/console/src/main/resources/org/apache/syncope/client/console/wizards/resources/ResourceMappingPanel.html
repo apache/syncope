@@ -31,6 +31,7 @@ under the License.
               <th><wicket:message key="intMappingTypes"/></th>
               <th><wicket:message key="intAttrNames"/></th>
               <th><wicket:message key="extAttrNames"/></th>
+              <th><i class="fa fa-repeat"></i></th>
               <th><i class="fa fa-magic"></i></th>
               <th>
                 <wicket:message key="mandatoryCondition"/>
@@ -56,7 +57,12 @@ under the License.
               </td>
               <td>
                 <div class="alert-widget dropdown tasks-menu">
-                  <span wicket:id="transformers">[Mapping Item Transformes]</span>
+                  <span wicket:id="jexlTransformers">[JEXL Transformers]</span>
+                </div>
+              </td>
+              <td>
+                <div class="alert-widget dropdown tasks-menu">
+                  <span wicket:id="mappingItemTransformers">[Mapping Item Transformers]</span>
                 </div>
               </td>
               <td>

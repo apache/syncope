@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ProvisionAuxClassesPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
-import org.apache.syncope.client.console.tasks.TransformersTogglePanel;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -239,12 +238,17 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         wizardModel.add(new ObjectType(modelObject));
         wizardModel.add(new AuxClasses(modelObject));
 
-        final Mapping mapping = new Mapping(modelObject);
+        Mapping mapping = new Mapping(modelObject);
         mapping.setOutputMarkupId(true);
+
+        MappingItemTransformersTogglePanel mapItemTransformers = new MappingItemTransformersTogglePanel(mapping);
+        addOuterObject(mapItemTransformers);
+        JEXLTransformersTogglePanel jexlTransformers = new JEXLTransformersTogglePanel(mapping);
+        addOuterObject(jexlTransformers);
+        mapping.add(new ResourceMappingPanel(
+                "mapping", resourceTO, modelObject, mapItemTransformers, jexlTransformers));
+
         wizardModel.add(mapping);
-        final TransformersTogglePanel transformers = new TransformersTogglePanel(mapping);
-        addOuterObject(transformers);
-        mapping.add(new ResourceMappingPanel("mapping", resourceTO, modelObject, transformers));
 
         wizardModel.add(new ConnObjectLink(modelObject));
         return wizardModel;

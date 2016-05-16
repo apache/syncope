@@ -21,7 +21,10 @@ package org.apache.syncope.fit.core.reference;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.java.data.DefaultMappingItemTransformer;
 
 public class PrefixMappingItemTransformer extends DefaultMappingItemTransformer {
@@ -29,9 +32,13 @@ public class PrefixMappingItemTransformer extends DefaultMappingItemTransformer 
     public static final String PREFIX = "PREFIX_";
 
     @Override
-    public List<PlainAttrValue> beforePropagation(final List<PlainAttrValue> values) {
+    public List<PlainAttrValue> beforePropagation(
+            final MappingItem mappingItem,
+            final List<Any<?>> anys,
+            final List<PlainAttrValue> values) {
+
         if (values == null || values.isEmpty() || values.get(0).getStringValue() == null) {
-            return super.beforePropagation(values);
+            return super.beforePropagation(mappingItem, anys, values);
         } else {
             String value = values.get(0).getStringValue();
             values.get(0).setStringValue(PREFIX + value);
@@ -41,9 +48,13 @@ public class PrefixMappingItemTransformer extends DefaultMappingItemTransformer 
     }
 
     @Override
-    public List<Object> beforePull(final List<Object> values) {
+    public List<Object> beforePull(
+            final MappingItem mappingItem,
+            final AnyTO anyTO,
+            final List<Object> values) {
+
         if (values == null || values.isEmpty() || values.get(0) == null) {
-            return super.beforePull(values);
+            return super.beforePull(mappingItem, anyTO, values);
         } else {
             List<Object> newValues = new ArrayList<>(values);
             newValues.set(0, StringUtils.substringAfter(values.get(0).toString(), PREFIX));

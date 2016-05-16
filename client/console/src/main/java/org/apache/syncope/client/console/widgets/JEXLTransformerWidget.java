@@ -20,8 +20,10 @@ package org.apache.syncope.client.console.widgets;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconTypeBuilder;
+import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.wizards.resources.MappingItemTransformersTogglePanel;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.wizards.resources.JEXLTransformersTogglePanel;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -29,34 +31,44 @@ import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class MappingItemTransformerWidget extends AlertWidget<String> {
+public class JEXLTransformerWidget extends AlertWidget<String> {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
     private final MappingItemTO mapItem;
 
-    private final MappingItemTransformersTogglePanel transformers;
+    private final JEXLTransformersTogglePanel transformers;
 
-    public MappingItemTransformerWidget(
+    public JEXLTransformerWidget(
             final String id,
             final MappingItemTO mapItem,
-            final MappingItemTransformersTogglePanel transformers) {
+            final JEXLTransformersTogglePanel transformers) {
 
         super(id);
+        setOutputMarkupId(true);
+
         this.mapItem = mapItem;
         this.transformers = transformers;
-        setOutputMarkupId(true);
+        
+        this.latestAlertsList.setVisible(false);
     }
 
     @Override
     protected IModel<List<String>> getLatestAlerts() {
         return new ListModel<String>() {
 
-            private static final long serialVersionUID = 1232998477036705088L;
+            private static final long serialVersionUID = -2583290457773357445L;
 
             @Override
             public List<String> getObject() {
-                return mapItem.getMappingItemTransformerClassNames();
+                List<String> result = new ArrayList<>();
+                if (StringUtils.isNotBlank(mapItem.getPropagationJEXLTransformer())) {
+                    result.add(mapItem.getPropagationJEXLTransformer());
+                }
+                if (StringUtils.isNotBlank(mapItem.getPullJEXLTransformer())) {
+                    result.add(mapItem.getPullJEXLTransformer());
+                }
+                return result;
             }
         };
     }
@@ -69,7 +81,7 @@ public class MappingItemTransformerWidget extends AlertWidget<String> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                transformers.setMappingItem(target, MappingItemTransformerWidget.this.mapItem);
+                transformers.setMappingItem(target, JEXLTransformerWidget.this.mapItem);
                 transformers.toggle(target, true);
             }
         };
@@ -78,6 +90,6 @@ public class MappingItemTransformerWidget extends AlertWidget<String> {
     @Override
     protected Icon getIcon(final String iconid) {
         return new Icon(
-                iconid, FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.magic).build());
+                iconid, FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.repeat).build());
     }
 }

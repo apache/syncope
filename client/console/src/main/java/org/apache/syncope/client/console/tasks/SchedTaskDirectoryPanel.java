@@ -183,9 +183,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
-            public ActionLinksPanel<T> getActions(
-                    final String componentId, final IModel<T> model) {
-
+            public ActionLinksPanel<T> getActions(final String componentId, final IModel<T> model) {
                 final T taskTO = model.getObject();
 
                 final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.<T>builder().
@@ -260,7 +258,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE);
 
-                addFurtherAcions(panel, model);
+                addFurtherActions(panel, model);
 
                 return panel.build(componentId, model.getObject());
             }
@@ -286,7 +284,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         return columns;
     }
 
-    protected void addFurtherAcions(final ActionLinksPanel.Builder<T> panel, final IModel<T> model) {
+    protected void addFurtherActions(final ActionLinksPanel.Builder<T> panel, final IModel<T> model) {
     }
 
     @Override

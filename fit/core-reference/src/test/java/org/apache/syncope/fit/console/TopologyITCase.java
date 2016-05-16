@@ -97,12 +97,12 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.assertComponent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:"
                 + "container:content:wizard:form:view:mapping:mappingContainer:mappings:1", WebMarkupContainer.class);
 
-        wicketTester.executeAjaxEvent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:"
-                + "container:content:wizard:form:view:mapping:mappingContainer:mappings:1:transformers:icon",
+        wicketTester.executeAjaxEvent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
+                + "content:wizard:form:view:mapping:mappingContainer:mappings:1:mappingItemTransformers:icon",
                 Constants.ON_CLICK);
 
         wicketTester.clickLink("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:"
-                + "wizard:form:view:mapping:mappingContainer:mappings:0:transformers:alertsLink");
+                + "wizard:form:view:mapping:mappingContainer:mappings:0:mappingItemTransformers:alertsLink");
 
         wicketTester.assertComponent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:wizard:outerObjectsRepeater:0:outer:container:content:togglePanelContainer:"
@@ -119,8 +119,8 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.executeAjaxEvent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:create", Constants.ON_CLICK);
 
-        FormTester formTester
-                = wicketTester.newFormTester("body:toggle:outerObjectsRepeater:0:outer:form:content:form");
+        FormTester formTester =
+                wicketTester.newFormTester("body:toggle:outerObjectsRepeater:0:outer:form:content:form");
 
         formTester.setValue("view:container:key:textField", res);
         formTester.submit("buttons:next");

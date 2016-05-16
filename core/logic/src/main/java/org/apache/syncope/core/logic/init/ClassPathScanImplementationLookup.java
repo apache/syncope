@@ -55,6 +55,7 @@ import org.springframework.util.ClassUtils;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
+import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformer;
 
 /**
  * Cache class names for all implementations of Syncope interfaces found in classpath, for later usage.
@@ -136,7 +137,9 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     }
                 }
 
-                if (MappingItemTransformer.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (MappingItemTransformer.class.isAssignableFrom(clazz) && !isAbsractClazz
+                        && !clazz.equals(JEXLMappingItemTransformer.class)) {
+
                     classNames.get(Type.MAPPING_ITEM_TRANSFORMER).add(clazz.getName());
                 }
 

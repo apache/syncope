@@ -734,6 +734,10 @@ li.todoitem a {
   cursor: pointer;
 }
 
+.popover-content {
+  color: black;
+}
+
 .form-palette {
   display: inline-block;
   width: 119%;
@@ -821,38 +825,43 @@ END - Alert widget onside menu
 /**
 START - Transformers toggle panel
 */
-div#transformersTogglePanel {
+div.transformersTogglePanel {
   background-color: rgba(140, 140, 140, 0.99) !important;
   width: 1000px !important;
 }
 
-div#transformersContainer {
+div.transformersContainer {
   padding: 15px;
 }
 
-div#transformersContainer input {
+div.transformersContainer input {
   background-color: rgba(200, 200, 200, 0.60) !important;
 }
 
-div#transformersContainer #footer {
+div.transformersContainer #footer {
   clear: both;
   display: block;
   text-align: right;
+  margin-top: 10px;
 }
 
-div#transformersContainer #body {
+div.transformersContainer #body {
   clear: both;
   display: block;
 }
 
-div#transformersContainer #body select {
+div.mappingItemTransformersContainer #body select {
   border: 1px solid #ccc !important;
   background: rgba(240, 240, 240, 0.95) !important
 }
 
-div#transformersContainer #body a {
+div.mappingItemTransformersContainer #body a {
   color: #ccc !important;
   cursor: pointer !important;
+}
+
+div#jexlTransformersTogglePanel {
+  right: 400px;
 }
 /**
 END - Transformers toggle panel

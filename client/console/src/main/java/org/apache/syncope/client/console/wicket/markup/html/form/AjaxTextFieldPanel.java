@@ -101,7 +101,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
         }
     }
 
-    public FieldPanel<String> enableJextHelp() {
+    public FieldPanel<String> enableJexlHelp() {
         questionMarkJexlHelp.setVisible(true);
         return this;
     }
