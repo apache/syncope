@@ -22,9 +22,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Reports;
 import org.apache.wicket.Component;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Before;
@@ -75,7 +75,7 @@ public class ReportsITCase extends AbstractConsoleITCase {
                         result.getPageRelativePath() + ":cells:10:cell:panelDelete:deleteLink"));
 
         wicketTester.executeAjaxEvent(wicketTester.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:10:cell:panelDelete:deleteLink"), "onclick");
+                result.getPageRelativePath() + ":cells:10:cell:panelDelete:deleteLink"), Constants.ON_CLICK);
 
         wicketTester.assertInfoMessages("Operation executed successfully");
         wicketTester.cleanupFeedbackMessages();

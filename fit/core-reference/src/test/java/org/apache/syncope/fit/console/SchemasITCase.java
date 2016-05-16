@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
@@ -159,5 +161,52 @@ public class SchemasITCase extends AbstractTypesITCase {
         wicketTester.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp(KEY, PLAIN_DATATABLE_PATH, schemaName));
+    }
+
+    @Test
+    public void createVirtualSchema() {
+        browsingToVirtualSchemas();
+        wicketTester.clickLink(
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:2:body:content:container:content:add");
+
+        wicketTester.assertComponent(
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer",
+                Modal.class);
+
+        final FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:"
+                + "accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer:form");
+
+        formTester.setValue("content:details:form:resource:dropDownChoiceField", "0");
+        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:"
+                + "accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer:form:"
+                + "content:details:form:resource:dropDownChoiceField", Constants.ON_CHANGE);
+
+        formTester.setValue("content:details:form:key:textField", "mynewvir");
+        formTester.setValue("content:details:form:resource:dropDownChoiceField", "0");
+        formTester.setValue("content:details:form:anyType:dropDownChoiceField", "0");
+        formTester.setValue("content:details:form:extAttrName:textField", "virattr");
+
+        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:"
+                + "accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit",
+                Constants.ON_CLICK);
+
+        wicketTester.assertInfoMessages("Operation executed successfully");
+        wicketTester.cleanupFeedbackMessages();
+        wicketTester.assertRenderedPage(Types.class);
+
+        Component result = findComponentByProp(KEY, VIRTUAL_DATATABLE_PATH, "mynewvir");
+        assertNotNull(result);
+
+        wicketTester.getRequest().addParameter("confirm", "true");
+        wicketTester.clickLink(wicketTester.getComponentFromLastRenderedPage(
+                result.getPageRelativePath() + ":cells:6:cell:panelDelete:deleteLink"));
+
+        wicketTester.executeAjaxEvent(wicketTester.getComponentFromLastRenderedPage(
+                result.getPageRelativePath() + ":cells:6:cell:panelDelete:deleteLink"), "onclick");
+        wicketTester.assertInfoMessages("Operation executed successfully");
+        wicketTester.cleanupFeedbackMessages();
+
+        result = findComponentByProp(KEY, VIRTUAL_DATATABLE_PATH, "mynewvir");
+        assertNull(result);
     }
 }
