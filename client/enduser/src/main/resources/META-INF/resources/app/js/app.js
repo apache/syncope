@@ -18,13 +18,11 @@
  **/
 
 'use strict';
-
 angular.module('home', []);
 angular.module('login', []);
 angular.module('language', []);
 angular.module('self', []);
 angular.module('info', []);
-
 // Declare app level module which depends on views, and components
 var app = angular.module('SyncopeEnduserApp', [
   'ui.router',
@@ -41,11 +39,21 @@ var app = angular.module('SyncopeEnduserApp', [
   'login',
   'language',
   'self',
-  'info'
+  'info',
+  'pascalprecht.translate'
 ]);
 
-app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
-  function ($stateProvider, $urlRouterProvider, $httpProvider) {
+app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider',
+  function ($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider) {
+
+    // translate provider configuration
+    $translatePartialLoaderProvider.addPart('static')
+            .addPart('dynamic');
+    $translateProvider.useLoader('$translatePartialLoader', {
+      urlTemplate: 'languages/{lang}/{part}.json'
+    })
+            .preferredLanguage('en');
+
     // route configuration
     $stateProvider
             .state('home', {
@@ -63,7 +71,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
               resolve: {
                 'authenticated': ['AuthService',
                   function (AuthService) {
-                    return AuthService.islogged()
+                    return AuthService.islogged();
                   }]
               }
             })
@@ -197,19 +205,15 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
               url: '/mustchangepassword',
               templateUrl: 'views/mustchangepassword.html'
             });
-
     // catch all other routes
     // send users to the home page 
     $urlRouterProvider.otherwise('/');
-
     // HTTP service configuration
     $httpProvider.defaults.withCredentials = true;
     $httpProvider.defaults.xsrfCookieName = 'XSRF-TOKEN';
     $httpProvider.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
-
     //SYNCOPE-780
     $httpProvider.defaults.headers.common["If-Modified-Since"] = "0";
-
     $httpProvider.interceptors.push(function ($q, $rootScope, $location) {
       return {
         'request': function (config, a, b) {
@@ -219,7 +223,6 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
             var separator = config.url.indexOf('?') === -1 ? '?' : '&';
             config.url = config.url + separator + 'noCache=' + new Date().getTime();
           }
-
           $rootScope.spinner.on();
           return config || $q.when(config);
         },
@@ -246,9 +249,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
         }
       };
     });
-
   }]);
-
 app.run(['$rootScope', '$location', '$cookies', '$state', 'AuthService',
   function ($rootScope, $location, $cookies, $state, AuthService) {
     // main program
@@ -259,14 +260,11 @@ app.run(['$rootScope', '$location', '$cookies', '$state', 'AuthService',
         $location.path('/self');
       }
     });
-
     $rootScope.$on('$stateChangeSuccess', function (event, toState) {
       if (toState.name === 'create') {
         $state.go('create.credentials');
-
       } else if (toState.name === 'update') {
         $state.go('update.credentials');
-
       } else if (toState.name.indexOf("update") > -1) {
         AuthService.islogged().then(function (response) {
           if (response === "true") {
@@ -279,7 +277,6 @@ app.run(['$rootScope', '$location', '$cookies', '$state', 'AuthService',
           $state.go('self');
         }
         );
-
       } else if (toState.name === 'home' || toState.name === 'self') {
         AuthService.islogged().then(function (response) {
           if (response === "true") {
@@ -296,7 +293,6 @@ app.run(['$rootScope', '$location', '$cookies', '$state', 'AuthService',
         $state.go(toState);
       }
     });
-
     $rootScope.spinner = {
       active: false,
       on: function () {
@@ -307,7 +303,6 @@ app.run(['$rootScope', '$location', '$cookies', '$state', 'AuthService',
       }
     };
   }]);
-
 app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', function ($scope, $rootScope,
           InfoService) {
     // get syncope info and set cookie, first call
@@ -331,7 +326,6 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
               function (response) {
                 console.error("Something went wrong while accessing info resource", response);
               });
-
       $rootScope.isSelfRegAllowed = function () {
         return $rootScope.selfRegAllowed === true;
       };
@@ -341,7 +335,6 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $rootScope.getVersion = function () {
         return $rootScope.version;
       };
-
       //Notification management           
       $scope.notification = $('#notifications').kendoNotification().data("kendoNotification");
       $scope.notification.setOptions({stacking: "down"});
