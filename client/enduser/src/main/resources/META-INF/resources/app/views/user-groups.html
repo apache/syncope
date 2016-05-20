@@ -17,7 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <div id="attribute" class="form-group row upper-select">
-  <label>Realm</label>
+  <label>{{"REALM"|translate}}</label>
   <select class="form-control"
           ng-disabled="true"
           ng-model="user.realm"
@@ -26,17 +26,17 @@ under the License.
   </select>
 </div>
 <div id="attribute" class="form-group row upper-select">
-  <label>Groups</label><br/>
+  <label>{{"GROUPS"|translate}}</label><br/>
   <groups form="dynamicForm" user="user"></groups>
 </div>
 <div id="attribute" class="form-group row upper-select">
-  <label>Auxilary Classes</label><br/>
+  <label>{{"AUXILIARY CLASSES"|translate}}</label><br/>
   <auxiliary form="dynamicForm" user="user"></auxiliary>
 </div>
 <div id="attribute" class="form-group row">
   <navigation-buttons ng-show="createMode" base="create" current="groups" wizard="{{wizard}}"></navigation-buttons>
   <navigation-buttons ng-show="!createMode" base="update" current="groups" wizard="{{wizard}}"></navigation-buttons>
   <div class="pull-left">
-    <a id="cancel" href="#/self" class="btn btn-danger pull-left" ng-click="logout()">Cancel</a>
+    <a id="cancel" href="#/self" class="btn btn-danger pull-left" ng-click="logout()">{{'CANCEL'| translate}}</a>
   </div>
 </div>

@@ -18,9 +18,9 @@ under the License.
 -->
 <div class="pull-right">
   <a ng-show="next !== 'none'" id="next" class="btn btn-default" ng-click="validateAndNext($event)">
-    Next <span class="glyphicon glyphicon-circle-arrow-right"></span>
+    {{'NEXT' | translate}} <span class="glyphicon glyphicon-circle-arrow-right"></span>
   </a>
   <a ng-show="previous !== 'none'" id="previous" ng-click="previousTab()" class="btn btn-default">
-    <span class="glyphicon glyphicon-circle-arrow-left"></span> Previous
+    <span class="glyphicon glyphicon-circle-arrow-left"></span> {{'PREVIOUS' | translate}}
   </a>
 </div>
