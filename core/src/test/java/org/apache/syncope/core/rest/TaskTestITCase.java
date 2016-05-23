@@ -52,7 +52,6 @@ import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.NotificationTO;
 import org.apache.syncope.common.to.NotificationTaskTO;
 import org.apache.syncope.common.to.PropagationTaskTO;
-import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchedTaskTO;
@@ -395,14 +394,11 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(userTO);
             assertEquals("active", userTO.getStatus());
 
-            // SYNCOPE-317
-            execSyncTask(SYNC_TASK_ID, 50, false);
+            Set<Long> syncTaskIds = new HashSet<Long>();
+            syncTaskIds.add(25L);
+            syncTaskIds.add(26L);
+            execSyncTasks(syncTaskIds, 50, false);
 
-            final Set<Long> pushTaskIds = new HashSet<Long>();
-            pushTaskIds.add(25L);
-            pushTaskIds.add(26L);
-
-            execSyncTasks(pushTaskIds, 50, false);
             // Matching --> UNLINK
             assertFalse(readUser("test9").getResources().contains(RESOURCE_NAME_CSV));
             assertFalse(readUser("test7").getResources().contains(RESOURCE_NAME_CSV));
@@ -472,17 +468,18 @@ public class TaskTestITCase extends AbstractTest {
         TaskExecTO execution = execSyncTask(11L, 50, false);
 
         // 1. verify execution status
-        final String status = execution.getStatus();
+        String status = execution.getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
         // 2. verify that synchronized role is found, with expected attributes
-        final PagedResult<RoleTO> matchingRoles = roleService.search(
+        PagedResult<RoleTO> matchingRoles = roleService.search(
                 SyncopeClient.getRoleSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query());
         assertNotNull(matchingRoles);
         assertEquals(1, matchingRoles.getResult().size());
 
-        final PagedResult<UserTO> matchingUsers = userService.search(
+        // 3. verify that synchronized user is found
+        PagedResult<UserTO> matchingUsers = userService.search(
                 SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
@@ -495,7 +492,7 @@ public class TaskTestITCase extends AbstractTest {
         // Check for SYNCOPE-123
         assertNotNull(matchingUsers.getResult().get(0).getAttrMap().get("photo"));
 
-        final RoleTO roleTO = matchingRoles.getResult().iterator().next();
+        RoleTO roleTO = matchingRoles.getResult().iterator().next();
         assertNotNull(roleTO);
         assertEquals("testLDAPGroup", roleTO.getName());
         assertEquals(8L, roleTO.getParent());
@@ -503,8 +500,11 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(matchingUsers.getResult().iterator().next().getId(), (long) roleTO.getUserOwner());
         assertNull(roleTO.getRoleOwner());
 
-        // 3. verify that LDAP group membership is propagated as Syncope role membership
-        final PagedResult<UserTO> members = userService.search(
+        // SYNCOPE-317
+        execSyncTask(11L, 50, false);
+
+        // 4. verify that LDAP group membership is propagated as Syncope role membership
+        PagedResult<UserTO> members = userService.search(
                 SyncopeClient.getUserSearchConditionBuilder().hasRoles(roleTO.getId()).query());
         assertNotNull(members);
         assertEquals(1, members.getResult().size());

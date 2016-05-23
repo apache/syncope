@@ -54,6 +54,7 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -130,7 +131,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
-    protected void createOrUpdate(
+    protected Uid createOrUpdate(
             final PropagationTask task,
             final ConnectorObject beforeObj,
             final Connector connector,
@@ -160,9 +161,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     "Not attempted because there are mandatory attributes without value(s): " + mandatoryAttrNames);
         }
 
+        Uid result;
         if (beforeObj == null) {
             LOG.debug("Create {} on {}", attributes, task.getResource().getName());
-            connector.create(
+            result = connector.create(
                     task.getResource().getPropagationMode(),
                     new ObjectClass(task.getObjectClassName()),
                     attributes,
@@ -197,6 +199,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             if (originalAttrs.equals(attributes)) {
                 LOG.debug("Don't need to propagate anything: {} is equal to {}", originalAttrs, attributes);
+                result = (Uid) AttributeUtil.find(Uid.NAME, attributes);
             } else {
                 LOG.debug("Attributes that would be updated {}", attributes);
 
@@ -210,10 +213,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 // 3. provision entry
                 LOG.debug("Update {} on {}", strictlyModified, task.getResource().getName());
 
-                connector.update(task.getResource().getPropagationMode(), beforeObj.getObjectClass(),
+                result = connector.update(task.getResource().getPropagationMode(), beforeObj.getObjectClass(),
                         beforeObj.getUid(), strictlyModified, null, propagationAttempted);
             }
         }
+
+        return result;
     }
 
     protected AbstractSubject getSubject(final PropagationTask task) {
@@ -245,11 +250,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return subject;
     }
 
-    protected void delete(final PropagationTask task, final ConnectorObject beforeObj,
+    protected Uid delete(final PropagationTask task, final ConnectorObject beforeObj,
             final Connector connector, final Set<String> propagationAttempted) {
 
+        Uid result;
         if (beforeObj == null) {
             LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
+            result = null;
         } else {
             /*
              * We must choose here whether to
@@ -276,10 +283,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         beforeObj.getUid(),
                         null,
                         propagationAttempted);
+                result = beforeObj.getUid();
             } else {
-                createOrUpdate(task, beforeObj, connector, propagationAttempted);
+                result = createOrUpdate(task, beforeObj, connector, propagationAttempted);
             }
         }
+
+        return result;
     }
 
     @Override
@@ -298,6 +308,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         Set<String> propagationAttempted = new HashSet<String>();
 
         ConnectorObject beforeObj = null;
+        Uid uid = null;
         ConnectorObject afterObj = null;
 
         Connector connector = null;
@@ -315,11 +326,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             switch (task.getPropagationOperation()) {
                 case CREATE:
                 case UPDATE:
-                    createOrUpdate(task, beforeObj, connector, propagationAttempted);
+                    uid = createOrUpdate(task, beforeObj, connector, propagationAttempted);
                     break;
 
                 case DELETE:
-                    delete(task, beforeObj, connector, propagationAttempted);
+                    uid = delete(task, beforeObj, connector, propagationAttempted);
                     break;
 
                 default:
@@ -363,12 +374,23 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         } finally {
             // Try to read remote object (user / group) AFTER any actual operation
             if (connector != null) {
+                if (uid != null) {
+                    task.setAccountId(uid.getUidValue());
+                }
                 try {
                     afterObj = getRemoteObject(task, connector, true);
                 } catch (Exception ignore) {
                     // ignore exception
                     LOG.error("Error retrieving after object", ignore);
                 }
+            }
+
+            if (afterObj == null && uid != null) {
+                afterObj = new ConnectorObjectBuilder().
+                        setObjectClass(new ObjectClass(task.getObjectClassName())).
+                        setUid(uid).
+                        setName(AttributeUtil.getNameFromAttributes(task.getAttributes())).
+                        build();
             }
 
             LOG.debug("Update execution for {}", task);
@@ -434,9 +456,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     public void execute(final Collection<PropagationTask> tasks) {
         execute(tasks, null);
     }
-
-    @Override
-    public abstract void execute(Collection<PropagationTask> tasks, final PropagationReporter reporter);
 
     /**
      * Check whether an execution has to be stored, for a given task.
