@@ -2048,6 +2048,7 @@ under the License.
     <module>standalone</module>
     <module>deb</module>
     <module>installer</module>
+    <module>netbeans-plugin</module>
   </modules>
 
 </project>
