@@ -20,8 +20,6 @@ package org.apache.syncope.core.sync.impl;
 
 import org.apache.syncope.core.sync.SyncProfile;
 import org.apache.syncope.core.sync.SyncUtilities;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.mod.ReferenceMod;
@@ -37,7 +35,6 @@ import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.sync.SyncActions;
-import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -61,7 +58,19 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
     private RoleWorkflowAdapter rwfAdapter;
 
     @Autowired
-    protected SyncUtilities syncUtilities;
+    private SyncUtilities syncUtilities;
+
+    private SyncToken latestUSyncToken;
+
+    private SyncToken latestRSyncToken;
+
+    public void setLatestUSyncToken(final SyncToken latestUSyncToken) {
+        this.latestUSyncToken = latestUSyncToken;
+    }
+
+    public void setLatestRSyncToken(final SyncToken latestRSyncToken) {
+        this.latestRSyncToken = latestRSyncToken;
+    }
 
     protected void setRoleOwners(final RoleSyncResultHandler rhandler)
             throws UnauthorizedRoleException, NotFoundException {
@@ -109,26 +118,27 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
 
         LOG.debug("Execute synchronization with token {}", syncTask.getResource().getUsyncToken());
 
-        final List<SyncResult> results = new ArrayList<SyncResult>();
-
         final SyncProfile<SyncTask, SyncActions> profile =
                 new SyncProfile<SyncTask, SyncActions>(connector, syncTask);
         profile.setActions(actions);
         profile.setDryRun(dryRun);
         profile.setResAct(getSyncPolicySpec(syncTask).getConflictResolutionAction());
-        profile.setResults(results);
 
         // Prepare handler for SyncDelta objects (users)
-        final UserSyncResultHandler uhandler =
-                (UserSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().createBean(
-                        UserSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        UserSyncResultHandler uhandler =
+                (UserSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                createBean(UserSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
+        uhandler.setSyncJob(this);
+        latestUSyncToken = null;
 
         // Prepare handler for SyncDelta objects (roles/groups)
-        final RoleSyncResultHandler rhandler =
-                (RoleSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().createBean(
-                        RoleSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        RoleSyncResultHandler rhandler =
+                (RoleSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                createBean(RoleSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         rhandler.setProfile(profile);
+        rhandler.setSyncJob(this);
+        latestRSyncToken = null;
 
         if (!profile.isDryRun()) {
             for (SyncActions action : actions) {
@@ -137,15 +147,6 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
         }
 
         try {
-            SyncToken latestUSyncToken = null;
-            if (uMapping != null && !syncTask.isFullReconciliation()) {
-                latestUSyncToken = connector.getLatestSyncToken(ObjectClass.ACCOUNT);
-            }
-            SyncToken latestRSyncToken = null;
-            if (rMapping != null && !syncTask.isFullReconciliation()) {
-                latestRSyncToken = connector.getLatestSyncToken(ObjectClass.GROUP);
-            }
-
             if (syncTask.isFullReconciliation()) {
                 if (uMapping != null) {
                     connector.getAllObjects(ObjectClass.ACCOUNT, uhandler,
@@ -192,11 +193,11 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
 
         if (!profile.isDryRun()) {
             for (SyncActions action : actions) {
-                action.afterAll(profile, results);
+                action.afterAll(profile);
             }
         }
 
-        final String result = createReport(results, syncTask.getResource().getSyncTraceLevel(), dryRun);
+        String result = createReport(profile.getResults(), syncTask.getResource().getSyncTraceLevel(), dryRun);
 
         LOG.debug("Sync result: {}", result);
 

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.sync.impl;
 
 import org.apache.syncope.core.sync.SyncProfile;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +36,6 @@ import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.propagation.Connector;
 import org.apache.syncope.core.rest.data.SearchCondConverter;
 import org.apache.syncope.core.sync.PushActions;
-import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.quartz.JobExecutionException;
@@ -81,8 +79,6 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
             final boolean dryRun) throws JobExecutionException {
         LOG.debug("Execute synchronization (push) with resource {}", pushTask.getResource());
 
-        final List<SyncResult> results = new ArrayList<SyncResult>();
-
         final Set<Long> authorizations = EntitlementUtil.getRoleIds(entitlementDAO.findAll());
 
         final SyncProfile<PushTask, PushActions> profile =
@@ -90,7 +86,6 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
         profile.setActions(actions);
         profile.setDryRun(dryRun);
         profile.setResAct(null);
-        profile.setResults(results);
 
         final UserPushResultHandler uhandler =
                 (UserPushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().createBean(
@@ -141,11 +136,11 @@ public class PushJob extends AbstractSyncJob<PushTask, PushActions> {
 
         if (!profile.isDryRun()) {
             for (PushActions action : actions) {
-                action.afterAll(profile, results);
+                action.afterAll(profile);
             }
         }
 
-        final String result = createReport(results, pushTask.getResource().getSyncTraceLevel(), dryRun);
+        final String result = createReport(profile.getResults(), pushTask.getResource().getSyncTraceLevel(), dryRun);
 
         LOG.debug("Sync result: {}", result);
 

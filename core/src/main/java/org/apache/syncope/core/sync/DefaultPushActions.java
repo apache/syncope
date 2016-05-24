@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.sync;
 
-import java.util.List;
-
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.quartz.JobExecutionException;
 
@@ -97,8 +95,7 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public void afterAll(
-            final SyncProfile<?, ?> profile,
-            final List<SyncResult> results)
+            final SyncProfile<?, ?> profile)
             throws JobExecutionException {
     }
 }

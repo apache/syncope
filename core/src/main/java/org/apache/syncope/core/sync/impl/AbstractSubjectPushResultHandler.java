@@ -94,10 +94,6 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
     protected final void doHandle(final long subjectId)
             throws JobExecutionException {
 
-        if (profile.getResults() == null) {
-            profile.setResults(new ArrayList<SyncResult>());
-        }
-
         final AbstractSubject subject = getSubject(subjectId);
 
         final AttributableUtil attrUtil = AttributableUtil.getInstance(subject);
@@ -118,7 +114,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
 
         Object output = null;
         Result resultStatus = null;
-        ConnectorObject beforeObj = null;
+        ConnectorObject beforeObj;
         String operation = null;
 
         // Try to read remote object (user / group) BEFORE any actual operation

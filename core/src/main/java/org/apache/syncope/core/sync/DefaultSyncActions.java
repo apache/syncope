@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.sync;
 
-import java.util.List;
-
 import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -118,8 +116,17 @@ public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public void afterAll(
-            final SyncProfile<?, ?> profile,
-            final List<SyncResult> results)
+            final SyncProfile<?, ?> profile)
             throws JobExecutionException {
     }
+
+    @Override
+    public IgnoreProvisionException onError(
+            final SyncProfile<?, ?> profile,
+            final SyncDelta delta,
+            final Exception e) throws JobExecutionException {
+
+        return null;
+    }
+
 }

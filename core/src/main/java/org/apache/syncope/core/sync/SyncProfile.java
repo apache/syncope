@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.sync;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
@@ -33,7 +33,7 @@ public class SyncProfile<T extends AbstractSyncTask, A extends AbstractSyncActio
 
     private final T syncTask;
 
-    private Collection<SyncResult> results;
+    private final List<SyncResult> results = new ArrayList<SyncResult>();
 
     private boolean dryRun;
 
@@ -54,12 +54,8 @@ public class SyncProfile<T extends AbstractSyncTask, A extends AbstractSyncActio
         return syncTask;
     }
 
-    public Collection<SyncResult> getResults() {
+    public List<SyncResult> getResults() {
         return results;
-    }
-
-    public void setResults(final Collection<SyncResult> results) {
-        this.results = results;
     }
 
     public boolean isDryRun() {

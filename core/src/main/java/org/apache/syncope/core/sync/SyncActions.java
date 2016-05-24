@@ -176,4 +176,19 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
             SyncDelta delta,
             T subject,
             SyncResult result) throws JobExecutionException;
+
+    /**
+     * Action to be executed in case an exception is thrown during local user / role synchronization.
+     *
+     * @param profile profile of the synchronization being executed.
+     * @param delta retrieved synchronization information (may be modified by
+     * 'beforeProvision/beforeUpdate/beforeDelete')
+     * @param e the exception thrown
+     * @return an instance of the given exception type is that is to be thrown; {@code NULL} otherwise
+     * @throws JobExecutionException in case of generic failure
+     */
+    IgnoreProvisionException onError(
+            SyncProfile<?, ?> profile,
+            SyncDelta delta,
+            Exception e) throws JobExecutionException;
 }

@@ -37,6 +37,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.SyncopeClient;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.StatusMod;
@@ -61,6 +62,7 @@ import org.apache.syncope.common.to.SyncTaskTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.reqres.PagedResult;
+import org.apache.syncope.common.services.ConnectorService;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.to.MappingItemTO;
 import org.apache.syncope.common.to.MappingTO;
@@ -71,6 +73,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.common.types.ConnConfProperty;
+import org.apache.syncope.common.types.ConnectorCapability;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.JobAction;
 import org.apache.syncope.common.types.JobStatusType;
@@ -694,9 +697,7 @@ public class TaskTestITCase extends AbstractTest {
             assertFalse(actual.getUserTemplate().getMemberships().isEmpty());
 
             TaskExecTO execution = execSyncTask(actual.getId(), 50, false);
-            final String status = execution.getStatus();
-            assertNotNull(status);
-            assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+            assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
             userTO = readUser("testuser2");
             assertNotNull(userTO);
@@ -1110,6 +1111,89 @@ public class TaskTestITCase extends AbstractTest {
         // ------------------------------------------
     }
 
+    @Test
+    public void syncTokenWithErrors() {
+        ResourceTO origResource = resourceService.read(RESOURCE_NAME_DBSYNC);
+        ConnInstanceTO origConnector = connectorService.read(origResource.getConnectorId());
+
+        ResourceTO resForTest = SerializationUtils.clone(origResource);
+        resForTest.setName("syncTokenWithErrors");
+        resForTest.setConnectorId(null);
+        ConnInstanceTO connForTest = SerializationUtils.clone(origConnector);
+        connForTest.setId(0);
+        connForTest.setDisplayName("For syncTokenWithErrors");
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        try {
+            connForTest.getCapabilities().add(ConnectorCapability.SYNC);
+
+            ConnConfProperty changeLogColumn = connForTest.getConfigurationMap().get("changeLogColumn");
+            assertNotNull(changeLogColumn);
+            assertTrue(changeLogColumn.getValues().isEmpty());
+            changeLogColumn.getValues().add("lastModification");
+
+            Response response = connectorService.create(connForTest);
+            if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+                throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
+            }
+            connForTest = getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
+            assertNotNull(connForTest);
+
+            resForTest.setConnectorId(connForTest.getId());
+            resForTest = createResource(resForTest);
+            assertNotNull(resForTest);
+
+            SyncTaskTO syncTask = new SyncTaskTO();
+            syncTask.setName("For syncTokenWithErrors");
+            syncTask.setResource(resForTest.getName());
+            syncTask.setFullReconciliation(false);
+            syncTask.setPerformCreate(true);
+            syncTask.setPerformUpdate(true);
+            syncTask.setPerformDelete(true);
+
+            response = taskService.create(syncTask);
+            if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+                throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
+            }
+            syncTask = getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
+            assertNotNull(syncTask);
+
+            jdbcTemplate.execute("DELETE FROM testsync");
+            jdbcTemplate.execute("INSERT INTO testsync VALUES "
+                    + "(1040, 'syncTokenWithErrors1', 'Surname1', "
+                    + "'syncTokenWithErrors1@syncope.apache.org', '2014-05-23 13:53:24.293')");
+            jdbcTemplate.execute("INSERT INTO testsync VALUES "
+                    + "(1041, 'syncTokenWithErrors2', 'Surname2', "
+                    + "'syncTokenWithErrors1@syncope.apache.org', '2015-05-23 13:53:24.293')");
+
+            TaskExecTO exec = execSyncTask(syncTask.getId(), 50, false);
+            assertTrue(PropagationTaskExecStatus.valueOf(exec.getStatus()).isSuccessful());
+
+            resForTest = resourceService.read(resForTest.getName());
+            assertTrue(resForTest.getUsyncToken().contains("2014-05-23"));
+
+            jdbcTemplate.execute("UPDATE testsync "
+                    + "SET email='syncTokenWithErrors2@syncope.apache.org', lastModification='2016-05-23 13:53:24.293' "
+                    + "WHERE ID=1041");
+
+            exec = execSyncTask(syncTask.getId(), 50, false);
+            assertTrue(PropagationTaskExecStatus.valueOf(exec.getStatus()).isSuccessful());
+
+            resForTest = resourceService.read(resForTest.getName());
+            assertTrue(resForTest.getUsyncToken().contains("2016-05-23"));
+        } finally {
+            if (resForTest.getConnectorId() != null) {
+                resourceService.delete(resForTest.getName());
+                connectorService.delete(connForTest.getId());
+            }
+
+            userService.delete(readUser("issuesyncope230").getId());
+
+            jdbcTemplate.execute("DELETE FROM testsync WHERE ID=1040");
+            jdbcTemplate.execute("DELETE FROM testsync WHERE ID=1041");
+        }
+    }
+
     private static class ThreadExec implements Callable<TaskExecTO> {
 
         private final TaskTestITCase test;
@@ -1173,9 +1257,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(actual.getJobClassName(), syncTask.getJobClassName());
 
         TaskExecTO execution = execSyncTask(syncTask.getId(), 50, false);
-        final String status = execution.getStatus();
-        assertNotNull(status);
-        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+        assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
         // 5. Test the sync'd user
         UserTO updatedUser = userService.read(user.getId());
@@ -1248,9 +1330,7 @@ public class TaskTestITCase extends AbstractTest {
         assertEquals(actual.getJobClassName(), syncTask.getJobClassName());
 
         TaskExecTO execution = execSyncTask(syncTask.getId(), 50, false);
-        final String status = execution.getStatus();
-        assertNotNull(status);
-        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+        assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
         // 7. Test the sync'd user
         String syncedPassword = Encryptor.getInstance().encode("security", CipherAlgorithm.SHA1);
@@ -1502,9 +1582,7 @@ public class TaskTestITCase extends AbstractTest {
         TaskExecTO execution = execSyncTask(task.getId(), 50, false);
 
         // verify execution status
-        final String status = execution.getStatus();
-        assertNotNull(status);
-        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+        assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
         UserTO userTO = readUser("syncFromLDAP");
         assertNotNull(userTO);

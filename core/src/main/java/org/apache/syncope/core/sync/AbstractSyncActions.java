@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.sync;
 
-import java.util.List;
 import org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler;
 import org.quartz.JobExecutionException;
 
@@ -36,8 +35,7 @@ public interface AbstractSyncActions<T extends AbstractSyncopeResultHandler<?, ?
      * Action to be executed after the synchronization task completion.
      *
      * @param profile sync profile
-     * @param results synchronization result
      * @throws JobExecutionException in case of generic failure
      */
-    void afterAll(final SyncProfile<?, ?> profile, final List<SyncResult> results) throws JobExecutionException;
+    void afterAll(final SyncProfile<?, ?> profile) throws JobExecutionException;
 }

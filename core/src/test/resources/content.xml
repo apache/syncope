@@ -997,10 +997,10 @@ under the License.
         userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"id":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[{"schema":"firstname","readonly":false,"values":[""]},{"schema":"userId","readonly":false,"values":["&apos;test&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;test&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;test&apos;"]}],"derivedAttributes":[],"virtualAttributes":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[]}'
         roleTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"id":0,"name":null,"parent":0,"userOwner":null,"roleOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"rAttrTemplates":[],"rDerAttrTemplates":[],"rVirAttrTemplates":[],"mAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
   <Task DTYPE="SyncTask" id="25" name="CSV (unlink matching; ignore unmatching)" resource_name="resource-csv"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="1"
         jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="IGNORE" matchingRule="UNLINK"/>
   <Task DTYPE="SyncTask" id="26" name="CSV (ignore matching; assign unmatching)" resource_name="resource-csv"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="1"
         jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="ASSIGN" matchingRule="IGNORE"/>
 
   <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 
