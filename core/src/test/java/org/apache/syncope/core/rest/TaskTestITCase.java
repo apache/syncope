@@ -740,7 +740,13 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE230() {
-        // 1. read SyncTask for resource-db-sync (table TESTSYNC on external H2)
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+        // 1. populate the external table
+        jdbcTemplate.execute("INSERT INTO testsync VALUES"
+                + "(965, 'issuesyncope230', 'Surname', 'syncope230@syncope.apache.org', NULL)");
+
+        // 2. execute SyncTask for resource-db-sync (table TESTSYNC on external H2)
         execSyncTask(10L, 50, false);
 
         // 3. read e-mail address for user created by the SyncTask first execution
@@ -750,8 +756,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(email);
 
         // 4. update TESTSYNC on external H2 by changing e-mail address
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        jdbcTemplate.execute("UPDATE TESTSYNC SET email='updatedSYNCOPE230@syncope.apache.org'");
+        jdbcTemplate.execute("UPDATE testsync SET email='updatedSYNCOPE230@syncope.apache.org'");
 
         // 5. re-execute the SyncTask
         execSyncTask(10L, 50, false);
@@ -1186,8 +1191,6 @@ public class TaskTestITCase extends AbstractTest {
                 resourceService.delete(resForTest.getName());
                 connectorService.delete(connForTest.getId());
             }
-
-            userService.delete(readUser("issuesyncope230").getId());
 
             jdbcTemplate.execute("DELETE FROM testsync WHERE ID=1040");
             jdbcTemplate.execute("DELETE FROM testsync WHERE ID=1041");

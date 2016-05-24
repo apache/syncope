@@ -41,5 +41,3 @@ username VARCHAR(80),
 surname VARCHAR(80),
 email VARCHAR(80),
 lastModification TIMESTAMP);
-
-INSERT INTO testsync VALUES (965, 'issuesyncope230', 'Surname', 'syncope230@syncope.apache.org', NULL);
