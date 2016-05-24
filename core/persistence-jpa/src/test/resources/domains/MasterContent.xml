@@ -1082,10 +1082,10 @@ under the License.
   <AnyTemplatePullTask id="9af0e343-8a37-42d2-9bc7-6e2e3b103219" pullTask_id="986867e2-993b-430e-8feb-aa9abb4c1dcd" anyType_id="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
   <Task DTYPE="PullTask" id="feae4e57-15ca-40d9-b973-8b9015efca49" name="CSV (unlink matching; ignore unmatching)" resource_id="resource-csv"
-        destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" pullStatus="1" pullMode="INCREMENTAL"
+        destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" pullStatus="1" pullMode="FULL_RECONCILIATION"
         unmatchingRule="IGNORE" matchingRule="UNLINK" active="1"/>
   <Task DTYPE="PullTask" id="55d5e74b-497e-4bc0-9156-73abef4b9adc" name="CSV (ignore matching; assign unmatching)" resource_id="resource-csv"
-        destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" pullStatus="1" pullMode="INCREMENTAL"
+        destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" pullStatus="1" pullMode="FULL_RECONCILIATION"
         unmatchingRule="ASSIGN" matchingRule="IGNORE" active="1"/>
   <Task DTYPE="PropagationTask" id="0f618183-17ce-48bc-80bc-cc535f38983a" operation="CREATE"
         objectClassName="__ACCOUNT__" resource_id="resource-testdb" anyTypeKind="USER" anyKey="1417acbe-cbf6-4277-9372-e75e04f97000"

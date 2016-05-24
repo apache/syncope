@@ -38,7 +38,8 @@ under the License.
     <span wicket:id="panelNotFound">[plus]</span>
     <span wicket:id="panelView">[plus]</span>
     <span wicket:id="panelMapping">[plus]</span>
-    <span wicket:id="panelResetTime">[plus]</span>
+    <span wicket:id="panelSetLatestSyncToken">[plus]</span>
+    <span wicket:id="panelRemoveSyncToken">[plus]</span>
     <span wicket:id="panelClone">[plus]</span>
     <span wicket:id="panelCreate">[plus]</span>
     <span wicket:id="panelReset">[plus]</span>
@@ -98,8 +99,12 @@ under the License.
       <a href="#" wicket:id="mappingLink" class="btn"><i class="fa fa-exchange" alt="mapping icon" title="Mapping"></i></a>
     </wicket:fragment>
 
-    <wicket:fragment wicket:id="fragmentResetTime">
-      <a href="#" wicket:id="resetTimeLink" class="btn"><i class="fa fa-hourglass-start" alt="reset time icon" title="Reset Time"></i></a>
+    <wicket:fragment wicket:id="fragmentSetLatestSyncToken">
+      <a href="#" wicket:id="setLatestSyncTokenLink" class="btn"><i class="fa fa-hourglass-start" alt="reset time icon" title="Set latest Sync Token"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentRemoveSyncToken">
+      <a href="#" wicket:id="removeSyncTokenLink" class="btn"><i class="fa fa-hourglass-o" alt="reset time icon" title="Remove Sync Token"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentClone">

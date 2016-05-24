@@ -157,6 +157,53 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return binder.getResourceTO(resource);
     }
 
+    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_UPDATE + "')")
+    public void setLatestSyncToken(final String key, final String anyTypeKey) {
+        ExternalResource resource = resourceDAO.find(key);
+        if (resource == null) {
+            throw new NotFoundException("Resource '" + key + "'");
+        }
+        AnyType anyType = anyTypeDAO.find(anyTypeKey);
+        if (anyType == null) {
+            throw new NotFoundException("AnyType '" + anyTypeKey + "'");
+        }
+        Provision provision = resource.getProvision(anyType);
+        if (provision == null) {
+            throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + "'");
+        }
+
+        Connector connector;
+        try {
+            connector = connFactory.getConnector(resource);
+        } catch (Exception e) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
+            sce.getElements().add(e.getMessage());
+            throw sce;
+        }
+
+        provision.setSyncToken(connector.getLatestSyncToken(provision.getObjectClass()));
+        resourceDAO.save(resource);
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_UPDATE + "')")
+    public void removeSyncToken(final String key, final String anyTypeKey) {
+        ExternalResource resource = resourceDAO.find(key);
+        if (resource == null) {
+            throw new NotFoundException("Resource '" + key + "'");
+        }
+        AnyType anyType = anyTypeDAO.find(anyTypeKey);
+        if (anyType == null) {
+            throw new NotFoundException("AnyType '" + anyTypeKey + "'");
+        }
+        Provision provision = resource.getProvision(anyType);
+        if (provision == null) {
+            throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + "'");
+        }
+
+        provision.setSyncToken(null);
+        resourceDAO.save(resource);
+    }
+
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_DELETE + "')")
     public ResourceTO delete(final String resourceName) {
         ExternalResource resource = resourceDAO.find(resourceName);

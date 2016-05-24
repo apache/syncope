@@ -141,9 +141,28 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     }
 
     private Fragment getSyncopeFragment(final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "syncopeActions", this);
+        Fragment fragment = new Fragment("actions", "syncopeActions", this);
 
-        final AjaxLink<String> tasks = new IndicatingAjaxLink<String>("tasks") {
+        AjaxLink<String> reload = new IndicatingOnConfirmAjaxLink<String>("reload", "connectors.confirm.reload", true) {
+
+            private static final long serialVersionUID = -2075933173666007020L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                try {
+                    connectorRestClient.reload();
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (Exception e) {
+                    LOG.error("While reloading all connectors", e);
+                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                }
+                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+            }
+        };
+        fragment.add(reload);
+        MetaDataRoleAuthorizationStrategy.authorize(reload, ENABLE, StandardEntitlement.CONNECTOR_RELOAD);
+
+        AjaxLink<String> tasks = new IndicatingAjaxLink<String>("tasks") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -155,16 +174,15 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
         };
         fragment.add(tasks);
-
         MetaDataRoleAuthorizationStrategy.authorize(tasks, ENABLE, StandardEntitlement.TASK_LIST);
 
         return fragment;
     }
 
     private Fragment getLocationFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "locationActions", this);
+        Fragment fragment = new Fragment("actions", "locationActions", this);
 
-        final AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
+        AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -188,7 +206,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
         };
         fragment.add(create);
-
         MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.CONNECTOR_CREATE);
 
         return fragment;

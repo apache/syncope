@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -40,8 +41,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.identityconnectors.framework.common.objects.SyncResultsHandler;
-import org.identityconnectors.framework.common.objects.SyncToken;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -50,9 +49,13 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
+import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.SyncToken;
 
-public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> {
+public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> implements SyncopePullExecutor {
 
     @Autowired
     private UserDAO userDAO;
@@ -64,7 +67,14 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> {
     private VirSchemaDAO virSchemaDAO;
 
     @Autowired
-    protected PullUtils pullUtils;
+    private PullUtils pullUtils;
+
+    private final Map<ObjectClass, SyncToken> latestSyncTokens = new HashMap<>();
+
+    @Override
+    public void setLatestSyncToken(final ObjectClass objectClass, final SyncToken latestSyncToken) {
+        latestSyncTokens.put(objectClass, latestSyncToken);
+    }
 
     protected void setGroupOwners(final GroupPullResultHandler ghandler) {
         for (Map.Entry<String, String> entry : ghandler.getGroupOwnerMap().entrySet()) {
@@ -132,17 +142,22 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> {
         AnyObjectPullResultHandler ahandler = (AnyObjectPullResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(AnyObjectPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         ahandler.setProfile(profile);
+        ahandler.setPullExecutor(this);
 
         // Prepare handler for SyncDelta objects (users)
         UserPullResultHandler uhandler = (UserPullResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(UserPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
+        uhandler.setPullExecutor(this);
 
         // Prepare handler for SyncDelta objects (groups)
         GroupPullResultHandler ghandler = (GroupPullResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(GroupPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         ghandler.setProfile(profile);
+        ghandler.setPullExecutor(this);
 
+        latestSyncTokens.clear();
+        
         if (!profile.isDryRun()) {
             for (PullActions action : actions) {
                 action.beforeAll(profile);
@@ -151,7 +166,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> {
 
         for (Provision provision : pullTask.getResource().getProvisions()) {
             if (provision.getMapping() != null) {
-                SyncResultsHandler handler;
+                SyncopePullResultHandler handler;
                 switch (provision.getAnyType().getKind()) {
                     case USER:
                         handler = uhandler;
@@ -177,13 +192,13 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> {
 
                     switch (pullTask.getPullMode()) {
                         case INCREMENTAL:
-                            SyncToken latestSyncToken = connector.getLatestSyncToken(provision.getObjectClass());
-                            connector.sync(provision.getObjectClass(),
+                            connector.sync(
+                                    provision.getObjectClass(),
                                     provision.getSyncToken(),
                                     handler,
                                     MappingManagerImpl.buildOperationOptions(mapItems));
                             if (!dryRun) {
-                                provision.setSyncToken(latestSyncToken);
+                                provision.setSyncToken(latestSyncTokens.get(provision.getObjectClass()));
                                 resourceDAO.save(provision.getResource());
                             }
                             break;

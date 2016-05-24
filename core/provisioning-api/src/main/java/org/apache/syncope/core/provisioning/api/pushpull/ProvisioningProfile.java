@@ -27,9 +27,6 @@ import org.apache.syncope.core.provisioning.api.Connector;
 
 public class ProvisioningProfile<T extends ProvisioningTask, A extends ProvisioningActions> {
 
-    /**
-     * Syncing connector.
-     */
     private final Connector connector;
 
     private final T task;

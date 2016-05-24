@@ -153,10 +153,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     }
                 }
 
-                if (provisionTO.getSyncToken() == null) {
-                    provision.setSyncToken(null);
-                }
-
                 if (provisionTO.getMapping() == null) {
                     provision.setMapping(null);
                 } else {

@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -106,14 +107,40 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                 }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ProvisionTO>() {
 
-                    private static final long serialVersionUID = -3722207913631435524L;
+                    private static final long serialVersionUID = -7780999687733432439L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                        provisionTO.setSyncToken(null);
-                        send(ResourceProvisionPanel.this, Broadcast.DEPTH, new ListViewPanel.ListViewReload(target));
+                        try {
+                            SyncopeConsoleSession.get().getService(ResourceService.class).
+                                    setLatestSyncToken(resourceTO.getKey(), provisionTO.getAnyType());
+                            info(getString(Constants.OPERATION_SUCCEEDED));
+                        } catch (Exception e) {
+                            LOG.error("While setting latest sync token for {}/{}",
+                                    resourceTO.getKey(), provisionTO.getAnyType(), e);
+                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                        }
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
-                }, ActionLink.ActionType.RESET_TIME, StandardEntitlement.RESOURCE_UPDATE).
+                }, ActionLink.ActionType.SET_LATEST_SYNC_TOKEN, StandardEntitlement.RESOURCE_UPDATE).
+                addAction(new ActionLink<ProvisionTO>() {
+
+                    private static final long serialVersionUID = -7780999687733432439L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                        try {
+                            SyncopeConsoleSession.get().getService(ResourceService.class).
+                                    removeSyncToken(resourceTO.getKey(), provisionTO.getAnyType());
+                            info(getString(Constants.OPERATION_SUCCEEDED));
+                        } catch (Exception e) {
+                            LOG.error("While removing sync token for {}/{}",
+                                    resourceTO.getKey(), provisionTO.getAnyType(), e);
+                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                        }
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                    }
+                }, ActionLink.ActionType.REMOVE_SYNC_TOKEN, StandardEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ProvisionTO>() {
 
                     private static final long serialVersionUID = -3722207913631435534L;

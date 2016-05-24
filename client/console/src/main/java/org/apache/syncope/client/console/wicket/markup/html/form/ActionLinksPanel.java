@@ -57,7 +57,8 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelManageGroups", "emptyFragment", this));
         super.add(new Fragment("panelMapping", "emptyFragment", this));
         super.add(new Fragment("panelMustChangePassword", "emptyFragment", this));
-        super.add(new Fragment("panelResetTime", "emptyFragment", this));
+        super.add(new Fragment("panelSetLatestSyncToken", "emptyFragment", this));
+        super.add(new Fragment("panelRemoveSyncToken", "emptyFragment", this));
         super.add(new Fragment("panelClone", "emptyFragment", this));
         super.add(new Fragment("panelCreate", "emptyFragment", this));
         super.add(new Fragment("panelTemplate", "emptyFragment", this));
@@ -224,10 +225,29 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 }.setVisible(link.isEnabled(model.getObject())));
                 break;
 
-            case RESET_TIME:
-                fragment = new Fragment("panelResetTime", "fragmentResetTime", this);
+            case SET_LATEST_SYNC_TOKEN:
+                fragment = new Fragment("panelSetLatestSyncToken", "fragmentSetLatestSyncToken", this);
 
-                fragment.addOrReplace(new IndicatingAjaxLink<Void>("resetTimeLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("setLatestSyncTokenLink") {
+
+                    private static final long serialVersionUID = -1876519166660008562L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case REMOVE_SYNC_TOKEN:
+                fragment = new Fragment("panelRemoveSyncToken", "fragmentRemoveSyncToken", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("removeSyncTokenLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -1032,8 +1052,12 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 super.addOrReplace(new Fragment("panelMustChangePassword", "emptyFragment", this));
                 break;
 
-            case RESET_TIME:
-                super.addOrReplace(new Fragment("panelResetTime", "emptyFragment", this));
+            case SET_LATEST_SYNC_TOKEN:
+                super.addOrReplace(new Fragment("panelSetLatestSyncToken", "emptyFragment", this));
+                break;
+
+            case REMOVE_SYNC_TOKEN:
+                super.addOrReplace(new Fragment("panelRemoveSyncToken", "emptyFragment", this));
                 break;
 
             case CLONE:

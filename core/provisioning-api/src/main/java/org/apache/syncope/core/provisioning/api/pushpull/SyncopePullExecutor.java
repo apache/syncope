@@ -18,14 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.identityconnectors.framework.common.objects.SyncResultsHandler;
-import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.SyncToken;
 
-public interface SyncopePullResultHandler extends SyncopeResultHandler<PullTask, PullActions>, SyncResultsHandler {
+public interface SyncopePullExecutor {
 
-    void setPullExecutor(SyncopePullExecutor executor);
-
-    @Override
-    boolean handle(SyncDelta delta);
+    void setLatestSyncToken(ObjectClass objectClass, SyncToken latestSyncToken);
 }

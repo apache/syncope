@@ -42,7 +42,8 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
 
         MAPPING("update"),
         MUSTCHANGEPASSWORD("update"),
-        RESET_TIME("update"),
+        SET_LATEST_SYNC_TOKEN("update"),
+        REMOVE_SYNC_TOKEN("update"),
         CLONE("create"),
         CREATE("create"),
         TEMPLATE("read"),

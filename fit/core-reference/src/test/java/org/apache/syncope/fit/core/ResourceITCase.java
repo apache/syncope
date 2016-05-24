@@ -36,6 +36,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -409,19 +410,38 @@ public class ResourceITCase extends AbstractITCase {
     }
 
     @Test
-    public void updateResetSyncToken() {
-        // create resource with sync token
-        String resourceName = RESOURCE_NAME_RESETSYNCTOKEN + getUUIDString();
-        ResourceTO pre = buildResourceTO(resourceName);
+    public void syncToken() {
+        ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
+        resource.setKey(resource.getKey() + getUUIDString());
 
-        pre.getProvision(AnyTypeKind.USER.name()).setSyncToken("test");
-        resourceService.create(pre);
+        AnyObjectTO anyObject = AnyObjectITCase.getSampleTO("syncToken");
+        anyObject.getResources().clear();
+        anyObject.getResources().add(resource.getKey());
+        try {
+            // create a new resource
+            resource = createResource(resource);
+            assertNull(resource.getProvision("PRINTER").getSyncToken());
 
-        pre.getProvision(AnyTypeKind.USER.name()).setSyncToken(null);
-        resourceService.update(pre);
-        ResourceTO actual = resourceService.read(pre.getKey());
-        // check that the synctoken has been reset
-        assertNull(actual.getProvision(AnyTypeKind.USER.name()).getSyncToken());
+            // create some object on the new resource
+            anyObject = createAnyObject(anyObject).getAny();
+
+            // update sync token
+            resourceService.setLatestSyncToken(resource.getKey(), "PRINTER");
+
+            resource = resourceService.read(resource.getKey());
+            assertNotNull(resource.getProvision("PRINTER").getSyncToken());
+
+            // remove sync token
+            resourceService.removeSyncToken(resource.getKey(), "PRINTER");
+
+            resource = resourceService.read(resource.getKey());
+            assertNull(resource.getProvision("PRINTER").getSyncToken());
+        } finally {
+            if (anyObject.getKey() != null) {
+                anyObjectService.delete(anyObject.getKey());
+            }
+            resourceService.delete(resource.getKey());
+        }
     }
 
     @Test
