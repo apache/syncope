@@ -93,7 +93,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     @Override
     public A authFind(final String key) {
         if (key == null) {
-            throw new NotFoundException("Null id");
+            throw new NotFoundException("Null key");
         }
 
         A any = find(key);

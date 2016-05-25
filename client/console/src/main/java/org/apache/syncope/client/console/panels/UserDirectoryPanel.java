@@ -57,7 +57,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
+public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -278,7 +278,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
         return columns;
     }
 
-    public static class Builder extends AnyDirectoryPanel.Builder<UserTO> {
+    public static class Builder extends AnyDirectoryPanel.Builder<UserTO, UserRestClient> {
 
         private static final long serialVersionUID = -6603152478702381900L;
 

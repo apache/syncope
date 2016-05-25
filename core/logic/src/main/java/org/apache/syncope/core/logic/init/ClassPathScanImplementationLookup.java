@@ -56,6 +56,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBui
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformer;
+import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
 
 /**
  * Cache class names for all implementations of Syncope interfaces found in classpath, for later usage.
@@ -145,7 +146,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
                 if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbsractClazz
                         && !PullJobDelegate.class.isAssignableFrom(clazz)
-                        && !PushJobDelegate.class.isAssignableFrom(clazz)) {
+                        && !PushJobDelegate.class.isAssignableFrom(clazz)
+                        && !GroupMemberProvisionTaskJobDelegate.class.isAssignableFrom(clazz)) {
 
                     classNames.get(Type.TASKJOBDELEGATE).add(bd.getBeanClassName());
                 }

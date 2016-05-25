@@ -335,6 +335,16 @@ div#outer.modal-lg, div#utilityModal.modal-lg, section#notifications .modal-lg {
   display: block
 }
 
+th.checkGroupColumn {
+  width: 20px;
+  text-align: center;
+  padding-right: 8px !important;
+}
+
+td.checkGroupColumn {
+  text-align: center;
+}
+
 /**
   BEGIN - Style for Information panel
 */

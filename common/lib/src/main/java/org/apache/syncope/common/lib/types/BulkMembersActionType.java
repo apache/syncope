@@ -16,37 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-div.bulkAction{
-  display:inline-table;
-}
+package org.apache.syncope.common.lib.types;
 
-div.bulkActionCell{
-  display: table-cell;
-  vertical-align: middle;
-  text-align: center;
-  width: 40px;
-  padding-left: 7px;
-}
+import javax.xml.bind.annotation.XmlEnum;
 
-.pageRowElement{
-  display: inline-table;
-  width: 100%;
-}
+@XmlEnum
+public enum BulkMembersActionType {
 
-div#selectedObjects table {
-  border-collapse: collapse;
-}
+    PROVISION,
+    DEPROVISION;
 
-div#selectedObjects table td, div#selectedObjects table th {
-  border: 1px solid #eee;
-  padding: .5em 10px;
-}
-
-div#selectedObjects .circular-actions {
-  padding: 3px;
-  margin: 10px 0px 5px 0px;
-}
-
-.modal-body {
-  max-height: 650px !important;
 }

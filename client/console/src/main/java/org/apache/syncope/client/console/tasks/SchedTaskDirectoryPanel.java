@@ -53,6 +53,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.basic.Label;
@@ -314,16 +315,15 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         public SchedTasksProvider(final Class<T> reference, final TaskType id, final int paginatorRows) {
             super(paginatorRows, id, restClient);
+            setSort("name", SortOrder.DESCENDING);
             this.reference = reference;
         }
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
-            final int page = ((int) first / paginatorRows);
+            int page = ((int) first / paginatorRows);
 
-            final List<T> tasks = restClient.list(
-                    reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
-
+            List<T> tasks = restClient.list(reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
             Collections.sort(tasks, getComparator());
             return tasks.iterator();
         }

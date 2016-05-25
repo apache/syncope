@@ -59,6 +59,8 @@ under the License.
     <span wicket:id="panelExportXML">[plus]</span>
     <span wicket:id="panelPropagationTasks">[plus]</span>
     <span wicket:id="panelNotificationTasks">[plus]</span>
+    <span wicket:id="panelDeprovisionMembers">[plus]</span>
+    <span wicket:id="panelProvisionMembers">[plus]</span>
     <span wicket:id="panelDelete">[plus]</span>
     <span wicket:id="panelSelect">[select]</span>
     <span wicket:id="panelClose">[close]</span>
@@ -244,19 +246,27 @@ under the License.
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentUnassign">
-      <a href="#" wicket:id="unassignLink" class="btn"><i class="glyphicon glyphicon-remove" alt="Unassign icon" title="Unassign"></i></a>
+      <a href="#" wicket:id="unassignLink" class="btn"><i class="glyphicon glyphicon-resize-full" alt="Unassign icon" title="Unassign"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentAssign">
-      <a href="#" wicket:id="assignLink" class="btn"><i class="glyphicon glyphicon-ok" alt="Assign icon" title="Assign"></i></a>
+      <a href="#" wicket:id="assignLink" class="btn"><i class="glyphicon glyphicon-resize-small" alt="Assign icon" title="Assign"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentDeprovision">
-      <a href="#" wicket:id="deprovisionLink" class="btn"><i class="glyphicon glyphicon-minus" alt="De-provision icon" title="De-provision"></i></a>
+      <a href="#" wicket:id="deprovisionLink" class="btn"><i class="glyphicon glyphicon-fast-backward" alt="Deprovision icon" title="Deprovision"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentProvision">
-      <a href="#" wicket:id="provisionLink" class="btn"><i class="glyphicon glyphicon-share-alt" alt="Provision icon" title="Provision"></i></a>
+      <a href="#" wicket:id="provisionLink" class="btn"><i class="glyphicon glyphicon-fast-forward" alt="Provision icon" title="Provision"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentDeprovisionMembers">
+      <a href="#" wicket:id="deprovisionMembersLink" class="btn"><i class="glyphicon glyphicon-fast-backward" alt="Deprovision icon" title="Deprovision members"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentProvisionMembers">
+      <a href="#" wicket:id="provisionMembersLink" class="btn"><i class="glyphicon glyphicon-fast-forward" alt="Provision icon" title="Provision members"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentZoomIn">

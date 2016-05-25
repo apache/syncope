@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
@@ -74,4 +75,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO, GroupPatch> 
                 getResult();
     }
 
+    public void bulkMembersAction(final String key, final BulkMembersActionType actionType) {
+        getService(GroupService.class).bulkMembersAction(key, actionType);
+    }
 }
