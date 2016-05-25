@@ -74,6 +74,8 @@ public class ActionLinksPanel extends Panel {
         super.add(new Fragment("panelAssign", "emptyFragment", this));
         super.add(new Fragment("panelDeprovision", "emptyFragment", this));
         super.add(new Fragment("panelProvision", "emptyFragment", this));
+        super.add(new Fragment("panelDeprovisionMembers", "emptyFragment", this));
+        super.add(new Fragment("panelProvisionMembers", "emptyFragment", this));
     }
 
     public void add(
@@ -475,6 +477,35 @@ public class ActionLinksPanel extends Panel {
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
+
+            case DEPROVISION_MEMBERS:
+                fragment = new Fragment("panelDeprovisionMembers", "fragmentDeprovisionMembers", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("deprovisionMembersLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610290L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                break;
+
+            case PROVISION_MEMBERS:
+                fragment = new Fragment("panelProvisionMembers", "fragmentProvisionMembers", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("provisionMembersLink", pageRef) {
+
+                    private static final long serialVersionUID = -6957616042924610290L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target);
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                break;
+
             default:
             // do nothing
         }

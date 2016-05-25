@@ -52,6 +52,8 @@ public abstract class ActionLink implements Serializable {
         ASSIGN("update"),
         DEPROVISION("update"),
         PROVISION("update"),
+        DEPROVISION_MEMBERS("update"),
+        PROVISION_MEMBERS("update"),
         MANAGE_RESOURCES("update"),
         MANAGE_USERS("update"),
         MANAGE_ROLES("update");

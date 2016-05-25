@@ -40,6 +40,8 @@ under the License.
     <span wicket:id="panelReset">[plus]</span>
     <span wicket:id="panelEdit">[plus]</span>
     <span wicket:id="panelExport">[plus]</span>
+    <span wicket:id="panelDeprovisionMembers">[plus]</span>
+    <span wicket:id="panelProvisionMembers">[plus]</span>
     <span wicket:id="panelDelete">[plus]</span>
     <span wicket:id="panelSelect">[plus]</span>
     <span wicket:id="panelSuspend">[plus]</span>
@@ -97,6 +99,14 @@ under the License.
       <a href="#" wicket:id="roleTemplateLink"><img id="actionLink" src="img/actions/roles-icon.png" alt="role template icon"  title="Specify role template"/></a>
     </wicket:fragment>
 
+    <wicket:fragment wicket:id="fragmentDeprovisionMembers">
+      <a href="#" wicket:id="deprovisionMembersLink"><img id="actionLink" src="img/actions/deprovision-icon.png" alt="Deprovision icon"  title="Deprovision members"/></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentProvisionMembers">
+      <a href="#" wicket:id="provisionMembersLink"><img id="actionLink" src="img/actions/provision-icon.png" alt="Provision icon"  title="Provision members"/></a>
+    </wicket:fragment>
+
     <wicket:fragment wicket:id="fragmentDelete">
       <a href="#" wicket:id="deleteLink"><img id="actionLink" src="img/actions/delete.png" alt="delete icon" title="Delete"/></a>
     </wicket:fragment>
@@ -150,7 +160,7 @@ under the License.
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentDeprovision">
-      <a href="#" wicket:id="deprovisionLink"><img id="actionLink" src="img/actions/deprovision-icon.png" alt="De-provision icon"  title="De-provision"/></a>
+      <a href="#" wicket:id="deprovisionLink"><img id="actionLink" src="img/actions/deprovision-icon.png" alt="Deprovision icon"  title="Deprovision"/></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentProvision">

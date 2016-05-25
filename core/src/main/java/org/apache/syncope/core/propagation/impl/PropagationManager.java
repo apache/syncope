@@ -247,6 +247,20 @@ public class PropagationManager {
         return createTasks(subject, password, true, null, null, null, null, enable, false, propByRes);
     }
 
+    public List<PropagationTask> getUserUpdateTaskIds(final long userId, final PropagationByResource propByRes) {
+        SyncopeUser user = userDataBinder.getUserFromId(userId);
+        return getUpdateTaskIds(
+                user,
+                null,
+                true,
+                null,
+                null,
+                null,
+                propByRes,
+                null,
+                Collections.<MembershipMod>emptySet());
+    }
+
     /**
      * Performs update on each resource associated to the user.
      *

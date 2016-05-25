@@ -46,9 +46,13 @@ import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ConnObjectTO;
 import org.apache.syncope.common.to.MappingItemTO;
+import org.apache.syncope.common.to.MembershipTO;
+import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.to.SchedTaskTO;
 import org.apache.syncope.common.to.SchemaTO;
+import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AttributeSchemaType;
@@ -63,6 +67,7 @@ import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.wrap.ResourceName;
+import org.apache.syncope.core.quartz.AbstractTaskJob;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
@@ -687,6 +692,71 @@ public class RoleTestITCase extends AbstractTest {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
+    }
+
+    @Test
+    public void provisionMembers() throws InterruptedException {
+        // 1. create role without resources
+        RoleTO roleTO = buildBasicRoleTO("forProvision");
+        roleTO = createRole(roleTO);
+
+        // 2. create user with such role assigned
+        UserTO userTO = UserTestITCase.getUniqueSampleTO("forProvision@syncope.apache.org");
+        MembershipTO membership = new MembershipTO();
+        membership.setRoleId(roleTO.getId());
+        userTO.getMemberships().add(membership);
+        userTO = createUser(userTO);
+
+        // 3. modify the role by assiging the LDAP resource
+        RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.getResourcesToAdd().add(RESOURCE_NAME_LDAP);
+        roleTO = updateRole(roleMod);
+
+        PropagationStatus propStatus = roleTO.getPropagationStatusTOs().get(0);
+        assertEquals(RESOURCE_NAME_LDAP, propStatus.getResource());
+        assertTrue(propStatus.getStatus().isSuccessful());
+
+        // 4. verify that the user above is not found on LDAP
+        try {
+            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, userTO.getId());
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
+
+        try {
+            // 5. bulk provision role members
+            TaskExecTO exec = roleService.bulkProvisionMembers(roleTO.getId());
+            assertNotNull(exec.getTask());
+
+            int i = 0;
+            int maxit = 50;
+
+            // wait for task exec completion (executions incremented)
+            SchedTaskTO taskTO;
+            do {
+                Thread.sleep(1000);
+
+                taskTO = taskService.read(exec.getTask(), true);
+
+                assertNotNull(taskTO);
+                assertNotNull(taskTO.getExecutions());
+
+                i++;
+            } while (taskTO.getExecutions().isEmpty() && i < maxit);
+            assertFalse(taskTO.getExecutions().isEmpty());
+
+            assertEquals(AbstractTaskJob.Status.SUCCESS.name(), taskTO.getExecutions().get(0).getStatus());
+
+            // 6. verify that the user above is now fond on LDAP
+            ConnObjectTO userOnLdap =
+                    resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, userTO.getId());
+            assertNotNull(userOnLdap);
+        } finally {
+            roleService.delete(roleTO.getId());
+            userService.delete(userTO.getId());
+        }
     }
 
     @Test

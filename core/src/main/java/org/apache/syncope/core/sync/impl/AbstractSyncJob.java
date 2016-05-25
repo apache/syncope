@@ -385,7 +385,6 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
                     uMapping,
                     rMapping,
                     dryRun);
-
         } finally {
             // POST: clean up the SecurityContextHolder
             SecurityContextHolder.clearContext();

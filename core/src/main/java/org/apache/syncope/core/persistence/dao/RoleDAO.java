@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.syncope.common.types.PolicyType;
 import org.apache.syncope.core.persistence.beans.Entitlement;
@@ -29,6 +30,7 @@ import org.apache.syncope.core.persistence.beans.role.RAttrValue;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
+import org.identityconnectors.common.Pair;
 
 public interface RoleDAO extends SubjectDAO {
 
@@ -67,6 +69,8 @@ public interface RoleDAO extends SubjectDAO {
     List<SyncopeRole> findAll(int page, int itemsPerPage, List<OrderByClause> orderBy);
 
     List<Membership> findMemberships(SyncopeRole role);
+
+    Pair<Set<String>, List<Long>> findResourcesAndMembers(Long roleId);
 
     int count();
 

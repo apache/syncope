@@ -29,11 +29,14 @@ import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.to.TaskExecTO;
+import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.rest.controller.RoleController;
+import org.apache.syncope.core.rest.controller.UserController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +45,9 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Autowired
     private RoleController controller;
+
+    @Autowired
+    private UserController userController;
 
     @Override
     public List<RoleTO> children(final Long roleId) {
@@ -228,6 +234,16 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
         }
 
         return modificationResponse(res);
+    }
+
+    @Override
+    public TaskExecTO bulkProvisionMembers(final Long roleId) {
+        return controller.bulkProvisionMembers(roleId);
+    }
+
+    @Override
+    public TaskExecTO bulkDeprovisionMembers(final Long roleId) {
+        return controller.bulkDeprovisionMembers(roleId);
     }
 
     @Override

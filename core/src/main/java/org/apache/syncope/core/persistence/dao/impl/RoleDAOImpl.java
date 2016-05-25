@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -63,6 +64,7 @@ import org.apache.syncope.core.persistence.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.util.EntitlementUtil;
+import org.identityconnectors.common.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -381,6 +383,23 @@ public class RoleDAOImpl extends AbstractSubjectDAOImpl implements RoleDAO {
         query.setParameter("role", role);
 
         return query.getResultList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Pair<Set<String>, List<Long>> findResourcesAndMembers(final Long roleId) {
+        SyncopeRole role = find(roleId);
+        if (role == null) {
+            return Pair.of(Collections.<String>emptySet(), Collections.<Long>emptyList());
+        }
+
+        List<Membership> memberships = findMemberships(role);
+        List<Long> members = new ArrayList<Long>(memberships.size());
+        for (Membership membership : memberships) {
+            members.add(membership.getSyncopeUser().getId());
+        }
+
+        return Pair.of(role.getResourceNames(), members);
     }
 
     @SuppressWarnings("unchecked")

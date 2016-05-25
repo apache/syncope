@@ -137,6 +137,36 @@ public class RoleTabPanel extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
+                    roleRestClient.bulkProvisionMembers(selectedNode.getId());
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (SyncopeClientException e) {
+                    error(getString(Constants.OPERATION_ERROR) + ": " + e.getMessage());
+                }
+                ((Roles) pageRef.getPage()).getFeedbackPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.PROVISION_MEMBERS, xmlRolesReader.getEntitlement("Tasks", "execute"));
+        links.addWithRoles(new ActionLink() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                try {
+                    roleRestClient.bulkDeprovisionMembers(selectedNode.getId());
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (SyncopeClientException e) {
+                    error(getString(Constants.OPERATION_ERROR) + ": " + e.getMessage());
+                }
+                ((Roles) pageRef.getPage()).getFeedbackPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DEPROVISION_MEMBERS, xmlRolesReader.getEntitlement("Tasks", "execute"));
+        links.addWithRoles(new ActionLink() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                try {
                     final RoleTO roleTO = roleRestClient.delete(selectedNode.getETagValue(), selectedNode.getId());
 
                     ((Roles) pageRef.getPage()).setModalResult(true);

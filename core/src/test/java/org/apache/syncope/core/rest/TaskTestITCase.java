@@ -543,7 +543,6 @@ public class TaskTestITCase extends AbstractTest {
 
         int i = 0;
         int maxit = 50;
-        int executions = 0;
 
         // wait for task exec completion (executions incremented)
         do {
@@ -558,7 +557,7 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(taskTO.getExecutions());
 
             i++;
-        } while (executions == taskTO.getExecutions().size() && i < maxit);
+        } while (taskTO.getExecutions().isEmpty() && i < maxit);
 
         assertFalse(taskTO.getExecutions().isEmpty());
 

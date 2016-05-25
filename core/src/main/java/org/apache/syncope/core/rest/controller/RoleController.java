@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,26 +35,36 @@ import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
+import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.types.SubjectType;
+import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
+import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
+import org.apache.syncope.core.persistence.dao.TaskDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.propagation.PropagationReporter;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
+import org.apache.syncope.core.quartz.AbstractTaskJob;
+import org.apache.syncope.core.quartz.RoleMemberProvisionTaskJob;
 import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.workflow.WorkflowResult;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
+import org.quartz.JobDataMap;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,6 +89,9 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
     protected SubjectSearchDAO searchDAO;
 
     @Autowired
+    protected TaskDAO taskDAO;
+
+    @Autowired
     protected RoleDataBinder binder;
 
     @Autowired
@@ -92,8 +106,14 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
     @Autowired
     protected AttributableTransformer attrTransformer;
 
+    @Autowired
+    protected JobInstanceLoader jobInstanceLoader;
+
+    @Autowired
+    protected SchedulerFactoryBean scheduler;
+
     @Resource(name = "anonymousUser")
-    private String anonymousUser;
+    protected String anonymousUser;
 
     @PreAuthorize("hasAnyRole('ROLE_READ', T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
     @Transactional(readOnly = true)
@@ -345,6 +365,51 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
         rwfAdapter.delete(roleId);
 
         return roleTO;
+    }
+
+    protected TaskExecTO startRoleMemberProvisionTask(final Long roleId, RoleMemberProvisionTaskJob.Action action) {
+        SchedTask task = new SchedTask();
+        task.setName("Bulk member provision for role " + roleId);
+        task.setJobClassName(RoleMemberProvisionTaskJob.class.getName());
+        task = taskDAO.save(task);
+
+        try {
+            jobInstanceLoader.registerJob(task, task.getJobClassName(), task.getCronExpression());
+
+            JobDataMap map = new JobDataMap();
+            map.put(AbstractTaskJob.DRY_RUN_JOBDETAIL_KEY, false);
+            map.put(RoleMemberProvisionTaskJob.PROVISION_ACTION_JOBDETAIL_KEY, action);
+            map.put(RoleMemberProvisionTaskJob.ROLE_ID_JOBDETAIL_KEY, roleId);
+
+            scheduler.getScheduler().triggerJob(
+                    new JobKey(JobInstanceLoader.getJobName(task), Scheduler.DEFAULT_GROUP), map);
+        } catch (Exception e) {
+            LOG.error("While executing task {}", task, e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add(e.getMessage());
+            throw sce;
+        }
+
+        TaskExecTO result = new TaskExecTO();
+        result.setTask(task.getId());
+        result.setStartDate(new Date());
+        result.setStatus("JOB_FIRED");
+        result.setMessage("Job fired; waiting for results...");
+
+        return result;
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('TASK_CREATE') and hasRole('TASK_EXECUTE')")
+    public TaskExecTO bulkProvisionMembers(final Long roleId) {
+        return startRoleMemberProvisionTask(roleId, RoleMemberProvisionTaskJob.Action.PROVISION);
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('TASK_CREATE') and hasRole('TASK_EXECUTE')")
+    public TaskExecTO bulkDeprovisionMembers(final Long roleId) {
+        return startRoleMemberProvisionTask(roleId, RoleMemberProvisionTaskJob.Action.DEPROVISION);
     }
 
     @PreAuthorize("(hasRole('ROLE_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE)")

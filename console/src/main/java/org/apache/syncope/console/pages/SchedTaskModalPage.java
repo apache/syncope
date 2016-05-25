@@ -20,6 +20,7 @@ package org.apache.syncope.console.pages;
 
 import java.util.List;
 import org.apache.syncope.common.to.SchedTaskTO;
+import org.apache.syncope.console.pages.panels.SchedTasks;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -55,6 +56,10 @@ public class SchedTaskModalPage extends AbstractSchedTaskModalPage {
         className.setEnabled(taskTO.getId() == 0);
         className.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
         profile.add(className);
+
+        description.setEnabled(!SchedTasks.ROLE_MEMBER_PROVISION.equals(taskTO.getJobClassName()));
+        description.setVisible(!SchedTasks.ROLE_MEMBER_PROVISION.equals(taskTO.getJobClassName()));
+        className.setVisible(!SchedTasks.ROLE_MEMBER_PROVISION.equals(taskTO.getJobClassName()));
     }
 
     @Override

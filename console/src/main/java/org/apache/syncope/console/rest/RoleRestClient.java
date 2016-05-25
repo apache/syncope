@@ -112,6 +112,14 @@ public class RoleRestClient extends AbstractSubjectRestClient {
         return result;
     }
 
+    public void bulkProvisionMembers(final Long id) {
+        getService(RoleService.class).bulkProvisionMembers(id);
+    }
+
+    public void bulkDeprovisionMembers(final Long id) {
+        getService(RoleService.class).bulkDeprovisionMembers(id);
+    }
+
     @Override
     public BulkActionResult bulkAction(final BulkAction action) {
         return getService(RoleService.class).bulk(action);

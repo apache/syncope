@@ -40,6 +40,7 @@ import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.wrap.ResourceName;
@@ -304,6 +305,36 @@ public interface RoleService extends JAXRSService {
             @NotNull List<ResourceName> resourceNames);
 
     /**
+     * Provision all members of the given role onto all the resources associated to it.
+     *
+     * @param roleId role id.
+     * @return <tt>Response</tt> object featuring {@link org.apache.syncope.common.reqres.BulkActionResult}
+     * as <tt>Entity</tt>
+     */
+    @Descriptions({
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
+    })
+    @POST
+    @Path("{roleId}/associate/PROVISION/members")
+    TaskExecTO bulkProvisionMembers(@NotNull @PathParam("roleId") Long roleId);
+
+    /**
+     * Deprovision all members of the given role from all the resources associated to it.
+     *
+     * @param roleId role id.
+     * @return <tt>Response</tt> object featuring {@link org.apache.syncope.common.reqres.BulkActionResult}
+     * as <tt>Entity</tt>
+     */
+    @Descriptions({
+        @Description(target = DocTarget.RESPONSE,
+                value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
+    })
+    @POST
+    @Path("{roleId}/associate/PROVISION/members")
+    TaskExecTO bulkDeprovisionMembers(@NotNull @PathParam("roleId") Long roleId);
+
+    /**
      * Executes the provided bulk action.
      *
      * @param bulkAction list of role ids against which the bulk action will be performed.
@@ -314,4 +345,5 @@ public interface RoleService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     BulkActionResult bulk(@NotNull BulkAction bulkAction);
+
 }

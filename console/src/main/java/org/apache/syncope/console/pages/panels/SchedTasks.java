@@ -59,6 +59,8 @@ public class SchedTasks extends AbstractTasks {
 
     private static final long serialVersionUID = 525486152284253354L;
 
+    public static final String ROLE_MEMBER_PROVISION = "org.apache.syncope.core.quartz.RoleMemberProvisionTaskJob";
+
     private int paginatorRows;
 
     private WebMarkupContainer container;
@@ -171,7 +173,7 @@ public class SchedTasks extends AbstractTasks {
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
 
         columns.add(new JobColumn<AbstractTaskTO, String>(new StringResourceModel("", this, null, ""), "runtime",
-                pageRef, restClient)); 
+                pageRef, restClient));
 
         columns.add(new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
@@ -220,7 +222,7 @@ public class SchedTasks extends AbstractTasks {
                         ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                         target.add(container);
                     }
-                }, ActionLink.ActionType.EXECUTE, TASKS);
+                }, ActionLink.ActionType.EXECUTE, TASKS, !ROLE_MEMBER_PROVISION.equals(taskTO.getJobClassName()));
 
                 panel.add(new ActionLink() {
 
@@ -238,7 +240,7 @@ public class SchedTasks extends AbstractTasks {
                         ((NotificationPanel) getPage().get(Constants.FEEDBACK)).refresh(target);
                         target.add(container);
                     }
-                }, ActionLink.ActionType.DRYRUN, TASKS);
+                }, ActionLink.ActionType.DRYRUN, TASKS, !ROLE_MEMBER_PROVISION.equals(taskTO.getJobClassName()));
 
                 panel.add(new ActionLink() {
 

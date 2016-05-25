@@ -42,6 +42,8 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
 
     private static final long serialVersionUID = 2892005971093059242L;
 
+    protected final AjaxTextFieldPanel description;
+
     protected CrontabContainer crontab;
 
     public AbstractSchedTaskModalPage(final ModalWindow window, final SchedTaskTO taskTO,
@@ -58,7 +60,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         name.setEnabled(true);
         profile.add(name);
 
-        final AjaxTextFieldPanel description = new AjaxTextFieldPanel("description", "description",
+        description = new AjaxTextFieldPanel("description", "description",
                 new PropertyModel<String>(taskTO, "description"));
         description.setEnabled(true);
         profile.add(description);
@@ -83,7 +85,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
                 taskTO.setCronExpression(StringUtils.hasText(taskTO.getCronExpression())
                         ? crontab.getCronExpression()
                         : null);
-                
+
                 try {
                     submitAction(taskTO);
 
