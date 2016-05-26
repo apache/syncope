@@ -433,7 +433,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>8.0.33</tomcat.version>
+    <tomcat.version>8.0.35</tomcat.version>
 
     <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
