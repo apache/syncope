@@ -73,6 +73,9 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
+    private static final String GROUP_MEMBER_PROVISION_TASKJOB =
+            "org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate";
+
     protected final Class<T> reference;
 
     protected T schedTaskTO;
@@ -132,9 +135,6 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         columns.add(new PropertyColumn<T, String>(
                 new StringResourceModel("name", this, null), "name", "name"));
 
-        columns.add(new PropertyColumn<T, String>(
-                new StringResourceModel("description", this, null), "description", "description"));
-
         columns.add(new PropertyColumn<T, String>(new StringResourceModel(
                 "jobDelegateClassName", this, null), "jobDelegateClassName", "jobDelegateClassName") {
 
@@ -187,32 +187,31 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             public ActionLinksPanel<T> getActions(final String componentId, final IModel<T> model) {
                 final T taskTO = model.getObject();
 
-                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.<T>builder().
-                        add(new ActionLink<T>() {
+                ActionLinksPanel.Builder<T> panel = ActionLinksPanel.<T>builder().add(new ActionLink<T>() {
 
-                            private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final T ignore) {
-                                viewTask(taskTO, target);
-                            }
-                        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ).
-                        add(new ActionLink<T>() {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final T ignore) {
+                        viewTask(taskTO, target);
+                    }
+                }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ).add(new ActionLink<T>() {
 
-                            private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final T ignore) {
-                                send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(
-                                                restClient.readSchedTask(reference, model.getObject().getKey()),
-                                                target).setResourceModel(
-                                                new StringResourceModel("inner.task.edit",
-                                                        SchedTaskDirectoryPanel.this,
-                                                        Model.of(Pair.of(
-                                                                ActionLink.ActionType.EDIT, model.getObject())))));
-                            }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.TASK_UPDATE).
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final T ignore) {
+                        send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
+                                new AjaxWizard.EditItemActionEvent<>(
+                                        restClient.readSchedTask(reference, model.getObject().getKey()),
+                                        target).setResourceModel(
+                                        new StringResourceModel("inner.task.edit",
+                                                SchedTaskDirectoryPanel.this,
+                                                Model.of(Pair.of(
+                                                        ActionLink.ActionType.EDIT, model.getObject())))));
+                    }
+                }, ActionLink.ActionType.EDIT, StandardEntitlement.TASK_UPDATE,
+                        !GROUP_MEMBER_PROVISION_TASKJOB.equals(taskTO.getJobDelegateClassName())).
                         add(new ActionLink<T>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
@@ -228,18 +227,18 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                                                         Model.of(Pair.of(
                                                                 ActionLink.ActionType.CLONE, model.getObject())))));
                             }
-                        }, ActionLink.ActionType.CLONE, StandardEntitlement.TASK_CREATE).
-                        add(new ActionLink<T>() {
+                        }, ActionLink.ActionType.CLONE, StandardEntitlement.TASK_CREATE).add(new ActionLink<T>() {
 
-                            private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final T ignore) {
-                                startAt.setExecutionDetail(
-                                        model.getObject().getKey(), model.getObject().getName(), target);
-                                startAt.toggle(target, true);
-                            }
-                        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE).
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final T ignore) {
+                        startAt.setExecutionDetail(
+                                model.getObject().getKey(), model.getObject().getName(), target);
+                        startAt.toggle(target, true);
+                    }
+                }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE,
+                        !GROUP_MEMBER_PROVISION_TASKJOB.equals(taskTO.getJobDelegateClassName())).
                         add(new ActionLink<T>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;

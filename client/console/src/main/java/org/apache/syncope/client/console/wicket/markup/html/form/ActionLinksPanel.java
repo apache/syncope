@@ -1259,7 +1259,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
      */
     public static final class Builder<T extends Serializable> implements Serializable {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 2998390938134582025L;
 
         private final Map<ActionLink.ActionType, Triple<ActionLink<T>, String, Boolean>> actions = new HashMap<>();
 
