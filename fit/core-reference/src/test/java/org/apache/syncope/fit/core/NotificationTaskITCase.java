@@ -312,7 +312,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // 1. Create notification
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.ALL);
-        notification.getEvents().add("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]");
 
         String groupName = "group" + getUUIDString();
         notification.getAbouts().put(AnyTypeKind.GROUP.name(),
@@ -383,7 +383,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // 1. Create notification
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(traceLevel);
-        notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[LOGIC]:[UserLogic]:[]:[create]:[SUCCESS]");
 
         if (includeAbout) {
             notification.getAbouts().put(AnyTypeKind.USER.name(),

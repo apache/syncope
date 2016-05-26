@@ -46,7 +46,7 @@ public class EventCategoryTO extends AbstractBaseBean {
      * Constructor for Type.REST event category.
      */
     public EventCategoryTO() {
-        this(AuditElements.EventCategoryType.REST);
+        this(AuditElements.EventCategoryType.LOGIC);
     }
 
     /**

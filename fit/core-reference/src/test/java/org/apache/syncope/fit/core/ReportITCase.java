@@ -257,7 +257,7 @@ public class ReportITCase extends AbstractITCase {
     @Test
     public void auditReport() throws IOException {
         AuditLoggerName auditLoggerName = new AuditLoggerName(
-                AuditElements.EventCategoryType.REST,
+                AuditElements.EventCategoryType.LOGIC,
                 "UserLogic",
                 null,
                 "readSelf",
