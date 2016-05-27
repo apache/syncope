@@ -155,7 +155,8 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             }
         } catch (Exception e) {
             LOG.warn("Wizard error on cancel", e);
-            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                    ? e.getClass().getName() : e.getMessage());
             SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
         }
     }
@@ -175,7 +176,8 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             }
         } catch (Exception e) {
             LOG.error("Wizard error on finish", e);
-            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                    ? e.getClass().getName() : e.getMessage());
             SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
         }
     }

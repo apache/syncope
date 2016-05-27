@@ -159,7 +159,7 @@ public class Realms extends BasePage {
             } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
                 templateModal.close(newItemEvent.getTarget());
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                info(getString(Constants.OPERATION_SUCCEEDED));
+                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(newItemEvent.getTarget());
                 templateModal.close(newItemEvent.getTarget());
             }
@@ -229,13 +229,13 @@ public class Realms extends BasePage {
                     RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
                     target.add(realmChoicePanel.reloadRealmTree(target));
 
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     updateRealmContent(parent);
                     target.add(content);
                 } catch (Exception e) {
                     LOG.error("While deleting realm", e);
                     // Escape line breaks
-                    error(e.getMessage().replace("\n", " "));
+                   SyncopeConsoleSession.get().error(e.getMessage().replace("\n", " "));
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }

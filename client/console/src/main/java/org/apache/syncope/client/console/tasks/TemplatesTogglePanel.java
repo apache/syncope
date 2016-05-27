@@ -167,7 +167,9 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
                     send(container, Broadcast.EXACT, payload);
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName()
+                            : e.getMessage());
                     LOG.error("While editing template for {}", typeModel.getObject(), e);
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

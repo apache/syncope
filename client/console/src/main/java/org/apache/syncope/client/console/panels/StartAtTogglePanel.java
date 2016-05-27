@@ -80,11 +80,12 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
                     getRestClient().startExecution(key, startAtDateModel.getObject());
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                     target.add(container);
                 } catch (SyncopeClientException e) {
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                            getMessage());
                     LOG.error("While running task {}", key, e);
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

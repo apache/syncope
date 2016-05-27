@@ -216,10 +216,11 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                         target.add(container);
                         target.add(actionPanel);
 
-                        info(getString(Constants.OPERATION_SUCCEEDED));
+                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     } catch (Exception e) {
                         LOG.error("Bulk action failure", e);
-                        error("Operation " + actionToBeAddresed.getActionId() + " not supported");
+                        SyncopeConsoleSession.get().error("Operation " + actionToBeAddresed.getActionId()
+                                + " not supported");
                     }
                     SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                 }

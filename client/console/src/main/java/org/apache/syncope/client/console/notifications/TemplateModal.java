@@ -64,12 +64,13 @@ public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> 
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
             restClient.createTemplate(templateTO);
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             modal.show(false);
             modal.close(target);
         } catch (SyncopeClientException e) {
             LOG.error("While creating template for {}", templateTO.getKey(), e);
-            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                    getMessage());
         }
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }

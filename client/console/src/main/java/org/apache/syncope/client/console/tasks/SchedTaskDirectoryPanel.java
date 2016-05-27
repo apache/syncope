@@ -247,10 +247,10 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                             public void onClick(final AjaxRequestTarget target, final T ignore) {
                                 try {
                                     restClient.delete(taskTO.getKey(), reference);
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
-                                    error(StringUtils.isBlank(e.getMessage())
+                                   SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                     LOG.error("While deleting propagation task {}", taskTO.getKey(), e);
                                 }

@@ -132,11 +132,12 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
                 getItem().getSpecification().getCorrelationRules().put(rule.getAny(), rule.getRule());
             }
             restClient.updatePolicy(getItem());
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating/updating policy", e);
-            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                    getMessage());
         }
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }

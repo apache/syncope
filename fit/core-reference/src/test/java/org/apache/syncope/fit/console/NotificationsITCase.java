@@ -107,6 +107,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         formTester.submit("content:form:buttons:finish");
         wicketTester.assertInfoMessages("Operation executed successfully");
 
+        wicketTester.cleanupFeedbackMessages();
         wicketTester.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
     }
 
@@ -147,10 +148,10 @@ public class NotificationsITCase extends AbstractConsoleITCase {
     @Test
     public void execute() {
         wicketTester.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
-        
+
         Component result = findComponentByProp("subject",
                 "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable:tablePanel:groupForm:"
-                        + "checkgroup:dataTable", "Password Reset request");
+                + "checkgroup:dataTable", "Password Reset request");
 
         wicketTester.clickLink(
                 result.getPageRelativePath() + ":cells:7:cell:panelNotificationTasks:notificationTasksLink");
@@ -205,7 +206,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
                         result.getPageRelativePath() + ":cells:7:cell:panelDelete:deleteLink"));
 
         wicketTester.executeAjaxEvent(wicketTester.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:7:cell:panelDelete:deleteLink"), "onclick");
+                result.getPageRelativePath() + ":cells:7:cell:panelDelete:deleteLink"), Constants.ON_CLICK);
 
         wicketTester.assertInfoMessages("Operation executed successfully");
         wicketTester.cleanupFeedbackMessages();

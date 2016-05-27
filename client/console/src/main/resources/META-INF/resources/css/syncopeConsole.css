@@ -229,9 +229,9 @@ a.help span a {
 }
 
 .wizard-step-title {
-    font-size: 18px !important;
-    font-weight: normal !important;
-    margin-bottom: 10px !important;
+  font-size: 18px !important;
+  font-weight: normal !important;
+  margin-bottom: 10px !important;
 }
 
 .wizard-view {
@@ -444,11 +444,6 @@ div.wicket-aa ul {
   list-style: none;
   padding-left: 15px;
 }
-
-/**
-START - Notifications
-*/
-
 /**
 START - startAt
 */
@@ -462,6 +457,10 @@ div#startAt {
   z-index: 6000 !important;
 }
 
+div#mappingItemTransformersTogglePanel {
+  min-width: 1000px;
+}
+
 div#startAtContainer {
   padding: 15px;
 }
@@ -473,6 +472,9 @@ div#startAtContainer input {
 END - startAt
 */
 
+/**
+START - Notifications
+*/
 /*Temporany fix diagonal stacking*/
 .k-popup.k-notification {
   box-shadow: none;
@@ -527,7 +529,9 @@ END - startAt
   padding-left: 0px; 
   width:85%
 }
-
+/**
+EN - Notifications
+*/
 
 /**
 START - Actions

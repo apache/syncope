@@ -170,11 +170,11 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
                                         }
                                     });
                                     restClient.updatePolicy(actual);
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     customActionOnCloseCallback(target);
                                 } catch (SyncopeClientException e) {
                                     LOG.error("While deleting {}", rule.getName(), e);
-                                    error(StringUtils.isBlank(e.getMessage())
+                                   SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

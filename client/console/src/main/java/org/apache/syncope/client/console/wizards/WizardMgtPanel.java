@@ -211,7 +211,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                     container.addOrReplace(initialFragment);
                 }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                info(getString(Constants.OPERATION_SUCCEEDED));
+                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
 
                 if (wizardInModal && showResultPage) {

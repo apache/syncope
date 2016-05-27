@@ -171,11 +171,11 @@ public abstract class PolicyDirectoryPanel<T extends AbstractPolicyTO>
                                 final T policyTO = model.getObject();
                                 try {
                                     restClient.delete(policyTO.getKey());
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
                                     LOG.error("While deleting {}", policyTO.getKey(), e);
-                                    error(StringUtils.isBlank(e.getMessage())
+                                   SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

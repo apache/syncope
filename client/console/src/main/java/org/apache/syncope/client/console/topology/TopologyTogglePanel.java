@@ -151,10 +151,11 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public void onClick(final AjaxRequestTarget target) {
                 try {
                     connectorRestClient.reload();
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While reloading all connectors", e);
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().error(
+                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
@@ -223,11 +224,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 try {
                     connectorRestClient.delete(String.class.cast(node.getKey()));
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                            getMessage());
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
@@ -302,11 +304,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 try {
                     resourceRestClient.delete(node.getKey().toString());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                            getMessage());
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }

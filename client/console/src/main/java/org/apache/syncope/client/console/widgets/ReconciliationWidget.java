@@ -155,10 +155,10 @@ public class ReconciliationWidget extends BaseWidget {
 
                     SyncopeConsoleSession.get().setCheckReconciliationJob(true);
 
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While starting reconciliation report", e);
-                    error("Could not start reconciliation report");
+                   SyncopeConsoleSession.get().error("Could not start reconciliation report");
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }

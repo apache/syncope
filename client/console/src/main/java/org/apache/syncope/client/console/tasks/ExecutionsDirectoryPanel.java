@@ -136,9 +136,9 @@ public abstract class ExecutionsDirectoryPanel
                             public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                                 try {
                                     restClient.deleteExecution(taskExecutionTO.getKey());
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                 } catch (SyncopeClientException scce) {
-                                    error(scce.getMessage());
+                                   SyncopeConsoleSession.get().error(scce.getMessage());
                                 }
                                 target.add(ExecutionsDirectoryPanel.this);
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

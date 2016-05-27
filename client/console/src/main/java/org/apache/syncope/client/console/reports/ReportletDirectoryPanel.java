@@ -173,11 +173,11 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                                         }
                                     });
                                     restClient.update(actual);
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     customActionOnCloseCallback(target);
                                 } catch (SyncopeClientException e) {
                                     LOG.error("While deleting {}", reportlet.getName(), e);
-                                    error(StringUtils.isBlank(e.getMessage())
+                                   SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

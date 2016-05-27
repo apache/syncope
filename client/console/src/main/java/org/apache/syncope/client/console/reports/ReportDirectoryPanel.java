@@ -187,11 +187,11 @@ public abstract class ReportDirectoryPanel
                                 final ReportTO reportTO = model.getObject();
                                 try {
                                     restClient.delete(reportTO.getKey());
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
                                     LOG.error("While deleting {}", reportTO.getKey(), e);
-                                    error(StringUtils.isBlank(e.getMessage())
+                                   SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

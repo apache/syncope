@@ -83,11 +83,12 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipType
                                 SyncopeConsoleSession.get().
                                         getService(RelationshipTypeService.class).update(modelObject);
                             }
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             modal.close(target);
                         } catch (Exception e) {
                             LOG.error("While creating or updating {}", modelObject, e);
-                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                                    getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
@@ -180,11 +181,11 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipType
                                 try {
                                     SyncopeConsoleSession.get().getService(
                                             RelationshipTypeService.class).delete(model.getObject().getKey());
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(StringUtils.isBlank(e.getMessage())
+                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);

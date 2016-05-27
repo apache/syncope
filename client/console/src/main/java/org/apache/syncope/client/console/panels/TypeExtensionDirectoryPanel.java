@@ -96,10 +96,10 @@ public class TypeExtensionDirectoryPanel
             this.baseModal.show(false);
             this.baseModal.close(target);
 
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
             LOG.error("Group update failure", e);
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
+           SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
 
         }
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
@@ -107,7 +107,7 @@ public class TypeExtensionDirectoryPanel
 
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        error(getString(Constants.OPERATION_ERROR));
+       SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
 

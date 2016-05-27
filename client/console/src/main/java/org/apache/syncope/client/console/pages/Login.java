@@ -101,7 +101,7 @@ public class Login extends WebPage {
                     continueToOriginalDestination();
                     setResponsePage(getApplication().getHomePage());
                 } else {
-                    error(getString("login-error"));
+                   SyncopeConsoleSession.get().error(getString("login-error"));
                     notificationPanel.refresh(target);
                 }
                 strategy.remove();

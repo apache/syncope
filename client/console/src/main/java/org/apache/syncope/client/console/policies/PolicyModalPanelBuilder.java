@@ -156,11 +156,12 @@ public class PolicyModalPanelBuilder<T extends AbstractPolicyTO> extends Abstrac
                 } else {
                     restClient.updatePolicy(policyTO);
                 }
-                info(getString(Constants.OPERATION_SUCCEEDED));
+                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 Profile.this.modal.close(target);
             } catch (Exception e) {
                 LOG.error("While creating/updating policy", e);
-                error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                        getMessage());
             }
             SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
         }

@@ -109,7 +109,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                error(getString(Constants.OPERATION_ERROR));
+               SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
                 super.onError(target, form);
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }

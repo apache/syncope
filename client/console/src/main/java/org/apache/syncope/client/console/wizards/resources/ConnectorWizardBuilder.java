@@ -26,8 +26,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
@@ -71,14 +69,8 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
             private static final long serialVersionUID = -5886691077681158494L;
 
             @Override
-            protected void check(final AjaxRequestTarget target) {
-                Pair<Boolean, String> result = connectorRestClient.check(modelObject);
-                if (result.getLeft()) {
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                } else {
-                    error(getString("error_connection") + ": " + result.getRight());
-                }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+            protected Pair<Boolean, String> check(final AjaxRequestTarget target) {
+                return connectorRestClient.check(modelObject);
             }
 
             @Override

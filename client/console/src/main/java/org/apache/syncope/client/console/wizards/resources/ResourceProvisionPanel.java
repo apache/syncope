@@ -114,11 +114,12 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         try {
                             SyncopeConsoleSession.get().getService(ResourceService.class).
                                     setLatestSyncToken(resourceTO.getKey(), provisionTO.getAnyType());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While setting latest sync token for {}/{}",
                                     resourceTO.getKey(), provisionTO.getAnyType(), e);
-                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                                    getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
@@ -132,11 +133,12 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         try {
                             SyncopeConsoleSession.get().getService(ResourceService.class).
                                     removeSyncToken(resourceTO.getKey(), provisionTO.getAnyType());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While removing sync token for {}/{}",
                                     resourceTO.getKey(), provisionTO.getAnyType(), e);
-                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                                    getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
@@ -208,11 +210,12 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                 new ResourceRestClient().update(resourceTO);
                 res = resourceTO;
             }
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating {}", resourceTO, e);
-            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                    getMessage());
         }
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }
