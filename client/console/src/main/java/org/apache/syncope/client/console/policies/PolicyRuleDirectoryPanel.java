@@ -16,31 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.reports;
+package org.apache.syncope.client.console.policies;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
-import org.apache.syncope.client.console.panels.search.SearchClause;
-import org.apache.syncope.client.console.reports.ReportletDirectoryPanel.ReportletWrapper;
-import org.apache.syncope.client.console.rest.ReportRestClient;
+import org.apache.syncope.client.console.policies.PolicyRuleDirectoryPanel.PolicyRuleWrapper;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -49,13 +45,13 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPane
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.report.AbstractReportletConf;
-import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
-import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.RuleConf;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -71,132 +67,133 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 /**
- * Reportlets page.
+ * Policy rules page.
+ *
+ * @param <T> policy type.
  */
-public class ReportletDirectoryPanel extends DirectoryPanel<
-        ReportletWrapper, ReportletWrapper, DirectoryDataProvider<ReportletWrapper>, ReportRestClient>
+public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends DirectoryPanel<
+        PolicyRuleWrapper, PolicyRuleWrapper, DirectoryDataProvider<PolicyRuleWrapper>, PolicyRestClient>
         implements ModalPanel {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    private final BaseModal<ReportTO> baseModal;
+    private final BaseModal<T> baseModal;
 
-    private final String report;
+    private final String policy;
 
-    protected ReportletDirectoryPanel(
-            final BaseModal<ReportTO> baseModal, final String report, final PageReference pageRef) {
+    protected PolicyRuleDirectoryPanel(
+            final BaseModal<T> baseModal, final String policy, final PolicyType type, final PageReference pageRef) {
         super(BaseModal.CONTENT_ID, pageRef, false);
 
         disableCheckBoxes();
 
         this.baseModal = baseModal;
-        this.report = report;
-        this.restClient = new ReportRestClient();
+        this.policy = policy;
+        this.restClient = new PolicyRestClient();
 
         enableExitButton();
 
-        this.addNewItemPanelBuilder(new ReportletWizardBuilder(report, new ReportletWrapper(), pageRef), true);
+        this.addNewItemPanelBuilder(new PolicyRuleWizardBuilder(policy, type, new PolicyRuleWrapper(), pageRef), true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.REPORT_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.POLICY_UPDATE);
         initResultTable();
     }
 
     @Override
-    protected List<IColumn<ReportletWrapper, String>> getColumns() {
-        final List<IColumn<ReportletWrapper, String>> columns = new ArrayList<>();
+    protected List<IColumn<PolicyRuleWrapper, String>> getColumns() {
+        final List<IColumn<PolicyRuleWrapper, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<ReportletWrapper, String>(
-                new StringResourceModel("reportlet", this, null), "name", "name"));
+        columns.add(new PropertyColumn<PolicyRuleWrapper, String>(
+                new StringResourceModel("ruleConf", this, null), "name", "name"));
 
-        columns.add(new AbstractColumn<ReportletWrapper, String>(
+        columns.add(new AbstractColumn<PolicyRuleWrapper, String>(
                 new StringResourceModel("configuration", this, null)) {
 
             private static final long serialVersionUID = -4008579357070833846L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<ReportletWrapper>> cellItem,
+                    final Item<ICellPopulator<PolicyRuleWrapper>> cellItem,
                     final String componentId,
-                    final IModel<ReportletWrapper> rowModel) {
+                    final IModel<PolicyRuleWrapper> rowModel) {
                 cellItem.add(new Label(componentId, rowModel.getObject().getConf().getClass().getName()));
             }
         });
 
-        columns.add(new ActionColumn<ReportletWrapper, String>(new ResourceModel("actions")) {
+        columns.add(new ActionColumn<PolicyRuleWrapper, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
-            public ActionLinksPanel<ReportletWrapper> getActions(final String componentId,
-                    final IModel<ReportletWrapper> model) {
+            public ActionLinksPanel<PolicyRuleWrapper> getActions(final String componentId,
+                    final IModel<PolicyRuleWrapper> model) {
 
-                final ActionLinksPanel<ReportletWrapper> panel = ActionLinksPanel.<ReportletWrapper>builder().
-                        add(new ActionLink<ReportletWrapper>() {
+                final ActionLinksPanel<PolicyRuleWrapper> panel = ActionLinksPanel.<PolicyRuleWrapper>builder().
+                        add(new ActionLink<PolicyRuleWrapper>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
-                                AbstractReportletConf clone = SerializationUtils.clone(model.getObject().getConf());
-                                clone.setName(null);
+                            public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
+                                RuleConf clone = SerializationUtils.clone(model.getObject().getConf());
 
-                                send(ReportletDirectoryPanel.this, Broadcast.EXACT,
+                                send(PolicyRuleDirectoryPanel.this, Broadcast.EXACT,
                                         new AjaxWizard.EditItemActionEvent<>(
-                                                new ReportletWrapper().setConf(clone),
+                                                new PolicyRuleWrapper().setConf(clone),
                                                 target));
                             }
-                        }, ActionLink.ActionType.CLONE, StandardEntitlement.REPORT_UPDATE).
-                        add(new ActionLink<ReportletWrapper>() {
+                        }, ActionLink.ActionType.CLONE, StandardEntitlement.POLICY_UPDATE).
+                        add(new ActionLink<PolicyRuleWrapper>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
-                                send(ReportletDirectoryPanel.this, Broadcast.EXACT,
+                            public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
+                                send(PolicyRuleDirectoryPanel.this, Broadcast.EXACT,
                                         new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                             }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.REPORT_UPDATE).
-                        add(new ActionLink<ReportletWrapper>() {
+                        }, ActionLink.ActionType.EDIT, StandardEntitlement.POLICY_UPDATE).
+                        add(new ActionLink<PolicyRuleWrapper>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
 
                             @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
-                                final ReportletConf reportlet = model.getObject().getConf();
+                            public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
+                                final RuleConf rule = model.getObject().getConf();
                                 try {
-                                    final ReportTO actual = restClient.read(report);
-                                    CollectionUtils.filter(actual.getReportletConfs(), new Predicate<ReportletConf>() {
+                                    final T actual = restClient.getPolicy(policy);
+                                    CollectionUtils.filter(getRuleConf(actual), new Predicate<RuleConf>() {
 
                                         @Override
-                                        public boolean evaluate(final ReportletConf object) {
-                                            return !object.getName().equals(reportlet.getName());
+                                        public boolean evaluate(final RuleConf object) {
+                                            return !object.getName().equals(rule.getName());
                                         }
                                     });
-                                    restClient.update(actual);
+                                    restClient.updatePolicy(actual);
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                     customActionOnCloseCallback(target);
                                 } catch (SyncopeClientException e) {
-                                    LOG.error("While deleting {}", reportlet.getName(), e);
+                                    LOG.error("While deleting {}", rule.getName(), e);
                                     error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.REPORT_UPDATE).build(componentId);
+                        }, ActionLink.ActionType.DELETE, StandardEntitlement.POLICY_UPDATE).build(componentId);
 
                 return panel;
             }
 
             @Override
-            public ActionLinksPanel<ReportletWrapper> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<ReportletWrapper> panel = ActionLinksPanel.builder();
+            public ActionLinksPanel<PolicyRuleWrapper> getHeader(final String componentId) {
+                final ActionLinksPanel.Builder<PolicyRuleWrapper> panel = ActionLinksPanel.builder();
 
-                return panel.add(new ActionLink<ReportletWrapper>() {
+                return panel.add(new ActionLink<PolicyRuleWrapper>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
+                    public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
                         if (target != null) {
                             customActionOnCloseCallback(target);
                         }
@@ -216,22 +213,22 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
     }
 
     @Override
-    protected ReportDataProvider dataProvider() {
-        return new ReportDataProvider(rows);
+    protected PolicyRuleDataProvider dataProvider() {
+        return new PolicyRuleDataProvider(rows);
     }
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_REPORTLET_TASKS_PAGINATOR_ROWS;
+        return Constants.PREF_POLICY_RULE_PAGINATOR_ROWS;
     }
 
-    protected class ReportDataProvider extends DirectoryDataProvider<ReportletWrapper> {
+    protected class PolicyRuleDataProvider extends DirectoryDataProvider<PolicyRuleWrapper> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
-        private final SortableDataProviderComparator<ReportletWrapper> comparator;
+        private final SortableDataProviderComparator<PolicyRuleWrapper> comparator;
 
-        public ReportDataProvider(final int paginatorRows) {
+        public PolicyRuleDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
             //Default sorting
@@ -240,36 +237,45 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
         }
 
         @Override
-        public Iterator<ReportletWrapper> iterator(final long first, final long count) {
-            final ReportTO actual = restClient.read(report);
+        public Iterator<PolicyRuleWrapper> iterator(final long first, final long count) {
+            final T actual = restClient.getPolicy(policy);
 
-            final ArrayList<ReportletWrapper> reportlets = CollectionUtils.collect(
-                    actual.getReportletConfs(),
-                    new Transformer<AbstractReportletConf, ReportletWrapper>() {
+            final ArrayList<PolicyRuleWrapper> rules = CollectionUtils.collect(getRuleConf(actual),
+                    new Transformer<RuleConf, PolicyRuleWrapper>() {
 
                 @Override
-                public ReportletWrapper transform(final AbstractReportletConf input) {
-                    return new ReportletWrapper(input.getName()).setName(input.getName()).setConf(input);
+                public PolicyRuleWrapper transform(final RuleConf input) {
+                    return new PolicyRuleWrapper(input.getName()).setName(input.getName()).setConf(input);
                 }
-            }, new ArrayList<ReportletWrapper>());
+            }, new ArrayList<PolicyRuleWrapper>());
 
-            Collections.sort(reportlets, comparator);
-            return reportlets.subList((int) first, (int) (first + count)).iterator();
+            Collections.sort(rules, comparator);
+            return rules.subList((int) first, (int) (first + count)).iterator();
         }
 
         @Override
         public long size() {
-            final ReportTO actual = restClient.read(report);
-            return actual.getReportletConfs().size();
+            final T actual = restClient.getPolicy(policy);
+            return getRuleConf(actual).size();
         }
 
         @Override
-        public IModel<ReportletWrapper> model(final ReportletWrapper object) {
+        public IModel<PolicyRuleWrapper> model(final PolicyRuleWrapper object) {
             return new CompoundPropertyModel<>(object);
         }
     }
 
-    public static class ReportletWrapper implements Serializable {
+    @SuppressWarnings("unchecked")
+    private List<RuleConf> getRuleConf(final T policyTO) {
+        Object res = PropertyResolver.getValue("ruleConfs", policyTO);
+        if (res instanceof List) {
+            return (List<RuleConf>) res;
+        } else {
+            return null;
+        }
+    }
+
+    public static class PolicyRuleWrapper implements Serializable {
 
         private static final long serialVersionUID = 2472755929742424558L;
 
@@ -277,17 +283,14 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         private String name;
 
-        private AbstractReportletConf conf;
+        private RuleConf conf;
 
-        private final Map<String, Pair<AbstractFiqlSearchConditionBuilder, List<SearchClause>>> scondWrapper;
-
-        public ReportletWrapper() {
+        public PolicyRuleWrapper() {
             this(null);
         }
 
-        public ReportletWrapper(final String name) {
+        public PolicyRuleWrapper(final String name) {
             this.oldname = name;
-            this.scondWrapper = new HashMap<>();
         }
 
         public boolean isNew() {
@@ -302,22 +305,18 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
             return this.name;
         }
 
-        public ReportletWrapper setName(final String name) {
+        public PolicyRuleWrapper setName(final String name) {
             this.name = name;
             return this;
         }
 
-        public AbstractReportletConf getConf() {
+        public RuleConf getConf() {
             return conf;
         }
 
-        public ReportletWrapper setConf(final AbstractReportletConf conf) {
+        public PolicyRuleWrapper setConf(final RuleConf conf) {
             this.conf = conf;
             return this;
-        }
-
-        public Map<String, Pair<AbstractFiqlSearchConditionBuilder, List<SearchClause>>> getSCondWrapper() {
-            return scondWrapper;
         }
     }
 

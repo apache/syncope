@@ -16,84 +16,86 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.reports;
+package org.apache.syncope.client.console.policies;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.BeanPanel;
-import org.apache.syncope.client.console.panels.search.SearchClause;
-import org.apache.syncope.client.console.panels.search.SearchUtils;
-import org.apache.syncope.client.console.rest.ReportRestClient;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.report.AbstractReportletConf;
-import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.ComposablePolicy;
+import org.apache.syncope.common.lib.policy.RuleConf;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
-import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
-import org.apache.wicket.model.LoadableDetachableModel;
 
-public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectoryPanel.ReportletWrapper> {
+public class PolicyRuleWizardBuilder
+        extends AjaxWizardBuilder<PolicyRuleDirectoryPanel.PolicyRuleWrapper> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private final ReportRestClient restClient = new ReportRestClient();
+    private final PolicyRestClient restClient = new PolicyRestClient();
 
-    private final String report;
+    private final String policy;
 
-    public ReportletWizardBuilder(
-            final String report,
-            final ReportletDirectoryPanel.ReportletWrapper reportlet,
+    private final PolicyType type;
+
+    public PolicyRuleWizardBuilder(
+            final String policy,
+            final PolicyType type,
+            final PolicyRuleDirectoryPanel.PolicyRuleWrapper reportlet,
             final PageReference pageRef) {
         super(reportlet, pageRef);
-        this.report = report;
+        this.policy = policy;
+        this.type = type;
     }
 
     @Override
-    protected Serializable onApplyInternal(final ReportletDirectoryPanel.ReportletWrapper modelObject) {
-        modelObject.getConf().setName(modelObject.getName());
+    protected Serializable onApplyInternal(final PolicyRuleDirectoryPanel.PolicyRuleWrapper modelObject) {
+        BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(modelObject.getConf());
+        wrapper.setPropertyValue("name", modelObject.getName());
 
-        final ReportTO reportTO = restClient.read(report);
+        AbstractPolicyTO policyTO = restClient.getPolicy(policy);
+
+        final ComposablePolicy<RuleConf> composable;
+        if (policyTO instanceof ComposablePolicy) {
+            composable = (ComposablePolicy<RuleConf>) policyTO;
+        } else {
+            throw new IllegalStateException("Non composable policy");
+        }
 
         if (modelObject.isNew()) {
-            reportTO.getReportletConfs().add(modelObject.getConf());
+            composable.getRuleConfs().add(modelObject.getConf());
         } else {
             CollectionUtils.filter(
-                    reportTO.getReportletConfs(), new Predicate<AbstractReportletConf>() {
+                    composable.getRuleConfs(), new Predicate<RuleConf>() {
 
                 @Override
-                public boolean evaluate(final AbstractReportletConf object) {
+                public boolean evaluate(final RuleConf object) {
                     return !object.getName().equals(modelObject.getOldName());
                 }
             });
-            reportTO.getReportletConfs().add(modelObject.getConf());
+            composable.getRuleConfs().add(modelObject.getConf());
         }
 
-        BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(modelObject.getConf());
-        for (Map.Entry<String, Pair<AbstractFiqlSearchConditionBuilder, List<SearchClause>>> entry
-                : modelObject.getSCondWrapper().entrySet()) {
-            wrapper.setPropertyValue(entry.getKey(),
-                    SearchUtils.buildFIQL(entry.getValue().getRight(), entry.getValue().getLeft()));
-        }
-
-        restClient.update(reportTO);
+        restClient.updatePolicy(policyTO);
         return modelObject;
     }
 
     @Override
     protected WizardModel buildModelSteps(
-            final ReportletDirectoryPanel.ReportletWrapper modelObject, final WizardModel wizardModel) {
+            final PolicyRuleDirectoryPanel.PolicyRuleWrapper modelObject, final WizardModel wizardModel) {
         wizardModel.add(new Profile(modelObject));
         wizardModel.add(new Configuration(modelObject));
         return wizardModel;
@@ -103,39 +105,42 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectory
 
         private static final long serialVersionUID = -3043839139187792810L;
 
-        public Profile(final ReportletDirectoryPanel.ReportletWrapper reportlet) {
+        public Profile(final PolicyRuleDirectoryPanel.PolicyRuleWrapper rule) {
 
             final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                    "name", "reportlet", new PropertyModel<String>(reportlet, "name"), false);
+                    "name", "rule", new PropertyModel<String>(rule, "name"), false);
             name.addRequiredLabel();
-            name.setEnabled(true);
             add(name);
 
             final AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>(
-                    "configuration", getString("configuration"), new PropertyModel<String>(reportlet, "conf") {
+                    "configuration", "configuration", new PropertyModel<String>(rule, "conf") {
 
                 private static final long serialVersionUID = -6427731218492117883L;
 
                 @Override
                 public String getObject() {
-                    return reportlet.getConf() == null ? null : reportlet.getConf().getClass().getName();
+                    return rule.getConf() == null ? null : rule.getConf().getClass().getName();
                 }
 
                 @Override
                 public void setObject(final String object) {
-                    AbstractReportletConf conf = null;
+                    RuleConf conf = null;
 
                     try {
-                        conf = AbstractReportletConf.class.cast(Class.forName(object).newInstance());
+                        conf = RuleConf.class.cast(Class.forName(object).newInstance());
                     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                         LOG.warn("Error retrieving reportlet configuration instance", e);
                     }
 
-                    reportlet.setConf(conf);
+                    rule.setConf(conf);
                 }
             });
 
-            conf.setChoices(new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getReportletConfs()));
+            if (type == PolicyType.ACCOUNT) {
+                conf.setChoices(new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getAccountRules()));
+            } else if (type == PolicyType.PASSWORD) {
+                conf.setChoices(new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPasswordRules()));
+            }
 
             conf.addRequiredLabel();
             add(conf);
@@ -146,19 +151,20 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectory
 
         private static final long serialVersionUID = -785981096328637758L;
 
-        public Configuration(final ReportletDirectoryPanel.ReportletWrapper reportlet) {
-            final LoadableDetachableModel<Serializable> bean = new LoadableDetachableModel<Serializable>() {
+        private final LoadableDetachableModel<Serializable> bean;
+
+        public Configuration(final PolicyRuleDirectoryPanel.PolicyRuleWrapper rule) {
+            bean = new LoadableDetachableModel<Serializable>() {
 
                 private static final long serialVersionUID = 2092144708018739371L;
 
                 @Override
                 protected Serializable load() {
-                    return reportlet.getConf();
+                    return rule.getConf();
                 }
             };
 
-            add(new BeanPanel<>("bean", bean, reportlet.getSCondWrapper(), "name", "reportletClassName").
-                    setRenderBodyOnly(true));
+            add(new BeanPanel("bean", bean).setRenderBodyOnly(true));
         }
     }
 }

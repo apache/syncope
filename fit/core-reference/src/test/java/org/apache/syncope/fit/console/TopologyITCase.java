@@ -119,8 +119,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         wicketTester.executeAjaxEvent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:create", Constants.ON_CLICK);
 
-        FormTester formTester =
-                wicketTester.newFormTester("body:toggle:outerObjectsRepeater:0:outer:form:content:form");
+        FormTester formTester = wicketTester.newFormTester("body:toggle:outerObjectsRepeater:0:outer:form:content:form");
 
         formTester.setValue("view:container:key:textField", res);
         formTester.submit("buttons:next");
@@ -436,6 +435,21 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 + "firstLevelContainer:first:container:content:wizard:form");
         formTester.setValue("view:name:textField", "");
         formTester.submit("buttons:finish");
+
+        wicketTester.assertInfoMessages("Operation executed successfully");
+        wicketTester.cleanupFeedbackMessages();
+    }
+
+    @Test
+    public void reloadConnectors() {
+        wicketTester.clickLink("body:topologyLI:topology");
+        wicketTester.executeAjaxEvent("body:syncope", Constants.ON_CLICK);
+        wicketTester.assertComponent("body:toggle:container:content:togglePanelContainer:container:actions:reload",
+                AjaxLink.class);
+
+        wicketTester.cleanupFeedbackMessages();
+        wicketTester.getRequest().addParameter("confirm", "true");
+        wicketTester.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:reload");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
         wicketTester.cleanupFeedbackMessages();

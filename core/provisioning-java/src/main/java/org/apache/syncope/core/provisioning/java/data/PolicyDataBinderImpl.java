@@ -104,7 +104,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             }
 
             accountPolicy.getResources().clear();
-            for (String resourceName : accountPolicyTO.getResources()) {
+            for (String resourceName : accountPolicyTO.getPassthroughResources()) {
                 ExternalResource resource = resourceDAO.find(resourceName);
                 if (resource == null) {
                     LOG.debug("Ignoring invalid resource {} ", resourceName);
@@ -167,7 +167,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 accountPolicyTO.getRuleConfs().add((AbstractAccountRuleConf) ruleConf);
             }
 
-            accountPolicyTO.getResources().addAll(accountPolicy.getResourceNames());
+            accountPolicyTO.getPassthroughResources().addAll(accountPolicy.getResourceNames());
         } else if (policy instanceof PullPolicy) {
             policyTO = (T) new PullPolicyTO();
             ((PullPolicyTO) policyTO).setSpecification(((PullPolicy) policy).getSpecification());

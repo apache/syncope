@@ -16,17 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.report;
+package org.apache.syncope.common.lib.policy;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import org.apache.syncope.common.lib.types.IntMappingType;
+import java.io.Serializable;
+import java.util.List;
 
-@Target({ ElementType.FIELD })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Schema {
+public interface ComposablePolicy<T extends RuleConf> extends Serializable {
 
-    IntMappingType[] type() default { IntMappingType.UserPlainSchema };
+    /**
+     * Return policy rules.
+     *
+     * @return policy rules.
+     */
+    List<T> getRuleConfs();
 }

@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.report.Schema;
+import org.apache.syncope.common.lib.types.IntMappingType;
 
 @XmlRootElement(name = "defaultPasswordRuleConf")
 @XmlType
@@ -140,6 +142,8 @@ public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
     /**
      * User attribute values not permitted.
      */
+    @Schema(type
+            = { IntMappingType.UserPlainSchema, IntMappingType.UserDerivedSchema, IntMappingType.UserVirtualSchema })
     private final List<String> schemasNotPermitted = new ArrayList<>();
 
     /**
