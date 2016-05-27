@@ -447,7 +447,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:3:"
                 + "outer:form:content:container:content:wizard:form");
         formTester.setValue("view:name:textField", "myrule");
-        formTester.setValue("view:configuration:dropDownChoiceField", "1");
+        formTester.setValue("view:configuration:dropDownChoiceField", "0");
         formTester.submit("buttons:next");
 
         wicketTester.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:"
@@ -541,7 +541,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:3:"
                 + "outer:form:content:container:content:wizard:form");
         formTester.setValue("view:name:textField", "myrule");
-        formTester.setValue("view:configuration:dropDownChoiceField", "1");
+        formTester.setValue("view:configuration:dropDownChoiceField", "0");
         formTester.submit("buttons:next");
 
         wicketTester.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:"

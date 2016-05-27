@@ -20,6 +20,8 @@ package org.apache.syncope.client.console.policies;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -136,12 +138,19 @@ public class PolicyRuleWizardBuilder
                 }
             });
 
+            final List<String> choices;
+
             if (type == PolicyType.ACCOUNT) {
-                conf.setChoices(new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getAccountRules()));
+                choices = new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getAccountRules());
             } else if (type == PolicyType.PASSWORD) {
-                conf.setChoices(new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPasswordRules()));
+                choices = new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPasswordRules());
+            } else {
+                choices = new ArrayList<>();
             }
 
+            Collections.<String>sort(choices);
+            conf.setChoices(choices);
+            
             conf.addRequiredLabel();
             add(conf);
         }

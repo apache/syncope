@@ -20,6 +20,7 @@ package org.apache.syncope.fit.console;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -271,6 +272,31 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:title",
                 "Executions of task &#039;TestDB Task&#039;");
 
+        int iteration = 0;
+        try {
+            wicketTester.assertComponent(
+                    "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:"
+                    + "second:executions:firstLevelContainer:first:container:content:searchContainer:resultTable:"
+                    + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:6:cell:panelView:viewLink",
+                    AjaxLink.class);
+        } catch (Exception e) {
+            if (iteration < 10) {
+                try {
+                    // requires a short delay
+                    Thread.sleep(1000);
+                } catch (Exception ignore) {
+                }
+                
+                wicketTester.clickLink(
+                        "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:second:"
+                        + "executions:firstLevelContainer:first:container:content:searchContainer:resultTable:"
+                        + "tablePanel:groupForm:checkgroup:dataTable:topToolbars:toolbars:1:headers:24:header:label:"
+                        + "panelReload:reloadLink");
+                iteration++;
+            } else {
+                fail();
+            }
+        }
         wicketTester.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:"
                 + "second:executions:firstLevelContainer:first:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:6:cell:panelView:viewLink");
