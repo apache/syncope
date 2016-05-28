@@ -1,0 +1,370 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 358088704 bytes for committing reserved memory.
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   In 32 bit mode, the process size limit was hit
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Use 64 bit Java on a 64 bit OS
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (os_linux.cpp:2627), pid=3976, tid=139738416334592
+#
+# JRE version:  (8.0_91-b14) (build )
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (25.91-b14 mixed mode linux-amd64 compressed oops)
+# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007f175c00a000):  JavaThread "Unknown thread" [_thread_in_vm, id=3977, stack(0x00007f1762a6c000,0x00007f1762aad000)]
+
+Stack: [0x00007f1762a6c000,0x00007f1762aad000],  sp=0x00007f1762aab3b0,  free space=252k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [libjvm.so+0xabc18a]  VMError::report_and_die()+0x2ba
+V  [libjvm.so+0x4fafeb]  report_vm_out_of_memory(char const*, int, unsigned long, VMErrorType, char const*)+0x8b
+V  [libjvm.so+0x91cbb3]  os::Linux::commit_memory_impl(char*, unsigned long, bool)+0x103
+V  [libjvm.so+0x91d109]  os::pd_commit_memory(char*, unsigned long, unsigned long, bool)+0x29
+V  [libjvm.so+0x91740a]  os::commit_memory(char*, unsigned long, unsigned long, bool)+0x2a
+V  [libjvm.so+0x98b033]  PSVirtualSpace::expand_by(unsigned long)+0x53
+V  [libjvm.so+0x97b177]  PSOldGen::initialize(ReservedSpace, unsigned long, char const*, int)+0xb7
+V  [libjvm.so+0x2d827a]  AdjoiningGenerations::AdjoiningGenerations(ReservedSpace, GenerationSizer*, unsigned long)+0x39a
+V  [libjvm.so+0x93ff76]  ParallelScavengeHeap::initialize()+0x1d6
+V  [libjvm.so+0xa849bb]  Universe::initialize_heap()+0xfb
+V  [libjvm.so+0xa84d2e]  universe_init()+0x3e
+V  [libjvm.so+0x63a575]  init_globals()+0x65
+V  [libjvm.so+0xa68f3e]  Threads::create_vm(JavaVMInitArgs*, bool*)+0x23e
+V  [libjvm.so+0x6cede4]  JNI_CreateJavaVM+0x74
+C  [libjli.so+0x745e]  JavaMain+0x9e
+C  [libpthread.so.0+0x76aa]  start_thread+0xca
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+
+Other Threads:
+
+=>0x00007f175c00a000 (exited) JavaThread "Unknown thread" [_thread_in_vm, id=3977, stack(0x00007f1762a6c000,0x00007f1762aad000)]
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (0 events):
+No events
+
+
+Dynamic libraries:
+00400000-00401000 r-xp 00000000 08:04 4720451                            /home/nuwan/Software/jdk1.8.0_91/jre/bin/java
+00600000-00601000 rw-p 00000000 08:04 4720451                            /home/nuwan/Software/jdk1.8.0_91/jre/bin/java
+021d9000-021fa000 rw-p 00000000 00:00 0                                  [heap]
+d5580000-eab00000 ---p 00000000 00:00 0 
+eab00000-f5580000 rw-p 00000000 00:00 0 
+f5580000-100000000 ---p 00000000 00:00 0 
+7f174c275000-7f174c40b000 rw-p 00000000 00:00 0 
+7f174c40b000-7f174c560000 ---p 00000000 00:00 0 
+7f174c560000-7f174c5b6000 rw-p 00000000 00:00 0 
+7f174c5b6000-7f174c60b000 ---p 00000000 00:00 0 
+7f174c60b000-7f174c616000 rw-p 00000000 00:00 0 
+7f174c616000-7f174c9cc000 ---p 00000000 00:00 0 
+7f174c9cc000-7f174cc3c000 rwxp 00000000 00:00 0 
+7f174cc3c000-7f175b9cc000 ---p 00000000 00:00 0 
+7f175b9cc000-7f175b9e6000 r-xp 00000000 08:04 4720759                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/libzip.so
+7f175b9e6000-7f175bbe6000 ---p 0001a000 08:04 4720759                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/libzip.so
+7f175bbe6000-7f175bbe7000 rw-p 0001a000 08:04 4720759                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/libzip.so
+7f175bbe7000-7f175bbf3000 r-xp 00000000 08:04 269375                     /lib/x86_64-linux-gnu/libnss_files-2.21.so
+7f175bbf3000-7f175bdf2000 ---p 0000c000 08:04 269375                     /lib/x86_64-linux-gnu/libnss_files-2.21.so
+7f175bdf2000-7f175bdf3000 r--p 0000b000 08:04 269375                     /lib/x86_64-linux-gnu/libnss_files-2.21.so
+7f175bdf3000-7f175bdf4000 rw-p 0000c000 08:04 269375                     /lib/x86_64-linux-gnu/libnss_files-2.21.so
+7f175bdf4000-7f175bdff000 r-xp 00000000 08:04 269386                     /lib/x86_64-linux-gnu/libnss_nis-2.21.so
+7f175bdff000-7f175bffe000 ---p 0000b000 08:04 269386                     /lib/x86_64-linux-gnu/libnss_nis-2.21.so
+7f175bffe000-7f175bfff000 r--p 0000a000 08:04 269386                     /lib/x86_64-linux-gnu/libnss_nis-2.21.so
+7f175bfff000-7f175c000000 rw-p 0000b000 08:04 269386                     /lib/x86_64-linux-gnu/libnss_nis-2.21.so
+7f175c000000-7f175c031000 rw-p 00000000 00:00 0 
+7f175c031000-7f1760000000 ---p 00000000 00:00 0 
+7f1760155000-7f176016c000 r-xp 00000000 08:04 269380                     /lib/x86_64-linux-gnu/libnsl-2.21.so
+7f176016c000-7f176036b000 ---p 00017000 08:04 269380                     /lib/x86_64-linux-gnu/libnsl-2.21.so
+7f176036b000-7f176036c000 r--p 00016000 08:04 269380                     /lib/x86_64-linux-gnu/libnsl-2.21.so
+7f176036c000-7f176036d000 rw-p 00017000 08:04 269380                     /lib/x86_64-linux-gnu/libnsl-2.21.so
+7f176036d000-7f176036f000 rw-p 00000000 00:00 0 
+7f176036f000-7f1760377000 r-xp 00000000 08:04 269376                     /lib/x86_64-linux-gnu/libnss_compat-2.21.so
+7f1760377000-7f1760576000 ---p 00008000 08:04 269376                     /lib/x86_64-linux-gnu/libnss_compat-2.21.so
+7f1760576000-7f1760577000 r--p 00007000 08:04 269376                     /lib/x86_64-linux-gnu/libnss_compat-2.21.so
+7f1760577000-7f1760578000 rw-p 00008000 08:04 269376                     /lib/x86_64-linux-gnu/libnss_compat-2.21.so
+7f1760578000-7f17605a2000 r-xp 00000000 08:04 4720754                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/libjava.so
+7f17605a2000-7f17607a2000 ---p 0002a000 08:04 4720754                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/libjava.so
+7f17607a2000-7f17607a4000 rw-p 0002a000 08:04 4720754                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/libjava.so
+7f17607a4000-7f17607b1000 r-xp 00000000 08:04 4720758                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/libverify.so
+7f17607b1000-7f17609b1000 ---p 0000d000 08:04 4720758                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/libverify.so
+7f17609b1000-7f17609b3000 rw-p 0000d000 08:04 4720758                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/libverify.so
+7f17609b3000-7f17609ba000 r-xp 00000000 08:04 269373                     /lib/x86_64-linux-gnu/librt-2.21.so
+7f17609ba000-7f1760bb9000 ---p 00007000 08:04 269373                     /lib/x86_64-linux-gnu/librt-2.21.so
+7f1760bb9000-7f1760bba000 r--p 00006000 08:04 269373                     /lib/x86_64-linux-gnu/librt-2.21.so
+7f1760bba000-7f1760bbb000 rw-p 00007000 08:04 269373                     /lib/x86_64-linux-gnu/librt-2.21.so
+7f1760bbb000-7f1760cc2000 r-xp 00000000 08:04 269388                     /lib/x86_64-linux-gnu/libm-2.21.so
+7f1760cc2000-7f1760ec1000 ---p 00107000 08:04 269388                     /lib/x86_64-linux-gnu/libm-2.21.so
+7f1760ec1000-7f1760ec2000 r--p 00106000 08:04 269388                     /lib/x86_64-linux-gnu/libm-2.21.so
+7f1760ec2000-7f1760ec3000 rw-p 00107000 08:04 269388                     /lib/x86_64-linux-gnu/libm-2.21.so
+7f1760ec3000-7f1761b83000 r-xp 00000000 08:04 4720737                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/server/libjvm.so
+7f1761b83000-7f1761d83000 ---p 00cc0000 08:04 4720737                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/server/libjvm.so
+7f1761d83000-7f1761e5b000 rw-p 00cc0000 08:04 4720737                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/server/libjvm.so
+7f1761e5b000-7f1761ea6000 rw-p 00000000 00:00 0 
+7f1761ea6000-7f1762066000 r-xp 00000000 08:04 269389                     /lib/x86_64-linux-gnu/libc-2.21.so
+7f1762066000-7f1762266000 ---p 001c0000 08:04 269389                     /lib/x86_64-linux-gnu/libc-2.21.so
+7f1762266000-7f176226a000 r--p 001c0000 08:04 269389                     /lib/x86_64-linux-gnu/libc-2.21.so
+7f176226a000-7f176226c000 rw-p 001c4000 08:04 269389                     /lib/x86_64-linux-gnu/libc-2.21.so
+7f176226c000-7f1762270000 rw-p 00000000 00:00 0 
+7f1762270000-7f1762273000 r-xp 00000000 08:04 269385                     /lib/x86_64-linux-gnu/libdl-2.21.so
+7f1762273000-7f1762472000 ---p 00003000 08:04 269385                     /lib/x86_64-linux-gnu/libdl-2.21.so
+7f1762472000-7f1762473000 r--p 00002000 08:04 269385                     /lib/x86_64-linux-gnu/libdl-2.21.so
+7f1762473000-7f1762474000 rw-p 00003000 08:04 269385                     /lib/x86_64-linux-gnu/libdl-2.21.so
+7f1762474000-7f1762489000 r-xp 00000000 08:04 4720732                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/jli/libjli.so
+7f1762489000-7f1762689000 ---p 00015000 08:04 4720732                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/jli/libjli.so
+7f1762689000-7f176268a000 rw-p 00015000 08:04 4720732                    /home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64/jli/libjli.so
+7f176268a000-7f17626a2000 r-xp 00000000 08:04 269374                     /lib/x86_64-linux-gnu/libpthread-2.21.so
+7f17626a2000-7f17628a2000 ---p 00018000 08:04 269374                     /lib/x86_64-linux-gnu/libpthread-2.21.so
+7f17628a2000-7f17628a3000 r--p 00018000 08:04 269374                     /lib/x86_64-linux-gnu/libpthread-2.21.so
+7f17628a3000-7f17628a4000 rw-p 00019000 08:04 269374                     /lib/x86_64-linux-gnu/libpthread-2.21.so
+7f17628a4000-7f17628a8000 rw-p 00000000 00:00 0 
+7f17628a8000-7f17628cc000 r-xp 00000000 08:04 269383                     /lib/x86_64-linux-gnu/ld-2.21.so
+7f176297d000-7f1762a6c000 rw-p 00000000 00:00 0 
+7f1762a6c000-7f1762a6f000 ---p 00000000 00:00 0 
+7f1762a6f000-7f1762ab1000 rw-p 00000000 00:00 0                          [stack:3977]
+7f1762abc000-7f1762abf000 rw-p 00000000 00:00 0 
+7f1762abf000-7f1762ac7000 rw-s 00000000 08:04 2899295                    /tmp/hsperfdata_nuwan/3976
+7f1762ac7000-7f1762ac8000 rw-p 00000000 00:00 0 
+7f1762ac8000-7f1762ac9000 r--p 00000000 00:00 0 
+7f1762ac9000-7f1762acb000 rw-p 00000000 00:00 0 
+7f1762acb000-7f1762acc000 r--p 00023000 08:04 269383                     /lib/x86_64-linux-gnu/ld-2.21.so
+7f1762acc000-7f1762acd000 rw-p 00024000 08:04 269383                     /lib/x86_64-linux-gnu/ld-2.21.so
+7f1762acd000-7f1762ace000 rw-p 00000000 00:00 0 
+7ffd6e0a8000-7ffd6e0c9000 rw-p 00000000 00:00 0                          [stack]
+7ffd6e161000-7ffd6e163000 r--p 00000000 00:00 0                          [vvar]
+7ffd6e163000-7ffd6e165000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+
+VM Arguments:
+jvm_args: -Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m -Xss256k 
+java_command: /home/nuwan/Projects/gsoc/syncope/common/lib/target/surefire/surefirebooter60810354240644623.jar /home/nuwan/Projects/gsoc/syncope/common/lib/target/surefire/surefire3292184291145388622tmp /home/nuwan/Projects/gsoc/syncope/common/lib/target/surefire/surefire_02420211242808671425tmp
+java_class_path (initial): /home/nuwan/Projects/gsoc/syncope/common/lib/target/surefire/surefirebooter60810354240644623.jar
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=/home/nuwan/Software/jdk1.8.0_91
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/home/nuwan/Software/jdk1.8.0_91/bin:/home/nuwan/Software/jdk1.8.0_91/jre:/usr/lib/maven3/bin:/home/nuwan/Software/jdk1.8.0_91/:/usr/lib/maven3/bin
+LD_LIBRARY_PATH=/home/nuwan/Software/jdk1.8.0_91/jre/lib/amd64:/home/nuwan/Software/jdk1.8.0_91/jre/lib/i386:
+SHELL=/bin/bash
+DISPLAY=:0
+
+Signal Handlers:
+SIGSEGV: [libjvm.so+0xabca10], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGBUS: [libjvm.so+0xabca10], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGFPE: [libjvm.so+0x919a20], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGPIPE: [libjvm.so+0x919a20], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGXFSZ: [libjvm.so+0x919a20], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGILL: [libjvm.so+0x919a20], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGUSR1: SIG_DFL, sa_mask[0]=00000000000000000000000000000000, sa_flags=none
+SIGUSR2: [libjvm.so+0x91b050], sa_mask[0]=00100000000000000000000000000000, sa_flags=SA_RESTART|SA_SIGINFO
+SIGHUP: SIG_DFL, sa_mask[0]=00000000000000000000000000000000, sa_flags=none
+SIGINT: SIG_IGN, sa_mask[0]=00000000000000000000000000000000, sa_flags=none
+SIGTERM: SIG_DFL, sa_mask[0]=00000000000000000000000000000000, sa_flags=none
+SIGQUIT: SIG_DFL, sa_mask[0]=00000000000000000000000000000000, sa_flags=none
+
+
+---------------  S Y S T E M  ---------------
+
+OS:DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=15.10
+DISTRIB_CODENAME=wily
+DISTRIB_DESCRIPTION="Ubuntu 15.10"
+
+uname:Linux 4.2.0-16-generic #19-Ubuntu SMP Thu Oct 8 15:35:06 UTC 2015 x86_64
+libc:glibc 2.21 NPTL 2.21 
+rlimit: STACK 8192k, CORE 0k, NPROC 15173, NOFILE 65536, AS infinity
+load average:2.04 1.13 0.71
+
+/proc/meminfo:
+MemTotal:        3919120 kB
+MemFree:           34592 kB
+MemAvailable:     266252 kB
+Buffers:           43060 kB
+Cached:           445028 kB
+SwapCached:            0 kB
+Active:          3355384 kB
+Inactive:         345472 kB
+Active(anon):    3239616 kB
+Inactive(anon):   241864 kB
+Active(file):     115768 kB
+Inactive(file):   103608 kB
+Unevictable:          16 kB
+Mlocked:              16 kB
+SwapTotal:             0 kB
+SwapFree:              0 kB
+Dirty:              1588 kB
+Writeback:             0 kB
+AnonPages:       3213640 kB
+Mapped:           183388 kB
+Shmem:            267908 kB
+Slab:              76572 kB
+SReclaimable:      41528 kB
+SUnreclaim:        35044 kB
+KernelStack:        9184 kB
+PageTables:        40696 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     1959560 kB
+Committed_AS:    6172172 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:      556360 kB
+VmallocChunk:   34358423548 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:   1310720 kB
+CmaTotal:              0 kB
+CmaFree:               0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+DirectMap4k:      136956 kB
+DirectMap2M:     3930112 kB
+
+
+CPU:total 4 (2 cores per cpu, 2 threads per core) family 6 model 58 stepping 9, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, aes, clmul, erms, ht, tsc, tscinvbit, tscinv
+
+/proc/cpuinfo:
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 58
+model name	: Intel(R) Core(TM) i5-3337U CPU @ 1.80GHz
+stepping	: 9
+microcode	: 0x1b
+cpu MHz		: 1405.546
+cache size	: 3072 KB
+physical id	: 0
+siblings	: 4
+core id		: 0
+cpu cores	: 2
+apicid		: 0
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm ida arat epb pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms xsaveopt
+bugs		:
+bogomips	: 3591.88
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 58
+model name	: Intel(R) Core(TM) i5-3337U CPU @ 1.80GHz
+stepping	: 9
+microcode	: 0x1b
+cpu MHz		: 1857.585
+cache size	: 3072 KB
+physical id	: 0
+siblings	: 4
+core id		: 0
+cpu cores	: 2
+apicid		: 1
+initial apicid	: 1
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm ida arat epb pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms xsaveopt
+bugs		:
+bogomips	: 3591.88
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 2
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 58
+model name	: Intel(R) Core(TM) i5-3337U CPU @ 1.80GHz
+stepping	: 9
+microcode	: 0x1b
+cpu MHz		: 2483.085
+cache size	: 3072 KB
+physical id	: 0
+siblings	: 4
+core id		: 1
+cpu cores	: 2
+apicid		: 2
+initial apicid	: 2
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm ida arat epb pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms xsaveopt
+bugs		:
+bogomips	: 3591.88
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 3
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 58
+model name	: Intel(R) Core(TM) i5-3337U CPU @ 1.80GHz
+stepping	: 9
+microcode	: 0x1b
+cpu MHz		: 1171.054
+cache size	: 3072 KB
+physical id	: 0
+siblings	: 4
+core id		: 1
+cpu cores	: 2
+apicid		: 3
+initial apicid	: 3
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx est tm2 ssse3 cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm ida arat epb pln pts dtherm tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms xsaveopt
+bugs		:
+bogomips	: 3591.88
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+
+
+Memory: 4k page, physical 3919120k(34592k free), swap 0k(0k free)
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (25.91-b14) for linux-amd64 JRE (1.8.0_91-b14), built on Apr  1 2016 00:57:21 by "java_re" with gcc 4.3.0 20080428 (Red Hat 4.3.0-8)
+
+time: Sat May 28 09:07:29 2016
+elapsed time: 0 seconds (0d 0h 0m 0s)
+
