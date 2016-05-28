@@ -21,6 +21,7 @@ package org.apache.syncope.client.cli;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.cli.commands.install.InstallConfigFileTemplate;
 import org.apache.syncope.client.cli.util.JasyptUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -35,7 +36,7 @@ public final class SyncopeServices {
 
     private static String SYNCOPE_ADDRESS;
 
-    public static <T> T get(final Class<T> claz) {
+    public static <T> T get(final Class<T> clazz) {
         final Properties properties = new Properties();
         try {
             properties.load(new FileInputStream(InstallConfigFileTemplate.configurationFilePath()));
@@ -43,15 +44,16 @@ public final class SyncopeServices {
             LOG.error("Error opening properties file", e);
         }
 
-        final String syncopeAdminPassword = JasyptUtils.getJasyptUtils().decrypt(properties.getProperty(
-                "syncope.admin.password"));
+        String syncopeAdminPassword = JasyptUtils.get().decrypt(properties.getProperty("syncope.admin.password"));
         SYNCOPE_ADDRESS = properties.getProperty("syncope.rest.services");
-        final SyncopeClient syncopeClient = new SyncopeClientFactoryBean()
-                .setAddress(SYNCOPE_ADDRESS)
-                .create(properties.getProperty("syncope.admin.user"), syncopeAdminPassword);
+        String useGZIPCompression = properties.getProperty("useGZIPCompression");
+        SyncopeClient syncopeClient = new SyncopeClientFactoryBean().
+                setAddress(SYNCOPE_ADDRESS).
+                setUseCompression(BooleanUtils.toBoolean(useGZIPCompression)).
+                create(properties.getProperty("syncope.admin.user"), syncopeAdminPassword);
 
-        LOG.debug("Creting service for {}", claz.getName());
-        return syncopeClient.getService(claz);
+        LOG.debug("Creting service for {}", clazz.getName());
+        return syncopeClient.getService(clazz);
     }
 
     public static String getAddress() {

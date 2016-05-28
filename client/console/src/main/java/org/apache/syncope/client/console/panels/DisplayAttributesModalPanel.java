@@ -152,7 +152,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         if (selectedDetails.size() + selectedPlainSchemas.size() + selectedDerSchemas.size() > MAX_SELECTIONS) {
-            error(getString("tooManySelections"));
+           SyncopeConsoleSession.get().error(getString("tooManySelections"));
             onError(target, form);
         } else {
             final Map<String, List<String>> prefs = new HashMap<>();
@@ -162,7 +162,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             prefs.put(getPrefDerivedAttributeView(), selectedDerSchemas);
             prefMan.setList(getRequest(), getResponse(), prefs);
 
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
             SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
         }

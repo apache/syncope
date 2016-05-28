@@ -148,7 +148,7 @@ public class InstallSetup {
             }
         }
 
-        final JasyptUtils jasyptUtils = JasyptUtils.getJasyptUtils();
+        final JasyptUtils jasyptUtils = JasyptUtils.get();
         try {
 
             final String contentCliPropertiesFile = InstallConfigFileTemplate.cliPropertiesFile(

@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.widgets;
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconTypeBuilder;
 import java.util.List;
-import org.apache.syncope.client.console.tasks.TransformersTogglePanel;
+import org.apache.syncope.client.console.wizards.resources.MappingItemTransformersTogglePanel;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -35,12 +35,13 @@ public class MappingItemTransformerWidget extends AlertWidget<String> {
 
     private final MappingItemTO mapItem;
 
-    private final TransformersTogglePanel transformers;
+    private final MappingItemTransformersTogglePanel transformers;
 
     public MappingItemTransformerWidget(
             final String id,
             final MappingItemTO mapItem,
-            final TransformersTogglePanel transformers) {
+            final MappingItemTransformersTogglePanel transformers) {
+
         super(id);
         this.mapItem = mapItem;
         this.transformers = transformers;

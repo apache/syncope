@@ -20,8 +20,10 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.List;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
@@ -32,40 +34,55 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.rest.api.service.AnyService;
+import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
-public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestClient {
+public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch> extends BaseRestClient {
 
     private static final long serialVersionUID = 1962529678091410544L;
 
+    protected abstract Class<? extends AnyService<TO, P>> getAnyServiceClass();
+
     public abstract int count(String realm, String type);
 
-    public abstract List<T> list(String realm, int page, int size, final SortParam<String> sort, final String type);
+    public abstract List<TO> list(String realm, int page, int size, SortParam<String> sort, String type);
 
-    public abstract int searchCount(String realm, String fiql, final String type);
+    public abstract int searchCount(String realm, String fiql, String type);
 
-    public abstract List<T> search(
-            String realm, String fiql, int page, int size, final SortParam<String> sort, final String type);
+    public abstract List<TO> search(
+            String realm, String fiql, int page, int size, SortParam<String> sort, String type);
 
-    public abstract T read(final String key);
+    public TO read(final String key) {
+        return getService(getAnyServiceClass()).read(key);
+    }
 
-    public abstract ProvisioningResult<T> delete(String etag, String key);
+    public ProvisioningResult<TO> create(final TO to) {
+        Response response = getService(getAnyServiceClass()).create(to);
+        return response.readEntity(new GenericType<ProvisioningResult<TO>>() {
+        });
+    }
 
-    protected <E extends AnyService<T, ?>> ProvisioningResult<T> delete(
-            final Class<E> serviceClass, final Class<T> objectType, final String etag, final String key) {
-        ProvisioningResult<T> result;
+    public ProvisioningResult<TO> update(final String etag, final P patch) {
+        ProvisioningResult<TO> result;
         synchronized (this) {
-            final E service = getService(etag, serviceClass);
-            result = service.delete(key).readEntity(new GenericType<ProvisioningResult<T>>() {
-            });
-            resetClient(serviceClass);
+            result = getService(etag, getAnyServiceClass()).update(patch).
+                    readEntity(new GenericType<ProvisioningResult<TO>>() {
+                    });
+            resetClient(UserService.class);
         }
         return result;
     }
 
-    public abstract BulkActionResult bulkAction(BulkAction action);
-
-    protected abstract Class<? extends AnyService<?, ?>> getAnyServiceClass();
+    public ProvisioningResult<TO> delete(final String etag, final String key) {
+        ProvisioningResult<TO> result;
+        synchronized (this) {
+            result = getService(etag, getAnyServiceClass()).delete(key).
+                    readEntity(new GenericType<ProvisioningResult<TO>>() {
+                    });
+            resetClient(getAnyServiceClass());
+        }
+        return result;
+    }
 
     public BulkActionResult unlink(final String etag, final String key, final List<StatusBean> statuses) {
         BulkActionResult result;
@@ -178,4 +195,7 @@ public abstract class AbstractAnyRestClient<T extends AnyTO> extends BaseRestCli
         return result;
     }
 
+    public BulkActionResult bulkAction(final BulkAction action) {
+        return getService(getAnyServiceClass()).bulk(action).readEntity(BulkActionResult.class);
+    }
 }

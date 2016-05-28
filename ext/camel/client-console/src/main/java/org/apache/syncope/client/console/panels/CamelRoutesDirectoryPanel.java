@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -100,16 +99,6 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
                 };
-            }
-
-            @Override
-            protected void onCancelInternal(final CamelRouteTO modelObject) {
-            }
-
-            @Override
-            protected Serializable onApplyInternal(final CamelRouteTO modelObject) {
-                // do nothing
-                return null;
             }
         }, false);
     }

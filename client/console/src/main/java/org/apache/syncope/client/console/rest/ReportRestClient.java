@@ -21,10 +21,13 @@ package org.apache.syncope.client.console.rest;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.BulkAction;
+import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
@@ -132,5 +135,27 @@ public class ReportRestClient extends BaseRestClient
     public void updateTemplateFormat(final String key, final String content, final ReportTemplateFormat format) {
         getService(ReportTemplateService.class).setFormat(
                 key, format, IOUtils.toInputStream(content, SyncopeConstants.DEFAULT_CHARSET));
+    }
+
+    public BulkActionResult bulkAction(final BulkAction action) {
+        BulkActionResult result = new BulkActionResult();
+
+        switch (action.getType()) {
+            case DELETE:
+                for (String target : action.getTargets()) {
+                    delete(target);
+                    result.getResults().put(target, BulkActionResult.Status.SUCCESS);
+                }
+                break;
+            case EXECUTE:
+                for (String target : action.getTargets()) {
+                    startExecution(target, new Date());
+                    result.getResults().put(target, BulkActionResult.Status.SUCCESS);
+                }
+                break;
+            default:
+                throw new NotSupportedException(action.getType().name());
+        }
+        return result;
     }
 }

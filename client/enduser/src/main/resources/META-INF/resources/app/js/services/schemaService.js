@@ -31,10 +31,9 @@ angular.module('self')
 
               return  $http.get("/syncope-enduser/api/schemas" + classParam)
                       .then(function (response) {
-                        console.log("schemaAPI response: ", response);
                         return response.data;
                       }, function (response) {
-                        console.log("Something went wrong during schema retrieval, exit with status: ", response);
+                        console.error("Something went wrong during schema retrieval, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };

@@ -55,19 +55,18 @@ public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
         SearchCond searchCond = null;
 
         for (String schema : plainSchemaNames) {
-            Attribute attr = mappingItems.get(schema) == null
+            MappingItem mappingItem = mappingItems.get(schema);
+            Attribute attr = mappingItem == null
                     ? null
-                    : connObj.getAttributeByName(mappingItems.get(schema).getExtAttrName());
+                    : connObj.getAttributeByName(mappingItem.getExtAttrName());
             if (attr == null) {
                 throw new IllegalArgumentException(
                         "Connector object does not contains the attributes to perform the search: " + schema);
             }
 
             List<Object> values = attr.getValue();
-            for (MappingItemTransformer transformer
-                    : MappingManagerImpl.getMappingItemTransformers(mappingItems.get(schema))) {
-
-                values = transformer.beforePull(values);
+            for (MappingItemTransformer transformer : MappingManagerImpl.getMappingItemTransformers(mappingItem)) {
+                values = transformer.beforePull(mappingItem, null, values);
             }
 
             AttributeCond.Type type;

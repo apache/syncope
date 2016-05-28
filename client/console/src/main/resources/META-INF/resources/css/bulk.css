@@ -16,16 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-th.checkGroupColumn{
-  width: 20px;
-  text-align: center;
-  padding-right: 8px !important;
-}
-
-td.checkGroupColumn{
-  text-align: center;
-}
-
 div.bulkAction{
   display:inline-table;
 }

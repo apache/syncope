@@ -38,7 +38,7 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * A {@link org.apache.syncope.core.provisioning.api.pushpull.PullActions} implementation which allows the ability to 
+ * A {@link org.apache.syncope.core.provisioning.api.pushpull.PullActions} implementation which allows the ability to
  * import passwords from an LDAP backend that are hashed.
  */
 public class LDAPPasswordPullActions extends DefaultPullActions {
@@ -100,7 +100,7 @@ public class LDAPPasswordPullActions extends DefaultPullActions {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public <A extends AnyTO> void after(
             final ProvisioningProfile<?, ?> profile,

@@ -48,6 +48,7 @@ import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -56,18 +57,23 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -80,6 +86,7 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
+import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -772,6 +779,69 @@ public class GroupITCase extends AbstractITCase {
         assertEquals(2, groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().size());
         assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().contains("csv"));
         assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().contains("other"));
+    }
+
+    @Test
+    public void bulkMembersAction() throws InterruptedException {
+        // 1. create group without resources
+        GroupTO groupTO = getBasicSampleTO("forProvision");
+        groupTO = createGroup(groupTO).getAny();
+
+        // 2. create user with such group assigned
+        UserTO userTO = UserITCase.getUniqueSampleTO("forProvision@syncope.apache.org");
+        userTO.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
+        userTO = createUser(userTO).getAny();
+
+        // 3. modify the group by assiging the LDAP resource
+        GroupPatch groupPatch = new GroupPatch();
+        groupPatch.setKey(groupTO.getKey());
+        groupPatch.getResources().add(new StringPatchItem.Builder().value(RESOURCE_NAME_LDAP).build());
+        ProvisioningResult<GroupTO> groupUpdateResult = updateGroup(groupPatch);
+        groupTO = groupUpdateResult.getAny();
+
+        PropagationStatus propStatus = groupUpdateResult.getPropagationStatuses().get(0);
+        assertEquals(RESOURCE_NAME_LDAP, propStatus.getResource());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, propStatus.getStatus());
+
+        // 4. verify that the user above is not found on LDAP
+        try {
+            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
+
+        try {
+            // 5. bulk provision group members
+            ExecTO exec = groupService.bulkMembersAction(groupTO.getKey(), BulkMembersActionType.PROVISION);
+            assertNotNull(exec.getRefKey());
+
+            int i = 0;
+            int maxit = 50;
+
+            // wait for task exec completion (executions incremented)
+            SchedTaskTO taskTO;
+            do {
+                Thread.sleep(1000);
+
+                taskTO = taskService.read(exec.getRefKey(), true);
+
+                assertNotNull(taskTO);
+                assertNotNull(taskTO.getExecutions());
+                i++;
+            } while (taskTO.getExecutions().isEmpty() && i < maxit);
+            assertFalse(taskTO.getExecutions().isEmpty());
+
+            assertEquals(TaskJob.Status.SUCCESS.name(), taskTO.getExecutions().get(0).getStatus());
+
+            // 6. verify that the user above is now fond on LDAP
+            ConnObjectTO userOnLdap =
+                    resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
+            assertNotNull(userOnLdap);
+        } finally {
+            groupService.delete(groupTO.getKey());
+            userService.delete(userTO.getKey());
+        }
     }
 
     @Test

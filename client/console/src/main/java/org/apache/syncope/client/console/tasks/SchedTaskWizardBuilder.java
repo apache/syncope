@@ -284,6 +284,5 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             add(new CrontabPanel(
                     "schedule", new PropertyModel<String>(taskTO, "cronExpression"), taskTO.getCronExpression()));
         }
-
     }
 }

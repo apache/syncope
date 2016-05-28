@@ -25,22 +25,13 @@ angular.module('login')
 
             var authService = {};
 
-            var clearUserCookie = function () {
-              $rootScope.currentUser = null;
-              $cookies.remove('currentUser');
-            };
-
             authService.login = function (credentials) {
               return $http
                       .post('/syncope-enduser/api/login', credentials)
                       .then(function (response) {
-                        var username = response.data;
-                        $cookies.put('currentUser', username);
-                        $rootScope.currentUser = username;
-                        return username;
+                        return response.data;
                       }, function (response) {
-                        clearUserCookie();
-                        console.log("Something went wrong during login, exit with status: ", response);
+                        console.error("Something went wrong during login, exit with status: ", response.statusText);
                         return $q.reject(response.data || response.statusText);
                       });
             };
@@ -49,26 +40,25 @@ angular.module('login')
               return $http
                       .get('/syncope-enduser/api/logout')
                       .then(function (response) {
-                        clearUserCookie();
                         return response;
                       }, function (response) {
-                        clearUserCookie();
-                        console.log("Something went wrong during logout, exit with status: ", response);
+                        console.error("Something went wrong during logout, exit with status: ", response);
+                      });
+            };
+
+
+            authService.islogged = function () {
+              return $http
+                      .get('/syncope-enduser/api/self/islogged')
+                      .then(function (response) {
+                        console.debug("user logged:", response.data);
+                        return response.data;
+                      }, function (response) {
+                        console.error("error retrieving user login status");
                       });
             };
 
             return authService;
-//            return {
-//              login: $resource('/syncope-enduser/api/login', {}, {
-//                do: {method: 'POST', params: {}, isArray: false}
-//              })
-//            };
-//            return {
-//              logout: $resource('/cradleDashboard/api/logout', {}, {
-//                query: {method: 'GET', params: {}, isArray: false}
-//              })
-//            };
-
           }]);
 
 

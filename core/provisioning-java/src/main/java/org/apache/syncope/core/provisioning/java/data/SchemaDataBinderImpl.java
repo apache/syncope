@@ -34,13 +34,16 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +71,9 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -238,10 +244,23 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             schema.setAnyTypeClass(null);
         }
 
-        Provision provision = resourceDAO.findProvision(schemaTO.getProvision());
+        ExternalResource resource = resourceDAO.find(schemaTO.getResource());
+        if (resource == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSchemaDefinition);
+            sce.getElements().add("Resource " + schemaTO.getResource() + " not found");
+            throw sce;
+        }
+        AnyType anyType = anyTypeDAO.find(schemaTO.getAnyType());
+        if (anyType == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSchemaDefinition);
+            sce.getElements().add("AnyType " + schemaTO.getAnyType() + " not found");
+            throw sce;
+        }
+        Provision provision = resource.getProvision(anyType);
         if (provision == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSchemaDefinition);
-            sce.getElements().add("Provision " + schemaTO.getProvision() + " not found");
+            sce.getElements().add("Provision for AnyType" + schemaTO.getAnyType()
+                    + " not found in " + schemaTO.getResource());
             throw sce;
         }
         schema.setProvision(provision);
@@ -265,7 +284,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         BeanUtils.copyProperties(schema, schemaTO, IGNORE_PROPERTIES);
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
         schemaTO.setResource(schema.getProvision().getResource().getKey());
-        schemaTO.setProvision(schema.getProvision().getKey());
+        schemaTO.setAnyType(schema.getProvision().getAnyType().getKey());
 
         return schemaTO;
     }

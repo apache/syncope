@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -35,6 +34,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.DateTextFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -50,22 +50,25 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 
 public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    private final Mode mode;
+    private final AjaxWizard.Mode mode;
 
     public <T extends AnyTO> PlainAttrs(
             final T anyTO,
             final Form<?> form,
-            final Mode mode,
+            final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
             final List<String> whichPlainAttrs) {
 
         super(anyTO, anyTypeClasses, whichPlainAttrs);
         this.mode = mode;
+
+        setTitleModel(new ResourceModel("attributes.plain"));
 
         add(new ListView<AttrTO>("schemas", attrTOs) {
 
@@ -86,7 +89,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 AttrTO attrTO = item.getModelObject();
 
                 FieldPanel panel = getFieldPanel(schemas.get(attrTO.getSchema()));
-                if (mode == Mode.TEMPLATE || !schemas.get(attrTO.getSchema()).isMultivalue()) {
+                if (mode == AjaxWizard.Mode.TEMPLATE || !schemas.get(attrTO.getSchema()).isMultivalue()) {
                     item.add(panel);
                     panel.setNewModel(attrTO.getValues());
                 } else {
@@ -107,7 +110,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected boolean reoderSchemas() {
-        return super.reoderSchemas() && mode != Mode.TEMPLATE;
+        return super.reoderSchemas() && mode != AjaxWizard.Mode.TEMPLATE;
     }
 
     @Override
@@ -142,13 +145,23 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private FieldPanel getFieldPanel(final PlainSchemaTO schemaTO) {
-        boolean required = mode == Mode.TEMPLATE
-                ? false
-                : schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
+        final boolean required;
+        final boolean readOnly;
+        final AttrSchemaType type;
+        final boolean jexlHelp;
 
-        boolean readOnly = mode == Mode.TEMPLATE ? false : schemaTO.isReadonly();
+        if (mode == AjaxWizard.Mode.TEMPLATE) {
+            required = false;
+            readOnly = false;
+            type = AttrSchemaType.String;
+            jexlHelp = true;
+        } else {
+            required = schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
+            readOnly = schemaTO.isReadonly();
+            type = schemaTO.getType();
+            jexlHelp = false;
 
-        AttrSchemaType type = mode == Mode.TEMPLATE ? AttrSchemaType.String : schemaTO.getType();
+        }
 
         FieldPanel panel;
         switch (type) {
@@ -239,6 +252,10 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             default:
                 panel = new AjaxTextFieldPanel("panel", schemaTO.getKey(), new Model<String>(), false);
+
+                if (jexlHelp) {
+                    AjaxTextFieldPanel.class.cast(panel).enableJexlHelp();
+                }
 
                 if (required) {
                     panel.addRequiredLabel();

@@ -19,19 +19,26 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AjaxWizardBuilder<T extends Serializable> extends AbstractModalPanelBuilder<T> {
 
     private static final long serialVersionUID = 5241745929825564456L;
 
+    protected static final Logger LOG = LoggerFactory.getLogger(AjaxWizardBuilder.class);
+
     protected AjaxWizard.Mode mode = AjaxWizard.Mode.CREATE;
 
-    protected IEventSink eventSink = null;
+    private final List<Component> outerObjects = new ArrayList<>();
 
     /**
      * Construct.
@@ -41,6 +48,11 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
      */
     public AjaxWizardBuilder(final T defaultItem, final PageReference pageRef) {
         super(defaultItem, pageRef);
+    }
+
+    public final AjaxWizardBuilder<T> addOuterObject(final Component... childs) {
+        outerObjects.addAll(Arrays.asList(childs));
+        return this;
     }
 
     /**
@@ -97,6 +109,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
                         payload = getCreateCustomPayloadEvent(res, target);
                         break;
                     case EDIT:
+                    case TEMPLATE:
                         payload = getEditCustomPayloadEvent(res, target);
                         break;
                     default:
@@ -109,7 +122,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
 
                 return res;
             }
-        }.setEventSink(eventSink);
+        }.setEventSink(eventSink).addOuterObject(outerObjects);
     }
 
     protected abstract WizardModel buildModelSteps(final T modelObject, final WizardModel wizardModel);

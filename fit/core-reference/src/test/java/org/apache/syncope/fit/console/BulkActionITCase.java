@@ -55,7 +55,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
-        formTester.select("checkgroup", 1);
+        formTester.select("checkgroup", 2);
 
         wicketTester.executeAjaxEvent(searchResultContainer + "searchContainer:resultTable:tablePanel:bulkActionLink",
                 Constants.ON_CLICK);
@@ -64,7 +64,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:bulkModal:form:content:content:container", WebMarkupContainer.class);
 
         assertNotNull(findComponentByProp("username", searchResultContainer
-                + "searchContainer:resultTable:bulkModal:form:content:content:container:selectedObjects", "rossini"));
+                + "searchContainer:resultTable:bulkModal:form:content:content:container", "rossini"));
     }
 
     @Test
@@ -94,7 +94,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
-        formTester.select("checkgroup", 1);
+        formTester.select("checkgroup", 2);
 
         wicketTester.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
@@ -104,7 +104,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
         assertNotNull(findComponentByProp("resourceName", tabPanel + "outerObjectsRepeater:1:outer:"
-                + "form:content:status:secondLevelContainer:second:container:selectedObjects", "resource-csv"));
+                + "form:content:status:secondLevelContainer:second:container", "resource-csv"));
     }
 
     @Test
@@ -187,7 +187,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "root");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
         assertNotNull(component);
 
         wicketTester.clickLink(component.getPageRelativePath()

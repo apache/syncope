@@ -341,7 +341,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         field.add(comparator);
 
         final AjaxTextFieldPanel value = new AjaxTextFieldPanel(
-                "value", "value", new PropertyModel<String>(searchClause, "value"));
+                "value", "value", new PropertyModel<String>(searchClause, "value"), false);
         value.hideLabel().setOutputMarkupId(true);
         field.add(value);
 
@@ -690,7 +690,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         @Override
         public Object getDisplayValue(final String object) {
-            return groupNames.getObject().get(Long.parseLong(object));
+            return groupNames.getObject().get(object);
         }
     }
 

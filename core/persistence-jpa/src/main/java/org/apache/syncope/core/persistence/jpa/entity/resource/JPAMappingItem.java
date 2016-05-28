@@ -95,6 +95,18 @@ public class JPAMappingItem extends AbstractGeneratedKeyEntity implements Mappin
     private MappingPurpose purpose;
 
     /**
+     * (Optional) JEXL expression to apply to values before propagation.
+     */
+    @Column(name = "propJEXL")
+    private String propagationJEXLTransformer;
+
+    /**
+     * (Optional) JEXL expression to apply to values before pull.
+     */
+    @Column(name = "pullJEXL")
+    private String pullJEXLTransformer;
+
+    /**
      * (Optional) classes for MappingItem transformation.
      */
     @ElementCollection(fetch = FetchType.EAGER)
@@ -221,6 +233,26 @@ public class JPAMappingItem extends AbstractGeneratedKeyEntity implements Mappin
     @Override
     public void setPurpose(final MappingPurpose purpose) {
         this.purpose = purpose;
+    }
+
+    @Override
+    public String getPropagationJEXLTransformer() {
+        return propagationJEXLTransformer;
+    }
+
+    @Override
+    public void setPropagationJEXLTransformer(final String propagationJEXLTransformer) {
+        this.propagationJEXLTransformer = propagationJEXLTransformer;
+    }
+
+    @Override
+    public String getPullJEXLTransformer() {
+        return pullJEXLTransformer;
+    }
+
+    @Override
+    public void setPullJEXLTransformer(final String pullJEXLTransformer) {
+        this.pullJEXLTransformer = pullJEXLTransformer;
     }
 
     @Override

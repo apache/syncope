@@ -28,7 +28,7 @@ public class TestAccountRuleConf extends AbstractAccountRuleConf {
 
     private static final long serialVersionUID = -1803947511928491978L;
 
-    private String mustContainSubstring = "YYY";
+    private final String mustContainSubstring = "YYY";
 
     public String getMustContainSubstring() {
         return mustContainSubstring;

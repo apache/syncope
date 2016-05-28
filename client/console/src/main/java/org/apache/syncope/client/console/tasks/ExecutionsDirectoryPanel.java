@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.AbstractReadOnlyModel;
@@ -78,6 +79,7 @@ public abstract class ExecutionsDirectoryPanel
             final ExecutionRestClient executionRestClient,
             final PageReference pageRef) {
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, false);
+
         this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         restClient = executionRestClient;
@@ -134,14 +136,16 @@ public abstract class ExecutionsDirectoryPanel
                             public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                                 try {
                                     restClient.deleteExecution(taskExecutionTO.getKey());
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                 } catch (SyncopeClientException scce) {
-                                    error(scce.getMessage());
+                                   SyncopeConsoleSession.get().error(scce.getMessage());
                                 }
                                 target.add(ExecutionsDirectoryPanel.this);
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE);
+
+                addFurtherAcions(panel, model);
 
                 return panel.build(componentId, model.getObject());
             }
@@ -165,6 +169,9 @@ public abstract class ExecutionsDirectoryPanel
         });
 
         return columns;
+    }
+
+    protected void addFurtherAcions(final ActionLinksPanel.Builder<ExecTO> panel, final IModel<ExecTO> model) {
     }
 
     @Override
@@ -196,6 +203,7 @@ public abstract class ExecutionsDirectoryPanel
             super(paginatorRows);
             this.taskKey = taskKey;
             comparator = new SortableDataProviderComparator<>(this);
+            setSort("end", SortOrder.DESCENDING);
         }
 
         public SortableDataProviderComparator<ExecTO> getComparator() {

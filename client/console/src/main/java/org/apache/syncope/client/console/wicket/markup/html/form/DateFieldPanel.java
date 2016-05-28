@@ -20,11 +20,10 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -34,22 +33,17 @@ public class DateFieldPanel extends FieldPanel<Date> {
 
     private static final long serialVersionUID = -428975732068281726L;
 
-    protected final String name;
-
-    protected final String datePattern;
+    protected final FastDateFormat fmt;
 
     protected DateFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
         super(id, name, model);
-        this.name = name;
-        this.datePattern = datePattern;
+        fmt = datePattern == null
+                ? SyncopeConsoleSession.get().getDateFormat()
+                : FastDateFormat.getInstance(datePattern);
     }
 
     @Override
     public FieldPanel<Date> setNewModel(final List<Serializable> list) {
-        final SimpleDateFormat formatter = datePattern == null
-                ? new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN, Locale.getDefault())
-                : new SimpleDateFormat(datePattern, Locale.getDefault());
-
         setNewModel(new Model<Date>() {
 
             private static final long serialVersionUID = 527651414610325237L;
@@ -61,7 +55,7 @@ public class DateFieldPanel extends FieldPanel<Date> {
                 if (list != null && !list.isEmpty() && StringUtils.hasText(list.get(0).toString())) {
                     try {
                         // Parse string using datePattern
-                        date = formatter.parse(list.get(0).toString());
+                        date = fmt.parse(list.get(0).toString());
                     } catch (ParseException e) {
                         LOG.error("invalid parse exception", e);
                     }
@@ -74,7 +68,7 @@ public class DateFieldPanel extends FieldPanel<Date> {
             public void setObject(final Date object) {
                 list.clear();
                 if (object != null) {
-                    list.add(formatter.format(object));
+                    list.add(fmt.format(object));
                 }
             }
         });
@@ -85,10 +79,6 @@ public class DateFieldPanel extends FieldPanel<Date> {
     @SuppressWarnings("rawtypes")
     @Override
     public FieldPanel<Date> setNewModel(final ListItem item) {
-        final SimpleDateFormat formatter = datePattern == null
-                ? new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN, Locale.getDefault())
-                : new SimpleDateFormat(datePattern, Locale.getDefault());
-
         IModel<Date> model = new Model<Date>() {
 
             private static final long serialVersionUID = 6799404673615637845L;
@@ -103,7 +93,7 @@ public class DateFieldPanel extends FieldPanel<Date> {
                     if (obj instanceof String) {
                         // Parse string using datePattern
                         try {
-                            date = formatter.parse(obj.toString());
+                            date = fmt.parse(obj.toString());
                         } catch (ParseException e) {
                             LOG.error("While parsing date", e);
                         }
@@ -122,7 +112,7 @@ public class DateFieldPanel extends FieldPanel<Date> {
             @Override
             @SuppressWarnings("unchecked")
             public void setObject(final Date object) {
-                item.setModelObject(object != null ? formatter.format(object) : null);
+                item.setModelObject(object != null ? fmt.format(object) : null);
             }
         };
 

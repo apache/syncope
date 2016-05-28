@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
@@ -36,6 +38,8 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
 
     private static final long serialVersionUID = 238940918106696068L;
 
+    private final Component questionMarkJexlHelp;
+
     private List<String> choices = Collections.emptyList();
 
     public AjaxTextFieldPanel(final String id, final String name, final IModel<String> model) {
@@ -45,6 +49,9 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
     public AjaxTextFieldPanel(
             final String id, final String name, final IModel<String> model, final boolean enableOnChange) {
         super(id, name, model);
+
+        questionMarkJexlHelp = Constants.getJEXLPopover(this, TooltipConfig.Placement.right);
+        add(questionMarkJexlHelp.setVisible(false));
 
         final AutoCompleteSettings settings = new AutoCompleteSettings();
         settings.setShowCompleteListOnFocusGain(true);
@@ -92,6 +99,11 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
         if (choices != null) {
             this.choices = choices;
         }
+    }
+
+    public FieldPanel<String> enableJexlHelp() {
+        questionMarkJexlHelp.setVisible(true);
+        return this;
     }
 
     @Override

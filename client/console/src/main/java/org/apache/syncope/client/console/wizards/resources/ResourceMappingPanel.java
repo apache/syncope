@@ -34,7 +34,6 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
-import org.apache.syncope.client.console.tasks.TransformersTogglePanel;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -42,6 +41,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPan
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MappingPurposePanel;
+import org.apache.syncope.client.console.widgets.JEXLTransformerWidget;
 import org.apache.syncope.client.console.widgets.MappingItemTransformerWidget;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -96,11 +96,6 @@ public class ResourceMappingPanel extends Panel {
      */
     private final ConnectorRestClient connRestClient = new ConnectorRestClient();
 
-    /**
-     * Resource schema name.
-     */
-    private final List<String> schemaNames;
-
     private final Label passwordLabel;
 
     /**
@@ -114,11 +109,6 @@ public class ResourceMappingPanel extends Panel {
     private final ListView<MappingItemTO> mappings;
 
     /**
-     * External resource to be updated.
-     */
-    private final ResourceTO resourceTO;
-
-    /**
      * External resource provisioning configuration instance to be updated.
      */
     private final ProvisionTO provisionTO;
@@ -127,8 +117,6 @@ public class ResourceMappingPanel extends Panel {
      * Mapping container.
      */
     private final WebMarkupContainer mappingContainer;
-
-    private final TransformersTogglePanel transformers;
 
     private MappingTO getMapping() {
         if (provisionTO.getMapping() == null) {
@@ -142,29 +130,32 @@ public class ResourceMappingPanel extends Panel {
      * Attribute Mapping Panel.
      *
      * @param id panel id
-     * @param resourceTO external resource to be updated.
-     * @param provisionTO external resource provisioning configuration instance.
+     * @param resourceTO external resource to be updated
+     * @param provisionTO external resource provisioning configuration instance
+     * @param mapItemTransformers mapping item transformers toggle panel
+     * @param jexlTransformers JEXL transformers toggle panel
      */
-    public ResourceMappingPanel(final String id, final ResourceTO resourceTO, final ProvisionTO provisionTO) {
+    public ResourceMappingPanel(
+            final String id,
+            final ResourceTO resourceTO,
+            final ProvisionTO provisionTO,
+            final MappingItemTransformersTogglePanel mapItemTransformers,
+            final JEXLTransformersTogglePanel jexlTransformers) {
+
         super(id);
         setOutputMarkupId(true);
 
-        this.resourceTO = resourceTO;
         this.provisionTO = provisionTO == null ? new ProvisionTO() : provisionTO;
+        if (provisionTO == null) {
+            getMapping().getItems().clear();
+            getMapping().setConnObjectLink(null);
+        }
 
         this.mappingContainer = new WebMarkupContainer("mappingContainer");
         this.mappingContainer.setOutputMarkupId(true);
+        this.mappingContainer.setEnabled(provisionTO != null);
+        this.mappingContainer.setVisible(provisionTO != null);
         add(this.mappingContainer);
-
-        transformers = new TransformersTogglePanel(this.mappingContainer);
-        add(this.transformers);
-
-        if (resourceTO.getConnector() != null) {
-            schemaNames = getSchemaNames(resourceTO.getConnector(), resourceTO.getConfOverride());
-            setEnabled();
-        } else {
-            schemaNames = Collections.<String>emptyList();
-        }
 
         mappingContainer.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom));
 
@@ -182,6 +173,14 @@ public class ResourceMappingPanel extends Panel {
                     compared = 1;
                 } else if (right == null) {
                     compared = -1;
+                } else if (left.isConnObjectKey()) {
+                    compared = -1;
+                } else if (right.isConnObjectKey()) {
+                    compared = 1;
+                } else if (left.isPassword()) {
+                    compared = -1;
+                } else if (right.isPassword()) {
+                    compared = 1;
                 } else if (left.getPurpose() == MappingPurpose.BOTH && right.getPurpose() != MappingPurpose.BOTH) {
                     compared = -1;
                 } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
@@ -198,14 +197,6 @@ public class ResourceMappingPanel extends Panel {
                     compared = -1;
                 } else if (left.getPurpose() == MappingPurpose.NONE
                         && right.getPurpose() != MappingPurpose.NONE) {
-                    compared = 1;
-                } else if (left.isConnObjectKey()) {
-                    compared = -1;
-                } else if (right.isConnObjectKey()) {
-                    compared = 1;
-                } else if (left.isPassword()) {
-                    compared = -1;
-                } else if (right.isPassword()) {
                     compared = 1;
                 } else {
                     compared = left.getIntAttrName().compareTo(right.getIntAttrName());
@@ -273,13 +264,13 @@ public class ResourceMappingPanel extends Panel {
                 //--------------------------------
                 // Internal attribute
                 // -------------------------------
-                final AjaxDropDownChoicePanel<String> intAttrNames = new AjaxDropDownChoicePanel<>(
+                final AjaxTextFieldPanel intAttrNames = new AjaxTextFieldPanel(
                         "intAttrNames",
                         getString("intAttrNames"),
                         new PropertyModel<String>(mapItem, "intAttrName"),
                         false);
                 intAttrNames.setChoices(Collections.<String>emptyList());
-                intAttrNames.setNullValid(true).setRequired(true).hideLabel();
+                intAttrNames.setRequired(true).hideLabel();
                 item.add(intAttrNames);
                 // -------------------------------
 
@@ -290,7 +281,7 @@ public class ResourceMappingPanel extends Panel {
                         "extAttrName",
                         new ResourceModel("extAttrNames", "extAttrNames").getObject(),
                         new PropertyModel<String>(mapItem, "extAttrName"));
-                extAttrNames.setChoices(schemaNames);
+                extAttrNames.setChoices(getExtAttrNames(resourceTO.getConnector(), resourceTO.getConfOverride()));
 
                 boolean required = !mapItem.isPassword();
                 extAttrNames.setRequired(required).hideLabel();
@@ -299,10 +290,17 @@ public class ResourceMappingPanel extends Panel {
                 // -------------------------------
 
                 //--------------------------------
-                // Mapping item transformer
+                // JEXL transformers
+                // -------------------------------
+                item.add(new JEXLTransformerWidget(
+                        "jexlTransformers", mapItem, jexlTransformers).setRenderBodyOnly(true));
+                // -------------------------------
+
+                //--------------------------------
+                // Mapping item transformers
                 // -------------------------------
                 item.add(new MappingItemTransformerWidget(
-                        "transformers", mapItem, transformers).setRenderBodyOnly(true));
+                        "mappingItemTransformers", mapItem, mapItemTransformers).setRenderBodyOnly(true));
                 // -------------------------------
 
                 //--------------------------------
@@ -493,14 +491,14 @@ public class ResourceMappingPanel extends Panel {
         passwordLabel.setVisible(AnyTypeKind.USER.name().equals(this.provisionTO.getAnyType()));
     }
 
-    private List<String> getSchemaNames(final String connectorKey, final Set<ConnConfProperty> conf) {
-        final ConnInstanceTO connInstanceTO = new ConnInstanceTO();
+    private List<String> getExtAttrNames(final String connectorKey, final Set<ConnConfProperty> conf) {
+        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setKey(connectorKey);
         connInstanceTO.getConf().addAll(conf);
 
         // SYNCOPE-156: use provided info to give schema names (and type!) by ObjectClass
-        ConnIdObjectClassTO clazz = IterableUtils.find(
-                connRestClient.buildObjectClassInfo(connInstanceTO, true), new Predicate<ConnIdObjectClassTO>() {
+        ConnIdObjectClassTO connIdObjectClass = IterableUtils.find(
+                connRestClient.buildObjectClassInfo(connInstanceTO, false), new Predicate<ConnIdObjectClassTO>() {
 
             @Override
             public boolean evaluate(final ConnIdObjectClassTO object) {
@@ -508,32 +506,9 @@ public class ResourceMappingPanel extends Panel {
             }
         });
 
-        return clazz == null ? new ArrayList<String>()
-                : IterableUtils.toList(IterableUtils.filteredIterable(clazz.getAttributes(), new Predicate<String>() {
-
-                    @Override
-                    public boolean evaluate(final String object) {
-                        return !(ConnIdSpecialAttributeName.NAME.equals(object)
-                                || ConnIdSpecialAttributeName.ENABLE.equals(object)
-                                || ConnIdSpecialAttributeName.PASSWORD.equals(object));
-                    }
-                }));
-    }
-
-    private void setEnabled() {
-        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setKey(resourceTO.getConnector());
-        connInstanceTO.getConf().addAll(resourceTO.getConfOverride());
-
-        boolean enabled = provisionTO != null;
-
-        this.mappingContainer.setEnabled(enabled);
-        this.mappingContainer.setVisible(enabled);
-
-        if (!enabled) {
-            getMapping().getItems().clear();
-            getMapping().setConnObjectLink(null);
-        }
+        return connIdObjectClass == null
+                ? new ArrayList<String>()
+                : connIdObjectClass.getAttributes();
     }
 
     /**
@@ -542,7 +517,7 @@ public class ResourceMappingPanel extends Panel {
      * @param type attribute type.
      * @param toBeUpdated drop down choice to be updated.
      */
-    private void setAttrNames(final IntMappingType type, final AjaxDropDownChoicePanel<String> toBeUpdated) {
+    private void setAttrNames(final IntMappingType type, final AjaxTextFieldPanel toBeUpdated) {
         toBeUpdated.setRequired(true);
         toBeUpdated.setEnabled(true);
 
@@ -650,6 +625,8 @@ public class ResourceMappingPanel extends Panel {
         if (kind != null) {
             res.addAll(IntMappingType.getAttributeTypes(kind));
         }
+
+        Collections.sort(res);
 
         return res;
     }

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wizards;
 import java.io.Serializable;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.event.IEventSink;
 
 public abstract class AbstractModalPanelBuilder<T extends Serializable> implements ModalPanelBuilder<T> {
 
@@ -31,6 +32,8 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
     private final T defaultItem;
 
     private T item;
+
+    protected IEventSink eventSink = null;
 
     /**
      * Construct.
@@ -79,5 +82,16 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
     @Override
     public PageReference getPageReference() {
         return pageRef;
+    }
+
+    @Override
+    public ModalPanelBuilder<T> setEventSink(final IEventSink eventSink) {
+        this.eventSink = eventSink;
+        return this;
+    }
+
+    @Override
+    public IEventSink getEventSink() {
+        return eventSink;
     }
 }

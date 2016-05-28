@@ -67,9 +67,9 @@ public class ApprovalModal extends Panel implements SubmitableModalPanel, Wizard
             this.modal.show(false);
             this.modal.close(target);
 
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (SyncopeClientException e) {
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
+           SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
         }
         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
     }

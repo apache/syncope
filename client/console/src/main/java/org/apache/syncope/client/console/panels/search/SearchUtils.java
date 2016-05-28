@@ -117,7 +117,16 @@ public final class SearchUtils implements Serializable {
 
         LOG.info("Condition: " + sc.getCondition());
 
-        if (SpecialAttr.GROUPS.toString().equals(property)) {
+        if (SpecialAttr.ROLES.toString().equals(property)) {
+            res.setType(SearchClause.Type.ROLE_MEMBERSHIP);
+            res.setProperty(value);
+        } else if (SpecialAttr.RELATIONSHIPS.toString().equals(property)) {
+            res.setType(SearchClause.Type.RELATIONSHIP);
+            res.setProperty(value);
+        } else if (SpecialAttr.RELATIONSHIP_TYPES.toString().equals(property)) {
+            res.setType(SearchClause.Type.RELATIONSHIP);
+            res.setProperty(value);
+        } else if (SpecialAttr.GROUPS.toString().equals(property)) {
             res.setType(SearchClause.Type.GROUP_MEMBERSHIP);
             res.setProperty(value);
         } else if (SpecialAttr.RESOURCES.toString().equals(property)) {
@@ -129,13 +138,23 @@ public final class SearchUtils implements Serializable {
 
         switch (sc.getConditionType()) {
             case EQUALS:
-                res.setComparator(SpecialAttr.NULL.toString().equals(value)
-                        ? SearchClause.Comparator.IS_NULL : SearchClause.Comparator.EQUALS);
+                if (SpecialAttr.RELATIONSHIP_TYPES.toString().equals(property)) {
+                    res.setComparator(SpecialAttr.NULL.toString().equals(value)
+                            ? SearchClause.Comparator.EQUALS : SearchClause.Comparator.IS_NULL);
+                } else {
+                    res.setComparator(SpecialAttr.NULL.toString().equals(value)
+                            ? SearchClause.Comparator.IS_NULL : SearchClause.Comparator.EQUALS);
+                }
                 break;
 
             case NOT_EQUALS:
-                res.setComparator(SpecialAttr.NULL.toString().equals(value)
-                        ? SearchClause.Comparator.IS_NOT_NULL : SearchClause.Comparator.NOT_EQUALS);
+                if (SpecialAttr.RELATIONSHIP_TYPES.toString().equals(property)) {
+                    res.setComparator(SpecialAttr.NULL.toString().equals(value)
+                            ? SearchClause.Comparator.NOT_EQUALS : SearchClause.Comparator.IS_NOT_NULL);
+                } else {
+                    res.setComparator(SpecialAttr.NULL.toString().equals(value)
+                            ? SearchClause.Comparator.IS_NOT_NULL : SearchClause.Comparator.NOT_EQUALS);
+                }
                 break;
 
             case GREATER_OR_EQUALS:

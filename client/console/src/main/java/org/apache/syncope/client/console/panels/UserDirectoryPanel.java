@@ -57,7 +57,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
+public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -112,8 +112,6 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                     Arrays.asList(UserDisplayAttributesModalPanel.DEFAULT_SELECTION));
         }
 
-        setWindowClosedReloadCallback(displayAttributeModal);
-
         columns.add(new ActionColumn<UserTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
@@ -133,11 +131,12 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                                     model.getObject().getETagValue(),
                                     !model.getObject().isMustChangePassword(),
                                     model.getObject().getKey());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         } catch (SyncopeClientException e) {
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                                    getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
@@ -232,11 +231,12 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                         try {
                             restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         } catch (SyncopeClientException e) {
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                                    getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
@@ -280,7 +280,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO> {
         return columns;
     }
 
-    public static class Builder extends AnyDirectoryPanel.Builder<UserTO> {
+    public static class Builder extends AnyDirectoryPanel.Builder<UserTO, UserRestClient> {
 
         private static final long serialVersionUID = -6603152478702381900L;
 

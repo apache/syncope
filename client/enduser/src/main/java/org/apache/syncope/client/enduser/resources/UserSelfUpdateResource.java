@@ -19,28 +19,24 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UserSelfUpdateResource extends AbstractBaseResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserSelfUpdateResource.class);
-
-    private final UserSelfService userSelfService;
-
-    public UserSelfUpdateResource() {
-        userSelfService = SyncopeEnduserSession.get().getService(UserSelfService.class);
-    }
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
@@ -54,10 +50,6 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
                 return response;
             }
 
-            String jsonString = request.getReader().readLine();
-
-            final UserTO userTO = MAPPER.readValue(jsonString, UserTO.class);
-
             if (!captchaCheck(
                     request.getHeader("captcha"),
                     request.getSession().getAttribute(SyncopeEnduserConstants.CAPTCHA_SESSION_KEY))) {
@@ -65,10 +57,32 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
                 throw new IllegalArgumentException("Entered captcha is not matching");
             }
 
+            UserTO userTO = MAPPER.readValue(request.getReader().readLine(), UserTO.class);
             LOG.debug("User {} id self-updating", userTO.getUsername());
 
+            Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
+
+            for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
+                if (userPlainAttrMap.containsKey(plainSchema.getKey())) {
+                    FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
+
+                    AttrTO dateAttr = userPlainAttrMap.get(plainSchema.getKey());
+                    List<String> formattedValues = new ArrayList<>(dateAttr.getValues().size());
+                    for (String value : dateAttr.getValues()) {
+                        try {
+                            formattedValues.add(fmt.format(Long.valueOf(value)));
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException("Invalid format value for " + value);
+                        }
+                    }
+                    dateAttr.getValues().clear();
+                    dateAttr.getValues().addAll(formattedValues);
+                }
+            }
+
             // update user
-            Response res = userSelfService.update(userTO);
+            Response res = SyncopeEnduserSession.get().
+                    getService(userTO.getETagValue(), UserSelfService.class).update(userTO);
 
             final String responseMessage = res.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)
                     ? new StringBuilder().

@@ -60,13 +60,20 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     }
 
     public FieldPanel<T> setTitle(final String title) {
+        return setTitle(title, false);
+    }
+
+    public FieldPanel<T> setTitle(final String title, final boolean html) {
         this.title = title;
         field.add(new PopoverBehavior(
                 Model.<String>of(),
                 title == null ? Model.<String>of() : Model.of(title),
-                new PopoverConfig().withHoverTrigger().withPlacement(
-                        index.getObject() != null && index.getObject() == 0
-                                ? TooltipConfig.Placement.bottom : TooltipConfig.Placement.top)));
+                new PopoverConfig().withHtml(html).withHoverTrigger().withPlacement(
+                index.getObject() != null && index.getObject() == 0
+                        ? TooltipConfig.Placement.bottom
+                        : this instanceof AjaxCheckBoxPanel
+                                ? TooltipConfig.Placement.right
+                                : TooltipConfig.Placement.top)));
         return this;
     }
 

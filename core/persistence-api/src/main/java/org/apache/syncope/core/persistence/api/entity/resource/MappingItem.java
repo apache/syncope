@@ -57,6 +57,14 @@ public interface MappingItem extends Entity {
 
     void setPassword(boolean password);
 
+    String getPropagationJEXLTransformer();
+
+    void setPropagationJEXLTransformer(String propagationJEXLTransformer);
+
+    String getPullJEXLTransformer();
+
+    void setPullJEXLTransformer(String pullJEXLTransformer);
+
     List<String> getMappingItemTransformerClassNames();
 
 }

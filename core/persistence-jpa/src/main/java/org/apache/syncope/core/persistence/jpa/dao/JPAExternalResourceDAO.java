@@ -91,11 +91,6 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     }
 
     @Override
-    public Provision findProvision(final String key) {
-        return entityManager().find(JPAProvision.class, key);
-    }
-
-    @Override
     public List<Provision> findProvisionsByAuxClass(final AnyTypeClass anyTypeClass) {
         TypedQuery<Provision> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAProvision.class.getSimpleName()

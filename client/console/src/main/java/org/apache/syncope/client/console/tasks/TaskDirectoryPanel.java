@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -45,7 +46,7 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    private final BaseModal<?> baseModal;
+    protected final BaseModal<?> baseModal;
 
     private final MultilevelPanel multiLevelPanelRef;
 
@@ -96,4 +97,13 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
         }
     }
 
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        super.onEvent(event);
+        if (event.getPayload() instanceof ExitEvent && modal != null) {
+            final AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
+            baseModal.show(false);
+            baseModal.close(target);
+        }
+    }
 }

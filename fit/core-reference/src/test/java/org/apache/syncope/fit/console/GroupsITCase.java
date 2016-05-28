@@ -64,7 +64,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "secretary");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
         assertNotNull(component);
 
         wicketTester.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelClone:cloneLink");
@@ -84,7 +84,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "secretary");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
         assertNotNull(component);
 
         wicketTester.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
@@ -134,7 +134,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink(tabPanel + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
 
         component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "secretary");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
         assertNotNull(component);
     }
 
@@ -144,7 +144,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "secretary");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
         assertNotNull(component);
 
         wicketTester.assertComponent(component.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink",

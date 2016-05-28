@@ -41,7 +41,6 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -163,7 +162,6 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         Mapping(final ProvisionTO item) {
             setTitleModel(new ResourceModel("mapping.title"));
             setSummaryModel(new StringResourceModel("mapping.summary", this, new Model<>(item)));
-            add(new ResourceMappingPanel("mapping", resourceTO, item));
         }
     }
 
@@ -235,21 +233,32 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         this.resourceTO = resurceTO;
     }
 
-    public void setEventSink(final IEventSink eventSink) {
-        this.eventSink = eventSink;
-    }
-    
     @Override
     protected WizardModel buildModelSteps(final ProvisionTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new ObjectType(modelObject));
         wizardModel.add(new AuxClasses(modelObject));
-        wizardModel.add(new Mapping(modelObject));
+
+        Mapping mapping = new Mapping(modelObject);
+        mapping.setOutputMarkupId(true);
+
+        MappingItemTransformersTogglePanel mapItemTransformers = new MappingItemTransformersTogglePanel(mapping);
+        addOuterObject(mapItemTransformers);
+        JEXLTransformersTogglePanel jexlTransformers = new JEXLTransformersTogglePanel(mapping);
+        addOuterObject(jexlTransformers);
+        mapping.add(new ResourceMappingPanel(
+                "mapping", resourceTO, modelObject, mapItemTransformers, jexlTransformers));
+
+        wizardModel.add(mapping);
+
         wizardModel.add(new ConnObjectLink(modelObject));
         return wizardModel;
     }
 
     @Override
     protected Serializable onApplyInternal(final ProvisionTO modelObject) {
+        if (modelObject.getKey() == null) {
+            this.resourceTO.getProvisions().add(modelObject);
+        }
         return modelObject;
     }
 }

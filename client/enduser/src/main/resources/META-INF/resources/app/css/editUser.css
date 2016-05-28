@@ -162,6 +162,27 @@ under the License.
   animation:slideOutLeft 0.5s both ease;   
 }
 
+
+#datetime{
+  line-height: 34px;
+  float: left;
+  margin-top:35px;
+  padding: 0 3px 0px 0px;
+  display: inline-block !important;
+}
+
+#date{
+  position: relative;
+  display: table; 
+  border-collapse: separate;
+}
+
+#timepicker{
+  line-height: 34px; 
+  float: left; 
+  padding: 0 3px 0px 0px;
+}
+
 /** Button breadcrumb **/
 .btn-breadcrumb .btn:not(:last-child):after {
   content: " ";

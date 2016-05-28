@@ -17,19 +17,17 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
-  <body>
-    <wicket:extend>
-      <div id="transformersContainer">
-        <form wicket:id="form">
-          <div id="body">
-            <span wicket:id="classes"/>
-          </div>
-          <div id="footer">
-            <input type="button" wicket:id="submit" class="btn" wicket:message="value:finish"></input>
-          </div>
-        </form>
-      </div>
-    </wicket:extend>
-  </body>
+  <wicket:extend>
+    <div id="jexlTransformersContainer" class="transformersContainer">
+      <form wicket:id="form">
+        <div id="body">
+          <span wicket:id="propagationJEXLTransformer"/>
+          <span wicket:id="pullJEXLTransformer"/>
+        </div>
+        <div id="footer">
+          <input type="button" wicket:id="submit" class="btn" wicket:message="value:finish"></input>
+        </div>
+      </form>
+    </div>
+  </wicket:extend>
 </html>

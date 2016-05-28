@@ -76,7 +76,6 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
                 target.add(findParent(Wizard.class));
-
                 button.onSubmit();
             }
 
@@ -112,6 +111,7 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
             public final boolean isEnabled() {
                 switch (mode) {
                     case EDIT:
+                    case TEMPLATE:
                         return true;
                     case READONLY:
                         return false;

@@ -127,7 +127,7 @@ public class NotificationTest extends AbstractTest {
     @Test
     public void issueSYNCOPE446() {
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.getEvents().add("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]");
 
         AnyAbout about = entityFactory.newEntity(AnyAbout.class);
         about.setNotification(notification);

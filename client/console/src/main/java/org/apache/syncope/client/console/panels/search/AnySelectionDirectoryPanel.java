@@ -53,76 +53,77 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public abstract class AnySelectionDirectoryPanel<T extends AnyTO> extends AnyDirectoryPanel<T> {
+public abstract class AnySelectionDirectoryPanel<A extends AnyTO, E extends AbstractAnyRestClient<A, ?>>
+        extends AnyDirectoryPanel<A, E> {
 
     private static final long serialVersionUID = -1100228004207271272L;
 
-    private final Class<T> reference;
+    private final Class<A> reference;
 
     protected AnySelectionDirectoryPanel(
-            final String id, final AnyDirectoryPanel.Builder<T> builder, final Class<T> reference) {
+            final String id, final AnyDirectoryPanel.Builder<A, E> builder, final Class<A> reference) {
 
         super(id, builder);
         this.reference = reference;
     }
 
     @Override
-    protected List<IColumn<T, String>> getColumns() {
-        final List<IColumn<T, String>> columns = new ArrayList<>();
+    protected List<IColumn<A, String>> getColumns() {
+        final List<IColumn<A, String>> columns = new ArrayList<>();
 
         for (String name : prefMan.getList(getRequest(), getPrefDetailsView())) {
             final Field field = ReflectionUtils.findField(AnyObjectTO.class, name);
 
             if ("key".equalsIgnoreCase(name)) {
-                columns.add(new KeyPropertyColumn<T>(new ResourceModel(name, name), name, name));
+                columns.add(new KeyPropertyColumn<A>(new ResourceModel(name, name), name, name));
             } else if (reference == UserTO.class && "token".equalsIgnoreCase(name)) {
-                columns.add(new TokenColumn<T>(new ResourceModel(name, name), name));
+                columns.add(new TokenColumn<A>(new ResourceModel(name, name), name));
             } else if (field != null
                     && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {
 
-                columns.add(new BooleanPropertyColumn<T>(new ResourceModel(name, name), name, name));
+                columns.add(new BooleanPropertyColumn<A>(new ResourceModel(name, name), name, name));
             } else if (field != null && field.getType().equals(Date.class)) {
-                columns.add(new DatePropertyColumn<T>(new ResourceModel(name, name), name, name));
+                columns.add(new DatePropertyColumn<A>(new ResourceModel(name, name), name, name));
             } else {
-                columns.add(new PropertyColumn<T, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<A, String>(new ResourceModel(name, name), name, name));
             }
         }
 
         for (String name : prefMan.getList(getRequest(), getPrefPlainAttributesView())) {
             if (pSchemaNames.contains(name)) {
-                columns.add(new AttrColumn<T>(name, SchemaType.PLAIN));
+                columns.add(new AttrColumn<A>(name, SchemaType.PLAIN));
             }
         }
 
         for (String name : prefMan.getList(getRequest(), getPrefDerivedAttributesView())) {
             if (dSchemaNames.contains(name)) {
-                columns.add(new AttrColumn<T>(name, SchemaType.DERIVED));
+                columns.add(new AttrColumn<A>(name, SchemaType.DERIVED));
             }
         }
 
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
             for (String name : getDisplayAttributes()) {
-                columns.add(new PropertyColumn<T, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<A, String>(new ResourceModel(name, name), name, name));
             }
 
             prefMan.setList(getRequest(), getResponse(), getPrefDetailsView(), Arrays.asList(getDisplayAttributes()));
         }
 
-        columns.add(new ActionColumn<T, String>(new ResourceModel("actions")) {
+        columns.add(new ActionColumn<A, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
-            public ActionLinksPanel<T> getActions(final String componentId, final IModel<T> model) {
-                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.builder();
+            public ActionLinksPanel<A> getActions(final String componentId, final IModel<A> model) {
+                final ActionLinksPanel.Builder<A> panel = ActionLinksPanel.builder();
 
-                panel.add(new ActionLink<T>() {
+                panel.add(new ActionLink<A>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final T ignore) {
+                    public void onClick(final AjaxRequestTarget target, final A ignore) {
                         send(AnySelectionDirectoryPanel.this,
                                 Broadcast.BUBBLE, new ItemSelection<>(target, model.getObject()));
                     }
@@ -132,15 +133,15 @@ public abstract class AnySelectionDirectoryPanel<T extends AnyTO> extends AnyDir
             }
 
             @Override
-            public ActionLinksPanel<T> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.builder();
+            public ActionLinksPanel<A> getHeader(final String componentId) {
+                final ActionLinksPanel.Builder<A> panel = ActionLinksPanel.builder();
 
-                return panel.add(new ActionLink<T>() {
+                return panel.add(new ActionLink<A>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final T ignore) {
+                    public void onClick(final AjaxRequestTarget target, final A ignore) {
                         // still missing content
                         target.add(altDefaultModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
                                 altDefaultModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
@@ -149,12 +150,12 @@ public abstract class AnySelectionDirectoryPanel<T extends AnyTO> extends AnyDir
                         altDefaultModal.header(new ResourceModel("any.attr.display"));
                         altDefaultModal.show(true);
                     }
-                }, ActionType.CHANGE_VIEW, AnyEntitlement.READ.getFor(type)).add(new ActionLink<T>() {
+                }, ActionType.CHANGE_VIEW, AnyEntitlement.READ.getFor(type)).add(new ActionLink<A>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final T ignore) {
+                    public void onClick(final AjaxRequestTarget target, final A ignore) {
                         if (target != null) {
                             target.add(container);
                         }
@@ -180,13 +181,14 @@ public abstract class AnySelectionDirectoryPanel<T extends AnyTO> extends AnyDir
 
     protected abstract String getPrefDerivedAttributesView();
 
-    public abstract static class Builder<T extends AnyTO> extends AnyDirectoryPanel.Builder<T> {
+    public abstract static class Builder<A extends AnyTO, E extends AbstractAnyRestClient<A, ?>>
+            extends AnyDirectoryPanel.Builder<A, E> {
 
         private static final long serialVersionUID = 5460024856989891156L;
 
         public Builder(
                 final List<AnyTypeClassTO> anyTypeClassTOs,
-                final AbstractAnyRestClient<T> restClient,
+                final E restClient,
                 final String type,
                 final PageReference pageRef) {
 

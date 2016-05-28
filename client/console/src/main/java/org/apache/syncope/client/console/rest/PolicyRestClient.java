@@ -62,7 +62,7 @@ public class PolicyRestClient extends BaseRestClient {
         getService(PolicyService.class).update(policy);
     }
 
-    public void delete(final String key, final Class<? extends AbstractPolicyTO> policyClass) {
+    public void delete(final String key) {
         getService(PolicyService.class).delete(key);
     }
 }

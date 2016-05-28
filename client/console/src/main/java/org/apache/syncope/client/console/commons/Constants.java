@@ -110,6 +110,14 @@ public final class Constants {
 
     public static final String PREF_PROPAGATION_TASKS_PAGINATOR_ROWS = "proagationtasks.paginator.rows";
 
+    public static final String PREF_REPORT_TASKS_PAGINATOR_ROWS = "report.paginator.rows";
+
+    public static final String PREF_REPORTLET_TASKS_PAGINATOR_ROWS = "reportlet.paginator.rows";
+
+    public static final String PREF_POLICY_RULE_PAGINATOR_ROWS = "policy.rules.paginator.rows";
+
+    public static final String PREF_POLICY_PAGINATOR_ROWS = "policy.paginator.rows";
+
     public static final String PREF_TASK_EXECS_PAGINATOR_ROWS = "task.execs.paginator.rows";
 
     public static final String PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS = "notificationtasks.paginator.rows";
@@ -129,8 +137,6 @@ public final class Constants {
     public static final String PAGEPARAM_CREATE = "CREATE";
 
     public static final String PAGEPARAM_CURRENT_PAGE = "_current_page";
-
-    public static final String PREF_POLICY_PAGINATOR_ROWS = "policy.paginator.rows";
 
     public static final String PREF_ANY_OBJECT_DETAILS_VIEW = "anyobject.%s.details.view";
 
@@ -166,7 +172,15 @@ public final class Constants {
         return new Label(id, Model.of()).add(new PopoverBehavior(
                 Model.<String>of(),
                 msg,
-                new PopoverConfig().withHtml(true).withPlacement(placement)));
+                new PopoverConfig().withHtml(true).withPlacement(placement)) {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected String createRelAttribute() {
+                return id;
+            }
+        });
     }
 
     public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {

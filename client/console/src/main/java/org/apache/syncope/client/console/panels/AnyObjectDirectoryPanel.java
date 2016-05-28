@@ -56,7 +56,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
+public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyObjectRestClient> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -188,11 +188,11 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
                     public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                         try {
                             restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         } catch (SyncopeClientException e) {
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            error(StringUtils.isBlank(e.getMessage())
+                           SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                     ? e.getClass().getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
@@ -240,7 +240,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO> {
 
     }
 
-    public static class Builder extends AnyDirectoryPanel.Builder<AnyObjectTO> {
+    public static class Builder extends AnyDirectoryPanel.Builder<AnyObjectTO, AnyObjectRestClient> {
 
         private static final long serialVersionUID = -6828423611982275641L;
 

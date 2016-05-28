@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.PageReference;
 
-public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPanel<GroupTO> {
+public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPanel<GroupTO, GroupRestClient> {
 
     private static final long serialVersionUID = -1100228004207271271L;
 
@@ -61,7 +61,7 @@ public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPan
         return Constants.PREF_GROUP_DER_ATTRS_VIEW;
     }
 
-    public static final class Builder extends AnySelectionDirectoryPanel.Builder<GroupTO> {
+    public static final class Builder extends AnySelectionDirectoryPanel.Builder<GroupTO, GroupRestClient> {
 
         private static final long serialVersionUID = -8774023867045850683L;
 

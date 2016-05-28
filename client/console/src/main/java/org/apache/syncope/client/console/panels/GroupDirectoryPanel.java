@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -58,7 +59,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
+public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestClient> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -144,7 +145,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                         send(GroupDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<>(new GroupWrapper(
-                                        new GroupRestClient().read(model.getObject().getKey())), target));
+                                        restClient.read(model.getObject().getKey())), target));
                     }
                 }, ActionType.EDIT, StandardEntitlement.GROUP_UPDATE).add(new ActionLink<GroupTO>() {
 
@@ -198,16 +199,53 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
                     public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                         try {
                             restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         } catch (SyncopeClientException e) {
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            error(StringUtils.isBlank(e.getMessage())
+                           SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                     ? e.getClass().getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
-                }, ActionType.DELETE, StandardEntitlement.GROUP_DELETE);
+                }, ActionType.DELETE, StandardEntitlement.GROUP_DELETE).add(new ActionLink<GroupTO>() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                        try {
+                            restClient.bulkMembersAction(model.getObject().getKey(), BulkMembersActionType.PROVISION);
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(container);
+                        } catch (SyncopeClientException e) {
+                            LOG.error("While provisioning members of group {}", model.getObject().getKey(), e);
+                           SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    ? e.getClass().getName() : e.getMessage());
+                        }
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                    }
+                }, ActionType.PROVISION_MEMBERS,
+                        String.format("%s,%s", StandardEntitlement.TASK_CREATE, StandardEntitlement.TASK_EXECUTE)).add(
+                        new ActionLink<GroupTO>() {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                        try {
+                            restClient.bulkMembersAction(model.getObject().getKey(), BulkMembersActionType.DEPROVISION);
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(container);
+                        } catch (SyncopeClientException e) {
+                            LOG.error("While provisioning members of group {}", model.getObject().getKey(), e);
+                           SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    ? e.getClass().getName() : e.getMessage());
+                        }
+                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                    }
+                }, ActionType.DEPROVISION_MEMBERS,
+                        String.format("%s,%s", StandardEntitlement.TASK_CREATE, StandardEntitlement.TASK_EXECUTE));
 
                 return panel.build(componentId);
             }
@@ -245,7 +283,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO> {
         return columns;
     }
 
-    public static class Builder extends AnyDirectoryPanel.Builder<GroupTO> {
+    public static class Builder extends AnyDirectoryPanel.Builder<GroupTO, GroupRestClient> {
 
         private static final long serialVersionUID = 3844281520756293159L;
 

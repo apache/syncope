@@ -24,6 +24,8 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 
 public interface SyncopePullResultHandler extends SyncopeResultHandler<PullTask, PullActions>, SyncResultsHandler {
 
+    void setPullExecutor(SyncopePullExecutor executor);
+
     @Override
     boolean handle(SyncDelta delta);
 }

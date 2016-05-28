@@ -102,9 +102,9 @@ public class ApprovalDirectoryPanel
                     public void onClick(final AjaxRequestTarget target, final WorkflowFormTO ignore) {
                         try {
                             restClient.claimForm(model.getObject().getTaskId());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientException scee) {
-                            error(getString(Constants.ERROR) + ": " + scee.getMessage());
+                           SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                         target.add(container);

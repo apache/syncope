@@ -134,6 +134,26 @@ public class LinkingMappingItem implements MappingItem {
     }
 
     @Override
+    public String getPropagationJEXLTransformer() {
+        return null;
+    }
+
+    @Override
+    public void setPropagationJEXLTransformer(final String propagationJEXLTransformer) {
+        // RO instance, nothing to do
+    }
+
+    @Override
+    public String getPullJEXLTransformer() {
+        return null;
+    }
+
+    @Override
+    public void setPullJEXLTransformer(final String pullJEXLTransformer) {
+        // RO instance, nothing to do
+    }
+
+    @Override
     public List<String> getMappingItemTransformerClassNames() {
         return Collections.emptyList();
     }

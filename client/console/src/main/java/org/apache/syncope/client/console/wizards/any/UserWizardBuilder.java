@@ -27,6 +27,7 @@ import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.layout.UserForm;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -86,7 +87,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
             final AnyWrapper<UserTO> modelObject, final WizardModel wizardModel) {
 
         wizardModel.add(new UserDetails(
-                UserWrapper.class.cast(modelObject), statusModel, false,
+                UserWrapper.class.cast(modelObject), statusModel, mode == AjaxWizard.Mode.TEMPLATE,
                 modelObject.getInnerObject().getKey() != null,
                 UserFormLayoutInfo.class.cast(formLayoutInfo).isPasswordManagement(),
                 pageRef));

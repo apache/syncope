@@ -100,7 +100,7 @@ public class LoggerITCase extends AbstractITCase {
     @Test
     public void enableDisableAudit() {
         AuditLoggerName auditLoggerName = new AuditLoggerName(
-                EventCategoryType.REST,
+                EventCategoryType.LOGIC,
                 ReportLogic.class.getSimpleName(),
                 null,
                 "deleteExecution",
@@ -134,7 +134,7 @@ public class LoggerITCase extends AbstractITCase {
 
         for (EventCategoryTO eventCategoryTO : events) {
             if (UserLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
-                assertEquals(EventCategoryType.REST, eventCategoryTO.getType());
+                assertEquals(EventCategoryType.LOGIC, eventCategoryTO.getType());
                 assertTrue(eventCategoryTO.getEvents().contains("create"));
                 assertTrue(eventCategoryTO.getEvents().contains("list"));
                 assertFalse(eventCategoryTO.getEvents().contains("doCreate"));
@@ -148,7 +148,7 @@ public class LoggerITCase extends AbstractITCase {
         found = false;
         for (EventCategoryTO eventCategoryTO : events) {
             if (GroupLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
-                assertEquals(EventCategoryType.REST, eventCategoryTO.getType());
+                assertEquals(EventCategoryType.LOGIC, eventCategoryTO.getType());
                 assertTrue(eventCategoryTO.getEvents().contains("create"));
                 assertTrue(eventCategoryTO.getEvents().contains("list"));
                 assertFalse(eventCategoryTO.getEvents().contains("resolveReference"));
@@ -160,7 +160,7 @@ public class LoggerITCase extends AbstractITCase {
         found = false;
         for (EventCategoryTO eventCategoryTO : events) {
             if (ResourceLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
-                assertEquals(EventCategoryType.REST, eventCategoryTO.getType());
+                assertEquals(EventCategoryType.LOGIC, eventCategoryTO.getType());
                 assertTrue(eventCategoryTO.getEvents().contains("create"));
                 assertTrue(eventCategoryTO.getEvents().contains("read"));
                 assertTrue(eventCategoryTO.getEvents().contains("delete"));

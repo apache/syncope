@@ -23,7 +23,18 @@ under the License.
     </span>
 
     <wicket:fragment wicket:id="wizard">
-      <span wicket:id="wizard"/>
+      <div class="col-xs-12">
+        <div class="box">
+          <div class="box-header">
+            <h3 class="box-title">
+              <span wicket:id="title">[TITLE]</span>
+            </h3>
+          </div>
+          <div class="box-body">
+            <span wicket:id="wizard"/>
+          </div>
+        </div>
+      </div>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="default">
@@ -32,6 +43,9 @@ under the License.
 
       <wicket:enclosure child="add">
         <div class="modal-footer" style="text-align: right">
+          <a haref="#"  class="btn btn-default btn-circle btn-lg pull-left" wicket:id="exit">
+            <i class="fa fa-sign-out"></i>
+          </a>
           <a haref="#"  class="btn btn-primary btn-circle btn-lg" wicket:id="add">
             <i class="glyphicon glyphicon-plus"></i>
           </a>

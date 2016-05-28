@@ -81,7 +81,11 @@ public class ResourceResultManager extends CommonsResultManager {
             System.out.println("             internal attribute name: " + mappingItemTO.getIntAttrName());
             System.out.println("             external attribute name: " + mappingItemTO.getExtAttrName());
             System.out.println("             mandatory condition: " + mappingItemTO.getMandatoryCondition());
-            System.out.println("             transformers class: "
+            System.out.println("             JEXL propagation transformer: "
+                    + mappingItemTO.getPropagationJEXLTransformer());
+            System.out.println("             JEXL pull transformer: "
+                    + mappingItemTO.getPullJEXLTransformer());
+            System.out.println("             transformers classes: "
                     + mappingItemTO.getMappingItemTransformerClassNames());
             System.out.println("             purpose: " + mappingItemTO.getPurpose());
             System.out.println("             connector object key: " + mappingItemTO.isConnObjectKey());

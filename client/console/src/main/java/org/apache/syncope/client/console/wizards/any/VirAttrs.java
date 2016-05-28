@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -35,6 +36,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 
 public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
@@ -42,10 +44,12 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
     public <T extends AnyTO> VirAttrs(
             final T anyTO,
+            final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
             final List<String> whichVirAttrs) {
 
         super(anyTO, anyTypeClasses, whichVirAttrs);
+        setTitleModel(new ResourceModel("attributes.virtual"));
 
         add(new ListView<AttrTO>("schemas", attrTOs) {
 
@@ -67,13 +71,18 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
                 attrTO.setReadonly(attrTO.isReadonly());
 
-                AjaxTextFieldPanel panel = new AjaxTextFieldPanel(
-                        "panel", attrTO.getSchema(), new Model<String>(), false);
-                item.add(new MultiFieldPanel.Builder<>(
-                        new PropertyModel<List<String>>(attrTO, "values")).build(
-                        "panel",
-                        attrTO.getSchema(),
-                        panel).setEnabled(!attrTO.isReadonly()));
+                final AjaxTextFieldPanel panel
+                        = new AjaxTextFieldPanel("panel", attrTO.getSchema(), new Model<String>(), false);
+
+                if (mode == AjaxWizard.Mode.TEMPLATE) {
+                    item.add(panel.enableJexlHelp().setEnabled(!attrTO.isReadonly()));
+                } else {
+                    item.add(new MultiFieldPanel.Builder<>(
+                            new PropertyModel<List<String>>(attrTO, "values")).build(
+                            "panel",
+                            attrTO.getSchema(),
+                            panel).setEnabled(!attrTO.isReadonly()));
+                }
             }
         });
     }

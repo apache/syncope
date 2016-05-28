@@ -26,10 +26,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
 
-/**
- *
- * @param <T> item input type
- */
 public abstract class ResultPage<T extends Serializable> extends Panel implements WizardModalPanel<T> {
 
     private static final long serialVersionUID = -1619945285130369086L;

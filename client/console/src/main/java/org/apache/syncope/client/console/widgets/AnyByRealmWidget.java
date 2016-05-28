@@ -22,10 +22,12 @@ import com.pingunaut.wicket.chartjs.chart.impl.Bar;
 import com.pingunaut.wicket.chartjs.core.panel.BarChartPanel;
 import com.pingunaut.wicket.chartjs.data.sets.BarDataSet;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.client.console.rest.RealmRestClient;
-import org.apache.syncope.common.lib.to.RealmTO;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.model.Model;
 
 public class AnyByRealmWidget extends BaseWidget {
@@ -87,19 +89,28 @@ public class AnyByRealmWidget extends BaseWidget {
         List<Integer> any1Values = new ArrayList<>();
         List<Integer> any2Values = new ArrayList<>();
 
-        List<RealmTO> realms = new RealmRestClient().list();
+        Set<String> realmSet = new HashSet<>();
+        realmSet.addAll(usersByRealm.keySet());
+        realmSet.addAll(groupsByRealm.keySet());
+        if (any1ByRealm != null) {
+            realmSet.addAll(any1ByRealm.keySet());
+        }
+        if (any2ByRealm != null) {
+            realmSet.addAll(any2ByRealm.keySet());
+        }
+        List<String> realms = new ArrayList<>(realmSet);
+        Collections.sort(realms);
+
         for (int i = 0; i < realms.size() && i < MAX_REALMS; i++) {
-            RealmTO realm = realms.get(i);
+            labels.add(StringUtils.prependIfMissing(StringUtils.substringAfterLast(realms.get(i), "/"), "/"));
 
-            labels.add(realm.getName());
-
-            userValues.add(usersByRealm.get(realm.getFullPath()));
-            groupValues.add(groupsByRealm.get(realm.getFullPath()));
+            userValues.add(usersByRealm.get(realms.get(i)));
+            groupValues.add(groupsByRealm.get(realms.get(i)));
             if (any1ByRealm != null) {
-                any1Values.add(any1ByRealm.get(realm.getFullPath()));
+                any1Values.add(any1ByRealm.get(realms.get(i)));
             }
             if (any2ByRealm != null) {
-                any2Values.add(any2ByRealm.get(realm.getFullPath()));
+                any2Values.add(any2ByRealm.get(realms.get(i)));
             }
         }
 

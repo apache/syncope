@@ -27,10 +27,9 @@ angular.module('login')
               return $http
                       .get('/syncope-enduser/api/self/read')
                       .then(function (response) {
-                        console.log("response read: ", response.data);
                         return response.data;
                       }, function (response) {
-                        console.log("Something went wrong during user self read, exit with status: ", response);
+                        console.error("Something went wrong during user self read, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };
@@ -41,10 +40,10 @@ angular.module('login')
                                 headers: {'captcha': captcha}
                               })
                       .then(function (response) {
-                        console.log("response save: ", response);
+                        console.debug("response save: ", response);
                         var username = response;
                       }, function (response) {
-                        console.log("Something went wrong during user self creation, exit with status: ", response);
+                        console.error("Something went wrong during user self creation, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };
@@ -57,7 +56,7 @@ angular.module('login')
                       .then(function (response) {
                         var username = response;
                       }, function (response) {
-                        console.log("Something went wrong during user self update, exit with status: ", response);
+                        console.error("Something went wrong during user self update, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };

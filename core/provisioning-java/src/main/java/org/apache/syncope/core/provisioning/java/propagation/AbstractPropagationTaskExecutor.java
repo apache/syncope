@@ -67,6 +67,7 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -185,7 +186,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return map;
     }
 
-    protected void createOrUpdate(
+    protected Uid createOrUpdate(
             final PropagationTask task,
             final ConnectorObject beforeObj,
             final Connector connector,
@@ -215,9 +216,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     "Not attempted because there are mandatory attributes without value(s): " + mandatoryAttrNames);
         }
 
+        Uid result;
         if (beforeObj == null) {
             LOG.debug("Create {} on {}", attributes, task.getResource().getKey());
-            connector.create(new ObjectClass(task.getObjectClassName()), attributes, null, propagationAttempted);
+            result = connector.create(
+                    new ObjectClass(task.getObjectClassName()), attributes, null, propagationAttempted);
         } else {
             // 1. check if rename is really required
             Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
@@ -247,6 +250,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             if (originalAttrs.equals(attributes)) {
                 LOG.debug("Don't need to propagate anything: {} is equal to {}", originalAttrs, attributes);
+                result = (Uid) AttributeUtil.find(Uid.NAME, attributes);
             } else {
                 LOG.debug("Attributes that would be updated {}", attributes);
 
@@ -260,10 +264,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 // 3. provision entry
                 LOG.debug("Update {} on {}", strictlyModified, task.getResource().getKey());
 
-                connector.update(
+                result = connector.update(
                         beforeObj.getObjectClass(), beforeObj.getUid(), strictlyModified, null, propagationAttempted);
             }
         }
+
+        return result;
     }
 
     protected Any<?> getAny(final PropagationTask task) {
@@ -301,14 +307,16 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return any;
     }
 
-    protected void delete(
+    protected Uid delete(
             final PropagationTask task,
             final ConnectorObject beforeObj,
             final Connector connector,
             final Boolean[] propagationAttempted) {
 
+        Uid result;
         if (beforeObj == null) {
             LOG.debug("{} not found on external resource: ignoring delete", task.getConnObjectKey());
+            result = null;
         } else {
             /*
              * We must choose here whether to
@@ -337,10 +345,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
 
                 connector.delete(beforeObj.getObjectClass(), beforeObj.getUid(), null, propagationAttempted);
+                result = beforeObj.getUid();
             } else {
-                createOrUpdate(task, beforeObj, connector, propagationAttempted);
+                result = createOrUpdate(task, beforeObj, connector, propagationAttempted);
             }
         }
+
+        return result;
     }
 
     @Override
@@ -362,6 +373,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ConnectorObject afterObj = null;
 
         Provision provision = null;
+        Uid uid = null;
         Connector connector = null;
         Result result;
         try {
@@ -378,11 +390,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             switch (task.getOperation()) {
                 case CREATE:
                 case UPDATE:
-                    createOrUpdate(task, beforeObj, connector, propagationAttempted);
+                    uid = createOrUpdate(task, beforeObj, connector, propagationAttempted);
                     break;
 
                 case DELETE:
-                    delete(task, beforeObj, connector, propagationAttempted);
+                    uid = delete(task, beforeObj, connector, propagationAttempted);
                     break;
 
                 default:
@@ -391,10 +403,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             execution.setStatus(propagationAttempted[0]
                     ? PropagationTaskExecStatus.SUCCESS.name()
                     : PropagationTaskExecStatus.NOT_ATTEMPTED.name());
-
-            for (PropagationActions action : actions) {
-                action.after(task, execution, afterObj);
-            }
 
             LOG.debug("Successfully propagated to {}", task.getResource());
             result = Result.SUCCESS;
@@ -432,12 +440,23 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         } finally {
             // Try to read remote object AFTER any actual operation
             if (connector != null) {
+                if (uid != null) {
+                    task.setConnObjectKey(uid.getUidValue());
+                }
                 try {
                     afterObj = getRemoteObject(task, connector, provision, true);
                 } catch (Exception ignore) {
                     // ignore exception
                     LOG.error("Error retrieving after object", ignore);
                 }
+            }
+
+            if (afterObj == null && uid != null) {
+                afterObj = new ConnectorObjectBuilder().
+                        setObjectClass(new ObjectClass(task.getObjectClassName())).
+                        setUid(uid).
+                        setName(AttributeUtil.getNameFromAttributes(task.getAttributes())).
+                        build();
             }
 
             execution.setStart(start);
@@ -465,6 +484,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         beforeObj,
                         afterObj);
             }
+        }
+
+        for (PropagationActions action : actions) {
+            action.after(task, execution, afterObj);
         }
 
         notificationManager.createTasks(
@@ -576,8 +599,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         try {
             obj = connector.getObject(new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),
-                    MappingManagerImpl.buildOperationOptions(IteratorUtils.chainedIterator(MappingManagerImpl.
-                            getPropagationMappingItems(provision).iterator(),
+                    MappingManagerImpl.buildOperationOptions(IteratorUtils.chainedIterator(
+                            MappingManagerImpl.getPropagationMappingItems(provision).iterator(),
                             linkingMappingItems.iterator())));
 
             for (MappingItem item : linkingMappingItems) {

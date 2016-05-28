@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wizards;
+package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,12 +27,12 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.basic.Label;
@@ -61,10 +61,6 @@ public class TypeExtensionWizardBuilder extends AjaxWizardBuilder<TypeExtensionT
         this.groupTO = groupTO;
         this.anyTypeLabel = anyTypeLabel;
         this.auxClassesLabel = auxClassesLabel;
-    }
-
-    public void setEventSink(final IEventSink eventSink) {
-        this.eventSink = eventSink;
     }
 
     @Override

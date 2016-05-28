@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Properties;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
@@ -156,8 +157,12 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         Args.notNull(port, "<port> not set");
         String rootPath = props.getProperty("rootPath");
         Args.notNull(rootPath, "<rootPath> not set");
+        String useGZIPCompression = props.getProperty("useGZIPCompression");
+        Args.notNull(rootPath, "<useGZIPCompression> not set");
 
-        clientFactory = new SyncopeClientFactoryBean().setAddress(scheme + "://" + host + ":" + port + "/" + rootPath);
+        clientFactory = new SyncopeClientFactoryBean().
+                setAddress(scheme + "://" + host + ":" + port + "/" + rootPath).
+                setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
 
         // process page properties
         pageClasses = new HashMap<>();

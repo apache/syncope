@@ -169,22 +169,6 @@ public interface PullActions extends ProvisioningActions {
             A any) throws JobExecutionException;
 
     /**
-     * Action to be executed when user / group pull goes on error.
-     *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information (may be modified by
-     * 'beforeProvision/beforeUpdate/beforeDelete')
-     * @param result global pull results at the current pull step
-     * @param error error being reported
-     * @throws JobExecutionException in case of generic failure
-     */
-    void onError(
-            ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
-            ProvisioningReport result,
-            Exception error) throws JobExecutionException;
-
-    /**
      * Action to be executed after each local user / group pull.
      *
      * @param <A> concrete any object
@@ -200,4 +184,19 @@ public interface PullActions extends ProvisioningActions {
             SyncDelta delta,
             A any,
             ProvisioningReport result) throws JobExecutionException;
+
+    /**
+     * Action to be executed in case an exception is thrown during pull.
+     *
+     * @param profile profile of the pull being executed.
+     * @param delta retrieved pull information (may be modified by beforeProvision / beforeUpdate /
+     * beforeDelete)
+     * @param e the exception thrown
+     * @return an instance of the given exception type is that is to be thrown; {@code NULL} otherwise
+     * @throws JobExecutionException in case of generic failure
+     */
+    IgnoreProvisionException onError(
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            Exception e) throws JobExecutionException;
 }

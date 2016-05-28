@@ -79,20 +79,32 @@ public class JobWidget extends BaseWidget {
 
     private static List<JobTO> getAvailable(final SyncopeConsoleSession session) {
         List<JobTO> available = new ArrayList<>();
-        JobTO notificationJob = session.getService(NotificationService.class).getJob();
-        if (notificationJob != null) {
-            available.add(notificationJob);
+
+        if (session.owns(StandardEntitlement.NOTIFICATION_LIST)) {
+            JobTO notificationJob = session.getService(NotificationService.class).getJob();
+            if (notificationJob != null) {
+                available.add(notificationJob);
+            }
         }
-        available.addAll(session.getService(TaskService.class).listJobs());
-        available.addAll(session.getService(ReportService.class).listJobs());
+        if (session.owns(StandardEntitlement.TASK_LIST)) {
+            available.addAll(session.getService(TaskService.class).listJobs());
+        }
+        if (session.owns(StandardEntitlement.REPORT_LIST)) {
+            available.addAll(session.getService(ReportService.class).listJobs());
+        }
 
         return available;
     }
 
     private static List<ExecTO> getRecent(final SyncopeConsoleSession session) {
         List<ExecTO> recent = new ArrayList<>();
-        recent.addAll(session.getService(ReportService.class).listRecentExecutions(10));
-        recent.addAll(session.getService(TaskService.class).listRecentExecutions(10));
+
+        if (session.owns(StandardEntitlement.TASK_LIST)) {
+            recent.addAll(session.getService(ReportService.class).listRecentExecutions(10));
+        }
+        if (session.owns(StandardEntitlement.REPORT_LIST)) {
+            recent.addAll(session.getService(TaskService.class).listRecentExecutions(10));
+        }
 
         return recent;
     }

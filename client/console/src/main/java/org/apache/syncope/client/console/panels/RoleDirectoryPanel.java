@@ -128,8 +128,8 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                        ConsoleLayoutInfoModal.ConsoleLayoutInfo info =
-                                new ConsoleLayoutInfoModal.ConsoleLayoutInfo(model.getObject().getKey());
+                        ConsoleLayoutInfoModal.ConsoleLayoutInfo info = new ConsoleLayoutInfoModal.ConsoleLayoutInfo(
+                                model.getObject().getKey());
                         info.setContent(restClient.readConsoleLayoutInfo(model.getObject().getKey()));
 
                         utilityModal.header(new ResourceModel("console.layout.info", "JSON Content"));
@@ -145,11 +145,12 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                     public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                         try {
                             restClient.delete(model.getObject().getKey());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         } catch (SyncopeClientException e) {
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                                    getName() : e.getMessage());
                         }
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }

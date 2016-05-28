@@ -21,9 +21,9 @@ package org.apache.syncope.client.console.panels;
 import org.apache.syncope.client.console.widgets.JobWidget;
 import org.apache.syncope.client.console.widgets.ReconciliationWidget;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.Panel;
 
 public class DashboardControlPanel extends Panel {
@@ -34,7 +34,7 @@ public class DashboardControlPanel extends Panel {
         super(id);
 
         JobWidget job = new JobWidget("job", pageRef);
-        MetaDataRoleAuthorizationStrategy.authorize(job, WebPage.ENABLE,
+        MetaDataRoleAuthorizationStrategy.authorize(job, Component.RENDER,
                 String.format("%s,%s,%s",
                         StandardEntitlement.NOTIFICATION_LIST,
                         StandardEntitlement.TASK_LIST,
@@ -42,7 +42,7 @@ public class DashboardControlPanel extends Panel {
         add(job);
 
         ReconciliationWidget reconciliation = new ReconciliationWidget("reconciliation", pageRef);
-        MetaDataRoleAuthorizationStrategy.authorize(job, WebPage.ENABLE,
+        MetaDataRoleAuthorizationStrategy.authorize(job, Component.RENDER,
                 String.format("%s,%s,%s",
                         StandardEntitlement.REPORT_EXECUTE,
                         StandardEntitlement.REPORT_READ,

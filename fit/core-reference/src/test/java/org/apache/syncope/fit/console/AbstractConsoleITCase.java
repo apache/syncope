@@ -20,6 +20,7 @@ package org.apache.syncope.fit.console;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.List;
 import javax.servlet.ServletContext;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
@@ -28,6 +29,9 @@ import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.behavior.AbstractAjaxBehavior;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.tester.FormTester;
@@ -81,8 +85,10 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
     protected <V extends Serializable> Component findComponentByProp(
             final String property, final String searchPath, final V key) {
 
-        return wicketTester.getComponentFromLastRenderedPage(searchPath).getPage().
-                visitChildren(ListItem.class, new IVisitor<ListItem<?>, Component>() {
+        final Component component = wicketTester.getComponentFromLastRenderedPage(searchPath);
+
+        return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage())
+                .visitChildren(ListItem.class, new IVisitor<ListItem<?>, Component>() {
 
                     @Override
                     public void component(final ListItem<?> object, final IVisit<Component> visit) {
@@ -96,5 +102,14 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
                         }
                     }
                 });
+    }
+
+    protected void closeCallBack(final Component modal) {
+        final List<? extends Behavior> behaviors = modal.getBehaviors();
+        for (Behavior behavior : behaviors) {
+            if (behavior instanceof AbstractAjaxBehavior) {
+                wicketTester.executeBehavior((AbstractAjaxBehavior) behavior);
+            }
+        }
     }
 }

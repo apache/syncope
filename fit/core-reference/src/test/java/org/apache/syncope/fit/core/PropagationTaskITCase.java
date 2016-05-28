@@ -25,11 +25,19 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.BulkAction;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -104,6 +112,50 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
+    public void propagationJEXLTransformer() {
+        // 0. Set propagation JEXL MappingItemTransformer
+        ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
+        ResourceTO originalResource = SerializationUtils.clone(resource);
+        ProvisionTO provision = resource.getProvision("PRINTER");
+        assertNotNull(provision);
+
+        MappingItemTO mappingItem = IterableUtils.find(
+                provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
+
+            @Override
+            public boolean evaluate(final MappingItemTO object) {
+                return "location".equals(object.getIntAttrName());
+            }
+        });
+        assertNotNull(mappingItem);
+        assertTrue(mappingItem.getMappingItemTransformerClassNames().isEmpty());
+
+        String suffix = getUUIDString();
+        mappingItem.setPropagationJEXLTransformer("value + '" + suffix + "'");
+
+        try {
+            resourceService.update(resource);
+
+            // 1. create printer on external resource
+            AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("propagationJEXLTransformer");
+            String originalLocation = anyObjectTO.getPlainAttrMap().get("location").getValues().get(0);
+            assertFalse(originalLocation.endsWith(suffix));
+
+            anyObjectTO = createAnyObject(anyObjectTO).getAny();
+            assertNotNull(anyObjectTO);
+
+            // 2. verify that JEXL MappingItemTransformer was applied during propagation
+            // (location ends with given suffix on external resource)
+            ConnObjectTO connObjectTO = resourceService.
+                    readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
+            assertFalse(anyObjectTO.getPlainAttrMap().get("location").getValues().get(0).endsWith(suffix));
+            assertTrue(connObjectTO.getPlainAttrMap().get("LOCATION").getValues().get(0).endsWith(suffix));
+        } finally {
+            resourceService.update(originalResource);
+        }
+    }
+
+    @Test
     public void issueSYNCOPE741() {
         for (int i = 0; i < 3; i++) {
             taskService.execute(new ExecuteQuery.Builder().
@@ -142,7 +194,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertFalse(task.getExecutions().isEmpty());
 
         // check list executions
-        PagedResult<ExecTO> execs = taskService.listExecutions(new ExecQuery.Builder().key("1e697572-b896-484c-ae7f-0c8f63fcbc6c").
+        PagedResult<ExecTO> execs = taskService.listExecutions(new ExecQuery.Builder().key(
+                "1e697572-b896-484c-ae7f-0c8f63fcbc6c").
                 page(1).size(2).build());
         assertTrue(execs.getTotalCount() >= execs.getResult().size());
     }

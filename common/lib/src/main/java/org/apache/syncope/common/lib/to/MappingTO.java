@@ -72,7 +72,7 @@ public class MappingTO extends AbstractBaseBean {
             throw new IllegalArgumentException("Password attributes cannot be set as connObjectKey");
         }
 
-        connObjectItem.setExtAttrName(connObjectItem.getExtAttrName());
+        connObjectItem.setMandatoryCondition("true");
         connObjectItem.setConnObjectKey(true);
 
         return this.add(connObjectItem);

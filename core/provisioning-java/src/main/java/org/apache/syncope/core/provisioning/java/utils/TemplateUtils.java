@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -56,7 +57,7 @@ public class TemplateUtils {
 
         if (template.getValues() != null && !template.getValues().isEmpty()) {
             for (String value : template.getValues()) {
-                String evaluated = JexlUtils.evaluate(value, anyTO);
+                String evaluated = JexlUtils.evaluate(value, anyTO, new MapContext());
                 if (StringUtils.isNotBlank(evaluated)) {
                     result.getValues().add(evaluated);
                 }
@@ -138,14 +139,14 @@ public class TemplateUtils {
                         ((AnyObjectTO) anyTO).getMemberships(), ((AnyObjectTO) template).getMemberships());
             } else if (template instanceof UserTO) {
                 if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
-                    String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), anyTO);
+                    String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), anyTO, new MapContext());
                     if (StringUtils.isNotBlank(evaluated)) {
                         ((UserTO) anyTO).setUsername(evaluated);
                     }
                 }
 
                 if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
-                    String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), anyTO);
+                    String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), anyTO, new MapContext());
                     if (StringUtils.isNotBlank(evaluated)) {
                         ((UserTO) anyTO).setPassword(evaluated);
                     }
@@ -157,7 +158,7 @@ public class TemplateUtils {
                         ((UserTO) anyTO).getMemberships(), ((UserTO) template).getMemberships());
             } else if (template instanceof GroupTO) {
                 if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
-                    String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), anyTO);
+                    String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), anyTO, new MapContext());
                     if (StringUtils.isNotBlank(evaluated)) {
                         ((GroupTO) anyTO).setName(evaluated);
                     }
