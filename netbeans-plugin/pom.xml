@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <!--    <parent>
-        <groupId>org.apache.syncope</groupId>
-        <artifactId>syncope</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-    </parent>
-    -->
+    <!--<parent>-->
     <groupId>org.apache.syncope</groupId>
+    <!--<artifactId>syncope</artifactId>-->
     <version>2.0.0-SNAPSHOT</version>
-    <name>Apache Syncope Netbeans Plugin</name>
+    <!--</parent>-->
     <artifactId>netbeans-plugin</artifactId>
     <packaging>nbm</packaging>
     <build>
@@ -19,10 +15,14 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <version>3.13</version>
                 <extensions>true</extensions>
+                <configuration>
+                    <useOSGiDependencies>true</useOSGiDependencies>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.0</version>
                 <configuration>
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -48,4 +48,5 @@
             <version>RELEASE81</version>
         </dependency>
     </dependencies>
+    <name>Apache Syncope Netbeans Plugin</name>
 </project>
