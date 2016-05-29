@@ -3,13 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.apache.syncope.netbeans.plugin;
+package org.apache.syncope.netbeans.plugin.view;
 
+import java.awt.event.MouseEvent;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import org.apache.syncope.netbeans.plugin.constants.PluginConstants;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -21,54 +23,54 @@ import org.openide.util.NbBundle.Messages;
  * Top component which displays something.
  */
 @ConvertAsProperties(
-        dtd = "-//org.apache.syncope.netbeans.plugin//ReportExplorer//EN",
+        dtd = "-//org.apache.syncope.netbeans.plugin//ResourceExplorer//EN",
         autostore = false
 )
 @TopComponent.Description(
-        preferredID = "ReportExplorerTopComponent",
-        iconBase = "org/apache/syncope/netbeans/plugin/images/syncope.png",
+        preferredID = "ResourceExplorerTopComponent",
+        iconBase = "images/syncope.png",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "explorer", openAtStartup = false)
-@ActionID(category = "Window", id = "org.apache.syncope.netbeans.plugin.ReportExplorerTopComponent")
+@ActionID(category = "Window", id = "org.apache.syncope.netbeans.plugin.ResourceExplorerTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_ReportExplorerAction",
-        preferredID = "ReportExplorerTopComponent"
+        displayName = "#CTL_ResourceExplorerAction",
+        preferredID = "ResourceExplorerTopComponent"
 )
 @Messages({
-    "CTL_ReportExplorerAction=Apache Syncope",
-    "CTL_ReportExplorerTopComponent=Apache Syncope",
-    "HINT_ReportExplorerTopComponent=This is a Apache Syncope window"
+    "CTL_ResourceExplorerAction=Apache Syncope",
+    "CTL_ResourceExplorerTopComponent=Apache Syncope",
+    "HINT_ResourceExplorerTopComponent=This is a Apache Syncope window"
 })
-public final class ReportExplorerTopComponent extends TopComponent {
+public final class ResourceExplorerTopComponent extends TopComponent {
 
     private DefaultTreeModel treeModel;
     private DefaultMutableTreeNode root;
     private DefaultMutableTreeNode mailTemplates;
     private DefaultMutableTreeNode reportXslts;
-    
-    public ReportExplorerTopComponent() {
-        
+
+    public ResourceExplorerTopComponent() {
+
         try {
             UIManager.setLookAndFeel(new NimbusLookAndFeel());
         } catch (UnsupportedLookAndFeelException ex) {
             Exceptions.printStackTrace(ex);
         }
-        
+
         initComponents();
-        setName(Bundle.CTL_ReportExplorerTopComponent());
-        setToolTipText(Bundle.HINT_ReportExplorerTopComponent());
-        
+        setName(Bundle.CTL_ResourceExplorerTopComponent());
+        setToolTipText(Bundle.HINT_ResourceExplorerTopComponent());
+
         treeModel = (DefaultTreeModel) resourceExplorerTree.getModel();
         root = (DefaultMutableTreeNode) treeModel.getRoot();
-        mailTemplates = new DefaultMutableTreeNode("Mail Templates");
-        reportXslts = new DefaultMutableTreeNode("Report XSLTs");
-        
+        mailTemplates = new DefaultMutableTreeNode(PluginConstants.MAIL_TEMPLTAE_CONSTANT);
+        reportXslts = new DefaultMutableTreeNode(PluginConstants.REPORT_XSLTS_CONSTANT);
+
         root.add(mailTemplates);
         root.add(reportXslts);
         treeModel.reload();
-        
+
         addMailTemplates();
         addReportXslts();
     }
@@ -88,6 +90,11 @@ public final class ReportExplorerTopComponent extends TopComponent {
         resourceExplorerTree.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
         resourceExplorerTree.setRootVisible(false);
         resourceExplorerTree.setScrollsOnExpand(true);
+        resourceExplorerTree.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                resourceExplorerTreeMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(resourceExplorerTree);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -101,6 +108,23 @@ public final class ReportExplorerTopComponent extends TopComponent {
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void resourceExplorerTreeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resourceExplorerTreeMouseClicked
+        if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2) {
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.getLastSelectedPathComponent();
+            DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) selectedNode.getParent();
+            if (selectedNode.isLeaf()) {
+                String name = (String) selectedNode.getUserObject();
+                if (parentNode.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
+                    MailTemplateTopComponent mailTeplate = new MailTemplateTopComponent(name);
+                    mailTeplate.open();
+                } else {
+                    ReportXsltsTopComponent report = new ReportXsltsTopComponent(name);
+                    report.open();
+                }
+            }
+        }
+    }//GEN-LAST:event_resourceExplorerTreeMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
@@ -127,14 +151,14 @@ public final class ReportExplorerTopComponent extends TopComponent {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
     }
-    
-    private void addMailTemplates(){
+
+    private void addMailTemplates() {
         mailTemplates.add(new DefaultMutableTreeNode("Template 1"));
         mailTemplates.add(new DefaultMutableTreeNode("Template 2"));
         treeModel.reload();
     }
-    
-    private void addReportXslts(){
+
+    private void addReportXslts() {
         reportXslts.add(new DefaultMutableTreeNode("Report 1"));
         reportXslts.add(new DefaultMutableTreeNode("Report 2"));
         treeModel.reload();
