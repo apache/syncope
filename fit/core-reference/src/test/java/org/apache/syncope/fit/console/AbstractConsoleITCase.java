@@ -104,6 +104,22 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
                 });
     }
 
+    protected Component findComponentById(final String searchPath, final String id) {
+
+        final Component component = wicketTester.getComponentFromLastRenderedPage(searchPath);
+
+        return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage())
+                .visitChildren(Component.class, new IVisitor<Component, Component>() {
+
+                    @Override
+                    public void component(final Component object, final IVisit<Component> visit) {
+                        if (object.getId().equals(id)) {
+                            visit.stop(object);
+                        }
+                    }
+                });
+    }
+
     protected void closeCallBack(final Component modal) {
         final List<? extends Behavior> behaviors = modal.getBehaviors();
         for (Behavior behavior : behaviors) {
