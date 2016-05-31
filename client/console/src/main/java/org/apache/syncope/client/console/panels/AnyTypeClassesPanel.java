@@ -80,6 +80,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<AnyTypeClassTO, Any
                                 SyncopeConsoleSession.get().getService(AnyTypeClassService.class).update(modelObject);
                             }
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            AnyTypeClassesPanel.this.updateResultTable(target);
                             modal.close(target);
                         } catch (Exception e) {
                             LOG.error("While creating or updating AnyTypeClassTO", e);

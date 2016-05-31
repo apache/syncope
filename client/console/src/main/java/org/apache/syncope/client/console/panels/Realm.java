@@ -88,7 +88,7 @@ public abstract class Realm extends Panel {
                             public void onClick(final AjaxRequestTarget target, final RealmTO modelObject) {
                                 onClickTemplate(target);
                             }
-                        }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.REALM_CREATE).
+                        }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.REALM_UPDATE).
                         add(new ActionLink<RealmTO>(realmTO) {
 
                             private static final long serialVersionUID = 2802988981431379827L;

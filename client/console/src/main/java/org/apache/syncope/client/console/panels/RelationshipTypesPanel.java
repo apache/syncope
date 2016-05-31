@@ -84,6 +84,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipType
                                         getService(RelationshipTypeService.class).update(modelObject);
                             }
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            RelationshipTypesPanel.this.updateResultTable(target);
                             modal.close(target);
                         } catch (Exception e) {
                             LOG.error("While creating or updating {}", modelObject, e);
