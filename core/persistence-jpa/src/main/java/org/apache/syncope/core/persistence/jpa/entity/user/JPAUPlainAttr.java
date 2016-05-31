@@ -27,9 +27,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
@@ -37,7 +39,8 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttr;
 
 @Entity
-@Table(name = JPAUPlainAttr.TABLE)
+@Table(name = JPAUPlainAttr.TABLE, uniqueConstraints =
+        @UniqueConstraint(columnNames = { "owner_id", "membership_id", "schema_id" }))
 public class JPAUPlainAttr extends AbstractPlainAttr<User> implements UPlainAttr {
 
     private static final long serialVersionUID = 6333601983691157406L;
@@ -49,6 +52,12 @@ public class JPAUPlainAttr extends AbstractPlainAttr<User> implements UPlainAttr
      */
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAUser owner;
+
+    /**
+     * The membership of this attribute; might be {@code NULL} if this attribute is not related to a membership.
+     */
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPAUMembership membership;
 
     /**
      * Values of this attribute (if schema is not UNIQUE).
@@ -73,6 +82,17 @@ public class JPAUPlainAttr extends AbstractPlainAttr<User> implements UPlainAttr
     public void setOwner(final User owner) {
         checkType(owner, JPAUser.class);
         this.owner = (JPAUser) owner;
+    }
+
+    @Override
+    public UMembership getMembership() {
+        return membership;
+    }
+
+    @Override
+    public void setMembership(final UMembership membership) {
+        checkType(membership, JPAUMembership.class);
+        this.membership = (JPAUMembership) membership;
     }
 
     @Override

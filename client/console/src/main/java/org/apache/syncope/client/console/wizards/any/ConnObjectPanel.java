@@ -57,7 +57,7 @@ public class ConnObjectPanel extends Panel {
             protected List<AttrTO> load() {
                 List<AttrTO> attrs = new ArrayList<>(connObjectTOs == null || connObjectTOs.getRight() == null
                         ? Collections.<AttrTO>emptyList()
-                        : connObjectTOs.getRight().getPlainAttrs());
+                        : connObjectTOs.getRight().getAttrs());
 
                 Collections.sort(attrs, new Comparator<AttrTO>() {
 
@@ -77,7 +77,7 @@ public class ConnObjectPanel extends Panel {
             }
         };
 
-        final Map<String, AttrTO> beforeProfile = connObjectTOs.getLeft() == null
+        final Map<String, AttrTO> beforeProfile = connObjectTOs == null || connObjectTOs.getLeft() == null
                 ? null
                 : connObjectTOs.getLeft().getPlainAttrMap();
 

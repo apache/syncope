@@ -42,7 +42,7 @@ public class DisplayAttributesITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:panel:"
                 + "searchResult:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
-                + "toolbars:1:headers:3:header:label:panelChangeView:changeViewLink");
+                + "toolbars:1:headers:4:header:label:panelChangeView:changeViewLink");
 
         wicketTester.assertComponent(
                 "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer", Modal.class);
@@ -54,7 +54,7 @@ public class DisplayAttributesITCase extends AbstractConsoleITCase {
         wicketTester.clickLink("body:content:body:tabbedPanel:panel:"
                 + "searchResult:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
-                + "toolbars:1:headers:3:header:label:panelChangeView:changeViewLink");
+                + "toolbars:1:headers:4:header:label:panelChangeView:changeViewLink");
 
         wicketTester.assertComponent(
                 "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer", Modal.class);

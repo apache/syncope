@@ -21,17 +21,17 @@ package org.apache.syncope.client.console.wizards.any;
 import java.util.List;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
-public class GroupDetails extends Details<GroupTO> {
+public class AnyObjectDetails extends Details<AnyObjectTO> {
 
     private static final long serialVersionUID = 855618618337931784L;
 
-    public GroupDetails(
-            final GroupWrapper wrapper,
+    public AnyObjectDetails(
+            final AnyWrapper<AnyObjectTO> wrapper,
             final IModel<List<StatusBean>> statusModel,
             final boolean templateMode,
             final boolean includeStatusPanel,
@@ -39,10 +39,10 @@ public class GroupDetails extends Details<GroupTO> {
 
         super(wrapper, statusModel, includeStatusPanel, pageRef);
 
-        GroupTO groupTO = GroupWrapper.class.cast(wrapper).getInnerObject();
+        AnyObjectTO anyObjectTO = wrapper.getInnerObject();
 
         AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name",
-                new PropertyModel<String>(groupTO, "name"), false);
+                new PropertyModel<String>(anyObjectTO, "name"), false);
         if (templateMode) {
             name.enableJexlHelp();
         } else {

@@ -43,9 +43,7 @@ public enum EntityViolationType {
     InvalidSchemaMultivalueUnique("org.apache.syncope.core.persistence.validation.schema.multivalueUnique"),
     InvalidSchedTask("org.apache.syncope.core.persistence.validation.schedtask"),
     InvalidProvisioningTask("org.apache.syncope.core.persistence.validation.provisioningtask"),
-    InvalidPlainSchema("org.apache.syncope.core.persistence.validation.attrvalue.plainSchema"),
-    InvalidDerSchema("org.apache.syncope.core.persistence.validation.attrvalue.derSchema"),
-    InvalidVirSchema("org.apache.syncope.core.persistence.validation.attrvalue.virSchema"),
+    InvalidPlainAttr("org.apache.syncope.core.persistence.validation.plainattr"),
     InvalidUsername("org.apache.syncope.core.persistence.validation.user.username"),
     InvalidValueList("org.apache.syncope.core.persistence.validation.attr.valueList"),
     MoreThanOneNonNull("org.apache.syncope.core.persistence.validation.attrvalue.moreThanOneNonNull");

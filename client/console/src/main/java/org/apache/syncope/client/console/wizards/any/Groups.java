@@ -105,7 +105,6 @@ public class Groups extends WizardStep {
                     public MembershipTO transform(final GroupTO input) {
                         return new MembershipTO.Builder().
                                 group(input.getKey(), input.getName()).
-                                left(anyTO.getKey(), anyTO.getType()).
                                 build();
                     }
                 }, new ArrayList<MembershipTO>());

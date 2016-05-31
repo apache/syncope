@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembers
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAny;
@@ -74,7 +75,7 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     @ManyToOne
     private JPAGroup groupOwner;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     @Valid
     private List<JPAGPlainAttr> plainAttrs = new ArrayList<>();
 
@@ -104,6 +105,16 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     private List<JPATypeExtension> typeExtensions = new ArrayList<>();
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    @Override
     public AnyType getType() {
         return ApplicationContextProvider.getBeanFactory().getBean(AnyTypeDAO.class).findGroup();
     }
@@ -114,18 +125,14 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     }
 
     @Override
-    protected List<JPAExternalResource> internalGetResources() {
+    public boolean add(final ExternalResource resource) {
+        checkType(resource, JPAExternalResource.class);
+        return resources.add((JPAExternalResource) resource);
+    }
+
+    @Override
+    public List<? extends ExternalResource> getResources() {
         return resources;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(final String name) {
-        this.name = name;
     }
 
     @Override
@@ -154,6 +161,24 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     public boolean add(final GPlainAttr attr) {
         checkType(attr, JPAGPlainAttr.class);
         return plainAttrs.add((JPAGPlainAttr) attr);
+    }
+
+    @Override
+    public boolean remove(final GPlainAttr attr) {
+        checkType(attr, JPAGPlainAttr.class);
+        return plainAttrs.remove((JPAGPlainAttr) attr);
+    }
+
+    @Override
+    public GPlainAttr getPlainAttr(final String plainSchemaName) {
+        return IterableUtils.find(getPlainAttrs(), new Predicate<GPlainAttr>() {
+
+            @Override
+            public boolean evaluate(final GPlainAttr plainAttr) {
+                return plainAttr != null && plainAttr.getSchema() != null
+                        && plainSchemaName.equals(plainAttr.getSchema().getKey());
+            }
+        });
     }
 
     @Override

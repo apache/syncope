@@ -23,9 +23,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
@@ -145,7 +150,91 @@ public class UserTest extends AbstractTest {
                 user.getRelationships().get(0).getRightEnd().getKey());
     }
 
-    @Test // search by derived attribute
+    @Test
+    public void membershipWithAttrs() {
+        User user = userDAO.findByUsername("vivaldi");
+        assertNotNull(user);
+        assertTrue(user.getMemberships().isEmpty());
+
+        // add 'obscure' to user (no membership): works because 'obscure' is from 'other', default class for USER
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setOwner(user);
+        attr.setSchema(plainSchemaDAO.find("obscure"));
+        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        user.add(attr);
+
+        // add 'obscure' to user (via 'artDirector' membership): does not work because 'obscure' is from 'other'
+        // but 'artDirector' defines no type extension
+        UMembership membership = entityFactory.newEntity(UMembership.class);
+        membership.setLeftEnd(user);
+        membership.setRightEnd(groupDAO.findByName("artDirector"));
+        user.add(membership);
+
+        attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setOwner(user);
+        attr.setMembership(membership);
+        attr.setSchema(plainSchemaDAO.find("obscure"));
+        attr.add("testvalue2", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        user.add(attr);
+
+        try {
+            userDAO.save(user);
+            fail();
+        } catch (InvalidEntityException e) {
+            assertNotNull(e);
+        }
+
+        // replace 'artDirector' with 'additional', which defines type extension with class 'other' and 'csv':
+        // now it works
+        membership = user.getMembership(groupDAO.findByName("artDirector").getKey());
+        user.remove(user.getPlainAttr("obscure", membership));
+        user.getMemberships().remove(membership);
+        membership.setLeftEnd(null);
+
+        membership = entityFactory.newEntity(UMembership.class);
+        membership.setLeftEnd(user);
+        membership.setRightEnd(groupDAO.findByName("additional"));
+        user.add(membership);
+
+        attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setOwner(user);
+        attr.setMembership(membership);
+        attr.setSchema(plainSchemaDAO.find("obscure"));
+        attr.add("testvalue2", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        user.add(attr);
+
+        userDAO.save(user);
+        userDAO.flush();
+
+        user = userDAO.findByUsername("vivaldi");
+        assertEquals(1, user.getMemberships().size());
+
+        final UMembership newM = user.getMembership(groupDAO.findByName("additional").getKey());
+        assertEquals(1, user.getPlainAttrs(newM).size());
+
+        assertNull(user.getPlainAttr("obscure").getMembership());
+        assertEquals(2, user.getPlainAttrs("obscure").size());
+        assertTrue(user.getPlainAttrs("obscure").contains(user.getPlainAttr("obscure")));
+        assertTrue(IterableUtils.matchesAny(user.getPlainAttrs("obscure"), new Predicate<UPlainAttr>() {
+
+            @Override
+            public boolean evaluate(final UPlainAttr object) {
+                return object.getMembership() == null;
+            }
+        }));
+        assertTrue(IterableUtils.matchesAny(user.getPlainAttrs("obscure"), new Predicate<UPlainAttr>() {
+
+            @Override
+            public boolean evaluate(final UPlainAttr object) {
+                return newM.equals(object.getMembership());
+            }
+        }));
+    }
+
+    /**
+     * Search by derived attribute.
+     */
+    @Test
     public void issueSYNCOPE800() {
         // create derived attribute (literal as prefix)
         DerSchema prefix = entityFactory.newEntity(DerSchema.class);

@@ -69,7 +69,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        wicketTester.clickLink(component.getPageRelativePath() + ":cells:3:cell:panelClone:cloneLink");
+        wicketTester.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelClone:cloneLink");
 
         FormTester formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
@@ -87,7 +87,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        wicketTester.clickLink(component.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink");
+        wicketTester.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
 
         wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:0:outer:form:content:form:view:status:"
                 + "resources:firstLevelContainer:first:container:content:group:beans:0:fields:0", ListItem.class);
@@ -138,7 +138,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        wicketTester.assertComponent(component.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink",
+        wicketTester.assertComponent(component.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink",
                 IndicatingOnConfirmAjaxLink.class);
     }
 }

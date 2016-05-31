@@ -50,6 +50,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
     public static AnyObjectTO getSampleTO(final String location) {
         AnyObjectTO anyObjectTO = new AnyObjectTO();
+        anyObjectTO.setName(location + getUUIDString());
         anyObjectTO.setRealm(SyncopeConstants.ROOT_REALM);
         anyObjectTO.setType("PRINTER");
         anyObjectTO.getPlainAttrs().add(attrTO("location", location + getUUIDString()));

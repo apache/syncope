@@ -44,6 +44,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -52,9 +53,11 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
@@ -71,6 +74,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private PlainAttrDAO plainAttrDAO;
 
     @Override
     protected AnyUtils init() {
@@ -242,16 +248,30 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public void delete(final Group group) {
         for (AMembership membership : findAMemberships(group)) {
-            membership.getLeftEnd().getMemberships().remove(membership);
-            anyObjectDAO.save(membership.getLeftEnd());
+            AnyObject leftEnd = membership.getLeftEnd();
+            leftEnd.getMemberships().remove(membership);
+            membership.setRightEnd(null);
+            for (APlainAttr attr : leftEnd.getPlainAttrs(membership)) {
+                leftEnd.remove(attr);
+                attr.setOwner(null);
+                attr.setMembership(null);
+                plainAttrDAO.delete(attr);
+            }
 
-            entityManager().remove(membership);
+            anyObjectDAO.save(leftEnd);
         }
         for (UMembership membership : findUMemberships(group)) {
-            membership.getLeftEnd().getMemberships().remove(membership);
-            userDAO.save(membership.getLeftEnd());
+            User leftEnd = membership.getLeftEnd();
+            leftEnd.getMemberships().remove(membership);
+            membership.setRightEnd(null);
+            for (UPlainAttr attr : leftEnd.getPlainAttrs(membership)) {
+                leftEnd.remove(attr);
+                attr.setOwner(null);
+                attr.setMembership(null);
+                plainAttrDAO.delete(attr);
+            }
 
-            entityManager().remove(membership);
+            userDAO.save(leftEnd);
         }
 
         entityManager().remove(group);

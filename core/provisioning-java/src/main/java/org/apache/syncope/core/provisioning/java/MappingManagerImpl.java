@@ -32,6 +32,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -68,6 +69,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -698,6 +700,16 @@ public class MappingManagerImpl implements MappingManager {
                 }
                 break;
 
+            case AnyObjectName:
+                for (Any<?> any : anys) {
+                    if (any instanceof AnyObject) {
+                        APlainAttrValue attrValue = entityFactory.newEntity(APlainAttrValue.class);
+                        attrValue.setStringValue(((AnyObject) any).getName());
+                        values.add(attrValue);
+                    }
+                }
+                break;
+
             default:
         }
 
@@ -797,6 +809,14 @@ public class MappingManagerImpl implements MappingManager {
                     }
 
                     ((GroupTO) anyTO).getPlainAttrs().add(attrTO);
+                }
+                break;
+
+            case AnyObjectName:
+                if (anyTO instanceof AnyObjectTO) {
+                    ((AnyObjectTO) anyTO).setName(values.isEmpty() || values.get(0) == null
+                            ? null
+                            : values.get(0).toString());
                 }
                 break;
 

@@ -41,6 +41,8 @@ public interface Any<P extends PlainAttr<?>> extends AnnotatedEntity {
 
     boolean add(P attr);
 
+    boolean remove(P attr);
+
     P getPlainAttr(String plainSchemaName);
 
     List<? extends P> getPlainAttrs();

@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -342,17 +343,17 @@ public class JPAAnyUtils implements AnyUtils {
 
     @Transactional(readOnly = true)
     @Override
-    public <S extends Schema> Set<S> getAllowedSchemas(final Any<?> any, final Class<S> reference) {
-        Set<S> schemas = new HashSet<>();
+    public <S extends Schema> AllowedSchemas<S> getAllowedSchemas(final Any<?> any, final Class<S> reference) {
+        AllowedSchemas<S> result = null;
 
         if (any instanceof User) {
-            schemas.addAll(userDAO.findAllowedSchemas((User) any, reference));
+            result = userDAO.findAllowedSchemas((User) any, reference);
         } else if (any instanceof Group) {
-            schemas.addAll(groupDAO.findAllowedSchemas((Group) any, reference));
+            result = groupDAO.findAllowedSchemas((Group) any, reference);
         } else if (any instanceof AnyObject) {
-            schemas.addAll(anyObjectDAO.findAllowedSchemas((AnyObject) any, reference));
+            result = anyObjectDAO.findAllowedSchemas((AnyObject) any, reference);
         }
 
-        return schemas;
+        return result;
     }
 }

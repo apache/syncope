@@ -175,15 +175,15 @@ under the License.
          accountPolicy_id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7"
          passwordPolicy_id="ce93fcda-dc3a-4369-a7b0-a6108c261c85"/>
   
-  <AnyObject id="fc6dbc3a-6c07-4965-8781-921e7401a4a5"
+  <AnyObject id="fc6dbc3a-6c07-4965-8781-921e7401a4a5" name="HP LJ 1300n"
              realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" type_id="PRINTER"
              creator="admin" lastModifier="admin" 
              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <AnyObject id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8"
+  <AnyObject id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8" name="Canon MF 8030cn"
              realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" type_id="PRINTER"
              creator="admin" lastModifier="admin" 
              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <AnyObject id="9e1d130c-d6a3-48b1-98b3-182477ed0688"
+  <AnyObject id="9e1d130c-d6a3-48b1-98b3-182477ed0688" name="Epson Stylus Color"
              realm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c" type_id="PRINTER"
              creator="admin" lastModifier="admin" 
              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
@@ -966,6 +966,9 @@ under the License.
   <MappingItem id="23aa0299-ddbb-4e59-8918-0ab2a32465fa" mapping_id="16439b5f-50c3-4604-97e9-f4004933abd8" extAttrName="ID" 
                intMappingType="AnyObjectKey" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="BOTH"/>
+  <MappingItem id="3dc96af0-5d0a-4ec1-be84-244716d88401" mapping_id="16439b5f-50c3-4604-97e9-f4004933abd8" extAttrName="PRINTERNAME" 
+               intMappingType="AnyObjectName" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="BOTH"/>
   <MappingItem id="f3ef9f8b-e667-4b18-969f-ba98c3d78bc0" mapping_id="16439b5f-50c3-4604-97e9-f4004933abd8" extAttrName="LOCATION" 
                intAttrName="location" intMappingType="AnyObjectPlainSchema"
                mandatoryCondition="false" connObjectKey="0" password="0" purpose="BOTH"/>
@@ -985,7 +988,7 @@ under the License.
         pullMode="INCREMENTAL" unmatchingRule="ASSIGN" matchingRule="UPDATE" active="1"/>
   <AnyTemplatePullTask id="3a6173a9-8c34-4e37-b3b1-0c2ea385fac0"
                        pullTask_id="c41b9b71-9bfa-4f90-89f2-84787def4c5c" anyType_id="USER"
-                       template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["csv"],"derAttrs":[{"schema":"cn","readonly":false,"values":[""]}],"virAttrs":[],"resources":["resource-testdb"],"relationships":[],"memberships":[{"leftType":null,"leftKey":0,"rightType":"GROUP","rightKey":"f779c0d4-633b-4be5-8f57-32eb478a3ca5","groupName":null}],"dynGroups":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}]}'/>
+                       template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["csv"],"derAttrs":[{"schema":"cn","readonly":false,"values":[""]}],"virAttrs":[],"resources":["resource-testdb"],"relationships":[],"memberships":[{"rightType":"GROUP","rightKey":"f779c0d4-633b-4be5-8f57-32eb478a3ca5","groupName":null}],"dynGroups":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}]}'/>
   <AnyTemplatePullTask id="b3772d66-ec06-4133-bf38-b3273845ac5b"
                        pullTask_id="c41b9b71-9bfa-4f90-89f2-84787def4c5c" anyType_id="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>

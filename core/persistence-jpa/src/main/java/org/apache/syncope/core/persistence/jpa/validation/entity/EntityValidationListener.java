@@ -29,6 +29,7 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 import org.apache.syncope.core.persistence.api.entity.Schema;
@@ -41,9 +42,6 @@ import org.slf4j.LoggerFactory;
  */
 public class EntityValidationListener {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(EntityValidationListener.class);
 
     @PrePersist
@@ -62,6 +60,7 @@ public class EntityValidationListener {
                         && !Schema.class.equals(interf)
                         && !Task.class.equals(interf)
                         && !Policy.class.equals(interf)
+                        && !GroupableRelatable.class.equals(interf)
                         && !Any.class.equals(interf)
                         && Entity.class.isAssignableFrom(interf)) {
 

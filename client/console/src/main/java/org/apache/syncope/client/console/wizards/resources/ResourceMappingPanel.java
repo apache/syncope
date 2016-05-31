@@ -570,6 +570,7 @@ public class ResourceMappingPanel extends Panel {
                 case GroupKey:
                 case GroupName:
                 case AnyObjectKey:
+                case AnyObjectName:
                 default:
                     toBeUpdated.setRequired(false);
                     toBeUpdated.setEnabled(false);

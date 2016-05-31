@@ -432,6 +432,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 3. attempt to create an instance of the type above: fail because no entitlement was assigned
         AnyObjectTO folder = new AnyObjectTO();
+        folder.setName("home");
         folder.setRealm(SyncopeConstants.ROOT_REALM);
         folder.setType(anyTypeKey);
         folder.getPlainAttrs().add(attrTO(path.getKey(), "/home"));

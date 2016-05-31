@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface AnyUtils {
@@ -52,5 +53,5 @@ public interface AnyUtils {
 
     Set<ExternalResource> getAllResources(Any<?> any);
 
-    <S extends Schema> Set<S> getAllowedSchemas(Any<?> any, Class<S> reference);
+    <S extends Schema> AllowedSchemas<S> getAllowedSchemas(Any<?> any, Class<S> reference);
 }

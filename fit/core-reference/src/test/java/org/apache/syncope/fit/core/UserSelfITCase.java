@@ -182,8 +182,7 @@ public class UserSelfITCase extends AbstractITCase {
         userPatch.setUsername(new StringReplacePatchItem.Builder().value(created.getUsername() + "XX").build());
         userPatch.getMemberships().add(new MembershipPatch.Builder().
                 operation(PatchOperation.ADD_REPLACE).
-                membershipTO(new MembershipTO.Builder().
-                        group("bf825fe1-7320-4a54-bd64-143b5c18ab97").build()).
+                group("bf825fe1-7320-4a54-bd64-143b5c18ab97").
                 build());
         userPatch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());

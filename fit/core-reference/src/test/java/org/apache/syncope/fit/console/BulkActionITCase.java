@@ -236,7 +236,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         assertNotNull(component);
 
         wicketTester.clickLink(component.getPageRelativePath()
-                + ":cells:3:cell:panelManageResources:manageResourcesLink");
+                + ":cells:4:cell:panelManageResources:manageResourcesLink");
 
         wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"

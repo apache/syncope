@@ -16,16 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.sql.Sql;
-import groovy.sql.DataSet;
+package org.apache.syncope.core.persistence.api.entity;
 
-// Parameters:
-// The connector sends the following:
-// connection: handler to the SQL connection
-// action: a string describing the action ("TEST" here)
-// log: a handler to the Log facility
+public interface GroupablePlainAttr<A extends Any<?>, M extends Membership<A>> extends PlainAttr<A> {
 
-log.info("Entering " + action + " Script");
-def sql = new Sql(connection);
+    M getMembership();
 
-sql.eachRow("select * from TESTPRINTER", { println it.id} );
+    void setMembership(M membership);
+}

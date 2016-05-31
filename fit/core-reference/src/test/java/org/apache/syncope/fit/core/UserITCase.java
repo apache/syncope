@@ -646,10 +646,9 @@ public class UserITCase extends AbstractITCase {
         userPatch.getPlainAttrs().add(attrAddReplacePatch("fullname", newFullName));
 
         userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.ADD_REPLACE).
-                membershipTO(new MembershipTO.Builder().
-                        group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build()).build());
+                group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
         userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.ADD_REPLACE).
-                membershipTO(userTO.getMemberships().get(0)).build());
+                group(userTO.getMemberships().get(0).getGroupKey()).build());
 
         userTO = updateUser(userPatch).getAny();
         assertNotNull(userTO);
@@ -1218,7 +1217,7 @@ public class UserITCase extends AbstractITCase {
         userPatch.setKey(userTO.getKey());
 
         userPatch.getMemberships().add(new MembershipPatch.Builder().
-                operation(PatchOperation.DELETE).membershipTO(userTO.getMemberships().get(0)).build());
+                operation(PatchOperation.DELETE).group(userTO.getMemberships().get(0).getGroupKey()).build());
 
         userTO = updateUser(userPatch).getAny();
         assertNotNull(userTO);
@@ -1253,7 +1252,7 @@ public class UserITCase extends AbstractITCase {
         userPatch.setKey(userTO.getKey());
 
         userPatch.getMemberships().add(new MembershipPatch.Builder().
-                operation(PatchOperation.DELETE).membershipTO(userTO.getMemberships().get(0)).build());
+                operation(PatchOperation.DELETE).group(userTO.getMemberships().get(0).getGroupKey()).build());
 
         userTO = updateUser(userPatch).getAny();
         assertNotNull(userTO);
@@ -1635,7 +1634,7 @@ public class UserITCase extends AbstractITCase {
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.DELETE).
-                membershipTO(userTO.getMemberships().get(0)).build());
+                group(userTO.getMemberships().get(0).getGroupKey()).build());
 
         userTO = updateUser(userPatch).getAny();
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
@@ -2503,7 +2502,7 @@ public class UserITCase extends AbstractITCase {
             UserPatch userPatch = new UserPatch();
             userPatch.setKey(userTO.getKey());
             userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.ADD_REPLACE).
-                    membershipTO(new MembershipTO.Builder().group(group.getKey()).build()).build());
+                    group(group.getKey()).build());
 
             ProvisioningResult<UserTO> result = updateUser(userPatch);
             assertNotNull(result);

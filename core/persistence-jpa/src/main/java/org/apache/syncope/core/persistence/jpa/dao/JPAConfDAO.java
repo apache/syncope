@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -39,9 +38,6 @@ public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
 
     @Autowired
     private PlainSchemaDAO schemaDAO;
-
-    @Autowired
-    private PlainAttrDAO attrDAO;
 
     @Override
     public Conf get() {
@@ -96,8 +92,8 @@ public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
         if (old != null && (!attr.getSchema().isUniqueConstraint()
                 || (!attr.getUniqueValue().getStringValue().equals(old.getUniqueValue().getStringValue())))) {
 
-            instance.getPlainAttrs().remove(old);
-            attrDAO.delete(old.getKey(), CPlainAttr.class);
+            old.setOwner(null);
+            instance.remove(old);
         }
 
         instance.add(attr);
@@ -111,8 +107,8 @@ public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
         Conf instance = get();
         CPlainAttr attr = instance.getPlainAttr(key);
         if (attr != null) {
-            instance.getPlainAttrs().remove(attr);
-            attrDAO.delete(attr.getKey(), CPlainAttr.class);
+            attr.setOwner(null);
+            instance.remove(attr);
 
             instance = entityManager().merge(instance);
         }

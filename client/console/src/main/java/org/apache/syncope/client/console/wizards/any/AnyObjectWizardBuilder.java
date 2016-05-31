@@ -19,19 +19,26 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
-
+import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.layout.AnyObjectForm;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.model.util.ListModel;
 
 public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implements AnyObjectForm {
 
     private static final long serialVersionUID = -2480279868319546243L;
+
+    private final AnyObjectRestClient anyObjectRestClient = new AnyObjectRestClient();
 
     public AnyObjectWizardBuilder(
             final AnyObjectTO anyObjectTO,
@@ -48,7 +55,7 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
 
         ProvisioningResult<AnyObjectTO> actual;
         if (inner.getKey() == null) {
-            actual = anyObjectRestClient.create(AnyObjectTO.class.cast(inner));
+            actual = anyObjectRestClient.create(inner);
         } else {
             AnyObjectPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
@@ -62,5 +69,16 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
         }
 
         return actual;
+    }
+
+    @Override
+    protected AnyObjectWizardBuilder addOptionalDetailsPanel(
+            final AnyWrapper<AnyObjectTO> modelObject, final WizardModel wizardModel) {
+        wizardModel.add(new AnyObjectDetails(
+                modelObject,
+                new ListModel<>(Collections.<StatusBean>emptyList()),
+                mode == AjaxWizard.Mode.TEMPLATE,
+                modelObject.getInnerObject().getKey() != null, pageRef));
+        return this;
     }
 }

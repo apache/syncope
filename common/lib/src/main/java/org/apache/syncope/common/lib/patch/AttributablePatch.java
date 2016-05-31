@@ -16,16 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.sql.Sql;
-import groovy.sql.DataSet;
+package org.apache.syncope.common.lib.patch;
 
-// Parameters:
-// The connector sends the following:
-// connection: handler to the SQL connection
-// action: a string describing the action ("TEST" here)
-// log: a handler to the Log facility
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Set;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import org.apache.syncope.common.lib.to.AttrTO;
 
-log.info("Entering " + action + " Script");
-def sql = new Sql(connection);
+public interface AttributablePatch {
 
-sql.eachRow("select * from TESTPRINTER", { println it.id} );
+    @XmlElementWrapper(name = "plainAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("plainAttrs")
+    Set<AttrPatch> getPlainAttrs();
+
+    @XmlElementWrapper(name = "virAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("virAttrs")
+    Set<AttrTO> getVirAttrs();
+}

@@ -26,50 +26,30 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.common.lib.to.AttributableTO;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
 
-public class AttrColumn<T extends AttributableTO> extends AbstractColumn<T, String> {
+public class ConnObjectAttrColumn extends AbstractColumn<ConnObjectTO, String> {
 
     private static final long serialVersionUID = 2624734332447371372L;
 
     private final String name;
 
-    private final SchemaType schemaType;
-
-    public AttrColumn(final String name, final SchemaType schemaType) {
+    public ConnObjectAttrColumn(final String name, final SchemaType schemaType) {
         // set sortProperty to schematype#name (e.g. derivedSchema#cn, 
         // for use with SortableUserProviderComparator.AttrModel#getObject)
         super(new ResourceModel(name, name), schemaType.name() + "#" + name);
         this.name = name;
-        this.schemaType = schemaType;
     }
 
     @Override
     public void populateItem(
-            final Item<ICellPopulator<T>> cellItem, final String componentId, final IModel<T> rowModel) {
+            final Item<ICellPopulator<ConnObjectTO>> cellItem,
+            final String componentId,
+            final IModel<ConnObjectTO> rowModel) {
 
         List<String> values = null;
-
-        switch (schemaType) {
-            case PLAIN:
-                if (rowModel.getObject().getPlainAttrMap().containsKey(name)) {
-                    values = rowModel.getObject().getPlainAttrMap().get(name).getValues();
-                }
-                break;
-
-            case DERIVED:
-                if (rowModel.getObject().getDerAttrMap().containsKey(name)) {
-                    values = rowModel.getObject().getDerAttrMap().get(name).getValues();
-                }
-                break;
-
-            case VIRTUAL:
-                if (rowModel.getObject().getVirAttrMap().containsKey(name)) {
-                    values = rowModel.getObject().getVirAttrMap().get(name).getValues();
-                }
-                break;
-
-            default:
+        if (rowModel.getObject().getPlainAttrMap().containsKey(name)) {
+            values = rowModel.getObject().getPlainAttrMap().get(name).getValues();
         }
 
         if (values == null || values.isEmpty()) {

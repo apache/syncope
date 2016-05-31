@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -237,6 +238,13 @@ public class PullUtils {
                 }
                 break;
 
+            case AnyObjectName:
+                AnyObject anyObject = anyObjectDAO.findByName(transfUid);
+                if (anyObject != null) {
+                    result.add(anyObject.getKey());
+                }
+                break;
+                
             default:
                 LOG.error("Invalid connObjectKey type '{}'", connObjectKeyItem.getIntMappingType());
         }

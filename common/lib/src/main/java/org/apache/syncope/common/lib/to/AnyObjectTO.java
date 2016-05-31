@@ -37,11 +37,21 @@ public class AnyObjectTO extends AnyTO implements RelatableTO, GroupableTO {
 
     private static final long serialVersionUID = 8841697496476959639L;
 
+    private String name;
+
     private final List<RelationshipTO> relationships = new ArrayList<>();
 
     private final List<MembershipTO> memberships = new ArrayList<>();
 
     private final List<String> dynGroups = new ArrayList<>();
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
 
     @XmlElementWrapper(name = "relationships")
     @XmlElement(name = "relationship")

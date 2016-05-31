@@ -271,6 +271,7 @@ public class GroupTest extends AbstractTest {
     public void adynMembership() {
         // 0. create any object matching the condition below
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
+        anyObject.setName("name");
         anyObject.setType(anyTypeDAO.find("PRINTER"));
         anyObject.setRealm(realmDAO.findByFullPath("/even/two"));
 

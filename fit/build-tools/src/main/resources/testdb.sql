@@ -45,5 +45,6 @@ lastModification TIMESTAMP);
 DROP TABLE testPRINTER IF EXISTS;
 CREATE TABLE testPRINTER (
 id CHAR(36) PRIMARY KEY,
+printername VARCHAR(80),
 location VARCHAR(80),
 lastModification TIMESTAMP);

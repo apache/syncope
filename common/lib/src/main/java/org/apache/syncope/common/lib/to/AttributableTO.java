@@ -20,39 +20,34 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
-@XmlRootElement(name = "connObject")
-@XmlType
-public class ConnObjectTO extends AbstractBaseBean {
+public interface AttributableTO {
 
-    private static final long serialVersionUID = 5139554911265442497L;
-
-    private final Set<AttrTO> attrs = new LinkedHashSet<>();
-
-    @XmlElementWrapper(name = "attrs")
+    @XmlElementWrapper(name = "plainAttrs")
     @XmlElement(name = "attribute")
-    @JsonProperty("attrs")
-    public Set<AttrTO> getAttrs() {
-        return attrs;
-    }
+    @JsonProperty("plainAttrs")
+    Set<AttrTO> getPlainAttrs();
 
     @JsonIgnore
-    public Map<String, AttrTO> getPlainAttrMap() {
-        Map<String, AttrTO> result = new HashMap<>(attrs.size());
-        for (AttrTO attributeTO : attrs) {
-            result.put(attributeTO.getSchema(), attributeTO);
-        }
+    Map<String, AttrTO> getPlainAttrMap();
 
-        return Collections.unmodifiableMap(result);
-    }
+    @XmlElementWrapper(name = "derAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("derAttrs")
+    Set<AttrTO> getDerAttrs();
+
+    @JsonIgnore
+    Map<String, AttrTO> getDerAttrMap();
+
+    @XmlElementWrapper(name = "virAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("virAttrs")
+    Set<AttrTO> getVirAttrs();
+
+    @JsonIgnore
+    Map<String, AttrTO> getVirAttrMap();
 }

@@ -260,7 +260,7 @@ public class ConnObjectUtils {
                     }
                 }
 
-                connObjectTO.getPlainAttrs().add(attrTO);
+                connObjectTO.getAttrs().add(attrTO);
             }
         }
 

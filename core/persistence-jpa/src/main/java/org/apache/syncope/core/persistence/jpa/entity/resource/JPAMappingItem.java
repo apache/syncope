@@ -183,6 +183,10 @@ public class JPAMappingItem extends AbstractGeneratedKeyEntity implements Mappin
                 name = "groupOwnerSchema";
                 break;
 
+            case AnyObjectName:
+                name = "anyObjectName";
+                break;
+                
             default:
                 name = intAttrName;
         }

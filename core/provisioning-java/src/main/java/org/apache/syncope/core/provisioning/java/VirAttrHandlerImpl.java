@@ -29,6 +29,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -48,6 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @Component
 public class VirAttrHandlerImpl implements VirAttrHandler {
 
@@ -122,7 +124,8 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                             if (attr != null) {
                                 VirAttrCacheValue virAttrCacheValue = new VirAttrCacheValue();
                                 virAttrCacheValue.setValues(attr.getValue());
-                                virAttrCache.put(any.getType().getKey(), any.getKey(), schema.getKey(),
+                                virAttrCache.put(
+                                        any.getType().getKey(), any.getKey(), schema.getKey(),
                                         virAttrCacheValue);
                                 LOG.debug("Values for {} set in cache: {}", schema, virAttrCacheValue);
 
@@ -139,10 +142,11 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
         return result;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<String> getValues(final Any<?> any, final VirSchema schema) {
-        if (!anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class).contains(schema)) {
+        if (!anyUtilsFactory.getInstance(any).
+                getAllowedSchemas(any, VirSchema.class).forSelfContains(schema)) {
+
             LOG.debug("{} not allowed for {}", schema, any);
             return Collections.emptyList();
         }
@@ -150,9 +154,31 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
         return ListUtils.emptyIfNull(getValues(any, Collections.singleton(schema)).get(schema));
     }
 
-    @Transactional(readOnly = true)
+    @Override
+    public List<String> getValues(final Any<?> any, final Membership<?> membership, final VirSchema schema) {
+        if (!anyUtilsFactory.getInstance(any).
+                getAllowedSchemas(any, VirSchema.class).getForMembership(membership.getRightEnd()).contains(schema)) {
+
+            LOG.debug("{} not allowed for {}", schema, any);
+            return Collections.emptyList();
+        }
+
+        return ListUtils.emptyIfNull(getValues(any, Collections.singleton(schema)).get(schema));
+    }
+
     @Override
     public Map<VirSchema, List<String>> getValues(final Any<?> any) {
-        return getValues(any, anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class));
+        return getValues(
+                any,
+                anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class).getForSelf());
     }
+
+    @Override
+    public Map<VirSchema, List<String>> getValues(final Any<?> any, final Membership<?> membership) {
+        return getValues(
+                any,
+                anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class).
+                getForMembership(membership.getRightEnd()));
+    }
+
 }
