@@ -56,6 +56,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -211,12 +212,29 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public List<Group> findDynGroupMemberships(final AnyObject anyObject) {
-        TypedQuery<Group> query = entityManager().createQuery(
-                "SELECT e.group FROM " + JPAADynGroupMembership.class.getSimpleName()
-                + " e WHERE :anyObject MEMBER OF e.anyObjects", Group.class);
-        query.setParameter("anyObject", anyObject);
+        Query query = entityManager().createNativeQuery(
+                "SELECT t2.id FROM " + JPAADynGroupMembership.TABLE + " t0 "
+                + "INNER JOIN ADynGroupMembership_AnyObject t1 "
+                + "ON t0.id = t1.aDynGroupMembership_id "
+                + "LEFT OUTER JOIN " + JPAGroup.TABLE + " t2 "
+                + "ON t0.GROUP_ID = t2.id "
+                + "WHERE t1.anyObject_id = ?1");
+        query.setParameter(1, anyObject.getKey());
 
-        return query.getResultList();
+        List<Group> result = new ArrayList<>();
+        for (Object key : query.getResultList()) {
+            String actualKey = key instanceof Object[]
+                    ? (String) ((Object[]) key)[0]
+                    : ((String) key);
+
+            Group group = groupDAO.find(actualKey);
+            if (group == null) {
+                LOG.error("Could not find group with id {}, even though returned by the native query", actualKey);
+            } else if (!result.contains(group)) {
+                result.add(group);
+            }
+        }
+        return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

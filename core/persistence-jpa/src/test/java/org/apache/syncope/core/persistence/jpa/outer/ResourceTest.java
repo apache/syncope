@@ -266,6 +266,9 @@ public class ResourceTest extends AbstractTest {
         assertNotNull(ldap.getProvision(anyTypeDAO.findUser()).getMapping());
         assertNotNull(ldap.getProvision(anyTypeDAO.findGroup()).getMapping());
 
+        // need to avoid any class not defined in this Maven module
+        ldap.getPropagationActionsClassNames().clear();
+
         List<? extends MappingItem> items = ldap.getProvision(anyTypeDAO.findGroup()).getMapping().getItems();
         assertNotNull(items);
         assertFalse(items.isEmpty());
@@ -275,13 +278,10 @@ public class ResourceTest extends AbstractTest {
         }
 
         Provision groupProvision = ldap.getProvision(anyTypeDAO.findGroup());
-        ldap.getProvisions().remove(groupProvision);
         for (VirSchema schema : virSchemaDAO.findByProvision(groupProvision)) {
             virSchemaDAO.delete(schema.getKey());
         }
-
-        // need to avoid any class not defined in this Maven module
-        ldap.getPropagationActionsClassNames().clear();
+        ldap.getProvisions().remove(groupProvision);
 
         resourceDAO.save(ldap);
         resourceDAO.flush();
