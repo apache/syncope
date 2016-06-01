@@ -330,10 +330,10 @@ under the License.
 
     <connid.version>1.4.1.0</connid.version>
     <connid.soap.version>1.3.0</connid.soap.version>
-    <connid.db.table.version>2.2.4-SNAPSHOT</connid.db.table.version>
-    <connid.csvdir.version>0.8.4</connid.csvdir.version>
+    <connid.db.table.version>2.2.4</connid.db.table.version>
+    <connid.csvdir.version>0.8.5</connid.csvdir.version>
     <connid.ldap.version>1.4.1</connid.ldap.version>
-    <connid.ad.version>1.2.5</connid.ad.version>
+    <connid.ad.version>1.2.6</connid.ad.version>
 
     <commons-jexl.version>2.1.1</commons-jexl.version>
     <commons-lang.version>3.3.2</commons-lang.version>
