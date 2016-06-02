@@ -7,6 +7,7 @@
     <version>2.0.0-SNAPSHOT</version>
     <!--</parent>-->
     <artifactId>netbeans-plugin</artifactId>
+    <name>Apache Syncope Netbeans Plugin</name>
     <packaging>nbm</packaging>
     <build>
         <plugins>
@@ -16,7 +17,7 @@
                 <version>3.13</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <useOSGiDependencies>true</useOSGiDependencies>
+                    <useOSGiDependencies>false</useOSGiDependencies>
                 </configuration>
             </plugin>
             <plugin>
@@ -77,6 +78,15 @@
             <artifactId>org-netbeans-modules-settings</artifactId>
             <version>RELEASE81</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.syncope.common</groupId>
+            <artifactId>syncope-common-lib</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.syncope.client</groupId>
+            <artifactId>syncope-client-lib</artifactId>
+            <version>2.0.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
-    <name>Apache Syncope Netbeans Plugin</name>
 </project>

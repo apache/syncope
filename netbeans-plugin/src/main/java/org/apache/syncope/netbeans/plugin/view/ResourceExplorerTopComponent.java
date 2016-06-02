@@ -6,12 +6,17 @@
 package org.apache.syncope.netbeans.plugin.view;
 
 import java.awt.event.MouseEvent;
+import java.util.List;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import org.apache.syncope.common.lib.to.MailTemplateTO;
+import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.netbeans.plugin.constants.PluginConstants;
+import org.apache.syncope.netbeans.plugin.service.MailTemplateManagerService;
+import org.apache.syncope.netbeans.plugin.service.ReportTemplateManagerService;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -49,7 +54,9 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private DefaultMutableTreeNode root;
     private DefaultMutableTreeNode mailTemplates;
     private DefaultMutableTreeNode reportXslts;
-
+    private MailTemplateManagerService mailTemplateManagerService;
+    private ReportTemplateManagerService reportTemplateManagerService;
+    
     public ResourceExplorerTopComponent() {
 
         try {
@@ -62,6 +69,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         setName(Bundle.CTL_ResourceExplorerTopComponent());
         setToolTipText(Bundle.HINT_ResourceExplorerTopComponent());
 
+        mailTemplateManagerService = new MailTemplateManagerService();
+        reportTemplateManagerService = new ReportTemplateManagerService();
         treeModel = (DefaultTreeModel) resourceExplorerTree.getModel();
         root = (DefaultMutableTreeNode) treeModel.getRoot();
         mailTemplates = new DefaultMutableTreeNode(PluginConstants.MAIL_TEMPLTAE_CONSTANT);
@@ -153,14 +162,18 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     }
 
     private void addMailTemplates() {
-        mailTemplates.add(new DefaultMutableTreeNode("Template 1"));
-        mailTemplates.add(new DefaultMutableTreeNode("Template 2"));
+        List<MailTemplateTO> mailTemplates = mailTemplateManagerService.list();
+        for (MailTemplateTO mailTemplate : mailTemplates) {
+            this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey()));
+        }
         treeModel.reload();
     }
 
     private void addReportXslts() {
-        reportXslts.add(new DefaultMutableTreeNode("Report 1"));
-        reportXslts.add(new DefaultMutableTreeNode("Report 2"));
+        List<ReportTemplateTO> reportTemplates = reportTemplateManagerService.list();
+        for (ReportTemplateTO reportTemplate : reportTemplates) {
+            reportXslts.add(new DefaultMutableTreeNode(reportTemplate.getKey()));
+        }
         treeModel.reload();
     }
 }
