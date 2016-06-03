@@ -5,10 +5,15 @@
  */
 package org.apache.syncope.netbeans.plugin.view;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
@@ -20,8 +25,6 @@ import org.apache.syncope.netbeans.plugin.connector.ResourceConnector;
 import org.apache.syncope.netbeans.plugin.constants.PluginConstants;
 import org.apache.syncope.netbeans.plugin.service.MailTemplateManagerService;
 import org.apache.syncope.netbeans.plugin.service.ReportTemplateManagerService;
-import org.apache.syncope.netbeans.plugin.view.menu.LeafNodePopupMenu;
-import org.apache.syncope.netbeans.plugin.view.menu.ParentNodePopupMenu;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -138,31 +141,28 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     if (viewComponent == null) {
                         viewComponent = new MailTemplateTopComponent(name);
                         mailTemplateComponents.put(name, viewComponent);
-                        viewComponent.open();
                     }
-                    viewComponent.setVisible(true);
+                    viewComponent.openAtTabPosition(0);
+                    viewComponent.requestActive();
                 } else {
                     ReportXsltsTopComponent viewComponent = reportXsltsComponents.get(name);
                     if (viewComponent == null) {
                         viewComponent = new ReportXsltsTopComponent(name);
                         reportXsltsComponents.put(name, viewComponent);
-                        viewComponent.open();
                     }
-                    viewComponent.setVisible(true);
+                    viewComponent.openAtTabPosition(0);
+                    viewComponent.requestActive();
                 }
             }
         } else if (evt.getButton() == MouseEvent.BUTTON3 && evt.getClickCount() == 1) {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.getLastSelectedPathComponent();
             String selectedNodeName = (String) selectedNode.getUserObject();
             if (selectedNode.isLeaf()) {
-                LeafNodePopupMenu leafNodePopupMenu = new LeafNodePopupMenu(selectedNode, resourceExplorerTree);
-                leafNodePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+                leafRightClickAction(evt,selectedNode);
             } else if (selectedNodeName.equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
-                ParentNodePopupMenu parentNodePopupMenu = new ParentNodePopupMenu(mailTemplates, resourceExplorerTree);
-                parentNodePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+                folderRightClickAction(evt,mailTemplates);
             } else if (selectedNodeName.equals(PluginConstants.REPORT_XSLTS_CONSTANT)) {
-                ParentNodePopupMenu parentNodePopupMenu = new ParentNodePopupMenu(reportXslts, resourceExplorerTree);
-                parentNodePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+                folderRightClickAction(evt, reportXslts);
             }
         }
     }//GEN-LAST:event_resourceExplorerTreeMouseClicked
@@ -207,5 +207,81 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             reportXslts.add(new DefaultMutableTreeNode(reportTemplate.getKey()));
         }
         treeModel.reload();
+    }
+    
+    private void folderRightClickAction(final MouseEvent evt,final DefaultMutableTreeNode node){
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem addItem = new JMenuItem("New");
+        menu.add(addItem);
+        
+        addItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = JOptionPane.showInputDialog("Enter Name");
+                boolean added;
+                if(node.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)){
+                    MailTemplateTO mailTemplate = new MailTemplateTO();
+                    mailTemplate.setKey(name);
+                    added = mailTemplateManagerService.create(mailTemplate);
+                    MailTemplateTopComponent component = new MailTemplateTopComponent(name);
+                    mailTemplateComponents.put(name, component);
+                    component.openAtTabPosition(0);
+                    component.requestActive();
+                }else{
+                    ReportTemplateTO reportTemplate = new ReportTemplateTO();
+                    reportTemplate.setKey(name);
+                    added = reportTemplateManagerService.create(reportTemplate);
+                    ReportXsltsTopComponent component = new ReportXsltsTopComponent(name);
+                    reportXsltsComponents.put(name, component);
+                    component.openAtTabPosition(0);
+                    component.requestActive();
+                }
+                
+                if(added){
+                    node.add(new DefaultMutableTreeNode(name));
+                    treeModel.reload(node);
+                }else{
+                    JOptionPane.showMessageDialog(null, "Error while creating "
+                            + "new element", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        menu.show(evt.getComponent(), evt.getX(), evt.getY());
+    }
+    
+    private void leafRightClickAction(final MouseEvent evt , final DefaultMutableTreeNode node){
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem deleteItem = new JMenuItem("Delete");
+        menu.add(deleteItem);
+        
+        deleteItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int result = JOptionPane.showConfirmDialog(null, "Do you want to delete ?");
+                if (result == JOptionPane.OK_OPTION) {
+                    DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+                    String name = (String) node.getUserObject();
+                    boolean deleted;
+                    if (parent.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
+                        deleted = mailTemplateManagerService.delete((String) node.getUserObject());
+                        MailTemplateTopComponent component = mailTemplateComponents.get(name);
+                        component.close();
+                        mailTemplateComponents.remove(name);
+                    } else {
+                        deleted = reportTemplateManagerService.delete((String) node.getUserObject());
+                        ReportXsltsTopComponent component = reportXsltsComponents.get(name);
+                        component.close();
+                        reportXsltsComponents.remove(name);
+                    }
+                    if (deleted) {
+                        node.removeFromParent();
+                        treeModel.reload(parent);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Error while deleting "
+                                + "new element", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+        menu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 }
