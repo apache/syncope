@@ -2,6 +2,25 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.2.8
+================================================================================
+
+** Bug
+    * [SYNCOPE-768] - Missing records in case of user list ordered by nullable schema
+    * [SYNCOPE-769] - Sync performance decrease
+    * [SYNCOPE-800] - Synchronization fails in case of accountId mapped on derived attribute starting with literal
+    * [SYNCOPE-840] - REST API doc url breaks without trailing slash
+
+** Improvement
+    * [SYNCOPE-767] - Password Policy: mustn't contain value of the following attributes case insensitive
+    * [SYNCOPE-804] - Support the explanation of the Connector Configuration properties
+    * [SYNCOPE-815] - Configure standalone to log under $CATALINA_HOME/logs
+    * [SYNCOPE-855] - Synchronization token management enhancement in case of errors
+    * [SYNCOPE-858] - Ensure afterObject is provided after propagation
+
+** New Feature
+    * [SYNCOPE-856] - Allow to provision all group's members upon request
+
 Release Notes - Syncope - Version 1.2.7
 ================================================================================
 
