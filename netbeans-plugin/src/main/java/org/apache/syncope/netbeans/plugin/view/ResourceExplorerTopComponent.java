@@ -14,9 +14,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
+import org.apache.syncope.netbeans.plugin.connector.ResourceConnector;
 import org.apache.syncope.netbeans.plugin.constants.PluginConstants;
 import org.apache.syncope.netbeans.plugin.service.MailTemplateManagerService;
 import org.apache.syncope.netbeans.plugin.service.ReportTemplateManagerService;
+import org.apache.syncope.netbeans.plugin.view.menu.LeafNodePopupMenu;
+import org.apache.syncope.netbeans.plugin.view.menu.ParentNodePopupMenu;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -69,8 +72,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         setName(Bundle.CTL_ResourceExplorerTopComponent());
         setToolTipText(Bundle.HINT_ResourceExplorerTopComponent());
 
-        mailTemplateManagerService = new MailTemplateManagerService();
-        reportTemplateManagerService = new ReportTemplateManagerService();
+        mailTemplateManagerService = ResourceConnector.getMailTemplateManagerService();
+        reportTemplateManagerService = ResourceConnector.getReportTemplateManagerService();
         treeModel = (DefaultTreeModel) resourceExplorerTree.getModel();
         root = (DefaultMutableTreeNode) treeModel.getRoot();
         mailTemplates = new DefaultMutableTreeNode(PluginConstants.MAIL_TEMPLTAE_CONSTANT);
@@ -132,7 +135,20 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     report.open();
                 }
             }
-        }
+        }else if(evt.getButton() == MouseEvent.BUTTON3 && evt.getClickCount() == 1){
+             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.getLastSelectedPathComponent();
+             String selectedNodeName = (String) selectedNode.getUserObject();
+             if(selectedNode.isLeaf()){
+                 LeafNodePopupMenu leafNodePopupMenu = new LeafNodePopupMenu(selectedNode,resourceExplorerTree);
+                 leafNodePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+             }else if(selectedNodeName.equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)){
+                 ParentNodePopupMenu parentNodePopupMenu = new ParentNodePopupMenu(mailTemplates,resourceExplorerTree);
+                 parentNodePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+             }else if(selectedNodeName.equals(PluginConstants.REPORT_XSLTS_CONSTANT)){
+                 ParentNodePopupMenu parentNodePopupMenu = new ParentNodePopupMenu(reportXslts,resourceExplorerTree);
+                 parentNodePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+             }
+        }        
     }//GEN-LAST:event_resourceExplorerTreeMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

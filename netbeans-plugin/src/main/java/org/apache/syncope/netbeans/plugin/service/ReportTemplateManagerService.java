@@ -6,11 +6,11 @@
 package org.apache.syncope.netbeans.plugin.service;
 
 import java.util.List;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
-import org.apache.syncope.common.rest.api.service.MailTemplateService;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 import org.apache.syncope.netbeans.plugin.user.UserProperties;
 
@@ -23,7 +23,7 @@ public class ReportTemplateManagerService {
     ReportTemplateService service;
     
     public ReportTemplateManagerService() {
-        String url = "http://localhost:9080/syncope/rest/";
+        String url = "http://syncope-vm.apache.org:9080/syncope/rest/";
         SyncopeClient syncopeClient = new SyncopeClientFactoryBean().
                 setAddress(url).create(UserProperties.getUserName(), 
                         UserProperties.getPassword()); 
@@ -31,20 +31,23 @@ public class ReportTemplateManagerService {
         
     }
     
+ 
     public List<ReportTemplateTO> list(){
         return service.list();
     }
     
     public boolean create(final ReportTemplateTO reportTemplateTO){
-        return false;
+        return Response.Status.CREATED.getStatusCode() == 
+                service.create(reportTemplateTO).getStatus();
     }
     
-    public Object read(String key){
-        return null;
+    public ReportTemplateTO read(String key){
+        return service.read(key);
     }
-    
+        
     public boolean delete(String key){
-        return false;
+        service.delete(key);
+        return true;
     }
     
     public Object getFormat(String key, ReportTemplateFormat format){

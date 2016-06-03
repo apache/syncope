@@ -6,6 +6,7 @@
 package org.apache.syncope.netbeans.plugin.service;
 
 import java.util.List;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
@@ -22,28 +23,29 @@ public class MailTemplateManagerService {
     private MailTemplateService service;
     
     public MailTemplateManagerService() {
-        String url = "http://localhost:9080/syncope/rest/";
+        String url = "http://syncope-vm.apache.org:9080/syncope/rest/";
         SyncopeClient syncopeClient = new SyncopeClientFactoryBean().
                 setAddress(url).create(UserProperties.getUserName(), 
                         UserProperties.getPassword()); 
         service = syncopeClient.getService(MailTemplateService.class);
     }
-    
-    
+     
     public List<MailTemplateTO> list(){
         return service.list();
     }
     
     public boolean create(final MailTemplateTO mailTemplateTO){
-        return false;
+        return Response.Status.CREATED.getStatusCode() == 
+                service.create(mailTemplateTO).getStatus();
     }
     
-    public Object read(String key){
-        return null;
+    public MailTemplateTO read(String key){
+        return service.read(key);
     }
     
     public boolean delete(String key){
-        return false;
+        service.delete(key);
+        return true;
     }
     
     public Object getFormat(String key, MailTemplateFormat format){
