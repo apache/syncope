@@ -138,19 +138,23 @@ public class PolicyRuleWizardBuilder
                 }
             });
 
-            final List<String> choices;
+            List<String> choices;
+            switch (type) {
+                case ACCOUNT:
+                    choices = new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getAccountRules());
+                    break;
 
-            if (type == PolicyType.ACCOUNT) {
-                choices = new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getAccountRules());
-            } else if (type == PolicyType.PASSWORD) {
-                choices = new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPasswordRules());
-            } else {
-                choices = new ArrayList<>();
+                case PASSWORD:
+                    choices = new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPasswordRules());
+                    break;
+
+                default:
+                    choices = new ArrayList<>();
             }
 
             Collections.<String>sort(choices);
             conf.setChoices(choices);
-            
+
             conf.addRequiredLabel();
             add(conf);
         }
@@ -173,7 +177,7 @@ public class PolicyRuleWizardBuilder
                 }
             };
 
-            add(new BeanPanel("bean", bean).setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", bean).setRenderBodyOnly(true));
         }
     }
 }

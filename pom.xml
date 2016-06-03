@@ -327,10 +327,10 @@ under the License.
 
     <connid.version>1.4.2.0</connid.version>
     <connid.soap.version>1.4.1</connid.soap.version>
-    <connid.database.version>2.2.4-SNAPSHOT</connid.database.version>
-    <connid.csvdir.version>0.8.4</connid.csvdir.version>
+    <connid.database.version>2.2.4</connid.database.version>
+    <connid.csvdir.version>0.8.5</connid.csvdir.version>
     <connid.ldap.version>1.5.1</connid.ldap.version>
-    <connid.ad.version>1.3.1</connid.ad.version>
+    <connid.ad.version>1.3.2</connid.ad.version>
 
     <cxf.version>3.1.6</cxf.version>
 
@@ -356,7 +356,7 @@ under the License.
     <activiti.version>5.20.0</activiti.version>
 
     <slf4j.version>1.7.21</slf4j.version>
-    <log4j.version>2.5</log4j.version>
+    <log4j.version>2.6</log4j.version>
     <disruptor.version>3.3.4</disruptor.version>
 
     <commons-io.version>2.5</commons-io.version>
@@ -388,7 +388,7 @@ under the License.
     <bootstrap.version>3.3.6</bootstrap.version>
     <bootstrap-select.version>1.7.3</bootstrap-select.version>
     <bootbox.version>4.4.0</bootbox.version>
-    <font-awesome.version>4.6.2</font-awesome.version>
+    <font-awesome.version>4.6.3</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.2.0</highlightjs.version>
     <codemirror.version>5.13.2</codemirror.version>
@@ -399,7 +399,7 @@ under the License.
     <wicket-bootstrap.version>0.10.6</wicket-bootstrap.version>
     <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
 
-    <angular.version>1.5.5</angular.version>
+    <angular.version>1.5.6</angular.version>
     <angular-ui-router.version>0.2.18</angular-ui-router.version>
     <angular-ui-bootstrap.version>1.3.3</angular-ui-bootstrap.version>
     <angular-ui-select.version>0.17.1</angular-ui-select.version>
@@ -1437,7 +1437,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.4.19</version>
+          <version>1.5.0</version>
           <configuration>
             <container>
               <containerId>tomcat8x</containerId>
@@ -1941,9 +1941,7 @@ under the License.
                     <replace dir="${rootpom.basedir}/target/site" token="48px" value="70px">
                       <include name="**/*.html" />
                     </replace>
-                    <replace dir="${rootpom.basedir}/target/site"
-                             token='dropdown-toggle"'
-                             value='dropdown-toggle" data-toggle="dropdown"'>
+                    <replace dir="${rootpom.basedir}/target/site" token="dropdown-toggle&quot;" value="dropdown-toggle&quot; data-toggle=&quot;dropdown&quot;">
                       <include name="**/*.html" />
                     </replace>
                   </target>

@@ -115,7 +115,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
                                             SchemaService.class).update(schemaType, modelObject);
                                 }
 
-                                updateResultTable(target);
+                                SchemaTypePanel.this.updateResultTable(target);
                                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                 modal.close(target);
                             } catch (Exception e) {

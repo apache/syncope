@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.policies;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import java.util.List;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;

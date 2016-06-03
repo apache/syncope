@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.policies;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;

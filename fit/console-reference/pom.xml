@@ -370,9 +370,7 @@ under the License.
                 <phase>package</phase>
                 <configuration>
                   <target>                                               
-                    <copy file="${basedir}/../core-reference/target/test-classes/rebel.xml"
-                          tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/rebel.xml"
-                          overwrite="true" />
+                    <copy file="${basedir}/../core-reference/target/test-classes/rebel.xml" tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/rebel.xml" overwrite="true" />
                   </target>
                 </configuration>
                 <goals>

@@ -27,22 +27,22 @@ under the License.
   </properties>
 
   <body>
-    
-    <section name="Looking for ideas?">
-      <div style="width: 700px;" type="helpwanted" project="syncope" description="Apache Syncope"></div>
-      <script src="https://helpwanted.apache.org/widget.js" type="text/javascript"></script>
-    </section>
-    
+   
     <section name="How to contribute?">
       <p>
         The Apache Syncope™ project is actively seeking new contributors to work on all aspects of the project. 
         We need and appreciate all contributions, including documentation help, source code development and feedback.
       </p>
 
+      <subsection name="Looking for ideas?">
+        <div style="width: 700px;" type="helpwanted" project="syncope" description="Apache Syncope"></div>
+        <script src="https://helpwanted.apache.org/widget.js" type="text/javascript"></script>
+      </subsection>
+
       <subsection name="Code">
         <ul>
           <li>If you have found an issue or you want to propose a new feature, post a message to the 
-            <a href="mailing-lists.html">Syncope User's list</a> to discuss it.
+            <a href="mailing-lists.html">Syncope Dev list or jump on IRC</a> to discuss it.
           </li>
           <li>Search existing 
             <a href="https://issues.apache.org/jira/secure/IssueNavigator.jspa" rel="nofollow">issues</a> to see 
@@ -52,16 +52,7 @@ under the License.
             <a href="https://issues.apache.org/jira/browse/SYNCOPE">JIRA</a> issue.
           </li>
           <li>Develop / describe a test case to demonstrate the issue.</li>
-          <li>Attach the new test to the JIRA issue.</li>
-          <li>If you have also developed a fix for the raised issue, either
-            <ul>
-              <li>attach a patch to it; here are some useful 
-                <a href="https://commons.apache.org/patches.html">guidelines</a> about how to correctly generate a patch.
-              </li>
-              <li>open a <a href="https://github.com/apache/syncope/pulls">pull request</a> - don't forget to
-                mention the JIRA issue id (e.g. SYNCOPE-XXX) opened above in the commit log message</li>
-            </ul>
-          </li>
+          <li>Review and apply our <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Git+workflow">Git workflow</a>.</li>
         </ul>
       </subsection>
 
@@ -69,31 +60,14 @@ under the License.
         <p>The website is managed via the 
           <a href="http://maven.apache.org/plugins/maven-site-plugin/">maven-site-plugin</a> and the guides are being
           maintained with <a href="http://asciidoctor.org/">Asciidoctor</a>, hence contributing site content or
-          guides is similar to contributing source code: create a new issue on JIRA and attach a GIT patch to it.
+          guides is similar to contributing <a href="#Code">source code</a>.
         </p>
         <p>The project 
           <a href="http://cwiki.apache.org/confluence/display/SYNCOPE">Wiki</a> is also available to gather any other 
           kind of documentation or contribution you would like to contribute, and does not require any GIT, Maven or 
           other technical skills.
         </p>
-      </subsection>
-    
-      <subsection name="Quick references">
-        <ul>
-          <li>
-            Discussion occurs on the 
-            <a href="mailing-lists.html">mailing lists</a>
-          </li>
-          <li>
-            Information on accessing the project source code is 
-            <a href="source-repository.html">here</a>.
-          </li>
-          <li>
-            Bugs and other issues can be posted on 
-            <a href="https://issues.apache.org/jira/browse/SYNCOPE">JIRA</a>
-          </li>
-        </ul>
-      </subsection>
+      </subsection>    
     </section>
     
     <section name="How do I become a contributor or a committer?">
