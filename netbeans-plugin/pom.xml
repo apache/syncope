@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <!--<parent>-->
+    <parent>
         <groupId>org.apache.syncope</groupId>
-        <!--<artifactId>syncope</artifactId>-->
+        <artifactId>syncope</artifactId>
         <version>2.0.0-SNAPSHOT</version>
-    <!--</parent>-->
+    </parent>
     <artifactId>netbeans-plugin</artifactId>
     <name>Apache Syncope Netbeans Plugin</name>
     <packaging>nbm</packaging>
@@ -28,6 +28,14 @@
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>ianal-maven-plugin</artifactId>
+                <version>1.0-alpha-1</version>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

@@ -6,7 +6,9 @@
 package org.apache.syncope.netbeans.plugin.view;
 
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
@@ -59,7 +61,9 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private DefaultMutableTreeNode reportXslts;
     private MailTemplateManagerService mailTemplateManagerService;
     private ReportTemplateManagerService reportTemplateManagerService;
-    
+    private Map<String, MailTemplateTopComponent> mailTemplateComponents;
+    private Map<String, ReportXsltsTopComponent> reportXsltsComponents;
+
     public ResourceExplorerTopComponent() {
 
         try {
@@ -78,6 +82,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         root = (DefaultMutableTreeNode) treeModel.getRoot();
         mailTemplates = new DefaultMutableTreeNode(PluginConstants.MAIL_TEMPLTAE_CONSTANT);
         reportXslts = new DefaultMutableTreeNode(PluginConstants.REPORT_XSLTS_CONSTANT);
+        mailTemplateComponents = new HashMap<String, MailTemplateTopComponent>();
+        reportXsltsComponents = new HashMap<String, ReportXsltsTopComponent>();
 
         root.add(mailTemplates);
         root.add(reportXslts);
@@ -128,27 +134,37 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             if (selectedNode.isLeaf()) {
                 String name = (String) selectedNode.getUserObject();
                 if (parentNode.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
-                    MailTemplateTopComponent mailTeplate = new MailTemplateTopComponent(name);
-                    mailTeplate.open();
+                    MailTemplateTopComponent viewComponent = mailTemplateComponents.get(name);
+                    if (viewComponent == null) {
+                        viewComponent = new MailTemplateTopComponent(name);
+                        mailTemplateComponents.put(name, viewComponent);
+                        viewComponent.open();
+                    }
+                    viewComponent.setVisible(true);
                 } else {
-                    ReportXsltsTopComponent report = new ReportXsltsTopComponent(name);
-                    report.open();
+                    ReportXsltsTopComponent viewComponent = reportXsltsComponents.get(name);
+                    if (viewComponent == null) {
+                        viewComponent = new ReportXsltsTopComponent(name);
+                        reportXsltsComponents.put(name, viewComponent);
+                        viewComponent.open();
+                    }
+                    viewComponent.setVisible(true);
                 }
             }
-        }else if(evt.getButton() == MouseEvent.BUTTON3 && evt.getClickCount() == 1){
-             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.getLastSelectedPathComponent();
-             String selectedNodeName = (String) selectedNode.getUserObject();
-             if(selectedNode.isLeaf()){
-                 LeafNodePopupMenu leafNodePopupMenu = new LeafNodePopupMenu(selectedNode,resourceExplorerTree);
-                 leafNodePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
-             }else if(selectedNodeName.equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)){
-                 ParentNodePopupMenu parentNodePopupMenu = new ParentNodePopupMenu(mailTemplates,resourceExplorerTree);
-                 parentNodePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
-             }else if(selectedNodeName.equals(PluginConstants.REPORT_XSLTS_CONSTANT)){
-                 ParentNodePopupMenu parentNodePopupMenu = new ParentNodePopupMenu(reportXslts,resourceExplorerTree);
-                 parentNodePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
-             }
-        }        
+        } else if (evt.getButton() == MouseEvent.BUTTON3 && evt.getClickCount() == 1) {
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.getLastSelectedPathComponent();
+            String selectedNodeName = (String) selectedNode.getUserObject();
+            if (selectedNode.isLeaf()) {
+                LeafNodePopupMenu leafNodePopupMenu = new LeafNodePopupMenu(selectedNode, resourceExplorerTree);
+                leafNodePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+            } else if (selectedNodeName.equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
+                ParentNodePopupMenu parentNodePopupMenu = new ParentNodePopupMenu(mailTemplates, resourceExplorerTree);
+                parentNodePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+            } else if (selectedNodeName.equals(PluginConstants.REPORT_XSLTS_CONSTANT)) {
+                ParentNodePopupMenu parentNodePopupMenu = new ParentNodePopupMenu(reportXslts, resourceExplorerTree);
+                parentNodePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+            }
+        }
     }//GEN-LAST:event_resourceExplorerTreeMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
