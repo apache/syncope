@@ -152,4 +152,16 @@ public class ReportTemplateITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
     }
+
+    @Test
+    public void issueSYNCOPE866() {
+        ReportTemplateTO reportTemplateTO = new ReportTemplateTO();
+        reportTemplateTO.setKey("empty");
+        try {
+            reportTemplateService.create(reportTemplateTO);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
+        }
+    }
 }

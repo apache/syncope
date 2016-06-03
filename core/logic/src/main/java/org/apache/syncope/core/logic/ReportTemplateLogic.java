@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -84,6 +85,9 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_TEMPLATE_CREATE + "')")
     public ReportTemplateTO create(final String key) {
+        if (reportTemplateDAO.find(key) != null) {
+            throw new DuplicateException(key);
+        }
         ReportTemplate reportTemplate = entityFactory.newEntity(ReportTemplate.class);
         reportTemplate.setKey(key);
         reportTemplateDAO.save(reportTemplate);

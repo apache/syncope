@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -83,6 +84,9 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
 
     @PreAuthorize("hasRole('" + StandardEntitlement.MAIL_TEMPLATE_CREATE + "')")
     public MailTemplateTO create(final String key) {
+        if (mailTemplateDAO.find(key) != null) {
+            throw new DuplicateException(key);
+        }
         MailTemplate mailTemplate = entityFactory.newEntity(MailTemplate.class);
         mailTemplate.setKey(key);
         mailTemplateDAO.save(mailTemplate);
