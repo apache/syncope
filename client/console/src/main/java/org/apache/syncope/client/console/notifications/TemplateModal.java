@@ -38,7 +38,7 @@ public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> 
 
     private final T templateTO;
 
-    private TemplateRestClient<T, F> restClient;
+    private final TemplateRestClient<T, F> restClient;
 
     public TemplateModal(
             final BaseModal<T> modal,
@@ -65,7 +65,6 @@ public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> 
         try {
             restClient.createTemplate(templateTO);
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-            modal.show(false);
             modal.close(target);
         } catch (SyncopeClientException e) {
             LOG.error("While creating template for {}", templateTO.getKey(), e);
