@@ -135,7 +135,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
             org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.findByUsername(username);
             if (user == null) {
                 result = Collections.<User>emptyList();
-            } else if (memberOf == null || userDAO.findAllGroupKeys(user).contains(memberOf)) {
+            } else if (memberOf == null || userDAO.findAllGroupNames(user).contains(memberOf)) {
                 result = Collections.singletonList(fromSyncopeUser(user));
             }
         }

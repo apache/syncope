@@ -54,6 +54,8 @@ public interface UserDAO extends AnyDAO<User> {
 
     Collection<String> findAllGroupKeys(User user);
 
+    Collection<String> findAllGroupNames(User user);
+
     Collection<ExternalResource> findAllResources(User user);
 
     Collection<String> findAllResourceNames(User user);

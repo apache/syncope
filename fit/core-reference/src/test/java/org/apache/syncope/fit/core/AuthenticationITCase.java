@@ -468,7 +468,8 @@ public class AuthenticationITCase extends AbstractITCase {
     public void issueSYNCOPE434() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
-        // 1. create user with group 9 (users with group 9 are defined in workflow as subject to approval)
+        // 1. create user with group 'groupForWorkflowApproval' 
+        // (users with group groupForWorkflowApproval are defined in workflow as subject to approval)
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
         userTO.getMemberships().add(
                 new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());

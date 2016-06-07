@@ -688,8 +688,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                     taskCandidateOrAssigned(user.getKey())));
 
             List<String> candidateGroups = new ArrayList<>();
-            for (String groupKey : userDAO.findAllGroupKeys(user)) {
-                candidateGroups.add(groupKey);
+            for (String groupName : userDAO.findAllGroupNames(user)) {
+                candidateGroups.add(groupName);
             }
             if (!candidateGroups.isEmpty()) {
                 forms.addAll(getForms(engine.getTaskService().createTaskQuery().
