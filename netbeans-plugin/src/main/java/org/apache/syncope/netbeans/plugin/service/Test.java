@@ -5,12 +5,15 @@
  */
 package org.apache.syncope.netbeans.plugin.service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
-import org.apache.syncope.netbeans.plugin.user.UserProperties;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -20,14 +23,19 @@ public class Test {
     
     public static void main(String[] args) {
         
-        String url = "http://syncope-vm.apache.org:9080/syncope/rest/";
-        SyncopeClient syncopeClient = new SyncopeClientFactoryBean().
-                setAddress(url).create(UserProperties.getUserName(), 
-                        UserProperties.getPassword()); 
-        MailTemplateService service = syncopeClient.getService(MailTemplateService.class);
-        MailTemplateTO mailTemplateTO = new MailTemplateTO();
-        
+        try {
+            String url = "http://syncope-vm.apache.org:9080/syncope/rest/";
+            SyncopeClient syncopeClient = new SyncopeClientFactoryBean().
+                    setAddress(url).create("admin","password");
+            MailTemplateService service = syncopeClient.getService(MailTemplateService.class);
+            //MailTemplateTO mailTemplateTO = new MailTemplateTO();
+            Response rs = service.getFormat("confirmPasswordReset", MailTemplateFormat.HTML);
+            String templateData = (IOUtils.toString((InputStream) rs.getEntity()));
+            System.out.println(templateData);
 //service.setFormat("", MailTemplateFormat.HTML, templateIn);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
         
     }
     

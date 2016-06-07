@@ -12,7 +12,7 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
-import org.apache.syncope.netbeans.plugin.user.UserProperties;
+import org.apache.syncope.netbeans.plugin.entity.UserProperties;
 
 /**
  *
@@ -22,16 +22,13 @@ public class ReportTemplateManagerService {
     
     ReportTemplateService service;
     
-    public ReportTemplateManagerService() {
-        String url = "http://syncope-vm.apache.org:9080/syncope/rest/";
+    public ReportTemplateManagerService(String url, String userName, String password) {
         SyncopeClient syncopeClient = new SyncopeClientFactoryBean().
-                setAddress(url).create(UserProperties.getUserName(), 
-                        UserProperties.getPassword()); 
+                setAddress(url).create(userName,password); 
         service = syncopeClient.getService(ReportTemplateService.class);
         
     }
     
- 
     public List<ReportTemplateTO> list(){
         return service.list();
     }

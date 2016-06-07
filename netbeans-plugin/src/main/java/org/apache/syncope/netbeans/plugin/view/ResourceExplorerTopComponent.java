@@ -8,19 +8,23 @@ package org.apache.syncope.netbeans.plugin.view;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
+import org.apache.syncope.common.lib.types.MailTemplateFormat;
+import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.netbeans.plugin.connector.ResourceConnector;
 import org.apache.syncope.netbeans.plugin.constants.PluginConstants;
 import org.apache.syncope.netbeans.plugin.service.MailTemplateManagerService;
@@ -28,6 +32,13 @@ import org.apache.syncope.netbeans.plugin.service.ReportTemplateManagerService;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.cookies.EditorCookie;
+import org.openide.cookies.OpenCookie;
+import org.openide.cookies.SaveCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
@@ -64,36 +75,22 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private DefaultMutableTreeNode reportXslts;
     private MailTemplateManagerService mailTemplateManagerService;
     private ReportTemplateManagerService reportTemplateManagerService;
-    private Map<String, MailTemplateTopComponent> mailTemplateComponents;
-    private Map<String, ReportXsltsTopComponent> reportXsltsComponents;
 
     public ResourceExplorerTopComponent() {
-
-        try {
-            UIManager.setLookAndFeel(new NimbusLookAndFeel());
-        } catch (UnsupportedLookAndFeelException ex) {
-            Exceptions.printStackTrace(ex);
-        }
 
         initComponents();
         setName(Bundle.CTL_ResourceExplorerTopComponent());
         setToolTipText(Bundle.HINT_ResourceExplorerTopComponent());
 
-        mailTemplateManagerService = ResourceConnector.getMailTemplateManagerService();
-        reportTemplateManagerService = ResourceConnector.getReportTemplateManagerService();
         treeModel = (DefaultTreeModel) resourceExplorerTree.getModel();
         root = (DefaultMutableTreeNode) treeModel.getRoot();
         mailTemplates = new DefaultMutableTreeNode(PluginConstants.MAIL_TEMPLTAE_CONSTANT);
         reportXslts = new DefaultMutableTreeNode(PluginConstants.REPORT_XSLTS_CONSTANT);
-        mailTemplateComponents = new HashMap<String, MailTemplateTopComponent>();
-        reportXsltsComponents = new HashMap<String, ReportXsltsTopComponent>();
 
         root.add(mailTemplates);
         root.add(reportXslts);
         treeModel.reload();
 
-        addMailTemplates();
-        addReportXslts();
     }
 
     /**
@@ -137,30 +134,33 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             if (selectedNode.isLeaf()) {
                 String name = (String) selectedNode.getUserObject();
                 if (parentNode.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
-                    MailTemplateTopComponent viewComponent = mailTemplateComponents.get(name);
-                    if (viewComponent == null) {
-                        viewComponent = new MailTemplateTopComponent(name);
-                        mailTemplateComponents.put(name, viewComponent);
+                    InputStream is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.HTML);
+
+                    try {
+                        String templateData = (IOUtils.toString(is));
+                        openEditor(name, "html", templateData);
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
                     }
-                    viewComponent.openAtTabPosition(0);
-                    viewComponent.requestActive();
+
                 } else {
-                    ReportXsltsTopComponent viewComponent = reportXsltsComponents.get(name);
-                    if (viewComponent == null) {
-                        viewComponent = new ReportXsltsTopComponent(name);
-                        reportXsltsComponents.put(name, viewComponent);
+                    InputStream is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.HTML);
+
+                    try {
+                        String templateData = (IOUtils.toString(is));
+                        openEditor(name, "html", templateData);
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
                     }
-                    viewComponent.openAtTabPosition(0);
-                    viewComponent.requestActive();
                 }
             }
         } else if (evt.getButton() == MouseEvent.BUTTON3 && evt.getClickCount() == 1) {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.getLastSelectedPathComponent();
             String selectedNodeName = (String) selectedNode.getUserObject();
             if (selectedNode.isLeaf()) {
-                leafRightClickAction(evt,selectedNode);
+                leafRightClickAction(evt, selectedNode);
             } else if (selectedNodeName.equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
-                folderRightClickAction(evt,mailTemplates);
+                folderRightClickAction(evt, mailTemplates);
             } else if (selectedNodeName.equals(PluginConstants.REPORT_XSLTS_CONSTANT)) {
                 folderRightClickAction(evt, reportXslts);
             }
@@ -173,7 +173,24 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
+        File file = new File("UserData.txt");
+        if (!file.exists()) {
+            new LoginView(null, true).setVisible(true);
+        }
+        try {
+            mailTemplateManagerService = ResourceConnector.getMailTemplateManagerService();
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Error Occured.", "Error", JOptionPane.ERROR_MESSAGE);
+            new LoginView(null, true).setVisible(true);
+        }
+        try {
+            reportTemplateManagerService = ResourceConnector.getReportTemplateManagerService();
+        } catch (IOException ex) {
+            new LoginView(null, true).setVisible(true);
+        }
+
+        addMailTemplates();
+        addReportXslts();
     }
 
     @Override
@@ -208,39 +225,41 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         }
         treeModel.reload();
     }
-    
-    private void folderRightClickAction(final MouseEvent evt,final DefaultMutableTreeNode node){
+
+    private void folderRightClickAction(final MouseEvent evt, final DefaultMutableTreeNode node) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem addItem = new JMenuItem("New");
         menu.add(addItem);
-        
+
         addItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String name = JOptionPane.showInputDialog("Enter Name");
-                boolean added;
-                if(node.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)){
-                    MailTemplateTO mailTemplate = new MailTemplateTO();
-                    mailTemplate.setKey(name);
-                    added = mailTemplateManagerService.create(mailTemplate);
-                    MailTemplateTopComponent component = new MailTemplateTopComponent(name);
-                    mailTemplateComponents.put(name, component);
-                    component.openAtTabPosition(0);
-                    component.requestActive();
-                }else{
-                    ReportTemplateTO reportTemplate = new ReportTemplateTO();
-                    reportTemplate.setKey(name);
-                    added = reportTemplateManagerService.create(reportTemplate);
-                    ReportXsltsTopComponent component = new ReportXsltsTopComponent(name);
-                    reportXsltsComponents.put(name, component);
-                    component.openAtTabPosition(0);
-                    component.requestActive();
+                boolean added = false;
+                if (node.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
+                    try {
+                        MailTemplateTO mailTemplate = new MailTemplateTO();
+                        mailTemplate.setKey(name);
+                        added = mailTemplateManagerService.create(mailTemplate);
+                        openEditor(name, "html", "");
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                } else {
+                    try {
+                        ReportTemplateTO reportTemplate = new ReportTemplateTO();
+                        reportTemplate.setKey(name);
+                        added = reportTemplateManagerService.create(reportTemplate);
+                        openEditor(name, "html", "");
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
                 }
-                
-                if(added){
+
+                if (added) {
                     node.add(new DefaultMutableTreeNode(name));
                     treeModel.reload(node);
-                }else{
+                } else {
                     JOptionPane.showMessageDialog(null, "Error while creating "
                             + "new element", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -248,12 +267,12 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         });
         menu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
-    
-    private void leafRightClickAction(final MouseEvent evt , final DefaultMutableTreeNode node){
+
+    private void leafRightClickAction(final MouseEvent evt, final DefaultMutableTreeNode node) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem deleteItem = new JMenuItem("Delete");
         menu.add(deleteItem);
-        
+
         deleteItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int result = JOptionPane.showConfirmDialog(null, "Do you want to delete ?");
@@ -263,14 +282,9 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     boolean deleted;
                     if (parent.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
                         deleted = mailTemplateManagerService.delete((String) node.getUserObject());
-                        MailTemplateTopComponent component = mailTemplateComponents.get(name);
-                        component.close();
-                        mailTemplateComponents.remove(name);
+
                     } else {
                         deleted = reportTemplateManagerService.delete((String) node.getUserObject());
-                        ReportXsltsTopComponent component = reportXsltsComponents.get(name);
-                        component.close();
-                        reportXsltsComponents.remove(name);
                     }
                     if (deleted) {
                         node.removeFromParent();
@@ -283,5 +297,20 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             }
         });
         menu.show(evt.getComponent(), evt.getX(), evt.getY());
+    }
+
+    private void openEditor(String name, String type ,String content) throws IOException {
+        File directory = new File("Template");
+        if(!directory.exists()){
+            directory.mkdir();
+        }
+        File file = new File("Template/" + name + "." + type);
+        FileWriter fw = new FileWriter(file);
+        fw.write(content);
+        fw.flush();
+        FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile()); 
+        DataObject data = DataObject.find(fob);
+        OpenCookie cookie = (OpenCookie) data.getCookie(OpenCookie.class);
+        cookie.open();
     }
 }

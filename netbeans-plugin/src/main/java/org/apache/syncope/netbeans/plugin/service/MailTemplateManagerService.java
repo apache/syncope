@@ -12,7 +12,6 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
-import org.apache.syncope.netbeans.plugin.user.UserProperties;
 
 /**
  *
@@ -22,11 +21,9 @@ public class MailTemplateManagerService {
     
     private MailTemplateService service;
     
-    public MailTemplateManagerService() {
-        String url = "http://syncope-vm.apache.org:9080/syncope/rest/";
+    public MailTemplateManagerService(String url, String userName, String password) {
         SyncopeClient syncopeClient = new SyncopeClientFactoryBean().
-                setAddress(url).create(UserProperties.getUserName(), 
-                        UserProperties.getPassword()); 
+                setAddress(url).create(userName,password); 
         service = syncopeClient.getService(MailTemplateService.class);
     }
      
@@ -49,7 +46,7 @@ public class MailTemplateManagerService {
     }
     
     public Object getFormat(String key, MailTemplateFormat format){
-        return null;
+        return service.getFormat(key, format).getEntity();
     }
     
     public boolean setFormat(String key, MailTemplateFormat format){

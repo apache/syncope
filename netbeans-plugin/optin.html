@@ -1,0 +1,20 @@
+<html> <body> <h3>Hi ${user.plainAttrMap["firstname"].values[0]} ${user.plainAttrMap["surname"].values[0]}, welcome to Syncope!</h3>  <p>    Your username is ${user.username}.<br/>    Your email address is ${user.plainAttrMap["email"].values[0]}.    Your email address inside a <a href="http://localhost/?email=${user.plainAttrMap["email"].values[0].replace('@', '%40')}">link</a>. </p>  <p>     This message was sent to the following recipients: <ul>
+ $$ for (recipient: recipients) {
+   <li>${recipient.plainAttrMap["email"].values[0]}</li>
+ $$ }
+ </ul>
+  because one of the following events occurred: <ul>
+ $$ for (event: events) {
+   <li>${event}</li>
+ $$ }
+ </ul>
+ </p> 
+ $$ if (!empty(user.memberships)) {
+ You have been provided with the following groups:
+ <ul>
+ $$ for(membership : user.memberships) {
+   <li>${membership.groupName}</li>
+ $$ }
+ </ul>
+ $$ }
+ </body> </html>
