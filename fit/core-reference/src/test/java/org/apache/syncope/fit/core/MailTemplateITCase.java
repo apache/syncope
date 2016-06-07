@@ -150,4 +150,16 @@ public class MailTemplateITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
     }
+
+    @Test
+    public void issueSYNCOPE866() {
+        MailTemplateTO mailTemplateTO = new MailTemplateTO();
+        mailTemplateTO.setKey("optin");
+        try {
+            mailTemplateService.create(mailTemplateTO);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
+        }
+    }
 }

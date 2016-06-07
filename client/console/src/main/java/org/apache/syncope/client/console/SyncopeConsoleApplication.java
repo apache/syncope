@@ -84,8 +84,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     private String site;
 
-    private String license;
-
     private String anonymousUser;
 
     private String anonymousKey;
@@ -142,8 +140,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         Args.notNull(version, "<version> not set");
         site = props.getProperty("site");
         Args.notNull(site, "<site> not set");
-        license = props.getProperty("license");
-        Args.notNull(license, "<license> not set");
         anonymousUser = props.getProperty("anonymousUser");
         Args.notNull(anonymousUser, "<anonymousUser> not set");
         anonymousKey = props.getProperty("anonymousKey");
@@ -272,10 +268,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public String getSite() {
         return site;
-    }
-
-    public String getLicense() {
-        return license;
     }
 
     public String getAnonymousUser() {

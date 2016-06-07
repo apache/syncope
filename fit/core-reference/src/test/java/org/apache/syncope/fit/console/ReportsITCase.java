@@ -131,6 +131,8 @@ public class ReportsITCase extends AbstractConsoleITCase {
 
         wicketTester.clickLink(result.getPageRelativePath() + ":cells:10:cell:panelView:viewLink");
 
+        wicketTester.assertModelValue(
+                "body:content:tabbedPanel:panel:secondLevelContainer:title", "Executions of report 'test'");
         result = findComponentByProp("status", "body:content:tabbedPanel:panel:secondLevelContainer:second:executions:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "SUCCESS");
@@ -231,6 +233,9 @@ public class ReportsITCase extends AbstractConsoleITCase {
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "updateReport");
 
         wicketTester.clickLink(result.getPageRelativePath() + ":cells:10:cell:panelEdit:editLink");
+
+        wicketTester.assertModelValue("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:"
+                + "0:outer:dialog:header:header-label", "Edit Report updateReport");
 
         FormTester formTester = wicketTester.newFormTester(
                 "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");

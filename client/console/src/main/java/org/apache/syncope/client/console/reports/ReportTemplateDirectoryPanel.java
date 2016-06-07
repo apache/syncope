@@ -56,6 +56,7 @@ import org.apache.syncope.client.console.panels.WizardModalPanel;
 import org.apache.syncope.client.console.reports.ReportTemplateDirectoryPanel.ReportTemplateProvider;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
 public class ReportTemplateDirectoryPanel
         extends DirectoryPanel<ReportTemplateTO, ReportTemplateTO, ReportTemplateProvider, ReportRestClient> {
@@ -67,6 +68,21 @@ public class ReportTemplateDirectoryPanel
     public ReportTemplateDirectoryPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, true);
         disableCheckBoxes();
+
+        modal.size(Modal.Size.Small);
+        modal.addSubmitButton();
+        setFooterVisibility(true);
+        
+        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                updateResultTable(target);
+                modal.show(false);
+            }
+        });
 
         addOuterObject(utilityModal);
         setWindowClosedReloadCallback(utilityModal);
