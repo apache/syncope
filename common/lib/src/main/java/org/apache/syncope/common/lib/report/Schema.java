@@ -22,11 +22,14 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.SchemaType;
 
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Schema {
 
-    IntMappingType[] type() default { IntMappingType.UserPlainSchema };
+    SchemaType[] type() default { SchemaType.PLAIN };
+
+    AnyTypeKind anyTypeKind();
 }

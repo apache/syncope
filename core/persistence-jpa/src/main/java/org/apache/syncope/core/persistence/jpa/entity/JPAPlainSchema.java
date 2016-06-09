@@ -27,6 +27,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Max;
@@ -40,13 +41,12 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidator;
 import org.apache.syncope.core.persistence.jpa.validation.entity.PlainSchemaCheck;
-import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaKeyCheck;
 
 @Entity
 @Table(name = JPAPlainSchema.TABLE)
+@PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id")
 @PlainSchemaCheck
-@SchemaKeyCheck
-public class JPAPlainSchema extends AbstractProvidedKeyEntity implements PlainSchema {
+public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
 
     private static final long serialVersionUID = -8621028596062054739L;
 

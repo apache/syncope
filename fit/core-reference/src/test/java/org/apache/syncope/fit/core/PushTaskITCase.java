@@ -44,7 +44,6 @@ import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
@@ -317,7 +316,6 @@ public class PushTaskITCase extends AbstractTaskITCase {
             provisionTO.setMapping(mapping);
 
             MappingItemTO item = new MappingItemTO();
-            item.setIntMappingType(IntMappingType.GroupPlainSchema);
             item.setExtAttrName("cn");
             item.setIntAttrName(schemaTO.getKey());
             item.setConnObjectKey(true);
@@ -387,7 +385,6 @@ public class PushTaskITCase extends AbstractTaskITCase {
         notification.getStaticRecipients().add("issueyncope648@syncope.apache.org");
         notification.setSelfAsRecipient(false);
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.setSender("syncope648@syncope.apache.org");
         String subject = "Test notification";

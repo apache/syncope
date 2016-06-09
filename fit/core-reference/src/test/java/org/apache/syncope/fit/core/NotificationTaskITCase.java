@@ -46,7 +46,6 @@ import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -322,7 +321,6 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
                 inGroups("f779c0d4-633b-4be5-8f57-32eb478a3ca5").query());
         notification.setSelfAsRecipient(false);
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
         notification.getStaticRecipients().add(MAIL_ADDRESS);
         notification.setRecipientsProviderClassName(TestNotificationRecipientsProvider.class.getName());
 
@@ -395,7 +393,6 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
                 inGroups("f779c0d4-633b-4be5-8f57-32eb478a3ca5").query());
         notification.setSelfAsRecipient(true);
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
         if (staticRecipients != null) {
             CollectionUtils.addAll(notification.getStaticRecipients(), staticRecipients);
         }

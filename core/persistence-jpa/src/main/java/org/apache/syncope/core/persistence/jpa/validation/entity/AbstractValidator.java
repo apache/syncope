@@ -29,7 +29,7 @@ public abstract class AbstractValidator<A extends Annotation, T> implements Cons
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
 
-    protected static final Pattern NAME_PATTERN =
+    protected static final Pattern KEY_PATTERN =
             Pattern.compile("^[\\w \\-@.]+", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     @Override

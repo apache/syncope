@@ -50,7 +50,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
@@ -506,7 +505,6 @@ public class VirAttrITCase extends AbstractITCase {
 
             MappingItemTO item = new MappingItemTO();
             item.setIntAttrName("fullname");
-            item.setIntMappingType(IntMappingType.UserPlainSchema);
             item.setExtAttrName("ID");
             item.setPurpose(MappingPurpose.PROPAGATION);
             item.setConnObjectKey(true);
@@ -515,14 +513,12 @@ public class VirAttrITCase extends AbstractITCase {
             item = new MappingItemTO();
             item.setExtAttrName("USERNAME");
             item.setIntAttrName("username");
-            item.setIntMappingType(IntMappingType.Username);
             item.setPurpose(MappingPurpose.PROPAGATION);
             mapping.getItems().add(item);
 
             item = new MappingItemTO();
             item.setExtAttrName("EMAIL");
             item.setIntAttrName("rvirtualdata");
-            item.setIntMappingType(IntMappingType.GroupVirtualSchema);
             item.setPurpose(MappingPurpose.PROPAGATION);
             mapping.getItems().add(item);
 

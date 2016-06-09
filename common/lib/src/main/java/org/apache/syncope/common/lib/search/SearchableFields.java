@@ -22,10 +22,15 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public final class SearchableFields {
@@ -33,6 +38,18 @@ public final class SearchableFields {
     private static final String[] ATTRIBUTES_NOTINCLUDED = {
         "serialVersionUID", "password"
     };
+
+    private static final Set<String> ANY_FIELDS = new HashSet<>();
+
+    static {
+        ANY_FIELDS.addAll(SearchableFields.get(UserTO.class));
+        ANY_FIELDS.addAll(SearchableFields.get(GroupTO.class));
+        ANY_FIELDS.addAll(SearchableFields.get(AnyObjectTO.class));
+    }
+
+    public static boolean contains(final String schema) {
+        return ANY_FIELDS.contains(schema);
+    }
 
     public static List<String> get(final AnyTypeKind anyTypeKind) {
         return get(anyTypeKind.getToClass());

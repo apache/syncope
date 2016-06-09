@@ -29,14 +29,14 @@ public class DomainValidator extends AbstractValidator<DomainCheck, Domain> {
     public boolean isValid(final Domain object, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        boolean isValid = !SyncopeConstants.MASTER_DOMAIN.equals(object.getKey());
-
-        if (!isValid) {
+        if (SyncopeConstants.MASTER_DOMAIN.equals(object.getKey())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidName, "Reserved: " + SyncopeConstants.MASTER_DOMAIN)).
-                    addPropertyNode("name").addConstraintViolation();
+                    getTemplate(EntityViolationType.InvalidKey, "Reserved: " + SyncopeConstants.MASTER_DOMAIN)).
+                    addPropertyNode("key").addConstraintViolation();
+
+            return false;
         }
 
-        return isValid;
+        return true;
     }
 }

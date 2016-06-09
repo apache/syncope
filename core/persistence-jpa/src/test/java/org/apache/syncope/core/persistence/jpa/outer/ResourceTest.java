@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -132,7 +131,6 @@ public class ResourceTest extends AbstractTest {
             MappingItem item = entityFactory.newEntity(MappingItem.class);
             item.setExtAttrName("test" + i);
             item.setIntAttrName("nonexistent" + i);
-            item.setIntMappingType(IntMappingType.UserPlainSchema);
             item.setMandatoryCondition("false");
             item.setPurpose(MappingPurpose.PULL);
             mapping.add(item);
@@ -141,7 +139,6 @@ public class ResourceTest extends AbstractTest {
         MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
         connObjectKey.setExtAttrName("username");
         connObjectKey.setIntAttrName("username");
-        connObjectKey.setIntMappingType(IntMappingType.UserKey);
         connObjectKey.setPurpose(MappingPurpose.PROPAGATION);
         mapping.setConnObjectKeyItem(connObjectKey);
         connObjectKey.setMapping(mapping);
@@ -151,7 +148,6 @@ public class ResourceTest extends AbstractTest {
         derived.setConnObjectKey(false);
         derived.setExtAttrName("fullname");
         derived.setIntAttrName("cn");
-        derived.setIntMappingType(IntMappingType.UserDerivedSchema);
         derived.setPurpose(MappingPurpose.PROPAGATION);
         mapping.add(derived);
         derived.setMapping(mapping);
@@ -299,7 +295,6 @@ public class ResourceTest extends AbstractTest {
         int origMapItems = csv.getProvision(anyTypeDAO.findUser()).getMapping().getItems().size();
 
         MappingItem newMapItem = entityFactory.newEntity(MappingItem.class);
-        newMapItem.setIntMappingType(IntMappingType.Username);
         newMapItem.setExtAttrName("TEST");
         newMapItem.setPurpose(MappingPurpose.PROPAGATION);
         csv.getProvision(anyTypeDAO.findUser()).getMapping().add(newMapItem);

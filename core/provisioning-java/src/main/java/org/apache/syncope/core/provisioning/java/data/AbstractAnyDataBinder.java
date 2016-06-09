@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -38,7 +37,6 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -95,11 +93,6 @@ import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 abstract class AbstractAnyDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAnyDataBinder.class);
-
-    private static final IntMappingType[] FOR_MANDATORY = new IntMappingType[] {
-        IntMappingType.AnyObjectPlainSchema, IntMappingType.AnyObjectDerivedSchema,
-        IntMappingType.UserPlainSchema, IntMappingType.UserDerivedSchema,
-        IntMappingType.GroupPlainSchema, IntMappingType.GroupDerivedSchema };
 
     @Autowired
     protected RealmDAO realmDAO;
@@ -224,10 +217,7 @@ abstract class AbstractAnyDataBinder {
 
         if (provision != null) {
             for (MappingItem item : provision.getMapping().getItems()) {
-                if (ArrayUtils.contains(FOR_MANDATORY, item.getIntMappingType())
-                        && (item.getPurpose() == MappingPurpose.PROPAGATION
-                        || item.getPurpose() == MappingPurpose.BOTH)) {
-
+                if ((item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH)) {
                     List<PlainAttrValue> values = mappingManager.getIntValues(
                             provision, item, Collections.<Any<?>>singletonList(any));
                     if (values.isEmpty() && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
@@ -351,9 +341,7 @@ abstract class AbstractAnyDataBinder {
             for (MappingItem mapItem
                     : MappingManagerImpl.getPropagationMappingItems(resource.getProvision(any.getType()))) {
 
-                if (schema.getKey().equals(mapItem.getIntAttrName())
-                        && mapItem.getIntMappingType() == anyUtils.plainIntMappingType()) {
-
+                if (schema.getKey().equals(mapItem.getIntAttrName())) {
                     propByRes.add(ResourceOperation.UPDATE, resource.getKey());
 
                     if (mapItem.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {

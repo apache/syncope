@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -51,7 +50,6 @@ public class NotificationITCase extends AbstractITCase {
                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
 
         notificationTO.setRecipientAttrName("email");
-        notificationTO.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notificationTO.setSender("syncope@syncope.apache.org");
         notificationTO.setSubject("Test notification");

@@ -35,7 +35,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -55,10 +54,6 @@ public class JPAMappingItem extends AbstractGeneratedKeyEntity implements Mappin
 
     @Column(nullable = true)
     private String intAttrName;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private IntMappingType intMappingType;
 
     /**
      * Target resource's field to be mapped.
@@ -158,55 +153,12 @@ public class JPAMappingItem extends AbstractGeneratedKeyEntity implements Mappin
 
     @Override
     public String getIntAttrName() {
-        final String name;
-
-        switch (getIntMappingType()) {
-            case UserKey:
-            case GroupKey:
-            case AnyObjectKey:
-                name = "id";
-                break;
-
-            case Username:
-                name = "username";
-                break;
-
-            case Password:
-                name = "password";
-                break;
-
-            case GroupName:
-                name = "groupName";
-                break;
-
-            case GroupOwnerSchema:
-                name = "groupOwnerSchema";
-                break;
-
-            case AnyObjectName:
-                name = "anyObjectName";
-                break;
-                
-            default:
-                name = intAttrName;
-        }
-
-        return name;
+        return intAttrName;
     }
 
     @Override
     public void setIntAttrName(final String intAttrName) {
         this.intAttrName = intAttrName;
-    }
-
-    @Override
-    public IntMappingType getIntMappingType() {
-        return intMappingType;
-    }
-
-    @Override
-    public void setIntMappingType(final IntMappingType intMappingType) {
-        this.intMappingType = intMappingType;
     }
 
     @Override

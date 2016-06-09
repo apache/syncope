@@ -49,7 +49,6 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -260,7 +259,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         MappingItemTO item = new MappingItemTO();
         item.setIntAttrName("username");
-        item.setIntMappingType(IntMappingType.Username);
         item.setExtAttrName("username");
         item.setMandatoryCondition("true");
         item.setPurpose(MappingPurpose.PULL);
@@ -269,7 +267,6 @@ public class MigrationITCase extends AbstractTaskITCase {
         item = new MappingItemTO();
         item.setPassword(true);
         item.setIntAttrName("password");
-        item.setIntMappingType(IntMappingType.Password);
         item.setExtAttrName("__PASSWORD__");
         item.setMandatoryCondition("true");
         item.setPurpose(MappingPurpose.PULL);
@@ -277,7 +274,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName(MIGRATION_CIPHER_ALGORITHM);
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("cipherAlgorithm");
         item.setMandatoryCondition("true");
         item.setPurpose(MappingPurpose.PULL);
@@ -285,7 +281,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("surname");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("surname");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -293,7 +288,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("email");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("email");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -301,7 +295,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("firstname");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("firstname");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -309,7 +302,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("ctype");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("type");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -317,7 +309,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("gender");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("gender");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -325,7 +316,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("loginDate");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("loginDate");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -333,7 +323,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName(MIGRATION_RESOURCES_SCHEMA);
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("__RESOURCES__");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -351,7 +340,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("groupName");
-        item.setIntMappingType(IntMappingType.GroupName);
         item.setExtAttrName("name");
         item.setMandatoryCondition("true");
         item.setPurpose(MappingPurpose.PULL);
@@ -359,7 +347,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("show");
-        item.setIntMappingType(IntMappingType.GroupPlainSchema);
         item.setExtAttrName("show");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -367,7 +354,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("title");
-        item.setIntMappingType(IntMappingType.GroupPlainSchema);
         item.setExtAttrName("title");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -375,7 +361,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("icon");
-        item.setIntMappingType(IntMappingType.GroupPlainSchema);
         item.setExtAttrName("icon");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -383,7 +368,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName(MIGRATION_RESOURCES_SCHEMA);
-        item.setIntMappingType(IntMappingType.GroupPlainSchema);
         item.setExtAttrName("__RESOURCES__");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -391,7 +375,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName(MIGRATION_MEMBERSHIPS_SCHEMA);
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("__MEMBERSHIPS__");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);

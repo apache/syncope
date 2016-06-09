@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -74,6 +73,8 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser.IntAttrName;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
@@ -349,7 +350,7 @@ public class MappingManagerImpl implements MappingManager {
         String connObjectKey = null;
 
         for (MappingItem mappingItem : getMappingItems(provision, MappingPurpose.PROPAGATION)) {
-            LOG.debug("Processing schema {}", mappingItem.getIntAttrName());
+            LOG.debug("Processing expression '{}'", mappingItem.getIntAttrName());
 
             try {
                 Pair<String, Attribute> preparedAttr = prepareAttr(provision, mappingItem, any, password);
@@ -373,7 +374,7 @@ public class MappingManagerImpl implements MappingManager {
                     }
                 }
             } catch (Exception e) {
-                LOG.debug("Attribute '{}' processing failed", mappingItem.getIntAttrName(), e);
+                LOG.debug("Expression '{}' processing failed", mappingItem.getIntAttrName(), e);
             }
         }
 
@@ -410,9 +411,12 @@ public class MappingManagerImpl implements MappingManager {
     private Pair<String, Attribute> prepareAttr(
             final Provision provision, final MappingItem mapItem, final Any<?> any, final String password) {
 
+        IntAttrName intAttrName =
+                IntAttrNameParser.parse(mapItem.getIntAttrName(), anyUtilsFactory, provision.getAnyType().getKind());
+
         List<Any<?>> anys = new ArrayList<>();
 
-        switch (mapItem.getIntMappingType().getAnyTypeKind()) {
+        switch (intAttrName.getAnyTypeKind()) {
             case USER:
                 if (any instanceof User) {
                     anys.add(any);
@@ -443,18 +447,14 @@ public class MappingManagerImpl implements MappingManager {
         AttrSchemaType schemaType;
         Pair<String, Attribute> result;
 
-        switch (mapItem.getIntMappingType()) {
-            case UserPlainSchema:
-            case GroupPlainSchema:
-            case AnyObjectPlainSchema:
-                schema = plainSchemaDAO.find(mapItem.getIntAttrName());
+        switch (intAttrName.getSchemaType()) {
+            case PLAIN:
+                schema = plainSchemaDAO.find(intAttrName.getSchemaName());
                 schemaType = schema == null ? AttrSchemaType.String : schema.getType();
                 break;
 
-            case UserVirtualSchema:
-            case GroupVirtualSchema:
-            case AnyObjectVirtualSchema:
-                schema = virSchemaDAO.find(mapItem.getIntAttrName());
+            case VIRTUAL:
+                schema = virSchemaDAO.find(intAttrName.getSchemaName());
                 readOnlyVirSchema = (schema != null && schema.isReadonly());
                 schemaType = AttrSchemaType.String;
                 break;
@@ -470,10 +470,9 @@ public class MappingManagerImpl implements MappingManager {
         LOG.debug("Define mapping for: "
                 + "\n* ExtAttrName " + extAttrName
                 + "\n* is connObjectKey " + mapItem.isConnObjectKey()
-                + "\n* is password " + (mapItem.isPassword() || mapItem.getIntMappingType() == IntMappingType.Password)
+                + "\n* is password " + mapItem.isPassword()
                 + "\n* mandatory condition " + mapItem.getMandatoryCondition()
-                + "\n* Schema " + mapItem.getIntAttrName()
-                + "\n* IntMappingType " + mapItem.getIntMappingType().toString()
+                + "\n* Schema " + intAttrName.getSchemaName()
                 + "\n* ClassType " + schemaType.getType().getName()
                 + "\n* Values " + values);
 
@@ -518,8 +517,7 @@ public class MappingManagerImpl implements MappingManager {
                             null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
                 }
             } else if ((schema != null && schema.isMultivalue())
-                    || anyUtilsFactory.getInstance(any).getAnyTypeKind()
-                    != mapItem.getIntMappingType().getAnyTypeKind()) {
+                    || anyUtilsFactory.getInstance(any).getAnyTypeKind() != intAttrName.getAnyTypeKind()) {
 
                 result = new ImmutablePair<>(
                         null, AttributeBuilder.build(extAttrName, objValues));
@@ -541,184 +539,150 @@ public class MappingManagerImpl implements MappingManager {
         return evaluateNAME(any, provision, connObjectKey).getNameValue();
     }
 
-    /**
-     * Get attribute values for the given {@link MappingItem} and any objects.
-     *
-     * @param provision provision information
-     * @param mappingItem mapping item
-     * @param anys any objects
-     * @return attribute values.
-     */
     @Transactional(readOnly = true)
     @Override
     public List<PlainAttrValue> getIntValues(
-            final Provision provision, final MappingItem mappingItem, final List<Any<?>> anys) {
+            final Provision provision, final MappingItem mapItem, final List<Any<?>> anys) {
 
-        LOG.debug("Get attributes for '{}' and mapping type '{}'", anys, mappingItem.getIntMappingType());
+        LOG.debug("Get attributes for '{}' and intAttrName '{}'", anys, mapItem.getIntAttrName());
 
-        boolean transform = true;
+        IntAttrName intAttrName =
+                IntAttrNameParser.parse(mapItem.getIntAttrName(), anyUtilsFactory, provision.getAnyType().getKind());
 
         List<PlainAttrValue> values = new ArrayList<>();
-        switch (mappingItem.getIntMappingType()) {
-            case UserPlainSchema:
-            case GroupPlainSchema:
-            case AnyObjectPlainSchema:
-                for (Any<?> any : anys) {
-                    PlainAttr<?> attr = any.getPlainAttr(mappingItem.getIntAttrName());
-                    if (attr != null) {
-                        if (attr.getUniqueValue() != null) {
-                            PlainAttrUniqueValue value = SerializationUtils.clone(attr.getUniqueValue());
-                            value.setAttr(null);
-                            values.add(value);
-                        } else if (attr.getValues() != null) {
-                            for (PlainAttrValue value : attr.getValues()) {
-                                PlainAttrValue shadow = SerializationUtils.clone(value);
-                                shadow.setAttr(null);
-                                values.add(shadow);
+        boolean transform = true;
+
+        if (intAttrName.getField() != null) {
+            switch (intAttrName.getField()) {
+                case "key":
+                    for (Any<?> any : anys) {
+                        AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
+                        PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                        attrValue.setStringValue(any.getKey());
+                        values.add(attrValue);
+                    }
+                    break;
+
+                case "username":
+                    for (Any<?> any : anys) {
+                        if (any instanceof User) {
+                            UPlainAttrValue attrValue = entityFactory.newEntity(UPlainAttrValue.class);
+                            attrValue.setStringValue(((User) any).getUsername());
+                            values.add(attrValue);
+                        }
+                    }
+                    break;
+
+                case "name":
+                    for (Any<?> any : anys) {
+                        if (any instanceof Group) {
+                            GPlainAttrValue attrValue = entityFactory.newEntity(GPlainAttrValue.class);
+                            attrValue.setStringValue(((Group) any).getName());
+                            values.add(attrValue);
+                        } else if (any instanceof AnyObject) {
+                            APlainAttrValue attrValue = entityFactory.newEntity(APlainAttrValue.class);
+                            attrValue.setStringValue(((AnyObject) any).getName());
+                            values.add(attrValue);
+                        }
+                    }
+                    break;
+
+                case "owner":
+                    Mapping uMapping = provision.getAnyType().equals(anyTypeDAO.findUser())
+                            ? provision.getMapping()
+                            : null;
+                    Mapping gMapping = provision.getAnyType().equals(anyTypeDAO.findGroup())
+                            ? provision.getMapping()
+                            : null;
+
+                    for (Any<?> any : anys) {
+                        if (any instanceof Group) {
+                            Group group = (Group) any;
+                            String groupOwnerValue = null;
+                            if (group.getUserOwner() != null && uMapping != null) {
+                                groupOwnerValue = getGroupOwnerValue(provision, group.getUserOwner());
+                            }
+                            if (group.getGroupOwner() != null && gMapping != null) {
+                                groupOwnerValue = getGroupOwnerValue(provision, group.getGroupOwner());
+                            }
+
+                            if (StringUtils.isNotBlank(groupOwnerValue)) {
+                                GPlainAttrValue attrValue = entityFactory.newEntity(GPlainAttrValue.class);
+                                attrValue.setStringValue(groupOwnerValue);
+                                values.add(attrValue);
                             }
                         }
                     }
+                    break;
 
-                    LOG.debug("Retrieved attribute {}"
-                            + "\n* IntAttrName {}"
-                            + "\n* IntMappingType {}"
-                            + "\n* Attribute values {}",
-                            attr, mappingItem.getIntAttrName(), mappingItem.getIntMappingType(), values);
-                }
-
-                break;
-
-            case UserDerivedSchema:
-            case GroupDerivedSchema:
-            case AnyObjectDerivedSchema:
-                DerSchema derSchema = derSchemaDAO.find(mappingItem.getIntAttrName());
-                if (derSchema != null) {
+                default:
+            }
+        } else if (intAttrName.getSchemaType() != null) {
+            switch (intAttrName.getSchemaType()) {
+                case PLAIN:
                     for (Any<?> any : anys) {
-                        String value = derAttrHandler.getValue(any, derSchema);
-                        if (value != null) {
+                        PlainAttr<?> attr = any.getPlainAttr(intAttrName.getSchemaName());
+                        if (attr != null) {
+                            if (attr.getUniqueValue() != null) {
+                                PlainAttrUniqueValue value = SerializationUtils.clone(attr.getUniqueValue());
+                                value.setAttr(null);
+                                values.add(value);
+                            } else if (attr.getValues() != null) {
+                                for (PlainAttrValue value : attr.getValues()) {
+                                    PlainAttrValue shadow = SerializationUtils.clone(value);
+                                    shadow.setAttr(null);
+                                    values.add(shadow);
+                                }
+                            }
+                        }
+                    }
+                    break;
+
+                case DERIVED:
+                    DerSchema derSchema = derSchemaDAO.find(intAttrName.getSchemaName());
+                    if (derSchema != null) {
+                        for (Any<?> any : anys) {
+                            String value = derAttrHandler.getValue(any, derSchema);
+                            if (value != null) {
+                                AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
+                                PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                                attrValue.setStringValue(value);
+                                values.add(attrValue);
+                            }
+                        }
+                    }
+                    break;
+
+                case VIRTUAL:
+                    // virtual attributes don't get transformed
+                    transform = false;
+
+                    VirSchema virSchema = virSchemaDAO.find(intAttrName.getSchemaName());
+                    if (virSchema != null) {
+                        for (Any<?> any : anys) {
+                            LOG.debug("Expire entry cache {}-{}", any.getKey(), intAttrName.getSchemaName());
+                            virAttrCache.expire(any.getType().getKey(), any.getKey(), intAttrName.getSchemaName());
+
                             AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                            attrValue.setStringValue(value);
-                            values.add(attrValue);
-
-                            LOG.debug("Retrieved values for {}"
-                                    + "\n* IntAttrName {}"
-                                    + "\n* IntMappingType {}"
-                                    + "\n* Attribute values {}",
-                                    derSchema.getKey(), mappingItem.getIntAttrName(), mappingItem.getIntMappingType(),
-                                    values);
+                            for (String value : virAttrHandler.getValues(any, virSchema)) {
+                                PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                                attrValue.setStringValue(value);
+                                values.add(attrValue);
+                            }
                         }
                     }
-                }
-                break;
+                    break;
 
-            case UserVirtualSchema:
-            case GroupVirtualSchema:
-            case AnyObjectVirtualSchema:
-                // virtual attributes don't get transformed
-                transform = false;
-
-                VirSchema virSchema = virSchemaDAO.find(mappingItem.getIntAttrName());
-                if (virSchema != null) {
-                    for (Any<?> any : anys) {
-                        LOG.debug("Expire entry cache {}-{}", any.getKey(), mappingItem.getIntAttrName());
-                        virAttrCache.expire(any.getType().getKey(), any.getKey(), mappingItem.getIntAttrName());
-
-                        AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-                        for (String value : virAttrHandler.getValues(any, virSchema)) {
-                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                            attrValue.setStringValue(value);
-                            values.add(attrValue);
-                        }
-
-                        LOG.debug("Retrieved values for {}"
-                                + "\n* IntAttrName {}"
-                                + "\n* IntMappingType {}"
-                                + "\n* Attribute values {}",
-                                virSchema.getKey(), mappingItem.getIntAttrName(), mappingItem.getIntMappingType(),
-                                values);
-                    }
-                }
-                break;
-
-            case UserKey:
-            case GroupKey:
-            case AnyObjectKey:
-                for (Any<?> any : anys) {
-                    AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-                    PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                    attrValue.setStringValue(any.getKey());
-                    values.add(attrValue);
-                }
-                break;
-
-            case Username:
-                for (Any<?> any : anys) {
-                    if (any instanceof User) {
-                        UPlainAttrValue attrValue = entityFactory.newEntity(UPlainAttrValue.class);
-                        attrValue.setStringValue(((User) any).getUsername());
-                        values.add(attrValue);
-                    }
-                }
-                break;
-
-            case GroupName:
-                for (Any<?> any : anys) {
-                    if (any instanceof Group) {
-                        GPlainAttrValue attrValue = entityFactory.newEntity(GPlainAttrValue.class);
-                        attrValue.setStringValue(((Group) any).getName());
-                        values.add(attrValue);
-                    }
-                }
-                break;
-
-            case GroupOwnerSchema:
-                Mapping uMapping = provision.getAnyType().equals(anyTypeDAO.findUser())
-                        ? provision.getMapping()
-                        : null;
-                Mapping gMapping = provision.getAnyType().equals(anyTypeDAO.findGroup())
-                        ? provision.getMapping()
-                        : null;
-
-                for (Any<?> any : anys) {
-                    if (any instanceof Group) {
-                        Group group = (Group) any;
-                        String groupOwnerValue = null;
-                        if (group.getUserOwner() != null && uMapping != null) {
-                            groupOwnerValue = getGroupOwnerValue(provision, group.getUserOwner());
-                        }
-                        if (group.getGroupOwner() != null && gMapping != null) {
-                            groupOwnerValue = getGroupOwnerValue(provision, group.getGroupOwner());
-                        }
-
-                        if (StringUtils.isNotBlank(groupOwnerValue)) {
-                            GPlainAttrValue attrValue = entityFactory.newEntity(GPlainAttrValue.class);
-                            attrValue.setStringValue(groupOwnerValue);
-                            values.add(attrValue);
-                        }
-                    }
-                }
-                break;
-
-            case AnyObjectName:
-                for (Any<?> any : anys) {
-                    if (any instanceof AnyObject) {
-                        APlainAttrValue attrValue = entityFactory.newEntity(APlainAttrValue.class);
-                        attrValue.setStringValue(((AnyObject) any).getName());
-                        values.add(attrValue);
-                    }
-                }
-                break;
-
-            default:
+                default:
+            }
         }
 
         LOG.debug("Values for propagation: {}", values);
 
         List<PlainAttrValue> transformed = values;
         if (transform) {
-            for (MappingItemTransformer transformer : getMappingItemTransformers(mappingItem)) {
-                transformed = transformer.beforePropagation(mappingItem, anys, transformed);
+            for (MappingItemTransformer transformer : getMappingItemTransformers(mapItem)) {
+                transformed = transformer.beforePropagation(mapItem, anys, transformed);
             }
             LOG.debug("Transformed values for propagation: {}", values);
         } else {
@@ -728,13 +692,6 @@ public class MappingManagerImpl implements MappingManager {
         return transformed;
     }
 
-    /**
-     * Get connObjectKey internal value.
-     *
-     * @param any any object
-     * @param provision provision information
-     * @return connObjectKey internal value
-     */
     @Transactional(readOnly = true)
     @Override
     public String getConnObjectKeyValue(final Any<?> any, final Provision provision) {
@@ -745,146 +702,134 @@ public class MappingManagerImpl implements MappingManager {
                 : values.get(0).getValueAsString();
     }
 
-    /**
-     * Set attribute values, according to the given {@link MappingItem}, to any object from attribute received from
-     * connector.
-     *
-     * @param mappingItem mapping item
-     * @param attr attribute received from connector
-     * @param anyTO any object
-     * @param anyUtils any utils
-     */
     @Transactional(readOnly = true)
     @Override
     public void setIntValues(
-            final MappingItem mappingItem, final Attribute attr, final AnyTO anyTO, final AnyUtils anyUtils) {
+            final MappingItem mapItem, final Attribute attr, final AnyTO anyTO, final AnyUtils anyUtils) {
 
         List<Object> values = null;
         if (attr != null) {
             values = attr.getValue();
-            for (MappingItemTransformer transformer : getMappingItemTransformers(mappingItem)) {
-                values = transformer.beforePull(mappingItem, anyTO, values);
+            for (MappingItemTransformer transformer : getMappingItemTransformers(mapItem)) {
+                values = transformer.beforePull(mapItem, anyTO, values);
             }
         }
         values = ListUtils.emptyIfNull(values);
 
-        switch (mappingItem.getIntMappingType()) {
-            case UserKey:
-            case GroupKey:
-            case AnyObjectKey:
-                break;
+        IntAttrName intAttrName =
+                IntAttrNameParser.parse(mapItem.getIntAttrName(), anyUtilsFactory, anyUtils.getAnyTypeKind());
 
-            case Password:
-                if (anyTO instanceof UserTO && !values.isEmpty()) {
-                    ((UserTO) anyTO).setPassword(ConnObjectUtils.getPassword(values.get(0)));
-                }
-                break;
+        if (intAttrName.getField() != null) {
+            switch (intAttrName.getField()) {
+                case "key":
+                    break;
 
-            case Username:
-                if (anyTO instanceof UserTO) {
-                    ((UserTO) anyTO).setUsername(values.isEmpty() || values.get(0) == null
-                            ? null
-                            : values.get(0).toString());
-                }
-                break;
-
-            case GroupName:
-                if (anyTO instanceof GroupTO) {
-                    ((GroupTO) anyTO).setName(values.isEmpty() || values.get(0) == null
-                            ? null
-                            : values.get(0).toString());
-                }
-                break;
-
-            case GroupOwnerSchema:
-                if (anyTO instanceof GroupTO && attr != null) {
-                    // using a special attribute (with schema "", that will be ignored) for carrying the
-                    // GroupOwnerSchema value
-                    AttrTO attrTO = new AttrTO();
-                    attrTO.setSchema(StringUtils.EMPTY);
-                    if (values.isEmpty() || values.get(0) == null) {
-                        attrTO.getValues().add(StringUtils.EMPTY);
-                    } else {
-                        attrTO.getValues().add(values.get(0).toString());
+                case "password":
+                    if (anyTO instanceof UserTO && !values.isEmpty()) {
+                        ((UserTO) anyTO).setPassword(ConnObjectUtils.getPassword(values.get(0)));
                     }
+                    break;
 
-                    ((GroupTO) anyTO).getPlainAttrs().add(attrTO);
-                }
-                break;
+                case "username":
+                    if (anyTO instanceof UserTO) {
+                        ((UserTO) anyTO).setUsername(values.isEmpty() || values.get(0) == null
+                                ? null
+                                : values.get(0).toString());
+                    }
+                    break;
 
-            case AnyObjectName:
-                if (anyTO instanceof AnyObjectTO) {
-                    ((AnyObjectTO) anyTO).setName(values.isEmpty() || values.get(0) == null
-                            ? null
-                            : values.get(0).toString());
-                }
-                break;
+                case "name":
+                    if (anyTO instanceof GroupTO) {
+                        ((GroupTO) anyTO).setName(values.isEmpty() || values.get(0) == null
+                                ? null
+                                : values.get(0).toString());
+                    } else if (anyTO instanceof AnyObjectTO) {
+                        ((AnyObjectTO) anyTO).setName(values.isEmpty() || values.get(0) == null
+                                ? null
+                                : values.get(0).toString());
+                    }
+                    break;
 
-            case UserPlainSchema:
-            case GroupPlainSchema:
-            case AnyObjectPlainSchema:
-                AttrTO attrTO = new AttrTO();
-                attrTO.setSchema(mappingItem.getIntAttrName());
-
-                PlainSchema schema = plainSchemaDAO.find(mappingItem.getIntAttrName());
-
-                for (Object value : values) {
-                    AttrSchemaType schemaType = schema == null ? AttrSchemaType.String : schema.getType();
-                    if (value != null) {
-                        PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                        switch (schemaType) {
-                            case String:
-                                attrValue.setStringValue(value.toString());
-                                break;
-
-                            case Binary:
-                                attrValue.setBinaryValue((byte[]) value);
-                                break;
-
-                            default:
-                                try {
-                                    attrValue.parseValue(schema, value.toString());
-                                } catch (ParsingValidationException e) {
-                                    LOG.error("While parsing provided value {}", value, e);
-                                    attrValue.setStringValue(value.toString());
-                                    schemaType = AttrSchemaType.String;
-                                }
-                                break;
+                case "owner":
+                    if (anyTO instanceof GroupTO && attr != null) {
+                        // using a special attribute (with schema "", that will be ignored) for carrying the
+                        // GroupOwnerSchema value
+                        AttrTO attrTO = new AttrTO();
+                        attrTO.setSchema(StringUtils.EMPTY);
+                        if (values.isEmpty() || values.get(0) == null) {
+                            attrTO.getValues().add(StringUtils.EMPTY);
+                        } else {
+                            attrTO.getValues().add(values.get(0).toString());
                         }
-                        attrTO.getValues().add(attrValue.getValueAsString(schemaType));
+
+                        ((GroupTO) anyTO).getPlainAttrs().add(attrTO);
                     }
-                }
+                    break;
 
-                anyTO.getPlainAttrs().add(attrTO);
-                break;
+                default:
+            }
+        } else if (intAttrName.getSchemaType() != null) {
+            switch (intAttrName.getSchemaType()) {
+                case PLAIN:
+                    AttrTO attrTO = new AttrTO();
+                    attrTO.setSchema(intAttrName.getSchemaName());
 
-            case UserDerivedSchema:
-            case GroupDerivedSchema:
-            case AnyObjectDerivedSchema:
-                attrTO = new AttrTO();
-                attrTO.setSchema(mappingItem.getIntAttrName());
-                anyTO.getDerAttrs().add(attrTO);
-                break;
+                    PlainSchema schema = plainSchemaDAO.find(intAttrName.getSchemaName());
 
-            case UserVirtualSchema:
-            case GroupVirtualSchema:
-            case AnyObjectVirtualSchema:
-                attrTO = new AttrTO();
-                attrTO.setSchema(mappingItem.getIntAttrName());
+                    for (Object value : values) {
+                        AttrSchemaType schemaType = schema == null ? AttrSchemaType.String : schema.getType();
+                        if (value != null) {
+                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                            switch (schemaType) {
+                                case String:
+                                    attrValue.setStringValue(value.toString());
+                                    break;
 
-                // virtual attributes don't get transformed, iterate over original attr.getValue()
-                for (Object value : (attr == null || attr.getValue() == null)
-                        ? Collections.emptyList() : attr.getValue()) {
+                                case Binary:
+                                    attrValue.setBinaryValue((byte[]) value);
+                                    break;
 
-                    if (value != null) {
-                        attrTO.getValues().add(value.toString());
+                                default:
+                                    try {
+                                        attrValue.parseValue(schema, value.toString());
+                                    } catch (ParsingValidationException e) {
+                                        LOG.error("While parsing provided value {}", value, e);
+                                        attrValue.setStringValue(value.toString());
+                                        schemaType = AttrSchemaType.String;
+                                    }
+                                    break;
+                            }
+                            attrTO.getValues().add(attrValue.getValueAsString(schemaType));
+                        }
                     }
-                }
 
-                anyTO.getVirAttrs().add(attrTO);
-                break;
+                    anyTO.getPlainAttrs().add(attrTO);
+                    break;
 
-            default:
+                case DERIVED:
+                    attrTO = new AttrTO();
+                    attrTO.setSchema(intAttrName.getSchemaName());
+                    anyTO.getDerAttrs().add(attrTO);
+                    break;
+
+                case VIRTUAL:
+                    attrTO = new AttrTO();
+                    attrTO.setSchema(intAttrName.getSchemaName());
+
+                    // virtual attributes don't get transformed, iterate over original attr.getValue()
+                    for (Object value : (attr == null || attr.getValue() == null)
+                            ? Collections.emptyList() : attr.getValue()) {
+
+                        if (value != null) {
+                            attrTO.getValues().add(value.toString());
+                        }
+                    }
+
+                    anyTO.getVirAttrs().add(attrTO);
+                    break;
+
+                default:
+            }
         }
     }
 }

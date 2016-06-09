@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
 @XmlRootElement(name = "mappingItem")
@@ -42,11 +41,6 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO {
      * different aliases, to different resource attributes.
      */
     private String intAttrName;
-
-    /**
-     * Schema type to be mapped.
-     */
-    private IntMappingType intMappingType;
 
     /**
      * External resource's field to be mapped.
@@ -133,14 +127,6 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO {
 
     public void setIntAttrName(final String intAttrName) {
         this.intAttrName = intAttrName;
-    }
-
-    public IntMappingType getIntMappingType() {
-        return intMappingType;
-    }
-
-    public void setIntMappingType(final IntMappingType intMappingType) {
-        this.intMappingType = intMappingType;
     }
 
     public MappingPurpose getPurpose() {

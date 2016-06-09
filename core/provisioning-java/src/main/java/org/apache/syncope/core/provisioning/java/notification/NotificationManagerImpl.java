@@ -33,7 +33,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -63,10 +62,13 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser.IntAttrName;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -150,6 +152,9 @@ public class NotificationManagerImpl implements NotificationManager {
     @Autowired
     private EntityFactory entityFactory;
 
+    @Autowired
+    private AnyUtilsFactory anyUtilsFactory;
+
     @Transactional(readOnly = true)
     @Override
     public long getMaxRetries() {
@@ -190,8 +195,7 @@ public class NotificationManagerImpl implements NotificationManager {
         for (User recipient : recipients) {
             virAttrHander.getValues(recipient);
 
-            String email = getRecipientEmail(notification.getRecipientAttrType(),
-                    notification.getRecipientAttrName(), recipient);
+            String email = getRecipientEmail(notification.getRecipientAttrName(), recipient);
             if (email == null) {
                 LOG.warn("{} cannot be notified: {} not found", recipient, notification.getRecipientAttrName());
             } else {
@@ -339,43 +343,43 @@ public class NotificationManagerImpl implements NotificationManager {
         return notifications;
     }
 
-    private String getRecipientEmail(
-            final IntMappingType recipientAttrType, final String recipientAttrName, final User user) {
-
+    private String getRecipientEmail(final String recipientAttrName, final User user) {
         String email = null;
 
-        switch (recipientAttrType) {
-            case Username:
-                email = user.getUsername();
-                break;
+        IntAttrName intAttrName = IntAttrNameParser.parse(recipientAttrName, anyUtilsFactory, AnyTypeKind.USER);
 
-            case UserPlainSchema:
-                UPlainAttr attr = user.getPlainAttr(recipientAttrName);
-                if (attr != null) {
-                    email = attr.getValuesAsStrings().isEmpty() ? null : attr.getValuesAsStrings().get(0);
-                }
-                break;
+        if ("username".equals(intAttrName.getField())) {
+            email = user.getUsername();
+        } else if (intAttrName.getSchemaType() != null) {
+            switch (intAttrName.getSchemaType()) {
+                case PLAIN:
+                    UPlainAttr attr = user.getPlainAttr(recipientAttrName);
+                    if (attr != null) {
+                        email = attr.getValuesAsStrings().isEmpty() ? null : attr.getValuesAsStrings().get(0);
+                    }
+                    break;
 
-            case UserDerivedSchema:
-                DerSchema schema = derSchemaDAO.find(recipientAttrName);
-                if (schema == null) {
-                    LOG.warn("Ignoring non existing {} {}", DerSchema.class.getSimpleName(), recipientAttrName);
-                } else {
-                    email = derAttrHander.getValue(user, schema);
-                }
-                break;
+                case DERIVED:
+                    DerSchema schema = derSchemaDAO.find(recipientAttrName);
+                    if (schema == null) {
+                        LOG.warn("Ignoring non existing {} {}", DerSchema.class.getSimpleName(), recipientAttrName);
+                    } else {
+                        email = derAttrHander.getValue(user, schema);
+                    }
+                    break;
 
-            case UserVirtualSchema:
-                VirSchema virSchema = virSchemaDAO.find(recipientAttrName);
-                if (virSchema == null) {
-                    LOG.warn("Ignoring non existing {} {}", VirSchema.class.getSimpleName(), recipientAttrName);
-                } else {
-                    List<String> virAttrValues = virAttrHander.getValues(user, virSchema);
-                    email = virAttrValues.isEmpty() ? null : virAttrValues.get(0);
-                }
-                break;
+                case VIRTUAL:
+                    VirSchema virSchema = virSchemaDAO.find(recipientAttrName);
+                    if (virSchema == null) {
+                        LOG.warn("Ignoring non existing {} {}", VirSchema.class.getSimpleName(), recipientAttrName);
+                    } else {
+                        List<String> virAttrValues = virAttrHander.getValues(user, virSchema);
+                        email = virAttrValues.isEmpty() ? null : virAttrValues.get(0);
+                    }
+                    break;
 
-            default:
+                default:
+            }
         }
 
         return email;

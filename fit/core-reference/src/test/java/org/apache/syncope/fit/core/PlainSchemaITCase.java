@@ -88,7 +88,7 @@ public class PlainSchemaITCase extends AbstractITCase {
             boolean entityViolationTypeCheck = false;
             for (String element : e.getElements()) {
                 if (!entityViolationTypeCheck) {
-                    entityViolationTypeCheck = element.contains(EntityViolationType.InvalidName.name());
+                    entityViolationTypeCheck = element.contains(EntityViolationType.InvalidKey.name());
                 }
             }
             assertTrue(entityViolationTypeCheck);
@@ -334,7 +334,7 @@ public class PlainSchemaITCase extends AbstractITCase {
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
-            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidKey.name()));
         }
     }
 }

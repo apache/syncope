@@ -47,6 +47,8 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -155,10 +157,10 @@ public class PullUtils {
         return result;
     }
 
-    private AnyDAO<?> getAnyDAO(final MappingItem connObjectKeyItem) {
-        return AnyTypeKind.USER == connObjectKeyItem.getIntMappingType().getAnyTypeKind()
+    private AnyDAO<?> getAnyDAO(final AnyTypeKind anyTypeKind) {
+        return AnyTypeKind.USER == anyTypeKind
                 ? userDAO
-                : AnyTypeKind.ANY_OBJECT == connObjectKeyItem.getIntMappingType().getAnyTypeKind()
+                : AnyTypeKind.ANY_OBJECT == anyTypeKind
                         ? anyObjectDAO
                         : groupDAO;
     }
@@ -181,72 +183,70 @@ public class PullUtils {
             }
         }
 
-        switch (connObjectKeyItem.getIntMappingType()) {
-            case UserPlainSchema:
-            case GroupPlainSchema:
-            case AnyObjectPlainSchema:
-                PlainAttrValue value = anyUtils.newPlainAttrValue();
+        IntAttrName intAttrName = IntAttrNameParser.parse(
+                connObjectKeyItem.getIntAttrName(),
+                anyUtilsFactory,
+                provision.getAnyType().getKind());
 
-                PlainSchema schema = plainSchemaDAO.find(connObjectKeyItem.getIntAttrName());
-                if (schema == null) {
-                    value.setStringValue(transfUid);
-                } else {
-                    try {
-                        value.parseValue(schema, transfUid);
-                    } catch (ParsingValidationException e) {
-                        LOG.error("While parsing provided __UID__ {}", transfUid, e);
-                        value.setStringValue(transfUid);
+        if (intAttrName.getField() != null) {
+            switch (intAttrName.getField()) {
+                case "key":
+                    Any<?> any = getAnyDAO(provision.getAnyType().getKind()).find(transfUid);
+                    if (any != null) {
+                        result.add(any.getKey());
                     }
-                }
+                    break;
 
-                List<? extends Any<?>> anys =
-                        getAnyDAO(connObjectKeyItem).findByAttrValue(connObjectKeyItem.getIntAttrName(), value);
-                for (Any<?> any : anys) {
-                    result.add(any.getKey());
-                }
-                break;
+                case "username":
+                    User user = userDAO.findByUsername(transfUid);
+                    if (user != null) {
+                        result.add(user.getKey());
+                    }
+                    break;
 
-            case UserDerivedSchema:
-            case GroupDerivedSchema:
-            case AnyObjectDerivedSchema:
-                anys = getAnyDAO(connObjectKeyItem).findByDerAttrValue(connObjectKeyItem.getIntAttrName(), transfUid);
-                for (Any<?> any : anys) {
-                    result.add(any.getKey());
-                }
-                break;
+                case "name":
+                    Group group = groupDAO.findByName(transfUid);
+                    if (group != null) {
+                        result.add(group.getKey());
+                    }
+                    AnyObject anyObject = anyObjectDAO.findByName(transfUid);
+                    if (anyObject != null) {
+                        result.add(anyObject.getKey());
+                    }
+                    break;
+            }
+        } else if (intAttrName.getSchemaType() != null) {
+            switch (intAttrName.getSchemaType()) {
+                case PLAIN:
+                    PlainAttrValue value = anyUtils.newPlainAttrValue();
 
-            case UserKey:
-            case GroupKey:
-            case AnyObjectKey:
-                Any<?> any = getAnyDAO(connObjectKeyItem).find(transfUid);
-                if (any != null) {
-                    result.add(any.getKey());
-                }
-                break;
+                    PlainSchema schema = plainSchemaDAO.find(intAttrName.getSchemaName());
+                    if (schema == null) {
+                        value.setStringValue(transfUid);
+                    } else {
+                        try {
+                            value.parseValue(schema, transfUid);
+                        } catch (ParsingValidationException e) {
+                            LOG.error("While parsing provided __UID__ {}", transfUid, e);
+                            value.setStringValue(transfUid);
+                        }
+                    }
 
-            case Username:
-                User user = userDAO.findByUsername(transfUid);
-                if (user != null) {
-                    result.add(user.getKey());
-                }
-                break;
+                    List<? extends Any<?>> anys = getAnyDAO(provision.getAnyType().getKind()).
+                            findByAttrValue(intAttrName.getSchemaName(), value);
+                    for (Any<?> any : anys) {
+                        result.add(any.getKey());
+                    }
+                    break;
 
-            case GroupName:
-                Group group = groupDAO.findByName(transfUid);
-                if (group != null) {
-                    result.add(group.getKey());
-                }
-                break;
-
-            case AnyObjectName:
-                AnyObject anyObject = anyObjectDAO.findByName(transfUid);
-                if (anyObject != null) {
-                    result.add(anyObject.getKey());
-                }
-                break;
-                
-            default:
-                LOG.error("Invalid connObjectKey type '{}'", connObjectKeyItem.getIntMappingType());
+                case DERIVED:
+                    anys = getAnyDAO(provision.getAnyType().getKind()).
+                            findByDerAttrValue(intAttrName.getSchemaName(), transfUid);
+                    for (Any<?> any : anys) {
+                        result.add(any.getKey());
+                    }
+                    break;
+            }
         }
 
         return result;

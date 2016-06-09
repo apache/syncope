@@ -76,7 +76,6 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
@@ -882,14 +881,12 @@ public class GroupITCase extends AbstractITCase {
             MappingTO mapping = newLDAP.getProvision(AnyTypeKind.GROUP.name()).getMapping();
 
             MappingItemTO connObjectKey = mapping.getConnObjectKeyItem();
-            connObjectKey.setIntMappingType(IntMappingType.GroupDerivedSchema);
             connObjectKey.setIntAttrName("displayProperty");
             connObjectKey.setPurpose(MappingPurpose.PROPAGATION);
             mapping.setConnObjectKeyItem(connObjectKey);
             mapping.setConnObjectLink("'cn=' + displayProperty + ',ou=groups,o=isp'");
 
             MappingItemTO description = new MappingItemTO();
-            description.setIntMappingType(IntMappingType.GroupKey);
             description.setExtAttrName("description");
             description.setPurpose(MappingPurpose.BOTH);
             mapping.add(description);

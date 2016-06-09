@@ -23,17 +23,13 @@ import java.util.Collection;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.persistence.jpa.entity.JPAVirSchema;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
@@ -122,12 +118,7 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema> implements VirSchema
             return;
         }
 
-        AnyUtilsFactory anyUtilsFactory = new JPAAnyUtilsFactory();
-        for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
-            AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
-
-            resourceDAO.deleteMapping(key, anyUtils.virIntMappingType());
-        }
+        resourceDAO.deleteMapping(key);
 
         if (schema.getAnyTypeClass() != null) {
             schema.getAnyTypeClass().getVirSchemas().remove(schema);

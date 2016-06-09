@@ -77,7 +77,6 @@ public class ResourceResultManager extends CommonsResultManager {
     private void printMappingItem(final List<MappingItemTO> mappingItemTOs) {
         for (final MappingItemTO mappingItemTO : mappingItemTOs) {
             System.out.println("             mapping key: " + mappingItemTO.getKey());
-            System.out.println("             mapping item type: " + mappingItemTO.getIntMappingType().name());
             System.out.println("             internal attribute name: " + mappingItemTO.getIntAttrName());
             System.out.println("             external attribute name: " + mappingItemTO.getExtAttrName());
             System.out.println("             mandatory condition: " + mappingItemTO.getMandatoryCondition());

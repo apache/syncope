@@ -29,7 +29,7 @@ public enum EntityViolationType {
     InvalidConnInstanceLocation("org.apache.syncope.core.persistence.validation.conninstance.location"),
     InvalidConnPoolConf("org.apache.syncope.core.persistence.validation.conninstance.poolConf"),
     InvalidMapping("org.apache.syncope.core.persistence.validation.mapping"),
-    InvalidName("org.apache.syncope.core.persistence.validation.name"),
+    InvalidKey("org.apache.syncope.core.persistence.validation.key"),
     InvalidNotification("org.apache.syncope.core.persistence.validation.notification"),
     InvalidPassword("org.apache.syncope.core.persistence.validation.user.password"),
     InvalidPolicy("org.apache.syncope.core.persistence.validation.policy"),

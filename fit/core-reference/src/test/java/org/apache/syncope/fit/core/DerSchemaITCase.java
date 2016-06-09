@@ -142,7 +142,7 @@ public class DerSchemaITCase extends AbstractITCase {
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidDerSchema, e.getType());
-            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidKey.name()));
         }
     }
 }

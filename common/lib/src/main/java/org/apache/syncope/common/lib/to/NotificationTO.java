@@ -32,7 +32,6 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "notification")
@@ -52,8 +51,6 @@ public class NotificationTO extends AbstractBaseBean implements EntityTO {
     private String recipientsFIQL;
 
     private final List<String> staticRecipients = new ArrayList<>();
-
-    private IntMappingType recipientAttrType;
 
     private String recipientAttrName;
 
@@ -115,14 +112,6 @@ public class NotificationTO extends AbstractBaseBean implements EntityTO {
 
     public void setRecipientAttrName(final String recipientAttrName) {
         this.recipientAttrName = recipientAttrName;
-    }
-
-    public IntMappingType getRecipientAttrType() {
-        return recipientAttrType;
-    }
-
-    public void setRecipientAttrType(final IntMappingType recipientAttrType) {
-        this.recipientAttrType = recipientAttrType;
     }
 
     public boolean isSelfAsRecipient() {

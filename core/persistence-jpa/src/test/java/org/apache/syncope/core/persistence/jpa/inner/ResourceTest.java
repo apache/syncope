@@ -26,12 +26,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-import java.util.UUID;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -120,7 +117,6 @@ public class ResourceTest extends AbstractTest {
         MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
         connObjectKey.setExtAttrName("username");
         connObjectKey.setIntAttrName("fullname");
-        connObjectKey.setIntMappingType(IntMappingType.UserKey);
         connObjectKey.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(connObjectKey);
 
@@ -157,7 +153,6 @@ public class ResourceTest extends AbstractTest {
 
         MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
         connObjectKey.setConnObjectKey(true);
-        connObjectKey.setIntMappingType(IntMappingType.UserPlainSchema);
         mapping.add(connObjectKey);
 
         // save the resource
@@ -184,7 +179,6 @@ public class ResourceTest extends AbstractTest {
 
         MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
         connObjectKey.setConnObjectKey(true);
-        connObjectKey.setIntMappingType(IntMappingType.UserVirtualSchema);
         mapping.setConnObjectKeyItem(connObjectKey);
 
         // save the resource
@@ -212,12 +206,10 @@ public class ResourceTest extends AbstractTest {
         MappingItem item = entityFactory.newEntity(MappingItem.class);
         item.setConnObjectKey(true);
         item.setIntAttrName("fullname");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         mapping.add(item);
 
         item = entityFactory.newEntity(MappingItem.class);
         item.setIntAttrName("userId");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         mapping.add(item);
 
         resourceDAO.save(resource);
@@ -241,7 +233,6 @@ public class ResourceTest extends AbstractTest {
         MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
         connObjectKey.setExtAttrName("username");
         connObjectKey.setIntAttrName("fullname");
-        connObjectKey.setIntMappingType(IntMappingType.UserKey);
         connObjectKey.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(connObjectKey);
 
@@ -277,12 +268,10 @@ public class ResourceTest extends AbstractTest {
         MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
         connObjectKey.setExtAttrName("username");
         connObjectKey.setIntAttrName("fullname");
-        connObjectKey.setIntMappingType(IntMappingType.UserKey);
         connObjectKey.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(connObjectKey);
 
         MappingItem virtualMapItem = entityFactory.newEntity(MappingItem.class);
-        virtualMapItem.setIntMappingType(IntMappingType.UserVirtualSchema);
         virtualMapItem.setIntAttrName("virtualReadOnly");
         virtualMapItem.setExtAttrName("TEST");
         virtualMapItem.setPurpose(MappingPurpose.BOTH);
@@ -324,21 +313,18 @@ public class ResourceTest extends AbstractTest {
         MappingItem item = entityFactory.newEntity(MappingItem.class);
         item.setIntAttrName("fullname");
         item.setExtAttrName("fullname");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(item);
 
         item = entityFactory.newEntity(MappingItem.class);
         item.setIntAttrName("icon");
         item.setExtAttrName("icon");
-        item.setIntMappingType(IntMappingType.GroupPlainSchema);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.add(item);
 
         item = entityFactory.newEntity(MappingItem.class);
         item.setIntAttrName("mderiveddata");
         item.setExtAttrName("mderiveddata");
-        item.setIntMappingType(IntMappingType.AnyObjectDerivedSchema);
         item.setPurpose(MappingPurpose.PROPAGATION);
         mapping.add(item);
 
@@ -346,18 +332,7 @@ public class ResourceTest extends AbstractTest {
         ExternalResource actual = resourceDAO.save(resource);
         assertNotNull(actual);
 
-        int items = 0;
-        for (MappingItem mapItem : actual.getProvision(anyTypeDAO.findUser()).getMapping().getItems()) {
-            items++;
-
-            if ("icon".equals(mapItem.getIntAttrName())) {
-                assertTrue(IntMappingType.contains(AnyTypeKind.GROUP, mapItem.getIntMappingType().toString()));
-            }
-            if ("mderiveddata".equals(mapItem.getIntAttrName())) {
-                assertTrue(IntMappingType.contains(AnyTypeKind.ANY_OBJECT, mapItem.getIntMappingType().toString()));
-            }
-        }
-        assertEquals(3, items);
+        assertEquals(3, actual.getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
     }
 
     @Test
@@ -380,7 +355,7 @@ public class ResourceTest extends AbstractTest {
             resourceDAO.save(resource);
             fail();
         } catch (InvalidEntityException e) {
-            assertTrue(e.hasViolation(EntityViolationType.InvalidName));
+            assertTrue(e.hasViolation(EntityViolationType.InvalidKey));
         }
     }
 
@@ -405,7 +380,6 @@ public class ResourceTest extends AbstractTest {
         final MappingItem item = entityFactory.newEntity(MappingItem.class);
         item.setIntAttrName("icon");
         item.setExtAttrName("icon");
-        item.setIntMappingType(IntMappingType.GroupPlainSchema);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(item);
 

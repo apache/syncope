@@ -16,26 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib;
+package org.apache.syncope.core.persistence.jpa.entity;
 
-import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.common.lib.to.EntityTO;
+import javax.persistence.Cacheable;
+import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Table;
+import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaKeyCheck;
 
-public final class EntityTOUtils {
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = AbstractSchema.TABLE)
+@Cacheable
+@SchemaKeyCheck
+public abstract class AbstractSchema extends AbstractProvidedKeyEntity implements Schema {
 
-    public static <E extends EntityTO> Transformer<E, String> keyTransformer() {
-        return new Transformer<E, String>() {
+    public static final String TABLE = "SyncopeSchema";
 
-            @Override
-            public String transform(final E input) {
-                return input.getKey();
-            }
-        };
-    }
+    private static final long serialVersionUID = -9222344997225831269L;
 
-    /**
-     * Private default constructor, for static-only classes.
-     */
-    private EntityTOUtils() {
-    }
 }

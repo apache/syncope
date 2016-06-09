@@ -25,35 +25,33 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
 
+    private static final AnyUtilsFactory ANY_UTILS_FACTORY = new JPAAnyUtilsFactory();
+
     private boolean isValid(final MappingItem item, final ConstraintValidatorContext context) {
         if (StringUtils.isBlank(item.getExtAttrName())) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, item + " - extAttrName is null")).
                     addPropertyNode("extAttrName").addConstraintViolation();
-
-            return false;
-        }
-
-        if (StringUtils.isBlank(item.getIntAttrName())) {
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, item + " - intAttrName is null")).
-                    addPropertyNode("intAttrName").addConstraintViolation();
 
             return false;
         }
@@ -66,24 +64,40 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             return false;
         }
 
-        if (item.getIntMappingType() == IntMappingType.AnyObjectDerivedSchema
-                || item.getIntMappingType() == IntMappingType.GroupDerivedSchema
-                || item.getIntMappingType() == IntMappingType.UserDerivedSchema) {
+        if (StringUtils.isBlank(item.getIntAttrName())) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidMapping, item + " - intAttrName is null")).
+                    addPropertyNode("intAttrName").addConstraintViolation();
 
-            if (item.getPurpose() != MappingPurpose.PROPAGATION) {
-                context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidMapping,
-                                " - only " + MappingPurpose.PROPAGATION.name() + " allowed for derived")).
-                        addPropertyNode("purpose").addConstraintViolation();
-
-                return false;
-            }
+            return false;
         }
 
-        if (item.getIntMappingType() == IntMappingType.AnyObjectVirtualSchema
-                || item.getIntMappingType() == IntMappingType.GroupVirtualSchema
-                || item.getIntMappingType() == IntMappingType.UserVirtualSchema) {
+        IntAttrName intAttrName = null;
+        try {
+            intAttrName = IntAttrNameParser.parse(
+                    item.getIntAttrName(),
+                    ANY_UTILS_FACTORY,
+                    item.getMapping().getProvision().getAnyType().getKind());
+        } catch (IllegalArgumentException e) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidMapping, item + " - " + e.getMessage())).
+                    addPropertyNode("intAttrName").addConstraintViolation();
 
+            return false;
+        }
+
+        if (intAttrName.getSchemaType() == SchemaType.DERIVED
+                && item.getPurpose() != MappingPurpose.PROPAGATION) {
+
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidMapping,
+                            " - only " + MappingPurpose.PROPAGATION.name() + " allowed for derived")).
+                    addPropertyNode("purpose").addConstraintViolation();
+
+            return false;
+        }
+
+        if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
             if (item.getPurpose() != MappingPurpose.PROPAGATION) {
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidMapping,
@@ -136,14 +150,6 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             return false;
         }
 
-        MappingItem connObjectKey = mapping.getConnObjectKeyItem();
-        if (connObjectKey.getIntMappingType().getAnyTypeKind() != anyType.getKind()) {
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, "ConnObjectKey must be from the same AnyTypeKind")).
-                    addPropertyNode("anyTypeKind").addConstraintViolation();
-            return false;
-        }
-
         boolean isValid = true;
 
         int passwords = 0;
@@ -189,10 +195,10 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
     public boolean isValid(final ExternalResource resource, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (resource.getKey() == null || !NAME_PATTERN.matcher(resource.getKey()).matches()) {
+        if (resource.getKey() == null || !KEY_PATTERN.matcher(resource.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidName, "Invalid Resource name")).
-                    addPropertyNode("name").addConstraintViolation();
+                    getTemplate(EntityViolationType.InvalidKey, "Invalid resource key")).
+                    addPropertyNode("key").addConstraintViolation();
             return false;
         }
 

@@ -44,7 +44,6 @@ import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
@@ -157,21 +156,20 @@ public class MultitenancyITCase extends AbstractITCase {
 
             MappingItemTO item = new MappingItemTO();
             item.setIntAttrName("username");
-            item.setIntMappingType(IntMappingType.Username);
             item.setExtAttrName("cn");
             item.setPurpose(MappingPurpose.BOTH);
             mapping.setConnObjectKeyItem(item);
 
             item = new MappingItemTO();
             item.setPassword(true);
-            item.setIntMappingType(IntMappingType.Password);
+            item.setIntAttrName("password");
             item.setExtAttrName("userPassword");
             item.setPurpose(MappingPurpose.BOTH);
             item.setMandatoryCondition("true");
             mapping.add(item);
 
             item = new MappingItemTO();
-            item.setIntMappingType(IntMappingType.UserKey);
+            item.setIntAttrName("key");
             item.setPurpose(MappingPurpose.BOTH);
             item.setExtAttrName("sn");
             item.setMandatoryCondition("true");
@@ -179,7 +177,6 @@ public class MultitenancyITCase extends AbstractITCase {
 
             item = new MappingItemTO();
             item.setIntAttrName("email");
-            item.setIntMappingType(IntMappingType.UserPlainSchema);
             item.setPurpose(MappingPurpose.BOTH);
             item.setExtAttrName("mail");
             mapping.add(item);
