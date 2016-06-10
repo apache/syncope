@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -134,7 +135,8 @@ public class Relationships extends WizardStep {
                                             public void onClick(
                                                     final AjaxRequestTarget target, final RelationshipTO modelObject) {
                                                 removeRelationships(relationships, modelObject);
-                                                send(Relationships.this, Broadcast.DEPTH, new ListViewReload(target));
+                                                send(Relationships.this, Broadcast.DEPTH, 
+                                                        new ListViewReload<Serializable>(target));
                                             }
                                         }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).
                                         build(panelId);

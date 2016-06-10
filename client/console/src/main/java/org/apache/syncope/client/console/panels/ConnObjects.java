@@ -50,8 +50,8 @@ public class ConnObjects extends Panel implements ModalPanel {
 
         super(BaseModal.CONTENT_ID);
 
-        List<String> availableAnyTypes =
-                CollectionUtils.collect(new ResourceRestClient().read(resource).getProvisions(),
+        List<String> availableAnyTypes = CollectionUtils.
+                collect(new ResourceRestClient().read(resource).getProvisions(),
                         new Transformer<ProvisionTO, String>() {
 
                     @Override
@@ -104,9 +104,13 @@ public class ConnObjects extends Panel implements ModalPanel {
         });
     }
 
-    private class NextableConnObjectDirectoryPanel extends ConnObjectDirectoryPanel {
+    private class NextableConnObjectDirectoryPanel extends ConnObjectListViewPanel {
 
         private static final long serialVersionUID = 956427874406567048L;
+
+        private final BaseModal<?> baseModal;
+
+        private final PageReference pageRef;
 
         NextableConnObjectDirectoryPanel(
                 final BaseModal<?> baseModal,
@@ -115,7 +119,9 @@ public class ConnObjects extends Panel implements ModalPanel {
                 final String anyType,
                 final PageReference pageRef) {
 
-            super(baseModal, multiLevelPanelRef, resource, anyType, pageRef);
+            super(MultilevelPanel.FIRST_LEVEL_ID, resource, anyType, pageRef);
+            this.baseModal = baseModal;
+            this.pageRef = pageRef;
         }
 
         @Override
