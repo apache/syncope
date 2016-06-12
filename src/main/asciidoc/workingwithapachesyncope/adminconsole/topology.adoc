@@ -16,20 +16,11 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== Identity Stores
-An identity store is the place where digital identities are stored. Of course there are various store types, the most
-famous are:
 
-* Microsoft Active Directory;
-* LDAP
-** OpenLDAP;
-** FreeIPA;
-** ForgeRock OpenDJ;
-** 389 Directory Server;
-* DBMS
-** MySQL
-** PostgreSQL
-** Oracle
+===== Topology
+The topology tab provides a mapped view of the available connector bundles, instances and
+resources available and configured in the syncope deployment. It also allows the admin to perform
+all the actions listed in the realms tab.
 
-From Apache Syncope point of view, an identity store is viewed as an integrated resource with a communication based
-on the identity connectors.
+image::consoleTopology.png[console-topology]
+

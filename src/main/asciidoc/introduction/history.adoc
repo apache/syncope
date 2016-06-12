@@ -19,13 +19,13 @@
 === A bit of history
 Syncope, officially, borns at the end of April 2010 with the first https://code.google.com/p/syncope/source/detail?r=1[commit]
 on the GoogleCode repository.
-Syncope development started from a group of IdM experts and Open Source enthusiasts; it starts to be an Open Source projet,
-so after two years the developers tried to donate the code to the Apache Software Foundation and, precisely In February 
+Syncope development started from a group of IdM experts and Open Source enthusiasts; it starts to be an Open Source project,
+so after two years the developers tried to donate the code to the Apache Software Foundation and, precisely in February
 2012, Syncope became an ASF project; of course starting its journey from the incubator state.
 
-Now, after three years as ASF project, the community counts 16 developers (from different country) and hundreds of ML 
+Now, after three years as ASF project, the community counts 16 developers (from different countries) and hundreds of ML
 members.
 
-From the projects point of view, there isn't a website where to find a complete list of project reference but, reading
-the user mailing list and this one[http://syncope.tirasa.net/success-stories.html], you can say that several company
+From the project's point of view, there isn't a website to find a complete list of project reference, but reading
+the user mailing list and this one[http://syncope.tirasa.net/success-stories.html], you can say that several companies
 have chosen Syncope as their own identity manager system.

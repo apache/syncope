@@ -16,20 +16,17 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== Identity Stores
-An identity store is the place where digital identities are stored. Of course there are various store types, the most
-famous are:
 
-* Microsoft Active Directory;
-* LDAP
-** OpenLDAP;
-** FreeIPA;
-** ForgeRock OpenDJ;
-** 389 Directory Server;
-* DBMS
-** MySQL
-** PostgreSQL
-** Oracle
+==== Introduction
+Once the syncope installation has been deployed to a server, you can go to the following url to access the console.
+[source]
+--
+http://localhost:9080/syncope-console/
+--
 
-From Apache Syncope point of view, an identity store is viewed as an integrated resource with a communication based
-on the identity connectors.
+You should be greeted with the following web page.
+
+image::consoleLogin.png[console-login]
+
+The default admin password for a fresh installation is "password". Enter your credentials and
+press Login.

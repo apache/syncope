@@ -16,20 +16,17 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== Identity Stores
-An identity store is the place where digital identities are stored. Of course there are various store types, the most
-famous are:
+=== Using the Admin Console
+include::introduction.adoc[]
 
-* Microsoft Active Directory;
-* LDAP
-** OpenLDAP;
-** FreeIPA;
-** ForgeRock OpenDJ;
-** 389 Directory Server;
-* DBMS
-** MySQL
-** PostgreSQL
-** Oracle
+include::dashboard.adoc[]
 
-From Apache Syncope point of view, an identity store is viewed as an integrated resource with a communication based
-on the identity connectors.
+include::realms.adoc[]
+
+include::topology.adoc[]
+
+include::reports.adoc[]
+
+include::configuration.adoc[]
+
+include::extensions.adoc[]
