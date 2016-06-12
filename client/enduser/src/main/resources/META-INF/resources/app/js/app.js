@@ -424,13 +424,13 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       });
       //wizard active element
       $scope.wizard = {
-        "credentials": {url: "/credentials", templateUrl: "views/user-credentials.html"},
-        "groups": {url: "/groups", templateUrl: "views/user-groups.html"},
-        "plainSchemas": {url: "/plainSchemas", templateUrl: "views/user-plain-schemas.html"},
-        "derivedSchemas": {url: "/derivedSchemas", templateUrl: "views/user-derived-schemas.html"},
-        "virtualSchemas": {url: "/virtualSchemas", templateUrl: "views/user-virtual-schemas.html"},
-        "resources": {url: "/resources", templateUrl: "views/user-resources.html"},
-        "finish": {url: "/finish", templateUrl: "views/user-form-finish.html"}
+        "credentials": {url: "/credentials"},
+        "groups": {url: "/groups"},
+        "plainSchemas": {url: "/plainSchemas"},
+        "derivedSchemas": {url: "/derivedSchemas"},
+        "virtualSchemas": {url: "/virtualSchemas"},
+        "resources": {url: "/resources"},
+        "finish": {url: "/finish"}
       };
       $scope.clearCache = function () {
         $templateCache.removeAll();

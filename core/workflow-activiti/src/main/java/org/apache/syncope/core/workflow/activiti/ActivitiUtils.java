@@ -27,12 +27,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class ActivitiUtils {
 
     @Transactional(readOnly = true)
-    public boolean isUserIngroup(final User user, final String groupKey) {
+    public boolean isUserIngroup(final User user, final String groupName) {
         return IterableUtils.matchesAny(user.getMemberships(), new Predicate<UMembership>() {
 
             @Override
             public boolean evaluate(final UMembership membership) {
-                return groupKey != null && groupKey.equals(membership.getRightEnd().getKey());
+                return groupName != null && groupName.equals(membership.getRightEnd().getName());
             }
         });
     }

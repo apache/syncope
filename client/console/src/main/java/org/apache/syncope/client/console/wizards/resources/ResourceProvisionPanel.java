@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
+import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -167,7 +168,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
                         resourceTO.getProvisions().remove(provisionTO);
-                        send(ResourceProvisionPanel.this, Broadcast.DEPTH, new ListViewPanel.ListViewReload(target));
+                        send(ResourceProvisionPanel.this, Broadcast.DEPTH, new ListViewReload<Serializable>(target));
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_DELETE);
 

@@ -29,6 +29,7 @@ import java.util.List;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
@@ -36,7 +37,6 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.basic.Label;
@@ -110,7 +110,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         final CheckGroup<T> checkGroup = new CheckGroup<>("group", model);
         checkGroup.setOutputMarkupId(true);
-        checkGroup.add(new AjaxFormChoiceComponentUpdatingBehavior() {
+        checkGroup.add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -151291731388673682L;
 
@@ -391,8 +391,17 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
             target.add(ListViewPanel.this);
             super.onEvent(event);
-        } else if (event.getPayload() instanceof ListViewReload) {
-            ((ListViewReload) event.getPayload()).getTarget().add(ListViewPanel.this);
+        } else if (event.getPayload() instanceof ListViewPanel.ListViewReload) {
+            final ListViewPanel.ListViewReload<?> payload = (ListViewPanel.ListViewReload<?>) event.getPayload();
+            if (payload.getItems() != null) {
+                ListViewPanel.this.listOfItems.clear();
+                try {
+                    ListViewPanel.this.listOfItems.addAll((List<T>) payload.getItems());
+                } catch (RuntimeException re) {
+                    LOG.warn("Error reloading items", re);
+                }
+            }
+            payload.getTarget().add(ListViewPanel.this);
         } else {
             super.onEvent(event);
         }
@@ -400,17 +409,30 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
     protected abstract T getActualItem(final T item, final List<T> list);
 
-    public static class ListViewReload {
+    public static class ListViewReload<T extends Serializable> implements Serializable {
+
+        private static final long serialVersionUID = 1509151005816590312L;
 
         private final AjaxRequestTarget target;
 
+        private final List<T> items;
+
         public ListViewReload(final AjaxRequestTarget target) {
             this.target = target;
+            this.items = null;
+        }
+
+        public ListViewReload(final List<T> items, final AjaxRequestTarget target) {
+            this.target = target;
+            this.items = items;
         }
 
         public AjaxRequestTarget getTarget() {
             return target;
         }
 
+        public List<T> getItems() {
+            return items;
+        }
     }
 }

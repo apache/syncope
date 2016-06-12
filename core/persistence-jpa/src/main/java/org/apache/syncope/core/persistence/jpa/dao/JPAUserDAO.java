@@ -465,6 +465,18 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
+    public Collection<String> findAllGroupNames(final User user) {
+        return CollectionUtils.collect(findAllGroups(user), new Transformer<Group, String>() {
+
+            @Override
+            public String transform(final Group input) {
+                return input.getName();
+            }
+        });
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
     public Collection<ExternalResource> findAllResources(final User user) {
         Set<ExternalResource> result = new HashSet<>();
         result.addAll(user.getResources());
