@@ -13,5 +13,5 @@ public class PluginConstants {
     
     public static final String MAIL_TEMPLTAE_CONSTANT = "Mail Template";
     public static final String REPORT_XSLTS_CONSTANT = "Report XSLTs";
-    
+    public static final String[] TEMPLATE_FORMATS = {"TEXT", "HTML"};
 }

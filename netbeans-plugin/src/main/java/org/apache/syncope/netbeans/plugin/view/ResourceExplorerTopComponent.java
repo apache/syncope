@@ -9,11 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -32,11 +30,8 @@ import org.apache.syncope.netbeans.plugin.service.ReportTemplateManagerService;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.cookies.EditorCookie;
 import org.openide.cookies.OpenCookie;
-import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
@@ -134,23 +129,53 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             if (selectedNode.isLeaf()) {
                 String name = (String) selectedNode.getUserObject();
                 if (parentNode.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
-                    InputStream is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.HTML);
+                    Object format = JOptionPane.showInputDialog(null, "Select File Format",
+                            "File format", JOptionPane.QUESTION_MESSAGE, null, PluginConstants.TEMPLATE_FORMATS, "TEXT");
 
-                    try {
-                        String templateData = (IOUtils.toString(is));
-                        openEditor(name, "html", templateData);
-                    } catch (IOException ex) {
-                        Exceptions.printStackTrace(ex);
+                    InputStream is;
+                    if (format.equals("HTML")) {
+                        is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.HTML);
+
+                        try {
+                            String templateData = (IOUtils.toString(is));
+                            openEditor(name, "html", templateData);
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    } else {
+                        is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.TEXT);
+
+                        try {
+                            String templateData = (IOUtils.toString(is));
+                            openEditor(name, "txt", templateData);
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
                     }
-
                 } else {
-                    InputStream is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.HTML);
 
-                    try {
-                        String templateData = (IOUtils.toString(is));
-                        openEditor(name, "html", templateData);
-                    } catch (IOException ex) {
-                        Exceptions.printStackTrace(ex);
+                    Object format = JOptionPane.showInputDialog(null, "Select File Format",
+                            "File format", JOptionPane.QUESTION_MESSAGE, null, PluginConstants.TEMPLATE_FORMATS, "TEXT");
+
+                    InputStream is;
+                    if (format.equals("HTML")) {
+                        is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.HTML);
+
+                        try {
+                            String templateData = (IOUtils.toString(is));
+                            openEditor(name, "html", templateData);
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    } else {
+                        is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.TEXT);
+
+                        try {
+                            String templateData = (IOUtils.toString(is));
+                            openEditor(name, "txt", templateData);
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
                     }
                 }
             }
@@ -282,7 +307,6 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     boolean deleted;
                     if (parent.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
                         deleted = mailTemplateManagerService.delete((String) node.getUserObject());
-
                     } else {
                         deleted = reportTemplateManagerService.delete((String) node.getUserObject());
                     }
@@ -299,16 +323,16 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         menu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 
-    private void openEditor(String name, String type ,String content) throws IOException {
+    private void openEditor(String name, String type, String content) throws IOException {
         File directory = new File("Template");
-        if(!directory.exists()){
+        if (!directory.exists()) {
             directory.mkdir();
         }
         File file = new File("Template/" + name + "." + type);
         FileWriter fw = new FileWriter(file);
         fw.write(content);
         fw.flush();
-        FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile()); 
+        FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
         DataObject data = DataObject.find(fob);
         OpenCookie cookie = (OpenCookie) data.getCookie(OpenCookie.class);
         cookie.open();
