@@ -77,8 +77,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
-    private static final transient int MAX_CONNOBJ_SEARCH_SIZE = 1000;
-
     @Autowired
     private ExternalResourceDAO resourceDAO;
 
@@ -320,7 +318,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_LIST_CONNOBJECT + "')")
     @Transactional(readOnly = true)
     public Pair<SearchResult, List<ConnObjectTO>> listConnObjects(final String key, final String anyTypeKey,
-            final Integer size, final String pagedResultsCookie, final List<OrderByClause> orderBy) {
+            final int size, final String pagedResultsCookie, final List<OrderByClause> orderBy) {
 
         Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
 
@@ -349,9 +347,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             @Override
             public boolean handle(final ConnectorObject connectorObject) {
                 connObjects.add(connObjectUtils.getConnObjectTO(connectorObject));
-                // provide safety approach in case of pagination not supported or not required (SYNCOPE-829 reworking)
+                // safety protection against uncontrolled result size
                 count++;
-                return count < MAX_CONNOBJ_SEARCH_SIZE;
+                return count < size;
             }
         }, size, pagedResultsCookie, orderBy, mapItems);
 
