@@ -336,7 +336,7 @@ under the License.
 
     <camel.version>2.17.1</camel.version>	
 
-    <jackson.version>2.7.4</jackson.version>
+    <jackson.version>2.7.5</jackson.version>
 
     <spring.version>4.2.6.RELEASE</spring.version>
     <spring-security.version>4.1.0.RELEASE</spring-security.version>
@@ -1340,7 +1340,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.3</version>          
+          <version>2.10.4</version>          
         </plugin>
         
         <plugin>
@@ -1900,7 +1900,7 @@ under the License.
                 <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-javadoc-plugin</artifactId>
-                  <version>2.10.3</version>
+                  <version>2.10.4</version>
                   <configuration>
                     <destDir>apidocs/2.0</destDir>
                     <isOffline>false</isOffline>
