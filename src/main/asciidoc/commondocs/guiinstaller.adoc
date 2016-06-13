@@ -31,7 +31,7 @@ operating system. +
 
  . http://maven.apache.org/[Apache Maven^] (version 3.0.3 or higher) installed
  . one of the supported <<internal-storage,DBMSes>> up and running
- . one of the supported <<java-ee-container, Java EE containers>> up and running 
+ . one of the supported <<java-ee-container, Java EE containers>> up and running
  . A datasource with the name `syncopeDataSource` configured in the selected Java EE container, for a database instance in the
  DBMS of choice
 
@@ -76,7 +76,7 @@ Maven::
 * *Group ID:* something like 'com.mycompany' - maven overlay property;
 * *Artifact ID:* something like 'myproject' - maven overlay property;
 * *Secret Key:* Provide any pseudo-random, 16 character length, string here that will be used in the generated project for AES ciphering;
-* *Anonimous Key:* - Provide any pseudo-random, 16 character length, string here that will be used in the generated project for AES ciphering;
+* *Anonymous Key:* - Provide any pseudo-random, 16 character length, string here that will be used in the generated project for AES ciphering;
 * *Configuration directory:* where Syncope configuration files are stored;
 * *Log directory:* where Syncope logs are stored;
 * *Bundle directory:* where ConnId bundles are stored;
@@ -85,9 +85,9 @@ Maven::
 image::installer-6.png[installer-6]
 
 Syncope options::
-* *Swagger:* check if you want to install Swagger UI;
-* *Camel:* check if you want to install Camel provisioning;
-* *Activiti workflow modeler:* check if you want to install Activiti modeler (default is true);
+* *Swagger:* check if you want to install http://swagger.io[Swagger UI^];
+* *Camel:* check if you want to install http://camel.apache.org[Camel provisioning^];
+* *Activiti workflow modeler:* check if you want to install http://activiti.org[Activiti modeler^] (default is true);
 
 image::installer-7.png[installer-7]
 
@@ -112,7 +112,7 @@ image::installer-10.png[installer-10]
 Application server settings::
 * Depends on container selected (in the example: Tomcat)
 
-The next images shows how the installer print some feedback directly on the GUI or reading the log file under the 
+The next images shows how the installer print some feedback directly on the GUI or reading the log file under the
 configuration directory:
 
 [source]

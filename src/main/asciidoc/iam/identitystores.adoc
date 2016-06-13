@@ -17,7 +17,7 @@
 // under the License.
 //
 === Identity Stores
-An identity store is the place where the digital identity are stored. Of course there are various store types, the most 
+An identity store is the place where digital identities are stored. Of course there are various store types, the most
 famous are:
 
 * Microsoft Active Directory;
@@ -30,7 +30,6 @@ famous are:
 ** MySQL
 ** PostgreSQL
 ** Oracle
-* ...
 
-From Apache Syncope point of view, an identity stores is viewed as an integrated resource with a communication based
+From Apache Syncope point of view, an identity store is viewed as an integrated resource with a communication based
 on the identity connectors.
