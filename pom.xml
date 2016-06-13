@@ -353,7 +353,7 @@ under the License.
 
     <groovy.version>2.4.7</groovy.version>
 
-    <activiti.version>5.20.0</activiti.version>
+    <activiti.version>5.21.0</activiti.version>
 
     <slf4j.version>1.7.21</slf4j.version>
     <log4j.version>2.6.1</log4j.version>
