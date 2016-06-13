@@ -20,11 +20,10 @@
 'use strict';
 
 angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', 'AuthService',
-  'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService', 'CaptchaService',
-  'GroupService', 'AnyService', 'UserUtil', 'GenericUtil', "ValidationExecutor",
+  'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService', 'GroupService',
+  'AnyService', 'UserUtil', 'GenericUtil', "ValidationExecutor",
   function ($scope, $rootScope, $location, $compile, AuthService, UserSelfService, SchemaService, RealmService,
-          ResourceService, SecurityQuestionService, CaptchaService, GroupService, AnyService, UserUtil, GenericUtil,
-          ValidationExecutor) {
+          ResourceService, SecurityQuestionService, GroupService, AnyService, UserUtil, GenericUtil, ValidationExecutor) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -255,8 +254,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           }
           if ($scope.user.mustChangePassword) {
             $location.path('/mustchangepassword')
-          }
-          else {
+          } else {
             initProperties();
           }
         }, function (e) {
@@ -395,8 +393,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             }
             $scope.showError("Error retrieving user security question: " + errorMessage, $scope.notification);
           });
-        }
-        else {
+        } else {
           $scope.userSecurityQuestion = "";
         }
       }

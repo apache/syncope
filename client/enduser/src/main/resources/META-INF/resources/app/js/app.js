@@ -211,11 +211,10 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
     $httpProvider.defaults.headers.common["If-Modified-Since"] = "0";
 
     $httpProvider.interceptors.push(function ($q, $rootScope, $location) {
-      var numLoadings = 0;
       return {
         'request': function (config, a, b) {
           //if the url is an html, we're changing page
-          if (config.url.indexOf('.html', config.url.length - 5) == -1) {
+          if (config.url.indexOf('.html', config.url.length - 5) === -1) {
             $rootScope.$broadcast("xhrStarted");
             var separator = config.url.indexOf('?') === -1 ? '?' : '&';
             config.url = config.url + separator + 'noCache=' + new Date().getTime();
@@ -231,15 +230,15 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
         },
         'responseError': function (response) {
           $rootScope.spinner.off();
-          if (response.config.url.indexOf("acceptError=true") == -1) {
+          if (response.config.url.indexOf("acceptError=true") === -1) {
             var status = response.status;
-            if (status == 401) {
+            if (status === 401) {
               console.error("ERROR ", status);
             }
-            if (status == 403) {
+            if (status === 403) {
               console.error("UNAUTHORIZED ", status);
             }
-            if (status == 400 || status == 404 || status == 412 || status == 500) {
+            if (status === 400 || status === 404 || status === 412 || status === 500) {
               console.error("GENERIC ERROR ", status);
             }
           }
