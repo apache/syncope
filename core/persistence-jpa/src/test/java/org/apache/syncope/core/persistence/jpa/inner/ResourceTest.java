@@ -159,32 +159,6 @@ public class ResourceTest extends AbstractTest {
         resourceDAO.save(resource);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void saveInvalidConnObjectKeyMapping() {
-        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
-        resource.setKey("ws-target-resource-basic-save-invalid");
-
-        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
-        resource.setConnector(connector);
-
-        Provision provision = entityFactory.newEntity(Provision.class);
-        provision.setAnyType(anyTypeDAO.findUser());
-        provision.setObjectClass(ObjectClass.ACCOUNT);
-        provision.setResource(resource);
-        resource.add(provision);
-
-        Mapping mapping = entityFactory.newEntity(Mapping.class);
-        mapping.setProvision(provision);
-        provision.setMapping(mapping);
-
-        MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
-        connObjectKey.setConnObjectKey(true);
-        mapping.setConnObjectKeyItem(connObjectKey);
-
-        // save the resource
-        resourceDAO.save(resource);
-    }
-
     @Test(expected = InvalidEntityException.class)
     public void saveInvalidMappingExtAttr() {
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
@@ -274,21 +248,13 @@ public class ResourceTest extends AbstractTest {
         MappingItem virtualMapItem = entityFactory.newEntity(MappingItem.class);
         virtualMapItem.setIntAttrName("virtualReadOnly");
         virtualMapItem.setExtAttrName("TEST");
-        virtualMapItem.setPurpose(MappingPurpose.BOTH);
+        virtualMapItem.setPurpose(MappingPurpose.PROPAGATION);
         virtualMapItem.setMapping(mapping);
         mapping.add(virtualMapItem);
 
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
         resource.setConnector(connector);
 
-        try {
-            resourceDAO.save(resource);
-            fail();
-        } catch (InvalidEntityException e) {
-            assertNotNull(e);
-        }
-
-        virtualMapItem.setPurpose(MappingPurpose.PROPAGATION);
         resourceDAO.save(resource);
     }
 
@@ -357,34 +323,5 @@ public class ResourceTest extends AbstractTest {
         } catch (InvalidEntityException e) {
             assertTrue(e.hasViolation(EntityViolationType.InvalidKey));
         }
-    }
-
-    @Test(expected = InvalidEntityException.class)
-    public void issueSYNCOPE645() {
-        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
-        resource.setKey("ws-target-resource-basic-save-invalid");
-
-        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
-        resource.setConnector(connector);
-
-        Provision provision = entityFactory.newEntity(Provision.class);
-        provision.setAnyType(anyTypeDAO.findUser());
-        provision.setObjectClass(ObjectClass.ACCOUNT);
-        provision.setResource(resource);
-        resource.add(provision);
-
-        Mapping mapping = entityFactory.newEntity(Mapping.class);
-        mapping.setProvision(provision);
-        provision.setMapping(mapping);
-
-        final MappingItem item = entityFactory.newEntity(MappingItem.class);
-        item.setIntAttrName("icon");
-        item.setExtAttrName("icon");
-        item.setPurpose(MappingPurpose.BOTH);
-        mapping.setConnObjectKeyItem(item);
-
-        // save the resource
-        ExternalResource actual = resourceDAO.save(resource);
-        assertNotNull(actual);
     }
 }

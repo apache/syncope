@@ -43,17 +43,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         FormTester formTester = wicketTester.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
 
-        // -------------------------------
-        // generate event to populate recipientAttrName
-        // -------------------------------
-        formTester.setValue("content:form:view:recipientAttrType:dropDownChoiceField", "3");
-        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:"
-                + "form:view:recipientAttrType:dropDownChoiceField", Constants.ON_CHANGE);
-        // -------------------------------
-
-        formTester.select("content:form:view:recipientAttrType:dropDownChoiceField", 3);
-        formTester.setValue("content:form:view:recipientAttrType:dropDownChoiceField", "3");
-        formTester.setValue("content:form:view:recipientAttrName:dropDownChoiceField", "0");
+        formTester.setValue("content:form:view:recipientAttrName:textField", "email");
         formTester.select("content:form:view:template:dropDownChoiceField", 2);
         formTester.select("content:form:view:traceLevel:dropDownChoiceField", 0);
         formTester.setValue("content:form:view:sender:textField", sender);

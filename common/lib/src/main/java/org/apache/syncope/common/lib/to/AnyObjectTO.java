@@ -33,7 +33,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 @XmlRootElement(name = "anyObject")
 @XmlType
-public class AnyObjectTO extends AnyTO implements RelatableTO, GroupableTO {
+public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
 
     private static final long serialVersionUID = 8841697496476959639L;
 

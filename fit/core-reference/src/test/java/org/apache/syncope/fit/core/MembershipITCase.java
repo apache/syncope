@@ -18,30 +18,47 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.apache.syncope.fit.core.AbstractTaskITCase.execProvisioningTask;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class MembershipITCase extends AbstractITCase {
@@ -202,5 +219,100 @@ public class MembershipITCase extends AbstractITCase {
         // re-read user and verify that no memberships are available any more
         user = userService.read(user.getKey());
         assertTrue(user.getMemberships().isEmpty());
+    }
+
+    @Test
+    public void syncWithMembershipAttr() {
+        // 0. create ad-hoc resource, with adequate mapping
+        ResourceTO newResource = resourceService.read(RESOURCE_NAME_DBPULL);
+        newResource.setKey(getUUIDString());
+
+        MappingItemTO item = IterableUtils.find(newResource.getProvision("USER").getMapping().getItems(),
+                new Predicate<MappingItemTO>() {
+
+            @Override
+            public boolean evaluate(final MappingItemTO object) {
+                return "firstname".equals(object.getIntAttrName());
+            }
+        });
+        assertNotNull(item);
+        assertEquals("ID", item.getExtAttrName());
+        item.setIntAttrName("memberships[additional].aLong");
+        item.setPurpose(MappingPurpose.BOTH);
+
+        item = IterableUtils.find(newResource.getProvision("USER").getMapping().getItems(),
+                new Predicate<MappingItemTO>() {
+
+            @Override
+            public boolean evaluate(final MappingItemTO object) {
+                return "fullname".equals(object.getIntAttrName());
+            }
+        });
+        item.setPurpose(MappingPurpose.PULL);
+
+        PullTaskTO newTask = null;
+        try {
+            newResource = createResource(newResource);
+            assertNotNull(newResource);
+
+            // 1. create user with new resource assigned
+            UserTO user = UserITCase.getUniqueSampleTO("memb@apache.org");
+            user.setRealm("/even/two");
+            user.getPlainAttrs().remove(user.getPlainAttrMap().get("ctype"));
+            user.getResources().clear();
+            user.getResources().add(newResource.getKey());
+
+            MembershipTO membership = new MembershipTO.Builder().group("034740a9-fa10-453b-af37-dc7897e98fb1").build();
+            membership.getPlainAttrs().add(new AttrTO.Builder().schema("aLong").value("5432").build());
+            user.getMemberships().add(membership);
+
+            user = createUser(user).getAny();
+            assertNotNull(user);
+
+            // 2. verify that user was found on resource
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+            String idOnResource = jdbcTemplate.queryForObject(
+                    "SELECT id FROM testpull WHERE id=?", String.class, "5432");
+            assertEquals("5432", idOnResource);
+
+            // 3. unlink user from resource, then remove it
+            DeassociationPatch patch = new DeassociationPatch();
+            patch.setKey(user.getKey());
+            patch.setAction(ResourceDeassociationAction.UNLINK);
+            patch.getResources().add(newResource.getKey());
+            assertNotNull(userService.deassociate(patch).readEntity(BulkActionResult.class));
+
+            userService.delete(user.getKey());
+
+            // 4. create pull task and execute
+            newTask = taskService.read("7c2242f4-14af-4ab5-af31-cdae23783655", true);
+            newTask.setResource(newResource.getKey());
+            newTask.setDestinationRealm("/even/two");
+
+            Response response = taskService.create(newTask);
+            newTask = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
+            assertNotNull(newTask);
+
+            ExecTO execution = execProvisioningTask(taskService, newTask.getKey(), 50, false);
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+
+            // 5. verify that pulled user has
+            PagedResult<UserTO> users = userService.search(new AnySearchQuery.Builder().
+                    realm("/").
+                    fiql(SyncopeClient.getUserSearchConditionBuilder().
+                            is("username").equalTo(user.getUsername()).query()).build());
+            assertEquals(1, users.getTotalCount());
+            assertEquals(1, users.getResult().get(0).getMemberships().size());
+            assertEquals("5432", users.getResult().get(0).getMemberships().get(0).
+                    getPlainAttrMap().get("aLong").getValues().get(0));
+        } catch (Exception e) {
+            LOG.error("Unexpected error", e);
+            fail(e.getMessage());
+        } finally {
+            if (newTask != null && !"83f7e85d-9774-43fe-adba-ccd856312994".equals(newTask.getKey())) {
+                taskService.delete(newTask.getKey());
+            }
+            resourceService.delete(newResource.getKey());
+        }
     }
 }

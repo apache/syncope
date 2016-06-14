@@ -37,7 +37,6 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -48,6 +47,7 @@ import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -134,7 +134,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
             obj = profile.getConnector().getObject(objectClass,
                     uid,
-                    MappingManagerImpl.buildOperationOptions(IteratorUtils.<MappingItem>emptyIterator()));
+                    MappingUtils.buildOperationOptions(IteratorUtils.<MappingItem>emptyIterator()));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "user")
 @XmlType
-public class UserTO extends AnyTO implements RelatableTO, GroupableTO {
+public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private static final long serialVersionUID = 7791304495192615740L;
 

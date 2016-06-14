@@ -23,115 +23,19 @@ import java.util.Set;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
-import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.api.IntAttrNameParser.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
 
-    private static final AnyUtilsFactory ANY_UTILS_FACTORY = new JPAAnyUtilsFactory();
-
-    private boolean isValid(final MappingItem item, final ConstraintValidatorContext context) {
-        if (StringUtils.isBlank(item.getExtAttrName())) {
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, item + " - extAttrName is null")).
-                    addPropertyNode("extAttrName").addConstraintViolation();
-
-            return false;
-        }
-
-        if (item.getPurpose() == null) {
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, item + " - purpose is null")).
-                    addPropertyNode("purpose").addConstraintViolation();
-
-            return false;
-        }
-
-        if (StringUtils.isBlank(item.getIntAttrName())) {
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, item + " - intAttrName is null")).
-                    addPropertyNode("intAttrName").addConstraintViolation();
-
-            return false;
-        }
-
-        IntAttrName intAttrName = null;
-        try {
-            intAttrName = IntAttrNameParser.parse(
-                    item.getIntAttrName(),
-                    ANY_UTILS_FACTORY,
-                    item.getMapping().getProvision().getAnyType().getKind());
-        } catch (IllegalArgumentException e) {
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, item + " - " + e.getMessage())).
-                    addPropertyNode("intAttrName").addConstraintViolation();
-
-            return false;
-        }
-
-        if (intAttrName.getSchemaType() == SchemaType.DERIVED
-                && item.getPurpose() != MappingPurpose.PROPAGATION) {
-
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping,
-                            " - only " + MappingPurpose.PROPAGATION.name() + " allowed for derived")).
-                    addPropertyNode("purpose").addConstraintViolation();
-
-            return false;
-        }
-
-        if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
-            if (item.getPurpose() != MappingPurpose.PROPAGATION) {
-                context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidMapping,
-                                " - only " + MappingPurpose.PROPAGATION.name() + " allowed for virtual")).
-                        addPropertyNode("purpose").addConstraintViolation();
-
-                return false;
-            }
-
-            if (item.getMapping() == null) {
-                context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidMapping,
-                                " - need to explicitly set mapping for further checks")).
-                        addPropertyNode("mapping").addConstraintViolation();
-
-                return false;
-            }
-
-            VirSchema schema = ApplicationContextProvider.getBeanFactory().getBean(VirSchemaDAO.class).
-                    find(item.getIntAttrName());
-            if (schema != null && schema.getProvision().equals(item.getMapping().getProvision())) {
-                context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidMapping,
-                                " - no need to map virtual schema on linking resource")).
-                        addPropertyNode("intAttrName").addConstraintViolation();
-
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private boolean isValid(final AnyType anyType, final Mapping mapping, final ConstraintValidatorContext context) {
+    private boolean isValid(final Mapping mapping, final ConstraintValidatorContext context) {
         if (mapping == null) {
             return true;
         }
@@ -154,8 +58,6 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
 
         int passwords = 0;
         for (MappingItem item : mapping.getItems()) {
-            isValid &= isValid(item, context);
-
             if (item.isPassword()) {
                 passwords++;
             }
@@ -232,7 +134,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
                 if (provision.getObjectClass() != null) {
                     objectClasses.add(provision.getObjectClass().getObjectClassValue());
                 }
-                return isValid(provision.getAnyType(), provision.getMapping(), context);
+                return isValid(provision.getMapping(), context);
             }
         });
 

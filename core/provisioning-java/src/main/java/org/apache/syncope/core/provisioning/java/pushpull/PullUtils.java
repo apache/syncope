@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -47,8 +46,8 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.api.IntAttrNameParser.IntAttrName;
+import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -63,6 +62,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 
 @Transactional(readOnly = true)
 @Component
@@ -103,6 +103,9 @@ public class PullUtils {
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
 
+    @Autowired
+    private IntAttrNameParser intAttrNameParser;
+
     public String findMatchingAnyKey(
             final AnyType anyType,
             final String name,
@@ -127,7 +130,7 @@ public class PullUtils {
             public boolean handle(final ConnectorObject obj) {
                 return found.add(obj);
             }
-        }, MappingManagerImpl.buildOperationOptions(MappingManagerImpl.getPullMappingItems(provision).iterator()));
+        }, MappingUtils.buildOperationOptions(MappingUtils.getPullMappingItems(provision).iterator()));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", provision.getObjectClass(), resource, name);
@@ -170,10 +173,10 @@ public class PullUtils {
 
         List<String> result = new ArrayList<>();
 
-        MappingItem connObjectKeyItem = MappingManagerImpl.getConnObjectKeyItem(provision);
+        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
 
         String transfUid = uid;
-        for (MappingItemTransformer transformer : MappingManagerImpl.getMappingItemTransformers(connObjectKeyItem)) {
+        for (MappingItemTransformer transformer : MappingUtils.getMappingItemTransformers(connObjectKeyItem)) {
             List<Object> output = transformer.beforePull(
                     connObjectKeyItem,
                     null,
@@ -183,9 +186,8 @@ public class PullUtils {
             }
         }
 
-        IntAttrName intAttrName = IntAttrNameParser.parse(
+        IntAttrName intAttrName = intAttrNameParser.parse(
                 connObjectKeyItem.getIntAttrName(),
-                anyUtilsFactory,
                 provision.getAnyType().getKind());
 
         if (intAttrName.getField() != null) {
@@ -214,6 +216,8 @@ public class PullUtils {
                         result.add(anyObject.getKey());
                     }
                     break;
+
+                default:
             }
         } else if (intAttrName.getSchemaType() != null) {
             switch (intAttrName.getSchemaType()) {
@@ -246,6 +250,8 @@ public class PullUtils {
                         result.add(any.getKey());
                     }
                     break;
+
+                default:
             }
         }
 

@@ -27,6 +27,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,12 +58,12 @@ public class MappingTest extends AbstractTest {
         User user = userDAO.findByUsername("rossini");
         assertNotNull(user);
 
-        Name name = MappingManagerImpl.evaluateNAME(user, provision, user.getUsername());
+        Name name = MappingUtils.evaluateNAME(user, provision, user.getUsername());
         assertEquals("uid=rossini,ou=people,o=isp", name.getNameValue());
 
         provision.getMapping().setConnObjectLink("'uid=' + username + ',o=' + realm + ',ou=people,o=isp'");
 
-        name = MappingManagerImpl.evaluateNAME(user, provision, user.getUsername());
+        name = MappingUtils.evaluateNAME(user, provision, user.getUsername());
         assertEquals("uid=rossini,o=even,ou=people,o=isp", name.getNameValue());
     }
 }

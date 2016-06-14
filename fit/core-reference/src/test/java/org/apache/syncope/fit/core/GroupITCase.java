@@ -867,8 +867,17 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE632() {
-        GroupTO groupTO = null;
+        GroupTO groupTO = getSampleTO("lastGroup");
         try {
+            // 0. create group
+            groupTO.getPlainAttrs().add(attrTO("icon", "anIcon"));
+            groupTO.getPlainAttrs().add(attrTO("show", "true"));
+            groupTO.getDerAttrs().add(attrTO("displayProperty", null));
+            groupTO.getResources().clear();
+
+            groupTO = createGroup(groupTO).getAny();
+            assertNotNull(groupTO);
+
             // 1. create new LDAP resource having ConnObjectKey mapped to a derived attribute
             ResourceTO newLDAP = resourceService.read(RESOURCE_NAME_LDAP);
             newLDAP.setKey("new-ldap");
@@ -887,22 +896,22 @@ public class GroupITCase extends AbstractITCase {
             mapping.setConnObjectLink("'cn=' + displayProperty + ',ou=groups,o=isp'");
 
             MappingItemTO description = new MappingItemTO();
+            description.setIntAttrName("key");
             description.setExtAttrName("description");
-            description.setPurpose(MappingPurpose.BOTH);
+            description.setPurpose(MappingPurpose.PROPAGATION);
             mapping.add(description);
 
             newLDAP = createResource(newLDAP);
             assertNotNull(newLDAP);
 
-            // 2. create a group and give the resource created above
-            groupTO = getSampleTO("lastGroup" + getUUIDString());
-            groupTO.getPlainAttrs().add(attrTO("icon", "anIcon"));
-            groupTO.getPlainAttrs().add(attrTO("show", "true"));
-            groupTO.getDerAttrs().add(attrTO("displayProperty", null));
-            groupTO.getResources().clear();
-            groupTO.getResources().add("new-ldap");
+            // 2. update group and give the resource created above
+            GroupPatch patch = new GroupPatch();
+            patch.setKey(groupTO.getKey());
+            patch.getResources().add(new StringPatchItem.Builder().
+                    operation(PatchOperation.ADD_REPLACE).
+                    value("new-ldap").build());
 
-            groupTO = createGroup(groupTO).getAny();
+            groupTO = updateGroup(patch).getAny();
             assertNotNull(groupTO);
 
             // 3. update the group
@@ -943,7 +952,7 @@ public class GroupITCase extends AbstractITCase {
 
             assertEquals(1, entries);
         } finally {
-            if (groupTO != null) {
+            if (groupTO.getKey() != null) {
                 groupService.delete(groupTO.getKey());
             }
             resourceService.delete("new-ldap");

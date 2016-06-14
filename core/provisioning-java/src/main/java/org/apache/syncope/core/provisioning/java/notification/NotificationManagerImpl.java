@@ -62,13 +62,13 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
-import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.api.IntAttrNameParser.IntAttrName;
+import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -153,7 +153,7 @@ public class NotificationManagerImpl implements NotificationManager {
     private EntityFactory entityFactory;
 
     @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    private IntAttrNameParser intAttrNameParser;
 
     @Transactional(readOnly = true)
     @Override
@@ -346,14 +346,24 @@ public class NotificationManagerImpl implements NotificationManager {
     private String getRecipientEmail(final String recipientAttrName, final User user) {
         String email = null;
 
-        IntAttrName intAttrName = IntAttrNameParser.parse(recipientAttrName, anyUtilsFactory, AnyTypeKind.USER);
+        IntAttrName intAttrName = intAttrNameParser.parse(recipientAttrName, AnyTypeKind.USER);
 
         if ("username".equals(intAttrName.getField())) {
             email = user.getUsername();
         } else if (intAttrName.getSchemaType() != null) {
+            UMembership membership = null;
+            if (intAttrName.getMembershipOfGroup() != null) {
+                Group group = groupDAO.findByName(intAttrName.getMembershipOfGroup());
+                if (group != null) {
+                    membership = user.getMembership(group.getKey());
+                }
+            }
+
             switch (intAttrName.getSchemaType()) {
                 case PLAIN:
-                    UPlainAttr attr = user.getPlainAttr(recipientAttrName);
+                    UPlainAttr attr = membership == null
+                            ? user.getPlainAttr(recipientAttrName)
+                            : user.getPlainAttr(recipientAttrName, membership);
                     if (attr != null) {
                         email = attr.getValuesAsStrings().isEmpty() ? null : attr.getValuesAsStrings().get(0);
                     }
@@ -364,7 +374,9 @@ public class NotificationManagerImpl implements NotificationManager {
                     if (schema == null) {
                         LOG.warn("Ignoring non existing {} {}", DerSchema.class.getSimpleName(), recipientAttrName);
                     } else {
-                        email = derAttrHander.getValue(user, schema);
+                        email = membership == null
+                                ? derAttrHander.getValue(user, schema)
+                                : derAttrHander.getValue(user, membership, schema);
                     }
                     break;
 
@@ -373,7 +385,9 @@ public class NotificationManagerImpl implements NotificationManager {
                     if (virSchema == null) {
                         LOG.warn("Ignoring non existing {} {}", VirSchema.class.getSimpleName(), recipientAttrName);
                     } else {
-                        List<String> virAttrValues = virAttrHander.getValues(user, virSchema);
+                        List<String> virAttrValues = membership == null
+                                ? virAttrHander.getValues(user, virSchema)
+                                : virAttrHander.getValues(user, membership, virSchema);
                         email = virAttrValues.isEmpty() ? null : virAttrValues.get(0);
                     }
                     break;

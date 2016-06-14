@@ -34,9 +34,8 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
-import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +58,7 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
     private EntityFactory entityFactory;
 
     @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    private IntAttrNameParser intAttrNameParser;
 
     @Override
     public NotificationTO getNotificationTO(final Notification notification) {
@@ -126,6 +125,6 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         });
 
         // 3. verify recipientAttrName
-        IntAttrNameParser.parse(notification.getRecipientAttrName(), anyUtilsFactory, AnyTypeKind.USER);
+        intAttrNameParser.parse(notification.getRecipientAttrName(), AnyTypeKind.USER);
     }
 }

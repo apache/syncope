@@ -159,8 +159,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             CipherAlgorithm predefined = CipherAlgorithm.valueOf(algorithm);
             user.setPassword(password, predefined);
         } catch (IllegalArgumentException e) {
-            final SyncopeClientException invalidCiperAlgorithm =
-                    SyncopeClientException.build(ClientExceptionType.NotFound);
+            SyncopeClientException invalidCiperAlgorithm = SyncopeClientException.build(ClientExceptionType.NotFound);
             invalidCiperAlgorithm.getElements().add(e.getMessage());
             scce.addException(invalidCiperAlgorithm);
 
@@ -305,7 +304,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Override
     public PropagationByResource update(final User toBeUpdated, final UserPatch userPatch) {
         // Re-merge any pending change from workflow tasks
-        final User user = userDAO.save(toBeUpdated);
+        User user = userDAO.save(toBeUpdated);
 
         PropagationByResource propByRes = new PropagationByResource();
 

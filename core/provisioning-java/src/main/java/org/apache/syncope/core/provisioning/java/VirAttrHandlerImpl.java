@@ -40,6 +40,7 @@ import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -99,7 +100,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
         for (Map.Entry<Provision, Set<VirSchema>> entry : toRead.entrySet()) {
             LOG.debug("About to read from {}: {}", entry.getKey(), entry.getValue());
 
-            String connObjectKey = MappingManagerImpl.getConnObjectKeyItem(entry.getKey()) == null
+            String connObjectKey = MappingUtils.getConnObjectKeyItem(entry.getKey()) == null
                     ? null
                     : mappingManager.getConnObjectKeyValue(any, entry.getKey());
             if (StringUtils.isBlank(connObjectKey)) {
@@ -114,7 +115,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                 try {
                     ConnectorObject connectorObject = connector.getObject(entry.getKey().getObjectClass(),
                             new Uid(connObjectKey),
-                            MappingManagerImpl.buildOperationOptions(linkingMappingItems.iterator()));
+                            MappingUtils.buildOperationOptions(linkingMappingItems.iterator()));
 
                     if (connectorObject == null) {
                         LOG.debug("No read from {} about {}", entry.getKey(), connObjectKey);

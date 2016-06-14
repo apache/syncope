@@ -50,8 +50,6 @@ import org.apache.syncope.common.lib.report.Schema;
 import org.apache.syncope.common.lib.report.SearchCondition;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -102,7 +100,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
             @Override
             protected List<String> load() {
-                List<String> result = new ArrayList<String>();
+                List<String> result = new ArrayList<>();
 
                 if (BeanPanel.this.getDefaultModelObject() != null) {
                     for (Field field : BeanPanel.this.getDefaultModelObject().getClass().getDeclaredFields()) {
@@ -160,18 +158,18 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     switch (scondAnnot.type()) {
                         case "USER":
                             panel = new UserSearchPanel.Builder(
-                                    new ListModel<SearchClause>(clauses)).required(false).build("value");
+                                    new ListModel<>(clauses)).required(false).build("value");
                             builder = SyncopeClient.getUserSearchConditionBuilder();
                             break;
                         case "GROUP":
                             panel = new GroupSearchPanel.Builder(
-                                    new ListModel<SearchClause>(clauses)).required(false).build("value");
+                                    new ListModel<>(clauses)).required(false).build("value");
                             builder = SyncopeClient.getGroupSearchConditionBuilder();
                             break;
                         default:
                             panel = new AnyObjectSearchPanel.Builder(
                                     scondAnnot.type(),
-                                    new ListModel<SearchClause>(clauses)).required(false).build("value");
+                                    new ListModel<>(clauses)).required(false).build("value");
                             builder = SyncopeClient.getAnyObjectSearchConditionBuilder(null);
                     }
 
@@ -190,51 +188,21 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
                         final List<AbstractSchemaTO> choices = new ArrayList<>();
 
-                        for (IntMappingType type : schemaAnnot.type()) {
+                        for (SchemaType type : schemaAnnot.type()) {
                             switch (type) {
-                                case UserPlainSchema:
+                                case PLAIN:
                                     choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.PLAIN, AnyTypeKind.USER));
+                                            schemaRestClient.getSchemas(SchemaType.PLAIN, schemaAnnot.anyTypeKind()));
                                     break;
 
-                                case UserDerivedSchema:
+                                case DERIVED:
                                     choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.DERIVED, AnyTypeKind.USER));
+                                            schemaRestClient.getSchemas(SchemaType.DERIVED, schemaAnnot.anyTypeKind()));
                                     break;
 
-                                case UserVirtualSchema:
+                                case VIRTUAL:
                                     choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.VIRTUAL, AnyTypeKind.USER));
-                                    break;
-
-                                case GroupPlainSchema:
-                                    choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.PLAIN, AnyTypeKind.GROUP));
-                                    break;
-
-                                case GroupDerivedSchema:
-                                    choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.DERIVED, AnyTypeKind.GROUP));
-                                    break;
-
-                                case GroupVirtualSchema:
-                                    choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.VIRTUAL, AnyTypeKind.GROUP));
-                                    break;
-
-                                case AnyObjectPlainSchema:
-                                    choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.PLAIN, AnyTypeKind.ANY_OBJECT));
-                                    break;
-
-                                case AnyObjectDerivedSchema:
-                                    choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.DERIVED, AnyTypeKind.ANY_OBJECT));
-                                    break;
-
-                                case AnyObjectVirtualSchema:
-                                    choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.VIRTUAL, AnyTypeKind.ANY_OBJECT));
+                                            schemaRestClient.getSchemas(SchemaType.VIRTUAL, schemaAnnot.anyTypeKind()));
                                     break;
 
                                 default:
@@ -244,7 +212,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                         panel = new AjaxPalettePanel.Builder<String>().setName(fieldName).build(
                                 "value",
                                 new PropertyModel<List<String>>(bean.getObject(), fieldName),
-                                new ListModel<String>(
+                                new ListModel<>(
                                         CollectionUtils.collect(
                                                 choices, new Transformer<AbstractSchemaTO, String>() {
 
@@ -263,7 +231,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                             ((List) wrapper.getPropertyValue(fieldName)).add(null);
                         }
 
-                        panel = new MultiFieldPanel.Builder<String>(
+                        panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<List<String>>(bean.getObject(), fieldName)).build(
                                 "value",
                                 fieldName,
@@ -287,7 +255,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
         if (ClassUtils.isAssignable(Boolean.class, type)) {
             result = new AjaxCheckBoxPanel(id, fieldName, model);
         } else if (ClassUtils.isAssignable(Number.class, type)) {
-            result = new AjaxSpinnerFieldPanel.Builder<Number>().build(
+            result = new AjaxSpinnerFieldPanel.Builder<>().build(
                     id, fieldName, (Class<Number>) ClassUtils.resolvePrimitiveIfNecessary(type), model);
         } else if (Date.class.equals(type)) {
             result = new DateTimeFieldPanel(id, fieldName, model, SyncopeConstants.DEFAULT_DATE_PATTERN);

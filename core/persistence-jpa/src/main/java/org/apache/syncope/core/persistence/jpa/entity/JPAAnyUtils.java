@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -75,15 +76,15 @@ public class JPAAnyUtils implements AnyUtils {
 
     private static void initFieldNames(final Class<?> entityClass, final Set<String> keys) {
         List<Class<?>> classes = ClassUtils.getAllSuperclasses(entityClass);
-        if (!classes.contains(JPAUser.class)) {
-            classes.add(JPAUser.class);
-        }
+        classes.add(entityClass);
         for (Class<?> clazz : classes) {
             for (Field field : clazz.getDeclaredFields()) {
-                if (!Collection.class.isAssignableFrom(field.getType())
+                if (!Modifier.isStatic(field.getModifiers())
+                        && !field.getName().startsWith("pc")
+                        && !Collection.class.isAssignableFrom(field.getType())
                         && !Map.class.isAssignableFrom(field.getType())) {
 
-                    keys.add(field.getName());
+                    keys.add("id".equals(field.getName()) ? "key" : field.getName());
                 }
             }
         }

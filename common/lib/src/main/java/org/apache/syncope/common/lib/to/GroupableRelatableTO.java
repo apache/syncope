@@ -22,7 +22,13 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 
-public interface RelatableTO {
+public interface GroupableRelatableTO {
+
+    Map<String, MembershipTO> getMembershipMap();
+
+    List<MembershipTO> getMemberships();
+
+    List<String> getDynGroups();
 
     Map<Pair<String, String>, RelationshipTO> getRelationshipMap();
 

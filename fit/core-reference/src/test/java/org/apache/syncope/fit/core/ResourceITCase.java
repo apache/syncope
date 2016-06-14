@@ -255,10 +255,8 @@ public class ResourceITCase extends AbstractITCase {
             createResource(resourceTO);
             fail("Create should not have worked");
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.Composite, e.getType());
-            SyncopeClientException rvm = e.asComposite().getException(ClientExceptionType.RequiredValuesMissing);
-            assertNotNull(rvm);
-            assertEquals("intAttrName", rvm.getElements().iterator().next());
+            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
+            assertEquals("intAttrName", e.getElements().iterator().next());
         }
     }
 
@@ -699,6 +697,36 @@ public class ResourceITCase extends AbstractITCase {
             if ("gender".equals(itemTO.getIntAttrName())) {
                 assertEquals(MappingPurpose.NONE, itemTO.getPurpose());
             }
+        }
+    }
+
+    public void issueSYNCOPE645() {
+        ResourceTO resource = new ResourceTO();
+        resource.setKey("ws-target-resource-basic-save-invalid");
+
+        String connector = resourceService.read("ws-target-resource-1").getConnector();
+        resource.setConnector(connector);
+
+        ProvisionTO provision = new ProvisionTO();
+        provision.setAnyType(AnyTypeKind.USER.name());
+        provision.setObjectClass("__ACCOUNT__");
+        resource.getProvisions().add(provision);
+
+        MappingTO mapping = new MappingTO();
+        provision.setMapping(mapping);
+
+        MappingItemTO item = new MappingItemTO();
+        item.setIntAttrName("icon");
+        item.setExtAttrName("icon");
+        item.setPurpose(MappingPurpose.BOTH);
+        mapping.setConnObjectKeyItem(item);
+
+        // save the resource
+        try {
+            resourceService.create(resource);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidMapping, e.getType());
         }
     }
 }

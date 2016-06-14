@@ -898,10 +898,7 @@ under the License.
                intAttrName="csvuserid" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="PROPAGATION"/>
   <MappingItem id="63151b89-2eb3-4980-a682-0215d54ab4a2" extAttrName="theirgroup" mapping_id="538c27dc-d260-4c53-9fc8-bf02ee226911"
-               intAttrName="rderToBePropagated" mandatoryCondition="false"
-               connObjectKey="0" password="0" purpose="PROPAGATION"/>
-  <MappingItem id="b6079a7b-ac40-481d-81c9-2a292bab0092" extAttrName="membership" mapping_id="538c27dc-d260-4c53-9fc8-bf02ee226911"
-               intAttrName="mderToBePropagated" mandatoryCondition="false"
+               intAttrName="groups[root].rderToBePropagated" mandatoryCondition="false"
                connObjectKey="0" password="0" purpose="PROPAGATION"/>
                          
   <Provision id="1b53c74e-6a63-49ef-b2f1-96eeb7f1bbb8" resource_id="ws-target-resource-update-resetsynctoken" anyType_id="USER" objectClass="__ACCOUNT__"
@@ -920,10 +917,10 @@ under the License.
   <Mapping id="ae1c77c3-2f1d-4258-ad06-710bb09041a9" provision_id="8b938d63-aa92-448c-89a8-a685fc0a67c8"
            connObjectLink="&apos;uid=&apos; + username + &apos;,ou=people,o=isp&apos;"/>
   <MappingItem id="9ff7d686-452c-4cec-a475-c1137c5d88c7" connObjectKey="1" password="0" mapping_id="ae1c77c3-2f1d-4258-ad06-710bb09041a9"
-               extAttrName="cn" intAttrName="Username" intAttrName="username"
+               extAttrName="cn" intAttrName="username"
                mandatoryCondition="true" purpose="BOTH"/>
   <MappingItem id="73d97083-cfda-44e6-be62-3f9ac558b5eb" connObjectKey="0" password="1" mapping_id="ae1c77c3-2f1d-4258-ad06-710bb09041a9"
-               extAttrName="__PASSWORD__" intAttrName="Password" intAttrName="password"
+               extAttrName="__PASSWORD__" intAttrName="password"
                mandatoryCondition="true" purpose="BOTH"/>
   <MappingItem id="cf0a222c-36ea-41e6-987c-7908614ccd23" connObjectKey="0" password="0" mapping_id="ae1c77c3-2f1d-4258-ad06-710bb09041a9"
                extAttrName="sn" intAttrName="surname"
@@ -961,7 +958,7 @@ under the License.
                extAttrName="cn" intAttrName="name"
                mandatoryCondition="true" purpose="BOTH"/>
   <MappingItem id="2" connObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
-               extAttrName="owner" intAttrName="owner"
+               extAttrName="owner" intAttrName="userOwner"
                mandatoryCondition="false" purpose="BOTH"/>
   <MappingItem id="3" connObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
                extAttrName="description" intAttrName="title"
@@ -985,7 +982,7 @@ under the License.
                extAttrName="SURNAME" intAttrName="surname" 
                mandatoryCondition="false" password="0" purpose="BOTH"/>
   <MappingItem id="3ac0ecaf-d9a1-4fc1-9ae9-84dc34576810" connObjectKey="0" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
-               extAttrName="USERNAME" intAttrName="Username" intAttrName="username" 
+               extAttrName="USERNAME" intAttrName="username" 
                mandatoryCondition="false" password="0" purpose="BOTH"/>
   <MappingItem id="e7215305-93c9-460b-b862-46f7b60de72d" connObjectKey="0" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
                extAttrName="EMAIL" intAttrName="userId" 

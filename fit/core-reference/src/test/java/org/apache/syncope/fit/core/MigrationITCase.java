@@ -339,7 +339,7 @@ public class MigrationITCase extends AbstractTaskITCase {
         provisionTO.setMapping(mapping);
 
         item = new MappingItemTO();
-        item.setIntAttrName("groupName");
+        item.setIntAttrName("name");
         item.setExtAttrName("name");
         item.setMandatoryCondition("true");
         item.setPurpose(MappingPurpose.PULL);
@@ -417,7 +417,7 @@ public class MigrationITCase extends AbstractTaskITCase {
     public void migrateFromSyncope12() throws InterruptedException {
         // 1. cleanup
         try {
-            realmService.delete(MIGRATION_REALM);
+            realmService.delete("/" + MIGRATION_REALM);
         } catch (Exception e) {
             // ignore
         }

@@ -50,7 +50,6 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
@@ -62,6 +61,7 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -276,7 +276,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         // 2. build connObjectKeyItem
-        MappingItem connObjectKeyItem = MappingManagerImpl.getConnObjectKeyItem(init.getRight());
+        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(init.getRight());
         if (connObjectKeyItem == null) {
             throw new NotFoundException(
                     "ConnObjectKey mapping for " + init.getMiddle() + " " + anyKey + " on resource '" + key + "'");
@@ -296,7 +296,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Connector connector = connFactory.getConnector(init.getLeft());
         ConnectorObject connectorObject = connector.getObject(init.getRight().getObjectClass(),
                 new Uid(connObjectKeyValue),
-                MappingManagerImpl.buildOperationOptions(mapItems));
+                MappingUtils.buildOperationOptions(mapItems));
         if (connectorObject == null) {
             throw new NotFoundException(
                     "Object " + connObjectKeyValue + " with class " + init.getRight().getObjectClass()

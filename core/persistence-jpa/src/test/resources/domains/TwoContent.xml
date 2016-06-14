@@ -155,13 +155,13 @@ we are happy to inform you that the password request was execute successfully fo
 &lt;/body&gt;
 &lt;/html&gt;"/>
 
-  <Notification id="c74b4616-9c63-4350-b4bf-ae0077b1ae6a" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
+  <Notification id="c74b4616-9c63-4350-b4bf-ae0077b1ae6a" active="1" recipientAttrName="email" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset request" template_id="requestPasswordReset" 
                 traceLevel="FAILURES"/> 
   <AnyAbout id="0d4e37a1-a4f4-4865-afcb-4be01da3da53" anyType_id="USER" notification_id="c74b4616-9c63-4350-b4bf-ae0077b1ae6a" filter="token!=$null"/>
   <Notification_events notification_id="c74b4616-9c63-4350-b4bf-ae0077b1ae6a" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   
-  <Notification id="71769807-7f74-4dc3-ba61-e4a7a00eb8ad" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
+  <Notification id="71769807-7f74-4dc3-ba61-e4a7a00eb8ad" active="1" recipientAttrName="email" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset successful" template_id="confirmPasswordReset" 
                 traceLevel="FAILURES"/> 
   <Notification_events notification_id="71769807-7f74-4dc3-ba61-e4a7a00eb8ad" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>

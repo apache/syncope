@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
@@ -48,14 +49,13 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.api.IntAttrNameParser.IntAttrName;
+import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -90,7 +90,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
     private EntityFactory entityFactory;
 
     @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    private IntAttrNameParser intAttrNameParser;
 
     @Override
     public ExternalResource create(final ResourceTO resourceTO) {
@@ -268,30 +268,29 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             if (itemTO == null) {
                 LOG.error("Null {}", MappingItemTO.class.getSimpleName());
                 invalidMapping.getElements().add("Null " + MappingItemTO.class.getSimpleName());
+            } else if (itemTO.getIntAttrName() == null) {
+                requiredValuesMissing.getElements().add("intAttrName");
+                scce.addException(requiredValuesMissing);
             } else {
-                if (itemTO.getIntAttrName() == null) {
-                    requiredValuesMissing.getElements().add("intAttrName");
-                    scce.addException(requiredValuesMissing);
-                }
-
-                IntAttrName intAttrName = IntAttrNameParser.parse(
+                IntAttrName intAttrName = intAttrNameParser.parse(
                         itemTO.getIntAttrName(),
-                        anyUtilsFactory,
                         mapping.getProvision().getAnyType().getKind());
 
                 boolean allowed = true;
-                if (intAttrName.getSchemaType() != null) {
+                if (intAttrName.getSchemaType() != null
+                        && intAttrName.getEnclosingGroup() == null && intAttrName.getRelatedAnyObject() == null) {
+
                     switch (intAttrName.getSchemaType()) {
                         case PLAIN:
-                            allowed = allowedSchemas.getPlainSchemas().contains(itemTO.getIntAttrName());
+                            allowed = allowedSchemas.getPlainSchemas().contains(intAttrName.getSchemaName());
                             break;
 
                         case DERIVED:
-                            allowed = allowedSchemas.getDerSchemas().contains(itemTO.getIntAttrName());
+                            allowed = allowedSchemas.getDerSchemas().contains(intAttrName.getSchemaName());
                             break;
 
                         case VIRTUAL:
-                            allowed = allowedSchemas.getVirSchemas().contains(itemTO.getIntAttrName());
+                            allowed = allowedSchemas.getVirSchemas().contains(intAttrName.getSchemaName());
                             break;
 
                         default:
@@ -323,6 +322,37 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         mapping.setConnObjectKeyItem(item);
                     } else {
                         mapping.add(item);
+                    }
+
+                    if (intAttrName.getEnclosingGroup() != null
+                            && item.getPurpose() != MappingPurpose.PROPAGATION) {
+
+                        invalidMapping.getElements().add(
+                                "Only " + MappingPurpose.PROPAGATION.name() + " allowed when referring to groups");
+                    }
+                    if (intAttrName.getRelatedAnyObject() != null
+                            && item.getPurpose() != MappingPurpose.PROPAGATION) {
+
+                        invalidMapping.getElements().add(
+                                "Only " + MappingPurpose.PROPAGATION.name() + " allowed when referring to any objects");
+                    }
+                    if (intAttrName.getSchemaType() == SchemaType.DERIVED
+                            && item.getPurpose() != MappingPurpose.PROPAGATION) {
+
+                        invalidMapping.getElements().add(
+                                "Only " + MappingPurpose.PROPAGATION.name() + " allowed for derived");
+                    }
+                    if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
+                        if (item.getPurpose() != MappingPurpose.PROPAGATION) {
+                            invalidMapping.getElements().add(
+                                    "Only " + MappingPurpose.PROPAGATION.name() + " allowed for virtual");
+                        }
+
+                        VirSchema schema = virSchemaDAO.find(item.getIntAttrName());
+                        if (schema != null && schema.getProvision().equals(item.getMapping().getProvision())) {
+                            invalidMapping.getElements().add(
+                                    "No need to map virtual schema on linking resource");
+                        }
                     }
                 } else {
                     LOG.error("{} not allowed", itemTO.getIntAttrName());

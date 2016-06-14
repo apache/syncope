@@ -28,7 +28,6 @@ import java.util.Set;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -52,6 +51,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncToken;
 
@@ -157,7 +157,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         ghandler.setPullExecutor(this);
 
         latestSyncTokens.clear();
-        
+
         if (!profile.isDryRun()) {
             for (PullActions action : actions) {
                 action.beforeAll(profile);
@@ -196,7 +196,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                                     provision.getObjectClass(),
                                     provision.getSyncToken(),
                                     handler,
-                                    MappingManagerImpl.buildOperationOptions(mapItems));
+                                    MappingUtils.buildOperationOptions(mapItems));
                             if (!dryRun) {
                                 provision.setSyncToken(latestSyncTokens.get(provision.getObjectClass()));
                                 resourceDAO.save(provision.getResource());
@@ -211,14 +211,14 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                             connector.filteredReconciliation(provision.getObjectClass(),
                                     filterBuilder,
                                     handler,
-                                    MappingManagerImpl.buildOperationOptions(mapItems));
+                                    MappingUtils.buildOperationOptions(mapItems));
                             break;
 
                         case FULL_RECONCILIATION:
                         default:
                             connector.fullReconciliation(provision.getObjectClass(),
                                     handler,
-                                    MappingManagerImpl.buildOperationOptions(mapItems));
+                                    MappingUtils.buildOperationOptions(mapItems));
                             break;
                     }
                 } catch (Throwable t) {

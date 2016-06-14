@@ -32,7 +32,6 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.GroupableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -41,6 +40,7 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.lang.Args;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 
 public class Groups extends WizardStep {
 
@@ -83,8 +83,8 @@ public class Groups extends WizardStep {
                     }
                 });
 
-        add(builder.setAllowOrder(true).withFilter().build(
-                "groups", new ListModel<>(GroupableTO.class.cast(anyTO).getMemberships()),
+        add(builder.setAllowOrder(true).withFilter().build("groups",
+                new ListModel<>(GroupableRelatableTO.class.cast(anyTO).getMemberships()),
                 new AjaxPalettePanel.Builder.Query<MembershipTO>() {
 
             private static final long serialVersionUID = -7223078772249308813L;
@@ -116,9 +116,8 @@ public class Groups extends WizardStep {
         for (GroupTO group : allGroups) {
             allGroupsByKey.put(group.getKey(), group);
         }
-        add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build(
-                "dyngroups",
-                new ListModel<>(CollectionUtils.collect(GroupableTO.class.cast(anyTO).getDynGroups(),
+        add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("dyngroups",
+                new ListModel<>(CollectionUtils.collect(GroupableRelatableTO.class.cast(anyTO).getDynGroups(),
                         new Transformer<String, String>() {
 
                     @Override

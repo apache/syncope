@@ -44,7 +44,6 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -59,6 +58,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -375,7 +375,7 @@ public class PropagationManagerImpl implements PropagationManager {
             Provision provision = resource == null ? null : resource.getProvision(any.getType());
             List<MappingItem> mappingItems = provision == null
                     ? Collections.<MappingItem>emptyList()
-                    : MappingManagerImpl.getPropagationMappingItems(provision);
+                    : MappingUtils.getPropagationMappingItems(provision);
 
             if (resource == null) {
                 LOG.error("Invalid resource name specified: {}, ignoring...", entry.getKey());

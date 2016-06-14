@@ -295,6 +295,7 @@ public class ResourceTest extends AbstractTest {
         int origMapItems = csv.getProvision(anyTypeDAO.findUser()).getMapping().getItems().size();
 
         MappingItem newMapItem = entityFactory.newEntity(MappingItem.class);
+        newMapItem.setIntAttrName("TEST");
         newMapItem.setExtAttrName("TEST");
         newMapItem.setPurpose(MappingPurpose.PROPAGATION);
         csv.getProvision(anyTypeDAO.findUser()).getMapping().add(newMapItem);

@@ -168,23 +168,12 @@ public class TopologyITCase extends AbstractConsoleITCase {
         formTester = wicketTester.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
 
-        formTester.setValue("view:mapping:mappingContainer:mappings:0:entities:dropDownChoiceField", "0");
-        wicketTester.executeAjaxEvent(
-                "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form"
-                + ":view:mapping:mappingContainer:mappings:0:entities:dropDownChoiceField", Constants.ON_CHANGE);
-
-        formTester.setValue("view:mapping:mappingContainer:mappings:0:intMappingTypes:dropDownChoiceField", "4");
-        wicketTester.executeAjaxEvent(
-                "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form"
-                + ":view:mapping:mappingContainer:mappings:0:intMappingTypes:dropDownChoiceField", Constants.ON_CHANGE);
-
         formTester.setValue("view:mapping:mappingContainer:mappings:0:connObjectKey:checkboxField", "true");
         wicketTester.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form"
                 + ":view:mapping:mappingContainer:mappings:0:connObjectKey:checkboxField", Constants.ON_CHANGE);
 
-        formTester.setValue("view:mapping:mappingContainer:mappings:0:entities:dropDownChoiceField", "0");
-        formTester.setValue("view:mapping:mappingContainer:mappings:0:intMappingTypes:dropDownChoiceField", "4");
+        formTester.setValue("view:mapping:mappingContainer:mappings:0:intAttrName:textField", "key");
         formTester.setValue("view:mapping:mappingContainer:mappings:0:extAttrName:textField", "ID");
         formTester.setValue("view:mapping:mappingContainer:mappings:0:connObjectKey:checkboxField", "true");
 

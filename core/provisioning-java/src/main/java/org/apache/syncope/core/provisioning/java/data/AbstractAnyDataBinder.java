@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
@@ -59,7 +58,6 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -89,6 +87,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.IntAttrName;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 
 abstract class AbstractAnyDataBinder {
 
@@ -154,6 +155,9 @@ abstract class AbstractAnyDataBinder {
     @Autowired
     protected MappingManager mappingManager;
 
+    @Autowired
+    protected IntAttrNameParser intAttrNameParser;
+
     protected void setRealm(final Any<?> any, final AnyPatch anyPatch) {
         if (anyPatch.getRealm() != null && StringUtils.isNotBlank(anyPatch.getRealm().getValue())) {
             Realm newRealm = realmDAO.findByFullPath(anyPatch.getRealm().getValue());
@@ -215,14 +219,13 @@ abstract class AbstractAnyDataBinder {
     private List<String> evaluateMandatoryCondition(final Provision provision, final Any<?> any) {
         List<String> missingAttrNames = new ArrayList<>();
 
-        if (provision != null) {
-            for (MappingItem item : provision.getMapping().getItems()) {
-                if ((item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH)) {
-                    List<PlainAttrValue> values = mappingManager.getIntValues(
-                            provision, item, Collections.<Any<?>>singletonList(any));
-                    if (values.isEmpty() && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
-                        missingAttrNames.add(item.getIntAttrName());
-                    }
+        for (MappingItem mapItem : MappingUtils.getPropagationMappingItems(provision)) {
+            IntAttrName intAttrName =
+                    intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
+            if (intAttrName.getSchemaType() != null) {
+                List<PlainAttrValue> values = mappingManager.getIntValues(provision, mapItem, intAttrName, any);
+                if (values.isEmpty() && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any)) {
+                    missingAttrNames.add(mapItem.getIntAttrName());
                 }
             }
         }
@@ -230,9 +233,7 @@ abstract class AbstractAnyDataBinder {
         return missingAttrNames;
     }
 
-    private SyncopeClientException checkMandatoryOnResources(
-            final Any<?> any, final Set<ExternalResource> resources) {
-
+    private SyncopeClientException checkMandatoryOnResources(final Any<?> any, final Set<ExternalResource> resources) {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         for (ExternalResource resource : resources) {
@@ -338,13 +339,11 @@ abstract class AbstractAnyDataBinder {
         }
 
         for (ExternalResource resource : resources) {
-            for (MappingItem mapItem
-                    : MappingManagerImpl.getPropagationMappingItems(resource.getProvision(any.getType()))) {
-
-                if (schema.getKey().equals(mapItem.getIntAttrName())) {
+            for (MappingItem item : MappingUtils.getPropagationMappingItems(resource.getProvision(any.getType()))) {
+                if (schema.getKey().equals(item.getIntAttrName())) {
                     propByRes.add(ResourceOperation.UPDATE, resource.getKey());
 
-                    if (mapItem.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
+                    if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
                         propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
                     }
                 }
@@ -646,7 +645,7 @@ abstract class AbstractAnyDataBinder {
         for (ExternalResource resource : iterable) {
             Provision provision = resource.getProvision(any.getType());
             if (provision != null && provision.getMapping() != null) {
-                MappingItem connObjectKeyItem = MappingManagerImpl.getConnObjectKeyItem(provision);
+                MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
                 if (connObjectKeyItem == null) {
                     throw new NotFoundException(
                             "ConnObjectKey mapping for " + any.getType().getKey() + " " + any.getKey()

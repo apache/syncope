@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
@@ -52,7 +51,6 @@ import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.wicket.PageReference;
@@ -119,50 +117,34 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
         private static final long serialVersionUID = -7709805590497687958L;
 
         public Details(final NotificationWrapper modelObject) {
-            final NotificationTO notificationTO = modelObject.getInnerObject();
-            final boolean createFlag = notificationTO.getKey() == null;
+            NotificationTO notificationTO = modelObject.getInnerObject();
+            boolean createFlag = notificationTO.getKey() == null;
 
-            final AjaxTextFieldPanel sender = new AjaxTextFieldPanel("sender", getString("sender"),
+            AjaxTextFieldPanel sender = new AjaxTextFieldPanel("sender", getString("sender"),
                     new PropertyModel<String>(notificationTO, "sender"));
             sender.addRequiredLabel();
             sender.addValidator(EmailAddressValidator.getInstance());
             add(sender);
 
-            final AjaxTextFieldPanel subject = new AjaxTextFieldPanel("subject", getString("subject"),
+            AjaxTextFieldPanel subject = new AjaxTextFieldPanel("subject", getString("subject"),
                     new PropertyModel<String>(notificationTO, "subject"));
             subject.addRequiredLabel();
             add(subject);
 
-            final AjaxDropDownChoicePanel<IntMappingType> recipientAttrType =
-                    new AjaxDropDownChoicePanel<>(
-                            "recipientAttrType",
-                            new ResourceModel("recipientAttrType", "recipientAttrType").getObject(),
-                            new PropertyModel<IntMappingType>(notificationTO, "recipientAttrType"));
-            recipientAttrType.setChoices(
-                    new ArrayList<>(IntMappingType.getAttributeTypes(AnyTypeKind.USER,
-                            EnumSet.of(IntMappingType.UserKey, IntMappingType.Password))));
-            recipientAttrType.addRequiredLabel();
-            add(recipientAttrType);
-
-            final AjaxDropDownChoicePanel<String> recipientAttrName = new AjaxDropDownChoicePanel<>(
+            AjaxTextFieldPanel recipientAttrName = new AjaxTextFieldPanel(
                     "recipientAttrName", new ResourceModel("recipientAttrName", "recipientAttrName").getObject(),
                     new PropertyModel<String>(notificationTO, "recipientAttrName"));
-            recipientAttrName.setChoices(getSchemaNames(recipientAttrType.getModelObject()));
+            recipientAttrName.setChoices(getSchemaNames());
             recipientAttrName.addRequiredLabel();
+            recipientAttrName.setTitle(getString("intAttrNameInfo.help")
+                    + "<div style=\"font-size: 10px;\">"
+                    + "<code>groups[groupName].attribute</code>\n"
+                    + "<code>anyObjects[anyObjectName].attribute</code>\n"
+                    + "<code>memberships[groupName].attribute</code>\n"
+                    + "</div>", true);
             add(recipientAttrName);
 
-            recipientAttrType.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-                private static final long serialVersionUID = -1107858522700306810L;
-
-                @Override
-                protected void onUpdate(final AjaxRequestTarget target) {
-                    recipientAttrName.setChoices(getSchemaNames(recipientAttrType.getModelObject()));
-                    target.add(recipientAttrName);
-                }
-            });
-
-            final AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<>(
+            AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<>(
                     "template", getString("template"),
                     new PropertyModel<String>(notificationTO, "template"));
             template.setChoices(CollectionUtils.collect(
@@ -177,7 +159,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
             template.addRequiredLabel();
             add(template);
 
-            final AjaxDropDownChoicePanel<TraceLevel> traceLevel = new AjaxDropDownChoicePanel<>(
+            AjaxDropDownChoicePanel<TraceLevel> traceLevel = new AjaxDropDownChoicePanel<>(
                     "traceLevel", getString("traceLevel"),
                     new PropertyModel<TraceLevel>(notificationTO, "traceLevel"));
             traceLevel.setChoices(Arrays.asList(TraceLevel.values()));
@@ -228,7 +210,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
             super(id, model);
             setOutputMarkupId(true);
 
-            final List<String> anyTypeTOs = CollectionUtils.collect(
+            List<String> anyTypeTOs = CollectionUtils.collect(
                     new AnyTypeRestClient().list(),
                     EntityTOUtils.<AnyTypeTO>keyTransformer(), new ArrayList<String>());
 
@@ -289,22 +271,24 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
 
         private AbstractSearchPanel.Builder<?> getClauseBuilder(
                 final String type, final ListModel<SearchClause> clauseModel) {
+
             AbstractSearchPanel.Builder<?> clause;
 
             switch (type) {
                 case "USER":
                     clause = new UserSearchPanel.Builder(clauseModel);
                     break;
+
                 case "GROUP":
                     clause = new GroupSearchPanel.Builder(clauseModel);
                     break;
+
                 default:
                     clause = new AnyObjectSearchPanel.Builder(type, clauseModel);
-                    break;
             }
+
             return clause;
         }
-
     }
 
     public class Abouts extends WizardStep {
@@ -389,40 +373,21 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
 
     }
 
-    private List<String> getSchemaNames(final IntMappingType type) {
-        final List<String> result;
+    private List<String> getSchemaNames() {
+        List<String> result = new ArrayList<>();
+        result.add("username");
 
-        if (type == null) {
-            result = Collections.<String>emptyList();
-        } else {
-            switch (type) {
-                case UserPlainSchema:
-                    result = CollectionUtils.collect(
-                            schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, AnyTypeKind.USER.name()),
-                            EntityTOUtils.<PlainSchemaTO>keyTransformer(), new ArrayList<String>());
-                    break;
+        CollectionUtils.collect(
+                schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, AnyTypeKind.USER.name()),
+                EntityTOUtils.<PlainSchemaTO>keyTransformer(), result);
+        CollectionUtils.collect(
+                schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, AnyTypeKind.USER.name()),
+                EntityTOUtils.<DerSchemaTO>keyTransformer(), result);
+        CollectionUtils.collect(
+                schemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, AnyTypeKind.USER.name()),
+                EntityTOUtils.<VirSchemaTO>keyTransformer(), result);
 
-                case UserDerivedSchema:
-                    result = CollectionUtils.collect(
-                            schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, AnyTypeKind.USER.name()),
-                            EntityTOUtils.<DerSchemaTO>keyTransformer(), new ArrayList<String>());
-                    break;
-
-                case UserVirtualSchema:
-                    result = CollectionUtils.collect(
-                            schemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, AnyTypeKind.USER.name()),
-                            EntityTOUtils.<VirSchemaTO>keyTransformer(), new ArrayList<String>());
-                    break;
-
-                case Username:
-                    result = Collections.singletonList("Username");
-                    break;
-
-                default:
-                    result = Collections.<String>emptyList();
-            }
-        }
-
+        Collections.sort(result);
         return result;
     }
 }

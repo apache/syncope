@@ -47,7 +47,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -63,6 +62,7 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -599,8 +599,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         try {
             obj = connector.getObject(new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),
-                    MappingManagerImpl.buildOperationOptions(IteratorUtils.chainedIterator(
-                            MappingManagerImpl.getPropagationMappingItems(provision).iterator(),
+                    MappingUtils.buildOperationOptions(IteratorUtils.chainedIterator(
+                            MappingUtils.getPropagationMappingItems(provision).iterator(),
                             linkingMappingItems.iterator())));
 
             for (MappingItem item : linkingMappingItems) {

@@ -52,13 +52,13 @@ public class JPAMappingItem extends AbstractGeneratedKeyEntity implements Mappin
     @ManyToOne
     private JPAMapping mapping;
 
-    @Column(nullable = true)
+    @NotNull
     private String intAttrName;
 
     /**
      * Target resource's field to be mapped.
      */
-    @Column(nullable = true)
+    @NotNull
     private String extAttrName;
 
     /**
