@@ -61,7 +61,7 @@ import org.apache.wicket.model.util.ListModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AnyPanel extends Panel {
+public class AnyPanel extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -87,6 +87,17 @@ public class AnyPanel extends Panel {
             final AnyTypeTO anyTypeTO,
             final RealmTO realmTO,
             final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo,
+            final PageReference pageRef) {
+        this(id, anyTypeTO, realmTO, formLayoutInfo, true, pageRef);
+    }
+
+    @SuppressWarnings({ "unchecked", "unchecked" })
+    public AnyPanel(
+            final String id,
+            final AnyTypeTO anyTypeTO,
+            final RealmTO realmTO,
+            final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo,
+            final boolean enableSearch,
             final PageReference pageRef) {
 
         super(id);
@@ -136,7 +147,7 @@ public class AnyPanel extends Panel {
             }
         };
         accordion.setOutputMarkupId(true);
-        add(accordion);
+        add(accordion.setEnabled(enableSearch).setVisible(enableSearch));
 
         directoryPanel = getDirectoryPanel("searchResult");
         add(directoryPanel);
@@ -197,7 +208,7 @@ public class AnyPanel extends Panel {
         return panel;
     }
 
-    private Panel getDirectoryPanel(final String id) {
+    protected Panel getDirectoryPanel(final String id) {
         final Panel panel;
         final String fiql;
         switch (anyTypeTO.getKind()) {
@@ -209,7 +220,7 @@ public class AnyPanel extends Panel {
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).
-                        setFiql(fiql).addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
+                        setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
                         userTO,
                         anyTypeTO.getClasses(),
                         formLayoutInfo.getLeft(),
@@ -225,7 +236,7 @@ public class AnyPanel extends Panel {
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).
-                        setFiql(fiql).addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
+                        setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
                         groupTO,
                         anyTypeTO.getClasses(),
                         formLayoutInfo.getMiddle(),
@@ -243,7 +254,7 @@ public class AnyPanel extends Panel {
                         anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realmTO.getFullPath()).setFiltered(true).
-                        setFiql(fiql).addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
+                        setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
                         anyObjectTO,
                         anyTypeTO.getClasses(),
                         formLayoutInfo.getRight().get(anyTypeTO.getKey()),

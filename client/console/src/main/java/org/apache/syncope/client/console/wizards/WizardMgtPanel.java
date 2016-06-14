@@ -61,7 +61,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     private final Fragment initialFragment;
 
-    private final boolean wizardInModal;
+    protected final boolean wizardInModal;
 
     private boolean containerAutoRefresh = true;
 
@@ -375,11 +375,13 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
         private boolean showResultPage = false;
 
+        private boolean wizardInModal = false;
+
         protected Builder(final PageReference pageRef) {
             this.pageRef = pageRef;
         }
 
-        protected abstract WizardMgtPanel<T> newInstance(final String id);
+        protected abstract WizardMgtPanel<T> newInstance(final String id, final boolean wizardInModal);
 
         /**
          * Builds a list view.
@@ -388,7 +390,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
          * @return List view.
          */
         public WizardMgtPanel<T> build(final String id) {
-            return newInstance(id).
+            return newInstance(id, wizardInModal).
                     setPageRef(this.pageRef).
                     setShowResultPage(this.showResultPage).
                     addNewItemPanelBuilder(this.newItemPanelBuilder, this.newItemDefaultButtonEnabled).
@@ -426,6 +428,17 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
          */
         public Builder<T> addNotificationPanel(final NotificationPanel notificationPanel) {
             this.notificationPanel = notificationPanel;
+            return this;
+        }
+
+        /**
+         * Specifies to open an edit item wizard into a new modal page.
+         *
+         * @param wizardInModal TRUE to request to open wizard in a new modal.
+         * @return the current builder.
+         */
+        public Builder<T> setWizardInModal(final boolean wizardInModal) {
+            this.wizardInModal = wizardInModal;
             return this;
         }
     }

@@ -117,7 +117,7 @@ public abstract class DirectoryPanel<
             private static final long serialVersionUID = -8424727765826509309L;
 
             @Override
-            protected WizardMgtPanel<W> newInstance(final String id) {
+            protected WizardMgtPanel<W> newInstance(final String id, final boolean wizardInModal) {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
         }.setFiltered(false), wizardInModal);
@@ -160,9 +160,12 @@ public abstract class DirectoryPanel<
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
-                DirectoryPanel.EventDataWrapper event = new DirectoryPanel.EventDataWrapper();
-                event.setTarget(target);
-                send(DirectoryPanel.this, Broadcast.EXACT, event);
+                final EventDataWrapper data = new EventDataWrapper();
+                data.setTarget(target);
+                data.setRows(rows);
+
+                send(DirectoryPanel.this, Broadcast.EXACT, data);
+
                 modal.show(false);
             }
         });

@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Roles;
 import org.apache.wicket.Component;
 import org.apache.wicket.util.tester.FormTester;
@@ -66,6 +68,21 @@ public class RolesITCase extends AbstractConsoleITCase {
     public void read() {
         assertNull(findComponentByProp(KEY, "body:content:rolesPanel:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "OTHER"));
+
+        wicketTester.clickLink("body:content:rolesPanel:container:content:searchContainer:resultTable:tablePanel:"
+                + "groupForm:checkgroup:dataTable:body:rows:1:cells:4:cell:panelMembers:membersLink");
+
+        wicketTester.assertModelValue(
+                "body:content:rolesPanel:outerObjectsRepeater:4:outer:dialog:header:header-label",
+                "Role 'Other' members");
+
+        assertNotNull(findComponentByProp("username", "body:content:rolesPanel:outerObjectsRepeater:4:outer:form:"
+                + "content:searchResult:container:content:searchContainer:resultTable:tablePanel:groupForm:"
+                + "checkgroup:dataTable", "rossini"));
+
+        wicketTester.executeAjaxEvent(
+                "body:content:rolesPanel:outerObjectsRepeater:4:outer:dialog:footer:buttons:0:button",
+                Constants.ON_CLICK);
     }
 
     @Test

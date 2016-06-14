@@ -341,7 +341,7 @@ public class Relationships extends WizardStep {
                                 pageRef).setFiltered(true).
                                 setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
                                         is("key").notNullValue().query()).
-                                build("searchResultPanel");
+                                setWizardInModal(true).build("searchResultPanel");
                         fragment.add(anyObjectDirectoryPanel.setRenderBodyOnly(true));
                     }
                     target.add(container);

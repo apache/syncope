@@ -158,7 +158,7 @@ public class ReconciliationWidget extends BaseWidget {
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While starting reconciliation report", e);
-                   SyncopeConsoleSession.get().error("Could not start reconciliation report");
+                    SyncopeConsoleSession.get().error("Could not start reconciliation report");
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
@@ -313,8 +313,8 @@ public class ReconciliationWidget extends BaseWidget {
                 private static final long serialVersionUID = 8769126634538601689L;
 
                 @Override
-                protected WizardMgtPanel<Any> newInstance(final String id) {
-                    return new AnysReconciliationPanel(id, anys, pageRef);
+                protected WizardMgtPanel<Any> newInstance(final String id, final boolean wizardInModal) {
+                    throw new UnsupportedOperationException();
                 }
             }.disableCheckBoxes().hidePaginator());
 
@@ -508,8 +508,8 @@ public class ReconciliationWidget extends BaseWidget {
                                 SyncopeConsoleApplication.class.cast(application).getReconciliationReportKey());
 
                         WebSocketSettings webSocketSettings = WebSocketSettings.Holder.get(application);
-                        WebSocketPushBroadcaster broadcaster =
-                                new WebSocketPushBroadcaster(webSocketSettings.getConnectionRegistry());
+                        WebSocketPushBroadcaster broadcaster = new WebSocketPushBroadcaster(webSocketSettings.
+                                getConnectionRegistry());
                         broadcaster.broadcast(
                                 new ConnectedMessage(application, session.getId(), key),
                                 new ReconciliationJobNotRunningMessage());

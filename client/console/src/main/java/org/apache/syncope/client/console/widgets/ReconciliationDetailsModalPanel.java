@@ -82,8 +82,8 @@ public class ReconciliationDetailsModalPanel extends AbstractModalPanel<Any> {
                 private static final long serialVersionUID = 8769126634538601689L;
 
                 @Override
-                protected WizardMgtPanel<Misaligned> newInstance(final String id) {
-                    return new DiffPanel(id, pageRef);
+                protected WizardMgtPanel<Misaligned> newInstance(final String id, final boolean wizardInModal) {
+                    throw new UnsupportedOperationException();
                 }
             }.disableCheckBoxes().hidePaginator());
 

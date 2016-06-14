@@ -62,7 +62,11 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
     private static final long serialVersionUID = -1100228004207271270L;
 
     protected UserDirectoryPanel(final String id, final Builder builder) {
-        super(id, builder);
+        this(id, builder, true);
+    }
+
+    protected UserDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
+        super(id, builder, wizardInModal);
     }
 
     @Override
@@ -146,42 +150,6 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                                new AnyWrapper<>(model.getObject()));
-                        altDefaultModal.setFormModel(formModel);
-
-                        target.add(altDefaultModal.setContent(new StatusModal<>(
-                                altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
-
-                        altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
-
-                        altDefaultModal.show(true);
-                    }
-                }, ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                                new AnyWrapper<>(model.getObject()));
-                        altDefaultModal.setFormModel(formModel);
-
-                        target.add(altDefaultModal.setContent(new StatusModal<>(
-                                altDefaultModal, pageRef, formModel.getObject().getInnerObject(), true)));
-
-                        altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
-
-                        altDefaultModal.show(true);
-                    }
-                }, ActionType.ENABLE, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                         send(UserDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.EditItemActionEvent<>(
                                         new UserWrapper(new UserRestClient().read(model.getObject().getKey())),
@@ -199,31 +167,13 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         send(UserDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.NewItemActionEvent<>(new UserWrapper(clone), target));
                     }
+
+                    @Override
+                    protected boolean statusCondition(final UserTO modelObject) {
+                        return addAjaxLink.isVisibleInHierarchy();
+                    }
+
                 }, ActionType.CLONE, StandardEntitlement.USER_CREATE).add(new ActionLink<UserTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        target.add(utilityModal.setContent(new AnyPropagationTasks(
-                                utilityModal, AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
-
-                        utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
-                        utilityModal.show(true);
-                    }
-                }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<UserTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        target.add(utilityModal.setContent(
-                                new NotificationTasks(AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
-                        utilityModal.header(new StringResourceModel("any.notification.tasks", model));
-                        utilityModal.show(true);
-                        target.add(utilityModal);
-                    }
-                }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<UserTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -241,6 +191,70 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
                     }
                 }, ActionType.DELETE, StandardEntitlement.USER_DELETE);
+
+                if (wizardInModal) {
+                    panel.add(new ActionLink<UserTO>() {
+
+                        private static final long serialVersionUID = -7978723352517770644L;
+
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                            IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
+                                    new AnyWrapper<>(model.getObject()));
+                            altDefaultModal.setFormModel(formModel);
+
+                            target.add(altDefaultModal.setContent(new StatusModal<>(
+                                    altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
+
+                            altDefaultModal.header(new Model<>(
+                                    getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
+
+                            altDefaultModal.show(true);
+                        }
+                    }, ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
+
+                        private static final long serialVersionUID = -7978723352517770644L;
+
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                            IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
+                                    new AnyWrapper<>(model.getObject()));
+                            altDefaultModal.setFormModel(formModel);
+
+                            target.add(altDefaultModal.setContent(new StatusModal<>(
+                                    altDefaultModal, pageRef, formModel.getObject().getInnerObject(), true)));
+
+                            altDefaultModal.header(new Model<>(
+                                    getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
+
+                            altDefaultModal.show(true);
+                        }
+                    }, ActionType.ENABLE, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
+
+                        private static final long serialVersionUID = -7978723352517770644L;
+
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                            target.add(utilityModal.setContent(new AnyPropagationTasks(
+                                    utilityModal, AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
+
+                            utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
+                            utilityModal.show(true);
+                        }
+                    }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<UserTO>() {
+
+                        private static final long serialVersionUID = -7978723352517770644L;
+
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                            target.add(utilityModal.setContent(
+                                    new NotificationTasks(AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
+                            utilityModal.header(new StringResourceModel("any.notification.tasks", model));
+                            utilityModal.show(true);
+                            target.add(utilityModal);
+                        }
+                    }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
+                }
 
                 return panel.build(componentId, model.getObject());
             }
@@ -261,6 +275,11 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         displayAttributeModal.header(new ResourceModel("any.attr.display"));
                         displayAttributeModal.addSubmitButton();
                         displayAttributeModal.show(true);
+                    }
+
+                    @Override
+                    protected boolean statusCondition(final Serializable modelObject) {
+                        return wizardInModal;
                     }
                 }, ActionType.CHANGE_VIEW, StandardEntitlement.USER_READ).add(
                         new ActionLink<Serializable>() {
@@ -290,8 +309,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
         }
 
         @Override
-        protected WizardMgtPanel<AnyWrapper<UserTO>> newInstance(final String id) {
-            return new UserDirectoryPanel(id, this);
+        protected WizardMgtPanel<AnyWrapper<UserTO>> newInstance(final String id, final boolean wizardInModal) {
+            return new UserDirectoryPanel(id, this, wizardInModal);
         }
     }
 }

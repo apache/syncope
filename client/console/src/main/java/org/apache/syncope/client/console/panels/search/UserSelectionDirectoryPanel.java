@@ -32,8 +32,8 @@ public final class UserSelectionDirectoryPanel extends AnySelectionDirectoryPane
 
     private static final long serialVersionUID = -1100228004207271272L;
 
-    private UserSelectionDirectoryPanel(final String id, final Builder builder) {
-        super(id, builder, UserTO.class);
+    private UserSelectionDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
+        super(id, builder, UserTO.class, wizardInModal);
     }
 
     @Override
@@ -72,8 +72,8 @@ public final class UserSelectionDirectoryPanel extends AnySelectionDirectoryPane
         }
 
         @Override
-        protected WizardMgtPanel<AnyWrapper<UserTO>> newInstance(final String id) {
-            return new UserSelectionDirectoryPanel(id, this);
+        protected WizardMgtPanel<AnyWrapper<UserTO>> newInstance(final String id, final boolean wizardInModal) {
+            return new UserSelectionDirectoryPanel(id, this, wizardInModal);
         }
     }
 }

@@ -44,6 +44,34 @@ public class GroupsITCase extends AbstractConsoleITCase {
     }
 
     @Test
+    public void read() {
+        wicketTester.clickLink("body:realmsLI:realms");
+        wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
+
+        Component component = findComponentByProp("name", searchResultContainer
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "artDirector");
+        assertNotNull(component);
+
+        wicketTester.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelMembers:membersLink");
+
+        FormTester formTester = wicketTester.newFormTester("body:content:body:tabbedPanel:panel:searchResult:"
+                + "outerObjectsRepeater:6:outer:container:content:togglePanelContainer:membersForm");
+
+        formTester.select("type:dropDownChoiceField", 0);
+        formTester.submit("changeit");
+
+        wicketTester.assertModelValue("body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:5:outer:"
+                + "dialog:header:header-label", "'USER' members of group 'artDirector' ");
+
+        assertNotNull(findComponentByProp("username", "body:content:body:tabbedPanel:panel:searchResult:"
+                + "outerObjectsRepeater:5:outer:form:content:searchResult:container:content:searchContainer:"
+                + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini"));
+
+        wicketTester.executeAjaxEvent("body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:5:"
+                + "outer:dialog:footer:buttons:0:button", Constants.ON_CLICK);
+    }
+
+    @Test
     public void filteredSearch() {
         wicketTester.clickLink("body:realmsLI:realms");
         wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");

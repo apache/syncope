@@ -64,8 +64,8 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
             private static final long serialVersionUID = 8769126634538601689L;
 
             @Override
-            protected WizardMgtPanel<CamelRouteTO> newInstance(final String id) {
-                return new CamelRoutesDirectoryPanel(id, this, anyTypeKind);
+            protected WizardMgtPanel<CamelRouteTO> newInstance(final String id, final boolean wizardInModal) {
+                throw new UnsupportedOperationException();
             }
         }.disableCheckBoxes());
 

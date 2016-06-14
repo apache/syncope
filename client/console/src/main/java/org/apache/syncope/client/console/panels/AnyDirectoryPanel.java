@@ -83,7 +83,11 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
     protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
 
     protected AnyDirectoryPanel(final String id, final Builder<A, E> builder) {
-        super(id, builder);
+        this(id, builder, true);
+    }
+
+    protected AnyDirectoryPanel(final String id, final Builder<A, E> builder, final boolean wizardInModal) {
+        super(id, builder, wizardInModal);
         this.realm = builder.realm;
         this.type = builder.type;
         this.fiql = builder.fiql;

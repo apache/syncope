@@ -58,6 +58,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         ENABLE("update"),
         NOT_FOND("read"),
         VIEW("view"),
+        MEMBERS("members"),
         SEARCH("search"),
         DELETE("delete"),
         EXECUTE("execute"),
@@ -131,5 +132,9 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
 
     public final boolean isEnabled(final T modelObject) {
         return this.enabled && statusCondition(modelObject);
+    }
+
+    public boolean isIndicatorEnabled() {
+        return true;
     }
 }

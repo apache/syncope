@@ -33,8 +33,8 @@ public final class AnyObjectSelectionDirectoryPanel
 
     private static final long serialVersionUID = -1100228004207271272L;
 
-    private AnyObjectSelectionDirectoryPanel(final String id, final Builder builder) {
-        super(id, builder, AnyObjectTO.class);
+    private AnyObjectSelectionDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
+        super(id, builder, AnyObjectTO.class, wizardInModal);
     }
 
     @Override
@@ -73,8 +73,8 @@ public final class AnyObjectSelectionDirectoryPanel
         }
 
         @Override
-        protected WizardMgtPanel<AnyWrapper<AnyObjectTO>> newInstance(final String id) {
-            return new AnyObjectSelectionDirectoryPanel(id, this);
+        protected WizardMgtPanel<AnyWrapper<AnyObjectTO>> newInstance(final String id, final boolean wizardInModal) {
+            return new AnyObjectSelectionDirectoryPanel(id, this, wizardInModal);
         }
     }
 }

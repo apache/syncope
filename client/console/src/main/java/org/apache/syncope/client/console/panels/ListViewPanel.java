@@ -100,8 +100,9 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             final ActionLinksPanel.Builder<T> actions,
             final CheckAvailability check,
             final boolean reuseItem,
+            final boolean wizardInModal,
             final IModel<? extends Collection<T>> model) {
-        super(id);
+        super(id, wizardInModal);
         setOutputMarkupId(true);
 
         this.check = Model.of(check);
@@ -354,8 +355,9 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         }
 
         @Override
-        protected WizardMgtPanel<T> newInstance(final String id) {
-            return new ListViewPanel<T>(id, items, reference, includes, actions, check, reuseItem, model) {
+        protected WizardMgtPanel<T> newInstance(final String id, final boolean wizardInModal) {
+            return new ListViewPanel<T>(
+                    id, items, reference, includes, actions, check, reuseItem, wizardInModal, model) {
 
                 private static final long serialVersionUID = 1L;
 

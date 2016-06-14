@@ -77,8 +77,8 @@ public class ParametersPanel extends DirectoryPanel<
             private static final long serialVersionUID = 8769126634538601689L;
 
             @Override
-            protected WizardMgtPanel<AttrTO> newInstance(final String id) {
-                return new ParametersPanel(id, this);
+            protected WizardMgtPanel<AttrTO> newInstance(final String id, final boolean wizardInModal) {
+                throw new UnsupportedOperationException();
             }
         });
 
@@ -173,7 +173,7 @@ public class ParametersPanel extends DirectoryPanel<
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                   SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
                                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
