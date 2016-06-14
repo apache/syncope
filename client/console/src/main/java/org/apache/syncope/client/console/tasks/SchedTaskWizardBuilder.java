@@ -59,6 +59,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
     private final TaskRestClient taskRestClient = new TaskRestClient();
 
+    private PushTaskWrapper wrapper = null;
+
     private final LoadableDetachableModel<List<String>> realms = new LoadableDetachableModel<List<String>>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
@@ -86,6 +88,10 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
     @Override
     protected Serializable onApplyInternal(final SchedTaskTO modelObject) {
+        if (modelObject instanceof PushTaskTO && wrapper != null) {
+            wrapper.fillFilterConditions();
+        }
+
         if (modelObject.getKey() == null) {
             taskRestClient.create(modelObject);
         } else {
@@ -97,6 +103,10 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
     @Override
     protected WizardModel buildModelSteps(final SchedTaskTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new Profile(modelObject));
+        if (modelObject instanceof PushTaskTO) {
+            wrapper = new PushTaskWrapper(PushTaskTO.class.cast(modelObject));
+            wizardModel.add(new PushTaskFilters(wrapper));
+        }
         wizardModel.add(new Schedule(modelObject));
         return wizardModel;
     }

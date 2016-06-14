@@ -359,6 +359,16 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:"
                 + "tasks:firstLevelContainer:first:container:content:wizard:form");
         formTester.setValue("view:description:textField", "test");
+        formTester.submit("buttons:next");
+
+        wicketTester.assertModelValue("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+                + "firstLevelContainer:first:container:content:wizard:form:view:filters:0:filters:tabs:0:body:"
+                + "content:searchFormContainer:search:multiValueContainer:innerForm:content:view:0:panel:container:"
+                + "value:textField", "_NO_ONE_");
+
+        formTester = wicketTester.newFormTester(
+                "body:toggle:outerObjectsRepeater:2:outer:form:content:"
+                + "tasks:firstLevelContainer:first:container:content:wizard:form");
         formTester.submit("buttons:finish");
 
         wicketTester.assertInfoMessages("Operation executed successfully");
