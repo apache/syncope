@@ -24,7 +24,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.RoleTO;
 
 public class RoleWrapper implements Serializable {
@@ -55,12 +54,8 @@ public class RoleWrapper implements Serializable {
         if (CollectionUtils.isEmpty(this.dynClauses)) {
             return null;
         } else {
-            return getFIQLString(this.dynClauses, SyncopeClient.getUserSearchConditionBuilder());
+            return SearchUtils.buildFIQL(this.dynClauses, SyncopeClient.getUserSearchConditionBuilder());
         }
-    }
-
-    private String getFIQLString(final List<SearchClause> clauses, final AbstractFiqlSearchConditionBuilder bld) {
-        return SearchUtils.buildFIQL(clauses, bld);
     }
 
     public RoleTO fillDynamicConditions() {

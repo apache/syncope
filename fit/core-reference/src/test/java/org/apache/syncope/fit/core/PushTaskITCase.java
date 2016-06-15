@@ -127,13 +127,6 @@ public class PushTaskITCase extends AbstractTaskITCase {
                 RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), "29f96485-729e-4d31-88a1-6fc60e4677f3"));
         assertTrue(groupService.read("29f96485-729e-4d31-88a1-6fc60e4677f3").
                 getResources().contains(RESOURCE_NAME_LDAP));
-
-        execProvisioningTask(taskService, "fd905ba5-9d56-4f51-83e2-859096a67b75", 50, false);
-
-        assertNotNull(resourceService.readConnObject(
-                RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), "29f96485-729e-4d31-88a1-6fc60e4677f3"));
-        assertFalse(groupService.read("29f96485-729e-4d31-88a1-6fc60e4677f3").
-                getResources().contains(RESOURCE_NAME_LDAP));
     }
 
     @Test

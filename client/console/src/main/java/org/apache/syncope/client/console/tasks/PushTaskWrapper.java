@@ -54,21 +54,29 @@ public class PushTaskWrapper implements Serializable {
     }
 
     public Map<String, String> getFilters() {
-        final Map<String, String> res = new HashMap<>();
-        if (this.filterClauses != null && !this.filterClauses.isEmpty()) {
-            for (Map.Entry<String, List<SearchClause>> entry : this.filterClauses.entrySet()) {
-                if (CollectionUtils.isNotEmpty(entry.getValue())) {
-                    res.put(entry.getKey(), getFIQLString(entry.getValue(),
-                            SyncopeClient.getAnyObjectSearchConditionBuilder(entry.getKey())));
+        Map<String, String> filters = new HashMap<>();
+
+        for (Map.Entry<String, List<SearchClause>> entry : getFilterClauses().entrySet()) {
+            if (CollectionUtils.isNotEmpty(entry.getValue())) {
+                AbstractFiqlSearchConditionBuilder bld;
+                switch (entry.getKey()) {
+                    case "USER":
+                        bld = SyncopeClient.getUserSearchConditionBuilder();
+                        break;
+
+                    case "GROUP":
+                        bld = SyncopeClient.getGroupSearchConditionBuilder();
+                        break;
+
+                    default:
+                        bld = SyncopeClient.getAnyObjectSearchConditionBuilder(entry.getKey());
                 }
+
+                filters.put(entry.getKey(), SearchUtils.buildFIQL(entry.getValue(), bld));
             }
         }
 
-        return res;
-    }
-
-    private String getFIQLString(final List<SearchClause> clauses, final AbstractFiqlSearchConditionBuilder bld) {
-        return SearchUtils.buildFIQL(clauses, bld);
+        return filters;
     }
 
     public PushTaskTO fillFilterConditions() {
