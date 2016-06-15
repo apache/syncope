@@ -33,7 +33,7 @@ import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
-import org.apache.syncope.client.console.status.StatusModal;
+import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -245,7 +245,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                 new AnyWrapper<>(model.getObject()));
                         altDefaultModal.setFormModel(formModel);
 
-                        target.add(altDefaultModal.setContent(new StatusModal<>(
+                        target.add(altDefaultModal.setContent(new AnyStatusModal<>(
                                 altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
                         altDefaultModal.header(new Model<>(

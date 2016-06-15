@@ -79,6 +79,34 @@ public class TopologyITCase extends AbstractConsoleITCase {
     }
 
     @Test
+    public void resourceBulkAction() {
+        wicketTester.clickLink("body:topologyLI:topology");
+
+        Component component = findComponentByProp("key", "body:resources", "ws-target-resource-1");
+        assertNotNull(component);
+        wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        wicketTester.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:status");
+
+        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:1:outer", Modal.class);
+
+        FormTester formTester = wicketTester.newFormTester("body:toggle:outerObjectsRepeater:1:outer:form");
+        formTester.setValue("content:type:dropDownChoiceField", "2");
+        wicketTester.executeAjaxEvent(
+                "body:toggle:outerObjectsRepeater:1:outer:form:content:type:dropDownChoiceField",
+                Constants.ON_CHANGE);
+        formTester.setValue("content:type:dropDownChoiceField", "2");
+
+        component = findComponentByProp("anyKey", "body:toggle:outerObjectsRepeater:1:outer:form:content:status:"
+                + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
+                + "checkgroup:dataTable", "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
+
+        assertNotNull(component);
+
+        wicketTester.executeAjaxEvent(
+                "body:toggle:outerObjectsRepeater:1:outer:dialog:footer:buttons:0:button", Constants.ON_CLICK);
+    }
+
+    @Test
     public void editProvisioning() {
         wicketTester.clickLink("body:topologyLI:topology");
 

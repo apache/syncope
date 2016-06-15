@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.status.AbstractStatusBeanProvider;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.Status;
@@ -36,7 +37,7 @@ import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.console.status.StatusDirectoryPanel.AttributableStatusProvider;
+import org.apache.syncope.client.console.status.AnyStatusDirectoryPanel.AttributableStatusProvider;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -54,8 +55,8 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class StatusDirectoryPanel
-        extends DirectoryPanel<StatusBean, StatusBean, AttributableStatusProvider, AbstractAnyRestClient<?, ?>>
+public class AnyStatusDirectoryPanel
+        extends DirectoryPanel<StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?, ?>>
         implements ModalPanel {
 
     private static final long serialVersionUID = -9148734710505211261L;
@@ -68,7 +69,7 @@ public class StatusDirectoryPanel
 
     private final boolean statusOnly;
 
-    public StatusDirectoryPanel(
+    public AnyStatusDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef,
@@ -77,7 +78,7 @@ public class StatusDirectoryPanel
         this(baseModal, multiLevelPanelRef, pageRef, anyTO, false);
     }
 
-    public StatusDirectoryPanel(
+    public AnyStatusDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef,

@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.status.ResourceStatusModal;
 import org.apache.syncope.client.console.tasks.PropagationTasks;
 import org.apache.syncope.client.console.tasks.PushTasks;
 import org.apache.syncope.client.console.tasks.SchedTasks;
@@ -341,6 +342,22 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         };
         MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
         fragment.add(edit);
+
+        AjaxLink<String> status = new IndicatingAjaxLink<String>("status") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
+                target.add(propTaskModal.setContent(
+                        new ResourceStatusModal(propTaskModal, pageRef, modelObject, false)));
+                propTaskModal.header(new ResourceModel("resource.provisioning.status", "Provisioning Status"));
+                propTaskModal.show(true);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(status, ENABLE, StandardEntitlement.USER_UPDATE);
+        fragment.add(status);
 
         AjaxLink<String> provision = new IndicatingAjaxLink<String>("provision") {
 

@@ -66,7 +66,7 @@ public class StatusUtils implements Serializable {
         return objects;
     }
 
-    private List<ConnObjectWrapper> getConnectorObjects(
+    public List<ConnObjectWrapper> getConnectorObjects(
             final AnyTO any, final Collection<String> resources) {
 
         final List<ConnObjectWrapper> objects = new ArrayList<>();

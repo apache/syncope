@@ -29,7 +29,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.console.status.StatusModal;
+import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -203,7 +203,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                     new AnyWrapper<>(model.getObject()));
                             altDefaultModal.setFormModel(formModel);
 
-                            target.add(altDefaultModal.setContent(new StatusModal<>(
+                            target.add(altDefaultModal.setContent(new AnyStatusModal<>(
                                     altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
 
                             altDefaultModal.header(new Model<>(
@@ -221,7 +221,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                     new AnyWrapper<>(model.getObject()));
                             altDefaultModal.setFormModel(formModel);
 
-                            target.add(altDefaultModal.setContent(new StatusModal<>(
+                            target.add(altDefaultModal.setContent(new AnyStatusModal<>(
                                     altDefaultModal, pageRef, formModel.getObject().getInnerObject(), true)));
 
                             altDefaultModal.header(new Model<>(
