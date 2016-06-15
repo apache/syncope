@@ -451,9 +451,9 @@ public class VirAttrITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE453() {
-        String resourceName = "issueSYNCOPE453-Res-" + getUUIDString();
+        String resourceName = "issueSYNCOPE453Res" + getUUIDString();
         String groupKey = null;
-        String groupName = "issueSYNCOPE453-Group-" + getUUIDString();
+        String groupName = "issueSYNCOPE453Group" + getUUIDString();
 
         try {
             // -------------------------------------------
@@ -518,7 +518,7 @@ public class VirAttrITCase extends AbstractITCase {
 
             item = new MappingItemTO();
             item.setExtAttrName("EMAIL");
-            item.setIntAttrName("rvirtualdata");
+            item.setIntAttrName("groups[" + groupName + "].rvirtualdata");
             item.setPurpose(MappingPurpose.PROPAGATION);
             mapping.getItems().add(item);
 
@@ -565,6 +565,8 @@ public class VirAttrITCase extends AbstractITCase {
             assertEquals(userTO.getPlainAttrMap().get("fullname").getValues().get(0), actuals.get("id").toString());
             assertEquals("ml@group.it", actuals.get("email"));
             // -------------------------------------------
+        } catch(Exception e) {
+            LOG.error("Unexpected error", e);
         } finally {
             // -------------------------------------------
             // Delete resource and group ad-hoc
