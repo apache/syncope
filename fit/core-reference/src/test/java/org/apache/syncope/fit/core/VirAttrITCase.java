@@ -497,7 +497,6 @@ public class VirAttrITCase extends AbstractITCase {
             ProvisionTO provisionTO = new ProvisionTO();
             provisionTO.setAnyType(AnyTypeKind.USER.name());
             provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
-            provisionTO.getAuxClasses().add("minimal group");
             resourceTO.getProvisions().add(provisionTO);
 
             MappingTO mapping = new MappingTO();
@@ -511,14 +510,14 @@ public class VirAttrITCase extends AbstractITCase {
             mapping.setConnObjectKeyItem(item);
 
             item = new MappingItemTO();
-            item.setExtAttrName("USERNAME");
             item.setIntAttrName("username");
+            item.setExtAttrName("USERNAME");
             item.setPurpose(MappingPurpose.PROPAGATION);
             mapping.getItems().add(item);
 
             item = new MappingItemTO();
-            item.setExtAttrName("EMAIL");
             item.setIntAttrName("groups[" + groupName + "].rvirtualdata");
+            item.setExtAttrName("EMAIL");
             item.setPurpose(MappingPurpose.PROPAGATION);
             mapping.getItems().add(item);
 
@@ -540,7 +539,7 @@ public class VirAttrITCase extends AbstractITCase {
             // -------------------------------------------
             // Create new user
             // -------------------------------------------
-            UserTO userTO = UserITCase.getUniqueSampleTO("syncope453@syncope.apache.org");
+            UserTO userTO = UserITCase.getUniqueSampleTO("syn453@syncope.apache.org");
             userTO.getPlainAttrs().add(attrTO("fullname", "123"));
             userTO.getResources().clear();
             userTO.getResources().add(resourceName);
@@ -565,7 +564,7 @@ public class VirAttrITCase extends AbstractITCase {
             assertEquals(userTO.getPlainAttrMap().get("fullname").getValues().get(0), actuals.get("id").toString());
             assertEquals("ml@group.it", actuals.get("email"));
             // -------------------------------------------
-        } catch(Exception e) {
+        } catch (Exception e) {
             LOG.error("Unexpected error", e);
         } finally {
             // -------------------------------------------
