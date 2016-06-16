@@ -44,10 +44,12 @@ import org.apache.syncope.core.persistence.jpa.entity.AbstractGroupableRelatable
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
+import org.apache.syncope.core.persistence.jpa.validation.entity.AnyObjectCheck;
 
 @Entity
 @Table(name = JPAAnyObject.TABLE)
 @Cacheable
+@AnyObjectCheck
 public class JPAAnyObject
         extends AbstractGroupableRelatable<AnyObject, AMembership, APlainAttr, AnyObject, ARelationship>
         implements AnyObject {

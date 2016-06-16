@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -33,11 +34,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class IntAttrNameParser {
 
-    private static final Pattern ENCLOSING_GROUP_PATTERN = Pattern.compile("^groups\\[([\\w]+)\\]\\.([\\w]+)");
+    private static final Pattern ENCLOSING_GROUP_PATTERN = Pattern.compile(
+            "^groups\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
 
-    private static final Pattern RELATED_ANY_OBJECT_PATTERN = Pattern.compile("^anyObjects\\[([\\w]+)\\]\\.([\\w]+)");
+    private static final Pattern RELATED_ANY_OBJECT_PATTERN = Pattern.compile(
+            "^anyObjects\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
 
-    private static final Pattern MEMBERSHIP_PATTERN = Pattern.compile("^memberships\\[([\\w]+)\\]\\.([\\w]+)");
+    private static final Pattern MEMBERSHIP_PATTERN = Pattern.compile(
+            "^memberships\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;

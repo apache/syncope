@@ -18,27 +18,24 @@
  */
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import java.lang.annotation.Annotation;
-import java.util.regex.Pattern;
-import javax.validation.ConstraintValidator;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
-public abstract class AbstractValidator<A extends Annotation, T> implements ConstraintValidator<A, T> {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
-
-    protected static final Pattern KEY_PATTERN =
-            Pattern.compile("^" + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+public class AnyObjectValidator extends AbstractValidator<AnyObjectCheck, AnyObject> {
 
     @Override
-    public void initialize(final A annotation) {
-        // no initialization
-    }
+    public boolean isValid(final AnyObject anyObject, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
 
-    protected final String getTemplate(final EntityViolationType type, final String message) {
-        return type.name() + ";" + message;
+        boolean isValid = KEY_PATTERN.matcher(anyObject.getName()).matches();
+
+        if (!isValid) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidName, "Invalid any object name")).
+                    addPropertyNode("name").addConstraintViolation();
+        }
+
+        return isValid;
     }
 }

@@ -37,6 +37,8 @@ public final class SyncopeConstants {
 
     public static final String ENUM_VALUES_SEPARATOR = ";";
 
+    public static final String NAME_PATTERN = "[\\w \\-@.]+";
+
     public static final String[] DATE_PATTERNS = {
         "yyyy-MM-dd'T'HH:mm:ssZ",
         "EEE, dd MMM yyyy HH:mm:ss z",

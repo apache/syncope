@@ -39,6 +39,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -57,6 +58,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -368,27 +370,36 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void unassign() {
-        GroupTO actual = createGroup(getSampleTO("unassign")).getAny();
-        assertNotNull(actual);
-
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
-
-        DeassociationPatch deassociationPatch = new DeassociationPatch();
-        deassociationPatch.setKey(actual.getKey());
-        deassociationPatch.setAction(ResourceDeassociationAction.UNASSIGN);
-        deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
-
-        assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
-
-        actual = groupService.read(actual.getKey());
-        assertNotNull(actual);
-        assertTrue(actual.getResources().isEmpty());
+        GroupTO groupTO = null;
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
-            fail();
-        } catch (Exception e) {
-            assertNotNull(e);
+            groupTO = createGroup(getSampleTO("unassign")).getAny();
+            assertNotNull(groupTO);
+
+            assertNotNull(resourceService.readConnObject(
+                    RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
+
+            DeassociationPatch deassociationPatch = new DeassociationPatch();
+            deassociationPatch.setKey(groupTO.getKey());
+            deassociationPatch.setAction(ResourceDeassociationAction.UNASSIGN);
+            deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
+
+            assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
+
+            groupTO = groupService.read(groupTO.getKey());
+            assertNotNull(groupTO);
+            assertTrue(groupTO.getResources().isEmpty());
+
+            try {
+                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                fail();
+            } catch (Exception e) {
+                assertNotNull(e);
+            }
+        } finally {
+            if (groupTO != null) {
+                groupService.delete(groupTO.getKey());
+            }
         }
     }
 
@@ -397,126 +408,155 @@ public class GroupITCase extends AbstractITCase {
         GroupTO groupTO = getSampleTO("assign");
         groupTO.getResources().clear();
 
-        GroupTO actual = createGroup(groupTO).getAny();
-        assertNotNull(actual);
-
         try {
-            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
-            fail();
-        } catch (Exception e) {
-            assertNotNull(e);
+            groupTO = createGroup(groupTO).getAny();
+            assertNotNull(groupTO);
+
+            try {
+                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                fail();
+            } catch (Exception e) {
+                assertNotNull(e);
+            }
+
+            AssociationPatch associationPatch = new AssociationPatch();
+            associationPatch.setKey(groupTO.getKey());
+            associationPatch.setAction(ResourceAssociationAction.ASSIGN);
+            associationPatch.getResources().add(RESOURCE_NAME_LDAP);
+
+            assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
+
+            groupTO = groupService.read(groupTO.getKey());
+            assertFalse(groupTO.getResources().isEmpty());
+            assertNotNull(resourceService.readConnObject(
+                    RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
+        } finally {
+            if (groupTO.getKey() != null) {
+                groupService.delete(groupTO.getKey());
+            }
         }
-
-        AssociationPatch associationPatch = new AssociationPatch();
-        associationPatch.setKey(actual.getKey());
-        associationPatch.setAction(ResourceAssociationAction.ASSIGN);
-        associationPatch.getResources().add(RESOURCE_NAME_LDAP);
-
-        assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
-
-        actual = groupService.read(actual.getKey());
-        assertFalse(actual.getResources().isEmpty());
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
     }
 
     @Test
     public void deprovision() {
-        GroupTO actual = createGroup(getSampleTO("deprovision")).getAny();
-        assertNotNull(actual);
-        assertNotNull(actual.getKey());
-
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
-
-        DeassociationPatch deassociationPatch = new DeassociationPatch();
-        deassociationPatch.setKey(actual.getKey());
-        deassociationPatch.setAction(ResourceDeassociationAction.DEPROVISION);
-        deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
-
-        assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
-
-        actual = groupService.read(actual.getKey());
-        assertNotNull(actual);
-        assertFalse(actual.getResources().isEmpty());
+        GroupTO groupTO = null;
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
-            fail();
-        } catch (Exception e) {
-            assertNotNull(e);
+            groupTO = createGroup(getSampleTO("deprovision")).getAny();
+            assertNotNull(groupTO);
+            assertNotNull(groupTO.getKey());
+
+            assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
+
+            DeassociationPatch deassociationPatch = new DeassociationPatch();
+            deassociationPatch.setKey(groupTO.getKey());
+            deassociationPatch.setAction(ResourceDeassociationAction.DEPROVISION);
+            deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
+
+            assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
+
+            groupTO = groupService.read(groupTO.getKey());
+            assertNotNull(groupTO);
+            assertFalse(groupTO.getResources().isEmpty());
+
+            try {
+                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                fail();
+            } catch (Exception e) {
+                assertNotNull(e);
+            }
+        } finally {
+            if (groupTO != null) {
+                groupService.delete(groupTO.getKey());
+            }
         }
     }
 
     @Test
     public void provision() {
-        GroupTO groupTO = getSampleTO("assign" + getUUIDString());
+        GroupTO groupTO = getSampleTO("provision");
         groupTO.getResources().clear();
 
-        GroupTO actual = createGroup(groupTO).getAny();
-        assertNotNull(actual);
-
         try {
-            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
-            fail();
-        } catch (Exception e) {
-            assertNotNull(e);
+            groupTO = createGroup(groupTO).getAny();
+            assertNotNull(groupTO);
+
+            try {
+                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                fail();
+            } catch (Exception e) {
+                assertNotNull(e);
+            }
+
+            AssociationPatch associationPatch = new AssociationPatch();
+            associationPatch.setKey(groupTO.getKey());
+            associationPatch.setAction(ResourceAssociationAction.PROVISION);
+            associationPatch.getResources().add(RESOURCE_NAME_LDAP);
+
+            assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
+
+            groupTO = groupService.read(groupTO.getKey());
+            assertTrue(groupTO.getResources().isEmpty());
+
+            assertNotNull(resourceService.readConnObject(
+                    RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
+        } finally {
+            if (groupTO.getKey() != null) {
+                groupService.delete(groupTO.getKey());
+            }
         }
-
-        AssociationPatch associationPatch = new AssociationPatch();
-        associationPatch.setKey(actual.getKey());
-        associationPatch.setAction(ResourceAssociationAction.PROVISION);
-        associationPatch.getResources().add(RESOURCE_NAME_LDAP);
-
-        assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
-
-        actual = groupService.read(actual.getKey());
-        assertTrue(actual.getResources().isEmpty());
-
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
     }
 
     @Test
     public void deprovisionUnlinked() {
-        GroupTO groupTO = getSampleTO("assign" + getUUIDString());
+        GroupTO groupTO = getSampleTO("deprovision");
         groupTO.getResources().clear();
 
-        GroupTO actual = createGroup(groupTO).getAny();
-        assertNotNull(actual);
-
         try {
-            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
-            fail();
-        } catch (Exception e) {
-            assertNotNull(e);
-        }
+            groupTO = createGroup(groupTO).getAny();
+            assertNotNull(groupTO);
 
-        AssociationPatch associationPatch = new AssociationPatch();
-        associationPatch.setKey(actual.getKey());
-        associationPatch.setAction(ResourceAssociationAction.PROVISION);
-        associationPatch.getResources().add(RESOURCE_NAME_LDAP);
+            try {
+                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                fail();
+            } catch (Exception e) {
+                assertNotNull(e);
+            }
 
-        assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
+            AssociationPatch associationPatch = new AssociationPatch();
+            associationPatch.setKey(groupTO.getKey());
+            associationPatch.setAction(ResourceAssociationAction.PROVISION);
+            associationPatch.getResources().add(RESOURCE_NAME_LDAP);
 
-        actual = groupService.read(actual.getKey());
-        assertTrue(actual.getResources().isEmpty());
+            assertNotNull(groupService.associate(associationPatch).readEntity(BulkActionResult.class));
 
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
+            groupTO = groupService.read(groupTO.getKey());
+            assertTrue(groupTO.getResources().isEmpty());
 
-        DeassociationPatch deassociationPatch = new DeassociationPatch();
-        deassociationPatch.setKey(actual.getKey());
-        deassociationPatch.setAction(ResourceDeassociationAction.DEPROVISION);
-        deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
+            assertNotNull(resourceService.readConnObject(
+                    RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
 
-        assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
+            DeassociationPatch deassociationPatch = new DeassociationPatch();
+            deassociationPatch.setKey(groupTO.getKey());
+            deassociationPatch.setAction(ResourceDeassociationAction.DEPROVISION);
+            deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
 
-        actual = groupService.read(actual.getKey());
-        assertNotNull(actual);
-        assertTrue(actual.getResources().isEmpty());
+            assertNotNull(groupService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 
-        try {
-            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
-            fail();
-        } catch (Exception e) {
-            assertNotNull(e);
+            groupTO = groupService.read(groupTO.getKey());
+            assertNotNull(groupTO);
+            assertTrue(groupTO.getResources().isEmpty());
+
+            try {
+                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                fail();
+            } catch (Exception e) {
+                assertNotNull(e);
+            }
+        } finally {
+            if (groupTO.getKey() != null) {
+                groupService.delete(groupTO.getKey());
+            }
         }
     }
 
@@ -867,8 +907,14 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE632() {
+        DerSchemaTO orig = schemaService.read(SchemaType.DERIVED, "displayProperty");
+        DerSchemaTO modified = SerializationUtils.clone(orig);
+        modified.setExpression("icon + '_' + show");
+
         GroupTO groupTO = getSampleTO("lastGroup");
         try {
+            schemaService.update(SchemaType.DERIVED, modified);
+
             // 0. create group
             groupTO.getPlainAttrs().add(attrTO("icon", "anIcon"));
             groupTO.getPlainAttrs().add(attrTO("show", "true"));
@@ -952,6 +998,7 @@ public class GroupITCase extends AbstractITCase {
 
             assertEquals(1, entries);
         } finally {
+            schemaService.update(SchemaType.DERIVED, orig);
             if (groupTO.getKey() != null) {
                 groupService.delete(groupTO.getKey());
             }
