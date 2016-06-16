@@ -134,7 +134,11 @@ public class Realms extends BasePage {
             }
         });
 
-        updateRealmContent(realmChoicePanel.getCurrentRealm());
+        try {
+            updateRealmContent(realmChoicePanel.getCurrentRealm(), parameters.get("selectedIndex").toInteger());
+        } catch (Exception e) {
+            updateRealmContent(realmChoicePanel.getCurrentRealm(), 0);
+        }
     }
 
     @Override
@@ -144,7 +148,7 @@ public class Realms extends BasePage {
         if (event.getPayload() instanceof ChosenRealm) {
             @SuppressWarnings("unchecked")
             final ChosenRealm<RealmTO> choosenRealm = ChosenRealm.class.cast(event.getPayload());
-            updateRealmContent(choosenRealm.getObj());
+            updateRealmContent(choosenRealm.getObj(), 0);
             choosenRealm.getTarget().add(content);
         } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
             final AjaxWizard.NewItemEvent<?> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
@@ -166,11 +170,11 @@ public class Realms extends BasePage {
         }
     }
 
-    private WebMarkupContainer updateRealmContent(final RealmTO realmTO) {
+    private WebMarkupContainer updateRealmContent(final RealmTO realmTO, final int selectedIndex) {
         if (realmTO == null) {
             return content;
         }
-        content.addOrReplace(new Realm("body", realmTO, getPageReference()) {
+        content.addOrReplace(new Realm("body", realmTO, getPageReference(), selectedIndex) {
 
             private static final long serialVersionUID = 8221398624379357183L;
 
@@ -230,7 +234,7 @@ public class Realms extends BasePage {
                     target.add(realmChoicePanel.reloadRealmTree(target));
 
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                    updateRealmContent(parent);
+                    updateRealmContent(parent, selectedIndex);
                     target.add(content);
                 } catch (Exception e) {
                     LOG.error("While deleting realm", e);
