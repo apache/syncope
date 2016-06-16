@@ -81,17 +81,6 @@ public class AnyPanel extends Panel implements ModalPanel {
 
     private final Panel directoryPanel;
 
-    @SuppressWarnings({ "unchecked", "unchecked" })
-    public AnyPanel(
-            final String id,
-            final AnyTypeTO anyTypeTO,
-            final RealmTO realmTO,
-            final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo,
-            final PageReference pageRef) {
-        this(id, anyTypeTO, realmTO, formLayoutInfo, true, pageRef);
-    }
-
-    @SuppressWarnings({ "unchecked", "unchecked" })
     public AnyPanel(
             final String id,
             final AnyTypeTO anyTypeTO,

@@ -136,7 +136,7 @@ public abstract class Realm extends Panel {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new AnyPanel(panelId, anyTypeTO, realmTO, formLayoutInfo, pageRef);
+                    return new AnyPanel(panelId, anyTypeTO, realmTO, formLayoutInfo, true, pageRef);
                 }
             });
         }
