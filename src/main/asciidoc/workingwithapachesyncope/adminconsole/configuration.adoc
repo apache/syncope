@@ -1,0 +1,60 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+===== Configuration
+The configuration tab allows the admin to customize the syncope deployment to fit the needs of the
+organization. It provides the following functionality
+
+Audit::
+
+Allows the admin to inspect the functionality of various components of the syncope deployment.
+
+Logs::
+
+The admin can set the level of logs that are to be displayed. For example, the admin can set it
+to display only the errors of io.swagger, in which case the warnings and information logs will
+not be displayed.
+
+Notifications::
+
+This allows the admin to set events and corresponding templates for mail notification to be sent
+to the users. Trace level defines the condition in which an event will trigger the sending of a
+notification. Templates for such notifications can also be added and edited using this tab.
+
+Parameters::
+
+Presents the user with a list of key value pairs containing variables used in the syncope
+deployment such as token.expireTime and password.cipher.algorithm . These can be edited by the
+admin to further customize the deployment.
+
+Policies::
+
+Allows the admin to define rules for account, passwords and pulls. Accounts and password policies
+are defined using java classes while pull policies are defined from within the console using
+correlation rules.
+
+Roles::
+
+Displays and provides editing functionality for roles and their corresponding entitlements along
+with the realms that they are enforced upon.
+
+Security Question::
+
+The admin can use this to define a set of security questions which the endusers can choose from
+to allow them to recover their account in case of a forgotten password.

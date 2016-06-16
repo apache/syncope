@@ -16,20 +16,11 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== Identity Stores
-An identity store is the place where digital identities are stored. Of course there are various store types, the most
-famous are:
 
-* Microsoft Active Directory;
-* LDAP
-** OpenLDAP;
-** FreeIPA;
-** ForgeRock OpenDJ;
-** 389 Directory Server;
-* DBMS
-** MySQL
-** PostgreSQL
-** Oracle
+===== Reports
+The reports tab presents the admin with the reports generated from various jobs run on the syncope
+deployment. These reports are displayed using report templates which can be defined for FO, HTML
+and CSV formats. This tab also allows the admin to create and edit such templates.
 
-From Apache Syncope point of view, an identity store is viewed as an integrated resource with a communication based
-on the identity connectors.
+image::consoleReports.png[console-reports]
+

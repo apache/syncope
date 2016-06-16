@@ -46,6 +46,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Realms extends BasePage {
@@ -134,7 +135,11 @@ public class Realms extends BasePage {
             }
         });
 
-        updateRealmContent(realmChoicePanel.getCurrentRealm());
+        try {
+            updateRealmContent(realmChoicePanel.getCurrentRealm(), parameters.get("selectedIndex").toInteger());
+        } catch (Exception e) {
+            updateRealmContent(realmChoicePanel.getCurrentRealm());
+        }
     }
 
     @Override
@@ -170,76 +175,101 @@ public class Realms extends BasePage {
         if (realmTO == null) {
             return content;
         }
-        content.addOrReplace(new Realm("body", realmTO, getPageReference()) {
-
-            private static final long serialVersionUID = 8221398624379357183L;
-
-            @Override
-            protected void onClickTemplate(final AjaxRequestTarget target) {
-                templates.setTargetObject(realmTO);
-                templates.toggle(target, true);
-            }
-
-            @Override
-            protected void onClickCreate(final AjaxRequestTarget target) {
-                modal.header(new ResourceModel("newRealm"));
-
-                RealmTO newRealmTO = new RealmTO();
-                modal.setFormModel(newRealmTO);
-
-                RealmModalPanel panel = new RealmModalPanel(
-                        modal,
-                        Realms.this.getPageReference(),
-                        newRealmTO,
-                        realmChoicePanel.getCurrentRealm().getFullPath(),
-                        StandardEntitlement.REALM_CREATE,
-                        true);
-                target.add(modal.setContent(panel));
-
-                modal.addSubmitButton();
-                modal.show(true);
-            }
-
-            @Override
-            protected void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO) {
-                modal.header(new StringResourceModel("editRealm", Model.of(realmTO)));
-
-                modal.setFormModel(realmTO);
-
-                RealmModalPanel panel = new RealmModalPanel(
-                        modal,
-                        Realms.this.getPageReference(),
-                        realmTO,
-                        realmTO.getFullPath(),
-                        StandardEntitlement.REALM_UPDATE,
-                        false);
-                target.add(modal.setContent(panel));
-
-                modal.addSubmitButton();
-                modal.show(true);
-            }
-
-            @Override
-            protected void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO) {
-                try {
-                    if (realmTO.getKey() == null) {
-                        throw new Exception("Root realm cannot be deleted");
-                    }
-                    realmRestClient.delete(realmTO.getFullPath());
-                    RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
-                    target.add(realmChoicePanel.reloadRealmTree(target));
-
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                    updateRealmContent(parent);
-                    target.add(content);
-                } catch (Exception e) {
-                    LOG.error("While deleting realm", e);
-                    // Escape line breaks
-                   SyncopeConsoleSession.get().error(e.getMessage().replace("\n", " "));
-                }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
-            }
-        });
+        content.addOrReplace(new RealmConcrete("body", realmTO, getPageReference()));
         return content;
+    }
+
+    private WebMarkupContainer updateRealmContent(final RealmTO realmTO, final int selectedIndex) {
+        if (realmTO == null) {
+            return content;
+        }
+        content.addOrReplace(new RealmConcrete("body", realmTO, getPageReference(), selectedIndex));
+        return content;
+    }
+
+    class RealmConcrete extends Realm {
+
+        private final RealmTO realmTO;
+        private final int selectedIndex;
+
+        RealmConcrete(final String id, final RealmTO realmTO, final PageReference pageRef) {
+            super(id, realmTO, pageRef);
+            this.realmTO = realmTO;
+            this.selectedIndex = 0;
+        }
+
+        RealmConcrete(final String id, final RealmTO realmTO, final PageReference pageRef, final int selectedIndex) {
+            super(id, realmTO, pageRef, selectedIndex);
+            this.realmTO = realmTO;
+            this.selectedIndex = selectedIndex;
+        }
+
+        private static final long serialVersionUID = 8221398624379357183L;
+
+        @Override
+        protected void onClickTemplate(final AjaxRequestTarget target) {
+            templates.setTargetObject(realmTO);
+            templates.toggle(target, true);
+        }
+
+        @Override
+        protected void onClickCreate(final AjaxRequestTarget target) {
+            modal.header(new ResourceModel("newRealm"));
+
+            RealmTO newRealmTO = new RealmTO();
+            modal.setFormModel(newRealmTO);
+
+            RealmModalPanel panel = new RealmModalPanel(
+                modal,
+                Realms.this.getPageReference(),
+                newRealmTO,
+                realmChoicePanel.getCurrentRealm().getFullPath(),
+                StandardEntitlement.REALM_CREATE,
+                true);
+            target.add(modal.setContent(panel));
+
+            modal.addSubmitButton();
+            modal.show(true);
+        }
+
+        @Override
+        protected void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO) {
+            modal.header(new StringResourceModel("editRealm", Model.of(realmTO)));
+
+            modal.setFormModel(realmTO);
+
+            RealmModalPanel panel = new RealmModalPanel(
+                modal,
+                Realms.this.getPageReference(),
+                realmTO,
+                realmTO.getFullPath(),
+                StandardEntitlement.REALM_UPDATE,
+                false);
+            target.add(modal.setContent(panel));
+
+            modal.addSubmitButton();
+            modal.show(true);
+        }
+
+        @Override
+        protected void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO) {
+            try {
+                if (realmTO.getKey() == null) {
+                    throw new Exception("Root realm cannot be deleted");
+                }
+                realmRestClient.delete(realmTO.getFullPath());
+                RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
+                target.add(realmChoicePanel.reloadRealmTree(target));
+
+                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                updateRealmContent(parent, selectedIndex);
+                target.add(content);
+            } catch (Exception e) {
+                LOG.error("While deleting realm", e);
+                    // Escape line breaks
+                SyncopeConsoleSession.get().error(e.getMessage().replace("\n", " "));
+            }
+            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        }
     }
 }

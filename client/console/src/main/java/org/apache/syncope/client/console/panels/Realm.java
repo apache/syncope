@@ -66,6 +66,16 @@ public abstract class Realm extends Panel {
         add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));
     }
 
+    public Realm(final String id, final RealmTO realmTO, final PageReference pageRef, final int selectedIndex) {
+        super(id);
+        this.realmTO = realmTO;
+        this.anyTypeTOs = anyTypeRestClient.list();
+
+        AjaxBootstrapTabbedPanel tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef));
+        tabbedPanel.setSelectedTab(selectedIndex);
+        add(tabbedPanel);
+    }
+
     public RealmTO getRealmTO() {
         return realmTO;
     }
