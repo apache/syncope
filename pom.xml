@@ -79,7 +79,7 @@ under the License.
       <subscribe>user-subscribe@syncope.apache.org</subscribe>
       <unsubscribe>user-unsubscribe@syncope.apache.org</unsubscribe>
       <post>user@syncope.apache.org</post>
-      <archive>http://mail-archives.apache.org/mod_mbox/syncope-user/</archive>
+      <archive>https://lists.apache.org/list.html?user@syncope.apache.org</archive>
       <otherArchives>
         <otherArchive>http://syncope.markmail.org/</otherArchive>
         <otherArchive>http://syncope-user.1051894.n5.nabble.com/</otherArchive>
@@ -91,7 +91,7 @@ under the License.
       <subscribe>dev-subscribe@syncope.apache.org</subscribe>
       <unsubscribe>dev-unsubscribe@syncope.apache.org</unsubscribe>
       <post>dev@syncope.apache.org</post>
-      <archive>http://mail-archives.apache.org/mod_mbox/syncope-dev/</archive>
+      <archive>https://lists.apache.org/list.html?dev@syncope.apache.org</archive>
       <otherArchives>
         <otherArchive>http://syncope.markmail.org/</otherArchive>
         <otherArchive>http://syncope-dev.1063484.n5.nabble.com/</otherArchive>
@@ -103,7 +103,7 @@ under the License.
       <subscribe>commits-subscribe@syncope.apache.org</subscribe>
       <unsubscribe>commits-unsubscribe@syncope.apache.org</unsubscribe>
       <post>commits@syncope.apache.org</post>
-      <archive>http://mail-archives.apache.org/mod_mbox/syncope-commits/</archive>
+      <archive>https://lists.apache.org/list.html?commits@syncope.apache.org</archive>
       <otherArchives>
         <otherArchive>http://syncope.markmail.org/</otherArchive>
         <otherArchive>http://www.mail-archive.com/commits@syncope.apache.org/</otherArchive>
