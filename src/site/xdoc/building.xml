@@ -137,6 +137,11 @@ under the License.
         <a href="https://glassfish.java.net/">Glassfish</a> via
         <source>$ mvn -Pglassfish-it</source>
 
+        <h5>Payara</h5>
+        Perform the full test suite by deploying Syncope core in 
+        <a href="http://www.payara.fish/">Payara</a> via
+        <source>$ mvn -Ppayara-it</source>
+
         <h5>Wildfly</h5>
         Perform the full test suite by deploying Syncope core in 
         <a href="http://www.wildfly.org">Wildfly</a> via

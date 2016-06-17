@@ -609,6 +609,53 @@ under the License.
     </profile>
 
     <profile>
+      <id>payara-it</id>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-persistence-jpa</artifactId>
+          <version>${project.version}</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.apache.bval</groupId>
+              <artifactId>bval-jsr</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <container>
+                <containerId>glassfish4x</containerId>
+                <zipUrlInstaller>
+                  <url>https://s3-eu-west-1.amazonaws.com/payara.co/Payara+Downloads/Payara+4.1.1.162/payara-4.1.1.162.zip</url>
+                  <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+                  <extractDir>${project.build.directory}/cargo/extract</extractDir>
+                </zipUrlInstaller>
+                <log>${cargo.log}</log>
+                <output>${cargo.output}</output>
+              </container>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
       <id>jboss-it</id>
 
       <dependencies>
