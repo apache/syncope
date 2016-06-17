@@ -49,7 +49,10 @@ public class NumberWidget extends BaseWidget {
         WebMarkupContainer box = new WebMarkupContainer("box");
         box.add(new AttributeAppender("class", " " + bg));
         box.add(new AjaxEventBehavior("onmousedown") {
-            @Override 
+
+            private static final long serialVersionUID = -7133385027739964990L;
+
+            @Override
             protected void onEvent(final AjaxRequestTarget target) {
                 List<AnyTypeTO> anyTypeTOs = new AnyTypeRestClient().list();
                 PageParameters pageParameters = new PageParameters();
@@ -58,10 +61,12 @@ public class NumberWidget extends BaseWidget {
                         pageParameters.add("selectedIndex", 1);
                         setResponsePage(Realms.class, pageParameters);
                         break;
+
                     case "totalGroups":
                         pageParameters.add("selectedIndex", 2);
                         setResponsePage(Realms.class, pageParameters);
                         break;
+
                     case "totalAny1OrRoles":
                         if (icon.equals("ion ion-gear-a")) {
                             Collections.sort(anyTypeTOs, new AnyTypeComparator());
@@ -78,6 +83,7 @@ public class NumberWidget extends BaseWidget {
                             setResponsePage(Roles.class);
                         }
                         break;
+
                     case "totalAny2OrResources":
                         if (icon.equals("ion ion-gear-a")) {
                             Collections.sort(anyTypeTOs, new AnyTypeComparator());
@@ -94,6 +100,7 @@ public class NumberWidget extends BaseWidget {
                             setResponsePage(Topology.class);
                         }
                         break;
+
                     default:
                         pageParameters.add("selectedIndex", 0);
                         setResponsePage(Realms.class, pageParameters);

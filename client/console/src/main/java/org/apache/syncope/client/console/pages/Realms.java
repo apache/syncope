@@ -137,6 +137,7 @@ public class Realms extends BasePage {
         try {
             updateRealmContent(realmChoicePanel.getCurrentRealm(), parameters.get("selectedIndex").toInteger());
         } catch (Exception e) {
+            LOG.debug("Unexpected error", e);
             updateRealmContent(realmChoicePanel.getCurrentRealm(), 0);
         }
     }
@@ -147,12 +148,12 @@ public class Realms extends BasePage {
 
         if (event.getPayload() instanceof ChosenRealm) {
             @SuppressWarnings("unchecked")
-            final ChosenRealm<RealmTO> choosenRealm = ChosenRealm.class.cast(event.getPayload());
+            ChosenRealm<RealmTO> choosenRealm = ChosenRealm.class.cast(event.getPayload());
             updateRealmContent(choosenRealm.getObj(), 0);
             choosenRealm.getTarget().add(content);
         } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
-            final AjaxWizard.NewItemEvent<?> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
-            final WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();
+            AjaxWizard.NewItemEvent<?> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
+            WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();
 
             if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && modalPanel != null) {
                 final IModel<Serializable> model = new CompoundPropertyModel<>(modalPanel.getItem());
@@ -239,7 +240,7 @@ public class Realms extends BasePage {
                 } catch (Exception e) {
                     LOG.error("While deleting realm", e);
                     // Escape line breaks
-                   SyncopeConsoleSession.get().error(e.getMessage().replace("\n", " "));
+                    SyncopeConsoleSession.get().error(e.getMessage().replace("\n", " "));
                 }
                 SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
             }
