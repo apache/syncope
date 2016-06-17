@@ -259,7 +259,7 @@ under the License.
             </properties>
             <configfiles>
               <configfile>
-                <file>${project.build.directory}/classes/context.xml</file>
+                <file>${basedir}/src/main/resources/context.xml</file>
                 <todir>conf/</todir>
                 <tofile>context.xml</tofile>
               </configfile>
@@ -331,6 +331,9 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>context.xml</exclude>
+        </excludes>
       </resource>
       <resource>
         <directory>${basedir}/../../core/persistence-jpa/src/main/resources</directory>
@@ -604,7 +607,7 @@ under the License.
         </plugins>
       </build>
     </profile>
-    
+
     <profile>
       <id>jboss-it</id>
 
@@ -809,6 +812,8 @@ under the License.
 
       <properties>
         <skipTests>true</skipTests>
+        <!-- Temporary until JRebel properly supports Tomcat 8.5 -->
+        <tomcat.version>8.0.36</tomcat.version>
       </properties>
 
       <build>
