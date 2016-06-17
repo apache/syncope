@@ -842,7 +842,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertFalse(user.getResources().isEmpty());
 
         // 2. Check that the DB resource has the correct password
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = jdbcTemplate.queryForObject(
                 "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
         assertEquals(Encryptor.getInstance().encode("security123", CipherAlgorithm.SHA1), value.toUpperCase());

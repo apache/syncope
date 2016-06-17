@@ -415,7 +415,7 @@ under the License.
         <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.38</version>
+          <version>5.1.39</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -451,7 +451,7 @@ under the License.
         <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>1.1.9</version>
+          <version>1.4.6</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -515,15 +515,15 @@ under the License.
       <id>sqlserver-it</id>
 
       <properties>
-        <jdbcdriver.groupId>com.microsoft.sqlserver</jdbcdriver.groupId>
-        <jdbcdriver.artifactId>sqljdbc42</jdbcdriver.artifactId>
+        <jdbcdriver.groupId>net.sourceforge.jtds</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>jtds</jdbcdriver.artifactId>
       </properties>
 
       <dependencies>
         <dependency>
-          <groupId>com.microsoft.sqlserver</groupId>
-          <artifactId>sqljdbc42</artifactId>
-          <version>4.2</version>
+          <groupId>net.sourceforge.jtds</groupId>
+          <artifactId>jtds</artifactId>
+          <version>1.3.1</version>
           <scope>test</scope>
         </dependency>
       </dependencies>

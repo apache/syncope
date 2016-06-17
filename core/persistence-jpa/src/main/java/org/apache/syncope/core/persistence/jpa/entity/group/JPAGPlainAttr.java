@@ -27,7 +27,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -38,8 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttr;
 
 @Entity
-@Table(name = JPAGPlainAttr.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "owner_id", "schema_id" }))
+@Table(name = JPAGPlainAttr.TABLE)
 public class JPAGPlainAttr extends AbstractPlainAttr<Group> implements GPlainAttr {
 
     private static final long serialVersionUID = 2848159565890995780L;
