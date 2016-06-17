@@ -29,6 +29,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
@@ -122,7 +123,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
                                     getName() : e.getMessage());
                         }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.SET_LATEST_SYNC_TOKEN, StandardEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ProvisionTO>() {
@@ -141,7 +142,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
                                     getName() : e.getMessage());
                         }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.REMOVE_SYNC_TOKEN, StandardEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ProvisionTO>() {
@@ -218,6 +219,6 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
                     getMessage());
         }
-        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 }

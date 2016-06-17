@@ -23,12 +23,14 @@ import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -45,8 +47,8 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
 
     protected final Model<Date> startAtDateModel = new Model<>();
 
-    public StartAtTogglePanel(final WebMarkupContainer container) {
-        super("startAt");
+    public StartAtTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
+        super("startAt", pageRef);
 
         form = new Form<>("startAtForm");
         addInnerObject(form);
@@ -88,12 +90,12 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
                             getMessage());
                     LOG.error("While running task {}", key, e);
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         });
     }

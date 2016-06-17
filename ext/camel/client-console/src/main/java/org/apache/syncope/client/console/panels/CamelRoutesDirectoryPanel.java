@@ -24,10 +24,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.CamelRoutes;
 import org.apache.syncope.client.console.panels.CamelRoutesDirectoryPanel.CamelRoutesProvider;
 import org.apache.syncope.client.console.rest.CamelRoutesRestClient;
@@ -96,7 +96,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
                             LOG.error("While creating or updating CamelRouteTO", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 };
             }

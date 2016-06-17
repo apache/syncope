@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.policies.PolicyRuleDirectoryPanel.PolicyRuleWrapper;
@@ -174,10 +175,10 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
                                     customActionOnCloseCallback(target);
                                 } catch (SyncopeClientException e) {
                                     LOG.error("While deleting {}", rule.getName(), e);
-                                   SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
-                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.POLICY_UPDATE).build(componentId);
 

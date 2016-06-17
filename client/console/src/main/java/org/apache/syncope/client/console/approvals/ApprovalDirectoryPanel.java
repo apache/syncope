@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.approvals.ApprovalDirectoryPanel.ApprovalProvider;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -104,9 +105,9 @@ public class ApprovalDirectoryPanel
                             restClient.claimForm(model.getObject().getTaskId());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientException scee) {
-                           SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
+                            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
                         }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                         target.add(container);
                     }
                 }, ActionLink.ActionType.CLAIM, StandardEntitlement.WORKFLOW_FORM_CLAIM);

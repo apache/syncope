@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.ReportRestClient;
@@ -77,7 +78,7 @@ public abstract class ReportDirectoryPanel
         modal.size(Modal.Size.Large);
         initResultTable();
 
-        startAt = new ReportStartAtTogglePanel(container);
+        startAt = new ReportStartAtTogglePanel(container, pageRef);
         addInnerObject(startAt);
     }
 
@@ -191,10 +192,10 @@ public abstract class ReportDirectoryPanel
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
                                     LOG.error("While deleting {}", reportTO.getKey(), e);
-                                   SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
-                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.REPORT_DELETE).build(componentId);
 

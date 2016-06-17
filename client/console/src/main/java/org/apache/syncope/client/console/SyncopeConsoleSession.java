@@ -37,7 +37,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -250,14 +249,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public FastDateFormat getDateFormat() {
         Locale locale = getLocale() == null ? Locale.ENGLISH : getLocale();
         return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
-    }
-
-    public NotificationPanel getNotificationPanel() {
-        if (notificationPanel == null) {
-            notificationPanel = new NotificationPanel(Constants.FEEDBACK);
-            notificationPanel.setOutputMarkupId(true);
-        }
-        return notificationPanel;
     }
 
     public boolean isCheckReconciliationJob() {

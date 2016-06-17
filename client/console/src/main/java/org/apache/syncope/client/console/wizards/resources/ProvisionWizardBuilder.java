@@ -241,9 +241,10 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         Mapping mapping = new Mapping(modelObject);
         mapping.setOutputMarkupId(true);
 
-        MappingItemTransformersTogglePanel mapItemTransformers = new MappingItemTransformersTogglePanel(mapping);
+        MappingItemTransformersTogglePanel mapItemTransformers
+                = new MappingItemTransformersTogglePanel(mapping, pageRef);
         addOuterObject(mapItemTransformers);
-        JEXLTransformersTogglePanel jexlTransformers = new JEXLTransformersTogglePanel(mapping);
+        JEXLTransformersTogglePanel jexlTransformers = new JEXLTransformersTogglePanel(mapping, pageRef);
         addOuterObject(jexlTransformers);
         mapping.add(new ResourceMappingPanel(
                 "mapping", resourceTO, modelObject, mapItemTransformers, jexlTransformers));

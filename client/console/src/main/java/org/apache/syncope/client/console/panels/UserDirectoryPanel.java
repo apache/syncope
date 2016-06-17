@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
@@ -142,7 +143,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
                                     getName() : e.getMessage());
                         }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionType.MUSTCHANGEPASSWORD, StandardEntitlement.USER_UPDATE).add(new ActionLink<UserTO>() {
 
@@ -188,7 +189,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
                                     getName() : e.getMessage());
                         }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionType.DELETE, StandardEntitlement.USER_DELETE);
 

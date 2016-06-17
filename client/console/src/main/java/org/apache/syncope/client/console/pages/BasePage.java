@@ -119,7 +119,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         }
         add(body);
 
-        body.addOrReplace(SyncopeConsoleSession.get().getNotificationPanel());
+        notificationPanel = new NotificationPanel(Constants.FEEDBACK);
+        body.addOrReplace(notificationPanel.setOutputMarkupId(true));
 
         // header, footer
         body.add(new Label("version", SyncopeConsoleApplication.get().getVersion()));
@@ -155,7 +156,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
                 } catch (Exception e) {
-                   SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
                 }
             }
         };
@@ -304,8 +305,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         }
 
         // Extensions
-        ClassPathScanImplementationLookup classPathScanImplementationLookup =
-                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+        ClassPathScanImplementationLookup classPathScanImplementationLookup
+                = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
                 getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         List<Class<? extends BaseExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
 
@@ -392,6 +393,10 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     @Override
     public String getAjaxIndicatorMarkupId() {
         return "veil";
+    }
+
+    public NotificationPanel getNotificationPanel() {
+        return notificationPanel;
     }
 
     /**

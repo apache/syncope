@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.TypeExtensionDirectoryPanel.TypeExtensionDataProvider;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
@@ -99,16 +100,16 @@ public class TypeExtensionDirectoryPanel
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
             LOG.error("Group update failure", e);
-           SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
+            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
 
         }
-        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
-       SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
-        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
+        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     @Override

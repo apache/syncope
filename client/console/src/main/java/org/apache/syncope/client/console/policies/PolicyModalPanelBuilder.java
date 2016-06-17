@@ -25,6 +25,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
@@ -163,7 +164,7 @@ public class PolicyModalPanelBuilder<T extends AbstractPolicyTO> extends Abstrac
                 SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
                         getMessage());
             }
-            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
 

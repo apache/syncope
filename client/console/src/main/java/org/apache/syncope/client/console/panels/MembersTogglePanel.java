@@ -25,6 +25,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
@@ -68,8 +69,7 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
     };
 
     public MembersTogglePanel(final PageReference pageRef) {
-        super("outer", "groupMembers");
-        this.pageRef = pageRef;
+        super("outer", "groupMembers", pageRef);
 
         form = new Form<>("membersForm");
         addInnerObject(form);
@@ -97,12 +97,12 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
                             : e.getMessage());
                     LOG.error("While inspecting group memebers of type {}", typeModel.getObject(), e);
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         });
     }

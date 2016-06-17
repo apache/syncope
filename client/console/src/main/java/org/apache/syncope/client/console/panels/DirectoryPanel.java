@@ -135,6 +135,7 @@ public abstract class DirectoryPanel<
         addOuterObject(altDefaultModal);
         addOuterObject(displayAttributeModal);
 
+        setPageRef(builder.getPageRef());
         this.page = (BasePage) builder.getPageRef().getPage();
 
         this.filtered = builder.filtered;

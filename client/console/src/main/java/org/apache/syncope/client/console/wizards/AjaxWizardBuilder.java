@@ -90,7 +90,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
         // ge the specified item if available
         final T modelObject = newModelObject();
 
-        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode) {
+        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode, this.pageRef) {
 
             private static final long serialVersionUID = 7770507663760640735L;
 

@@ -24,6 +24,7 @@ import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ConnObjects;
 import org.apache.syncope.client.console.wizards.resources.ConnectorWizardBuilder;
 import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
@@ -73,8 +74,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     protected final BaseModal<Serializable> provisionModal;
 
     public TopologyTogglePanel(final String id, final PageReference pageRef) {
-        super(id);
-        this.pageRef = pageRef;
+        super(id, pageRef);
 
         modal.size(Modal.Size.Large);
         setFooterVisibility(false);
@@ -158,7 +158,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     SyncopeConsoleSession.get().error(
                             StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
         fragment.add(reload);
@@ -232,7 +232,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
                             getMessage());
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.CONNECTOR_DELETE);
@@ -312,7 +312,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
                             getMessage());
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.RESOURCE_DELETE);

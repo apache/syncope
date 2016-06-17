@@ -165,7 +165,7 @@ public class Realms extends BasePage {
                 templateModal.close(newItemEvent.getTarget());
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(newItemEvent.getTarget());
+                ((BasePage) getPage()).getNotificationPanel().refresh(newItemEvent.getTarget());
                 templateModal.close(newItemEvent.getTarget());
             }
         }
@@ -242,7 +242,7 @@ public class Realms extends BasePage {
                     // Escape line breaks
                     SyncopeConsoleSession.get().error(e.getMessage().replace("\n", " "));
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) getPage()).getNotificationPanel().refresh(target);
             }
         });
         return content;

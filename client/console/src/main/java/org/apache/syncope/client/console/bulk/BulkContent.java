@@ -29,6 +29,7 @@ import java.util.Map;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.RestClient;
@@ -222,7 +223,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                         SyncopeConsoleSession.get().error("Operation " + actionToBeAddresed.getActionId()
                                 + " not supported");
                     }
-                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                    ((BasePage) getPage()).getNotificationPanel().refresh(target);
                 }
             }, action, StandardEntitlement.CONFIGURATION_LIST, !items.isEmpty());
         }

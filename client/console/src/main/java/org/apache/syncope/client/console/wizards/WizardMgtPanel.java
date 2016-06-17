@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
@@ -212,7 +213,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                 }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
 
                 if (wizardInModal && showResultPage) {
                     modal.setContent(new ResultPage<T>(
@@ -322,7 +323,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     }
 
     protected WizardMgtPanel<T> addNotificationPanel(final NotificationPanel notificationPanel) {
-        this.notificationPanel = SyncopeConsoleSession.get().getNotificationPanel();
+        this.notificationPanel = ((BasePage) pageRef.getPage()).getNotificationPanel();
         return this;
     }
 
