@@ -75,6 +75,61 @@ public final class AnyOperations {
     }
 
     private static void diff(
+            final MembershipTO updated,
+            final MembershipTO original,
+            final MembershipPatch result,
+            final boolean incremental) {
+
+        // check same key
+        if (updated.getGroupKey() == null && original.getGroupKey() != null
+                || (updated.getGroupKey() != null && !updated.getGroupKey().equals(original.getGroupKey()))) {
+
+            throw new IllegalArgumentException("Memberships must be the same");
+        }
+        result.setGroup(updated.getGroupKey());
+
+        // 1. plain attributes
+        Map<String, AttrTO> updatedAttrs = new HashMap<>(updated.getPlainAttrMap());
+        Map<String, AttrTO> originalAttrs = new HashMap<>(original.getPlainAttrMap());
+
+        result.getPlainAttrs().clear();
+
+        if (!incremental) {
+            IterableUtils.forEach(CollectionUtils.subtract(originalAttrs.keySet(), updatedAttrs.keySet()),
+                    new Closure<String>() {
+
+                @Override
+                public void execute(final String schema) {
+                    result.getPlainAttrs().add(new AttrPatch.Builder().
+                            operation(PatchOperation.DELETE).
+                            attrTO(new AttrTO.Builder().schema(schema).build()).
+                            build());
+                }
+            });
+        }
+
+        for (AttrTO attrTO : updatedAttrs.values()) {
+            if (attrTO.getValues().isEmpty()) {
+                if (!incremental) {
+                    result.getPlainAttrs().add(new AttrPatch.Builder().
+                            operation(PatchOperation.DELETE).
+                            attrTO(new AttrTO.Builder().schema(attrTO.getSchema()).build()).
+                            build());
+                }
+            } else {
+                AttrPatch patch = new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO).build();
+                if (!patch.isEmpty()) {
+                    result.getPlainAttrs().add(patch);
+                }
+            }
+        }
+
+        // 2. virtual attributes
+        result.getVirAttrs().clear();
+        result.getVirAttrs().addAll(updated.getVirAttrs());
+    }
+
+    private static void diff(
             final AnyTO updated, final AnyTO original, final AnyPatch result, final boolean incremental) {
 
         // check same key
@@ -296,10 +351,21 @@ public final class AnyOperations {
         Map<String, MembershipTO> originalMembs = original.getMembershipMap();
 
         for (Map.Entry<String, MembershipTO> entry : updatedMembs.entrySet()) {
-            if (!originalMembs.containsKey(entry.getKey())) {
-                result.getMemberships().add(new MembershipPatch.Builder().
-                        operation(PatchOperation.ADD_REPLACE).group(entry.getValue().getGroupKey()).build());
+            MembershipPatch membershipPatch = new MembershipPatch.Builder().
+                    operation(PatchOperation.ADD_REPLACE).group(entry.getValue().getGroupKey()).build();
+
+            MembershipTO omemb;
+            if (originalMembs.containsKey(entry.getKey())) {
+                // get the original membership
+                omemb = originalMembs.get(entry.getKey());
+            } else {
+                // create an empty one to generate the patch
+                omemb = new MembershipTO();
+                omemb.setGroupKey(entry.getKey());
             }
+
+            diff(entry.getValue(), omemb, membershipPatch, incremental);
+            result.getMemberships().add(membershipPatch);
         }
 
         if (!incremental) {

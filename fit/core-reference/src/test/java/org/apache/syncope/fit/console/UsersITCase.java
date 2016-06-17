@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.console;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
@@ -30,6 +31,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
+import org.apache.wicket.markup.html.form.FormComponent;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class UsersITCase extends AbstractConsoleITCase {
@@ -153,6 +155,106 @@ public class UsersITCase extends AbstractConsoleITCase {
         component = findComponentByProp("username", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
         assertNotNull(component);
+    }
+
+    @Test
+    public void editUserMembership() {
+        wicketTester.clickLink("body:realmsLI:realms");
+        wicketTester.executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
+        wicketTester.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:1:button",
+                Constants.ON_CLICK);
+
+        wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
+
+        Component component = findComponentByProp("username", searchResultContainer
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
+        assertNull(component);
+
+        component = findComponentByProp("username", searchResultContainer
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
+        assertNotNull(component);
+
+        wicketTester.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink");
+
+        FormTester formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+
+        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " + wicketTester.getComponentFromLastRenderedPage(
+                tabPanel + "outerObjectsRepeater:0:outer:form:content:form:view:groups:paletteField:recorder").
+                getDefaultModelObject());
+//        Component recorder = wicketTester.getComponentFromLastRenderedPage(tabPanel
+//                + "outerObjectsRepeater:0:outer:form:content:form:view:groups:paletteField:selection");
+//
+//        assertNotNull(recorder);
+//
+//        if (recorder instanceof FormComponent) {
+//            wicketTester.getRequest().getPostParameters().setParameterValue(((FormComponent) recorder).getInputName(),
+//                    "additional");
+//            wicketTester.getRequest().getPostParameters().setParameterValue(((FormComponent) recorder).getInputName(),
+//                    "otherchild");
+//            wicketTester.getRequest().getPostParameters().setParameterValue(((FormComponent) recorder).getInputName(),
+//                    "root");
+//        }
+
+        formTester.setValue("view:groups:paletteField:recorder", "additional,root,otherchild");
+        wicketTester.executeAjaxEvent(
+                tabPanel + "outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
+
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+
+        wicketTester.executeAjaxEvent("body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:title",
+                Constants.ON_CLICK);
+
+        formTester.setValue("view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:content:"
+                + "schemas:0:panel:spinner", "1");
+        formTester.submit("buttons:next");
+
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:finish");
+
+        wicketTester.assertInfoMessages("Operation executed successfully");
+        wicketTester.cleanupFeedbackMessages();
+
+        wicketTester.assertComponent(tabPanel
+                + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:firstLevelContainer:first:"
+                + "container:content:group:beans:0:fields:1:field", Label.class);
+
+        wicketTester.clickLink(tabPanel + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
+
+        component = findComponentByProp("username", searchResultContainer
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
+        assertNotNull(component);
+
+        // reset ....
+        wicketTester.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink");
+
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.setValue("view:groups:paletteField:recorder", "root,otherchild");
+        wicketTester.executeAjaxEvent(
+                tabPanel + "outerObjectsRepeater:0:outer:form:content:form:buttons:finish", Constants.ON_CLICK);
+
+        wicketTester.assertInfoMessages("Operation executed successfully");
+        wicketTester.cleanupFeedbackMessages();
     }
 
     @Test
