@@ -56,16 +56,14 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
 
         @Override
         protected List<String> load() {
-            final List<String> res = new ArrayList<>();
-            CollectionUtils.collect(
+            return CollectionUtils.collect(
                     CollectionUtils.select(new AnyTypeRestClient().list(), new Predicate<AnyTypeTO>() {
 
                         @Override
                         public boolean evaluate(final AnyTypeTO object) {
                             return object.getKind() != AnyTypeKind.GROUP;
                         }
-                    }), EntityTOUtils.<AnyTypeTO>keyTransformer(), res);
-            return res;
+                    }), EntityTOUtils.<AnyTypeTO>keyTransformer(), new ArrayList<String>());
         }
     };
 

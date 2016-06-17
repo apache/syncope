@@ -21,11 +21,10 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.syncope.client.console.commons.AnyTypeComparator;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
@@ -35,7 +34,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -125,8 +123,8 @@ public abstract class Realm extends Panel {
             }
         });
 
-        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo
-                = FormLayoutInfoUtils.fetch(anyTypeTOs);
+        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
+                FormLayoutInfoUtils.fetch(anyTypeTOs);
 
         Collections.sort(anyTypeTOs, new AnyTypeComparator());
         for (final AnyTypeTO anyTypeTO : anyTypeTOs) {
@@ -152,26 +150,4 @@ public abstract class Realm extends Panel {
 
     protected abstract void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO);
 
-    private static class AnyTypeComparator implements Comparator<AnyTypeTO> {
-
-        @Override
-        public int compare(final AnyTypeTO o1, final AnyTypeTO o2) {
-            if (o1.getKind() == AnyTypeKind.USER) {
-                return -1;
-            }
-            if (o2.getKind() == AnyTypeKind.USER) {
-                return 1;
-            }
-
-            if (o1.getKind() == AnyTypeKind.GROUP) {
-                return -1;
-            }
-            if (o2.getKind() == AnyTypeKind.GROUP) {
-                return 1;
-            }
-
-            return ComparatorUtils.<String>naturalComparator().compare(o1.getKey(), o2.getKey());
-        }
-
-    }
 }

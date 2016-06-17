@@ -41,8 +41,6 @@ public class PushTaskFilters extends WizardStep {
 
     private static final long serialVersionUID = 855618618337931784L;
 
-    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
     public PushTaskFilters(final PushTaskWrapper pushTaskWrapper) {
         super();
 
@@ -52,7 +50,7 @@ public class PushTaskFilters extends WizardStep {
 
             @Override
             protected List<AnyTypeTO> load() {
-                return anyTypeRestClient.list();
+                return new AnyTypeRestClient().list();
             }
         };
 
@@ -61,14 +59,14 @@ public class PushTaskFilters extends WizardStep {
         // ------------------------
         add(new ListView<AnyTypeTO>("filters", types) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
             protected void populateItem(final ListItem<AnyTypeTO> item) {
                 final String key = item.getModelObject().getKey();
                 item.add(new Accordion("filters", Collections.<ITab>singletonList(
                         new AbstractTab(new StringResourceModel(
-                                "filters", this, new Model<AnyTypeTO>(item.getModelObject()))) {
+                                "filters", this, new Model<>(item.getModelObject()))) {
 
                     private static final long serialVersionUID = 1037272333056449378L;
 

@@ -61,7 +61,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         formTester.submit("changeit");
 
         wicketTester.assertModelValue("body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:5:outer:"
-                + "dialog:header:header-label", "'USER' members of group 'artDirector' ");
+                + "dialog:header:header-label", "USER members of artDirector");
 
         assertNotNull(findComponentByProp("username", "body:content:body:tabbedPanel:panel:searchResult:"
                 + "outerObjectsRepeater:5:outer:form:content:searchResult:container:content:searchContainer:"
