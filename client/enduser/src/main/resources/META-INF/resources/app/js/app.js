@@ -1,3 +1,5 @@
+/* global $templateCache */
+
 /**
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -31,7 +33,6 @@ var app = angular.module('SyncopeEnduserApp', [
   'ngSanitize',
   'ngAnimate',
   'ngResource',
-  'ngCookies',
   'treasure-overlay-spinner',
   'ngPasswordStrength',
   'kendo.directives',
@@ -46,9 +47,8 @@ var app = angular.module('SyncopeEnduserApp', [
 app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider',
   function ($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider) {
 
-    // translate provider configuration
-    $translatePartialLoaderProvider.addPart('static')
-            .addPart('dynamic');
+   $translatePartialLoaderProvider.addPart('static');
+    $translatePartialLoaderProvider.addPart('dynamic');
     $translateProvider.useLoader('$translatePartialLoader', {
       urlTemplate: 'languages/{lang}/{part}.json'
     })
@@ -250,8 +250,8 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
       };
     });
   }]);
-app.run(['$rootScope', '$location', '$cookies', '$state', 'AuthService',
-  function ($rootScope, $location, $cookies, $state, AuthService) {
+app.run(['$rootScope', '$location', '$state', 'AuthService',
+  function ($rootScope, $location, $state, AuthService) {
     // main program
     // keep user logged in after page refresh
     //If the route change failed due to authentication error, redirect them out
@@ -346,7 +346,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
           component.options.autoHideAfter = 3000;
           component.show(message, "success");
         }
-      }
+      };
       $scope.showError = function (message, component) {
         if (!$scope.notificationExists(message)) {
           //forcing scrollTo since kendo doesn't disable scrollTop if pinned is true
@@ -354,17 +354,17 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
           component.options.autoHideAfter = 0;
           component.show(message, "error");
         }
-      }
+      };
       $scope.hideError = function (message, component) {
         var popup;
         if (popup = $scope.notificationExists(message)) {
           popup.hide = true;
           popup.close();
         }
-      }
+      };
       $scope.notificationExists = function (message) {
         var result = false;
-        if ($scope.notification != null) {
+        if ($scope.notification !== null) {
           var pendingNotifications = $scope.notification.getNotifications();
           pendingNotifications.each(function (idx, element) {
             var popup = $(element).data("kendoPopup");
@@ -375,9 +375,9 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
           });
         }
         return result;
-      }
+      };
       $scope.hideNotifications = function (timer) {
-        if ($scope.notification != null) {
+        if ($scope.notification !== null) {
           var pendingNotifications = $scope.notification.getNotifications();
           if (timer && timer > 0) {
             setTimeout(function () {
@@ -400,11 +400,11 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
             });
           }
         }
-      }
+      };
       //Intercepting location change event
       $rootScope.$on("$locationChangeStart", function (event, next, current) {
         //When a location changes, old notifications should be removed
-        $scope.hideNotifications(3000)
+        $scope.hideNotifications(3000);
       });
       //Intercepting xhr start event
       $scope.$on('xhrStarted', function (event, next, current) {
@@ -426,6 +426,6 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       };
       $scope.clearCache = function () {
         $templateCache.removeAll();
-      }
-    }
+      };
+    };
   }]);

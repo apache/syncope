@@ -18,9 +18,9 @@
  */
 
 'use strict';
-angular.module("login").controller("LoginController", ['$scope', '$rootScope', '$http', '$location', '$cookies',
-  'AuthService', '$translate', '$translatePartialLoader', function ($scope, $rootScope, $http,
-          $location, $cookies, AuthService, $translate) {
+angular.module("login").controller("LoginController", ['$scope', '$http', '$location',
+  'AuthService', '$translate', '$translatePartialLoader', function ($scope, $http,
+          $location, AuthService, $translate) {
 
     $scope.credentials = {
       username: '',

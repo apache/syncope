@@ -20,11 +20,10 @@
 'use strict';
 
 angular.module('login')
-        .factory('AuthService', ['$rootScope', '$resource', '$q', '$http', '$cookies',
-          function ($rootScope, $resource, $q, $http, $cookies) {
+        .factory('AuthService', ['$rootScope', '$resource', '$q', '$http',
+          function ($rootScope, $resource, $q, $http) {
 
             var authService = {};
-
             authService.login = function (credentials) {
               return $http
                       .post('/syncope-enduser/api/login', credentials)
