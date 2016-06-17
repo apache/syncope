@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
-import org.apache.wicket.markup.html.form.FormComponent;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class UsersITCase extends AbstractConsoleITCase {
@@ -186,23 +185,6 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         formTester = wicketTester.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
-
-        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA " + wicketTester.getComponentFromLastRenderedPage(
-                tabPanel + "outerObjectsRepeater:0:outer:form:content:form:view:groups:paletteField:recorder").
-                getDefaultModelObject());
-//        Component recorder = wicketTester.getComponentFromLastRenderedPage(tabPanel
-//                + "outerObjectsRepeater:0:outer:form:content:form:view:groups:paletteField:selection");
-//
-//        assertNotNull(recorder);
-//
-//        if (recorder instanceof FormComponent) {
-//            wicketTester.getRequest().getPostParameters().setParameterValue(((FormComponent) recorder).getInputName(),
-//                    "additional");
-//            wicketTester.getRequest().getPostParameters().setParameterValue(((FormComponent) recorder).getInputName(),
-//                    "otherchild");
-//            wicketTester.getRequest().getPostParameters().setParameterValue(((FormComponent) recorder).getInputName(),
-//                    "root");
-//        }
 
         formTester.setValue("view:groups:paletteField:recorder", "additional,root,otherchild");
         wicketTester.executeAjaxEvent(
