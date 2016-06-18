@@ -129,53 +129,16 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             if (selectedNode.isLeaf()) {
                 String name = (String) selectedNode.getUserObject();
                 if (parentNode.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
-                    Object format = JOptionPane.showInputDialog(null, "Select File Format",
-                            "File format", JOptionPane.QUESTION_MESSAGE, null, PluginConstants.TEMPLATE_FORMATS, "TEXT");
-
-                    InputStream is;
-                    if (format.equals("HTML")) {
-                        is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.HTML);
-
-                        try {
-                            String templateData = (IOUtils.toString(is));
-                            openEditor(name, "html", templateData);
-                        } catch (IOException ex) {
-                            Exceptions.printStackTrace(ex);
-                        }
-                    } else {
-                        is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.TEXT);
-
-                        try {
-                            String templateData = (IOUtils.toString(is));
-                            openEditor(name, "txt", templateData);
-                        } catch (IOException ex) {
-                            Exceptions.printStackTrace(ex);
-                        }
+                    try {
+                        openMailEditor(name);
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
                     }
                 } else {
-
-                    Object format = JOptionPane.showInputDialog(null, "Select File Format",
-                            "File format", JOptionPane.QUESTION_MESSAGE, null, PluginConstants.TEMPLATE_FORMATS, "TEXT");
-
-                    InputStream is;
-                    if (format.equals("HTML")) {
-                        is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.HTML);
-
-                        try {
-                            String templateData = (IOUtils.toString(is));
-                            openEditor(name, "html", templateData);
-                        } catch (IOException ex) {
-                            Exceptions.printStackTrace(ex);
-                        }
-                    } else {
-                        is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.TEXT);
-
-                        try {
-                            String templateData = (IOUtils.toString(is));
-                            openEditor(name, "txt", templateData);
-                        } catch (IOException ex) {
-                            Exceptions.printStackTrace(ex);
-                        }
+                    try {
+                        openReportEditor(name);
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
                     }
                 }
             }
@@ -266,7 +229,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                         MailTemplateTO mailTemplate = new MailTemplateTO();
                         mailTemplate.setKey(name);
                         added = mailTemplateManagerService.create(mailTemplate);
-                        openEditor(name, "html", "");
+                        openMailEditor(name);
                     } catch (IOException ex) {
                         Exceptions.printStackTrace(ex);
                     }
@@ -275,7 +238,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                         ReportTemplateTO reportTemplate = new ReportTemplateTO();
                         reportTemplate.setKey(name);
                         added = reportTemplateManagerService.create(reportTemplate);
-                        openEditor(name, "html", "");
+                        openReportEditor(name);
                     } catch (IOException ex) {
                         Exceptions.printStackTrace(ex);
                     }
@@ -323,7 +286,60 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         menu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 
-    private void openEditor(String name, String type, String content) throws IOException {
+    private void openMailEditor(String name) throws IOException {
+        String type;
+        String content;
+        InputStream is;
+        Object format = JOptionPane.showInputDialog(null, "Select File Format",
+                "File format", JOptionPane.QUESTION_MESSAGE, null,
+                PluginConstants.MAIL_TEMPLATE_FORMATS, "TEXT");
+
+        if (format.equals("HTML")) {
+            type = "html";
+            is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.HTML);
+            content = IOUtils.toString(is);
+        } else {
+            type = "txt";
+            is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.TEXT);
+            content = IOUtils.toString(is);
+        }
+
+        File directory = new File("Template");
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+        File file = new File("Template/" + name + "." + type);
+        FileWriter fw = new FileWriter(file);
+        fw.write(content);
+        fw.flush();
+        FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
+        DataObject data = DataObject.find(fob);
+        OpenCookie cookie = (OpenCookie) data.getCookie(OpenCookie.class);
+        cookie.open();
+    }
+    
+    private void openReportEditor(String name) throws IOException {
+        String type;
+        String content;
+        InputStream is;
+        Object format = JOptionPane.showInputDialog(null, "Select File Format",
+                "File format", JOptionPane.QUESTION_MESSAGE, null,
+                PluginConstants.REPORT_TEMPLATE_FORMATS, "TEXT");
+
+        if (format.equals("HTML")) {
+            type = "html";
+            is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.HTML);
+            content = IOUtils.toString(is);
+        } else if (format.equals("CSV")){
+            type = "csv";
+            is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.CSV);
+            content = IOUtils.toString(is);
+        }else{
+            type = "fo";
+            is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.FO);
+            content = IOUtils.toString(is);
+        }
+
         File directory = new File("Template");
         if (!directory.exists()) {
             directory.mkdir();
