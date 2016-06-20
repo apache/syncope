@@ -20,7 +20,6 @@ package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -30,9 +29,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.BulkMembersActionType;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 
 /**
  * REST operations for groups.
@@ -50,16 +47,6 @@ public interface GroupService extends AnyService<GroupTO, GroupPatch> {
     @Path("own")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<GroupTO> own();
-
-    /**
-     * Returns a paged list of existing groups matching the given query.
-     *
-     * @param listQuery query conditions
-     * @return paged list of existing groups matching the given query
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    PagedResult<GroupTO> list(@BeanParam AnyListQuery listQuery);
 
     /**
      * (De)provision all members of the given group from / onto all the resources associated to it.

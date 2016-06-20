@@ -25,17 +25,13 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.wicket.request.resource.AbstractResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SyncopeGroupResource extends AbstractBaseResource {
 
     private static final long serialVersionUID = 7475706378304995200L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeGroupResource.class);
 
     private final GroupService groupService;
 
@@ -61,7 +57,7 @@ public class SyncopeGroupResource extends AbstractBaseResource {
 
             String realm = java.net.URLDecoder.decode(attributes.getParameters().get("realm").toString(
                     SyncopeConstants.ROOT_REALM), "UTF-8");
-            final List<GroupTO> groupTOs = groupService.list(new AnyListQuery.Builder().realm(realm).build()).
+            final List<GroupTO> groupTOs = groupService.search(new AnyQuery.Builder().realm(realm).build()).
                     getResult();
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {

@@ -49,7 +49,7 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.PullMode;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DomainService;
@@ -212,8 +212,7 @@ public class MultitenancyITCase extends AbstractITCase {
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(status));
 
             // verify that pulled user is found
-            PagedResult<UserTO> matchingUsers = adminClient.getService(UserService.class).search(
-                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+            PagedResult<UserTO> matchingUsers = adminClient.getService(UserService.class).search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
                     build());
             assertNotNull(matchingUsers);

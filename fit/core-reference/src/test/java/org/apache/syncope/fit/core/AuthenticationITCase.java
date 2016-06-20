@@ -68,7 +68,7 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -206,8 +206,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
 
-        PagedResult<UserTO> matchingUsers = userService2.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<UserTO> matchingUsers = userService2.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("key").query()).build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
@@ -220,8 +219,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 2. user assigned to role 4, with search entitlement on realm /even/two
         UserService userService3 = clientFactory.create("puccini", ADMIN_PWD).getService(UserService.class);
 
-        matchingUsers = userService3.search(
-                new AnySearchQuery.Builder().realm("/even/two").
+        matchingUsers = userService3.search(new AnyQuery.Builder().realm("/even/two").
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
         assertNotNull(matchingUsers);
         assertTrue(IterableUtils.matchesAll(matchingUsers.getResult(), new Predicate<UserTO>() {

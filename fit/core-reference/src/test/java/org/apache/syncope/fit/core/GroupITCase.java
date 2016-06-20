@@ -84,8 +84,7 @@ import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.fit.AbstractITCase;
@@ -171,7 +170,7 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void list() {
         PagedResult<GroupTO> groupTOs =
-                groupService.list(new AnyListQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
+                groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
         assertNotNull(groupTOs);
         assertTrue(groupTOs.getResult().size() >= 8);
         for (GroupTO groupTO : groupTOs.getResult()) {
@@ -615,14 +614,14 @@ public class GroupITCase extends AbstractITCase {
     public void anonymous() {
         GroupService unauthenticated = clientFactory.create().getService(GroupService.class);
         try {
-            unauthenticated.list(new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
+            unauthenticated.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
         GroupService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(GroupService.class);
-        assertFalse(anonymous.list(new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).
+        assertFalse(anonymous.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).
                 getResult().isEmpty());
     }
 

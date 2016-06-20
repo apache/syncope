@@ -52,7 +52,7 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.FixMethodOrder;
@@ -297,7 +297,7 @@ public class MembershipITCase extends AbstractITCase {
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             // 5. verify that pulled user has
-            PagedResult<UserTO> users = userService.search(new AnySearchQuery.Builder().
+            PagedResult<UserTO> users = userService.search(new AnyQuery.Builder().
                     realm("/").
                     fiql(SyncopeClient.getUserSearchConditionBuilder().
                             is("username").equalTo(user.getUsername()).query()).build());

@@ -22,8 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.BulkMembersActionType;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -41,26 +40,9 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO, GroupPatch> 
     }
 
     @Override
-    public int count(final String realm, final String type) {
-        return getService(GroupService.class).
-                list(new AnyListQuery.Builder().realm(realm).page(1).size(1).build()).
-                getTotalCount();
-    }
-
-    @Override
-    public List<GroupTO> list(
-            final String realm, final int page, final int size, final SortParam<String> sort, final String type) {
-
-        return getService(GroupService.class).
-                list(new AnyListQuery.Builder().realm(realm).page(page).size(size).
-                        orderBy(toOrderBy(sort)).details(false).build()).
-                getResult();
-    }
-
-    @Override
     public int searchCount(final String realm, final String fiql, final String type) {
         return getService(GroupService.class).
-                search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(1).size(1).build()).
+                search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(1).size(1).build()).
                 getTotalCount();
     }
 
@@ -70,7 +52,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO, GroupPatch> 
             final String type) {
 
         return getService(GroupService.class).
-                search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
+                search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
                         orderBy(toOrderBy(sort)).details(false).build()).
                 getResult();
     }

@@ -111,7 +111,8 @@ public class Groups extends WizardStep {
             }
         }).hideLabel().setOutputMarkupId(true));
 
-        List<GroupTO> allGroups = groupRestClient.list(anyTO.getRealm(), -1, -1, new SortParam<>("name", true), null);
+        List<GroupTO> allGroups = groupRestClient.search(
+                anyTO.getRealm(), null, -1, -1, new SortParam<>("name", true), null);
         final Map<String, GroupTO> allGroupsByKey = new LinkedHashMap<>(allGroups.size());
         for (GroupTO group : allGroups) {
             allGroupsByKey.put(group.getKey(), group);

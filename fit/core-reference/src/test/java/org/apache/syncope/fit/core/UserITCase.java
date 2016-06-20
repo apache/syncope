@@ -87,7 +87,7 @@ import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -522,8 +522,8 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        PagedResult<UserTO> users = userService.list(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
+        PagedResult<UserTO> users = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
         assertNotNull(users);
         assertFalse(users.getResult().isEmpty());
 
@@ -534,8 +534,8 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void paginatedList() {
-        PagedResult<UserTO> users = userService.list(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(2).build());
+        PagedResult<UserTO> users = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(2).build());
         assertNotNull(users);
         assertFalse(users.getResult().isEmpty());
         assertEquals(2, users.getResult().size());
@@ -544,13 +544,13 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(user);
         }
 
-        users = userService.list(new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        users = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 page(2).size(2).build());
         assertNotNull(users);
         assertEquals(2, users.getPage());
         assertEquals(2, users.getResult().size());
 
-        users = userService.list(new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        users = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 page(100).size(2).build());
         assertNotNull(users);
         assertTrue(users.getResult().isEmpty());

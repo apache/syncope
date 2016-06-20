@@ -66,7 +66,7 @@ import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.TaskService;
@@ -172,8 +172,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // -----------------------------
         try {
-            int usersPre = userService.list(
-                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+            int usersPre = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPre);
 
@@ -228,8 +227,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             }
 
             // check for pull results
-            int usersPost = userService.list(
-                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+            int usersPost = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPost);
             assertEquals(usersPre + 8, usersPost);
@@ -303,8 +301,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
      * Clean Syncope and LDAP resource status.
      */
     private void ldapCleanup() {
-        PagedResult<GroupTO> matchingGroups = groupService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<GroupTO> matchingGroups = groupService.search(new AnyQuery.Builder().realm(
+                SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
                 build());
         if (matchingGroups.getSize() > 0) {
@@ -318,7 +316,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             }
         }
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
                 build());
         if (matchingUsers.getSize() > 0) {
@@ -345,8 +343,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 2. verify that pulled group is found
-        PagedResult<GroupTO> matchingGroups = groupService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<GroupTO> matchingGroups = groupService.search(new AnyQuery.Builder().realm(
+                SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
                 build());
         assertNotNull(matchingGroups);
@@ -354,7 +352,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // 3. verify that pulled user is found
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
                 build());
         assertNotNull(matchingUsers);
@@ -379,8 +377,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         execProvisioningTask(taskService, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
 
         // 4. verify that LDAP group membership is propagated as Syncope membership
-        PagedResult<UserTO> members = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<UserTO> members = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
                 build());
         assertNotNull(members);
@@ -429,8 +426,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     startsWith(PrefixMappingItemTransformer.PREFIX));
 
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
-            PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(
-                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+            PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(new AnyQuery.Builder().realm(
+                    SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
                             is("location").equalTo("pull*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
@@ -448,8 +445,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
             // hence PrefixMappingItemTransformer was applied during pull)
-            matchingPrinters = anyObjectService.search(
-                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+            matchingPrinters = anyObjectService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
                             is("location").equalTo("pull*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);

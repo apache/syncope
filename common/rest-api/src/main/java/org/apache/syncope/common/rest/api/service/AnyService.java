@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 
 public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSService {
 
@@ -86,13 +86,12 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     /**
      * Returns a paged list of any objects matching the given query.
      *
-     * @param searchQuery query conditions
+     * @param anyQuery query conditions
      * @return paged list of any objects matching the given query
      */
     @GET
-    @Path("search")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    PagedResult<TO> search(@BeanParam AnySearchQuery searchQuery);
+    PagedResult<TO> search(@BeanParam AnyQuery anyQuery);
 
     /**
      * Creates a new any object.

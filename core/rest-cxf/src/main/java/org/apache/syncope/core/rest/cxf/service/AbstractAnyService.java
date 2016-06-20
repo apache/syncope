@@ -44,8 +44,7 @@ import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StatusPatchType;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.UserLogic;
@@ -111,42 +110,38 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         return getAnyLogic().read(key);
     }
 
-    protected PagedResult<TO> list(final AnyListQuery listQuery) {
-        String realm = StringUtils.prependIfMissing(listQuery.getRealm(), SyncopeConstants.ROOT_REALM);
-
-        return buildPagedResult(
-                getAnyLogic().list(
-                        listQuery.getPage(),
-                        listQuery.getSize(),
-                        getOrderByClauses(listQuery.getOrderBy()),
-                        realm,
-                        listQuery.getDetails()),
-                listQuery.getPage(),
-                listQuery.getSize(),
-                getAnyLogic().count(realm));
-    }
-
     @Override
-    public PagedResult<TO> search(final AnySearchQuery searchQuery) {
-        String realm = StringUtils.prependIfMissing(searchQuery.getRealm(), SyncopeConstants.ROOT_REALM);
+    public PagedResult<TO> search(final AnyQuery anyQuery) {
+        String realm = StringUtils.prependIfMissing(anyQuery.getRealm(), SyncopeConstants.ROOT_REALM);
 
-        // if an assignable query is provided in the FIQL string, start anyway from root realm
-        boolean isAssignableCond = searchQuery.getFiql() == null
-                ? false
-                : -1 != searchQuery.getFiql().indexOf(SpecialAttr.ASSIGNABLE.toString());
+        if (StringUtils.isBlank(anyQuery.getFiql())) {
+            return buildPagedResult(
+                    getAnyLogic().list(
+                            anyQuery.getPage(),
+                            anyQuery.getSize(),
+                            getOrderByClauses(anyQuery.getOrderBy()),
+                            realm,
+                            anyQuery.getDetails()),
+                    anyQuery.getPage(),
+                    anyQuery.getSize(),
+                    getAnyLogic().count(realm));
+        } else {
+            // if an assignable query is provided in the FIQL string, start anyway from root realm
+            boolean isAssignableCond = -1 != anyQuery.getFiql().indexOf(SpecialAttr.ASSIGNABLE.toString());
 
-        SearchCond cond = getSearchCond(searchQuery.getFiql(), realm);
-        return buildPagedResult(
-                getAnyLogic().search(
-                        cond,
-                        searchQuery.getPage(),
-                        searchQuery.getSize(),
-                        getOrderByClauses(searchQuery.getOrderBy()),
-                        isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
-                        searchQuery.getDetails()),
-                searchQuery.getPage(),
-                searchQuery.getSize(),
-                getAnyLogic().searchCount(cond, isAssignableCond ? SyncopeConstants.ROOT_REALM : realm));
+            SearchCond cond = getSearchCond(anyQuery.getFiql(), realm);
+            return buildPagedResult(
+                    getAnyLogic().search(
+                            cond,
+                            anyQuery.getPage(),
+                            anyQuery.getSize(),
+                            getOrderByClauses(anyQuery.getOrderBy()),
+                            isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
+                            anyQuery.getDetails()),
+                    anyQuery.getPage(),
+                    anyQuery.getSize(),
+                    getAnyLogic().searchCount(cond, isAssignableCond ? SyncopeConstants.ROOT_REALM : realm));
+        }
     }
 
     @Override

@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
@@ -39,7 +40,7 @@ import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -123,8 +124,10 @@ public class AnyObjectITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        PagedResult<AnyObjectTO> anyObjectTOs = anyObjectService.list(
-                "PRINTER", new AnyListQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
+        PagedResult<AnyObjectTO> anyObjectTOs = anyObjectService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").query()).
+                build());
         assertNotNull(anyObjectTOs);
         assertTrue(anyObjectTOs.getResult().size() >= 2);
         for (AnyObjectTO anyObjectTO : anyObjectTOs.getResult()) {
