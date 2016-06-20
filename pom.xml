@@ -1193,6 +1193,11 @@ under the License.
       </dependency>      
       <dependency>
         <groupId>org.webjars.bower</groupId>
+        <artifactId>angular-translate-storage-cookie</artifactId>
+        <version>${angular-translate.version}</version>
+      </dependency>      
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
         <artifactId>ng-password-strength</artifactId>
         <version>${ng-password-strength.version}</version>
         <exclusions>
