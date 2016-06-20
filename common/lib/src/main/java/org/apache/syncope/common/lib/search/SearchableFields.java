@@ -52,7 +52,7 @@ public final class SearchableFields {
     }
 
     public static List<String> get(final AnyTypeKind anyTypeKind) {
-        return get(anyTypeKind.getToClass());
+        return get(anyTypeKind.getTOClass());
     }
 
     public static List<String> get(final Class<? extends AnyTO> anyRef) {
