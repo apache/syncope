@@ -987,6 +987,10 @@ under the License.
             <groupId>org.webjars</groupId>
             <artifactId>Eonasdan-bootstrap-datetimepicker</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.webjars</groupId>
+            <artifactId>momentjs</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
