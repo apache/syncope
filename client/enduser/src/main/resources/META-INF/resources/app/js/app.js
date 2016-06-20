@@ -41,6 +41,7 @@ var app = angular.module('SyncopeEnduserApp', [
   'language',
   'self',
   'info',
+  'ngCookies',
   'pascalprecht.translate'
 ]);
 
@@ -52,7 +53,8 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
     $translateProvider.useLoader('$translatePartialLoader', {
       urlTemplate: 'languages/{lang}/{part}.json'
     })
-            .preferredLanguage('en');
+            .preferredLanguage('en')
+            .useCookieStorage();
 
     // route configuration
     $stateProvider
