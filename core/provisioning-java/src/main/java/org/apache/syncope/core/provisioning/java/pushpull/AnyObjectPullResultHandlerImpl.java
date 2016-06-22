@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -45,7 +44,7 @@ public class AnyObjectPullResultHandlerImpl extends AbstractPullResultHandler im
 
     @Override
     protected String getName(final AnyTO anyTO) {
-        return StringUtils.EMPTY;
+        return AnyObjectTO.class.cast(anyTO).getName();
     }
 
     @Override

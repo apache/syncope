@@ -450,8 +450,4 @@ public abstract class AbstractITCase {
             }
         }
     }
-
-    protected Object getLdapRemoteObject(final String objectDn) {
-        return getLdapRemoteObject(null, null, objectDn);
-    }
 }

@@ -194,7 +194,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         // name
         if (groupPatch.getName() != null && StringUtils.isNotBlank(groupPatch.getName().getValue())) {
-            propByRes.addAll(ResourceOperation.UPDATE, group.getResourceNames());
+            propByRes.addAll(ResourceOperation.UPDATE, group.getResourceKeys());
 
             group.setName(groupPatch.getName().getValue());
         }

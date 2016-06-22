@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -60,10 +61,10 @@ public class DBPasswordPullActions extends DefaultPullActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <A extends AnyTO> SyncDelta beforeProvision(
+    public SyncDelta beforeProvision(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final A any) throws JobExecutionException {
+            final EntityTO any) throws JobExecutionException {
 
         if (any instanceof UserTO) {
             String password = ((UserTO) any).getPassword();
@@ -124,10 +125,10 @@ public class DBPasswordPullActions extends DefaultPullActions {
 
     @Transactional
     @Override
-    public <A extends AnyTO> void after(
+    public void after(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final A any,
+            final EntityTO any,
             final ProvisioningReport result) throws JobExecutionException {
 
         if (any instanceof UserTO && encodedPassword != null && cipher != null) {

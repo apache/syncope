@@ -97,4 +97,7 @@ public interface ExternalResource extends ProvidedKeyEntity {
 
     List<? extends Provision> getProvisions();
 
+    OrgUnit getOrgUnit();
+
+    void setOrgUnit(OrgUnit orgUnit);
 }

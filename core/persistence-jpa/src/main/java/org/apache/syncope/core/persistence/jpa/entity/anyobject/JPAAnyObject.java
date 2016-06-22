@@ -77,7 +77,7 @@ public class JPAAnyObject
             @JoinColumn(name = "resource_id"))
     private List<JPAExternalResource> resources = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
             @JoinColumn(name = "anyObject_id"),
             inverseJoinColumns =

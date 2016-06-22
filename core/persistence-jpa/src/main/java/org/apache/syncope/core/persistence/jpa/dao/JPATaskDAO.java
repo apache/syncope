@@ -126,7 +126,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             final ExternalResource resource,
             final Notification notification,
             final AnyTypeKind anyTypeKind,
-            final String anyKey) {
+            final String entityKey) {
 
         if (resource != null
                 && type != TaskType.PROPAGATION && type != TaskType.PUSH && type != TaskType.PULL) {
@@ -134,7 +134,9 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             throw new IllegalArgumentException(type + " is not related to " + ExternalResource.class.getSimpleName());
         }
 
-        if ((anyTypeKind != null || anyKey != null) && type != TaskType.PROPAGATION && type != TaskType.NOTIFICATION) {
+        if ((anyTypeKind != null || entityKey != null)
+                && type != TaskType.PROPAGATION && type != TaskType.NOTIFICATION) {
+
             throw new IllegalArgumentException(type + " is not related to users, groups or any objects");
         }
 
@@ -150,8 +152,8 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         if (notification != null) {
             queryString.append("AND t.notification=:notification ");
         }
-        if (anyTypeKind != null && anyKey != null) {
-            queryString.append("AND t.anyTypeKind=:anyTypeKind AND t.anyKey=:anyKey ");
+        if (anyTypeKind != null && entityKey != null) {
+            queryString.append("AND t.anyTypeKind=:anyTypeKind AND t.entityKey=:entityKey ");
         }
 
         return queryString;
@@ -184,12 +186,12 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             final ExternalResource resource,
             final Notification notification,
             final AnyTypeKind anyTypeKind,
-            final String anyKey,
+            final String entityKey,
             final int page,
             final int itemsPerPage,
             final List<OrderByClause> orderByClauses) {
 
-        StringBuilder queryString = buildFindAllQuery(type, resource, notification, anyTypeKind, anyKey).
+        StringBuilder queryString = buildFindAllQuery(type, resource, notification, anyTypeKind, entityKey).
                 append(toOrderByStatement(getEntityReference(type), orderByClauses));
 
         Query query = entityManager().createQuery(queryString.toString());
@@ -199,9 +201,9 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         if (notification != null) {
             query.setParameter("notification", notification);
         }
-        if (anyTypeKind != null && anyKey != null) {
+        if (anyTypeKind != null && entityKey != null) {
             query.setParameter("anyTypeKind", anyTypeKind);
-            query.setParameter("anyKey", anyKey);
+            query.setParameter("entityKey", entityKey);
         }
 
         query.setFirstResult(itemsPerPage * (page <= 0
@@ -221,9 +223,9 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             final ExternalResource resource,
             final Notification notification,
             final AnyTypeKind anyTypeKind,
-            final String anyKey) {
+            final String entityKey) {
 
-        StringBuilder queryString = buildFindAllQuery(type, resource, notification, anyTypeKind, anyKey);
+        StringBuilder queryString = buildFindAllQuery(type, resource, notification, anyTypeKind, entityKey);
 
         Query query = entityManager().createQuery(StringUtils.replaceOnce(
                 queryString.toString(), "SELECT t", "SELECT COUNT(t)"));
@@ -233,9 +235,9 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         if (notification != null) {
             query.setParameter("notification", notification);
         }
-        if (anyTypeKind != null && anyKey != null) {
+        if (anyTypeKind != null && entityKey != null) {
             query.setParameter("anyTypeKind", anyTypeKind);
-            query.setParameter("anyKey", anyKey);
+            query.setParameter("entityKey", entityKey);
         }
 
         return ((Number) query.getSingleResult()).intValue();

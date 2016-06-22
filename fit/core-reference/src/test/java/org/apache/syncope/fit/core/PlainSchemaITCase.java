@@ -233,7 +233,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         userTO.getAuxClasses().add(typeClass.getKey());
         userTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1.2"));
 
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
 
         schemaTO.setType(AttrSchemaType.Long);
@@ -261,7 +261,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue259@syncope.apache.org");
         userTO.getAuxClasses().add(typeClass.getKey());
         userTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1"));
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
 
         UserTO newUserTO = SerializationUtils.clone(userTO);
@@ -269,7 +269,7 @@ public class PlainSchemaITCase extends AbstractITCase {
                 new MembershipTO.Builder().group("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build());
 
         userTO = userService.update(newUserTO).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
-        }).getAny();
+        }).getEntity();
         assertNotNull(userTO);
     }
 
@@ -289,7 +289,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue260@syncope.apache.org");
         userTO.getAuxClasses().add(typeClass.getKey());
         userTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1.2"));
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
 
         schemaTO.setUniqueConstraint(false);

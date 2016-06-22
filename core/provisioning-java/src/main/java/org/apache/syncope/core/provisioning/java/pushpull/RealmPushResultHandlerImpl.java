@@ -19,113 +19,64 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
-import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.MatchingRule;
-import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.TimeoutException;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
+import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
-import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.provisioning.api.TimeoutException;
-import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
+public class RealmPushResultHandlerImpl
+        extends AbstractRealmResultHandler<PushTask, PushActions>
         implements SyncopePushResultHandler {
 
-    @Autowired
-    protected MappingManager mappingManager;
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public boolean handle(final String realmKey) {
+        Realm realm = null;
+        try {
+            realm = realmDAO.find(realmKey);
+            doHandle(realm);
+            return true;
+        } catch (IgnoreProvisionException e) {
+            ProvisioningReport result = new ProvisioningReport();
+            result.setOperation(ResourceOperation.NONE);
+            result.setAnyType(realm == null ? null : REALM_TYPE);
+            result.setStatus(ProvisioningReport.Status.IGNORE);
+            result.setKey(realmKey);
+            profile.getResults().add(result);
 
-    protected abstract String getName(Any<?> any);
-
-    protected void deprovision(final Any<?> any) {
-        AnyTO before = getAnyTO(any.getKey());
-
-        List<String> noPropResources = new ArrayList<>(before.getResources());
-        noPropResources.remove(profile.getTask().getResource().getKey());
-
-        taskExecutor.execute(propagationManager.getDeleteTasks(
-                any.getType().getKind(),
-                any.getKey(),
-                null,
-                noPropResources));
+            LOG.warn("Ignoring during push", e);
+            return true;
+        } catch (JobExecutionException e) {
+            LOG.error("Push failed", e);
+            return false;
+        }
     }
 
-    protected void provision(final Any<?> any, final Boolean enabled) {
-        AnyTO before = getAnyTO(any.getKey());
-
-        List<String> noPropResources = new ArrayList<>(before.getResources());
-        noPropResources.remove(profile.getTask().getResource().getKey());
-
-        PropagationByResource propByRes = new PropagationByResource();
-        propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
-
-        taskExecutor.execute(propagationManager.getCreateTasks(
-                any.getType().getKind(),
-                any.getKey(),
-                propByRes,
-                before.getVirAttrs(),
-                noPropResources));
-    }
-
-    protected void link(final Any<?> any, final Boolean unlink) {
-        AnyPatch patch = newPatch(any.getKey());
-        patch.getResources().add(new StringPatchItem.Builder().
-                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        update(patch);
-    }
-
-    protected void unassign(final Any<?> any) {
-        AnyPatch patch = newPatch(any.getKey());
-        patch.getResources().add(new StringPatchItem.Builder().
-                operation(PatchOperation.DELETE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        update(patch);
-
-        deprovision(any);
-    }
-
-    protected void assign(final Any<?> any, final Boolean enabled) {
-        AnyPatch patch = newPatch(any.getKey());
-        patch.getResources().add(new StringPatchItem.Builder().
-                operation(PatchOperation.ADD_REPLACE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        update(patch);
-
-        provision(any, enabled);
-    }
-
-    protected ConnectorObject getRemoteObject(final String connObjectKey, final ObjectClass objectClass) {
+    private ConnectorObject getRemoteObject(final String connObjectKey, final ObjectClass objectClass) {
         ConnectorObject obj = null;
         try {
             Uid uid = new Uid(connObjectKey);
@@ -143,58 +94,81 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         return obj;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @Override
-    public boolean handle(final String anyKey) {
-        Any<?> any = null;
-        try {
-            any = getAny(anyKey);
-            doHandle(any);
-            return true;
-        } catch (IgnoreProvisionException e) {
-            ProvisioningReport result = new ProvisioningReport();
-            result.setOperation(ResourceOperation.NONE);
-            result.setAnyType(any == null ? null : any.getType().getKey());
-            result.setStatus(ProvisioningReport.Status.IGNORE);
-            result.setKey(anyKey);
-            profile.getResults().add(result);
+    private Realm update(final RealmTO realmTO) {
+        Realm realm = realmDAO.findByFullPath(realmTO.getFullPath());
+        PropagationByResource propByRes = binder.update(realm, realmTO);
+        realm = realmDAO.save(realm);
 
-            LOG.warn("Ignoring during push", e);
-            return true;
-        } catch (JobExecutionException e) {
-            LOG.error("Push failed", e);
-            return false;
-        }
+        List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
+        taskExecutor.execute(tasks, propagationReporter, false);
+
+        return realm;
     }
 
-    private void doHandle(final Any<?> any) throws JobExecutionException {
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
+    private void deprovision(final Realm realm) {
+        List<String> noPropResources = new ArrayList<>(realm.getResourceKeys());
+        noPropResources.remove(profile.getTask().getResource().getKey());
 
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
+
+        taskExecutor.execute(propagationManager.createTasks(realm, propByRes, noPropResources));
+    }
+
+    private void provision(final Realm realm) {
+        List<String> noPropResources = new ArrayList<>(realm.getResourceKeys());
+        noPropResources.remove(profile.getTask().getResource().getKey());
+
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
+
+        taskExecutor.execute(propagationManager.createTasks(realm, propByRes, noPropResources));
+    }
+
+    private void link(final Realm realm, final Boolean unlink) {
+        RealmTO realmTO = binder.getRealmTO(realm);
+        if (unlink) {
+            realmTO.getResources().remove(profile.getTask().getResource().getKey());
+        } else {
+            realmTO.getResources().add(profile.getTask().getResource().getKey());
+        }
+
+        update(realmTO);
+    }
+
+    private void unassign(final Realm realm) {
+        RealmTO realmTO = binder.getRealmTO(realm);
+        realmTO.getResources().remove(profile.getTask().getResource().getKey());
+
+        deprovision(update(realmTO));
+    }
+
+    private void assign(final Realm realm) {
+        RealmTO realmTO = binder.getRealmTO(realm);
+        realmTO.getResources().add(profile.getTask().getResource().getKey());
+
+        provision(update(realmTO));
+    }
+
+    private void doHandle(final Realm realm) throws JobExecutionException {
         ProvisioningReport result = new ProvisioningReport();
         profile.getResults().add(result);
 
-        result.setKey(any.getKey());
-        result.setAnyType(any.getType().getKey());
-        result.setName(getName(any));
+        result.setKey(realm.getKey());
+        result.setAnyType(REALM_TYPE);
+        result.setName(realm.getFullPath());
 
-        Boolean enabled = any instanceof User && profile.getTask().isPullStatus()
-                ? ((User) any).isSuspended() ? Boolean.FALSE : Boolean.TRUE
-                : null;
-
-        LOG.debug("Propagating {} with key {} towards {}",
-                anyUtils.getAnyTypeKind(), any.getKey(), profile.getTask().getResource());
+        LOG.debug("Propagating Realm with key {} towards {}", realm.getKey(), profile.getTask().getResource());
 
         Object output = null;
         Result resultStatus = null;
         String operation = null;
 
         // Try to read remote object BEFORE any actual operation
-        Provision provision = profile.getTask().getResource().getProvision(any.getType());
-        String connObjecKey = mappingManager.getConnObjectKeyValue(any, provision);
-
-        ConnectorObject beforeObj = getRemoteObject(connObjecKey, provision.getObjectClass());
-
-        Boolean status = profile.getTask().isPullStatus() ? enabled : null;
+        ConnectorObject beforeObj = getRemoteObject(
+                realm.getName(), profile.getTask().getResource().getOrgUnit().getObjectClass());
 
         if (profile.isDryRun()) {
             if (beforeObj == null) {
@@ -212,45 +186,45 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeAssign(this.getProfile(), any);
+                                action.beforeAssign(this.getProfile(), realm);
                             }
 
                             if (!profile.getTask().isPerformCreate()) {
                                 LOG.debug("PushTask not configured for create");
                             } else {
-                                assign(any, status);
+                                assign(realm);
                             }
 
                             break;
 
                         case PROVISION:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeProvision(this.getProfile(), any);
+                                action.beforeProvision(this.getProfile(), realm);
                             }
 
                             if (!profile.getTask().isPerformCreate()) {
                                 LOG.debug("PushTask not configured for create");
                             } else {
-                                provision(any, status);
+                                provision(realm);
                             }
 
                             break;
 
                         case UNLINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnlink(this.getProfile(), any);
+                                action.beforeUnlink(this.getProfile(), realm);
                             }
 
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                link(any, true);
+                                link(realm, true);
                             }
 
                             break;
 
                         case IGNORE:
-                            LOG.debug("Ignored any: {}", any);
+                            LOG.debug("Ignored any: {}", realm);
                             break;
                         default:
                         // do nothing
@@ -262,70 +236,70 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUpdate(this.getProfile(), any);
+                                action.beforeUpdate(this.getProfile(), realm);
                             }
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                update(any, status);
+                                update(binder.getRealmTO(realm));
                             }
 
                             break;
 
                         case DEPROVISION:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeDeprovision(this.getProfile(), any);
+                                action.beforeDeprovision(this.getProfile(), realm);
                             }
 
                             if (!profile.getTask().isPerformDelete()) {
                                 LOG.debug("PushTask not configured for delete");
                             } else {
-                                deprovision(any);
+                                deprovision(realm);
                             }
 
                             break;
 
                         case UNASSIGN:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnassign(this.getProfile(), any);
+                                action.beforeUnassign(this.getProfile(), realm);
                             }
 
                             if (!profile.getTask().isPerformDelete()) {
                                 LOG.debug("PushTask not configured for delete");
                             } else {
-                                unassign(any);
+                                unassign(realm);
                             }
 
                             break;
 
                         case LINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeLink(this.getProfile(), any);
+                                action.beforeLink(this.getProfile(), realm);
                             }
 
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                link(any, false);
+                                link(realm, false);
                             }
 
                             break;
 
                         case UNLINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnlink(this.getProfile(), any);
+                                action.beforeUnlink(this.getProfile(), realm);
                             }
 
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                link(any, true);
+                                link(realm, true);
                             }
 
                             break;
 
                         case IGNORE:
-                            LOG.debug("Ignored any: {}", any);
+                            LOG.debug("Ignored any: {}", realm);
                             break;
                         default:
                         // do nothing
@@ -333,12 +307,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 }
 
                 for (PushActions action : profile.getActions()) {
-                    action.after(this.getProfile(), any, result);
+                    action.after(this.getProfile(), realm, result);
                 }
 
                 result.setStatus(ProvisioningReport.Status.SUCCESS);
                 resultStatus = AuditElements.Result.SUCCESS;
-                output = getRemoteObject(connObjecKey, provision.getObjectClass());
+                output = getRemoteObject(
+                        realm.getName(), profile.getTask().getResource().getOrgUnit().getObjectClass());
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {
@@ -347,30 +322,30 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 resultStatus = AuditElements.Result.FAILURE;
                 output = e;
 
-                LOG.warn("Error pushing {} towards {}", any, profile.getTask().getResource(), e);
+                LOG.warn("Error pushing {} towards {}", realm, profile.getTask().getResource(), e);
 
                 for (PushActions action : profile.getActions()) {
-                    action.onError(this.getProfile(), any, result, e);
+                    action.onError(this.getProfile(), realm, result, e);
                 }
 
                 throw new JobExecutionException(e);
             } finally {
                 notificationManager.createTasks(AuditElements.EventCategoryType.PUSH,
-                        any.getType().getKind().name().toLowerCase(),
+                        REALM_TYPE.toLowerCase(),
                         profile.getTask().getResource().getKey(),
                         operation,
                         resultStatus,
                         beforeObj,
                         output,
-                        any);
+                        realm);
                 auditManager.audit(AuditElements.EventCategoryType.PUSH,
-                        any.getType().getKind().name().toLowerCase(),
+                        REALM_TYPE.toLowerCase(),
                         profile.getTask().getResource().getKey(),
                         operation,
                         resultStatus,
                         beforeObj,
                         output,
-                        any);
+                        realm);
             }
         }
     }
@@ -395,37 +370,5 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             default:
                 return ResourceOperation.NONE;
         }
-    }
-
-    private Any<?> update(final Any<?> any, final Boolean enabled) {
-        boolean changepwd;
-        Collection<String> resourceKeys;
-        if (any instanceof User) {
-            changepwd = true;
-            resourceKeys = userDAO.findAllResourceNames((User) any);
-        } else if (any instanceof AnyObject) {
-            changepwd = false;
-            resourceKeys = anyObjectDAO.findAllResourceNames((AnyObject) any);
-        } else {
-            changepwd = false;
-            resourceKeys = ((Group) any).getResourceKeys();
-        }
-
-        List<String> noPropResources = new ArrayList<>(resourceKeys);
-        noPropResources.remove(profile.getTask().getResource().getKey());
-
-        PropagationByResource propByRes = new PropagationByResource();
-        propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
-
-        taskExecutor.execute(propagationManager.getUpdateTasks(
-                any.getType().getKind(),
-                any.getKey(),
-                changepwd,
-                null,
-                propByRes,
-                null,
-                noPropResources));
-
-        return getAny(any.getKey());
     }
 }

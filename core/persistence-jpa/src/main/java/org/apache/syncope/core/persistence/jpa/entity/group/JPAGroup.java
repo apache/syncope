@@ -79,15 +79,14 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     @Valid
     private List<JPAGPlainAttr> plainAttrs = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
             @JoinColumn(name = "group_id"),
             inverseJoinColumns =
             @JoinColumn(name = "resource_id"))
-    @Valid
     private List<JPAExternalResource> resources = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
             @JoinColumn(name = "group_id"),
             inverseJoinColumns =

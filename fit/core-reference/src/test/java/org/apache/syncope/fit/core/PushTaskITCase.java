@@ -287,7 +287,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
         groupTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "all"));
 
-        groupTO = createGroup(groupTO).getAny();
+        groupTO = createGroup(groupTO).getEntity();
         assertNotNull(groupTO);
 
         String resourceName = "resource-ldap-grouponly";

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.apache.syncope.fit.core.AbstractTaskITCase.execProvisioningTask;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -98,7 +97,7 @@ public class MembershipITCase extends AbstractITCase {
             }
         });
         try {
-            user = createUser(user).getAny();
+            user = createUser(user).getEntity();
 
             // 1. verify that 'aLong' is correctly populated for user
             assertEquals(1, user.getPlainAttrMap().get("aLong").getValues().size());
@@ -129,7 +128,7 @@ public class MembershipITCase extends AbstractITCase {
                     attrTO(new AttrTO.Builder().schema("ctype").value("membership type").build()).build());
             userPatch.getMemberships().add(membershipPatch);
 
-            user = updateUser(userPatch).getAny();
+            user = updateUser(userPatch).getEntity();
 
             // 4. verify that 'aLong' is correctly populated for user
             assertEquals(1, user.getPlainAttrMap().get("aLong").getValues().size());
@@ -154,7 +153,7 @@ public class MembershipITCase extends AbstractITCase {
                     operation(PatchOperation.DELETE).build();
             userPatch.getMemberships().add(membershipPatch);
 
-            user = updateUser(userPatch).getAny();
+            user = updateUser(userPatch).getEntity();
 
             assertTrue(user.getMemberships().isEmpty());
         } finally {
@@ -174,7 +173,7 @@ public class MembershipITCase extends AbstractITCase {
         membership.getPlainAttrs().add(new AttrTO.Builder().schema("aLong").value("1977").build());
         user.getMemberships().add(membership);
 
-        user = createUser(user).getAny();
+        user = createUser(user).getEntity();
         assertNotNull(user.getKey());
 
         userService.delete(user.getKey());
@@ -190,7 +189,7 @@ public class MembershipITCase extends AbstractITCase {
 
         GroupTO groupTO = GroupITCase.getBasicSampleTO("typeExt");
         groupTO.getTypeExtensions().add(typeExtension);
-        groupTO = createGroup(groupTO).getAny();
+        groupTO = createGroup(groupTO).getEntity();
         assertNotNull(groupTO);
 
         // pre: create user with membership to such group
@@ -200,7 +199,7 @@ public class MembershipITCase extends AbstractITCase {
         membership.getPlainAttrs().add(new AttrTO.Builder().schema("aLong").value("1454").build());
         user.getMemberships().add(membership);
 
-        user = createUser(user).getAny();
+        user = createUser(user).getEntity();
 
         // verify that 'aLong' is correctly populated for user's membership
         assertEquals(1, user.getMemberships().size());
@@ -266,7 +265,7 @@ public class MembershipITCase extends AbstractITCase {
             membership.getPlainAttrs().add(new AttrTO.Builder().schema("aLong").value("5432").build());
             user.getMemberships().add(membership);
 
-            user = createUser(user).getAny();
+            user = createUser(user).getEntity();
             assertNotNull(user);
 
             // 2. verify that user was found on resource
@@ -293,7 +292,7 @@ public class MembershipITCase extends AbstractITCase {
             newTask = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
             assertNotNull(newTask);
 
-            ExecTO execution = execProvisioningTask(taskService, newTask.getKey(), 50, false);
+            ExecTO execution = AbstractTaskITCase.execProvisioningTask(taskService, newTask.getKey(), 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             // 5. verify that pulled user has

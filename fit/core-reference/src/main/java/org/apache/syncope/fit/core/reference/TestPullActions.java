@@ -23,6 +23,7 @@ import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
@@ -39,34 +40,38 @@ public class TestPullActions extends DefaultPullActions {
     private int counter = 0;
 
     @Override
-    public <A extends AnyTO> SyncDelta beforeProvision(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
+    public SyncDelta beforeProvision(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
-        AttrTO attrTO = null;
-        for (int i = 0; i < any.getPlainAttrs().size(); i++) {
-            AttrTO plainAttr = IterableUtils.get(any.getPlainAttrs(), i);
-            if ("fullname".equals(plainAttr.getSchema())) {
-                attrTO = plainAttr;
+        if (entity instanceof AnyTO) {
+            AnyTO any = (AnyTO) entity;
+
+            AttrTO attrTO = null;
+            for (int i = 0; i < any.getPlainAttrs().size(); i++) {
+                AttrTO plainAttr = IterableUtils.get(any.getPlainAttrs(), i);
+                if ("fullname".equals(plainAttr.getSchema())) {
+                    attrTO = plainAttr;
+                }
             }
+            if (attrTO == null) {
+                attrTO = new AttrTO();
+                attrTO.setSchema("fullname");
+                any.getPlainAttrs().add(attrTO);
+            }
+            attrTO.getValues().clear();
+            attrTO.getValues().add(String.valueOf(counter++));
         }
-        if (attrTO == null) {
-            attrTO = new AttrTO();
-            attrTO.setSchema("fullname");
-            any.getPlainAttrs().add(attrTO);
-        }
-        attrTO.getValues().clear();
-        attrTO.getValues().add(String.valueOf(counter++));
 
         return delta;
     }
 
     @Override
-    public <A extends AnyTO> SyncDelta beforeAssign(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
+    public SyncDelta beforeAssign(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
-        if (any instanceof UserTO && "test2".equals(UserTO.class.cast(any).getUsername())) {
+        if (entity instanceof UserTO && "test2".equals(UserTO.class.cast(entity).getUsername())) {
             throw new IgnoreProvisionException();
         }
 

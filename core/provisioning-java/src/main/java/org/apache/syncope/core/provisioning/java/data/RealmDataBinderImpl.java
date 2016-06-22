@@ -25,8 +25,11 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
@@ -37,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +60,9 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
     @Autowired
     private PolicyDAO policyDAO;
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -126,11 +133,20 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
         setTemplates(realmTO, realm);
 
+        for (String resourceKey : realmTO.getResources()) {
+            ExternalResource resource = resourceDAO.find(resourceKey);
+            if (resource == null) {
+                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + "{}, ignoring...", resourceKey);
+            } else {
+                realm.add(resource);
+            }
+        }
+
         return realm;
     }
 
     @Override
-    public void update(final Realm realm, final RealmTO realmTO) {
+    public PropagationByResource update(final Realm realm, final RealmTO realmTO) {
         realm.setName(realmTO.getName());
         realm.setParent(realmTO.getParent() == null ? null : realmDAO.find(realmTO.getParent()));
 
@@ -166,6 +182,31 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         realm.getActionsClassNames().addAll(realmTO.getActionsClassNames());
 
         setTemplates(realmTO, realm);
+
+        final PropagationByResource propByRes = new PropagationByResource();
+        for (String resourceKey : realmTO.getResources()) {
+            ExternalResource resource = resourceDAO.find(resourceKey);
+            if (resource == null) {
+                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + "{}, ignoring...", resourceKey);
+            } else {
+                realm.add(resource);
+                propByRes.add(ResourceOperation.CREATE, resource.getKey());
+            }
+        }
+        // remove all resources not contained in the TO
+        CollectionUtils.filter(realm.getResources(), new Predicate<ExternalResource>() {
+
+            @Override
+            public boolean evaluate(final ExternalResource resource) {
+                boolean contained = realmTO.getResources().contains(resource.getKey());
+                if (!contained) {
+                    propByRes.add(ResourceOperation.DELETE, resource.getKey());
+                }
+                return contained;
+            }
+        });
+
+        return propByRes;
     }
 
     @Override
@@ -182,6 +223,10 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
         for (AnyTemplate template : realm.getTemplates()) {
             realmTO.getTemplates().put(template.getAnyType().getKey(), template.get());
+        }
+
+        for (ExternalResource resource : realm.getResources()) {
+            realmTO.getResources().add(resource.getKey());
         }
 
         return realmTO;

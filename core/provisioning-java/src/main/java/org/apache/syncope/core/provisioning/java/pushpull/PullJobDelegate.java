@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -52,8 +53,12 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.SyncToken;
+import org.identityconnectors.framework.common.objects.Uid;
 
 public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> implements SyncopePullExecutor {
 
@@ -76,7 +81,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         latestSyncTokens.put(objectClass, latestSyncToken);
     }
 
-    protected void setGroupOwners(final GroupPullResultHandler ghandler) {
+    private void setGroupOwners(final GroupPullResultHandler ghandler) {
         for (Map.Entry<String, String> entry : ghandler.getGroupOwnerMap().entrySet()) {
             Group group = groupDAO.find(entry.getKey());
             if (group == null) {
@@ -226,11 +231,57 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 }
             }
         }
-
         try {
             setGroupOwners(ghandler);
         } catch (Exception e) {
             LOG.error("While setting group owners", e);
+        }
+
+        if (pullTask.getResource().getOrgUnit() != null) {
+            OrgUnit orgUnit = pullTask.getResource().getOrgUnit();
+            OperationOptions options = new OperationOptionsBuilder().setAttributesToGet(Name.NAME, Uid.NAME).build();
+
+            SyncopePullResultHandler handler =
+                    (SyncopePullResultHandler) ApplicationContextProvider.getBeanFactory().
+                    createBean(RealmPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+            ahandler.setProfile(profile);
+            ahandler.setPullExecutor(this);
+
+            try {
+                switch (pullTask.getPullMode()) {
+                    case INCREMENTAL:
+                        connector.sync(
+                                orgUnit.getObjectClass(),
+                                orgUnit.getSyncToken(),
+                                handler,
+                                options);
+                        if (!dryRun) {
+                            orgUnit.setSyncToken(latestSyncTokens.get(orgUnit.getObjectClass()));
+                            resourceDAO.save(orgUnit.getResource());
+                        }
+                        break;
+
+                    case FILTERED_RECONCILIATION:
+                        ReconciliationFilterBuilder filterBuilder =
+                                (ReconciliationFilterBuilder) ApplicationContextProvider.getBeanFactory().
+                                createBean(Class.forName(pullTask.getReconciliationFilterBuilderClassName()),
+                                        AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                        connector.filteredReconciliation(orgUnit.getObjectClass(),
+                                filterBuilder,
+                                handler,
+                                options);
+                        break;
+
+                    case FULL_RECONCILIATION:
+                    default:
+                        connector.fullReconciliation(orgUnit.getObjectClass(),
+                                handler,
+                                options);
+                        break;
+                }
+            } catch (Throwable t) {
+                throw new JobExecutionException("While pulling from connector", t);
+            }
         }
 
         if (!profile.isDryRun()) {

@@ -227,7 +227,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         switch (patch.getAction()) {
             case UNLINK:
                 updated = new ProvisioningResult<>();
-                updated.setAny(getAnyLogic().unlink(patch.getKey(), patch.getResources()));
+                updated.setEntity(getAnyLogic().unlink(patch.getKey(), patch.getResources()));
                 break;
 
             case UNASSIGN:
@@ -240,7 +240,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
             default:
                 updated = new ProvisioningResult<>();
-                updated.setAny(getAnyLogic().read(patch.getKey()));
+                updated.setEntity(getAnyLogic().read(patch.getKey()));
         }
 
         BulkActionResult result = new BulkActionResult();
@@ -248,7 +248,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         if (patch.getAction() == ResourceDeassociationAction.UNLINK) {
             for (String resource : patch.getResources()) {
                 result.getResults().put(resource,
-                        updated.getAny().getResources().contains(resource)
+                        updated.getEntity().getResources().contains(resource)
                         ? BulkActionResult.Status.FAILURE
                         : BulkActionResult.Status.SUCCESS);
             }
@@ -272,7 +272,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         switch (patch.getAction()) {
             case LINK:
                 updated = new ProvisioningResult<>();
-                updated.setAny(getAnyLogic().link(
+                updated.setEntity(getAnyLogic().link(
                         patch.getKey(),
                         patch.getResources()));
                 break;
@@ -297,7 +297,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
             default:
                 updated = new ProvisioningResult<>();
-                updated.setAny(getAnyLogic().read(patch.getKey()));
+                updated.setEntity(getAnyLogic().read(patch.getKey()));
         }
 
         BulkActionResult result = new BulkActionResult();
@@ -305,7 +305,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         if (patch.getAction() == ResourceAssociationAction.LINK) {
             for (String resource : patch.getResources()) {
                 result.getResults().put(resource,
-                        updated.getAny().getResources().contains(resource)
+                        updated.getEntity().getResources().contains(resource)
                         ? BulkActionResult.Status.SUCCESS
                         : BulkActionResult.Status.FAILURE);
             }
@@ -335,7 +335,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                             userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
 
                             result.getResults().put(
-                                    ((UserLogic) logic).update(userPatch, false).getAny().getKey(),
+                                    ((UserLogic) logic).update(userPatch, false).getEntity().getKey(),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing delete for user {}", key, e);
@@ -351,7 +351,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 for (String key : bulkAction.getTargets()) {
                     try {
                         result.getResults().put(
-                                logic.delete(key, isNullPriorityAsync()).getAny().getKey(),
+                                logic.delete(key, isNullPriorityAsync()).getEntity().getKey(),
                                 BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing delete for user {}", key, e);
@@ -369,7 +369,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                         try {
                             result.getResults().put(
                                     ((UserLogic) logic).
-                                    status(statusPatch, isNullPriorityAsync()).getAny().getKey(),
+                                    status(statusPatch, isNullPriorityAsync()).getEntity().getKey(),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing suspend for user {}", key, e);
@@ -390,7 +390,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                         try {
                             result.getResults().put(
                                     ((UserLogic) logic).
-                                    status(statusPatch, isNullPriorityAsync()).getAny().getKey(),
+                                    status(statusPatch, isNullPriorityAsync()).getEntity().getKey(),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing reactivate for user {}", key, e);

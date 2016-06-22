@@ -206,7 +206,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
         return new StatusPanel(
                 panelId,
-                ((ProvisioningResult<A>) result).getAny(),
+                ((ProvisioningResult<A>) result).getEntity(),
                 new ListModel<>(new ArrayList<StatusBean>()),
                 CollectionUtils.collect(
                         ((ProvisioningResult<A>) result).getPropagationStatuses(),
@@ -218,7 +218,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                     public Pair<ConnObjectTO, ConnObjectWrapper> transform(final PropagationStatus input) {
                         ConnObjectTO before = input.getBeforeObj();
                         ConnObjectWrapper afterObjWrapper = new ConnObjectWrapper(
-                                ((ProvisioningResult<A>) result).getAny(),
+                                ((ProvisioningResult<A>) result).getEntity(),
                                 input.getResource(),
                                 input.getAfterObj());
                         return Pair.of(before, afterObjWrapper);

@@ -127,7 +127,7 @@ public class MultitenancyITCase extends AbstractITCase {
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
         user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
-        }).getAny();
+        }).getEntity();
         assertNotNull(user);
     }
 

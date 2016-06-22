@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -53,6 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
@@ -225,6 +227,42 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             }
         }
 
+        // 3. orgUnit
+        if (resourceTO.getOrgUnit() == null && resource.getOrgUnit() != null) {
+            resource.getOrgUnit().setResource(null);
+            resource.setOrgUnit(null);
+        } else if (resourceTO.getOrgUnit() != null) {
+            OrgUnitTO orgUnitTO = resourceTO.getOrgUnit();
+
+            OrgUnit orgUnit = resource.getOrgUnit();
+            if (orgUnit == null) {
+                orgUnit = entityFactory.newEntity(OrgUnit.class);
+                orgUnit.setResource(resource);
+                resource.setOrgUnit(orgUnit);
+            }
+
+            if (orgUnitTO.getObjectClass() == null) {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidOrgUnit);
+                sce.getElements().add("Null " + ObjectClass.class.getSimpleName());
+                throw sce;
+            }
+            orgUnit.setObjectClass(new ObjectClass(orgUnitTO.getObjectClass()));
+
+            if (orgUnitTO.getExtAttrName() == null) {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidOrgUnit);
+                sce.getElements().add("Null extAttrName");
+                throw sce;
+            }
+            orgUnit.setExtAttrName(orgUnitTO.getExtAttrName());
+
+            if (orgUnitTO.getConnObjectLink() == null) {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidOrgUnit);
+                sce.getElements().add("Null connObjectLink");
+                throw sce;
+            }
+            orgUnit.setConnObjectLink(orgUnitTO.getConnObjectLink());
+        }
+
         resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
         resource.setUpdateTraceLevel(resourceTO.getUpdateTraceLevel());
         resource.setDeleteTraceLevel(resourceTO.getDeleteTraceLevel());
@@ -313,10 +351,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     item.setMapping(mapping);
                     if (item.isConnObjectKey()) {
                         if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
-                            throw new IllegalArgumentException("Virtual attributes cannot be set as ConnObjectKey");
+                            invalidMapping.getElements().add("Virtual attributes cannot be set as ConnObjectKey");
                         }
                         if ("password".equals(intAttrName.getField())) {
-                            throw new IllegalArgumentException("Password attributes cannot be set as ConnObjectKey");
+                            invalidMapping.getElements().add("Password attributes cannot be set as ConnObjectKey");
                         }
 
                         mapping.setConnObjectKeyItem(item);
@@ -427,6 +465,19 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             }
 
             resourceTO.getProvisions().add(provisionTO);
+        }
+
+        if (resource.getOrgUnit() != null) {
+            OrgUnit orgUnit = resource.getOrgUnit();
+
+            OrgUnitTO orgUnitTO = new OrgUnitTO();
+            orgUnitTO.setKey(orgUnit.getKey());
+            orgUnitTO.setObjectClass(orgUnit.getObjectClass().getObjectClassValue());
+            orgUnitTO.setSyncToken(orgUnit.getSerializedSyncToken());
+            orgUnitTO.setExtAttrName(orgUnit.getExtAttrName());
+            orgUnitTO.setConnObjectLink(orgUnit.getConnObjectLink());
+            
+            resourceTO.setOrgUnit(orgUnitTO);
         }
 
         resourceTO.setEnforceMandatoryCondition(resource.isEnforceMandatoryCondition());

@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.aspectj.bridge.MessageUtil.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,9 +30,11 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
@@ -53,10 +55,12 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.migration.MigrationPullActions;
+import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.BeforeClass;
@@ -235,7 +239,7 @@ public class MigrationITCase extends AbstractTaskITCase {
         try {
             connectorService.check(connInstanceTO);
         } catch (Exception e) {
-            fail("Unexpected exception", e);
+            fail("Unexpected exception:\n" + ExceptionUtils2.getFullStackTrace(e));
         }
 
         return connInstanceTO.getKey();
@@ -384,10 +388,15 @@ public class MigrationITCase extends AbstractTaskITCase {
     }
 
     private void setupRealm() {
-        RealmTO realm = new RealmTO();
-        realm.setName(MIGRATION_REALM);
+        try {
+            realmService.list("/" + MIGRATION_REALM);
+        } catch (SyncopeClientException e) {
+            LOG.error("{} not found? Let's attempt to re-create...", MIGRATION_REALM, e);
 
-        realmService.create("/", realm);
+            RealmTO realm = new RealmTO();
+            realm.setName(MIGRATION_REALM);
+            realmService.create("/", realm);
+        }
     }
 
     private String setupPullTask() {
@@ -416,11 +425,6 @@ public class MigrationITCase extends AbstractTaskITCase {
     @Test
     public void migrateFromSyncope12() throws InterruptedException {
         // 1. cleanup
-        try {
-            realmService.delete("/" + MIGRATION_REALM);
-        } catch (Exception e) {
-            // ignore
-        }
         try {
             for (AbstractTaskTO task : taskService.list(
                     new TaskQuery.Builder(TaskType.PULL).resource(RESOURCE_KEY).build()).getResult()) {
@@ -455,6 +459,20 @@ public class MigrationITCase extends AbstractTaskITCase {
             // ignore
         }
 
+        BulkAction bulkAction = new BulkAction();
+        bulkAction.setType(BulkAction.Type.DELETE);
+
+        for (UserTO user : userService.search(new AnyQuery.Builder().fiql("username==*12").build()).getResult()) {
+            bulkAction.getTargets().add(user.getKey());
+        }
+        userService.bulk(bulkAction);
+
+        bulkAction.getTargets().clear();
+        for (GroupTO group : groupService.search(new AnyQuery.Builder().fiql("name==*12").build()).getResult()) {
+            bulkAction.getTargets().add(group.getKey());
+        }
+        groupService.bulk(bulkAction);
+
         // 2. setup
         setupResource(setupConnector(), setupAnyTypeClass());
         setupRealm();
@@ -463,7 +481,7 @@ public class MigrationITCase extends AbstractTaskITCase {
         // 3. execute pull task
         execProvisioningTask(taskService, pullTaskKey, 50, false);
 
-        Thread.sleep(2000L);
+        Thread.sleep(3000L);
 
         // 4. verify
         UserTO user = userService.read("rossini12");

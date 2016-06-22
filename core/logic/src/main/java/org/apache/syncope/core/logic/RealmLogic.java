@@ -28,9 +28,12 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -40,7 +43,12 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -56,6 +64,12 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @Autowired
     private RealmDataBinder binder;
+
+    @Autowired
+    private PropagationManager propagationManager;
+
+    @Autowired
+    private PropagationTaskExecutor taskExecutor;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REALM_LIST + "')")
     public List<RealmTO> list(final String fullPath) {
@@ -76,17 +90,32 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REALM_CREATE + "')")
-    public RealmTO create(final String parentPath, final RealmTO realmTO) {
+    public ProvisioningResult<RealmTO> create(final String parentPath, final RealmTO realmTO) {
         String fullPath = StringUtils.appendIfMissing(parentPath, "/") + realmTO.getName();
         if (realmDAO.findByFullPath(fullPath) != null) {
             throw new DuplicateException(fullPath);
         }
 
-        return binder.getRealmTO(realmDAO.save(binder.create(parentPath, realmTO)));
+        Realm realm = realmDAO.save(binder.create(parentPath, realmTO));
+
+        PropagationByResource propByRes = new PropagationByResource();
+        for (String resource : realm.getResourceKeys()) {
+            propByRes.add(ResourceOperation.CREATE, resource);
+        }
+        List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
+        taskExecutor.execute(tasks, propagationReporter, false);
+
+        ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
+        result.setEntity(binder.getRealmTO(realm));
+        result.getPropagationStatuses().addAll(propagationReporter.getStatuses());
+
+        return result;
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REALM_UPDATE + "')")
-    public RealmTO update(final RealmTO realmTO) {
+    public ProvisioningResult<RealmTO> update(final RealmTO realmTO) {
         Realm realm = realmDAO.findByFullPath(realmTO.getFullPath());
         if (realm == null) {
             LOG.error("Could not find realm '" + realmTO.getFullPath() + "'");
@@ -94,14 +123,23 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             throw new NotFoundException(realmTO.getFullPath());
         }
 
-        binder.update(realm, realmTO);
+        PropagationByResource propByRes = binder.update(realm, realmTO);
         realm = realmDAO.save(realm);
 
-        return binder.getRealmTO(realm);
+        List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
+        taskExecutor.execute(tasks, propagationReporter, false);
+
+        ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
+        result.setEntity(binder.getRealmTO(realm));
+        result.getPropagationStatuses().addAll(propagationReporter.getStatuses());
+
+        return result;
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REALM_DELETE + "')")
-    public RealmTO delete(final String fullPath) {
+    public ProvisioningResult<RealmTO> delete(final String fullPath) {
         Realm realm = realmDAO.findByFullPath(fullPath);
         if (realm == null) {
             LOG.error("Could not find realm '" + fullPath + "'");
@@ -129,9 +167,22 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             throw containedAnys;
         }
 
-        RealmTO deleted = binder.getRealmTO(realm);
+        PropagationByResource propByRes = new PropagationByResource();
+        for (String resource : realm.getResourceKeys()) {
+            propByRes.add(ResourceOperation.DELETE, resource);
+        }
+        List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
+        taskExecutor.execute(tasks, propagationReporter, false);
+
+        ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
+        result.setEntity(binder.getRealmTO(realm));
+        result.getPropagationStatuses().addAll(propagationReporter.getStatuses());
+
         realmDAO.delete(realm);
-        return deleted;
+
+        return result;
     }
 
     @Override

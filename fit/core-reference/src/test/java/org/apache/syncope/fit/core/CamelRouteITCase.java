@@ -165,7 +165,7 @@ public class CamelRouteITCase extends AbstractITCase {
             userTO.getPlainAttrs().add(attrTO("surname", userId));
             userTO.getPlainAttrs().add(attrTO("camelAttribute", "false"));
 
-            userTO = createUser(userTO).getAny();
+            userTO = createUser(userTO).getEntity();
             assertNotNull(userTO);
             assertEquals("true", userTO.getPlainAttrMap().get("camelAttribute").getValues().get(0));
         } finally {

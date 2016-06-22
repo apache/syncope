@@ -57,6 +57,8 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
 
     private final List<ProvisionTO> provisions = new ArrayList<>();
 
+    private OrgUnitTO orgUnit;
+
     private Integer propagationPriority;
 
     private boolean randomPwdIfNotProvided;
@@ -200,6 +202,14 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
     @JsonProperty("provisions")
     public List<ProvisionTO> getProvisions() {
         return provisions;
+    }
+
+    public OrgUnitTO getOrgUnit() {
+        return orgUnit;
+    }
+
+    public void setOrgUnit(final OrgUnitTO orgUnit) {
+        this.orgUnit = orgUnit;
     }
 
     @XmlElementWrapper(name = "confOverride")

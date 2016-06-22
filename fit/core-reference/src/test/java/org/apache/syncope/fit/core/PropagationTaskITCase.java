@@ -91,7 +91,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         // create user with testdb resource
         UserTO userTO = UserITCase.getUniqueSampleTO("taskBulk@apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
 
         List<PropagationTaskTO> tasks = new ArrayList<>(
                 taskService.<PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).
@@ -141,7 +141,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             String originalLocation = anyObjectTO.getPlainAttrMap().get("location").getValues().get(0);
             assertFalse(originalLocation.endsWith(suffix));
 
-            anyObjectTO = createAnyObject(anyObjectTO).getAny();
+            anyObjectTO = createAnyObject(anyObjectTO).getEntity();
             assertNotNull(anyObjectTO);
 
             // 2. verify that JEXL MappingItemTransformer was applied during propagation

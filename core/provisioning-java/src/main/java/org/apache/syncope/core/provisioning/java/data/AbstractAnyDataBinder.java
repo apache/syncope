@@ -496,10 +496,10 @@ abstract class AbstractAnyDataBinder {
         }
 
         // 2. resources
-        for (String resourceName : anyTO.getResources()) {
-            ExternalResource resource = resourceDAO.find(resourceName);
+        for (String resourceKey : anyTO.getResources()) {
+            ExternalResource resource = resourceDAO.find(resourceKey);
             if (resource == null) {
-                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + "{}, ignoring...", resourceName);
+                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + "{}, ignoring...", resourceKey);
             } else {
                 any.add(resource);
             }

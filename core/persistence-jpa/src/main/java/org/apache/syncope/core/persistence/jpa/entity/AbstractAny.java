@@ -78,7 +78,7 @@ public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractAnnota
     }
 
     @Override
-    public List<String> getResourceNames() {
+    public List<String> getResourceKeys() {
         return CollectionUtils.collect(
                 getResources(), EntityUtils.<ExternalResource>keyTransformer(), new ArrayList<String>());
     }

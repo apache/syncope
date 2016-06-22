@@ -62,7 +62,7 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
             // update just if it is changed
             if (patch.isEmpty()) {
                 actual = new ProvisioningResult<>();
-                actual.setAny(inner);
+                actual.setEntity(inner);
             } else {
                 actual = anyObjectRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }

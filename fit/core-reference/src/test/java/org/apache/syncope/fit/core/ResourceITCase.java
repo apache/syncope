@@ -408,7 +408,7 @@ public class ResourceITCase extends AbstractITCase {
             assertNull(resource.getProvision("PRINTER").getSyncToken());
 
             // create some object on the new resource
-            anyObject = createAnyObject(anyObject).getAny();
+            anyObject = createAnyObject(anyObject).getEntity();
 
             // update sync token
             resourceService.setLatestSyncToken(resource.getKey(), "PRINTER");
@@ -542,7 +542,7 @@ public class ResourceITCase extends AbstractITCase {
         for (int i = 0; i < 10; i++) {
             GroupTO group = GroupITCase.getSampleTO("group");
             group.getResources().add(RESOURCE_NAME_LDAP);
-            group = createGroup(group).getAny();
+            group = createGroup(group).getEntity();
             groupKeys.add(group.getKey());
         }
 

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
@@ -34,58 +34,58 @@ public abstract class DefaultPushActions implements PushActions {
     }
 
     @Override
-    public <A extends Any<?>> A beforeAssign(final ProvisioningProfile<?, ?> profile, final A any)
+    public Entity beforeAssign(final ProvisioningProfile<?, ?> profile, final Entity entity)
             throws JobExecutionException {
 
-        return any;
+        return entity;
     }
 
     @Override
-    public <A extends Any<?>> A beforeProvision(final ProvisioningProfile<?, ?> profile, final A any)
+    public Entity beforeProvision(final ProvisioningProfile<?, ?> profile, final Entity entity)
             throws JobExecutionException {
 
-        return any;
+        return entity;
     }
 
     @Override
-    public <A extends Any<?>> A beforeLink(final ProvisioningProfile<?, ?> profile, final A any)
+    public Entity beforeLink(final ProvisioningProfile<?, ?> profile, final Entity entity)
             throws JobExecutionException {
 
-        return any;
+        return entity;
     }
 
     @Override
-    public <A extends Any<?>> A beforeUnassign(final ProvisioningProfile<?, ?> profile, final A any)
+    public Entity beforeUnassign(final ProvisioningProfile<?, ?> profile, final Entity entity)
             throws JobExecutionException {
 
-        return any;
+        return entity;
     }
 
     @Override
-    public <A extends Any<?>> A beforeDeprovision(final ProvisioningProfile<?, ?> profile, final A any)
+    public Entity beforeDeprovision(final ProvisioningProfile<?, ?> profile, final Entity entity)
             throws JobExecutionException {
 
-        return any;
+        return entity;
     }
 
     @Override
-    public <A extends Any<?>> A beforeUnlink(final ProvisioningProfile<?, ?> profile, final A any)
+    public Entity beforeUnlink(final ProvisioningProfile<?, ?> profile, final Entity entity)
             throws JobExecutionException {
 
-        return any;
+        return entity;
     }
 
     @Override
-    public <A extends Any<?>> void onError(
-            final ProvisioningProfile<?, ?> profile, final A any, final ProvisioningReport result,
+    public void onError(
+            final ProvisioningProfile<?, ?> profile, final Entity entity, final ProvisioningReport result,
             final Exception error) throws JobExecutionException {
 
         // do nothing
     }
 
     @Override
-    public <A extends Any<?>> void after(
-            final ProvisioningProfile<?, ?> profile, final A any, final ProvisioningReport result)
+    public void after(
+            final ProvisioningProfile<?, ?> profile, final Entity entity, final ProvisioningReport result)
             throws JobExecutionException {
 
         // do nothing

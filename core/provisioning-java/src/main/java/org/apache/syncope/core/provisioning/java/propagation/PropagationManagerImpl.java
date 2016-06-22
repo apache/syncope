@@ -28,6 +28,9 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.MapContext;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -50,11 +53,13 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -62,6 +67,7 @@ import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,9 +145,9 @@ public class PropagationManagerImpl implements PropagationManager {
             final String key,
             final PropagationByResource propByRes,
             final Collection<AttrTO> vAttrs,
-            final Collection<String> noPropResourceNames) {
+            final Collection<String> noPropResourceKeys) {
 
-        return getCreateTasks(find(kind, key), null, null, propByRes, vAttrs, noPropResourceNames);
+        return getCreateTasks(find(kind, key), null, null, propByRes, vAttrs, noPropResourceKeys);
     }
 
     @Override
@@ -151,9 +157,9 @@ public class PropagationManagerImpl implements PropagationManager {
             final Boolean enable,
             final PropagationByResource propByRes,
             final Collection<AttrTO> vAttrs,
-            final Collection<String> noPropResourceNames) {
+            final Collection<String> noPropResourceKeys) {
 
-        return getCreateTasks(userDAO.authFind(key), password, enable, propByRes, vAttrs, noPropResourceNames);
+        return getCreateTasks(userDAO.authFind(key), password, enable, propByRes, vAttrs, noPropResourceKeys);
     }
 
     protected List<PropagationTask> getCreateTasks(
@@ -162,14 +168,14 @@ public class PropagationManagerImpl implements PropagationManager {
             final Boolean enable,
             final PropagationByResource propByRes,
             final Collection<AttrTO> vAttrs,
-            final Collection<String> noPropResourceNames) {
+            final Collection<String> noPropResourceKeys) {
 
         if (propByRes == null || propByRes.isEmpty()) {
             return Collections.<PropagationTask>emptyList();
         }
 
-        if (noPropResourceNames != null) {
-            propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceNames);
+        if (noPropResourceKeys != null) {
+            propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceKeys);
         }
 
         return createTasks(any, password, true, enable, false, propByRes, vAttrs);
@@ -183,16 +189,16 @@ public class PropagationManagerImpl implements PropagationManager {
             final Boolean enable,
             final PropagationByResource propByRes,
             final Collection<AttrTO> vAttrs,
-            final Collection<String> noPropResourceNames) {
+            final Collection<String> noPropResourceKeys) {
 
-        return getUpdateTasks(find(kind, key), null, changePwd, enable, propByRes, vAttrs, noPropResourceNames);
+        return getUpdateTasks(find(kind, key), null, changePwd, enable, propByRes, vAttrs, noPropResourceKeys);
     }
 
     @Override
     public List<PropagationTask> getUserUpdateTasks(
             final WorkflowResult<Pair<UserPatch, Boolean>> wfResult,
             final boolean changePwd,
-            final Collection<String> noPropResourceNames) {
+            final Collection<String> noPropResourceKeys) {
 
         return getUpdateTasks(
                 userDAO.authFind(wfResult.getResult().getKey().getKey()),
@@ -203,7 +209,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 wfResult.getResult().getValue(),
                 wfResult.getPropByRes(),
                 wfResult.getResult().getKey().getVirAttrs(),
-                noPropResourceNames);
+                noPropResourceKeys);
     }
 
     @Override
@@ -260,10 +266,10 @@ public class PropagationManagerImpl implements PropagationManager {
             final Boolean enable,
             final PropagationByResource propByRes,
             final Collection<AttrTO> vAttrs,
-            final Collection<String> noPropResourceNames) {
+            final Collection<String> noPropResourceKeys) {
 
-        if (noPropResourceNames != null && propByRes != null) {
-            propByRes.removeAll(noPropResourceNames);
+        if (noPropResourceKeys != null && propByRes != null) {
+            propByRes.removeAll(noPropResourceKeys);
         }
 
         return createTasks(
@@ -281,29 +287,29 @@ public class PropagationManagerImpl implements PropagationManager {
             final AnyTypeKind kind,
             final String key,
             final PropagationByResource propByRes,
-            final Collection<String> noPropResourceNames) {
+            final Collection<String> noPropResourceKeys) {
 
         Any<?> any = find(kind, key);
 
         PropagationByResource localPropByRes = new PropagationByResource();
 
         if (propByRes == null || propByRes.isEmpty()) {
-            localPropByRes.addAll(ResourceOperation.DELETE, any.getResourceNames());
+            localPropByRes.addAll(ResourceOperation.DELETE, any.getResourceKeys());
         } else {
             localPropByRes.merge(propByRes);
         }
 
-        if (noPropResourceNames != null) {
-            localPropByRes.removeAll(noPropResourceNames);
+        if (noPropResourceKeys != null) {
+            localPropByRes.removeAll(noPropResourceKeys);
         }
 
-        return getDeleteTasks(any, localPropByRes, noPropResourceNames);
+        return getDeleteTasks(any, localPropByRes, noPropResourceKeys);
     }
 
     protected List<PropagationTask> getDeleteTasks(
             final Any<?> any,
             final PropagationByResource propByRes,
-            final Collection<String> noPropResourceNames) {
+            final Collection<String> noPropResourceKeys) {
 
         return createTasks(any, null, false, false, true, propByRes, null);
     }
@@ -340,7 +346,7 @@ public class PropagationManagerImpl implements PropagationManager {
         } else if (any instanceof AnyObject) {
             virtualResources.addAll(anyObjectDAO.findAllResourceNames((AnyObject) any));
         } else {
-            virtualResources.addAll(((Group) any).getResourceNames());
+            virtualResources.addAll(((Group) any).getResourceKeys());
         }
 
         Map<String, Set<Attribute>> vAttrMap = new HashMap<>();
@@ -388,12 +394,11 @@ public class PropagationManagerImpl implements PropagationManager {
             } else {
                 PropagationTask task = entityFactory.newEntity(PropagationTask.class);
                 task.setResource(resource);
-                task.setObjectClassName(
-                        resource.getProvision(any.getType()).getObjectClass().getObjectClassValue());
+                task.setObjectClassName(provision.getObjectClass().getObjectClassValue());
                 task.setAnyTypeKind(any.getType().getKind());
                 task.setAnyType(any.getType().getKey());
                 if (!deleteOnResource) {
-                    task.setAnyKey(any.getKey());
+                    task.setEntityKey(any.getKey());
                 }
                 task.setOperation(entry.getValue());
                 task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
@@ -432,6 +437,73 @@ public class PropagationManagerImpl implements PropagationManager {
                 }
 
                 task.setAttributes(preparedAttrs.getValue());
+
+                tasks.add(task);
+
+                LOG.debug("PropagationTask created: {}", task);
+            }
+        }
+
+        return tasks;
+    }
+
+    @Override
+    public List<PropagationTask> createTasks(
+            final Realm realm,
+            final PropagationByResource propByRes,
+            final Collection<String> noPropResourceKeys) {
+
+        if (noPropResourceKeys != null) {
+            propByRes.removeAll(noPropResourceKeys);
+        }
+
+        LOG.debug("Provisioning {}:\n{}", realm, propByRes);
+
+        // Avoid duplicates - see javadoc
+        propByRes.purge();
+        LOG.debug("After purge {}:\n{}", realm, propByRes);
+
+        List<PropagationTask> tasks = new ArrayList<>();
+
+        for (Map.Entry<String, ResourceOperation> entry : propByRes.asMap().entrySet()) {
+            ExternalResource resource = resourceDAO.find(entry.getKey());
+            OrgUnit orgUnit = resource == null ? null : resource.getOrgUnit();
+
+            if (resource == null) {
+                LOG.error("Invalid resource name specified: {}, ignoring...", entry.getKey());
+            } else if (orgUnit == null) {
+                LOG.error("No orgUnit specified on resource {}, ignoring...", resource);
+            } else if (StringUtils.isBlank(orgUnit.getConnObjectLink())) {
+                LOG.warn("Requesting propagation for {} but no ConnObjectLink provided for {}",
+                        realm.getFullPath(), resource);
+            } else {
+                PropagationTask task = entityFactory.newEntity(PropagationTask.class);
+                task.setResource(resource);
+                task.setObjectClassName(orgUnit.getObjectClass().getObjectClassValue());
+                task.setEntityKey(realm.getKey());
+                task.setOperation(entry.getValue());
+
+                Set<Attribute> preparedAttrs = new HashSet<>();
+                preparedAttrs.add(AttributeBuilder.build(orgUnit.getExtAttrName(), realm.getName()));
+
+                JexlContext jexlContext = new MapContext();
+                JexlUtils.addFieldsToContext(realm, jexlContext);
+                String evalConnObjectLink = JexlUtils.evaluate(orgUnit.getConnObjectLink(), jexlContext);
+                if (StringUtils.isBlank(evalConnObjectLink)) {
+                    // add connObjectKey as __NAME__ attribute ...
+                    LOG.debug("Add connObjectKey [{}] as __NAME__", realm.getName());
+                    preparedAttrs.add(new Name(realm.getName()));
+                } else {
+                    LOG.debug("Add connObjectLink [{}] as __NAME__", evalConnObjectLink);
+                    preparedAttrs.add(new Name(evalConnObjectLink));
+
+                    // connObjectKey not propagated: it will be used to set the value for __UID__ attribute
+                    LOG.debug("connObjectKey will be used just as __UID__ attribute");
+                }
+
+                task.setConnObjectKey(realm.getName());
+
+                task.setAttributes(preparedAttrs);
 
                 tasks.add(task);
 

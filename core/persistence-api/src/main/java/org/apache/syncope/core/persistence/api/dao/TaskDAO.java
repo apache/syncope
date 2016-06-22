@@ -41,7 +41,7 @@ public interface TaskDAO extends DAO<Task> {
             ExternalResource resource,
             Notification notification,
             AnyTypeKind anyTypeKind,
-            String anyKey,
+            String entityKey,
             int page,
             int itemsPerPage,
             List<OrderByClause> orderByClauses);
@@ -51,7 +51,7 @@ public interface TaskDAO extends DAO<Task> {
             ExternalResource resource,
             Notification notification,
             AnyTypeKind anyTypeKind,
-            String anyKey);
+            String entityKey);
 
     <T extends Task> T save(T task);
 

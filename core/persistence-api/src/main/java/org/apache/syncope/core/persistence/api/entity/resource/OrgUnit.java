@@ -16,18 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.api.entity.resource;
 
-import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.types.PropagationByResource;
-import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.SyncToken;
 
-public interface RealmDataBinder {
+public interface OrgUnit extends Entity {
 
-    Realm create(String parentPath, RealmTO realmTO);
+    ExternalResource getResource();
 
-    PropagationByResource update(Realm realm, RealmTO realmTO);
+    void setResource(ExternalResource resource);
 
-    RealmTO getRealmTO(Realm realm);
+    ObjectClass getObjectClass();
+
+    void setObjectClass(ObjectClass objectClass);
+
+    SyncToken getSyncToken();
+
+    String getSerializedSyncToken();
+
+    void setSyncToken(SyncToken syncToken);
+
+    String getExtAttrName();
+
+    void setExtAttrName(String extAttrName);
+
+    String getConnObjectLink();
+
+    void setConnObjectLink(String connObjectLink);
 
 }

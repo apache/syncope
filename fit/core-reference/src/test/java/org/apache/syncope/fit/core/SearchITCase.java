@@ -120,7 +120,7 @@ public class SearchITCase extends AbstractITCase {
     public void searchByDynGroup() {
         GroupTO group = GroupITCase.getBasicSampleTO("dynMembership");
         group.setUDynMembershipCond("cool==true");
-        group = createGroup(group).getAny();
+        group = createGroup(group).getEntity();
         assertNotNull(group);
 
         PagedResult<UserTO> matchingUsers = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).

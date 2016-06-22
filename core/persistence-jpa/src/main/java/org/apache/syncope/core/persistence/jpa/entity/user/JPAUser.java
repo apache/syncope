@@ -161,10 +161,9 @@ public class JPAUser
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =
             @JoinColumn(name = "resource_id"))
-    @Valid
     private List<JPAExternalResource> resources = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =

@@ -266,7 +266,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         // name
         if (anyObjectPatch.getName() != null && StringUtils.isNotBlank(anyObjectPatch.getName().getValue())) {
-            propByRes.addAll(ResourceOperation.UPDATE, anyObject.getResourceNames());
+            propByRes.addAll(ResourceOperation.UPDATE, anyObject.getResourceKeys());
 
             anyObject.setName(anyObjectPatch.getName().getValue());
         }
@@ -294,7 +294,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         anyObject.getRelationships().remove(relationship);
                         relationship.setLeftEnd(null);
 
-                        toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceNames());
+                        toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceKeys());
                     }
 
                     if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -319,7 +319,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
                                 anyObject.add(relationship);
 
-                                toBeProvisioned.addAll(otherEnd.getResourceNames());
+                                toBeProvisioned.addAll(otherEnd.getResourceKeys());
                             } else {
                                 LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
 
@@ -352,7 +352,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         attr.setOwner(null);
                     }
 
-                    toBeDeprovisioned.addAll(membership.getRightEnd().getResourceNames());
+                    toBeDeprovisioned.addAll(membership.getRightEnd().getResourceKeys());
                 }
 
                 if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -397,7 +397,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                             scce.addException(invalidValues);
                         }
 
-                        toBeProvisioned.addAll(group.getResourceNames());
+                        toBeProvisioned.addAll(group.getResourceKeys());
                     } else {
                         LOG.error("{} cannot be assigned to {}", group, anyObject);
 

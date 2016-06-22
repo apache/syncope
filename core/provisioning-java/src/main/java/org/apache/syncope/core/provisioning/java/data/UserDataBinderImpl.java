@@ -400,7 +400,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         user.getRelationships().remove(relationship);
                         relationship.setLeftEnd(null);
 
-                        toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceNames());
+                        toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceKeys());
                     }
 
                     if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -415,7 +415,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                             user.add(relationship);
 
-                            toBeProvisioned.addAll(otherEnd.getResourceNames());
+                            toBeProvisioned.addAll(otherEnd.getResourceKeys());
                         } else {
                             LOG.error("{} cannot be assigned to {}", otherEnd, user);
 
@@ -448,7 +448,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         attr.setMembership(null);
                     }
 
-                    toBeDeprovisioned.addAll(membership.getRightEnd().getResourceNames());
+                    toBeDeprovisioned.addAll(membership.getRightEnd().getResourceKeys());
                 }
 
                 if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -493,7 +493,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                             scce.addException(invalidValues);
                         }
 
-                        toBeProvisioned.addAll(group.getResourceNames());
+                        toBeProvisioned.addAll(group.getResourceKeys());
 
                         // SYNCOPE-686: if password is invertible and we are adding resources with password mapping,
                         // ensure that they are counted for password propagation

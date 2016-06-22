@@ -64,7 +64,7 @@ public class AnyObjectITCase extends AbstractITCase {
     public void create() {
         AnyObjectTO anyObjectTO = getSampleTO("create");
 
-        anyObjectTO = createAnyObject(anyObjectTO).getAny();
+        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
         assertNotNull(anyObjectTO);
 
         ConnObjectTO connObjectTO =
@@ -94,7 +94,7 @@ public class AnyObjectITCase extends AbstractITCase {
         // 2. change anyObject's realm to /even/two, now it works
         anyObjectTO.setRealm("/even/two");
 
-        anyObjectTO = createAnyObject(anyObjectTO).getAny();
+        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
         assertTrue(anyObjectTO.getMembershipMap().containsKey("034740a9-fa10-453b-af37-dc7897e98fb1"));
     }
 
@@ -109,10 +109,10 @@ public class AnyObjectITCase extends AbstractITCase {
         AnyObjectTO anyObjectTO = getSampleTO("deletable");
         anyObjectTO.setRealm("/even");
 
-        anyObjectTO = createAnyObject(anyObjectTO).getAny();
+        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
         assertNotNull(anyObjectTO);
 
-        AnyObjectTO deletedAnyObject = deleteAnyObject(anyObjectTO.getKey()).getAny();
+        AnyObjectTO deletedAnyObject = deleteAnyObject(anyObjectTO.getKey()).getEntity();
         assertNotNull(deletedAnyObject);
 
         try {
@@ -146,7 +146,7 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void update() {
         AnyObjectTO anyObjectTO = getSampleTO("update");
-        anyObjectTO = createAnyObject(anyObjectTO).getAny();
+        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
 
         assertEquals(1, anyObjectTO.getPlainAttrs().size());
 
@@ -155,7 +155,7 @@ public class AnyObjectITCase extends AbstractITCase {
         String newLocation = "new" + getUUIDString();
         anyObjectPatch.getPlainAttrs().add(attrAddReplacePatch("location", newLocation));
 
-        anyObjectTO = updateAnyObject(anyObjectPatch).getAny();
+        anyObjectTO = updateAnyObject(anyObjectPatch).getEntity();
 
         assertEquals(newLocation, anyObjectTO.getPlainAttrMap().get("location").getValues().get(0));
     }
@@ -163,7 +163,7 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void readAttrs() {
         AnyObjectTO anyObjectTO = getSampleTO("readAttrs");
-        anyObjectTO = createAnyObject(anyObjectTO).getAny();
+        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
         assertNotNull(anyObjectTO);
 
         Set<AttrTO> attrs = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN);
@@ -176,7 +176,7 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void updateAttr() {
         AnyObjectTO anyObjectTO = getSampleTO("updateAttr");
-        anyObjectTO = createAnyObject(anyObjectTO).getAny();
+        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
         assertNotNull(anyObjectTO);
 
         AttrTO updated = attrTO("location", "newlocation");
@@ -189,7 +189,7 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void deleteAttr() {
         AnyObjectTO anyObjectTO = getSampleTO("deleteAttr");
-        anyObjectTO = createAnyObject(anyObjectTO).getAny();
+        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
         assertNotNull(anyObjectTO);
         assertNotNull(anyObjectTO.getPlainAttrMap().get("location"));
 
@@ -210,7 +210,7 @@ public class AnyObjectITCase extends AbstractITCase {
                 AnyTypeKind.USER.name(), "1417acbe-cbf6-4277-9372-e75e04f97000").build());
 
         try {
-            createAnyObject(anyObjectTO).getAny();
+            createAnyObject(anyObjectTO).getEntity();
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidAnyType, e.getType());

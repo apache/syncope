@@ -166,7 +166,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         inUserTO.getAuxClasses().add("csv");
         inUserTO.getDerAttrs().add(attrTO("csvuserid", null));
 
-        inUserTO = createUser(inUserTO).getAny();
+        inUserTO = createUser(inUserTO).getEntity();
         assertNotNull(inUserTO);
         assertFalse(inUserTO.getResources().contains(RESOURCE_NAME_CSV));
 
@@ -413,7 +413,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             String originalLocation = anyObjectTO.getPlainAttrMap().get("location").getValues().get(0);
             assertFalse(originalLocation.startsWith(PrefixMappingItemTransformer.PREFIX));
 
-            anyObjectTO = createAnyObject(anyObjectTO).getAny();
+            anyObjectTO = createAnyObject(anyObjectTO).getEntity();
             assertNotNull(anyObjectTO);
 
             // 2. verify that PrefixMappingItemTransformer was applied during propagation
@@ -616,7 +616,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         userTO.getMemberships().add(
                 new MembershipTO.Builder().group("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
 
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
         assertEquals("testuser2", userTO.getUsername());
         assertEquals(1, userTO.getMemberships().size());
@@ -657,7 +657,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(2, userTO.getMemberships().size());
             assertEquals(4, userTO.getResources().size());
         } finally {
-            UserTO dUserTO = deleteUser(userTO.getKey()).getAny();
+            UserTO dUserTO = deleteUser(userTO.getKey()).getEntity();
             assertNotNull(dUserTO);
         }
     }
@@ -726,7 +726,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_WS2);
 
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
 
         // change email in order to unmatch the second user
         UserPatch userPatch = new UserPatch();
@@ -754,7 +754,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
         ProvisioningResult<UserTO> result = createUser(userTO);
-        userTO = result.getAny();
+        userTO = result.getEntity();
         try {
             assertNotNull(userTO);
             assertEquals(1, result.getPropagationStatuses().size());
@@ -789,7 +789,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_WS2);
 
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
 
         userTO = userService.read(userTO.getKey());
@@ -833,7 +833,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         UserTO user = UserITCase.getUniqueSampleTO("syncope313-db@syncope.apache.org");
         user.setPassword("security123");
         user.getResources().add(RESOURCE_NAME_TESTDB);
-        user = createUser(user).getAny();
+        user = createUser(user).getEntity();
         assertNotNull(user);
         assertFalse(user.getResources().isEmpty());
 
@@ -895,7 +895,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             user = UserITCase.getUniqueSampleTO("syncope313-ldap@syncope.apache.org");
             user.setPassword(oldCleanPassword);
             user.getResources().add(RESOURCE_NAME_LDAP);
-            user = createUser(user).getAny();
+            user = createUser(user).getEntity();
             assertNotNull(user);
             assertFalse(user.getResources().isEmpty());
 
@@ -904,7 +904,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             UserPatch userPatch = new UserPatch();
             userPatch.setKey(user.getKey());
             userPatch.setPassword(new PasswordPatch.Builder().value(newCleanPassword).build());
-            user = updateUser(userPatch).getAny();
+            user = updateUser(userPatch).getEntity();
 
             // 3. Check that the Syncope user now has the changed password
             Pair<Map<String, Set<String>>, UserTO> self =

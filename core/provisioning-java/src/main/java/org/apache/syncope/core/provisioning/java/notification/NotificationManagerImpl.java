@@ -271,25 +271,25 @@ public class NotificationManagerImpl implements NotificationManager {
         } else if (output instanceof UserTO) {
             any = userDAO.find(((UserTO) output).getKey());
         } else if (output instanceof ProvisioningResult
-                && ((ProvisioningResult) output).getAny() instanceof UserTO) {
+                && ((ProvisioningResult) output).getEntity() instanceof UserTO) {
 
-            any = userDAO.find(((ProvisioningResult) output).getAny().getKey());
+            any = userDAO.find(((ProvisioningResult) output).getEntity().getKey());
         } else if (before instanceof AnyObjectTO) {
             any = anyObjectDAO.find(((AnyObjectTO) before).getKey());
         } else if (output instanceof AnyObjectTO) {
             any = anyObjectDAO.find(((AnyObjectTO) output).getKey());
         } else if (output instanceof ProvisioningResult
-                && ((ProvisioningResult) output).getAny() instanceof AnyObjectTO) {
+                && ((ProvisioningResult) output).getEntity() instanceof AnyObjectTO) {
 
-            any = anyObjectDAO.find(((ProvisioningResult) output).getAny().getKey());
+            any = anyObjectDAO.find(((ProvisioningResult) output).getEntity().getKey());
         } else if (before instanceof GroupTO) {
             any = groupDAO.find(((GroupTO) before).getKey());
         } else if (output instanceof GroupTO) {
             any = groupDAO.find(((GroupTO) output).getKey());
         } else if (output instanceof ProvisioningResult
-                && ((ProvisioningResult) output).getAny() instanceof GroupTO) {
+                && ((ProvisioningResult) output).getEntity() instanceof GroupTO) {
 
-            any = groupDAO.find(((ProvisioningResult) output).getAny().getKey());
+            any = groupDAO.find(((ProvisioningResult) output).getEntity().getKey());
         }
 
         AnyType anyType = any == null ? null : any.getType();

@@ -30,9 +30,11 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
@@ -72,6 +74,9 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
     @Autowired
     private AnyObjectDAO anyObjectDAO;
 
+    @Autowired
+    private RealmDAO realmDAO;
+
     private AnyDAO<?> getAnyDAO(final AnyTypeKind anyTypeKind) {
         AnyDAO<?> result;
         switch (anyTypeKind) {
@@ -91,7 +96,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         return result;
     }
 
-    protected void handle(
+    private void doHandle(
             final List<? extends Any<?>> anys,
             final SyncopePushResultHandler handler,
             final ExternalResource resource)
@@ -176,7 +181,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                         ? null
                         : pushTask.getFilter(provision.getAnyType()).getFIQLCond();
                 if (StringUtils.isBlank(filter)) {
-                    handle(anyDAO.findAll(), handler, pushTask.getResource());
+                    doHandle(anyDAO.findAll(), handler, pushTask.getResource());
                 } else {
                     int count = anyDAO.count(SyncopeConstants.FULL_ADMIN_REALMS);
                     for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
@@ -187,8 +192,24 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                                 PAGE_SIZE,
                                 Collections.<OrderByClause>emptyList(),
                                 provision.getAnyType().getKind());
-                        handle(anys, handler, pushTask.getResource());
+                        doHandle(anys, handler, pushTask.getResource());
                     }
+                }
+            }
+        }
+
+        if (pushTask.getResource().getOrgUnit() != null) {
+            SyncopePushResultHandler handler =
+                    (SyncopePushResultHandler) ApplicationContextProvider.getBeanFactory().
+                    createBean(RealmPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+            handler.setProfile(profile);
+
+            for (Realm realm : realmDAO.findAll()) {
+                try {
+                    handler.handle(realm.getKey());
+                } catch (Exception e) {
+                    LOG.warn("Failure pushing '{}' on '{}'", realm, pushTask.getResource(), e);
+                    throw new JobExecutionException("While pushing " + realm + " on " + pushTask.getResource(), e);
                 }
             }
         }

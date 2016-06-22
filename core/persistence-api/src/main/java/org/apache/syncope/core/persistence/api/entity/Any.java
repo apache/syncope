@@ -49,7 +49,7 @@ public interface Any<P extends PlainAttr<?>> extends AnnotatedEntity {
 
     boolean add(ExternalResource resource);
 
-    List<String> getResourceNames();
+    List<String> getResourceKeys();
 
     List<? extends ExternalResource> getResources();
 

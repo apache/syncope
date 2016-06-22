@@ -78,7 +78,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             // update just if it is changed
             if (patch.isEmpty()) {
                 actual = new ProvisioningResult<>();
-                actual.setAny(inner);
+                actual.setEntity(inner);
             } else {
                 actual = groupRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }
