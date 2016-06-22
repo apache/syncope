@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -30,9 +29,10 @@ import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
@@ -41,9 +41,10 @@ import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
+import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.quartz.JobExecutionException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,24 +75,6 @@ public class RealmPushResultHandlerImpl
             LOG.error("Push failed", e);
             return false;
         }
-    }
-
-    private ConnectorObject getRemoteObject(final String connObjectKey, final ObjectClass objectClass) {
-        ConnectorObject obj = null;
-        try {
-            Uid uid = new Uid(connObjectKey);
-
-            obj = profile.getConnector().getObject(objectClass,
-                    uid,
-                    MappingUtils.buildOperationOptions(IteratorUtils.<MappingItem>emptyIterator()));
-        } catch (TimeoutException toe) {
-            LOG.debug("Request timeout", toe);
-            throw toe;
-        } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", connObjectKey, ignore);
-        }
-
-        return obj;
     }
 
     private Realm update(final RealmTO realmTO) {
@@ -168,7 +151,9 @@ public class RealmPushResultHandlerImpl
 
         // Try to read remote object BEFORE any actual operation
         ConnectorObject beforeObj = getRemoteObject(
-                realm.getName(), profile.getTask().getResource().getOrgUnit().getObjectClass());
+                realm.getName(),
+                profile.getConnector(),
+                profile.getTask().getResource().getOrgUnit());
 
         if (profile.isDryRun()) {
             if (beforeObj == null) {
@@ -313,7 +298,9 @@ public class RealmPushResultHandlerImpl
                 result.setStatus(ProvisioningReport.Status.SUCCESS);
                 resultStatus = AuditElements.Result.SUCCESS;
                 output = getRemoteObject(
-                        realm.getName(), profile.getTask().getResource().getOrgUnit().getObjectClass());
+                        realm.getName(),
+                        profile.getConnector(),
+                        profile.getTask().getResource().getOrgUnit());
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {
@@ -370,5 +357,40 @@ public class RealmPushResultHandlerImpl
             default:
                 return ResourceOperation.NONE;
         }
+    }
+
+    /**
+     * Get remote object for given realm .
+     *
+     * @param connector connector facade proxy.
+     * @param task current propagation task.
+     * @param orgUnit orgUnit
+     * @return remote connector object.
+     */
+    private ConnectorObject getRemoteObject(
+            final String realmName,
+            final Connector connector,
+            final OrgUnit orgUnit) {
+
+        final ConnectorObject[] obj = new ConnectorObject[1];
+        try {
+            connector.search(orgUnit.getObjectClass(),
+                    new EqualsFilter(AttributeBuilder.build(orgUnit.getExtAttrName(), realmName)),
+                    new ResultsHandler() {
+
+                @Override
+                public boolean handle(final ConnectorObject connectorObject) {
+                    obj[0] = connectorObject;
+                    return false;
+                }
+            }, MappingUtils.buildOperationOptions(orgUnit));
+        } catch (TimeoutException toe) {
+            LOG.debug("Request timeout", toe);
+            throw toe;
+        } catch (RuntimeException ignore) {
+            LOG.debug("While resolving {}", realmName, ignore);
+        }
+
+        return obj[0];
     }
 }

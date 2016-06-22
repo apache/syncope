@@ -264,6 +264,34 @@ public class PushTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
+    public void orgUnit() {
+        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=odd,o=isp"));
+        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=even,o=isp"));
+        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=two,o=isp"));
+
+        // 1. create task for pulling org units
+        PushTaskTO task = new PushTaskTO();
+        task.setName("For orgUnit");
+        task.setActive(true);
+        task.setResource(RESOURCE_NAME_LDAP_ORGUNIT);
+        task.setPerformCreate(true);
+        task.setPerformDelete(true);
+        task.setPerformUpdate(true);
+
+        Response response = taskService.create(task);
+        PushTaskTO pushTask = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
+        assertNotNull(pushTask);
+
+        ExecTO exec = execProvisioningTask(taskService, pushTask.getKey(), 50, false);
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+
+        // 2. check
+        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=odd,o=isp"));
+        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=even,o=isp"));
+        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=two,o=isp"));
+    }
+
+    @Test
     public void issueSYNCOPE598() {
         // create a new group schema
         PlainSchemaTO schemaTO = new PlainSchemaTO();
@@ -341,8 +369,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
             assertNotNull(push);
 
             // execute the new task
-            ExecTO pushExec = execProvisioningTask(taskService, push.getKey(), 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(pushExec.getStatus()));
+            ExecTO exec = execProvisioningTask(taskService, push.getKey(), 50, false);
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
         } finally {
             groupService.delete(groupTO.getKey());
             if (newResourceTO != null) {

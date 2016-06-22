@@ -266,7 +266,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
         resource.setUpdateTraceLevel(resourceTO.getUpdateTraceLevel());
         resource.setDeleteTraceLevel(resourceTO.getDeleteTraceLevel());
-        resource.setPullTraceLevel(resourceTO.getPullTraceLevel());
+        resource.setProvisioningTraceLevel(resourceTO.getProvisioningTraceLevel());
 
         resource.setPasswordPolicy(resourceTO.getPasswordPolicy() == null
                 ? null : (PasswordPolicy) policyDAO.find(resourceTO.getPasswordPolicy()));
@@ -489,7 +489,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
         resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());
         resourceTO.setDeleteTraceLevel(resource.getDeleteTraceLevel());
-        resourceTO.setPullTraceLevel(resource.getPullTraceLevel());
+        resourceTO.setProvisioningTraceLevel(resource.getProvisioningTraceLevel());
 
         resourceTO.setPasswordPolicy(resource.getPasswordPolicy() == null
                 ? null : resource.getPasswordPolicy().getKey());

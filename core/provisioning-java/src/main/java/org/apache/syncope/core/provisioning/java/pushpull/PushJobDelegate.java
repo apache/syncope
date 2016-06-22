@@ -137,6 +137,33 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         profile.setDryRun(dryRun);
         profile.setResAct(null);
 
+        if (!profile.isDryRun()) {
+            for (PushActions action : actions) {
+                action.beforeAll(profile);
+            }
+        }
+
+        // First OrgUnits...
+        if (pushTask.getResource().getOrgUnit() != null) {
+            SyncopePushResultHandler rhandler =
+                    (SyncopePushResultHandler) ApplicationContextProvider.getBeanFactory().
+                    createBean(RealmPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+            rhandler.setProfile(profile);
+
+            for (Realm realm : realmDAO.findAll()) {
+                // Never push the root realm
+                if (realm.getParent() != null) {
+                    try {
+                        rhandler.handle(realm.getKey());
+                    } catch (Exception e) {
+                        LOG.warn("Failure pushing '{}' on '{}'", realm, pushTask.getResource(), e);
+                        throw new JobExecutionException("While pushing " + realm + " on " + pushTask.getResource(), e);
+                    }
+                }
+            }
+        }
+
+        // ...then provisions for any types
         AnyObjectPushResultHandler ahandler =
                 (AnyObjectPushResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(AnyObjectPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
@@ -151,12 +178,6 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                 (GroupPushResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(GroupPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         ghandler.setProfile(profile);
-
-        if (!profile.isDryRun()) {
-            for (PushActions action : actions) {
-                action.beforeAll(profile);
-            }
-        }
 
         for (Provision provision : pushTask.getResource().getProvisions()) {
             if (provision.getMapping() != null) {
@@ -198,30 +219,14 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
             }
         }
 
-        if (pushTask.getResource().getOrgUnit() != null) {
-            SyncopePushResultHandler handler =
-                    (SyncopePushResultHandler) ApplicationContextProvider.getBeanFactory().
-                    createBean(RealmPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-            handler.setProfile(profile);
-
-            for (Realm realm : realmDAO.findAll()) {
-                try {
-                    handler.handle(realm.getKey());
-                } catch (Exception e) {
-                    LOG.warn("Failure pushing '{}' on '{}'", realm, pushTask.getResource(), e);
-                    throw new JobExecutionException("While pushing " + realm + " on " + pushTask.getResource(), e);
-                }
-            }
-        }
-
         if (!profile.isDryRun()) {
             for (PushActions action : actions) {
                 action.afterAll(profile);
             }
         }
 
-        String result = createReport(profile.getResults(), pushTask.getResource().getPullTraceLevel(), dryRun);
-        LOG.debug("Sync result: {}", result);
+        String result = createReport(profile.getResults(), pushTask.getResource(), dryRun);
+        LOG.debug("Push result: {}", result);
         return result;
     }
 }

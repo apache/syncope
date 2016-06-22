@@ -77,10 +77,17 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
+    public void findWithOrgUnit() {
+        ExternalResource resource = resourceDAO.find("resource-ldap-orgunit");
+        assertNotNull(resource);
+        assertNotNull(resource.getOrgUnit());
+    }
+
+    @Test
     public void findAll() {
         List<ExternalResource> resources = resourceDAO.findAll();
         assertNotNull(resources);
-        assertEquals(19, resources.size());
+        assertEquals(20, resources.size());
     }
 
     @Test

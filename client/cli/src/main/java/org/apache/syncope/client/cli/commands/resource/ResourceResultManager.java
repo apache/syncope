@@ -49,7 +49,7 @@ public class ResourceResultManager extends CommonsResultManager {
         System.out.println("    create trace level: " + resourceTO.getCreateTraceLevel());
         System.out.println("    delete trace level: " + resourceTO.getDeleteTraceLevel());
         System.out.println("    update trace level: " + resourceTO.getUpdateTraceLevel());
-        System.out.println("    pull trace level: " + resourceTO.getPullTraceLevel());
+        System.out.println("    pull trace level: " + resourceTO.getProvisioningTraceLevel());
         System.out.println("    enforce mandatory condition: " + resourceTO.isEnforceMandatoryCondition());
         System.out.println("    override capabilities: " + resourceTO.isOverrideCapabilities());
         System.out.println("    random password if not provided: " + resourceTO.isRandomPwdIfNotProvided());

@@ -28,7 +28,6 @@ import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -56,6 +55,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.quartz.JobExecutionException;
@@ -134,14 +134,13 @@ public class RealmPullResultHandlerImpl
 
         RealmTO realmTO = new RealmTO();
         realmTO.setName(name);
-        realmTO.setParent(SyncopeConstants.ROOT_REALM);
         realmTO.getResources().add(profile.getTask().getResource().getKey());
 
         ProvisioningReport result = new ProvisioningReport();
         result.setOperation(ResourceOperation.CREATE);
         result.setAnyType(REALM_TYPE);
         result.setStatus(ProvisioningReport.Status.SUCCESS);
-        result.setName(SyncopeConstants.ROOT_REALM + name);
+        result.setName(profile.getTask().getDestinatioRealm().getFullPath() + "/" + name);
 
         if (profile.isDryRun()) {
             result.setKey(null);
@@ -165,14 +164,13 @@ public class RealmPullResultHandlerImpl
 
         RealmTO realmTO = new RealmTO();
         realmTO.setName(name);
-        realmTO.setParent(SyncopeConstants.ROOT_REALM);
         realmTO.getResources().add(profile.getTask().getResource().getKey());
 
         ProvisioningReport result = new ProvisioningReport();
         result.setOperation(ResourceOperation.CREATE);
         result.setAnyType(REALM_TYPE);
         result.setStatus(ProvisioningReport.Status.SUCCESS);
-        result.setName(SyncopeConstants.ROOT_REALM + name);
+        result.setName(profile.getTask().getDestinatioRealm().getFullPath() + "/" + name);
 
         if (profile.isDryRun()) {
             result.setKey(null);
@@ -217,7 +215,7 @@ public class RealmPullResultHandlerImpl
         Result resultStatus;
 
         try {
-            Realm realm = realmDAO.save(binder.create(SyncopeConstants.ROOT_REALM, realmTO));
+            Realm realm = realmDAO.save(binder.create(profile.getTask().getDestinatioRealm().getFullPath(), realmTO));
 
             PropagationByResource propByRes = new PropagationByResource();
             for (String resource : realm.getResourceKeys()) {
@@ -229,7 +227,10 @@ public class RealmPullResultHandlerImpl
             taskExecutor.execute(tasks, propagationReporter, false);
 
             RealmTO actual = binder.getRealmTO(realm);
-            result.setName(SyncopeConstants.ROOT_REALM + realmTO.getName());
+
+            result.setKey(actual.getKey());
+            result.setName(profile.getTask().getDestinatioRealm().getFullPath() + "/" + actual.getName());
+
             output = actual;
             resultStatus = Result.SUCCESS;
 
@@ -592,18 +593,24 @@ public class RealmPullResultHandlerImpl
         LOG.debug("Match found for {} as {}: {}",
                 delta.getObject().getName().getNameValue(), delta.getObject().getObjectClass(), realm);
 
+        String realmName = delta.getUid().getUidValue();
+        Attribute nameAttr = delta.getObject().getAttributeByName(orgUnit.getExtAttrName());
+        if (nameAttr != null && nameAttr.getValue() != null && !nameAttr.getValue().isEmpty()) {
+            realmName = nameAttr.getValue().get(0).toString();
+        }
+
         try {
             if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
                 if (realm == null) {
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
                             CollectionUtils.addIgnoreNull(
-                                    profile.getResults(), assign(delta, delta.getUid().getUidValue()));
+                                    profile.getResults(), assign(delta, realmName));
                             break;
 
                         case PROVISION:
                             CollectionUtils.addIgnoreNull(
-                                    profile.getResults(), provision(delta, delta.getUid().getUidValue()));
+                                    profile.getResults(), provision(delta, realmName));
                             break;
 
                         case IGNORE:
@@ -618,7 +625,7 @@ public class RealmPullResultHandlerImpl
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
                             CollectionUtils.addIgnoreNull(
-                                    profile.getResults(), update(delta, realm, delta.getUid().getUidValue()));
+                                    profile.getResults(), update(delta, realm, realmName));
                             break;
 
                         case DEPROVISION:

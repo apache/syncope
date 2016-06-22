@@ -74,7 +74,6 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
@@ -675,7 +674,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     obj[0] = connectorObject;
                     return false;
                 }
-            }, new OperationOptionsBuilder().setAttributesToGet(Name.NAME, Uid.NAME, orgUnit.getExtAttrName()).build());
+            }, MappingUtils.buildOperationOptions(orgUnit));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

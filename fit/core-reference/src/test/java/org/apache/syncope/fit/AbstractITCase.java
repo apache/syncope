@@ -108,6 +108,8 @@ public abstract class AbstractITCase {
 
     protected static final String RESOURCE_NAME_LDAP = "resource-ldap";
 
+    protected static final String RESOURCE_NAME_LDAP_ORGUNIT = "resource-ldap-orgunit";
+
     protected static final String RESOURCE_NAME_TESTDB = "resource-testdb";
 
     protected static final String RESOURCE_NAME_TESTDB2 = "resource-testdb2";
@@ -134,8 +136,6 @@ public abstract class AbstractITCase {
 
     protected static final String RESOURCE_NAME_MAPPINGS2 = "ws-target-resource-list-mappings-2";
 
-    protected static final String RESOURCE_NAME_CREATE = "ws-target-resource-create";
-
     protected static final String RESOURCE_NAME_CREATE_SINGLE = "ws-target-resource-create-single";
 
     protected static final String RESOURCE_NAME_CREATE_WRONG = "ws-target-resource-create-wrong";
@@ -147,6 +147,10 @@ public abstract class AbstractITCase {
     protected static final String RESOURCE_NAME_CREATE_NONE = "ws-target-resource-create-none";
 
     protected static final String RESOURCE_NAME_DBSCRIPTED = "resource-db-scripted";
+
+    protected static final String RESOURCE_LDAP_ADMIN_DN = "uid=admin,ou=system";
+
+    protected static final String RESOURCE_LDAP_ADMIN_PWD = "secret";
 
     protected static String ANONYMOUS_UNAME;
 

@@ -71,7 +71,7 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
 
     private TraceLevel deleteTraceLevel = TraceLevel.ALL;
 
-    private TraceLevel pullTraceLevel = TraceLevel.ALL;
+    private TraceLevel provisioningTraceLevel = TraceLevel.ALL;
 
     private String passwordPolicy;
 
@@ -234,12 +234,12 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
         return capabilitiesOverride;
     }
 
-    public TraceLevel getPullTraceLevel() {
-        return pullTraceLevel;
+    public TraceLevel getProvisioningTraceLevel() {
+        return provisioningTraceLevel;
     }
 
-    public void setPullTraceLevel(final TraceLevel pullTraceLevel) {
-        this.pullTraceLevel = pullTraceLevel;
+    public void setProvisioningTraceLevel(final TraceLevel provisioningTraceLevel) {
+        this.provisioningTraceLevel = provisioningTraceLevel;
     }
 
     @XmlElementWrapper(name = "propagationActionsClassNames")

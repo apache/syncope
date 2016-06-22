@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -285,6 +286,27 @@ public class ResourceTest extends AbstractTest {
         for (String itemKey : itemKeys) {
             assertNull(entityManager().find(JPAMappingItem.class, itemKey));
         }
+    }
+
+    @Test
+    public void updateRemoveOrgUnit() {
+        ExternalResource resource = resourceDAO.find("resource-ldap-orgunit");
+        assertNotNull(resource);
+        assertNotNull(resource.getOrgUnit());
+
+        String orgUnitKey = resource.getOrgUnit().getKey();
+        assertNotNull(entityManager().find(JPAOrgUnit.class, orgUnitKey));
+
+        resource.getOrgUnit().setResource(null);
+        resource.setOrgUnit(null);
+
+        resourceDAO.save(resource);
+        resourceDAO.flush();
+
+        resource = resourceDAO.find("resource-ldap-orgunit");
+        assertNull(resource.getOrgUnit());
+
+        assertNull(entityManager().find(JPAOrgUnit.class, orgUnitKey));
     }
 
     @Test

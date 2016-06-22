@@ -177,7 +177,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         result.setAnyType(any.getType().getKey());
         result.setName(getName(any));
 
-        Boolean enabled = any instanceof User && profile.getTask().isPullStatus()
+        Boolean enabled = any instanceof User && profile.getTask().isSyncStatus()
                 ? ((User) any).isSuspended() ? Boolean.FALSE : Boolean.TRUE
                 : null;
 
@@ -194,7 +194,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
         ConnectorObject beforeObj = getRemoteObject(connObjecKey, provision.getObjectClass());
 
-        Boolean status = profile.getTask().isPullStatus() ? enabled : null;
+        Boolean status = profile.getTask().isSyncStatus() ? enabled : null;
 
         if (profile.isDryRun()) {
             if (beforeObj == null) {

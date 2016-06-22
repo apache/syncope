@@ -126,7 +126,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private TraceLevel pullTraceLevel;
+    private TraceLevel provisioningTraceLevel;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPasswordPolicy passwordPolicy;
@@ -178,7 +178,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
         createTraceLevel = TraceLevel.FAILURES;
         updateTraceLevel = TraceLevel.FAILURES;
         deleteTraceLevel = TraceLevel.FAILURES;
-        pullTraceLevel = TraceLevel.FAILURES;
+        provisioningTraceLevel = TraceLevel.FAILURES;
     }
 
     @Override
@@ -300,13 +300,13 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-    public TraceLevel getPullTraceLevel() {
-        return pullTraceLevel;
+    public TraceLevel getProvisioningTraceLevel() {
+        return provisioningTraceLevel;
     }
 
     @Override
-    public void setPullTraceLevel(final TraceLevel pullTraceLevel) {
-        this.pullTraceLevel = pullTraceLevel;
+    public void setProvisioningTraceLevel(final TraceLevel provisioningTraceLevel) {
+        this.provisioningTraceLevel = provisioningTraceLevel;
     }
 
     @Override

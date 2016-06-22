@@ -51,8 +51,8 @@ public interface ProvisioningTask extends SchedTask {
 
     void setPerformUpdate(boolean performUpdate);
 
-    boolean isPullStatus();
+    boolean isSyncStatus();
 
-    void setPullStatus(boolean pullStatus);
+    void setSyncStatus(boolean syncStatus);
 
 }

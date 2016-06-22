@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformer;
@@ -229,6 +230,17 @@ public final class MappingUtils {
         // -------------------------------------
 
         return builder.build();
+    }
+
+    /**
+     * Build options for requesting connector attributes for the given orgUnit.
+     *
+     * @param orgUnit orgUnit
+     * @return options for requesting connector attributes for the given orgUnit
+     * @see OperationOptions
+     */
+    public static OperationOptions buildOperationOptions(final OrgUnit orgUnit) {
+        return new OperationOptionsBuilder().setAttributesToGet(Name.NAME, Uid.NAME, orgUnit.getExtAttrName()).build();
     }
 
     /**

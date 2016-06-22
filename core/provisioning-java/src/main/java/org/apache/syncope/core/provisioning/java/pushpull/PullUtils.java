@@ -325,7 +325,7 @@ public class PullUtils {
 
     public Boolean readEnabled(final ConnectorObject connectorObject, final ProvisioningTask task) {
         Boolean enabled = null;
-        if (task.isPullStatus()) {
+        if (task.isSyncStatus()) {
             Attribute status = AttributeUtil.find(OperationalAttributes.ENABLE_NAME, connectorObject.getAttributes());
             if (status != null && status.getValue() != null && !status.getValue().isEmpty()) {
                 enabled = (Boolean) status.getValue().get(0);

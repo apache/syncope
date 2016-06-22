@@ -405,7 +405,7 @@ public class MigrationITCase extends AbstractTaskITCase {
         task.setName(PULL_TASK_NAME);
         task.setResource(RESOURCE_KEY);
         task.setPerformCreate(true);
-        task.setPullStatus(true);
+        task.setSyncStatus(true);
         task.setPullMode(PullMode.FULL_RECONCILIATION);
         task.setDestinationRealm("/" + MIGRATION_REALM);
         task.getActionsClassNames().add(MigrationPullActions.class.getName());

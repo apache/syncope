@@ -35,10 +35,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.rest.api.service.RealmService;
@@ -205,64 +202,29 @@ public class RealmITCase extends AbstractITCase {
 
     @Test
     public void propagate() {
-        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
-        ConnInstanceTO ldapConn = null;
-        try {
-            // 0. setup the LDAP resource for organizations
-            OrgUnitTO orgUnit = new OrgUnitTO();
-            orgUnit.setConnObjectLink("'ou=' + name + ',o=isp'");
-            orgUnit.setExtAttrName("ou");
-            orgUnit.setObjectClass("organizationalUnit");
+        // 1. create realm and add the LDAP resource
+        RealmTO realm = new RealmTO();
+        realm.setName("test");
+        realm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
 
-            ldap.setOrgUnit(orgUnit);
-            resourceService.update(ldap);
+        // 2. check propagation
+        ProvisioningResult<RealmTO> result =
+                realmService.create("/", realm).readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
+        });
+        assertNotNull(result);
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(RESOURCE_NAME_LDAP_ORGUNIT, result.getPropagationStatuses().get(0).getResource());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
-            ldap = resourceService.read(RESOURCE_NAME_LDAP);
-            assertNotNull(ldap.getOrgUnit());
+        realm = result.getEntity();
 
-            // 1. setup the LDAP connector
-            ldapConn = connectorService.read(ldap.getConnector(), null);
-            ldapConn.getConfMap().get("uidAttribute").getValues().clear();
-            ldapConn.getConfMap().get("baseContexts").getValues().clear();
-            ldapConn.getConfMap().get("baseContexts").getValues().add("o=isp");
-            connectorService.update(ldapConn);
+        // 3. check on LDAP
+        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=test,o=isp"));
 
-            // 2. create realm and add the LDAP resource
-            RealmTO realm = new RealmTO();
-            realm.setName("test");
-            realm.getResources().add(RESOURCE_NAME_LDAP);
+        // 4. remove realm
+        realmService.delete(realm.getFullPath());
 
-            // 3. check propagation
-            ProvisioningResult<RealmTO> result =
-                    realmService.create("/", realm).readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
-            });
-            assertNotNull(result);
-            assertEquals(1, result.getPropagationStatuses().size());
-            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-            assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-
-            realm = result.getEntity();
-
-            // 4. check on LDAP
-            assertNotNull(getLdapRemoteObject("uid=admin,ou=system", "secret", "ou=test,o=isp"));
-
-            // 5. remove realm
-            realmService.delete(realm.getFullPath());
-
-            // 6. check on LDAP
-            assertNull(getLdapRemoteObject("uid=admin,ou=system", "secret", "ou=test,o=isp"));
-        } finally {
-            ldap.setOrgUnit(null);
-            resourceService.update(ldap);
-
-            if (ldapConn != null) {
-                ldapConn.getConfMap().get("uidAttribute").getValues().add("cn");
-                ldapConn.getConfMap().get("baseContexts").getValues().clear();
-                ldapConn.getConfMap().get("baseContexts").getValues().add("ou=people,o=isp");
-                ldapConn.getConfMap().get("baseContexts").getValues().add("ou=groups,o=isp");
-
-                connectorService.update(ldapConn);
-            }
-        }
+        // 5. check on LDAP
+        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=test,o=isp"));
     }
 }

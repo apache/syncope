@@ -222,7 +222,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
         assertNotNull(findComponentByProp("resourceName", tabPanel + "outerObjectsRepeater:1:outer:"
-                + "form:content:status:secondLevelContainer:second:container:selectedObjects", "ws-target-resource-1"));
+                + "form:content:status:secondLevelContainer:second:container:selectedObjects", "resource-testdb2"));
     }
 
     @Test
@@ -267,7 +267,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
         assertNotNull(findComponentByProp("resourceName", tabPanel + "outerObjectsRepeater:1:outer:"
-                + "form:content:status:secondLevelContainer:second:container:selectedObjects", "ws-target-resource-1"));
+                + "form:content:status:secondLevelContainer:second:container:selectedObjects", "resource-testdb2"));
     }
 
     @Test

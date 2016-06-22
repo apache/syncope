@@ -192,7 +192,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         task.setPerformCreate(taskTO.isPerformCreate());
         task.setPerformUpdate(taskTO.isPerformUpdate());
         task.setPerformDelete(taskTO.isPerformDelete());
-        task.setPullStatus(taskTO.isPullStatus());
+        task.setSyncStatus(taskTO.isSyncStatus());
         task.getActionsClassNames().clear();
         task.getActionsClassNames().addAll(taskTO.getActionsClassNames());
     }

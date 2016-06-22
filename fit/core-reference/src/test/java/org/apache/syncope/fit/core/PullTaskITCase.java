@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +57,7 @@ import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -591,6 +593,39 @@ public class PullTaskITCase extends AbstractTaskITCase {
             jdbcTemplate.execute("DELETE FROM testpull WHERE ID=1040");
             jdbcTemplate.execute("DELETE FROM testpull WHERE ID=1041");
         }
+    }
+
+    @Test
+    public void orgUnit() {
+        // 0. initial realms
+        List<RealmTO> realms = realmService.list("/odd");
+        int pre = realms.size();
+
+        // 1. create task for pulling org units
+        PullTaskTO pullTask = new PullTaskTO();
+        pullTask.setActive(true);
+        pullTask.setName("For orgUnit");
+        pullTask.setResource(RESOURCE_NAME_LDAP_ORGUNIT);
+        pullTask.setDestinationRealm("/odd");
+        pullTask.setPullMode(PullMode.FULL_RECONCILIATION);
+        pullTask.setPerformCreate(true);
+        pullTask.setPerformUpdate(true);
+        pullTask.setPerformDelete(true);
+
+        Response response = taskService.create(pullTask);
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+            throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
+        }
+        pullTask = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
+        assertNotNull(pullTask);
+
+        ExecTO exec = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+
+        // 2. check
+        realms = realmService.list("/odd");
+        int post = realms.size();
+        assertEquals(pre + 2, post);
     }
 
     @Test

@@ -198,6 +198,9 @@ public class MigrateConf {
                         break;
 
                     case "cschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("PlainSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -225,6 +228,9 @@ public class MigrateConf {
                         break;
 
                     case "uschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("PlainSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -233,6 +239,9 @@ public class MigrateConf {
                         break;
 
                     case "uderschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("DerSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -248,6 +257,9 @@ public class MigrateConf {
                         break;
 
                     case "rschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("PlainSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -256,6 +268,9 @@ public class MigrateConf {
                         break;
 
                     case "rderschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("DerSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -271,6 +286,9 @@ public class MigrateConf {
                         break;
 
                     case "mschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("PlainSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -279,6 +297,9 @@ public class MigrateConf {
                         break;
 
                     case "mderschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("DerSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -421,7 +442,7 @@ public class MigrateConf {
                         writer.writeAttribute(
                                 "connector_id", connInstances.get(getAttributeValue(reader, "connector_id")));
 
-                        writer.writeAttribute("pullTraceLevel", getAttributeValue(reader, "syncTraceLevel"));
+                        writer.writeAttribute("provisioningTraceLevel", getAttributeValue(reader, "syncTraceLevel"));
 
                         String syncPolicyKey = policies.get(getAttributeValue(reader, "syncPolicy_id"));
                         if (StringUtils.isNotBlank(syncPolicyKey)) {
@@ -612,7 +633,7 @@ public class MigrateConf {
 
                             case "SyncTask":
                                 writer.writeAttribute("DTYPE", "PullTask");
-                                writer.writeAttribute("pullStatus", getAttributeValue(reader, "syncStatus"));
+                                writer.writeAttribute("syncStatus", getAttributeValue(reader, "syncStatus"));
 
                                 String fullReconciliation = getAttributeValue(reader, "fullReconciliation");
                                 if ("1".equals(fullReconciliation)) {

@@ -125,8 +125,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             }
         };
 
-        private final IModel<List<String>> reconciliationFilterBuilderClasses
-                = new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> reconciliationFilterBuilderClasses =
+                new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -280,9 +280,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
                     "performDelete", "performDelete", new PropertyModel<Boolean>(taskTO, "performDelete"), false);
             provisioningTaskSpecifics.add(performDelete);
 
-            AjaxCheckBoxPanel pullStatus = new AjaxCheckBoxPanel(
-                    "pullStatus", "pullStatus", new PropertyModel<Boolean>(taskTO, "pullStatus"), false);
-            provisioningTaskSpecifics.add(pullStatus);
+            AjaxCheckBoxPanel syncStatus = new AjaxCheckBoxPanel(
+                    "syncStatus", "syncStatus", new PropertyModel<Boolean>(taskTO, "syncStatus"), false);
+            provisioningTaskSpecifics.add(syncStatus);
         }
     }
 

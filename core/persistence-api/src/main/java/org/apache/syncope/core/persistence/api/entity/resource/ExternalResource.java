@@ -71,9 +71,9 @@ public interface ExternalResource extends ProvidedKeyEntity {
 
     void setDeleteTraceLevel(TraceLevel deleteTraceLevel);
 
-    TraceLevel getPullTraceLevel();
+    TraceLevel getProvisioningTraceLevel();
 
-    void setPullTraceLevel(TraceLevel pullTraceLevel);
+    void setProvisioningTraceLevel(TraceLevel provisioningTraceLevel);
 
     List<String> getPropagationActionsClassNames();
 
