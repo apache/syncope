@@ -44,23 +44,23 @@ public class BulkActionITCase extends AbstractConsoleITCase {
 
     @Test
     public void usersBulkAction() {
-        wicketTester.clickLink("body:realmsLI:realms");
-        wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", searchResultContainer
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        FormTester formTester = wicketTester.newFormTester(searchResultContainer
+        FormTester formTester = TESTER.newFormTester(searchResultContainer
                 + "searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 2);
 
-        wicketTester.executeAjaxEvent(searchResultContainer + "searchContainer:resultTable:tablePanel:bulkActionLink",
+        TESTER.executeAjaxEvent(searchResultContainer + "searchContainer:resultTable:tablePanel:bulkActionLink",
                 Constants.ON_CLICK);
 
-        wicketTester.assertComponent(searchResultContainer
+        TESTER.assertComponent(searchResultContainer
                 + "searchContainer:resultTable:bulkModal:form:content:content:container", WebMarkupContainer.class);
 
         assertNotNull(findComponentByProp("username", searchResultContainer
@@ -69,17 +69,17 @@ public class BulkActionITCase extends AbstractConsoleITCase {
 
     @Test
     public void userResourceBulkAction() {
-        wicketTester.clickLink("body:realmsLI:realms");
-        wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        wicketTester.clickLink(component.getPageRelativePath()
+        TESTER.clickLink(component.getPageRelativePath()
                 + ":cells:6:cell:panelManageResources:manageResourcesLink");
 
-        wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
@@ -89,18 +89,18 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "checkgroup:dataTable", "resource-csv");
         assertNotNull(component);
 
-        FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 2);
 
-        wicketTester.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
                 Constants.ON_CLICK);
 
-        wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
         assertNotNull(findComponentByProp("resourceName", tabPanel + "outerObjectsRepeater:1:outer:"
@@ -111,93 +111,93 @@ public class BulkActionITCase extends AbstractConsoleITCase {
     public void userStatusBulkAction() {
         // suspend 
 
-        wicketTester.clickLink("body:realmsLI:realms");
-        wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        wicketTester.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEnable:enableLink");
+        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEnable:enableLink");
 
-        wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
-        FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 2);
 
-        wicketTester.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
                 Constants.ON_CLICK);
 
-        wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
-        wicketTester.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:"
+        TESTER.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:"
                 + "status:secondLevelContainer:second:container:actions:panelSuspend:suspendLink",
                 Constants.ON_CLICK);
 
-        wicketTester.assertLabel(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.assertLabel(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:3:cell", "SUCCESS");
 
         // re-activate
-        wicketTester.clickLink("body:realmsLI:realms");
-        wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
 
         component = findComponentByProp("username", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        wicketTester.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEnable:enableLink");
+        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEnable:enableLink");
 
-        wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
-        formTester = wicketTester.newFormTester(
+        formTester = TESTER.newFormTester(
                 tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 2);
 
-        wicketTester.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
                 Constants.ON_CLICK);
 
-        wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
-        wicketTester.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:"
+        TESTER.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:"
                 + "status:secondLevelContainer:second:container:actions:panelReactivate:reactivateLink",
                 Constants.ON_CLICK);
 
-        wicketTester.assertLabel(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.assertLabel(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:3:cell", "SUCCESS");
     }
 
     @Test
     public void groupResourceBulkAction() {
-        wicketTester.clickLink("body:realmsLI:realms");
-        wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
         assertNotNull(component);
 
-        wicketTester.clickLink(component.getPageRelativePath()
+        TESTER.clickLink(component.getPageRelativePath()
                 + ":cells:4:cell:panelManageResources:manageResourcesLink");
 
-        wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
-        wicketTester.clickLink(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:first:"
+        TESTER.clickLink(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:first:"
                 + "container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
                 + "toolbars:1:headers:2:header:orderByLink", true);
 
@@ -207,18 +207,18 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "checkgroup:dataTable", "ws-target-resource-1");
         assertNotNull(component);
 
-        FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 7);
 
-        wicketTester.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
                 Constants.ON_CLICK);
 
-        wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
         assertNotNull(findComponentByProp("resourceName", tabPanel + "outerObjectsRepeater:1:outer:"
@@ -227,22 +227,22 @@ public class BulkActionITCase extends AbstractConsoleITCase {
 
     @Test
     public void printerResourceBulkAction() {
-        wicketTester.clickLink("body:realmsLI:realms");
-        wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
 
         Component component = findComponentByProp("key", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        wicketTester.clickLink(component.getPageRelativePath()
+        TESTER.clickLink(component.getPageRelativePath()
                 + ":cells:4:cell:panelManageResources:manageResourcesLink");
 
-        wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
-        wicketTester.clickLink(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:first:"
+        TESTER.clickLink(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:first:"
                 + "container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
                 + "toolbars:1:headers:2:header:orderByLink", true);
 
@@ -252,18 +252,18 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "checkgroup:dataTable", "ws-target-resource-1");
         assertNotNull(component);
 
-        FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 7);
 
-        wicketTester.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
                 Constants.ON_CLICK);
 
-        wicketTester.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
+        TESTER.assertComponent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
         assertNotNull(findComponentByProp("resourceName", tabPanel + "outerObjectsRepeater:1:outer:"
@@ -272,25 +272,25 @@ public class BulkActionITCase extends AbstractConsoleITCase {
 
     @Test
     public void executePropagationTask() {
-        wicketTester.clickLink("body:topologyLI:topology");
+        TESTER.clickLink("body:topologyLI:topology");
 
         Component component = findComponentByProp("key", "body:resources", "resource-testdb");
         assertNotNull(component);
-        wicketTester.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
-        wicketTester.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:propagation");
+        TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:propagation");
 
-        FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 0);
 
-        wicketTester.executeAjaxEvent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
+        TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
                 Constants.ON_CLICK);
 
-        wicketTester.assertComponent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:secondLevelContainer:"
+        TESTER.assertComponent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:secondLevelContainer:"
                 + "second:container:selectedObjects:body:rows:1:cells:1:cell", Label.class);
     }
 }

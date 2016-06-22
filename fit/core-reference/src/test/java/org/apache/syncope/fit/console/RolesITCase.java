@@ -34,34 +34,34 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class RolesITCase extends AbstractConsoleITCase {
 
+    @Before
+    public void login() {
+        doLogin(ADMIN_UNAME, ADMIN_PWD);
+        TESTER.clickLink("body:configurationLI:configurationUL:rolesLI:roles");
+        TESTER.assertRenderedPage(Roles.class);
+    }
+
     private void createRole(final String name) {
-        wicketTester.clickLink("body:content:rolesPanel:container:content:add");
+        TESTER.clickLink("body:content:rolesPanel:container:content:add");
 
-        wicketTester.assertComponent("body:content:rolesPanel:outerObjectsRepeater:0:outer", Modal.class);
+        TESTER.assertComponent("body:content:rolesPanel:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
+        FormTester formTester = TESTER.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:key:textField", name);
         formTester.submit("content:form:buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
+        formTester = TESTER.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:entitlements:paletteField:recorder",
                 "WORKFLOW_DEF_READ,NOTIFICATION_UPDATE,RELATIONSHIPTYPE_READ,RELATIONSHIPTYPE_LIST");
         formTester.submit("content:form:buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
+        formTester = TESTER.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
-        wicketTester.clickLink("body:configurationLI:configurationUL:rolesLI:roles");
-    }
-
-    @Before
-    public void login() {
-        doLogin(ADMIN_UNAME, ADMIN_PWD);
-        wicketTester.clickLink("body:configurationLI:configurationUL:rolesLI:roles");
-        wicketTester.assertRenderedPage(Roles.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:rolesLI:roles");
     }
 
     @Test
@@ -69,10 +69,10 @@ public class RolesITCase extends AbstractConsoleITCase {
         assertNull(findComponentByProp(KEY, "body:content:rolesPanel:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "OTHER"));
 
-        wicketTester.clickLink("body:content:rolesPanel:container:content:searchContainer:resultTable:tablePanel:"
+        TESTER.clickLink("body:content:rolesPanel:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable:body:rows:1:cells:4:cell:panelMembers:membersLink");
 
-        wicketTester.assertModelValue(
+        TESTER.assertModelValue(
                 "body:content:rolesPanel:outerObjectsRepeater:4:outer:dialog:header:header-label",
                 "Role 'Other' members");
 
@@ -80,7 +80,7 @@ public class RolesITCase extends AbstractConsoleITCase {
                 + "content:searchResult:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "rossini"));
 
-        wicketTester.executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:rolesPanel:outerObjectsRepeater:4:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
     }
@@ -96,26 +96,26 @@ public class RolesITCase extends AbstractConsoleITCase {
         Component result = findComponentByProp(KEY, "body:content:rolesPanel:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "updateRole");
 
-        wicketTester.assertLabel(
+        TESTER.assertLabel(
                 result.getPageRelativePath() + ":cells:1:cell", "updateRole");
 
-        wicketTester.clickLink(
+        TESTER.clickLink(
                 result.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
 
-        FormTester formTester = wicketTester.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
+        FormTester formTester = TESTER.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:key:textField", "updateRole");
         formTester.submit("content:form:buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
+        formTester = TESTER.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:entitlements:paletteField:recorder",
                 "WORKFLOW_DEF_READ,NOTIFICATION_UPDATE");
         formTester.submit("content:form:buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
+        formTester = TESTER.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test
@@ -124,19 +124,18 @@ public class RolesITCase extends AbstractConsoleITCase {
         Component result = findComponentByProp(KEY, "body:content:rolesPanel:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "deleteRole");
 
-        wicketTester.assertLabel(
+        TESTER.assertLabel(
                 result.getPageRelativePath() + ":cells:1:cell", "deleteRole");
 
-        wicketTester.getRequest().addParameter("confirm", "true");
-        wicketTester.clickLink(
-                wicketTester.getComponentFromLastRenderedPage(
-                        result.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink"));
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
+                result.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink"));
 
-        wicketTester.executeAjaxEvent(wicketTester.getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"), "onclick");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp(KEY, "body:content:rolesPanel:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "deleteRole"));

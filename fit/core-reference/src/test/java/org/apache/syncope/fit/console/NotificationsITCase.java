@@ -35,12 +35,19 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class NotificationsITCase extends AbstractConsoleITCase {
 
+    @Before
+    public void login() {
+        doLogin(ADMIN_UNAME, ADMIN_PWD);
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.assertRenderedPage(Notifications.class);
+    }
+
     private void createNotification(final String sender, final String subject) {
-        wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        wicketTester.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
 
         formTester.setValue("content:form:view:recipientAttrName:textField", "email");
@@ -49,17 +56,17 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         formTester.setValue("content:form:view:sender:textField", sender);
         formTester.setValue("content:form:view:subject:textField", subject);
 
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
         formTester.submit("content:form:buttons:next");
-        wicketTester.assertNoErrorMessage();
+        TESTER.assertNoErrorMessage();
 
-        formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
 
         // -------------------------------
         // generate event to populate eventsPanel
         // -------------------------------
         formTester.setValue("content:form:view:eventSelection:categoryContainer:category:dropDownChoiceField", "0");
-        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:"
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:"
                 + "content:form:view:eventSelection:categoryContainer:category:dropDownChoiceField",
                 Constants.ON_CHANGE);
         // -------------------------------
@@ -68,7 +75,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         // select event template
         // -------------------------------
         formTester.setValue("content:form:view:eventSelection:eventsContainer:eventsPanel:successGroup", "check0");
-        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:"
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:"
                 + "form:view:eventSelection:eventsContainer:eventsPanel:successGroup",
                 Constants.ON_CLICK);
         // -------------------------------
@@ -76,36 +83,29 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         formTester.setValue("content:form:view:eventSelection:categoryContainer:category:dropDownChoiceField", "0");
         formTester.setValue("content:form:view:eventSelection:eventsContainer:eventsPanel:successGroup", "check0");
 
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
         formTester.submit("content:form:buttons:next");
-        wicketTester.assertNoErrorMessage();
+        TESTER.assertNoErrorMessage();
 
-        formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        wicketTester.cleanupFeedbackMessages();
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        TESTER.cleanupFeedbackMessages();
         formTester.submit("content:form:buttons:next");
-        wicketTester.assertNoErrorMessage();
-        wicketTester.assertNoInfoMessage();
+        TESTER.assertNoErrorMessage();
+        TESTER.assertNoInfoMessage();
 
-        formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        wicketTester.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:form:"
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:form:"
                 + "view:staticRecipients:multiValueContainer:innerForm:content:panelPlus:add", Constants.ON_CLICK);
         formTester.setValue("content:form:view:staticRecipients:multiValueContainer:innerForm:content:view:0:panel:"
                 + "textField", "recipient@syncope.org");
         formTester.setValue("content:form:view:selfAsRecipient:checkboxField", true);
 
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
         formTester.submit("content:form:buttons:finish");
-        wicketTester.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation executed successfully");
 
-        wicketTester.cleanupFeedbackMessages();
-        wicketTester.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
-    }
-
-    @Before
-    public void login() {
-        doLogin(ADMIN_UNAME, ADMIN_PWD);
-        wicketTester.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
-        wicketTester.assertRenderedPage(Notifications.class);
+        TESTER.cleanupFeedbackMessages();
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
     }
 
     @Test
@@ -125,28 +125,28 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         Component result = findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "createToUpdate");
 
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:7:cell:panelEdit:editLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:7:cell:panelEdit:editLink");
 
-        FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test
     public void execute() {
-        wicketTester.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
 
         Component result = findComponentByProp("subject",
                 "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "Password Reset request");
 
-        wicketTester.clickLink(
+        TESTER.clickLink(
                 result.getPageRelativePath() + ":cells:7:cell:panelNotificationTasks:notificationTasksLink");
 
-        wicketTester.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", WebMarkupContainer.class);
 
@@ -154,29 +154,29 @@ public class NotificationsITCase extends AbstractConsoleITCase {
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81");
 
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:8:cell:panelExecute:executeLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:8:cell:panelExecute:executeLink");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
-        wicketTester.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
 
         result = findComponentByProp("subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "Password Reset request");
 
-        wicketTester.clickLink(
+        TESTER.clickLink(
                 result.getPageRelativePath() + ":cells:7:cell:panelNotificationTasks:notificationTasksLink");
 
         result = findComponentByProp("subject", "body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81");
 
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:8:cell:panelView:viewLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:8:cell:panelView:viewLink");
 
-        wicketTester.assertLabel("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:tasks:"
+        TESTER.assertLabel("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:tasks:"
                 + "secondLevelContainer:title", "Notifications with subject &#039;Notification for SYNCOPE-81&#039;");
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:tasks:"
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:tasks:"
                 + "secondLevelContainer:back");
 
         assertNotNull(findComponentByProp("subject", "body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
@@ -190,16 +190,15 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         Component result = findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "createToDelete");
 
-        wicketTester.getRequest().addParameter("confirm", "true");
-        wicketTester.clickLink(
-                wicketTester.getComponentFromLastRenderedPage(
-                        result.getPageRelativePath() + ":cells:7:cell:panelDelete:deleteLink"));
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
+                result.getPageRelativePath() + ":cells:7:cell:panelDelete:deleteLink"));
 
-        wicketTester.executeAjaxEvent(wicketTester.getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 result.getPageRelativePath() + ":cells:7:cell:panelDelete:deleteLink"), Constants.ON_CLICK);
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "createToDelete"));

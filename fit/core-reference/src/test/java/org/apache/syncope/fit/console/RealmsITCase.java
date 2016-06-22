@@ -33,79 +33,79 @@ public class RealmsITCase extends AbstractConsoleITCase {
     @Before
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        wicketTester.clickLink("body:realmsLI:realms");
-        wicketTester.assertRenderedPage(Realms.class);
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.assertRenderedPage(Realms.class);
     }
 
     @Test
     public void read() {
-        wicketTester.assertLabel("body:content:body:tabbedPanel:panel:container:name:field-label", "Name");
+        TESTER.assertLabel("body:content:body:tabbedPanel:panel:container:name:field-label", "Name");
     }
 
     @Test
     public void create() {
-        wicketTester.clickLink("body:content:body:tabbedPanel:panel:actions:actions:panelCreate:createLink");
+        TESTER.clickLink("body:content:body:tabbedPanel:panel:actions:actions:panelCreate:createLink");
 
-        wicketTester.assertComponent("body:content:modal", Modal.class);
+        TESTER.assertComponent("body:content:modal", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:modal:form");
+        FormTester formTester = TESTER.newFormTester("body:content:modal:form");
         formTester.setValue("content:details:container:name:textField", "testRealm");
 
-        wicketTester.clickLink("body:content:modal:dialog:footer:inputs:0:submit");
+        TESTER.clickLink("body:content:modal:dialog:footer:inputs:0:submit");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test
     public void update() {
-        wicketTester.clickLink("body:content:body:tabbedPanel:panel:actions:actions:panelEdit:editLink");
-        wicketTester.assertComponent("body:content:modal", Modal.class);
+        TESTER.clickLink("body:content:body:tabbedPanel:panel:actions:actions:panelEdit:editLink");
+        TESTER.assertComponent("body:content:modal", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:modal:form");
-        wicketTester.clickLink("body:content:modal:dialog:footer:inputs:0:submit");
+        FormTester formTester = TESTER.newFormTester("body:content:modal:form");
+        TESTER.clickLink("body:content:modal:dialog:footer:inputs:0:submit");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test
     public void addUserTemplate() {
-        wicketTester.clickLink("body:content:body:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
-        wicketTester.assertComponent("body:content:toggleTemplates", TogglePanel.class);
+        TESTER.clickLink("body:content:body:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
+        TESTER.assertComponent("body:content:toggleTemplates", TogglePanel.class);
 
-        FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:toggleTemplates:container:content:togglePanelContainer:templatesForm");
         formTester.setValue("type:dropDownChoiceField", "0");
         formTester.submit("changeit");
 
-        wicketTester.assertComponent("body:content:templateModal", Modal.class);
+        TESTER.assertComponent("body:content:templateModal", Modal.class);
 
-        formTester = wicketTester.newFormTester("body:content:templateModal:form:content:form");
+        formTester = TESTER.newFormTester("body:content:templateModal:form:content:form");
         formTester.setValue("view:username:textField", "'k' + firstname");
         formTester.submit("buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
-        wicketTester.clickLink("body:content:body:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
-        wicketTester.assertComponent("body:content:toggleTemplates", TogglePanel.class);
+        TESTER.clickLink("body:content:body:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
+        TESTER.assertComponent("body:content:toggleTemplates", TogglePanel.class);
 
-        formTester = wicketTester.newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:toggleTemplates:container:content:togglePanelContainer:templatesForm");
         formTester.setValue("type:dropDownChoiceField", "0");
         formTester.submit("changeit");
 
-        wicketTester.assertComponent("body:content:templateModal", Modal.class);
+        TESTER.assertComponent("body:content:templateModal", Modal.class);
 
-        wicketTester.assertModelValue("body:content:templateModal:form:content:form:view:username:textField",
+        TESTER.assertModelValue("body:content:templateModal:form:content:form:view:username:textField",
                 "'k' + firstname");
 
-        formTester = wicketTester.newFormTester("body:content:templateModal:form:content:form");
+        formTester = TESTER.newFormTester("body:content:templateModal:form:content:form");
         formTester.setValue("view:username:textField", "");
         formTester.submit("buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
     }
 }

@@ -32,43 +32,43 @@ public class DisplayAttributesITCase extends AbstractConsoleITCase {
     @Before
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        wicketTester.clickLink("body:realmsLI:realms");
-        wicketTester.assertRenderedPage(Realms.class);
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.assertRenderedPage(Realms.class);
     }
 
     @Test
     public void read() {
-        wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
-        wicketTester.clickLink("body:content:body:tabbedPanel:panel:"
+        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:content:body:tabbedPanel:panel:"
                 + "searchResult:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
                 + "toolbars:1:headers:4:header:label:panelChangeView:changeViewLink");
 
-        wicketTester.assertComponent(
+        TESTER.assertComponent(
                 "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer", Modal.class);
     }
 
     @Test
     public void set() {
-        wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
-        wicketTester.clickLink("body:content:body:tabbedPanel:panel:"
+        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:content:body:tabbedPanel:panel:"
                 + "searchResult:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
                 + "toolbars:1:headers:4:header:label:panelChangeView:changeViewLink");
 
-        wicketTester.assertComponent(
+        TESTER.assertComponent(
                 "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester(
+        final FormTester formTester = TESTER.newFormTester(
                 "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer:form");
 
         formTester.setValue("content:container:details:paletteField:recorder", "status");
 
-        wicketTester.clickLink(
+        TESTER.clickLink(
                 "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer:dialog:footer:"
                 + "inputs:0:submit");
-        wicketTester.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation executed successfully");
 
-        wicketTester.clearFeedbackMessages();
+        TESTER.clearFeedbackMessages();
     }
 }
