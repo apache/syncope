@@ -42,7 +42,6 @@ public class ConnectorDetailsPanel extends WizardStep {
     private static final long serialVersionUID = -2435937897614232137L;
 
     public ConnectorDetailsPanel(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
-
         super();
         setOutputMarkupId(true);
 

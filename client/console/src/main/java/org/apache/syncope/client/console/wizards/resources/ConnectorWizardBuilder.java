@@ -70,7 +70,14 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
 
             @Override
             protected Pair<Boolean, String> check(final AjaxRequestTarget target) {
-                return connectorRestClient.check(modelObject);
+                ConnInstanceTO connInstanceTO = ConnInstanceTO.class.cast(modelObject);
+                ConnBundleTO bundleTO = ConnectorWizardBuilder.getBundle(connInstanceTO, bundles);
+
+                connInstanceTO.setConnectorName(bundleTO.getConnectorName());
+                connInstanceTO.setBundleName(bundleTO.getBundleName());
+                connInstanceTO.setVersion(bundleTO.getVersion());
+
+                return connectorRestClient.check(connInstanceTO);
             }
 
             @Override
@@ -86,8 +93,8 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
 
     @Override
     protected Serializable onApplyInternal(final Serializable modelObject) {
-        final ConnInstanceTO connInstanceTO = ConnInstanceTO.class.cast(modelObject);
-        final ConnBundleTO bundleTO = ConnectorWizardBuilder.getBundle(connInstanceTO, bundles);
+        ConnInstanceTO connInstanceTO = ConnInstanceTO.class.cast(modelObject);
+        ConnBundleTO bundleTO = ConnectorWizardBuilder.getBundle(connInstanceTO, bundles);
 
         connInstanceTO.setConnectorName(bundleTO.getConnectorName());
         connInstanceTO.setBundleName(bundleTO.getBundleName());
@@ -104,7 +111,7 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
             connInstanceTO.setPoolConf(null);
         }
 
-        final ConnInstanceTO res;
+        ConnInstanceTO res;
         if (mode == AjaxWizard.Mode.CREATE) {
             res = connectorRestClient.create(connInstanceTO);
         } else {
