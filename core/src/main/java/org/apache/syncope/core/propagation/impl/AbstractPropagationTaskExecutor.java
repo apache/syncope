@@ -30,6 +30,7 @@ import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.PropagationMode;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.TraceLevel;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
@@ -385,7 +386,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 }
             }
 
-            if (afterObj == null && uid != null) {
+            if (task.getPropagationOperation() != ResourceOperation.DELETE && afterObj == null && uid != null) {
                 afterObj = new ConnectorObjectBuilder().
                         setObjectClass(new ObjectClass(task.getObjectClassName())).
                         setUid(uid).
