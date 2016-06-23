@@ -20,7 +20,9 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
@@ -66,6 +68,19 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
                     : StringUtils.isNotBlank(inner.getPassword()));
         } else {
             UserPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
+
+            Set<String> origResourceSet = getOriginalItem().getInnerObject().getResources();
+            Set<String> newResourceSet = new HashSet<>(inner.getResources());
+
+            newResourceSet.removeAll(origResourceSet);
+            for (StatusBean sb : statusModel.getObject()) {
+                newResourceSet.remove(sb.getResourceName());
+            }
+
+            for (String res : newResourceSet) {
+                statusModel.getObject().add(new StatusBean(inner, res));
+            }
+
             if (!statusModel.getObject().isEmpty()) {
                 patch.setPassword(StatusUtils.buildPasswordPatch(inner.getPassword(), statusModel.getObject()));
             }
