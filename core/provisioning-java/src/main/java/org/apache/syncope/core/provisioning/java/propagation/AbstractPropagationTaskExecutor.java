@@ -31,6 +31,7 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -473,7 +474,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 }
             }
 
-            if (afterObj == null && uid != null) {
+            if (task.getOperation() != ResourceOperation.DELETE && afterObj == null && uid != null) {
                 afterObj = new ConnectorObjectBuilder().
                         setObjectClass(new ObjectClass(task.getObjectClassName())).
                         setUid(uid).
