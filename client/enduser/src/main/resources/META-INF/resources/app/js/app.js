@@ -48,7 +48,7 @@ var app = angular.module('SyncopeEnduserApp', [
 app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider',
   function ($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider) {
 
-   $translatePartialLoaderProvider.addPart('static');
+    $translatePartialLoaderProvider.addPart('static');
     $translatePartialLoaderProvider.addPart('dynamic');
     $translateProvider.useLoader('$translatePartialLoader', {
       urlTemplate: 'languages/{lang}/{part}.json'
@@ -111,6 +111,10 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
             .state('create.finish', {
               url: '/finish',
               templateUrl: 'views/user-form-finish.html'
+            })
+            .state('success', {
+              url: '/success',
+              templateUrl: 'views/success.html'
             })
             .state('update', {
               url: '/self/update',
