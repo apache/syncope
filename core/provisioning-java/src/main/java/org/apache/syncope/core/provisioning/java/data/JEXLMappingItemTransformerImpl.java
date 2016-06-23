@@ -27,22 +27,22 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.provisioning.api.data.JEXLMappingItemTransformer;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 
-/**
- * {@link org.apache.syncope.core.provisioning.api.data.MappingItemTransformer} implemeting evaluation of JEXL
- * expression defined for a given {@link MappingItem}.
- */
-public class JEXLMappingItemTransformer extends DefaultMappingItemTransformer {
+public class JEXLMappingItemTransformerImpl
+        extends DefaultMappingItemTransformer implements JEXLMappingItemTransformer {
 
     private String propagationJEXL;
 
     private String pullJEXL;
 
+    @Override
     public void setPropagationJEXL(final String propagationJEXL) {
         this.propagationJEXL = propagationJEXL;
     }
 
+    @Override
     public void setPullJEXL(final String pullJEXL) {
         this.pullJEXL = pullJEXL;
     }
@@ -79,7 +79,6 @@ public class JEXLMappingItemTransformer extends DefaultMappingItemTransformer {
             final List<Object> values) {
 
         if (StringUtils.isNotBlank(pullJEXL) && values != null) {
-
             List<Object> newValues = new ArrayList<>(values.size());
             for (Object value : values) {
                 JexlContext jexlContext = new MapContext();

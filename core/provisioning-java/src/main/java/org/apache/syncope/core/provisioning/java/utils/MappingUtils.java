@@ -34,8 +34,9 @@ import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.data.JEXLMappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
-import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformer;
+import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformerImpl;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Name;
@@ -171,21 +172,15 @@ public final class MappingUtils {
         List<MappingItemTransformer> result = new ArrayList<>();
 
         // First consider the JEXL transformation expressions
-        JEXLMappingItemTransformer jexlTransformer = null;
         if (StringUtils.isNotBlank(mappingItem.getPropagationJEXLTransformer())
                 || StringUtils.isNotBlank(mappingItem.getPullJEXLTransformer())) {
 
-            try {
-                jexlTransformer = (JEXLMappingItemTransformer) ApplicationContextProvider.getBeanFactory().
-                        createBean(JEXLMappingItemTransformer.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+            JEXLMappingItemTransformer jexlTransformer =
+                    (JEXLMappingItemTransformer) ApplicationContextProvider.getBeanFactory().
+                    createBean(JEXLMappingItemTransformerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
 
-                jexlTransformer.setPropagationJEXL(mappingItem.getPropagationJEXLTransformer());
-                jexlTransformer.setPullJEXL(mappingItem.getPullJEXLTransformer());
-            } catch (Exception e) {
-                LOG.error("Could not instantiate {}, ignoring...", JEXLMappingItemTransformer.class.getName(), e);
-            }
-        }
-        if (jexlTransformer != null) {
+            jexlTransformer.setPropagationJEXL(mappingItem.getPropagationJEXLTransformer());
+            jexlTransformer.setPullJEXL(mappingItem.getPullJEXLTransformer());
             result.add(jexlTransformer);
         }
 
