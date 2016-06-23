@@ -54,7 +54,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         formTester.setValue("content:fields:0:field:textField", description);
         formTester.setValue("content:fields:1:field:spinner", "1");
         formTester.setValue("content:fields:2:field:checkboxField", true);
-        formTester.setValue("content:fields:3:field:paletteField:recorder", "resource-csv");
+        formTester.setValue("content:fields:3:field:paletteField:recorder", "ws-target-resource-nopropagation4");
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -81,7 +81,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:2:field:checkboxField", true);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:3:field:paletteField:recorder", "resource-csv");
+                + ":content:fields:3:field:paletteField:recorder", "ws-target-resource-nopropagation4");
 
         TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
