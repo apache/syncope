@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.Predicate;
@@ -33,21 +34,33 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.to.OrgUnitTO;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.event.IEvent;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
@@ -56,6 +69,10 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
     private final ResourceTO resourceTO;
 
+    private Model<OrgUnitTO> baseModel;
+
+    private final WebMarkupContainer aboutRealmProvison;
+
     public ResourceProvisionPanel(
             final BaseModal<Serializable> modal,
             final ResourceTO resourceTO,
@@ -63,7 +80,89 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         super(modal, pageRef);
         this.resourceTO = resourceTO;
 
+        baseModel = Model.of(resourceTO.getOrgUnit() == null ? new OrgUnitTO() : resourceTO.getOrgUnit());
+
         setOutputMarkupId(true);
+
+        // ----------------------------------------------------------------------
+        // Realms provisioning
+        // ----------------------------------------------------------------------
+        aboutRealmProvison = new WebMarkupContainer("aboutRealmProvison");
+        aboutRealmProvison.setOutputMarkupPlaceholderTag(true);
+        add(aboutRealmProvison);
+
+        boolean realmProvisionEnabled = resourceTO.getOrgUnit() != null;
+
+        final AjaxCheckBoxPanel enableRealmsProvision = new AjaxCheckBoxPanel(
+                "enableRealmsProvision",
+                "enableRealmsProvision",
+                Model.of(realmProvisionEnabled),
+                false);
+        aboutRealmProvison.add(enableRealmsProvision);
+
+        final WebMarkupContainer realmsProvisionContainer = new WebMarkupContainer("realmsProvisionContainer");
+        realmsProvisionContainer.setOutputMarkupPlaceholderTag(true);
+        realmsProvisionContainer.setEnabled(realmProvisionEnabled).setVisible(realmProvisionEnabled);
+        aboutRealmProvison.add(realmsProvisionContainer);
+
+        final AjaxTextFieldPanel objectClass = new AjaxTextFieldPanel(
+                "objectClass",
+                getString("objectClass"),
+                new PropertyModel<String>(baseModel.getObject(), "objectClass"),
+                false);
+        realmsProvisionContainer.add(objectClass.addRequiredLabel());
+
+        final AjaxTextFieldPanel extAttrName = new AjaxTextFieldPanel(
+                "extAttrName",
+                getString("extAttrName"),
+                new PropertyModel<String>(baseModel.getObject(), "extAttrName"),
+                false);
+        extAttrName.setChoices(ResourceProvisionPanel.getExtAttrNames(
+                resourceTO.getOrgUnit() == null ? StringUtils.EMPTY : resourceTO.getOrgUnit().getObjectClass(),
+                resourceTO.getConnector(),
+                resourceTO.getConfOverride()));
+        realmsProvisionContainer.add(extAttrName.addRequiredLabel());
+
+        objectClass.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                extAttrName.setChoices(ResourceProvisionPanel.getExtAttrNames(
+                        objectClass.getModelObject(),
+                        resourceTO.getConnector(),
+                        resourceTO.getConfOverride()));
+                target.focusComponent(extAttrName);
+            }
+        });
+
+        final AjaxTextFieldPanel connObjectLink = new AjaxTextFieldPanel(
+                "connObjectLink",
+                new ResourceModel("connObjectLink", "connObjectLink").getObject(),
+                new PropertyModel<String>(baseModel.getObject(), "connObjectLink"),
+                false);
+        realmsProvisionContainer.add(connObjectLink.addRequiredLabel());
+
+        enableRealmsProvision.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                boolean realmProvisionEnabled = enableRealmsProvision.getModelObject();
+                realmsProvisionContainer.setEnabled(realmProvisionEnabled).setVisible(realmProvisionEnabled);
+                target.add(realmsProvisionContainer);
+
+                if (realmProvisionEnabled) {
+                    resourceTO.setOrgUnit(baseModel.getObject());
+                } else {
+                    resourceTO.setOrgUnit(null);
+                }
+
+            }
+        });
+        // ----------------------------------------------------------------------
 
         final ProvisionWizardBuilder wizard = new ProvisionWizardBuilder(resourceTO, pageRef);
 
@@ -87,6 +186,19 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                             }
                         });
             }
+
+            @Override
+            protected void customActionOnCancelCallback(final AjaxRequestTarget target) {
+                ResourceProvisionPanel.this.aboutRealmProvison.setVisible(true);
+                target.add(ResourceProvisionPanel.this.aboutRealmProvison);
+            }
+
+            @Override
+            protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
+                ResourceProvisionPanel.this.aboutRealmProvison.setVisible(true);
+                target.add(ResourceProvisionPanel.this.aboutRealmProvison);
+            }
+
         };
 
         builder.setItems(resourceTO.getProvisions());
@@ -220,5 +332,35 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     getMessage());
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+    }
+
+    protected static List<String> getExtAttrNames(
+            final String objectClass, final String connectorKey, final Set<ConnConfProperty> conf) {
+        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
+        connInstanceTO.setKey(connectorKey);
+        connInstanceTO.getConf().addAll(conf);
+
+        // SYNCOPE-156: use provided info to give schema names (and type!) by ObjectClass
+        ConnIdObjectClassTO connIdObjectClass = IterableUtils.find(new ConnectorRestClient().
+                buildObjectClassInfo(connInstanceTO, false), new Predicate<ConnIdObjectClassTO>() {
+
+            @Override
+            public boolean evaluate(final ConnIdObjectClassTO object) {
+                return object.getType().equalsIgnoreCase(objectClass);
+            }
+        });
+
+        return connIdObjectClass == null ? new ArrayList<String>() : connIdObjectClass.getAttributes();
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+
+        if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent) {
+            aboutRealmProvison.setVisible(false);
+            ((AjaxWizard.NewItemEvent) event.getPayload()).getTarget().add(aboutRealmProvison);
+        }
+
+        super.onEvent(event);
     }
 }

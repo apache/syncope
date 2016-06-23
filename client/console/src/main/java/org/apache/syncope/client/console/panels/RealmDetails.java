@@ -22,16 +22,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
+import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -110,15 +115,18 @@ public class RealmDetails extends Panel {
         container.setRenderBodyOnly(unwrapped);
         add(container);
 
+        final WebMarkupContainer generics = new WebMarkupContainer("generics");
+        container.add(generics.setVisible(unwrapped));
+
         FieldPanel<String> name = new AjaxTextFieldPanel(
                 "name", "name", new PropertyModel<String>(realmTO, "name"), false);
         name.addRequiredLabel();
-        container.add(name);
+        generics.add(name);
 
         FieldPanel<String> fullPath = new AjaxTextFieldPanel(
                 "fullPath", "fullPath", new PropertyModel<String>(realmTO, "fullPath"), false);
         fullPath.setEnabled(false);
-        container.add(fullPath);
+        generics.add(fullPath);
 
         AjaxDropDownChoicePanel<String> accountPolicy = new AjaxDropDownChoicePanel<>(
                 "accountPolicy",
@@ -147,6 +155,14 @@ public class RealmDetails extends Panel {
                         new ListModel<>(logicActionsClasses.getObject()));
         actionsClassNames.setOutputMarkupId(true);
         container.add(actionsClassNames);
+
+        container.add(new AjaxPalettePanel.Builder<String>().build("resources",
+                new PropertyModel<List<String>>(realmTO, "resources"),
+                new ListModel<>(CollectionUtils.collect(new ResourceRestClient().list(),
+                        EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>()))).
+                setOutputMarkupId(true).
+                setEnabled(!SyncopeConstants.ROOT_REALM.equals(realmTO.getName())).
+                setVisible(!SyncopeConstants.ROOT_REALM.equals(realmTO.getName())));
 
         if (actions == null) {
             add(new Fragment("actions", "emptyFragment", this).setRenderBodyOnly(true));

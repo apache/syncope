@@ -33,14 +33,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
-import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -52,8 +49,6 @@ import org.apache.syncope.client.console.widgets.MappingItemTransformerWidget;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
@@ -61,7 +56,6 @@ import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -120,11 +114,6 @@ public class ResourceMappingPanel extends Panel {
      * Any type class rest client.
      */
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
-
-    /**
-     * ConnInstance rest client.
-     */
-    private final ConnectorRestClient connRestClient = new ConnectorRestClient();
 
     private final Label passwordLabel;
 
@@ -284,7 +273,10 @@ public class ResourceMappingPanel extends Panel {
                         "extAttrName",
                         getString("extAttrName"),
                         new PropertyModel<String>(mapItem, "extAttrName"));
-                extAttrName.setChoices(getExtAttrNames(resourceTO.getConnector(), resourceTO.getConfOverride()));
+                extAttrName.setChoices(ResourceProvisionPanel.getExtAttrNames(
+                        ResourceMappingPanel.this.provisionTO.getObjectClass(),
+                        resourceTO.getConnector(),
+                        resourceTO.getConfOverride()));
 
                 boolean required = !mapItem.isPassword();
                 extAttrName.setRequired(required).hideLabel();
@@ -461,26 +453,6 @@ public class ResourceMappingPanel extends Panel {
     protected void onBeforeRender() {
         super.onBeforeRender();
         passwordLabel.setVisible(AnyTypeKind.USER.name().equals(this.provisionTO.getAnyType()));
-    }
-
-    private List<String> getExtAttrNames(final String connectorKey, final Set<ConnConfProperty> conf) {
-        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setKey(connectorKey);
-        connInstanceTO.getConf().addAll(conf);
-
-        // SYNCOPE-156: use provided info to give schema names (and type!) by ObjectClass
-        ConnIdObjectClassTO connIdObjectClass = IterableUtils.find(
-                connRestClient.buildObjectClassInfo(connInstanceTO, false), new Predicate<ConnIdObjectClassTO>() {
-
-            @Override
-            public boolean evaluate(final ConnIdObjectClassTO object) {
-                return object.getType().equalsIgnoreCase(ResourceMappingPanel.this.provisionTO.getObjectClass());
-            }
-        });
-
-        return connIdObjectClass == null
-                ? new ArrayList<String>()
-                : connIdObjectClass.getAttributes();
     }
 
     /**

@@ -292,7 +292,7 @@ public abstract class DirectoryPanel<
     }
 
     @Override
-    protected void customActionOnCloseCallback(final AjaxRequestTarget target) {
+    protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
         final EventDataWrapper data = new EventDataWrapper();
         data.setTarget(target);
         data.setRows(rows);

@@ -34,7 +34,7 @@ import org.junit.Before;
 @FixMethodOrder(MethodSorters.JVM)
 public class GroupsITCase extends AbstractConsoleITCase {
 
-    private final String tabPanel = "body:content:body:tabbedPanel:panel:searchResult:";
+    private final String tabPanel = "body:content:body:container:content:tabbedPanel:panel:searchResult:";
 
     private final String searchResultContainer = tabPanel + "container:content:";
 
@@ -46,7 +46,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
     @Test
     public void read() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "artDirector");
@@ -54,42 +54,43 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
         TESTER.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelMembers:membersLink");
 
-        FormTester formTester = TESTER.newFormTester("body:content:body:tabbedPanel:panel:searchResult:"
-                + "outerObjectsRepeater:6:outer:container:content:togglePanelContainer:membersForm");
+        FormTester formTester = TESTER.newFormTester("body:content:body:container:content:tabbedPanel:panel:"
+                + "searchResult:outerObjectsRepeater:6:outer:container:content:togglePanelContainer:membersForm");
 
         formTester.select("type:dropDownChoiceField", 0);
         formTester.submit("changeit");
 
-        TESTER.assertModelValue("body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:5:outer:"
-                + "dialog:header:header-label", "USER members of artDirector");
+        TESTER.assertModelValue("body:content:body:container:content:tabbedPanel:panel:searchResult:"
+                + "outerObjectsRepeater:5:outer:dialog:header:header-label", "USER members of artDirector");
 
-        assertNotNull(findComponentByProp("username", "body:content:body:tabbedPanel:panel:searchResult:"
-                + "outerObjectsRepeater:5:outer:form:content:searchResult:container:content:searchContainer:"
-                + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini"));
+        assertNotNull(findComponentByProp("username", "body:content:body:container:content:tabbedPanel:panel:"
+                + "searchResult:outerObjectsRepeater:5:outer:form:content:searchResult:container:content:"
+                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini"));
 
-        TESTER.executeAjaxEvent("body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:5:"
-                + "outer:dialog:footer:buttons:0:button", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:body:container:content:tabbedPanel:panel:searchResult:"
+                + "outerObjectsRepeater:5:outer:dialog:footer:buttons:0:button", Constants.ON_CLICK);
     }
 
     @Test
     public void filteredSearch() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
-        TESTER.clickLink("body:content:body:tabbedPanel:panel:accordionPanel:tabs:0:title");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:title");
 
-        TESTER.executeAjaxEvent("body:content:body:tabbedPanel:panel:accordionPanel:tabs:0:body:content:"
-                + "searchFormContainer:search:multiValueContainer:innerForm:content:panelPlus:add", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:"
+                + "content:searchFormContainer:search:multiValueContainer:innerForm:content:panelPlus:add",
+                Constants.ON_CLICK);
 
-        TESTER.assertComponent(
-                "body:content:body:tabbedPanel:panel:accordionPanel:tabs:0:body:content:searchFormContainer:search:"
-                + "multiValueContainer:innerForm:content:view:0:panel:container:value:textField", TextField.class);
+        TESTER.assertComponent("body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:"
+                + "content:searchFormContainer:search:multiValueContainer:innerForm:content:view:0:panel:container:"
+                + "value:textField", TextField.class);
     }
 
     @Test
     public void clickToCloneGroup() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
@@ -109,7 +110,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
     @Test
     public void editGroup() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
@@ -169,7 +170,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
     @Test
     public void checkDeleteGroupLink() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");

@@ -211,6 +211,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                 } else {
                     container.addOrReplace(initialFragment);
                 }
+                customActionOnCancelCallback(target);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -238,7 +239,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                 } else {
                     container.addOrReplace(initialFragment);
                 }
-                customActionOnCloseCallback(target);
+                customActionOnFinishCallback(target);
             }
 
             if (containerAutoRefresh) {
@@ -337,7 +338,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
      *
      * @param modal target modal.
      */
-    protected final void setWindowClosedReloadCallback(final BaseModal<?> modal) {
+    protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
@@ -350,11 +351,19 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     }
 
     /**
-     * Custom action to perform on close callback.
+     * Custom action to perform on close callback on finish event.
      *
      * @param target Ajax request target.
      */
-    protected void customActionOnCloseCallback(final AjaxRequestTarget target) {
+    protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
+    }
+
+    /**
+     * Custom action to perform on close callback on cancel event.
+     *
+     * @param target Ajax request target.
+     */
+    protected void customActionOnCancelCallback(final AjaxRequestTarget target) {
     }
 
     /**

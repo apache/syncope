@@ -38,23 +38,23 @@ public class DisplayAttributesITCase extends AbstractConsoleITCase {
 
     @Test
     public void readAndSet() {
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
-        TESTER.clickLink("body:content:body:tabbedPanel:panel:"
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:"
                 + "searchResult:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
                 + "toolbars:1:headers:4:header:label:panelChangeView:changeViewLink");
 
         TESTER.assertComponent(
-                "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer", Modal.class);
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer",
+                Modal.class);
 
         FormTester formTester = TESTER.newFormTester(
-                "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer:form");
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer:form");
 
         formTester.setValue("content:container:details:paletteField:recorder", "status");
 
-        TESTER.clickLink(
-                "body:content:body:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer:dialog:footer:"
-                + "inputs:0:submit");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
+                + "2:outer:dialog:footer:inputs:0:submit");
         TESTER.assertInfoMessages("Operation executed successfully");
 
         TESTER.clearFeedbackMessages();

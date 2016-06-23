@@ -172,7 +172,7 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
                                     });
                                     restClient.updatePolicy(actual);
                                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    customActionOnCloseCallback(target);
+                                    customActionOnFinishCallback(target);
                                 } catch (SyncopeClientException e) {
                                     LOG.error("While deleting {}", rule.getName(), e);
                                     SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
@@ -196,7 +196,7 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
                     @Override
                     public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
                         if (target != null) {
-                            customActionOnCloseCallback(target);
+                            customActionOnFinishCallback(target);
                         }
                     }
                 }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);

@@ -27,6 +27,8 @@ import org.apache.wicket.model.Model;
 
 public final class Constants {
 
+    public static final String SYNCOPE = "syncope";
+
     public static final String ON_CLICK = "click";
 
     public static final String ON_CHANGE = "change";

@@ -24,7 +24,6 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.Realm;
-import org.apache.syncope.client.console.panels.RealmModalPanel;
 import org.apache.syncope.client.console.panels.RealmChoicePanel;
 import org.apache.syncope.client.console.panels.RealmChoicePanel.ChosenRealm;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
@@ -32,20 +31,19 @@ import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.tasks.TemplatesTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Realms extends BasePage {
@@ -175,7 +173,7 @@ public class Realms extends BasePage {
         if (realmTO == null) {
             return content;
         }
-        content.addOrReplace(new Realm("body", realmTO, getPageReference(), selectedIndex) {
+        content.addOrReplace(new Realm("body", realmTO, Realms.this.getPageReference(), selectedIndex) {
 
             private static final long serialVersionUID = 8221398624379357183L;
 
@@ -186,42 +184,48 @@ public class Realms extends BasePage {
             }
 
             @Override
+            protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
+                modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+                    private static final long serialVersionUID = 8804221891699487139L;
+
+                    @Override
+                    public void onClose(final AjaxRequestTarget target) {
+                        target.add(realmChoicePanel.reloadRealmTree(target));
+
+                        if (modal.getContent() instanceof ResultPage) {
+                            updateRealmContent(RealmTO.class.cast(
+                                    ResultPage.class.cast(modal.getContent()).getItem()), selectedIndex);
+                            target.add(content);
+                        }
+
+                        modal.show(false);
+                    }
+                });
+            }
+
+            @Override
             protected void onClickCreate(final AjaxRequestTarget target) {
-                modal.header(new ResourceModel("newRealm"));
+                this.wizardBuilder.setParentPath(realmChoicePanel.getCurrentRealm().getFullPath());
+                send(this, Broadcast.EXACT, new AjaxWizard.NewItemActionEvent<RealmTO>(new RealmTO(), target) {
 
-                RealmTO newRealmTO = new RealmTO();
-                modal.setFormModel(newRealmTO);
-
-                RealmModalPanel panel = new RealmModalPanel(
-                        modal,
-                        Realms.this.getPageReference(),
-                        newRealmTO,
-                        realmChoicePanel.getCurrentRealm().getFullPath(),
-                        StandardEntitlement.REALM_CREATE,
-                        true);
-                target.add(modal.setContent(panel));
-
-                modal.addSubmitButton();
-                modal.show(true);
+                    @Override
+                    public String getEventDescription() {
+                        return "realm.new";
+                    }
+                });
             }
 
             @Override
             protected void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO) {
-                modal.header(new StringResourceModel("editRealm", Model.of(realmTO)));
+                this.wizardBuilder.setParentPath(realmTO.getFullPath());
+                send(this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<RealmTO>(realmTO, target) {
 
-                modal.setFormModel(realmTO);
-
-                RealmModalPanel panel = new RealmModalPanel(
-                        modal,
-                        Realms.this.getPageReference(),
-                        realmTO,
-                        realmTO.getFullPath(),
-                        StandardEntitlement.REALM_UPDATE,
-                        false);
-                target.add(modal.setContent(panel));
-
-                modal.addSubmitButton();
-                modal.show(true);
+                    @Override
+                    public String getEventDescription() {
+                        return "realm.edit";
+                    }
+                });
             }
 
             @Override
@@ -242,7 +246,7 @@ public class Realms extends BasePage {
                     // Escape line breaks
                     SyncopeConsoleSession.get().error(e.getMessage().replace("\n", " "));
                 }
-                ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                ((BasePage) Realms.this.getPage()).getNotificationPanel().refresh(target);
             }
         });
         return content;

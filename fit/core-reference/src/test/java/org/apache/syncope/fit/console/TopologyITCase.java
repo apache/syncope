@@ -20,6 +20,7 @@ package org.apache.syncope.fit.console;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -112,10 +113,41 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
         TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:provision");
 
+        // ------------------------------------------
+        // Check for realm provisioning feature availability (SYNCOPE-874)
+        // ------------------------------------------
+        FormTester formTester = TESTER.newFormTester("body:toggle:outerObjectsRepeater:3:outer:form");
+        formTester.setValue("content:aboutRealmProvison:enableRealmsProvision:checkboxField", true);
+
+        TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:3:outer:form:content:aboutRealmProvison:"
+                + "enableRealmsProvision:checkboxField", Constants.ON_CHANGE);
+
+        assertNotNull(findComponentById(
+                "body:toggle:outerObjectsRepeater:3:outer:form:content:aboutRealmProvison:realmsProvisionContainer",
+                "connObjectLink"));
+
+        TESTER.assertLabel("body:toggle:outerObjectsRepeater:3:outer:form:content:aboutRealmProvison:"
+                + "realmsProvisionContainer:connObjectLink:field-label", "Object Link");
+
+        formTester.setValue("content:aboutRealmProvison:enableRealmsProvision:checkboxField", false);
+
+        TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:3:outer:form:content:aboutRealmProvison:"
+                + "enableRealmsProvision:checkboxField", Constants.ON_CHANGE);
+
+        try {
+            findComponentById(
+                    "body:toggle:outerObjectsRepeater:3:outer:form:content:aboutRealmProvison:realmsProvisionContainer",
+                    "connObjectLink");
+            fail();
+        } catch (NullPointerException e) {
+            // correct
+        }
+        // ------------------------------------------
+
         TESTER.clickLink("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:group:beans:0:actions:panelMapping:mappingLink");
 
-        FormTester formTester = TESTER.newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
         formTester.submit("buttons:next");
 

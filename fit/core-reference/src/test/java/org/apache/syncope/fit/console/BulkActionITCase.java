@@ -33,7 +33,7 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class BulkActionITCase extends AbstractConsoleITCase {
 
-    private final String tabPanel = "body:content:body:tabbedPanel:panel:searchResult:";
+    private final String tabPanel = "body:content:body:container:content:tabbedPanel:panel:searchResult:";
 
     private final String searchResultContainer = tabPanel + "container:content:";
 
@@ -45,7 +45,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
     @Test
     public void usersBulkAction() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", searchResultContainer
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
@@ -70,7 +70,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
     @Test
     public void userResourceBulkAction() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
@@ -112,7 +112,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         // suspend 
 
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
@@ -147,7 +147,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
 
         // re-activate
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         component = findComponentByProp("username", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
@@ -184,7 +184,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
     @Test
     public void groupResourceBulkAction() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
@@ -228,7 +228,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
     @Test
     public void printerResourceBulkAction() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
         Component component = findComponentByProp("key", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",

@@ -175,7 +175,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                                     });
                                     restClient.update(actual);
                                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    customActionOnCloseCallback(target);
+                                    customActionOnFinishCallback(target);
                                 } catch (SyncopeClientException e) {
                                     LOG.error("While deleting {}", reportlet.getName(), e);
                                     SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
@@ -199,7 +199,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
                         if (target != null) {
-                            customActionOnCloseCallback(target);
+                            customActionOnFinishCallback(target);
                         }
                     }
                 }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);

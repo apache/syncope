@@ -370,7 +370,23 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                 protected T getActualItem(final T item, final List<T> list) {
                     return Builder.this.getActualItem(item, list);
                 }
+
+                @Override
+                protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
+                    Builder.this.customActionOnFinishCallback(target);
+                }
+
+                @Override
+                protected void customActionOnCancelCallback(final AjaxRequestTarget target) {
+                    Builder.this.customActionOnCancelCallback(target);
+                }
             };
+        }
+
+        protected void customActionOnCancelCallback(final AjaxRequestTarget target) {
+        }
+
+        protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
         }
     }
 

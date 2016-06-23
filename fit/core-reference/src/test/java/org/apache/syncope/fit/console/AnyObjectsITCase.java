@@ -35,7 +35,7 @@ import org.junit.Before;
 @FixMethodOrder(MethodSorters.JVM)
 public class AnyObjectsITCase extends AbstractConsoleITCase {
 
-    private final String tabPanel = "body:content:body:tabbedPanel:panel:searchResult:";
+    private final String tabPanel = "body:content:body:container:content:tabbedPanel:panel:searchResult:";
 
     private final String searchResultContainer = tabPanel + "container:content:";
 
@@ -47,22 +47,25 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
     @Test
     public void filteredSearch() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
 
-        TESTER.clickLink("body:content:body:tabbedPanel:panel:accordionPanel:tabs:0:title");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
-        TESTER.executeAjaxEvent("body:content:body:tabbedPanel:panel:accordionPanel:tabs:0:body:content:"
-                + "searchFormContainer:search:multiValueContainer:innerForm:content:panelPlus:add", Constants.ON_CLICK);
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:title");
+
+        TESTER.executeAjaxEvent("body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:"
+                + "content:searchFormContainer:search:multiValueContainer:innerForm:content:panelPlus:add",
+                Constants.ON_CLICK);
 
         TESTER.assertComponent(
-                "body:content:body:tabbedPanel:panel:accordionPanel:tabs:0:body:content:searchFormContainer:search:"
-                + "multiValueContainer:innerForm:content:view:0:panel:container:value:textField", TextField.class);
+                "body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:"
+                + "searchFormContainer:search:multiValueContainer:innerForm:content:view:0:panel:container:value:"
+                + "textField", TextField.class);
     }
 
     @Test
     public void clickToClonePrinter() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
         Component component = findComponentByProp("key", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
@@ -80,7 +83,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
     @Test
     public void editPrinter() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
         Component component = findComponentByProp("key", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
@@ -131,7 +134,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
     @Test
     public void checkDeletePrinterLink() {
         TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
         Component component = findComponentByProp("key", searchResultContainer
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",

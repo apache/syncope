@@ -19,6 +19,9 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.service.RealmService;
 
@@ -33,12 +36,16 @@ public class RealmRestClient extends BaseRestClient {
         return getService(RealmService.class).list();
     }
 
-    public void create(final String parentPath, final RealmTO realmTO) {
-        getService(RealmService.class).create(parentPath, realmTO);
+    public ProvisioningResult<RealmTO> create(final String parentPath, final RealmTO realmTO) {
+        final Response response = getService(RealmService.class).create(parentPath, realmTO);
+        return response.readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
+        });
     }
 
-    public void update(final RealmTO realmTO) {
-        getService(RealmService.class).update(realmTO);
+    public ProvisioningResult<RealmTO> update(final RealmTO realmTO) {
+        final Response response = getService(RealmService.class).update(realmTO);
+        return response.readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
+        });
     }
 
     public void delete(final String fullPath) {

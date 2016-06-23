@@ -19,12 +19,25 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
     <div wicket:id="container" class="summarize">
-      <span wicket:id="name">[name]</span>
-      <span wicket:id="fullPath">[fullPath]</span>
-      <span wicket:id="accountPolicy">[accountPolicy]</span>
-      <span wicket:id="passwordPolicy">[passwordPolicy]</span>
+      <div wicket:id="generics">
+        <div class="form-group">
+          <span wicket:id="name">[name]</span>
+        </div>
+        <div class="form-group">
+          <span wicket:id="fullPath">[fullPath]</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <span wicket:id="accountPolicy">[accountPolicy]</span>
+      </div>
+      <div class="form-group">
+        <span wicket:id="passwordPolicy">[passwordPolicy]</span>
+      </div>
       <div class="form-group form-palette">
         <span wicket:id="actionsClassNames">[actionsClassNames]</span>
+      </div>
+      <div class="form-group form-palette">
+        <span wicket:id="resources">[resources]</span>
       </div>
     </div>
 
