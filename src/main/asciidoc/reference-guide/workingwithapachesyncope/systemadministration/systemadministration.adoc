@@ -70,4 +70,6 @@ include::connectorbundles.adoc[]
 
 include::emailconfiguration.adoc[]
 
+include::identityrecertification.adoc[]
+
 include::configurationparameters.adoc[]

@@ -138,6 +138,9 @@ under the License.
   <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+
+  <Task DTYPE="SchedTask" id="e95555d2-1b09-42c8-b25b-f4c4ec598989" name="Identity Recertification Task"  active="1"
+        jobDelegateClassName="org.apache.syncope.core.provisioning.java.job.IdentityRecertification" cronExpression="0 0 0 0 0 0"/>
   
   <!-- Password reset notifications -->
   <MailTemplate id="requestPasswordReset"
